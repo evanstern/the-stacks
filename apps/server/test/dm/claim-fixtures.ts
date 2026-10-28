@@ -10,7 +10,11 @@ import {
 } from "@the-stacks/session-model";
 import type { ClaimState } from "../../src/dm/claims.js";
 import { loadSeed } from "../../src/dm/seed/load.js";
-import { buildSnapshot, diffSnapshots } from "../../src/dm/snapshot/index.js";
+import {
+  type ActorSnapshot,
+  buildSnapshot,
+  diffSnapshots,
+} from "../../src/dm/snapshot/index.js";
 
 /**
  * Evidence fixtures for the output claim gate (spec 051, plan D9). The
@@ -71,6 +75,12 @@ function projectionsAt(
 }
 
 const seed = () => loadSeed("greyhollow-ford");
+
+/** The snapshot at `seq` (greyhollow-ford seed), without a diff. */
+export function snapshotAt(logPath: string, seq: number): ActorSnapshot {
+  const p = projectionsAt(logPath, [seq]).get(seq) as SessionProjections;
+  return buildSnapshot(p, seed());
+}
 
 /** S0 at `s0Seq`, S1 at `s1Seq`, and the diff between them. */
 export function stateAt(

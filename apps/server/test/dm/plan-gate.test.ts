@@ -6,6 +6,12 @@ import {
 } from "../../src/dm/gates/plan-gate.js";
 import type { InterpretReading, Step } from "../../src/dm/nodes/schemas.js";
 import { buildSnapshot } from "../../src/dm/snapshot/index.js";
+import {
+  M2_SEQ221_CONTROL,
+  M2_SEQ221_REASON,
+  M2_SEQ221_S0,
+  m2Seq221Reading,
+} from "./plan-reason-fixtures.js";
 import { greyhollowFight } from "./snapshot-fixtures.js";
 import { attackStep, checkStep, reading } from "./world.js";
 
@@ -300,5 +306,52 @@ describe("joiningCombatants", () => {
         "player-action",
       ),
     ).toBeUndefined();
+  });
+});
+
+describe("checkPlan: roll reasons", () => {
+  const run = (reason: string) =>
+    checkPlan({
+      snapshot: M2_SEQ221_S0,
+      readings: [m2Seq221Reading(reason)],
+      rulings: [],
+      joining: [],
+    });
+
+  it("M2 seq 221 state: goblin-3 dead, goblin-2 and snag up, no party actor down", () => {
+    const actor = (id: string) =>
+      M2_SEQ221_S0.actors.find((a) => a.id === id || a.combatantId === id);
+    const stateOf = (id: string) => actor(id)?.lifeState ?? null;
+    expect(stateOf("goblin-3")).toBe("dead");
+    for (const id of ["goblin-2", "snag"]) {
+      expect(actor(id)).toBeDefined();
+      expect(["dead", "unconscious", "stable"]).not.toContain(stateOf(id));
+    }
+    const down = M2_SEQ221_S0.actors.filter(
+      (a) =>
+        a.kind === "party" &&
+        a.lifeState !== null &&
+        a.lifeState !== "conscious",
+    );
+    expect(down).toEqual([]);
+  });
+
+  it.fails("refuses the M2 seq 221 reason at step 0", () => {
+    const v = run(M2_SEQ221_REASON);
+    expect(v[0]).toMatchObject({
+      actionId: null,
+      ok: false,
+      failure: { stepIndex: 0, field: "reason" },
+    });
+    const failure = (v[0] as unknown as { failure: { issues: unknown[] } })
+      .failure;
+    expect(JSON.stringify(failure.issues)).toContain("two kin have fallen");
+    expect(failure.issues).toContainEqual(
+      expect.objectContaining({ kind: "count" }),
+    );
+  });
+
+  it("passes the control reason (the clause removed)", () => {
+    expect(run(M2_SEQ221_CONTROL)).toEqual([{ actionId: null, ok: true }]);
   });
 });

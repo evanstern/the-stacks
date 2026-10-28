@@ -2,8 +2,8 @@
 
 **Input**: `specs/058-roll-reason-plan-gate/` (spec.md, plan.md, contracts/plan-reason-gate.md)
 
-**Prerequisites**: the operator has ruled OQ-1 to OQ-3. The tasks below assume the recommended
-defaults (OQ-1 (a), OQ-2 (a), OQ-3 (a)). A different ruling changes the tasks marked with its OQ.
+**Prerequisites**: the operator ruled OQ-1 to OQ-3 (a) on 2026-10-28. The ruling is in. The tasks below
+implement OQ-1 (a), OQ-2 (a) and OQ-3 (a).
 
 **Dispatch**: one phase is one implementer dispatch (sonnet), re-grounded from this spec dir and the
 branch commits. Tasks marked **[orchestrator]** are run by the orchestrator, not the implementer.
@@ -12,26 +12,26 @@ commit led by `TASK-0161:`.
 
 ## Phase 1: Evidence fixture and failing tests (card AC #2, #3 evidence)
 
-- [ ] T001 Add `snapshotAt(logPath, seq)` to `apps/server/test/dm/claim-fixtures.ts`. Return the
+- [x] T001 Add `snapshotAt(logPath, seq)` to `apps/server/test/dm/claim-fixtures.ts`. Return the
       `buildSnapshot` of the folded projections at `seq` with the `greyhollow-ford` seed. Reuse
       `projectionsAt`.
-- [ ] T002 Create `apps/server/test/dm/plan-reason-fixtures.ts`. Export `M2_SEQ221_S0`
+- [x] T002 Create `apps/server/test/dm/plan-reason-fixtures.ts`. Export `M2_SEQ221_S0`
       (`snapshotAt(M2_LOG, 220)`). Export `M2_SEQ221_REASON`, read from the seq 221 `dice.rolled`
       row with the ` [<jobId>#<n>]` marker stripped. Do not hand-type the reason.
-- [ ] T003 In the same file, export `m2Seq221Reading(reason)`: an NPC reading (`actionId: null`,
+- [x] T003 In the same file, export `m2Seq221Reading(reason)`: an NPC reading (`actionId: null`,
       intent `attack`) with one `attack` step, `attackerId: "goblin-2"`, `targetId: "tamsin"`,
       `expression: "1d20+4"`, one `onHit` damage effect on `tamsin`, and the given reason.
-- [ ] T004 Export `M2_SEQ221_CONTROL`: the recorded reason with the clause ", shouting that two kin
+- [x] T004 Export `M2_SEQ221_CONTROL`: the recorded reason with the clause ", shouting that two kin
       have fallen" removed.
-- [ ] T005 Add a sanity test: at seq 220 `goblin-3` is `dead`, `goblin-2` and `snag` are not down,
+- [x] T005 Add a sanity test: at seq 220 `goblin-3` is `dead`, `goblin-2` and `snag` are not down,
       and no party actor is down.
-- [ ] T006 Add to `apps/server/test/dm/plan-gate.test.ts` a `describe("checkPlan: roll reasons")`
+- [x] T006 Add to `apps/server/test/dm/plan-gate.test.ts` a `describe("checkPlan: roll reasons")`
       with the M2 seq 221 case as `it.fails`: the NPC verdict is refused at step 0, field `reason`,
       with a `count` issue whose `matched` holds "two kin have fallen". Confirm it fails as plain
       `it` against today's `checkPlan`, then mark it `it.fails`.
-- [ ] T007 Add the control case as plain `it`: `M2_SEQ221_CONTROL` gives
+- [x] T007 Add the control case as plain `it`: `M2_SEQ221_CONTROL` gives
       `{ actionId: null, ok: true }`. It passes today and must keep passing.
-- [ ] T008 Run `pnpm ci:check`. Report the `it.fails` count and the controls.
+- [x] T008 Run `pnpm ci:check`. Report the `it.fails` count and the controls.
 
 ## Phase 2: The reason check in `checkPlan` (card AC #1, #2, #3)
 

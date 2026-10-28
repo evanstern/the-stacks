@@ -4,7 +4,7 @@
 
 **Created**: 2026-10-28
 
-**Status**: Draft. Open questions OQ-1 to OQ-3 wait on the operator.
+**Status**: Draft. The operator ruled OQ-1 to OQ-3 (a) on 2026-10-28.
 
 **Input**: TASK-0161. "A roll reason the DM model writes cannot contradict actor state, because the
 plan gate checks it before resolve logs it." Evidence: M2 seq 221, step reason "shouting that two
@@ -246,7 +246,11 @@ existing `human-dm-roll-resume` DB test stays green.
 
 ## Open questions (operator)
 
+**Ruling 2026-10-28, verbatim:** "TASK-0161: I accept the recommended defaults OQ-1 to OQ-3 (a): a contradicting reason refuses the whole group, add REASON_CONTRADICTS_STATE to the engine refusal enum (amend 026 refusals.md), and check condition source text in the same walk."
+
 ### OQ-1 — Refusing the whole group (player-facing)
+
+Ruling: (a) ruled, 2026-10-28 (quote above).
 
 Card AC #2 names the existing plan refusal path. That path drops the whole group: a monster loses
 its turn, or a player's declared action resolves `refused` (the fallback says "<name> cannot do that
@@ -263,6 +267,8 @@ here"), because of flavour text. M2 holds one such reason in 333 rows.
   ("a gate never maps, coerces or drops a term") forbid.
 
 ### OQ-2 — The refusal code on `action.resolved` (contract change)
+
+Ruling: (a) ruled, 2026-10-28 (quote above).
 
 `action.resolved.refusalCode` is the engine `RefusalCodeSchema`
 (`specs/028-session-model/contracts/session-events.md`, `specs/031-dm-runtime/contracts/resolve.md`
@@ -282,6 +288,8 @@ action card shows the code ("refused (CODE)"), and the narrate prompt shows it t
   Cleanest layering; a larger 028 change and a session-model release.
 
 ### OQ-3 — Condition `source` text
+
+Ruling: (a) ruled, 2026-10-28 (quote above).
 
 A `condition` effect carries a model-written `source` (up to 100 characters). It lands on
 `condition.applied` rows. It is not a roll reason, so the card does not name it.
