@@ -4,7 +4,7 @@ title: 'Actor-state gate: Check model-written roll reasons at the plan gate'
 status: To Do
 assignee: []
 created_date: '2026-10-27 19:52'
-updated_date: '2026-10-28 14:44'
+updated_date: '2026-10-28 20:03'
 labels:
   - dm
   - rules-gate
@@ -21,6 +21,8 @@ ordinal: 148000
 Outcome: a roll reason the DM model writes cannot contradict actor state, because the plan gate checks it before resolve logs it.
 
 Why: operator ruling 2026-10-27 on TASK-0143 OQ-1 (a): model-written roll reasons stay out of U3's output gate, and this follow-up card checks them at the plan gate. Resolve logs the reason on the dice line before narrate runs, and the log is append-only. Evidence: M2 seq 221, step reason "shouting that two kin have fallen", shipped on the seq 225 dice line while only one goblin had died. Use the TASK-0143 checker (spec 051).
+
+Spec: specs/058-roll-reason-plan-gate
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
