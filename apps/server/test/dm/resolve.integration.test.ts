@@ -723,6 +723,99 @@ describe.skipIf(!reachable)("resolve (database)", () => {
       });
     });
 
+    describe("plan gate: roll reasons (spec 058)", () => {
+      /** A reason that contradicts S0: Tamsin is up in every fixture world. */
+      const BAD_REASON = "Snag lunges at Tamsin, shouting that Tamsin is dead";
+      const diceEvent = (r: { payload: unknown }) =>
+        (r.payload as { event: { reason: string } }).event;
+
+      it("a reason-refused NPC group runs no step, writes no row holding the reason, and the turn advances", async () => {
+        const w = await inTurnMode([...initDice(SNAG_FIRST), 3]);
+        freshCheckpoint(w);
+        const before = (await readRows(w)).length;
+        const out = await run(
+          w,
+          [
+            reading(
+              null,
+              [
+                attackStep("tamsin", {
+                  attackerId: "snag",
+                  reason: BAD_REASON,
+                }),
+              ],
+              { intent: "attack" },
+            ),
+          ],
+          { job: { ...nextJob(), trigger: "npc-turn" } },
+        );
+        expect(out.planGate).toMatchObject([
+          {
+            actionId: null,
+            ok: false,
+            code: "REASON_CONTRADICTS_STATE",
+            failure: { stepIndex: 0, field: "reason", text: BAD_REASON },
+          },
+        ]);
+        expect(out.npcTurn).toMatchObject({ batchIds: [], awaitingDm: false });
+        const rows = (await readRows(w)).slice(before);
+        expect(rows.some((r) => r.type === "attack.resolved")).toBe(false);
+        expect(
+          rows.some((r) => JSON.stringify(r.payload).includes(BAD_REASON)),
+        ).toBe(false);
+        expect(rows.some((r) => r.type === "turn.advanced")).toBe(true);
+      });
+
+      it("a reason-refused action group resolves refused with REASON_CONTRADICTS_STATE and lands no step row", async () => {
+        const w = await createWorld({ dice: [15] });
+        await startScene(w);
+        const id = await commitAction(w, "Tamsin forces the shutter.");
+        const before = (await readRows(w)).length;
+        const out = await run(w, [
+          reading(id, [checkStep({ reason: BAD_REASON })]),
+        ]);
+        expect(out.actionResults).toMatchObject([
+          {
+            actionId: id,
+            outcome: "refused",
+            refusalCode: "REASON_CONTRADICTS_STATE",
+          },
+        ]);
+        expect(out.planGate).toMatchObject([
+          {
+            actionId: id,
+            ok: false,
+            code: "REASON_CONTRADICTS_STATE",
+            failure: { stepIndex: 0, field: "reason", text: BAD_REASON },
+          },
+        ]);
+        const rows = (await readRows(w)).slice(before);
+        expect(rows.some((r) => r.type === "check.resolved")).toBe(false);
+        expect(rows.some((r) => r.type === "dice.rolled")).toBe(false);
+        expect(
+          out.submissions.map((s) => s.key).filter((k) => k.startsWith("act:")),
+        ).toEqual([`act:${id}:resolve`]);
+        expect(w.scripted.remaining().dice).toBe(1);
+      });
+
+      it("a passing reason applies, and its dice.rolled reason is the step reason plus the marker", async () => {
+        const w = await createWorld({ dice: [15] });
+        await startScene(w);
+        const id = await commitAction(w, "Tamsin forces the shutter.");
+        const before = (await readRows(w)).length;
+        const reason = "Tamsin forces the stuck shutter";
+        const out = await run(w, [reading(id, [checkStep({ reason })])]);
+        expect(out.planGate).toEqual([{ actionId: id, ok: true }]);
+        expect(out.actionResults[0]?.outcome).toBe("applied");
+        const rows = (await readRows(w)).slice(before);
+        const dice = rows.filter((r) => r.type === "dice.rolled");
+        expect(dice).toHaveLength(1);
+        expect(diceEvent(dice[0] as { payload: unknown }).reason).toMatch(
+          new RegExp(`^${reason} \\[[0-9a-f-]+#\\d+\\]$`),
+        );
+      });
+    });
+
     describe("settling (TASK-0112, plan D4)", () => {
       const dm = { kind: "ai", actor: "ai:dm" } as const;
       /** An engine command through the gate as the DM; throws on refusal. */

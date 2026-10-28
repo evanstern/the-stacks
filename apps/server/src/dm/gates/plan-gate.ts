@@ -1,3 +1,4 @@
+import type { RefusalCode } from "@the-stacks/dnd5e-engine";
 import {
   REASON_TO_PRESENCE,
   type ScenePresence,
@@ -34,10 +35,11 @@ export interface PlanFailure {
 }
 
 /**
- * The refusal code of a reason-refused group (spec 058, OQ-2 (a)). Typed as a
- * string literal here; the engine enum carries it from Phase 3.
+ * The refusal code of a reason-refused group (spec 058, OQ-2 (a)). The engine
+ * enum carries it; `satisfies` ties the literal to that enum.
  */
-export const REASON_REFUSAL_CODE = "REASON_CONTRADICTS_STATE" as const;
+export const REASON_REFUSAL_CODE =
+  "REASON_CONTRADICTS_STATE" as const satisfies RefusalCode;
 export type ReasonRefusalCode = typeof REASON_REFUSAL_CODE;
 
 /** A model text (step reason or condition source) the claim gate refused. */

@@ -29,6 +29,7 @@ export const RefusalCodeSchema = z.enum([
   "NO_SLOT_AVAILABLE",
   "SLOT_NOT_EXPENDED",
   "ACTOR_UNABLE",
+  "REASON_CONTRADICTS_STATE",
 ]);
 
 export const RefusalSchema = z.object({

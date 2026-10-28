@@ -19,6 +19,13 @@ function commandTypes(): string[] {
   });
 }
 
+/**
+ * Codes the engine never returns: a caller outside `execute` refuses with
+ * them, so no `expectRefusal` call can assert them. `REASON_CONTRADICTS_STATE`
+ * is the DM plan gate's code (spec 058).
+ */
+const PLAN_GATE_ONLY = ["REASON_CONTRADICTS_STATE"] as const;
+
 describe("coverage meta-test", () => {
   it("every command type appears in a command test file", () => {
     const missing = commandTypes().filter(
@@ -29,8 +36,15 @@ describe("coverage meta-test", () => {
     );
   });
 
+  it("every plan-gate-only code is in the refusal enum", () => {
+    for (const code of PLAN_GATE_ONLY) {
+      expect(RefusalCodeSchema.options).toContain(code);
+    }
+  });
+
   it("every refusal code is asserted by an expectRefusal call", () => {
     const missing = RefusalCodeSchema.options.filter((code) => {
+      if ((PLAN_GATE_ONLY as readonly string[]).includes(code)) return false;
       const pattern = new RegExp(
         `(expectRefusal|expectRefusedBeforeDraw)\\([^;]*?"${code}"`,
         "s",

@@ -67,27 +67,27 @@ commit led by `TASK-0161:`.
 
 ## Phase 3: Resolve wiring, the refusal code, DB tests, contracts (card AC #1, #2, #3)
 
-- [ ] T022 In `apps/server/src/dm/nodes/resolve.ts`, pass `arriving` (via `encounterToStart` and
+- [x] T022 In `apps/server/src/dm/nodes/resolve.ts`, pass `arriving` (via `encounterToStart` and
       `arrivingNpcs` over `assembled.projections.scenePresence`) and `resumed`
       (`assembled.resumed` action ids) to `checkPlan`.
-- [ ] T023 In `resolveAction`, take `refusalCode` from the refused verdict's `code`.
-- [ ] T024 OQ-2 (a): append `REASON_CONTRADICTS_STATE` to
+- [x] T023 In `resolveAction`, take `refusalCode` from the refused verdict's `code`.
+- [x] T024 OQ-2 (a): append `REASON_CONTRADICTS_STATE` to
       `packages/dnd5e-engine/src/schema/refusals.ts`. Change the count in
       `packages/dnd5e-engine/test/execute.test.ts` from 27 to 28. Add a `PLAN_GATE_ONLY` list to
       `packages/dnd5e-engine/test/coverage.test.ts`, exclude it from the expectRefusal check, and
       assert each listed code is in the enum. Type `REASON_REFUSAL_CODE` as `RefusalCode`.
-- [ ] T025 Add to `apps/server/test/dm/resolve.integration.test.ts`, under "plan gate": an NPC group
+- [x] T025 Add to `apps/server/test/dm/resolve.integration.test.ts`, under "plan gate": an NPC group
       with the M2 seq 221 reason runs no step, writes no `attack.resolved` and no row holding the
       reason, and the turn still advances.
-- [ ] T026 Add: an action group with a refused reason resolves `refused` with
+- [x] T026 Add: an action group with a refused reason resolves `refused` with
       `REASON_CONTRADICTS_STATE`, `out.planGate` holds the reason verdict, and no step row lands.
-- [ ] T027 Add: an action group with a passing reason applies, and its `dice.rolled` reason equals
+- [x] T027 Add: an action group with a passing reason applies, and its `dice.rolled` reason equals
       the step reason plus the existing marker.
-- [ ] T028 Amend `specs/031-dm-runtime/contracts/resolve.md` step 0 and
+- [x] T028 Amend `specs/031-dm-runtime/contracts/resolve.md` step 0 and
       `specs/051-output-claim-gate/contracts/claim-gate.md` with the text in
       `contracts/plan-reason-gate.md`.
-- [ ] T029 OQ-2 (a): add the row to `specs/026-dnd5e-engine/contracts/refusals.md`.
-- [ ] T030 Run `pnpm ci:check` without a database. Report it; the DB cases skip.
+- [x] T029 OQ-2 (a): add the row to `specs/026-dnd5e-engine/contracts/refusals.md`.
+- [x] T030 Run `pnpm ci:check` without a database. Report it; the DB cases skip.
 
 ## Phase 4: DB suites and the mutation guard **[orchestrator]**
 
