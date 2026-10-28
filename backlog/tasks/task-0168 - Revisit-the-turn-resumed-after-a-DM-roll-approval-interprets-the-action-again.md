@@ -4,7 +4,7 @@ title: 'With a human DM, approving a check roll re-proposes the same roll'
 status: In Progress
 assignee: []
 created_date: '2026-10-28 08:50'
-updated_date: '2026-10-28 18:42'
+updated_date: '2026-10-28 18:47'
 labels:
   - dm-runtime
   - gate
@@ -52,6 +52,10 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Phase 2 (99be423c): assemble drops awaiting actions and fills resumed; runner freezes resumed and skips adjudicate for resumed readings; interpret asks only about fresh items (no call when all resumed); adjudicate carries resumed rulings; resolve seeds refreshed submissions. 8 new unit cases red first, then 66/66 green. Orchestrator accepts the implementer's call that a frozen beat with null resumed reads as [] and does not search again (contract: a later attempt does not search again). resolve seeding is first exercised by the Phase 3 DB test.
 
 spec-bridge sync: The resume classifier and the prior-turn read (card AC #2): 5/5 · The pipeline reuses the plan (card AC #1, card AC #2): 7/7 · DB test, scripts and mutation guard (card AC #1): 0/5 · Live check in script mode (card AC #1): 0/2 · Re-ground and close (all ACs): 0/4
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Phase 3 (ef5ca417): second dm.interpret removed from human-dm-approval and greyhollow-human-dm (11 -> 10 calls); new human-dm-roll-chain script; new human-dm-roll-resume.integration.test.ts. Orchestrator-run T016: the new test 3/3 ((a) the approval turn calls exactly director, narrate, audit, one check.roll, action resolved applied; (b) a manual turn while the roll is pending is empty-beat; (c) roll, then effect, then one narration), plus five neighbouring DB suites, 25/25. T017 mutation: both resume functions stubbed, all 3 cases fail ((a)/(b) job failed on the spent script, (c) interpret called again); restored, diff empty.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
