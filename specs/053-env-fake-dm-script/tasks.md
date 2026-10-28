@@ -124,12 +124,12 @@ quickstart.
 **Independent test**: `specs/053-env-fake-dm-script/evidence/live-run.md` records every
 quickstart step with its outcome, and `evidence/shots/` holds the screenshots.
 
-- [ ] T019 [US2] Confirm the root `.env` lacks `DM_FAKE_SCRIPT` (`grep -c` on the key name only;
+- [x] T019 [US2] Confirm the root `.env` lacks `DM_FAKE_SCRIPT` (`grep -c` on the key name only;
   never print values). Follow `specs/053-env-fake-dm-script/quickstart.md` steps 1 to 9 on this
   worktree's stack. Keep the test credentials in a file outside the repo.
-- [ ] T020 [US2] Confirm no call left the process: every `dm_model_calls` row for the session
+- [x] T020 [US2] Confirm no call left the process: every `dm_model_calls` row for the session
   names provider `scripted`, and the app log shows no outbound provider request.
-- [ ] T021 [US2] Run quickstart step 10 (`declare.mjs`). Confirm a `done` turn job with a d20 of
+- [x] T021 [US2] Run quickstart step 10 (`declare.mjs`). Confirm a `done` turn job with a d20 of
   14, a success against DC 13, and the scripted narration. If a chronicle job fails with
   `unscripted call for dm.chronicle`, append one `dm.chronicle` call to
   `apps/server/dm-scripts/greyhollow-live.json` only. Change the T008 equality to allow trailing
@@ -137,14 +137,14 @@ quickstart step with its outcome, and `evidence/shots/` holds the screenshots.
   *Note (Phase 3, orchestrator direction): the two `dm.chronicle` calls were added in Phase 3, one for
   the scene-start turn and one for the `act-search` turn. Both turns land narration, so both queue a
   chronicle job. Do not append more in this task.*
-- [ ] T022 [US2] Take Brave screenshots per plan D7 at 1280 and 390 px, light and dark: the play
+- [x] T022 [US2] Take Brave screenshots per plan D7 at 1280 and 390 px, light and dark: the play
   page after the opening narration, the debug page with the `done` turn selected and its events
   highlighted, and the play page after the `act-search` turn. Save to
   `specs/053-env-fake-dm-script/evidence/shots/<name>-<width>-<scheme>.png`. Confirm no modal:
   panels open as slide-out sheets.
-- [ ] T023 [US2] Run quickstart step 11: one more DM call fails loudly with `unscripted call`.
+- [x] T023 [US2] Run quickstart step 11: one more DM call fails loudly with `unscripted call`.
   Run step 12: removing the line and recreating the app leaves script mode (no boot log line).
-- [ ] T024 [US2] Write `specs/053-env-fake-dm-script/evidence/live-run.md`: commit under test,
+- [x] T024 [US2] Write `specs/053-env-fake-dm-script/evidence/live-run.md`: commit under test,
   stack, each step with its result, the counts from T020, the shot list, and any quickstart
   correction. Apply each correction to `specs/053-env-fake-dm-script/quickstart.md`.
 - [ ] T025 [US2] Run `pnpm ci:check`. Commit. Leave the stack up for the orchestrator.
