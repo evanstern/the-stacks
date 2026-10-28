@@ -4,6 +4,7 @@ title: 'Two-player alpha kit: two human seats, player sign-up, scene-start runbo
 status: To Do
 assignee: []
 created_date: '2026-10-28 04:12'
+updated_date: '2026-10-28 04:39'
 labels:
   - multiplayer
   - dev-tooling
@@ -34,6 +35,12 @@ Why: group sign-off, floor passing and presence (TASK-0049, TASK-0050, TASK-0051
 - [ ] #3 docs/ops/dev-vm-104.md documents issuing an invitation, creating a session, and starting a scene with a seat per human on hosted dev
 - [ ] #4 The runbook is run once on hosted dev with two accounts, and the result is recorded on this card
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Operator, 2026-10-28, in the M3 sweep chat, verbatim: "Add TASK-0163 to the M3 sweep runbook, right after TASK-0158 and before TASK-0159, TASK-0154 and the TASK-0053 demo." (Relayed first from the design-fork session: "I'd ratehr you hand the task off to the m3 sweep, frankly, but you use your judgement at this point since it's been a while".) AC #4's live run on vm-104 needs the operator's go on the exact command; the merge-on-green grant does not cover it. Runbook rows land on the TASK-0158 branch (Phase 5).
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
