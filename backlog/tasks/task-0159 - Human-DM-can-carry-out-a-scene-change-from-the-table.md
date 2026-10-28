@@ -4,7 +4,7 @@ title: Human DM can carry out a scene change from the table
 status: In Progress
 assignee: []
 created_date: '2026-10-27 10:33'
-updated_date: '2026-10-28 08:40'
+updated_date: '2026-10-28 08:47'
 labels:
   - play-route
   - gate
@@ -82,6 +82,10 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Phase 5 first run (f0ddcfa) stopped at step 8c. Carry-out, the approval turn (beat set, no calls) and the 10 suggestion approvals all ran. The player act-search commit turn paused on a check.roll proposal (policy ask, by design with a human DM). After the DM approved the roll, the resumed turn called dm.director a third time; the script holds only two, so the call failed config and nothing narrated.
 
 Orchestrator ruling (Phase 5): this is a script fixture gap, not a product defect. Add a second dm.director call between dm.interpret and dm.narrate in human-dm-approval.json, so greyhollow-human-dm covers the roll pause. The roll policy is unchanged. Then rebuild the app and rerun Phase 5 on a fresh session.
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Phase 5 rerun (a202e04 script fix, be153da shots and evidence) stopped at 8c again. Cause: at boot the worker enqueues a reconcile turn for every session with an unresolved action.committed. The first-run session reconciled on each restart and spent the script, one queue per purpose, before the fresh session ran. This is the known one-process script queue limit (spec 053 Q8), not a TASK-0159 defect. Orchestrator ruling: reset the worktree stack (env:down, env:up, migrate both DBs, one app start), then run the narrated flow once with no restart before it finishes. The baseline session commits no action, so a restart before it is safe. The Start scene header finding is already TASK-0167.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
