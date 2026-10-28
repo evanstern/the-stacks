@@ -4,7 +4,7 @@ title: Operator header stops offering Start scene once a scene start is queued
 status: In Progress
 assignee: []
 created_date: '2026-10-28 07:59'
-updated_date: '2026-10-28 23:03'
+updated_date: '2026-10-28 23:07'
 labels:
   - play-route
 milestone: m-3
@@ -40,6 +40,10 @@ Operator ruling 2026-10-28, verbatim: "Accept all (a)", in answer to "Do you acc
 
 Phase 1 (T001-T010) at a09be525: pure sceneStartState in dm/scene-start.ts, the POST refuses every state but none, operator-only GET /dm/sessions/:id/start, 031 dm-api.md amended. Orchestrator DB run on the stacks-task-0167 test DB: human-dm-scene.integration, routes.integration, scene-start.test: 3 files, 36 passed. T003 red run with routes/dm.ts at 21be5ba9: case (e) fails "expected 202 to be 409", so today a second human-DM start is accepted; restored, diff empty. Orchestrator ruling on the implementer reading: humanDmWorld writes no scene-start job row, so (e) asserts the scene-start job count is unchanged by the refused POST; that is the intent of T003.
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Phase 2 (T011-T022) at aad6f308: fetchStartState/nextStartView/shouldPollStart, TableSource.sceneStart, operator-only 5 s poll in use-live-table, TableView drops startQueued, TableHeader startNote with the two OQ-4 texts; 030 table-source.md, ui-surfaces.md and 054 web-surfaces.md amended additively; dev-vm-104 step 17 note. ci:check without DB: only the 5 known adjudicate requireDb failures.
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+Phase 3 [orchestrator] T023 at aad6f308 on the stacks-task-0167 test DB: routes.integration, human-dm-scene.integration, human-dm-roll-resume, duo, scene.integration, worker, scene-start.test: 8 files, 66 passed. T003 red run recorded above (202 at 21be5ba9). T024 mutation guard (rule 3 off at scene-start.ts:39): 3 fail, (e), (f) and the pure pending case; restored, diff empty. T025/T026 live checks wait: the app image cannot build because Docker Desktop cannot pull docker/dockerfile:1 (DeadlineExceeded) after its restart.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
