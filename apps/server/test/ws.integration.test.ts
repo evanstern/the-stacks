@@ -148,21 +148,10 @@ describe.skipIf(!reachable)("ws gateway (Phases 2-7, integration)", () => {
     };
   }
 
-  /** Count of gate `CONFLICT` refusals seen by sendTalkAndAwait (printed once at the end). */
-  let conflictRefusals = 0;
-  afterAll(() => {
-    if (conflictRefusals > 0) {
-      console.warn(
-        `ws.integration: ${conflictRefusals} gate CONFLICT refusal(s) under concurrent talk sends (TASK-0099)`,
-      );
-    }
-  });
-
   /**
    * Sends a `talk` and resolves on this socket's own echo of it (matched by text).
-   * The gate appends with `expectedLastSeq` and retries a bounded number of times, so
-   * concurrent senders can be refused `CONFLICT` ("try again"). This helper resends on
-   * that refusal, as a client would, and counts it.
+   * An `error` frame of any code rejects: a refusal fails the test, and no resend hides
+   * a `CONFLICT` (TASK-0157).
    */
   function sendTalkAndAwait(
     ws: WebSocket,
@@ -175,15 +164,18 @@ describe.skipIf(!reachable)("ws gateway (Phases 2-7, integration)", () => {
         ws.off("message", onMessage);
         reject(new Error(`no echo of ${text}`));
       }, timeoutMs);
-      const transmit = () =>
-        send(ws, { type: "send", sessionId, ...talkBody(text) });
       function onMessage(data: WebSocket.RawData) {
         const frame = JSON.parse(data.toString()) as
           | RecordedEventFrame
           | ErrorFrame;
-        if (frame.type === "error" && frame.code === "CONFLICT") {
-          conflictRefusals += 1;
-          transmit();
+        if (frame.type === "error") {
+          clearTimeout(timer);
+          ws.off("message", onMessage);
+          reject(
+            new Error(
+              `talk ${text} refused: ${frame.code ?? frame.kind}: ${frame.message}`,
+            ),
+          );
           return;
         }
         if (
@@ -196,7 +188,7 @@ describe.skipIf(!reachable)("ws gateway (Phases 2-7, integration)", () => {
         }
       }
       ws.on("message", onMessage);
-      transmit();
+      send(ws, { type: "send", sessionId, ...talkBody(text) });
     });
   }
 
@@ -462,6 +454,71 @@ describe.skipIf(!reachable)("ws gateway (Phases 2-7, integration)", () => {
       // The log itself is gapless and duplicate-free for this session.
       expect(new Set(seqsA).size).toBe(TOTAL);
       expect(sortedA).toEqual(Array.from({ length: TOTAL }, (_, i) => i + 1));
+    });
+    it("T012b: three senders with every line in flight — no CONFLICT, each line once (TASK-0157)", async () => {
+      const { token: senderToken } = await createTestUser();
+      const { token: subscriberToken } = await createTestUser();
+      const sessionId = randomUUID();
+      const SENDER_COUNT = 3;
+      const PER_SENDER = 5;
+      const TOTAL = SENDER_COUNT * PER_SENDER;
+
+      const senders = Array.from({ length: SENDER_COUNT }, () =>
+        connect(senderToken),
+      );
+      const subA = connect(subscriberToken);
+      const subB = connect(subscriberToken);
+      const all = [...senders, subA, subB];
+      await Promise.all(all.map(waitForOpen));
+
+      const received = new Map<WebSocket, { type: string }[]>();
+      for (const ws of all) {
+        const frames: { type: string }[] = [];
+        received.set(ws, frames);
+        ws.on("message", (data) => {
+          frames.push(JSON.parse(data.toString()) as { type: string });
+        });
+      }
+
+      for (const ws of all) send(ws, { type: "subscribe", sessionId });
+      await waitForSubscribers(sessionId, SENDER_COUNT + 2);
+
+      const [framesA, framesB] = await Promise.all([
+        collectFrames(subA, TOTAL, 8000),
+        collectFrames(subB, TOTAL, 8000),
+        (async () => {
+          // Every line is in flight at once: no sender awaits an echo.
+          for (let i = 0; i < PER_SENDER; i++) {
+            senders.forEach((ws, senderIdx) => {
+              send(ws, {
+                type: "send",
+                sessionId,
+                ...talkBody(`sender ${senderIdx} message ${i}`),
+              });
+            });
+          }
+        })(),
+      ]);
+
+      for (const ws of senders) {
+        const errors = (received.get(ws) ?? []).filter(
+          (f) => f.type === "error",
+        );
+        expect(errors).toEqual([]);
+      }
+
+      const seqsA = framesA.map((f) => f.event.seq);
+      const seqsB = framesB.map((f) => f.event.seq);
+      expect(seqsA).toEqual(Array.from({ length: TOTAL }, (_, i) => i + 1));
+      expect(seqsB).toEqual(seqsA);
+      const textsA = framesA.map(
+        (f) => (f.event.payload as { text: string }).text,
+      );
+      const textsB = framesB.map(
+        (f) => (f.event.payload as { text: string }).text,
+      );
+      expect(new Set(textsA).size).toBe(TOTAL);
+      expect(textsB).toEqual(textsA);
     });
   });
 

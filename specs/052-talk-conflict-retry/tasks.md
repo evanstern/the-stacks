@@ -153,32 +153,32 @@ no longer hides one. A `CONFLICT` that reaches the play client reads in plain wo
 
 ### Tests first
 
-- [ ] T018 [US1] In `apps/server/test/ws.integration.test.ts`, remove the resend branch from
+- [x] T018 [US1] In `apps/server/test/ws.integration.test.ts`, remove the resend branch from
       `sendTalkAndAwait`. On an `error` frame of any code, clear the timer, detach the listener
       and reject with an error naming the code and the text. Delete the `conflictRefusals`
       counter and its `afterAll` warning. Update the helper's doc comment to say a refusal
       fails the test (TASK-0157).
-- [ ] T019 [US1] In the same file, inside the US1 fan-out describe, add the test "T012b: three
+- [x] T019 [US1] In the same file, inside the US1 fan-out describe, add the test "T012b: three
       senders with every line in flight — no CONFLICT, each line once (TASK-0157)". Connect 3
       senders and 2 subscribers to one session. Each sender sends 5 talk lines at once without
       awaiting echoes. Collect every frame each sender receives. Assert no sender received an
       `error` frame. Assert each subscriber received 15 events with seqs 1 to 15 and 15
       distinct texts, in the same order on both.
-- [ ] T020 [P] [US1] In `apps/web/test/play/reduce-frame.test.mjs`, add a test: an `error` frame
+- [x] T020 [P] [US1] In `apps/web/test/play/reduce-frame.test.mjs`, add a test: an `error` frame
       with `code: "CONFLICT"` and `kind: "internal"` sets `notice` to
       "The table was busy, so your line was not sent. Send it again. (CONFLICT)". Run it and
       confirm it fails.
 
 ### Implementation
 
-- [ ] T021 [US1] In `apps/web/app/play/labels.ts`, add
+- [x] T021 [US1] In `apps/web/app/play/labels.ts`, add
       `CONFLICT: "The table was busy, so your line was not sent. Send it again."` to
       `REFUSAL_LABEL`. Change the `refusalLabel` doc comment from "a floor refusal code" to
       "a refusal code". Run T020; it passes.
-- [ ] T022 [US1] Run `ws.integration.test.ts` (26/26) and confirm no CONFLICT warning prints.
+- [x] T022 [US1] Run `ws.integration.test.ts` (26/26) and confirm no CONFLICT warning prints.
       Run `pnpm bench:load run --tier commit --case concurrency-smoke --no-save` and confirm
       `PASS` with 0 errors. Record `wsRtP95` in the commit message (SC-003).
-- [ ] T023 Run the phase gate and `pnpm ci:check`. Commit as "TASK-0157: Phase 3 — WebSocket
+- [x] T023 Run the phase gate and `pnpm ci:check`. Commit as "TASK-0157: Phase 3 — WebSocket
       burst test, resend workaround removed, CONFLICT label".
 
 **Checkpoint**: WebSocket, bench and web tests are green; no test resends on `CONFLICT`.
