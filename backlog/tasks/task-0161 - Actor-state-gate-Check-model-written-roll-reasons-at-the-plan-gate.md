@@ -4,7 +4,7 @@ title: 'Actor-state gate: Check model-written roll reasons at the plan gate'
 status: In Progress
 assignee: []
 created_date: '2026-10-27 19:52'
-updated_date: '2026-10-28 21:23'
+updated_date: '2026-10-28 21:26'
 labels:
   - dm
   - rules-gate
@@ -46,6 +46,9 @@ Claimed 2026-10-28 by the M3 sweep (docs/design/m3-table-sweep-runbook.md). Work
 Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
 
 Operator ruling 2026-10-28, verbatim: "TASK-0161: I accept the recommended defaults OQ-1 to OQ-3 (a): a contradicting reason refuses the whole group, add REASON_CONTRADICTS_STATE to the engine refusal enum (amend 026 refusals.md), and check condition source text in the same walk."
+
+Phase 1 (T001-T008) at 2df57ca0: M2 seq 221 fixture read from the log, the seq 221 case fails as plain it and is marked it.fails, control passes. Without a DB, ci:check shows only the 5 known adjudicate.integration requireDb failures (TASK-0138).
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
