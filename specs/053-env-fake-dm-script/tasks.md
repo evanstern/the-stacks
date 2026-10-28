@@ -147,7 +147,8 @@ quickstart step with its outcome, and `evidence/shots/` holds the screenshots.
 - [x] T024 [US2] Write `specs/053-env-fake-dm-script/evidence/live-run.md`: commit under test,
   stack, each step with its result, the counts from T020, the shot list, and any quickstart
   correction. Apply each correction to `specs/053-env-fake-dm-script/quickstart.md`.
-- [ ] T025 [US2] Run `pnpm ci:check`. Commit. Leave the stack up for the orchestrator.
+- [x] T025 [US2] Run `pnpm ci:check`. Commit. Leave the stack up for the orchestrator.
+  Orchestrator ran `REQUIRE_DATABASE=1 pnpm ci:check` on 6c7b9ca: exit 0 (server 1236 passed, 5 skipped).
 
 ---
 
@@ -160,10 +161,10 @@ runbook records the ruling and the PRs.
 prints `OK`, and `node ~/.claude/plugins/cache/praxisflux/spec-bridge/0.68.0/gates/cli.mjs check .`
 exits 0.
 
-- [ ] T026 Run `git -C /Users/evanstern/projects/the-stacks/.worktrees/task-0158 fetch origin`
+- [x] T026 Run `git -C /Users/evanstern/projects/the-stacks/.worktrees/task-0158 fetch origin`
   and then `git -C /Users/evanstern/projects/the-stacks/.worktrees/task-0158 merge origin/main`.
   Resolve any conflict by keeping both sides. Run `pnpm ci:check` with `REQUIRE_DATABASE=1`.
-- [ ] T027 Run `/grounding-wiki:wiki-update`. Review every note the planner lists as
+- [x] T027 Run `/grounding-wiki:wiki-update`. Review every note the planner lists as
   NEEDS-REVIEW against the diff. Expected: `ai-gateway` (the `adapters` use at boot, script mode),
   `dm-runtime` (script mode, `apps/server/dm-scripts/`, the live script), `configuration`
   (`DM_FAKE_SCRIPT` and the guard), `container-image` (the new COPY), `runtime-stacks` (set the
@@ -172,17 +173,17 @@ exits 0.
   and `debug-view` (a live check can now show a `done` turn). Add `apps/server/src/dm/script/env.ts`
   and `apps/server/dm-scripts/greyhollow-live.json` to the sources of the notes that describe them.
   Point the notes at `specs/053-env-fake-dm-script/quickstart.md`.
-- [ ] T028 Update `docs/wiki/CAPSULES.md` and `docs/wiki/INDEX.md`: the state line gains one
+- [x] T028 Update `docs/wiki/CAPSULES.md` and `docs/wiki/INDEX.md`: the state line gains one
   sentence on script mode (TASK-0158, specs/053), and every changed note's one-liner stays true.
   Re-pin every touched note to the commit verified. Run the freshness gate until it prints `OK`.
-- [ ] T029 Update `docs/design/m3-table-sweep-runbook.md` "Execution log":
+- [x] T029 Update `docs/design/m3-table-sweep-runbook.md` "Execution log":
   in the TASK-0157 row, replace "(this PR)" with `[#77](https://github.com/evanstern/the-stacks/pull/77)`
   and fill its merge cell with `` `854ecb7` ``; add an amendment row dated 2026-10-28 that quotes
   the ruling: "TASK-0158: I accept the recommended defaults Q1 to Q8, including the DM_FAKE_SCRIPT
   name, the shipped dm-scripts directory, the whole-config replacement and the STACKS_ENV boot
   guard."; add a TASK-0158 row with PR "(this PR)", merge "—", tokens "spec (opus), impl ×4
   (sonnet)", and a one-sentence note naming script mode, the guard and the live run.
-- [ ] T030 Run `pnpm ci:check`, the freshness gate and the spec-bridge gate. Commit and push.
+- [x] T030 Run `pnpm ci:check`, the freshness gate and the spec-bridge gate. Commit and push.
 
 ---
 
