@@ -1,15 +1,18 @@
 import { estimateTokens } from "@the-stacks/srd";
 import { describe, expect, it } from "vitest";
+import type { TurnCheckpoint } from "../../src/dm/jobs.js";
 import { assemble } from "../../src/dm/nodes/assemble.js";
 import { CAPS } from "../../src/dm/prompts/common.js";
 import {
   buildDirectorPrompt,
   PROMPT_VERSION as DIRECTOR_VERSION,
 } from "../../src/dm/prompts/director.js";
+import type { ResumedPlan } from "../../src/dm/resume.js";
 import { buildSnapshot } from "../../src/dm/snapshot/index.js";
 import {
   commit,
   declare,
+  emptyCheckpoint,
   fixtureEvents,
   freeEventsThrough,
   makeCtx,
@@ -394,5 +397,143 @@ describe("prompt caps (SC-007)", () => {
       gone(base + 2, "snag"),
     ]);
     expect(output.presentNpcIds).toEqual(["wenna"]);
+  });
+});
+
+describe("assemble: resume (specs/057)", () => {
+  /** A committed `act-a` plus an ai:dm check.roll proposal, in `status`. */
+  function withRoll(status: "pending" | "approved") {
+    const base = freeEventsThrough("narration");
+    let n = base.length;
+    const events = [
+      ...base,
+      declare(++n, "act-a", "ana", "Ana searches the ford."),
+      commit(++n, "act-a"),
+      row(
+        ++n,
+        "ai:dm",
+        "proposal.created",
+        {
+          proposalId: "prop-roll",
+          policy: "ask",
+          proposal: {
+            kind: "mechanics",
+            command: { type: "check.roll" },
+            actionId: "act-a",
+          },
+        },
+        "dm",
+      ),
+    ];
+    if (status === "approved") {
+      events.push(
+        row(
+          ++n,
+          "00000000-0000-4000-8000-000000000003",
+          "proposal.approved",
+          { proposalId: "prop-roll", batchId: "batch-roll" },
+          "dm",
+        ),
+      );
+    }
+    return events;
+  }
+
+  const pausedJob = (): { jobId: string; checkpoint: TurnCheckpoint } => ({
+    jobId: "job-paused",
+    checkpoint: {
+      ...emptyCheckpoint(),
+      interpret: {
+        readings: [
+          {
+            actionId: "act-a",
+            intent: "check",
+            uncertain: true,
+            needsAdjudication: false,
+            rulesQuestion: null,
+            clarify: null,
+            steps: [],
+          },
+        ],
+      } as unknown as TurnCheckpoint["interpret"],
+      submissions: [
+        {
+          stepRef: "job-paused#1",
+          key: "act:act-a:s0",
+          kind: "mechanics",
+          result: "pending",
+          refusal: null,
+          batchId: null,
+          proposalId: "prop-roll",
+          outcome: null,
+          seqs: [],
+        },
+      ],
+    },
+  });
+
+  it("leaves an action named by a pending ai:dm check.roll proposal out of the beat", async () => {
+    const { output } = await run(withRoll("pending"), {
+      deps: { loadPriorTurns: async () => [pausedJob()] },
+    });
+    expect(output.beat).toEqual([]);
+    expect(output.resumed).toEqual([]);
+  });
+
+  it("ignores the awaiting rule on a frozen beat", async () => {
+    const { output } = await run(withRoll("pending"), {
+      job: { attempt: 2 },
+      checkpoint: { beat: ["act-a"], resumed: [] },
+    });
+    expect(output.beat.map((b) => b.actionId)).toEqual(["act-a"]);
+  });
+
+  it("holds the paused plan in output.resumed once its proposal is approved", async () => {
+    const { output } = await run(withRoll("approved"), {
+      deps: { loadPriorTurns: async () => [pausedJob()] },
+    });
+    expect(output.beat.map((b) => b.actionId)).toEqual(["act-a"]);
+    expect(output.resumed).toHaveLength(1);
+    expect(output.resumed[0]).toMatchObject({
+      actionId: "act-a",
+      fromJobId: "job-paused",
+    });
+  });
+
+  it("returns checkpoint.resumed and does not call loadPriorTurns", async () => {
+    let loads = 0;
+    const plan = {
+      actionId: "act-a",
+      fromJobId: "job-x",
+      reading: pausedJob().checkpoint.interpret?.readings[0],
+      ruling: null,
+      submissions: [],
+    } as unknown as ResumedPlan;
+    const { output } = await run(withRoll("approved"), {
+      checkpoint: { beat: ["act-a"], resumed: [plan] },
+      job: { attempt: 2 },
+      deps: {
+        loadPriorTurns: async () => {
+          loads++;
+          return [];
+        },
+      },
+    });
+    expect(output.resumed).toEqual([plan]);
+    expect(loads).toBe(0);
+  });
+
+  it("does not call loadPriorTurns without an ai:dm proposal naming a candidate", async () => {
+    let loads = 0;
+    const { output } = await run(freeEventsThrough("action.committed"), {
+      deps: {
+        loadPriorTurns: async () => {
+          loads++;
+          return [];
+        },
+      },
+    });
+    expect(loads).toBe(0);
+    expect(output.resumed).toEqual([]);
   });
 });

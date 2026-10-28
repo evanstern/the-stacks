@@ -77,13 +77,18 @@ export function buildInterpretPrompt(input: {
     OUTPUT_SHAPE,
   ].join("\n\n");
 
-  const applied = Object.entries(assembled.priorSteps).map(
-    ([actionId, rows]) =>
-      `${actionId}: ${rows.length} ledger rows already applied (${rows
-        .map((r) => r.reason)
-        .slice(0, 4)
-        .join(" | ")})`,
-  );
+  // Resumed items keep their earlier plan; the prompt carries fresh items only.
+  const resumedIds = new Set((assembled.resumed ?? []).map((r) => r.actionId));
+  const freshBeat = assembled.beat.filter((b) => !resumedIds.has(b.actionId));
+  const applied = Object.entries(assembled.priorSteps)
+    .filter(([actionId]) => !resumedIds.has(actionId))
+    .map(
+      ([actionId, rows]) =>
+        `${actionId}: ${rows.length} ledger rows already applied (${rows
+          .map((r) => r.reason)
+          .slice(0, 4)
+          .join(" | ")})`,
+    );
   const user = joinSections([
     section("Scene seed", seedEntries(ctx.seed, assembled), CAPS.seed, "end"),
     dmStateSection(assembled.snapshot, ctx.seed, false),
@@ -100,7 +105,7 @@ export function buildInterpretPrompt(input: {
       "end",
     ),
     `Pacing: ${director.pacing.tension}; note: ${director.goalNote}`,
-    section("Beat items", beatEntries(assembled.beat), 800, "end"),
+    section("Beat items", beatEntries(freshBeat), 800, "end"),
     assembled.npcTurn
       ? `Monster turn: ${assembled.npcTurn.combatantId}${assembled.npcTurn.srdMonsterId ? ` (SRD ${assembled.npcTurn.srdMonsterId})` : ""}. Write one reading with actionId null.`
       : "",

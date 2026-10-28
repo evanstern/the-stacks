@@ -153,6 +153,27 @@ describe("runTurn", () => {
     );
   });
 
+  it("skips adjudicate for a resumed reading and stores resumed with the beat", async () => {
+    const plan = { actionId: "a1" } as never;
+    const spy = stubNodes({
+      assemble: assembled({ resumed: [plan] } as never),
+      interpret: { readings: [reading(true)] },
+    });
+    const saved: ReturnType<typeof emptyCheckpoint>[] = [];
+    const ctx = makeCtx({
+      deps: {
+        saveCheckpoint: async (c) => {
+          saved.push(c);
+          return true;
+        },
+      },
+    });
+    await runTurn(ctx, spy.nodes);
+    expect(spy.order).not.toContain("adjudicate");
+    expect(saved[0]?.beat).toEqual(["a1"]);
+    expect(saved[0]?.resumed).toEqual([plan]);
+  });
+
   it("reuses checkpointed planning outputs and makes no call for them", async () => {
     const spy = stubNodes();
     const checkpoint = {

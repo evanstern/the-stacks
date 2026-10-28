@@ -24,10 +24,27 @@ export const interpret: Node<"interpret"> = async (ctx) => {
       },
     };
   }
-  const expected: (string | null)[] = assembled.beat.map((b) => b.actionId);
-  if (assembled.npcTurn) expected.push(null);
+  // Resumed items keep the plan the paused turn made (specs/057 FR-006).
+  const resumed = assembled.resumed ?? [];
+  const resumedIds = new Set(resumed.map((r) => r.actionId));
+  const full: (string | null)[] = assembled.beat.map((b) => b.actionId);
+  if (assembled.npcTurn) full.push(null);
+  const order = new Map(full.map((id, i) => [id, i]));
+  const byBeatOrder = <T extends { actionId: string | null }>(xs: T[]): T[] =>
+    [...xs].sort(
+      (a, b) => (order.get(a.actionId) ?? 0) - (order.get(b.actionId) ?? 0),
+    );
+  const resumedReadings = resumed
+    .filter((r) => order.has(r.actionId))
+    .map((r) => r.reading);
+  const expected = full.filter((id) => id === null || !resumedIds.has(id));
   if (expected.length === 0) {
-    return { ok: true, node: "interpret", output: { readings: [] }, calls: [] };
+    return {
+      ok: true,
+      node: "interpret",
+      output: { readings: byBeatOrder(resumedReadings) },
+      calls: [],
+    };
   }
 
   const prompt = buildInterpretPrompt({ ctx, assembled, director });
@@ -65,10 +82,7 @@ export const interpret: Node<"interpret"> = async (ctx) => {
     };
   }
   // Order the readings like the beat (monster turn last).
-  const order = new Map(expected.map((id, i) => [id, i]));
-  const readings = [...result.value.readings].sort(
-    (a, b) => (order.get(a.actionId) ?? 0) - (order.get(b.actionId) ?? 0),
-  );
+  const readings = byBeatOrder([...result.value.readings, ...resumedReadings]);
   return {
     ok: true,
     node: "interpret",

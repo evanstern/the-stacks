@@ -13,6 +13,7 @@ import type { NarrateOutput } from "../nodes/narrate.js";
 import type { ResolveOutput } from "../nodes/resolve.js";
 import type { InterpretOutput } from "../nodes/schemas.js";
 import type { DmPurpose } from "../purposes.js";
+import type { PriorTurn } from "../resume.js";
 import type { SceneSeed } from "../seed/schema.js";
 
 /**
@@ -69,6 +70,14 @@ export interface NodeDeps {
   /** The DM view of the session. */
   loadProjections: (sessionId: string) => Promise<SessionProjections>;
   srd: SrdLookup;
+  /**
+   * Earlier turn checkpoints of the session, newest first, for resume
+   * classification. Absent means none (specs/057).
+   */
+  loadPriorTurns?: (
+    sessionId: string,
+    excludeJobId: string,
+  ) => Promise<PriorTurn[]>;
   /** True while this worker holds the lease. */
   fence: () => Promise<boolean>;
   /** Fenced write of the job's stage; false when fenced out. */

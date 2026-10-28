@@ -145,6 +145,8 @@ An `awaiting-dm` action stays `committed`. `proposal.approved` and `proposal.rej
 enqueue a turn job ([turn-jobs.md](turn-jobs.md)). That job's interpret sees the applied
 batches in `priorSteps` and plans only what remains.
 
+Amended by specs/057-human-dm-roll-resume/contracts/turn-resume.md.
+
 ## Idempotence on reclaim (FR-006)
 
 1. Before each submission, resolve checks the fence. On `false` it returns `fenced`.

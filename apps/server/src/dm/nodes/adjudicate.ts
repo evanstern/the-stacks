@@ -90,9 +90,12 @@ export const adjudicate: Node<"adjudicate"> = async (ctx) => {
   }
   const calls: ModelCallRecord[] = [];
   const rulings: Ruling[] = [];
+  const resumedIds = new Set((assembled.resumed ?? []).map((r) => r.actionId));
 
   for (const reading of interpret.readings) {
     if (!reading.needsAdjudication || reading.rulesQuestion === null) continue;
+    // A resumed reading keeps the ruling its paused turn made (specs/057).
+    if (reading.actionId !== null && resumedIds.has(reading.actionId)) continue;
 
     let relevant: RetrievedPassage[] = [];
     try {
@@ -173,6 +176,9 @@ export const adjudicate: Node<"adjudicate"> = async (ctx) => {
       dropped,
       steps: result.value.steps,
     });
+  }
+  for (const plan of assembled.resumed ?? []) {
+    if (plan.ruling) rulings.push(plan.ruling);
   }
   return { ok: true, node: "adjudicate", output: { rulings }, calls };
 };
