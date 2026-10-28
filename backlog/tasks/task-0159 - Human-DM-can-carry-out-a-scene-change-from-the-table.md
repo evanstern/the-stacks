@@ -4,7 +4,7 @@ title: Human DM can carry out a scene change from the table
 status: In Progress
 assignee: []
 created_date: '2026-10-27 10:33'
-updated_date: '2026-10-28 05:59'
+updated_date: '2026-10-28 06:04'
 labels:
   - play-route
   - gate
@@ -31,6 +31,9 @@ Spec: specs/055-human-dm-scene-change
 
 <!-- SECTION:NOTES:BEGIN -->
 Claimed 2026-10-28 by the M3 sweep (docs/design/m3-table-sweep-runbook.md). Worktree .worktrees/task-0159, branch task-0159-human-dm-scene-change, cut from origin/main 7e3e029. Spec number 055 claimed with a stub. Spec 054 is held by TASK-0163 (PR #79), so this takes 055.
+
+Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
+Spec author (spec.md, 212a4f8) stopped with open questions OQ-1 to OQ-7. Finding: with a human DM the scene-start suggestion stays pending, p.scene stays null, and every later AI DM turn fails no-scene until the human DM carries out a scene with the seed's sceneId.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
