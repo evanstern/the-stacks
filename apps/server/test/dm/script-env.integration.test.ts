@@ -74,6 +74,22 @@ describe.skipIf(!reachable)(
         .from(dmModelCalls)
         .where(eq(dmModelCalls.sessionId, sessionId));
       expect(calls.length).toBeGreaterThan(0);
+      // The scene-start queues a chronicle job; the script holds its call.
+      const chronicleJobs = await listDmJobs(
+        requireDb(),
+        sessionId,
+        10,
+        "chronicle",
+      );
+      expect(chronicleJobs).toHaveLength(1);
+      expect(chronicleJobs[0]?.status).toBe("succeeded");
+      const chronicleCalls = calls.filter((c) => c.purpose === "dm.chronicle");
+      expect(chronicleCalls.length).toBeGreaterThan(0);
+      for (const c of chronicleCalls) {
+        expect(c.jobKind).toBe("chronicle");
+        expect(c.outcome).toBe("ok");
+        expect(c.errorKind).toBeNull();
+      }
       for (const c of calls) {
         expect(c.provider).toBe("scripted");
         expect(c.costUsd).toBeNull();

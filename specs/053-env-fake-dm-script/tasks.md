@@ -134,6 +134,9 @@ quickstart step with its outcome, and `evidence/shots/` holds the screenshots.
   `unscripted call for dm.chronicle`, append one `dm.chronicle` call to
   `apps/server/dm-scripts/greyhollow-live.json` only. Change the T008 equality to allow trailing
   `dm.chronicle` calls after the concatenation. Leave the test scripts unchanged. Re-run Phase 2's tests.
+  *Note (Phase 3, orchestrator direction): the two `dm.chronicle` calls were added in Phase 3, one for
+  the scene-start turn and one for the `act-search` turn. Both turns land narration, so both queue a
+  chronicle job. Do not append more in this task.*
 - [ ] T022 [US2] Take Brave screenshots per plan D7 at 1280 and 390 px, light and dark: the play
   page after the opening narration, the debug page with the `done` turn selected and its events
   highlighted, and the play page after the `act-search` turn. Save to

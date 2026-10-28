@@ -131,6 +131,40 @@
           "issues": []
         }
       }
+    },
+    {
+      "purpose": "dm.chronicle",
+      "note": "chronicle after the scene-start narration",
+      "respond": {
+        "type": "json",
+        "value": {
+          "entries": [
+            {
+              "title": "Arrival at Greyhollow Ford",
+              "body": "The party reached Greyhollow Ford at amber light. The ferry was chained to the near bank, the ferry-house door stood open, and the bell stayed silent.",
+              "sourceActionIds": [],
+              "visibility": "public"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "purpose": "dm.chronicle",
+      "note": "chronicle after the act-search narration",
+      "respond": {
+        "type": "json",
+        "value": {
+          "entries": [
+            {
+              "title": "The cut bell rope",
+              "body": "Tamsin searched the ferry-house and found the bell rope gnawed through, then sliced clean. The bell hung whole, but its clapper was gone.",
+              "sourceActionIds": [],
+              "visibility": "public"
+            }
+          ]
+        }
+      }
     }
   ]
 }

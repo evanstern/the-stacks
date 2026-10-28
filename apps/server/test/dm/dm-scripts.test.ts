@@ -2,6 +2,7 @@ import { readdirSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
+import { ChronicleOutput } from "../../src/dm/chronicle.js";
 import { loadDmScript } from "../../src/dm/script/load.js";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -23,11 +24,23 @@ describe("shipped DM scripts (apps/server/dm-scripts)", () => {
     expect(script.name).toBe(file.slice(0, -".json".length));
   });
 
-  it("greyhollow-live is scene-start then exploration-check, with dice [14]", () => {
+  it("greyhollow-live is scene-start, exploration-check and their two chronicle calls, with dice [14]", () => {
     const live = loadDmScript(read(LIVE_DIR, "greyhollow-live.json"));
     const start = loadDmScript(read(TEST_SCRIPTS, "scene-start.json"));
     const explore = loadDmScript(read(TEST_SCRIPTS, "exploration-check.json"));
-    expect(live.calls).toEqual([...start.calls, ...explore.calls]);
+    const base = [...start.calls, ...explore.calls];
+    // Each narrated turn queues one chronicle job (TASK-0158 Phase 3).
+    expect(live.calls.slice(0, base.length)).toEqual(base);
+    const extra = live.calls.slice(base.length);
+    expect(extra.map((c) => c.purpose)).toEqual([
+      "dm.chronicle",
+      "dm.chronicle",
+    ]);
+    for (const c of extra) {
+      expect(
+        ChronicleOutput.safeParse((c.respond as { value: unknown }).value),
+      ).toMatchObject({ success: true });
+    }
     expect(live.dice).toEqual([14]);
   });
 });
