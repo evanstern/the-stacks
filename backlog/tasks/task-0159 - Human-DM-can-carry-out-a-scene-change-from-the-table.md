@@ -4,7 +4,7 @@ title: Human DM can carry out a scene change from the table
 status: In Progress
 assignee: []
 created_date: '2026-10-27 10:33'
-updated_date: '2026-10-28 08:28'
+updated_date: '2026-10-28 08:40'
 labels:
   - play-route
   - gate
@@ -76,6 +76,12 @@ Orchestrator ruling (Phase 4, OQ from the implementer): an approval turn with no
 Phase 4 gate (orchestrator): T023 DB test 3/3 at 8f6a283; T024 DB mutations both fail (c) as expected (evidence a40b954). REQUIRE_DATABASE=1 pnpm ci:check run on a40b954.
 
 spec-bridge sync: The scene request and command (card AC #1): 9/9 · Seeds and the view model (card AC #2): 4/4 · The scene panel and the header trigger (card AC #1, card AC #2): 7/7 · The AI DM resumes in the carried-out scene (card AC #2, SC-002): 7/7 · Live check in script mode (card AC #1, card AC #2): 0/6 · Merge, re-ground and close (all ACs): 0/7
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Phase 5 first run (f0ddcfa) stopped at step 8c. Carry-out, the approval turn (beat set, no calls) and the 10 suggestion approvals all ran. The player act-search commit turn paused on a check.roll proposal (policy ask, by design with a human DM). After the DM approved the roll, the resumed turn called dm.director a third time; the script holds only two, so the call failed config and nothing narrated.
+
+Orchestrator ruling (Phase 5): this is a script fixture gap, not a product defect. Add a second dm.director call between dm.interpret and dm.narrate in human-dm-approval.json, so greyhollow-human-dm covers the roll pause. The roll policy is unchanged. Then rebuild the app and rerun Phase 5 on a fresh session.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
