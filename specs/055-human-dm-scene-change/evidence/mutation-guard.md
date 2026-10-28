@@ -27,3 +27,14 @@ The file was restored from a copy; the restored file is byte-identical and the s
 | `scene-panel.tsx` `applyInput`: `closeProposalId` always the seed's id | the `earlier` case fails | Failed: same test, at the `earlier` seed's `closeProposalId` null assertion (8 pass, 1 fail). |
 
 `scene-panel.tsx` was untracked when mutated, so an empty `git diff` does not apply; the file was restored from a copy, `diff` against the copy was empty and the suite is 9 pass, 0 fail.
+
+## Phase 4 DB mutation checks (T024, orchestrator)
+
+Run on 2026-10-28 at 8f6a283, on the `stacks-task-0159-test` database.
+
+| Mutation in case (c) | Result |
+|---|---|
+| Drop the DM's `scene` request | (c) fails: `expected null not to be null` at `checkpoint.beat` (the no-scene path). 2 pass, 1 fail. |
+| Send `after.sceneId: "no-such-seed"` | (c) fails: the job is `failed` with `{kind: "seed", node: "assemble", message: "the scene seed did not load"}` (bad-seed). 2 pass, 1 fail. |
+
+Each mutation was restored with `git checkout --`, and `git diff --quiet` held afterwards.
