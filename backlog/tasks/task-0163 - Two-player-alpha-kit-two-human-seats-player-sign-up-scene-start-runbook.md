@@ -37,7 +37,7 @@ Spec: specs/054-two-player-alpha-kit
 - [ ] #3 docs/ops/dev-vm-104.md documents issuing an invitation, creating a session, and starting a scene with a seat per human on hosted dev
 - [ ] #4 The runbook is run once on hosted dev with two accounts, and the result is recorded on this card
 - [x] #5 Spec phase: Duo seed, seat rules and the seeds route (card AC #1)
-- [ ] #6 Spec phase: Two-human behaviour check and mutation guard (card AC #1)
+- [x] #6 Spec phase: Two-human behaviour check and mutation guard (card AC #1)
 - [ ] #7 Spec phase: Redeem toggle and the invite section (card AC #2)
 - [ ] #8 Spec phase: Start scene slide-out (card AC #3)
 - [ ] #9 Spec phase: Runbook section and the DM API contract (card AC #3)
@@ -45,6 +45,8 @@ Spec: specs/054-two-player-alpha-kit
 - [ ] #11 Spec phase: Merge main, wiki re-ground and runbook rows (card AC #1, #2, #3)
 - [ ] #12 Spec phase: Hosted-dev alpha run (card AC #4) — orchestrator-run, after operator go
 <!-- AC:END -->
+
+
 
 
 
