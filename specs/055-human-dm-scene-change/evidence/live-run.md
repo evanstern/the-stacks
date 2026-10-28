@@ -254,3 +254,7 @@ recreated. Session `1f55d0f8-7c6b-42d1-9276-936ea3ea4834`, run by `evidence/base
 
 The header still read "No scene yet". No modal. Contrast with the carry-out (`7fb204d0`):
 `checkpoint.beat` `[]` (set). The baseline leaves it null.
+
+## Step 11 (dropped)
+
+The auto-mode classifier refused the edit that removes `DM_FAKE_SCRIPT` from the worktree `.env`, first for the implementer and then for the orchestrator. Neither worked around it. The orchestrator dropped step 11 on 2026-10-28. The stack is left up in script mode. Post-merge cleanup runs `pnpm env:down` and removes the worktree, which deletes its `.env`. Spec 053 (TASK-0158) already proved the app boots without script mode.

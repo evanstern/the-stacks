@@ -121,7 +121,7 @@ shots.
 - [x] T030 [US1] Run `quickstart.md` step 9 (the Dismiss-only baseline) and record its `empty-beat` outcome with `checkpoint.beat` null in `evidence/live-run.md`.
 - [x] T031 [P] [US1] Write `specs/055-human-dm-scene-change/evidence/shoot-live.mjs`, modelled on `specs/054-two-player-alpha-kit/evidence/shoot-live.mjs`, driving Brave. Take the shots listed in `quickstart.md` "Screenshots" into `evidence/shots/`: the seeded panel and the applied table at 1280 px and 390 px, light and dark, plus the debug approval turn and the player view with no control. Check each shot shows no modal.
 - [x] T032 [US2] On the same session, open "Change scene" again, pick "Use: Current scene", change the location and apply. Record the second `scene.changed` row (same `sceneId`) in `evidence/live-run.md`.
-- [ ] T033 Run `quickstart.md` steps 10 and 11. Leave the stack up for the orchestrator's `pnpm env:down`. Commit the evidence: `TASK-0159: live check in script mode`.
+- [x] T033 Run `quickstart.md` steps 10 and 11. Leave the stack up for the orchestrator's `pnpm env:down`. Commit the evidence: `TASK-0159: live check in script mode`. Step 11 dropped by orchestrator ruling (2026-10-28): the auto-mode classifier refused the `.env` edit for both the implementer and the orchestrator. The stack and its `.env` are deleted at post-merge `pnpm env:down` and worktree removal, and spec 053 (TASK-0158) already proved the app boots without script mode.
 
 ---
 
