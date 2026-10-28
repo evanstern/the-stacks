@@ -4,7 +4,7 @@ title: Gate refuses bursty concurrent talk with CONFLICT after its retry bound
 status: In Progress
 assignee: []
 created_date: '2026-10-27 09:46'
-updated_date: '2026-10-28 03:07'
+updated_date: '2026-10-28 03:08'
 labels:
   - gate
   - ws
@@ -35,6 +35,8 @@ Claimed 2026-10-27 by the M3 sweep (docs/design/m3-table-sweep-runbook.md). Work
 
 Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
 Spec author (spec.md, c158ee2) stopped with open questions Q1-Q6. Root cause: gate attempts fold the whole log then append with expectedLastSeq; concurrent same-process writes race and the immediate 3-try retry refuses CONFLICT (repro 4/15 to 41/100; per-session serial queue 0).
+
+Operator ruling, 2026-10-27, verbatim: "TASK-0157: I accept the recommended defaults Q1 to Q6, including the per-session gate queue, the jittered retry and the 029 gate-api amendment."
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
