@@ -4,7 +4,7 @@ title: Env-reachable scripted fake DM provider for live UI checks
 status: In Progress
 assignee: []
 created_date: '2026-10-27 09:59'
-updated_date: '2026-10-28 04:33'
+updated_date: '2026-10-28 04:50'
 labels:
   - dm
   - debug-view
@@ -64,6 +64,9 @@ spec-bridge sync: Script-mode runtime and its boot guard (card AC #1): 7/7 · Bo
 
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Phase 4 first pass stopped at quickstart step 2: pnpm db:migrate migrates only the test DB, and the quickstart's app-DB step says to build a URL from .env credentials, which the dispatch rules forbid. Orchestrator ruling: migrate the app DB credential-free the way deploy/dev/compose.dev.yml's migrate service does - build the Dockerfile build stage and run scripts/migrate.ts inside the stack's compose network with --env-file .env and TEST_DATABASE_URL empty, so no credential is read or printed. The quickstart must document this instead of hand-building a URL. Also found: the worktree .env has no trailing newline, so echo >> fused DM_FAKE_SCRIPT onto AI_PRICES; quickstart must use printf with a leading newline.
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+Phase 4 (6c7b9ca, resumed after the migrate ruling): live run on stacks-task-0158. App DB migrated credential-free in the build-stage container. Scene-start and act-search narrated (1d20 14 vs DC 13 success); jobs turn, chronicle, turn, chronicle all succeeded. dm_model_calls: 10 rows all provider scripted, no cost; 9 script calls outcome ok; the deliberate spent-script call failed loudly (config, unscripted call for dm.director). Unset value boots without script mode. 12 Brave shots in evidence/shots/. Quickstart corrected. T025 (DB ci:check) left to the orchestrator: the agent's export of TEST_DATABASE_URL was denied by the auto-mode classifier.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
