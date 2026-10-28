@@ -4,7 +4,7 @@ title: Gate refuses bursty concurrent talk with CONFLICT after its retry bound
 status: In Progress
 assignee: []
 created_date: '2026-10-27 09:46'
-updated_date: '2026-10-28 03:12'
+updated_date: '2026-10-28 03:14'
 labels:
   - gate
   - ws
@@ -44,6 +44,9 @@ Spec author (spec.md, c158ee2) stopped with open questions Q1-Q6. Root cause: ga
 Operator ruling, 2026-10-27, verbatim: "TASK-0157: I accept the recommended defaults Q1 to Q6, including the per-session gate queue, the jittered retry and the 029 gate-api amendment."
 
 Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+Phase 1 (82593a8): T002-T005 and T008 fail today for the stated reason; T006, T007 pass. T005 fails on the talk side (tasks.md said it may pass).
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
