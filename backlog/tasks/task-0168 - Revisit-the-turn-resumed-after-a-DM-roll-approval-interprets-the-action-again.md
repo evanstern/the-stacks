@@ -4,7 +4,7 @@ title: 'With a human DM, approving a check roll re-proposes the same roll'
 status: In Progress
 assignee: []
 created_date: '2026-10-28 08:50'
-updated_date: '2026-10-28 19:13'
+updated_date: '2026-10-28 19:17'
 labels:
   - dm-runtime
   - gate
@@ -29,9 +29,11 @@ Spec: specs/057-human-dm-roll-resume
 - [x] #3 Spec phase: The resume classifier and the prior-turn read (card AC #2)
 - [x] #4 Spec phase: The pipeline reuses the plan (card AC #1, card AC #2)
 - [x] #5 Spec phase: DB test, scripts and mutation guard (card AC #1)
-- [ ] #6 Spec phase: Live check in script mode (card AC #1)
+- [x] #6 Spec phase: Live check in script mode (card AC #1)
 - [ ] #7 Spec phase: Re-ground and close (all ACs)
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
