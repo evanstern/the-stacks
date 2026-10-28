@@ -4,7 +4,7 @@ title: Env-reachable scripted fake DM provider for live UI checks
 status: In Progress
 assignee: []
 created_date: '2026-10-27 09:59'
-updated_date: '2026-10-28 04:52'
+updated_date: '2026-10-28 04:58'
 labels:
   - dm
   - debug-view
@@ -69,6 +69,9 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Phase 4 (6c7b9ca, resumed after the migrate ruling): live run on stacks-task-0158. App DB migrated credential-free in the build-stage container. Scene-start and act-search narrated (1d20 14 vs DC 13 success); jobs turn, chronicle, turn, chronicle all succeeded. dm_model_calls: 10 rows all provider scripted, no cost; 9 script calls outcome ok; the deliberate spent-script call failed loudly (config, unscripted call for dm.director). Unset value boots without script mode. 12 Brave shots in evidence/shots/. Quickstart corrected. T025 (DB ci:check) left to the orchestrator: the agent's export of TEST_DATABASE_URL was denied by the auto-mode classifier.
 
 T025: REQUIRE_DATABASE=1 pnpm ci:check run by the orchestrator on 6c7b9ca exits 0 (server 111 files passed, 1 skipped). The implementer ticks T025 in Phase 5.
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+Phase 5: merge of origin/main 89d75e2 (clean), wiki d6f58a0 (14 notes re-pinned, CAPSULES regenerated), runbook rows and ticks bf32bf2. Freshness OK (54), spec-bridge ok.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
