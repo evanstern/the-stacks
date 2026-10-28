@@ -4,7 +4,7 @@ title: Env-reachable scripted fake DM provider for live UI checks
 status: In Progress
 assignee: []
 created_date: '2026-10-27 09:59'
-updated_date: '2026-10-28 04:29'
+updated_date: '2026-10-28 04:33'
 labels:
   - dm
   - debug-view
@@ -61,6 +61,9 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Phase 3 (80633dd chronicle calls, ae21f3d image/env/helpers): both narrated turns queue chronicle (runner sets resolve.chronicle when narration lands); two dm.chronicle calls added; integration asserts chronicle model call outcome ok. Image contains dm-scripts/greyhollow-live.json. ci:check exit 0 (server 1236). Helpers are syntax-checked only; Phase 4 runs them live.
 
 spec-bridge sync: Script-mode runtime and its boot guard (card AC #1): 7/7 · Boot wiring, the live script and a scripted scene-start (card AC #1): 6/6 · Image, env docs and evidence helpers (card AC #2): 5/5 · Live quickstart run on this worktree's stack (card AC #2): 0/7 · Merge main, wiki re-ground and runbook rows (card AC #1, #2): 0/5
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+Phase 4 first pass stopped at quickstart step 2: pnpm db:migrate migrates only the test DB, and the quickstart's app-DB step says to build a URL from .env credentials, which the dispatch rules forbid. Orchestrator ruling: migrate the app DB credential-free the way deploy/dev/compose.dev.yml's migrate service does - build the Dockerfile build stage and run scripts/migrate.ts inside the stack's compose network with --env-file .env and TEST_DATABASE_URL empty, so no credential is read or printed. The quickstart must document this instead of hand-building a URL. Also found: the worktree .env has no trailing newline, so echo >> fused DM_FAKE_SCRIPT onto AI_PRICES; quickstart must use printf with a leading newline.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
