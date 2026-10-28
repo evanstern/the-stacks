@@ -190,18 +190,18 @@ no longer hides one. A `CONFLICT` that reaches the play client reads in plain wo
 **Independent test**: `specs/029-proposal-gate/contracts/gate-api.md` holds the step 7 edit
 and the TASK-0157 amendment block exactly as contracts/gate-api-amendment.md gives them.
 
-- [ ] T024 [US2] In `specs/029-proposal-gate/contracts/gate-api.md`, replace step 7 of
+- [x] T024 [US2] In `specs/029-proposal-gate/contracts/gate-api.md`, replace step 7 of
       "Algorithm (one attempt)" with the text in contracts/gate-api-amendment.md, Edit 1.
-- [ ] T025 [US2] Insert the amendment block from contracts/gate-api-amendment.md, Edit 2,
+- [x] T025 [US2] Insert the amendment block from contracts/gate-api-amendment.md, Edit 2,
       directly after the TASK-0049 amendment block. Add, as its last line, "Amended 2026-10-27
       (TASK-0157), operator ruling: \"TASK-0157: I accept the recommended defaults Q1 to Q6,
       including the per-session gate queue, the jittered retry and the 029 gate-api
       amendment.\"".
-- [ ] T026 [US2] Confirm every rule in the block has a test: per-session order (T002–T005),
+- [x] T026 [US2] Confirm every rule in the block has a test: per-session order (T002–T005),
       parse first (existing "entry parsing" tests), isolation (T006, T007), retry bound and wait
       (T008, existing conflict tests), wire unchanged (T019). List the mapping in the commit
       message. Confirm `specs/029-proposal-gate/contracts/ws-delivery.md` is unchanged.
-- [ ] T027 Commit as "TASK-0157: Phase 4 — gate-api ordering and retry amendment".
+- [x] T027 Commit as "TASK-0157: Phase 4 — gate-api ordering and retry amendment".
 
 **Checkpoint**: the contract is amended; no other frozen file changed.
 
