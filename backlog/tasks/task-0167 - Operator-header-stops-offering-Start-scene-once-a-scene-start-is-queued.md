@@ -4,7 +4,7 @@ title: Operator header stops offering Start scene once a scene start is queued
 status: In Progress
 assignee: []
 created_date: '2026-10-28 07:59'
-updated_date: '2026-10-28 22:54'
+updated_date: '2026-10-28 23:03'
 labels:
   - play-route
 milestone: m-3
@@ -37,6 +37,9 @@ Claimed 2026-10-28 by the M3 sweep (docs/design/m3-table-sweep-runbook.md). Work
 Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
 
 Operator ruling 2026-10-28, verbatim: "Accept all (a)", in answer to "Do you accept the recommended defaults (a) for TASK-0167's OQ-1 to OQ-4?". So: OQ-1 (a) the start route refuses with 409 while the scene suggestion is pending (amend 031 dm-api.md); OQ-2 (a) the header polls the GET every 5 s while queued or pending, plus fetch on catch-up and after each start result; OQ-3 (a) after a Dismiss the state is none and the operator may start again; OQ-4 (a) two texts, "Scene start queued." and "Scene start waiting for the DM."
+
+Phase 1 (T001-T010) at a09be525: pure sceneStartState in dm/scene-start.ts, the POST refuses every state but none, operator-only GET /dm/sessions/:id/start, 031 dm-api.md amended. Orchestrator DB run on the stacks-task-0167 test DB: human-dm-scene.integration, routes.integration, scene-start.test: 3 files, 36 passed. T003 red run with routes/dm.ts at 21be5ba9: case (e) fails "expected 202 to be 409", so today a second human-DM start is accepted; restored, diff empty. Orchestrator ruling on the implementer reading: humanDmWorld writes no scene-start job row, so (e) asserts the scene-start job count is unchanged by the refused POST; that is the intent of T003.
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
