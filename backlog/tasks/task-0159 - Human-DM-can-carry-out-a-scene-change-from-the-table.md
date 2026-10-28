@@ -110,6 +110,8 @@ T040 (orchestrator): REQUIRE_DATABASE=1 pnpm ci:check exits 0 on the merged tree
 spec-bridge sync: The scene request and command (card AC #1): 9/9 · Seeds and the view model (card AC #2): 4/4 · The scene panel and the header trigger (card AC #1, card AC #2): 7/7 · The AI DM resumes in the carried-out scene (card AC #2, SC-002): 7/7 · Live check in script mode (card AC #1, card AC #2): 6/6 · Merge, re-ground and close (all ACs): 7/7 — status In Progress → Done
 
 AC #1 met: DM-only Change scene slide-out (no modal) sends a scene gate request (sceneFrame, changeScene), tested in frames, local-log, fixture, scene-panel and table-view tests, and live in Brave. AC #2 met: scene-seeds.ts seeds the form from pending and recent ai:dm scene suggestions, tested, and live (seeded panel shots; carried out with sceneId greyhollow-ford).
+
+spec-bridge sync: The scene request and command (card AC #1): 9/9 · Seeds and the view model (card AC #2): 4/4 · The scene panel and the header trigger (card AC #1, card AC #2): 7/7 · The AI DM resumes in the carried-out scene (card AC #2, SC-002): 7/7 · Live check in script mode (card AC #1, card AC #2): 6/6 · Merge, re-ground and close (all ACs): 7/7 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
