@@ -1,6 +1,6 @@
 ---
 name: dm-runtime
-description: The AI DM runtime (TASK-0046, apps/server/src/dm/) - the fixed node pipeline (assemble to audit), the actor snapshot behind every prompt's state (see actor-snapshot), resolve as the only gate writer with the engine owning every number, the six-group resolve order, digit-free narration, the bounded audit loop (see dm-narration-quality), seven dm.* purposes, failure record and rules-term gates (see dm-failure-and-gates), scene seed, doctrine, companions, chronicle, /dm routes, import boundary.
+description: The AI DM runtime (TASK-0046, apps/server/src/dm/) - the fixed node pipeline (assemble to audit), the actor snapshot behind every prompt's state (see actor-snapshot), resolve as the only gate writer with the engine owning every number, the six-group resolve order, digit-free narration, the bounded audit loop (see dm-narration-quality), seven purposes, failure record and rules-term gates (see dm-failure-and-gates), scene seed, doctrine, companions, chronicle, /dm routes, import boundary.
 kind: component
 sources:
   - apps/server/src/dm/pipeline/runner.ts
@@ -34,8 +34,9 @@ sources:
   - apps/server/src/dm/doctrine/NOTICE.md
   - apps/server/src/routes/dm.ts
   - apps/server/seeds/greyhollow-ford.json
+  - apps/server/seeds/greyhollow-ford-duo.json
   - biome.json
-verified_against: 89d75e2dab43df6326d00177af7c11bd46efe14b
+verified_against: 13f64ae03ad40343f9adca7146c9f1102fcab8dc
 ---
 
 # DM runtime
@@ -70,9 +71,8 @@ Model output is parsed with Zod through `callJson`/`callText` (`pipeline/call.ts
 records purpose, prompt version, outcome, provider, model, tokens, cost and duration (no prompt text) to the `recordCall` seam ([[dm-turn-jobs]]).
 
 `callJson` makes at most two attempts: the second sends back the first attempt's schema issues.
-Only the director passes a `normalize` hook: `normalizeDirector` (`nodes/director.ts`) cuts an
-over-long `goalNote` or `reason` to 300 characters at the last space and touches no number, id or
-discriminant (spec 033, `contracts/director-output.md` row C4).
+Only the director passes a `normalize` hook (`normalizeDirector`): it cuts an over-long `goalNote`
+or `reason` to 300 characters and touches no number, id or discriminant (spec 033).
 
 ## Actor snapshot
 
@@ -105,8 +105,8 @@ the fallback and the player-facing seed view are in [[dm-narration-quality]].
 
 ## Seed, doctrine, script
 
-- **Scene seed** (`seed/schema.ts`, `seed/load.ts`; `apps/server/seeds/greyhollow-ford.json`):
-  a validated JSON scene (goal, location, beats with a required `presence` map, NPCs with `aliases`, encounters; [[seed-npc-presence]]); the seed id is the scene id,
+- **Scene seed** (`seed/schema.ts`, `seed/load.ts`; `apps/server/seeds/greyhollow-ford.json`, plus the two-human `greyhollow-ford-duo.json`):
+  a validated JSON scene (at least one `human` seat; `listSeeds` lists the valid files) (goal, location, beats with a required `presence` map, NPCs with `aliases`, encounters; [[seed-npc-presence]]); the seed id is the scene id,
   so the log alone names the seed.
 - **Doctrine** (`doctrine/doctrine.ts`): DM-craft rules adapted from tabletop-dm (commit
   fe2c29b, Copyright (c) 2026 Brad Bush, MIT). `doctrine/NOTICE.md` carries the full licence
@@ -126,16 +126,15 @@ Each run returns one `pending` decision per own open action: `commit`, `withdraw
 (default `withdraw` after a human `object`, else `commit`). A human comment on
 an open action queues a `react` run ([[dm-turn-jobs]], [[playtest-harness]]). In turn mode only the active companion
 commits, and a withdraw still takes the hold act so the turn advances.
-`PROMPT_VERSION` is `dm.companion-v5`. On overflow the play is `status: "error"`, `dm.companion.state-overflow` is logged and no model call is made. A `hold` decision queues a companion job that force-queues the turn. `chronicle.ts` runs off the hot path after narration: `dm.chronicle`
+`PROMPT_VERSION` is `dm.companion-v5`. A `hold` decision queues a companion job that force-queues the turn. `chronicle.ts` runs off the hot path after narration: `dm.chronicle`
 turns new narration into `journal` proposals, idempotent when nothing is new. It reads the state at
 its `throughSeq` (`loadProjectionsThrough`, [[session-model]]) and prints it in the `fiction` view
-(`dm.chronicle-v3`). On overflow it writes nothing, returns `entries: 0` and logs
-`dm.chronicle.failed`.
+(`dm.chronicle-v3`). Overflow outcomes: [[actor-snapshot]].
 
 ## Routes and boundary
 
 `routes/dm.ts` (mounted at `/dm`, operator-only, [[server-entrypoint-and-app]]):
-`POST /dm/sessions/:id/start` (body `{ seedId, seats }`, 202 `{ jobId }`, 409 if a scene or a
+`GET /dm/seeds` (`{ seeds: [{ seedId, title, humans, companions }] }` from `listSeeds`), `POST /dm/sessions/:id/start` (body `{ seedId, seats }`, 202 `{ jobId }`, 400 when a user holds two seats, 409 if a scene or a
 start job exists), `POST /dm/sessions/:id/turn` (manual retry, 202), and
 `GET /dm/sessions/:id/turns?limit` (job list with outcome, audit record and call metadata, never
 prompt text). Four read-only operator routes serve the debug view: `GET /dm/sessions/:id/events`, `/jobs`, `/seed` and `/calls` ([[debug-view]]). A Biome `noRestrictedImports` override on `apps/server/src/dm/**` forbids the log

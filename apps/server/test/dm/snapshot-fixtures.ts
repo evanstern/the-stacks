@@ -3,12 +3,15 @@ import {
   emptyProjections,
   type SessionProjections,
 } from "@the-stacks/session-model";
+import { loadSeed } from "../../src/dm/seed/load.js";
 import type { SceneSeed } from "../../src/dm/seed/schema.js";
 import { testSeed } from "./helpers.js";
 
 /** Hand-built projections for snapshot tests: engine state is set directly. */
 
 export const PLAYER_USER = "00000000-0000-4000-8000-000000000001";
+/** The second human at the duo table (Kestrel's seat). */
+export const SECOND_USER = "00000000-0000-4000-8000-000000000002";
 
 export function combatant(
   id: string,
@@ -144,6 +147,54 @@ export function greyhollowFight(): Scenario {
     { trackerId: "dusk", name: "Dusk", segments: 6, filled: 2, note: null },
   ];
   p.throughSeq = 120;
+  return { projections: p, seed };
+}
+
+/**
+ * The two-player scene (seed `greyhollow-ford-duo`) at its opening: Tamsin and
+ * Kestrel held by two different users, Odo an AI companion, no fight yet.
+ */
+export function greyhollowDuo(): Scenario {
+  const seed = loadSeed("greyhollow-ford-duo");
+  const p = emptyProjections({ role: "dm" });
+  const users: Record<string, string> = {
+    tamsin: PLAYER_USER,
+    kestrel: SECOND_USER,
+  };
+  p.engine = {
+    v: 1,
+    combatants: Object.fromEntries(
+      seed.characters.map((c) => [
+        c.characterId,
+        combatant(c.characterId, c.name),
+      ]),
+    ),
+    encounter: null,
+  };
+  p.party = seed.characters.map((c) => {
+    const userId = users[c.characterId];
+    return {
+      characterId: c.characterId,
+      name: c.name,
+      controller:
+        c.seat === "human" && userId
+          ? { kind: "player" as const, userId }
+          : {
+              kind: "ai-companion" as const,
+              actor: `ai:companion:${c.characterId}`,
+            },
+      combatantId: c.characterId,
+      combatant: null,
+    };
+  });
+  p.tableMode = { mode: "free" };
+  p.scene = {
+    sceneId: "greyhollow-ford",
+    title: "Greyhollow Ford",
+    summary: "",
+    location: "the ford",
+  };
+  p.throughSeq = 10;
   return { projections: p, seed };
 }
 

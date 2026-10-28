@@ -23,7 +23,7 @@ sources:
   - apps/web/app/routes/settings.tsx
   - apps/web/app/library/books.ts
   - apps/web/app/library/upload.ts
-verified_against: 667fd6141eaecd0ac7f4797ccc20d8c6a1a5358e
+verified_against: 13f64ae03ad40343f9adca7146c9f1102fcab8dc
 ---
 
 # Chat UI
@@ -85,7 +85,10 @@ missing falling back to `"expanded"`/`"system"`. `root.tsx`'s loader calls it se
 the first byte of HTML already carries `data-theme` ([[client-identity]]); `routes/settings.tsx`
 writes it client-side with `uiCookie()` (one year, `Path=/`, `SameSite=Lax`, not `HttpOnly` —
 display preference only, no `localStorage`/`sessionStorage` per the standing rule) and
-revalidates. `shell/shell.tsx` reads/writes `stacks-sidebar` the same way for the
+revalidates, and renders `InviteSection` (`invite-section.tsx`) below the theme fieldset for an
+operator only: "Expires in (days)" (default 7) and "Create invitation" call `issueInvitation`;
+the token and expiry show once, in component state only, and a failure shows one inline
+message. `shell/shell.tsx` reads/writes `stacks-sidebar` the same way for the
 collapse toggle.
 
 **The route tree and role gate.** `routes.ts` adds four routes around the original two

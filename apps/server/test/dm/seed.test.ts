@@ -1,10 +1,16 @@
-import { readFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { getById } from "@the-stacks/srd";
 import { describe, expect, it } from "vitest";
 import { combatantFromSrd } from "../../src/dm/seed/combatants.js";
-import { loadSeed, parseSeed, SeedError } from "../../src/dm/seed/load.js";
+import {
+  listSeeds,
+  loadSeed,
+  parseSeed,
+  SeedError,
+} from "../../src/dm/seed/load.js";
 import {
   dmOnlySeedPaths,
   dmOnlySeedText,
@@ -157,15 +163,58 @@ describe("scene seed (AC #13)", () => {
     expect(issues.join(" ")).toContain('damage "banana" does not parse');
   });
 
-  it("requires exactly one human seat", () => {
+  it("requires at least one human seat", () => {
     const none = issuesFor((s) => {
       for (const c of s.characters) c.seat = "companion";
     });
-    expect(none.join(" ")).toContain("exactly one character");
-    const two = issuesFor((s) => {
-      for (const c of s.characters) c.seat = "human";
-    });
-    expect(two.join(" ")).toContain("exactly one character");
+    expect(none.join(" ")).toContain(
+      'at least one character must have seat "human", found 0',
+    );
+    const all = raw();
+    for (const c of all.characters) c.seat = "human";
+    expect(parseSeed(all).characters.every((c) => c.seat === "human")).toBe(
+      true,
+    );
+  });
+
+  it("loads the two-player duo seed", () => {
+    const seed = loadSeed("greyhollow-ford-duo");
+    expect(
+      seed.characters
+        .filter((c) => c.seat === "human")
+        .map((c) => c.characterId),
+    ).toEqual(["tamsin", "kestrel"]);
+    expect(
+      seed.characters
+        .filter((c) => c.seat === "companion")
+        .map((c) => c.characterId),
+    ).toEqual(["odo"]);
+  });
+
+  it("keeps exactly one human in greyhollow-ford", () => {
+    const seed = loadSeed("greyhollow-ford");
+    expect(seed.characters.filter((c) => c.seat === "human")).toHaveLength(1);
+  });
+
+  it("lists the shipped seeds sorted by id", () => {
+    expect(listSeeds().map((s) => s.seedId)).toEqual([
+      "greyhollow-ford",
+      "greyhollow-ford-duo",
+    ]);
+  });
+
+  it("lists only valid seeds from a directory and does not throw", () => {
+    const dir = mkdtempSync(join(tmpdir(), "seeds-"));
+    try {
+      writeFileSync(
+        join(dir, "good.json"),
+        JSON.stringify({ ...raw(), seedId: "good" }),
+      );
+      writeFileSync(join(dir, "bad.json"), JSON.stringify({ seedId: "bad" }));
+      expect(listSeeds(dir).map((s) => s.seedId)).toEqual(["good"]);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
   });
 
   it("collects every issue before throwing", () => {

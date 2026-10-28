@@ -1,13 +1,13 @@
 ---
 name: client-identity
-description: Why identity is resolved server-side, per request, through the load context — no client identity store, no polling hook. createWebLoadContext reads and memoizes the session cookie once per request; root.tsx's loader calls it and gates every route; sign-in/sign-out force a re-run via useRevalidator rather than writing a client cache.
+description: Why identity is resolved server-side, per request, through the load context — no client identity store, no polling hook. createWebLoadContext reads and memoizes the session cookie once per request; root.tsx's loader calls it and gates every route; sign-in/sign-out force a re-run via useRevalidator rather than writing a client cache; auth.ts also wraps invitation redeem and issue.
 kind: pattern
 sources:
   - apps/web/app/auth.ts
   - apps/web/app/root.tsx
   - apps/server/src/web.ts
   - packages/shared/src/web.ts
-verified_against: 785838b58f8b8b080d3c784da3fc9b5418c40f77
+verified_against: 13f64ae03ad40343f9adca7146c9f1102fcab8dc
 ---
 
 # Client identity
@@ -50,6 +50,12 @@ server request, a fresh cookie read), which is what actually flips the rendered 
 is no `setQueryData`-style direct write anywhere in this path. [[client-session-hook]]'s
 reconnect preflight does the same thing on a `401`: it calls the `onSignedOut` callback it was
 given, which `play.tsx` wires to the same `revalidator.revalidate`.
+
+`auth.ts` also holds the invitation wrappers (TASK-0163): `redeemInvitation(input)` posts
+`/auth/invitations/redeem` (the server sets the session cookie on 201; the sign-in card then
+revalidates) and `issueInvitation(expiresInDays)` posts `/auth/invitations` (operator only; the
+raw token returns once). Both throw `AuthRequestError` (`status`, `issues`) on a non-2xx
+response; `signIn` keeps its one fixed message.
 
 ## Connections
 

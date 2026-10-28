@@ -4,6 +4,7 @@ import { Panel } from "~/components/panel";
 import { Composer } from "./components/composer.tsx";
 import { LedgerList } from "./components/ledger-list.tsx";
 import { ProposalList } from "./components/proposal-list.tsx";
+import { StartScenePanel } from "./components/start-scene-panel.tsx";
 import {
   APPROVALS_PANEL_ID,
   LEDGER_PANEL_ID,
@@ -43,6 +44,15 @@ export function TableView({
   );
   const [ledgerOpen, setLedgerOpen] = useState(false);
   const [approvalsOpen, setApprovalsOpen] = useState(false);
+  const [startOpen, setStartOpen] = useState(false);
+  const [startQueued, setStartQueued] = useState(false);
+  const { startScene } = source.commands;
+  const canStart =
+    source.kind === "live" &&
+    source.role === "operator" &&
+    source.caughtUp &&
+    model.scene === null &&
+    startScene !== undefined;
   const endRef = useRef<HTMLDivElement>(null);
   const count = model.transcript.length;
   // biome-ignore lint/correctness/useExhaustiveDependencies: scroll when the transcript grows.
@@ -62,6 +72,8 @@ export function TableView({
         onLedger={() => setLedgerOpen((was) => !was)}
         onApprovals={() => setApprovalsOpen((was) => !was)}
         onFloor={source.commands.floor}
+        onStartScene={canStart ? () => setStartOpen(true) : undefined}
+        startQueued={startQueued && model.scene === null}
       />
       {model.mode.mode === "turn" && <TurnOrder order={model.mode.order} />}
       {model.hiddenCount > 0 && (
@@ -95,6 +107,15 @@ export function TableView({
       >
         <LedgerList items={model.ledger} />
       </Panel>
+      {canStart && startScene && (
+        <StartScenePanel
+          open={startOpen}
+          onOpenChange={setStartOpen}
+          present={source.presence ?? []}
+          startScene={startScene}
+          onQueued={() => setStartQueued(true)}
+        />
+      )}
       {model.isDm && (
         <Panel
           open={approvalsOpen}
