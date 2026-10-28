@@ -4,7 +4,7 @@ title: 'Actor-state gate: Check model-written roll reasons at the plan gate'
 status: In Progress
 assignee: []
 created_date: '2026-10-27 19:52'
-updated_date: '2026-10-28 20:03'
+updated_date: '2026-10-28 21:23'
 labels:
   - dm
   - rules-gate
@@ -37,8 +37,6 @@ Spec: specs/058-roll-reason-plan-gate
 - [ ] #8 Spec phase: Wiki re-ground
 <!-- AC:END -->
 
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -46,6 +44,8 @@ Operator, 2026-10-28, verbatim: "0161 can be done in M3 if it fits well. If you 
 
 Claimed 2026-10-28 by the M3 sweep (docs/design/m3-table-sweep-runbook.md). Worktree .worktrees/task-0161, branch task-0161-roll-reason-plan-gate, cut from origin/main b51f0b42. Spec 058 authored at bbcb1374: checkPlan runs the spec 051 checkClaims on every step reason and autoFail reason against S0 plus a presence-only planned diff; a refused reason refuses the group through the existing path; a resumed plan (spec 057) keeps its id check but does not rerun the reason check. Open questions OQ-1 to OQ-3 go to the operator.
 Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
+
+Operator ruling 2026-10-28, verbatim: "TASK-0161: I accept the recommended defaults OQ-1 to OQ-3 (a): a contradicting reason refuses the whole group, add REASON_CONTRADICTS_STATE to the engine refusal enum (amend 026 refusals.md), and check condition source text in the same walk."
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
