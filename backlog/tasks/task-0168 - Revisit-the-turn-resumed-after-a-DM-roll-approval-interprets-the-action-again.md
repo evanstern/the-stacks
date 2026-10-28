@@ -33,10 +33,6 @@ Spec: specs/057-human-dm-roll-resume
 - [x] #7 Spec phase: Re-ground and close (all ACs)
 <!-- AC:END -->
 
-
-
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -80,6 +76,8 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 Phase 4 fixes: bb120cd6 (055 scene flow, bounded waits), 6121ed4c (roll cards counted by kind; run 2's one FAIL was the selector matching the dice line quoted in the narration card). T019 run 3 on a fresh stack at 6121ed4c: ALL CHECKS PASSED. Commit turn director+interpret paused on one check.roll; the approval turn after the roll called exactly director, narrate, audit; narration and dice line on both tables; next approval turn empty-beat; action.resolved seq 56 outcome applied; one check.roll proposal. Recorded in evidence/live-run.md with 6 Brave shots (f1a7367d). live-run.md counts 8 turn calls: the script's other 2 calls are dm.chronicle, spent by the two chronicle jobs, whose rows list no calls in the turns view.
+
+spec-bridge sync: The resume classifier and the prior-turn read (card AC #2): 5/5 · The pipeline reuses the plan (card AC #1, card AC #2): 7/7 · DB test, scripts and mutation guard (card AC #1): 5/5 · Live check in script mode (card AC #1): 2/2 · Re-ground and close (all ACs): 4/4 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
