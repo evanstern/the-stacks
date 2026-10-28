@@ -96,23 +96,23 @@ quickstart.
 **Independent test**: `docker build` succeeds, and the built image lists
 `/app/apps/server/dm-scripts/greyhollow-live.json`. `node --check` passes on both helpers.
 
-- [ ] T014 [P] [US2] Add `COPY --from=build /app/apps/server/dm-scripts apps/server/dm-scripts`
+- [x] T014 [P] [US2] Add `COPY --from=build /app/apps/server/dm-scripts apps/server/dm-scripts`
   to `Dockerfile` beside the seeds line, with a one-line comment naming spec 053.
-- [ ] T015 [P] [US2] Add a commented `DM_FAKE_SCRIPT` block to `.env.example`. State that it names
+- [x] T015 [P] [US2] Add a commented `DM_FAKE_SCRIPT` block to `.env.example`. State that it names
   a file in `apps/server/dm-scripts/`, belongs in a worktree `.env` (never the root `.env`),
   replaces the whole AI config, and is refused when `STACKS_ENV` is unset, `default`, `main` or `dev`.
-- [ ] T016 [P] [US2] Create `specs/053-env-fake-dm-script/evidence/start-scene.mjs` per plan D6.
+- [x] T016 [P] [US2] Create `specs/053-env-fake-dm-script/evidence/start-scene.mjs` per plan D6.
   Arguments: the creds file path. It signs in through the auth route, creates a session id,
   calls `POST /dm/sessions/<id>/start` with `seedId: "greyhollow-ford"` and every human seat set
   to the operator's user id, and prints the play and debug URLs. If the play page needs a prior
   event to load a fresh session, seed it the way `specs/041-debug-page/evidence/seed-live.mjs`
   does and say so in a header comment.
-- [ ] T017 [P] [US2] Create `specs/053-env-fake-dm-script/evidence/declare.mjs` per plan D6 and
+- [x] T017 [P] [US2] Create `specs/053-env-fake-dm-script/evidence/declare.mjs` per plan D6 and
   research R7. Arguments: the creds file path and the session id. It opens the WebSocket with the
   session cookie, subscribes, and sends the gate requests that declare `act-search` for `tamsin`
   ("I search the ferry-house for whoever cut the bell rope.") and commit it, in the frame shapes of
   `docs/wiki/ws-protocol.md`. It prints each refusal code and exits nonzero on one.
-- [ ] T018 [US2] Build the image (`docker compose -p stacks-task-158 build app`) and confirm the
+- [x] T018 [US2] Build the image (`docker compose -p stacks-task-158 build app`) and confirm the
   script is in it. Run `node --check` on both helpers. Run `pnpm ci:check`. Commit.
 
 ---
