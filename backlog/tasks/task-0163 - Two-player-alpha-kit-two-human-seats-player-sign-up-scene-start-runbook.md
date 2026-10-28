@@ -4,7 +4,7 @@ title: 'Two-player alpha kit: two human seats, player sign-up, scene-start runbo
 status: In Progress
 assignee: []
 created_date: '2026-10-28 04:12'
-updated_date: '2026-10-28 14:44'
+updated_date: '2026-10-28 14:45'
 labels:
   - multiplayer
   - dev-tooling
@@ -93,6 +93,8 @@ Merged as #79 at 6d6982e under the operator's merge-on-green grant (TASK-0117). 
 
 Operator, 2026-10-28, in the M3 sweep chat, verbatim: "Spending Ceiling: Since we're essentially using my subscription to Claude through 9router, dollar-wise it's fuzzy. I'm pretty happy with doing as high as you'd like -- maybe cap it at $50 and if that causes any issues we can scale down. I'm not actually being charged $50 so it's okay." Read as: a $50 ceiling for the hosted-dev alpha run (AC #4), by the debug page's cost slide-out.
 Operator, 2026-10-28, verbatim: "You have a go on those commands" — the four Phase 8 commands T041-T043: curl /health; gh workflow run deploy-dev.yml + gh run watch only if stale; node scripts/deploy-dev.mjs status; node scripts/deploy-dev.mjs backup --name pre-task-0163-alpha.
+
+Phase 8 preflight, 2026-10-28, under the operator's go: T041 /health status ok, database reachable, commit da31a11f (contains #79's 6d6982e), so no manual deploy ran. The push of board commits then auto-deployed 9be9de4f (board-only on top of da31a11f). T042 deploy-dev.mjs status: running commit 9be9de4f, /health ok, exit 0. T043 backup: /home/stacks/dev/backups/manual-pre-task-0163-alpha.dump, exit 0. T044 waits on the operator and the other developer playing. The spec ticks for T041-T045 land with the next task branch.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
