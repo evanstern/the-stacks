@@ -33,8 +33,6 @@ Spec: specs/052-talk-conflict-retry
 - [ ] #7 Spec phase: Wiki re-ground and runbook rows (card AC #1, AC #2)
 <!-- AC:END -->
 
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -54,6 +52,8 @@ spec-bridge sync: Failing gate-level zero-CONFLICT tests (card AC #1): 9/9 · Pe
 
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Phase 2 (a3fb9f4): inOrder per-session queue and retryDelayMs (10-50 ms) in gate.ts. Mutation (inOrder -> fn()): T002, T003, T004, T007 fail; restored, diff empty. REQUIRE_DATABASE=1 pnpm ci:check exit 0.
+
+spec-bridge sync: Failing gate-level zero-CONFLICT tests (card AC #1): 9/9 · Per-session queue and jittered retry (card AC #1): 8/8 · WebSocket burst test, resend workaround removed, client label (card AC #1): 0/6 · Gate contract amendment (card AC #2): 0/4 · Wiki re-ground and runbook rows (card AC #1, AC #2): 0/9
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
