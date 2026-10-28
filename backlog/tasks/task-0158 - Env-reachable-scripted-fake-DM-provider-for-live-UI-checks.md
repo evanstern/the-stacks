@@ -4,7 +4,7 @@ title: Env-reachable scripted fake DM provider for live UI checks
 status: In Progress
 assignee: []
 created_date: '2026-10-27 09:59'
-updated_date: '2026-10-28 04:09'
+updated_date: '2026-10-28 04:13'
 labels:
   - dm
   - debug-view
@@ -26,6 +26,11 @@ Spec: specs/053-env-fake-dm-script
 <!-- AC:BEGIN -->
 - [ ] #1 Setting one env value (a script path or name) makes the running app's fake provider replay a DM script, with a test
 - [ ] #2 A documented quickstart runs a narrated turn on a worktree stack with no key
+- [ ] #3 Spec phase: Script-mode runtime and its boot guard (card AC #1)
+- [ ] #4 Spec phase: Boot wiring, the live script and a scripted scene-start (card AC #1)
+- [ ] #5 Spec phase: Image, env docs and evidence helpers (card AC #2)
+- [ ] #6 Spec phase: Live quickstart run on this worktree's stack (card AC #2)
+- [ ] #7 Spec phase: Merge main, wiki re-ground and runbook rows (card AC #1, #2)
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -39,6 +44,8 @@ Spec author (spec.md, 5039353) stopped with open questions Q1-Q8. Root cause: in
 Operator ruling, 2026-10-27, verbatim: "TASK-0158: I accept the recommended defaults Q1 to Q8, including the DM_FAKE_SCRIPT name, the shipped dm-scripts directory, the whole-config replacement and the STACKS_ENV boot guard."
 
 Correction: the operator ruling above was given 2026-10-28, not 2026-10-27.
+
+Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
