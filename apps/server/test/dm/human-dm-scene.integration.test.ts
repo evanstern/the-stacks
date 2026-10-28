@@ -142,9 +142,11 @@ describe.skipIf(!reachable)(
       // currentSeed returned the seed (not no-scene or bad-seed): the runner
       // ran assemble and froze the beat. A no-scene finish leaves it null.
       expect(result.checkpoint.beat).not.toBeNull();
+      // One row: with a human DM the scene-start turn leaves the scene as a
+      // pending suggestion, so only the DM's carry-out writes scene.changed.
       expect(
         (await readRows(w)).filter((r) => r.type === "scene.changed"),
-      ).toHaveLength(2);
+      ).toHaveLength(1);
     });
   },
 );

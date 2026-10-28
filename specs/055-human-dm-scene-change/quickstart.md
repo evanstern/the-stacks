@@ -33,11 +33,17 @@ Card AC #1 and #2, SC-002. This runs on the worktree stack in script mode (`DM_F
    suggestion to leave "Pending proposals".
 8. On the debug page, expect one `scene.changed` row by the operator with `after.sceneId`
    `greyhollow-ford`, one `proposal.rejected` row on the seed, and then an `approval` turn job.
-   That job loaded the seed: its outcome is not `empty-beat`, and its `dm_model_calls` rows are
-   `scripted`. Record the job id, outcome and call purposes.
+   That job loaded the seed: its `checkpoint.beat` is set (the no-scene baseline leaves it null).
+   With no player action it ends `empty-beat` by design and makes no model calls. Record the job id,
+   outcome, `checkpoint.beat` and call purposes.
+8b. In the approvals slide-out, approve the pending scene-start suggestions (party, combatants,
+   tracker and presence).
+8c. As the player, declare and commit `act-search` with `specs/053-env-fake-dm-script/evidence/declare.mjs`.
+   Expect a turn job that narrates it from the `human-dm-approval` calls (director, interpret,
+   narrate, audit), then the chronicle jobs. Record the job id and its `scripted` call purposes.
 9. Baseline (red): on a second session, repeat steps 4 and 5, then click Dismiss on the suggestion
    instead of carrying it out. Expect the `approval` turn job to finish with outcome `empty-beat`
-   (no scene). Recreate the app container first if the script is spent (053 quickstart step 11).
+   and `checkpoint.beat` null (no scene). Recreate the app container first if the script is spent (053 quickstart step 11).
 10. Open the play URL as the player. Expect no "Change scene" button.
 11. Remove the `DM_FAKE_SCRIPT` line and recreate the app container. Leave the stack up.
 
