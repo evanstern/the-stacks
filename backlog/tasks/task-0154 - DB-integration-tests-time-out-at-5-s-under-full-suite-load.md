@@ -25,8 +25,8 @@ Spec: specs/056-db-test-timeouts
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 The affected tests set an explicit timeout sized to their measured worst case, or the suite isolates them so load does not starve them
-- [ ] #2 Three consecutive full REQUIRE_DATABASE=1 server runs pass without re-runs
+- [x] #1 The affected tests set an explicit timeout sized to their measured worst case, or the suite isolates them so load does not starve them
+- [x] #2 Three consecutive full REQUIRE_DATABASE=1 server runs pass without re-runs
 - [x] #3 Spec phase: Measure before the fix (card AC #1) — orchestrator-run
 - [x] #4 Spec phase: Size and set the timeouts (card AC #1)
 - [x] #5 Spec phase: Three consecutive full runs (card AC #2) — orchestrator-run
@@ -49,6 +49,9 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Phase 1 (orchestrator, 2026-10-28): stack up and both DBs migrated. Alone, the 8 target tests ran 4-2102 ms; the full verbose baseline passed (server 1266 passed, 5 skipped) with no timeout, slowest target 2102 ms. Phase 2 (9a5fae22): every target test carries 30_000 with a TASK-0154 comment (D2 floor). No extra test over 2.5 s needed one. The implementer's no-DB server run failed 5 tests in adjudicate.integration.test.ts (requireDb throws instead of skipping), which is TASK-0138, untouched here.
 
 spec-bridge sync: Measure before the fix (card AC #1) — orchestrator-run: 3/3 · Size and set the timeouts (card AC #1): 8/8 · Three consecutive full runs (card AC #2) — orchestrator-run: 3/3 · Evidence, wiki, runbook and close (card AC #1, card AC #2): 12/12 — status In Progress → Done
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+Phase 3 (orchestrator, 6b52c1a0): three consecutive REQUIRE_DATABASE=1 pnpm test runs, each exit 0, server 1266 passed | 5 skipped, no re-run (AC #2). Phase 4 (4a5e6905): measurement three-run section, test-suite wiki note re-pinned, runbook rows, spec 054 T041-T043 ticked. T026: final REQUIRE_DATABASE=1 pnpm ci:check exit 0. AC #1: all 8 DB tests carry an explicit 30 s timeout sized by plan D2 from a 2102 ms worst case (evidence/measurement.md).
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
