@@ -4,7 +4,7 @@ title: 'Actor-state gate: Check model-written roll reasons at the plan gate'
 status: In Progress
 assignee: []
 created_date: '2026-10-27 19:52'
-updated_date: '2026-10-28 21:32'
+updated_date: '2026-10-28 21:36'
 labels:
   - dm
   - rules-gate
@@ -52,6 +52,9 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 Phase 2 (T009-T021) at 9bbf9314: checkPlan runs checkClaims on step reasons, autoFail reasons and condition sources against S0 plus the presence-only planned diff; resumed groups skip it; arrivingNpcs exported. plan-gate.test 41 pass; ci:check shows only the 5 known adjudicate.integration requireDb failures (TASK-0138).
 Orchestrator rulings: (1) the Phase 1 assertion used field `kind`; ClaimIssue names it `claim`, so the fix to `claim: "count"` stands (the it.fails masked it). (2) T016 example verb "staggers" is not in the spec 051 act lexicon; tests use "steps", which it holds. The lexicon is spec 051 scope and stays unchanged here.
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Phase 3 (T022-T030) at c7999f3f: resolve passes arriving and resumed; refusalCode comes from the verdict; REASON_CONTRADICTS_STATE appended to the engine enum (OQ-2 (a)), count 27->28, PLAN_GATE_ONLY exemption in coverage.test; 3 resolve DB tests; 026 refusals.md, 031 resolve.md, 051 claim-gate.md amended additively. Without a DB, ci:check shows only the 5 known adjudicate requireDb failures.
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
 
