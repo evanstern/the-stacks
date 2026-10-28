@@ -4,7 +4,7 @@ title: Gate refuses bursty concurrent talk with CONFLICT after its retry bound
 status: In Progress
 assignee: []
 created_date: '2026-10-27 09:46'
-updated_date: '2026-10-28 03:21'
+updated_date: '2026-10-28 03:26'
 labels:
   - gate
   - ws
@@ -54,6 +54,9 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Phase 2 (a3fb9f4): inOrder per-session queue and retryDelayMs (10-50 ms) in gate.ts. Mutation (inOrder -> fn()): T002, T003, T004, T007 fail; restored, diff empty. REQUIRE_DATABASE=1 pnpm ci:check exit 0.
 
 spec-bridge sync: Failing gate-level zero-CONFLICT tests (card AC #1): 9/9 · Per-session queue and jittered retry (card AC #1): 8/8 · WebSocket burst test, resend workaround removed, client label (card AC #1): 0/6 · Gate contract amendment (card AC #2): 0/4 · Wiki re-ground and runbook rows (card AC #1, AC #2): 0/9
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+Phase 3 (fa3d99c): WS resend removed; T012b (3 senders x5 all in flight) 3/3 runs zero CONFLICT; concurrency-smoke PASS wsRtP95 17.8 ms; CONFLICT label "The table was busy, so your line was not sent. Send it again."; ci:check exit 0. T020 was not run red first (tests-first skipped for the label test).
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
