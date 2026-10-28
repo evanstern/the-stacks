@@ -212,29 +212,29 @@ runbook records this task.
 
 **Independent test**: the freshness gate prints `OK`, and the spec-bridge check exits 0.
 
-- [ ] T028 Run `git -C /Users/evanstern/projects/the-stacks/.worktrees/task-0157 fetch origin`
+- [x] T028 Run `git -C /Users/evanstern/projects/the-stacks/.worktrees/task-0157 fetch origin`
       and merge `origin/main` into the branch (no rebase). Resolve any conflict in favour of the
       superset.
-- [ ] T029 Run the `grounding-wiki:wiki-update` plan. Classify each note whose sources changed
+- [x] T029 Run the `grounding-wiki:wiki-update` plan. Classify each note whose sources changed
       as RE-PIN-ONLY or NEEDS-REVIEW against `git diff <old-pin>..HEAD -- <sources>`.
-- [ ] T030 NEEDS-REVIEW `docs/wiki/proposal-gate.md`: rewrite the **Concurrency** paragraph
+- [x] T030 NEEDS-REVIEW `docs/wiki/proposal-gate.md`: rewrite the **Concurrency** paragraph
       (per-session order, parse first, 3 attempts with a 10–50 ms jittered wait, `CONFLICT` only
       from an outside writer, no re-entry). Delete the "Known behaviour … carded TASK-0157"
       line. Re-pin it.
-- [ ] T031 NEEDS-REVIEW `docs/wiki/websocket-gateway.md`: the `internal` / `CONFLICT` sentence
+- [x] T031 NEEDS-REVIEW `docs/wiki/websocket-gateway.md`: the `internal` / `CONFLICT` sentence
       now says when it can still occur. Re-pin it.
-- [ ] T032 NEEDS-REVIEW `docs/wiki/play-route.md`: `refusalLabel` covers `CONFLICT`. Re-pin it.
-- [ ] T033 Review `docs/wiki/presence.md` (`recordPresence` now joins the order) and
+- [x] T032 NEEDS-REVIEW `docs/wiki/play-route.md`: `refusalLabel` covers `CONFLICT`. Re-pin it.
+- [x] T033 Review `docs/wiki/presence.md` (`recordPresence` now joins the order) and
       `docs/wiki/test-suite.md` (the resend helper is gone; the gate ordering tests exist).
       Amend prose where behaviour changed, then re-pin each whose sources changed.
-- [ ] T034 Regenerate `docs/wiki/CAPSULES.md` if any `description:` changed. Add one sentence to
+- [x] T034 Regenerate `docs/wiki/CAPSULES.md` if any `description:` changed. Add one sentence to
       the `docs/wiki/INDEX.md` state paragraph: the gate orders each session's writes in process
       and retries outside conflicts with a jittered wait (TASK-0157, specs/052).
-- [ ] T035 In `docs/design/m3-table-sweep-runbook.md` "Execution log": fill TASK-0143's row
+- [x] T035 In `docs/design/m3-table-sweep-runbook.md` "Execution log": fill TASK-0143's row
       (PR `[#76](https://github.com/evanstern/the-stacks/pull/76)`, merge `b983945`), replacing
       its "(this PR)" and "—". Add a row:
       `| 2026-10-27 | TASK-0157 | (this PR) | — | spec (opus ×2), impl ×4 + wiki (sonnet) | Gate orders each session's writes in process (handle, submit, recordPresence); 3 attempts with a 10–50 ms jittered wait for outside writers; ws resend workaround removed; CONFLICT label in the play client; frozen 029 gate-api amended as ruled. |`
-- [ ] T036 Run `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/0.68.0/gates/cli.mjs freshness . docs/wiki`
+- [x] T036 Run `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/0.68.0/gates/cli.mjs freshness . docs/wiki`
       (it must print `OK`). Run
       `node ~/.claude/plugins/cache/praxisflux/spec-bridge/0.68.0/gates/cli.mjs check .`
       (it must exit 0). Commit as "TASK-0157: Phase 5 — wiki re-ground and runbook rows".
