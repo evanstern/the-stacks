@@ -29,9 +29,11 @@ Spec: specs/055-human-dm-scene-change
 - [x] #4 Spec phase: Seeds and the view model (card AC #2)
 - [x] #5 Spec phase: The scene panel and the header trigger (card AC #1, card AC #2)
 - [x] #6 Spec phase: The AI DM resumes in the carried-out scene (card AC #2, SC-002)
-- [ ] #7 Spec phase: Live check in script mode (card AC #1, card AC #2)
+- [x] #7 Spec phase: Live check in script mode (card AC #1, card AC #2)
 - [ ] #8 Spec phase: Merge, re-ground and close (all ACs)
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
