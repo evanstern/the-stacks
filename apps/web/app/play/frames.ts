@@ -4,7 +4,9 @@ import {
   CombatantIdSchema,
   currentVersion,
   GATE_REQUEST_VERSION,
+  ReasonSchema,
   RefIdSchema,
+  SceneSchema,
   TalkV1,
 } from "@the-stacks/session-model";
 import type {
@@ -12,6 +14,7 @@ import type {
   CommitInput,
   DeclareInput,
   FloorInput,
+  SceneInput,
   TalkInput,
   WithdrawInput,
 } from "./source.ts";
@@ -173,6 +176,41 @@ export function rejectFrame(
   return {
     eventType: "proposal.reject",
     payload: { proposalId, reason: trimmed === "" ? null : trimmed },
+    payloadVersion: GATE_REQUEST_VERSION,
+  };
+}
+
+/** "Scene: <title>" sliced to 200 characters, or "Clear the scene". */
+export function sceneSummary(after: SceneInput["after"]): string {
+  return after === null
+    ? "Clear the scene"
+    : `Scene: ${after.title}`.slice(0, 200);
+}
+
+/** A `scene` gate request. Null when `reason` or `after` fails its schema. */
+export function sceneFrame(input: SceneInput): EventFrame | null {
+  const reason = ReasonSchema.safeParse(input.reason.trim());
+  if (!reason.success) return null;
+  let after: SceneInput["after"] = null;
+  if (input.after !== null) {
+    const location = input.after.location?.trim() ?? "";
+    const parsed = SceneSchema.safeParse({
+      sceneId: input.after.sceneId,
+      title: input.after.title.trim(),
+      summary: input.after.summary.trim(),
+      location: location === "" ? null : location,
+    });
+    if (!parsed.success) return null;
+    after = parsed.data as NonNullable<SceneInput["after"]>;
+  }
+  return {
+    eventType: "scene",
+    payload: {
+      reason: reason.data,
+      after,
+      summary: sceneSummary(after),
+      rationale: null,
+    },
     payloadVersion: GATE_REQUEST_VERSION,
   };
 }

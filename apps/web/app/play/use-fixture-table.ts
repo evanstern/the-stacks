@@ -13,15 +13,21 @@ import {
   type EventFrame,
   floorFrame,
   localEventOf,
+  sceneFrame,
   talkFrame,
   withdrawFrame,
 } from "./frames.ts";
-import { appendLocal, localFloorEvents } from "./local-log.ts";
+import {
+  appendLocal,
+  type LocalEventInput,
+  localFloorEvents,
+  localSceneEvents,
+} from "./local-log.ts";
 import {
   type PendingProposalView,
   selectPendingProposals,
 } from "./proposals.ts";
-import type { TableCommands, TableSource } from "./source.ts";
+import type { SceneInput, TableCommands, TableSource } from "./source.ts";
 
 /** "dm", or the user id of one of the fixture's listed players (falls back to the DM). */
 export function viewerForKey(
@@ -46,6 +52,27 @@ export function proposalsFor(
   return selectPendingProposals(events, viewer).filter(
     (p) => !decided.has(p.proposalId),
   );
+}
+
+/**
+ * Fixture mode: the rows a scene change appends and the proposal it closes. Same validation
+ * as the live path (`sceneFrame`); `before` comes from the DM's full projection. Null when
+ * the request would be refused.
+ */
+export function planScene(
+  events: readonly StoredEvent[],
+  dmViewer: Viewer,
+  input: SceneInput,
+): { rows: LocalEventInput[]; close: string | null } | null {
+  const frame = sceneFrame(input);
+  if (!frame) return null;
+  const sent = frame.payload as Pick<SceneInput, "reason" | "after">;
+  const row = localSceneEvents(project(events, dmViewer), {
+    reason: sent.reason,
+    after: sent.after,
+    closeProposalId: null,
+  });
+  return row ? { rows: [row], close: input.closeProposalId } : null;
 }
 
 /**
@@ -140,6 +167,21 @@ export function useFixtureTable(
       });
       return true;
     }
+    function changeScene(input: SceneInput): boolean {
+      const plan = planScene(events, fixture.viewers.dm, input);
+      if (!plan) return false;
+      setState((prev) => {
+        const cur = prev.key === key ? prev : { key, local: [], decided: [] };
+        let all = [...base, ...cur.local];
+        for (const row of plan.rows) all = appendLocal(all, row, actor);
+        return {
+          ...cur,
+          local: all.slice(base.length),
+          decided: plan.close ? [...cur.decided, plan.close] : cur.decided,
+        };
+      });
+      return true;
+    }
     function decide(proposalId: string): boolean {
       setState((prev) => {
         const cur = prev.key === key ? prev : { key, local: [], decided: [] };
@@ -154,6 +196,7 @@ export function useFixtureTable(
       commit: (input) => append(commitFrame(input), input.authority),
       withdraw: (input) => append(withdrawFrame(input)),
       floor: appendFloor,
+      changeScene,
       approve: (id) => decide(id),
       reject: (id) => decide(id),
     };

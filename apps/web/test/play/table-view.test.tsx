@@ -13,6 +13,7 @@ import { viewerFor } from "~/play/viewer";
 const yes = () => true;
 const commands = {
   floor: yes,
+  changeScene: yes,
   sendTalk: yes,
   declareAction: yes,
   comment: yes,

@@ -10,6 +10,7 @@ import {
   type EventFrame,
   floorFrame,
   rejectFrame,
+  sceneFrame,
   talkFrame,
   withdrawFrame,
 } from "./frames.ts";
@@ -50,6 +51,13 @@ export function useLiveTable(sessionId: string, user: LiveUser): TableSource {
       commit: (input) => send(commitFrame(input)),
       withdraw: (input) => send(withdrawFrame(input)),
       floor: (input) => send(floorFrame(input)),
+      changeScene: (input) => {
+        const ok = send(sceneFrame(input));
+        if (ok && input.closeProposalId) {
+          send(rejectFrame(input.closeProposalId, null));
+        }
+        return ok;
+      },
       startScene: (body) => postStart(sessionId, body),
       // Decisions leave as gate requests; the panel drops a proposal when the decision
       // event comes back (contracts/proposal-seam.md).

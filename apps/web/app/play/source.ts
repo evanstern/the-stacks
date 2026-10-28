@@ -59,6 +59,22 @@ export interface FloorInput {
   reason?: string;
 }
 
+/** One scene change: the request, and the pending proposal it carries out (or null). */
+export interface SceneInput {
+  /** Trimmed; 1..500 (ReasonSchema). */
+  reason: string;
+  /** Null clears the scene. */
+  after: {
+    /** From the seed; never typed by the DM. */
+    sceneId: string;
+    title: string;
+    summary: string;
+    location: string | null;
+  } | null;
+  /** The pending proposal this change carries out, or null. */
+  closeProposalId: string | null;
+}
+
 export interface TableCommands extends ProposalCommands {
   sendTalk(input: TalkInput): boolean;
   declareAction(input: DeclareInput): boolean;
@@ -66,6 +82,8 @@ export interface TableCommands extends ProposalCommands {
   commit(input: CommitInput): boolean;
   withdraw(input: WithdrawInput): boolean;
   floor(input: FloorInput): boolean;
+  /** A `scene` gate request; closes `closeProposalId` after it leaves. True when sent/applied. */
+  changeScene(input: SceneInput): boolean;
   /** Operator only; absent on fixtures. Posts to `/dm/sessions/<id>/start`. */
   startScene?(body: StartBody): Promise<StartResult>;
 }

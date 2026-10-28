@@ -8,6 +8,7 @@ import { TableView } from "~/play/table-view";
 const yes = () => true;
 const base = {
   floor: yes,
+  changeScene: yes,
   sendTalk: yes,
   declareAction: yes,
   comment: yes,
