@@ -4,7 +4,7 @@ title: Gate refuses bursty concurrent talk with CONFLICT after its retry bound
 status: In Progress
 assignee: []
 created_date: '2026-10-27 09:46'
-updated_date: '2026-10-28 03:00'
+updated_date: '2026-10-28 03:07'
 labels:
   - gate
   - ws
@@ -32,6 +32,9 @@ Spec: specs/052-talk-conflict-retry
 
 <!-- SECTION:NOTES:BEGIN -->
 Claimed 2026-10-27 by the M3 sweep (docs/design/m3-table-sweep-runbook.md). Worktree .worktrees/task-0157, branch task-0157-talk-conflict-retry, cut from origin/main 88194c8. Spec number 052 claimed with a stub. Spec 051 is held by TASK-0143 (PR #76), so this takes 052.
+
+Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
+Spec author (spec.md, c158ee2) stopped with open questions Q1-Q6. Root cause: gate attempts fold the whole log then append with expectedLastSeq; concurrent same-process writes race and the immediate 3-try retry refuses CONFLICT (repro 4/15 to 41/100; per-session serial queue 0).
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
