@@ -30,8 +30,10 @@ Spec: specs/056-db-test-timeouts
 - [x] #3 Spec phase: Measure before the fix (card AC #1) — orchestrator-run
 - [x] #4 Spec phase: Size and set the timeouts (card AC #1)
 - [x] #5 Spec phase: Three consecutive full runs (card AC #2) — orchestrator-run
-- [ ] #6 Spec phase: Evidence, wiki, runbook and close (card AC #1, card AC #2)
+- [x] #6 Spec phase: Evidence, wiki, runbook and close (card AC #1, card AC #2)
 <!-- AC:END -->
+
+
 
 
 
