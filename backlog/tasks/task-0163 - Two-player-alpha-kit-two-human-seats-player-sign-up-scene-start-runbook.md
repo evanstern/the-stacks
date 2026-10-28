@@ -4,7 +4,7 @@ title: 'Two-player alpha kit: two human seats, player sign-up, scene-start runbo
 status: In Progress
 assignee: []
 created_date: '2026-10-28 04:12'
-updated_date: '2026-10-28 05:06'
+updated_date: '2026-10-28 05:07'
 labels:
   - multiplayer
   - dev-tooling
@@ -47,6 +47,8 @@ Claimed 2026-10-28 by the M3 sweep (docs/design/m3-table-sweep-runbook.md). Work
 
 Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
 Spec author (spec.md, 2caeccc) stopped with open questions Q1-Q6. Blocker found: crossCheckSeed refuses any seed whose human count is not exactly one; redeem already makes a signed-in player but the web app has no surface; no runbook section for scene start.
+
+Operator ruling, 2026-10-28, verbatim (the reply button cut it at 300 characters): "TASK-0163: I accept the recommended defaults Q1 to Q6, including the greyhollow-ford-duo seed, the at-least-one-human seed rule, the inline redeem toggle on the sign-in card, the Settings invite section, the Start scene slide-out with the new GET /dm/seeds route, and the two of us playing AC #4 on d". Read as: Q1-Q6 defaults accepted; Q6 = the operator and the other developer play AC #4 on hosted dev with the real AI DM. The spend ceiling for that run and the go on each vm-104 command are still to come from the operator.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
