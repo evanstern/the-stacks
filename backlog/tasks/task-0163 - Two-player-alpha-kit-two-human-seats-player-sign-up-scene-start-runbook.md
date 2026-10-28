@@ -4,7 +4,7 @@ title: 'Two-player alpha kit: two human seats, player sign-up, scene-start runbo
 status: In Progress
 assignee: []
 created_date: '2026-10-28 04:12'
-updated_date: '2026-10-28 05:34'
+updated_date: '2026-10-28 05:39'
 labels:
   - multiplayer
   - dev-tooling
@@ -70,6 +70,9 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Phase 3 (aa9c370 bookkeeping, 49391e5 code): inline 'Have an invitation?' redeem on the sign-in card; operator-only Invite a player section on Settings (token shown once, copy). Web tests red then green (97 vitest, 236 node incl. no-dialog). No DOM library, so clicks are covered in Phase 6's browser run. Orchestrator-run REQUIRE_DATABASE=1 pnpm ci:check on 49391e5: exit 0, server 1261, web 97. T022 to be ticked by the next phase.
 
 spec-bridge sync: Duo seed, seat rules and the seeds route (card AC #1): 9/9 · Two-human behaviour check and mutation guard (card AC #1): 5/5 · Redeem toggle and the invite section (card AC #2): 7/8 · Start scene slide-out (card AC #3): 0/6 · Runbook section and the DM API contract (card AC #3): 0/3 · Local live run on this worktree's stack (card AC #2, #3): 0/4 · Merge main, wiki re-ground and runbook rows (card AC #1, #2, #3): 0/5 · Hosted-dev alpha run (card AC #4) — orchestrator-run, after operator go: 0/5
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+Phase 4 (431a9af, e4d1fe0): operator Start scene slide-out on the table page (seed select, one present human per human seat, inline refusals, closes on 202). Web tests red then green (107 vitest, 245 node). Orchestrator-run REQUIRE_DATABASE=1 pnpm ci:check on e4d1fe0: exit 0, server 1261, web 107. T028 to be ticked by the next phase.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
