@@ -1,9 +1,10 @@
 ---
 id: TASK-0159
 title: Human DM can carry out a scene change from the table
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-10-27 10:33'
+updated_date: '2026-10-28 05:59'
 labels:
   - play-route
   - gate
@@ -23,6 +24,12 @@ Outcome: a seated human DM can change scene from the play route. That includes a
 - [ ] #1 The play route offers a human DM a scene-change control built from a gate scene request, with no modal, and a test
 - [ ] #2 A scene suggestion's content can seed that control
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Claimed 2026-10-28 by the M3 sweep (docs/design/m3-table-sweep-runbook.md). Worktree .worktrees/task-0159, branch task-0159-human-dm-scene-change, cut from origin/main 7e3e029. Spec number 055 claimed with a stub. Spec 054 is held by TASK-0163 (PR #79), so this takes 055.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
