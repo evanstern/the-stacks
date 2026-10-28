@@ -34,8 +34,10 @@ Spec: specs/058-roll-reason-plan-gate
 - [x] #5 Spec phase: The reason check in `checkPlan` (card AC #1, #2, #3)
 - [x] #6 Spec phase: Resolve wiring, the refusal code, DB tests, contracts (card AC #1, #2, #3)
 - [x] #7 Spec phase: DB suites and the mutation guard **[orchestrator]**
-- [ ] #8 Spec phase: Wiki re-ground
+- [x] #8 Spec phase: Wiki re-ground
 <!-- AC:END -->
+
+
 
 
 
