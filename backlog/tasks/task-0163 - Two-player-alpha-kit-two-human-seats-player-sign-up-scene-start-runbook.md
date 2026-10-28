@@ -4,7 +4,7 @@ title: 'Two-player alpha kit: two human seats, player sign-up, scene-start runbo
 status: In Progress
 assignee: []
 created_date: '2026-10-28 04:12'
-updated_date: '2026-10-28 05:07'
+updated_date: '2026-10-28 05:13'
 labels:
   - multiplayer
   - dev-tooling
@@ -36,6 +36,14 @@ Spec: specs/054-two-player-alpha-kit
 - [ ] #2 A second person can get a player account through the web app from an operator-issued invitation, with no modal, and a test
 - [ ] #3 docs/ops/dev-vm-104.md documents issuing an invitation, creating a session, and starting a scene with a seat per human on hosted dev
 - [ ] #4 The runbook is run once on hosted dev with two accounts, and the result is recorded on this card
+- [ ] #5 Spec phase: Duo seed, seat rules and the seeds route (card AC #1)
+- [ ] #6 Spec phase: Two-human behaviour check and mutation guard (card AC #1)
+- [ ] #7 Spec phase: Redeem toggle and the invite section (card AC #2)
+- [ ] #8 Spec phase: Start scene slide-out (card AC #3)
+- [ ] #9 Spec phase: Runbook section and the DM API contract (card AC #3)
+- [ ] #10 Spec phase: Local live run on this worktree's stack (card AC #2, #3)
+- [ ] #11 Spec phase: Merge main, wiki re-ground and runbook rows (card AC #1, #2, #3)
+- [ ] #12 Spec phase: Hosted-dev alpha run (card AC #4) — orchestrator-run, after operator go
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -49,6 +57,8 @@ Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
 Spec author (spec.md, 2caeccc) stopped with open questions Q1-Q6. Blocker found: crossCheckSeed refuses any seed whose human count is not exactly one; redeem already makes a signed-in player but the web app has no surface; no runbook section for scene start.
 
 Operator ruling, 2026-10-28, verbatim (the reply button cut it at 300 characters): "TASK-0163: I accept the recommended defaults Q1 to Q6, including the greyhollow-ford-duo seed, the at-least-one-human seed rule, the inline redeem toggle on the sign-in card, the Settings invite section, the Start scene slide-out with the new GET /dm/seeds route, and the two of us playing AC #4 on d". Read as: Q1-Q6 defaults accepted; Q6 = the operator and the other developer play AC #4 on hosted dev with the real AI DM. The spend ceiling for that run and the go on each vm-104 command are still to come from the operator.
+
+Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
