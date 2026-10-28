@@ -24,7 +24,13 @@ Spec: specs/059-start-scene-queued
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
 - [ ] #1 The header hides or disables Start scene once the session has a queued or pending scene start, with a test
+- [ ] #2 Spec phase: The server predicate, the 409 and the read route (card AC #1; OQ-1)
+- [ ] #3 Spec phase: The live source and the header (card AC #1; OQ-2, OQ-4)
+- [ ] #4 Spec phase: DB suites and the live check **[orchestrator]**
+- [ ] #5 Spec phase: Wiki re-ground
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
