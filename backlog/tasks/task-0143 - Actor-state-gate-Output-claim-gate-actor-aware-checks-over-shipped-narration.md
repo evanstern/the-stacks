@@ -40,8 +40,10 @@ Spec: specs/051-output-claim-gate
 - [x] #9 Spec phase: Audit wiring; the anonymous checks replaced; the fallback passes (card AC #2, #5, #6)
 - [x] #10 Spec phase: Ruling and `goalNote`; the regenerate loop end to end (card AC #4, #5)
 - [x] #11 Spec phase: Narrate prompt v5 and the contracts (card AC #1, #2, #3, #6; OQ-3; FR-017, FR-020)
-- [ ] #12 Spec phase: Wiki re-ground
+- [x] #12 Spec phase: Wiki re-ground
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
