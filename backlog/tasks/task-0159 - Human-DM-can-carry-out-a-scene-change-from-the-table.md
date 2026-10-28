@@ -4,7 +4,7 @@ title: Human DM can carry out a scene change from the table
 status: In Progress
 assignee: []
 created_date: '2026-10-27 10:33'
-updated_date: '2026-10-28 08:10'
+updated_date: '2026-10-28 08:13'
 labels:
   - play-route
   - gate
@@ -54,6 +54,10 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 spec-bridge sync: The scene request and command (card AC #1): 9/9 · Seeds and the view model (card AC #2): 0/4 · The scene panel and the header trigger (card AC #1, card AC #2): 0/7 · The AI DM resumes in the carried-out scene (card AC #2, SC-002): 0/7 · Live check in script mode (card AC #1, card AC #2): 0/6 · Merge, re-ground and close (all ACs): 0/7
 
 Phase 1 gate (orchestrator): REQUIRE_DATABASE=1 pnpm ci:check exits 0 on 6a75be7 with the test DB migrated. Web node 255 pass.
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Orchestrator ruling (Phase 2): a scene seed whose proposal summary is null takes its label from the after title, or "Clear the scene" for a clear seed. This fills a null case the contract left open; it changes no frozen contract.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
