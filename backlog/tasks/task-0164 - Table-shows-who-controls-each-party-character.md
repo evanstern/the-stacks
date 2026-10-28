@@ -1,28 +1,40 @@
 ---
 id: TASK-0164
-title: Table shows who controls each party character
+title: 'Party slide-out: each party character, its controller, vitals and turn order'
 status: To Do
 assignee: []
 created_date: '2026-10-28 05:50'
+updated_date: '2026-10-28 19:39'
 labels:
   - play-route
   - web
+milestone: m-3
 dependencies:
   - TASK-0163
+priority: medium
 ordinal: 151000
 ---
 
 ## Description
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
-Outcome: every viewer at a table can see each party character and who controls it (a named human, or an AI companion), and which one is their own. Today the play header shows presence chips for humans and the AI DM only; an AI companion such as Brother Odo has no chip, and a seat's snapshot view has no own-character marker (TASK-0163 Phase 2 evidence/two-human-check.md, Phase 6 live run). Players learn their own character only from the speaker select. This is a maybe. Revisit trigger: the TASK-0163 hosted-dev alpha run or the TASK-0053 demo shows a player confused about who plays a character.
+Outcome: every viewer at a table opens a party slide-out (no modal) that lists each party character. Each entry shows who controls the character (a named human, or an AI companion), marks the viewer's own character, and shows class, level, HP and AC. When turn order applies, the slide-out also shows initiative order and whose turn it is.
+
+Why: originally a maybe. The play header shows presence chips for humans and the AI DM only. An AI companion such as Brother Odo has no chip, and a seat's snapshot view has no marker for the seat's own character (TASK-0163 Phase 2 evidence/two-human-check.md, Phase 6 live run). Players learn their own character only from the speaker select. The revisit trigger fired 2026-10-28 in the two-browser alpha playtest, item 5: the operator did not know Brother Odo was an AI party member until he spoke. Operator approved promoting and widening the card.
+
+Grounding: seed characters carry HP, AC and ability modifiers (identity.combatant, identity.abilityMods) but no class or level. A turn-order strip exists for turn mode (apps/web/app/play/components/turn-order.tsx, TASK-0050). Full sheets stay TASK-0058 (m-4).
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
 - [ ] #1 The table lists each party character with its controller (human display name or AI companion)
 - [ ] #2 A player's own character is marked
+- [ ] #3 The slide-out shows each character's class, level, current and max HP, and AC, and the seed schema adds class and level to party characters, which the shipped seeds fill
+- [ ] #4 When turn order applies, the slide-out lists initiative order and marks the active turn
+- [ ] #5 The slide-out opens from the table header as a slide-out, never a modal, in light and dark mode
 <!-- AC:END -->
+
+
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
