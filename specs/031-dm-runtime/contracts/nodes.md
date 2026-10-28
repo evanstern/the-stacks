@@ -105,6 +105,7 @@ applied for an action; it plans only the rest.
 
 Amended by specs/033-director-robustness/contracts/interpret-output.md.
 Amended by specs/033-director-robustness/contracts/rules-terms.md.
+Amended by specs/057-human-dm-roll-resume/contracts/turn-resume.md.
 
 ## Steps (mechanics inputs as data)
 

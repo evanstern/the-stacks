@@ -31,6 +31,7 @@ import type {
   NodeErrorKind,
   NodeName,
 } from "./pipeline/context.js";
+import type { PriorTurn, ResumedPlan } from "./resume.js";
 
 /**
  * DM jobs on the shared `jobs` queue (specs/031-dm-runtime contracts/
@@ -148,6 +149,8 @@ export interface TurnFailureResult {
 
 export interface TurnCheckpoint {
   beat: string[] | null; // frozen action ids, or null before assemble
+  /** Plans reused from a paused turn (specs/057); absent or null on rows stored before TASK-0168. */
+  resumed?: ResumedPlan[] | null;
   npcTurn: { combatantId: string } | null;
   director: DirectorNodeOutput | null;
   interpret: InterpretOutput | null;
@@ -568,6 +571,34 @@ export function loadCheckpoint(job: {
 }): TurnCheckpoint | null {
   const result = job.result as { checkpoint?: TurnCheckpoint } | null;
   return result?.checkpoint ?? null;
+}
+
+/**
+ * Earlier turn jobs of the session that stored a checkpoint, newest first
+ * (specs/057 contracts/turn-resume.md). Excludes the claimed job itself.
+ */
+export async function loadPriorTurnCheckpoints(
+  db: DbClient,
+  sessionId: string,
+  excludeJobId: string,
+): Promise<PriorTurn[]> {
+  const rows = await db
+    .select({ id: jobs.id, result: jobs.result })
+    .from(jobs)
+    .where(
+      and(
+        eq(jobs.kind, "turn"),
+        eq(jobs.sessionId, sessionId),
+        sql`${jobs.id} <> ${excludeJobId}`,
+        sql`${jobs.result}->'checkpoint' IS NOT NULL`,
+      ),
+    )
+    .orderBy(desc(jobs.createdAt), desc(jobs.id));
+  return rows.flatMap((r) => {
+    const checkpoint = (r.result as { checkpoint?: TurnCheckpoint } | null)
+      ?.checkpoint;
+    return checkpoint ? [{ jobId: r.id, checkpoint }] : [];
+  });
 }
 
 /**

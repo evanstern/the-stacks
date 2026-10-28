@@ -4,7 +4,7 @@
 
 **Created**: 2026-10-28
 
-**Status**: Draft. Open questions OQ-1 to OQ-4 carry recommended defaults; they await the operator.
+**Status**: Draft. Open questions OQ-1 to OQ-4 resolved by the operator on 2026-10-28 (option A each).
 
 **Input**: TASK-0168. "With a human DM seated, a player check whose roll the DM approves narrates in the resumed turn, with no second roll proposal." Evidence: spec 055 `evidence/live-run.md` ("Clean pass 2", session `6cb00938`, jobs `7530b6d2` and `d5b5d97e`) and `quickstart.md` step 8c.
 
@@ -130,9 +130,13 @@ While the roll is pending, another turn runs (a reconcile turn, or a commit turn
 ## Open questions (operator)
 
 - **OQ-1 — Reuse instead of re-interpret (amends 031 `resolve.md` and `nodes.md`).** Recommended: **A**, reuse (this spec). B: keep re-interpret and only fix the scripts, which leaves the lost branch, the wrong `no-effect` record and the duplicate rolls from other turns.
+  - **Resolved 2026-10-28 (operator, verbatim):** "TASK-0168: I accept the recommended defaults OQ-1 to OQ-4 (A): reuse the resolved check and amend 031, keep the Director in resumed turns, a rejected roll re-interprets as today, and awaiting actions leave every turn's beat."
 - **OQ-2 — The Director still runs in a resumed turn.** The pipeline order stays fixed. A resumed turn pays one `dm.director` call. Its closing moves (trackers, table mode) may repeat suggestions the paused turn made; the human DM sees them in the approvals list. Recommended: **A**, keep the Director (no pipeline branch). B: skip the Director and its groups when every beat item is resumed and no monster turn is due. Card B as a revisit if A shows duplicate suggestions in the TASK-0053 run.
+  - **Resolved 2026-10-28 (operator, verbatim):** "TASK-0168: I accept the recommended defaults OQ-1 to OQ-4 (A): reuse the resolved check and amend 031, keep the Director in resumed turns, a rejected roll re-interprets as today, and awaiting actions leave every turn's beat."
 - **OQ-3 — A rejected roll still re-interprets.** Player-facing: after a rejection the AI DM may propose a similar roll once more before `REJECTION_LIMIT` skips the action. Recommended: **A**, unchanged here; it is the designed rejection path. B: card a task to define what a rejection means for the chain.
+  - **Resolved 2026-10-28 (operator, verbatim):** "TASK-0168: I accept the recommended defaults OQ-1 to OQ-4 (A): reuse the resolved check and amend 031, keep the Director in resumed turns, a rejected roll re-interprets as today, and awaiting actions leave every turn's beat."
 - **OQ-4 — Paused actions leave other turns' beats (FR-001).** This changes beats for `commit`, `reconcile` and `manual` turns under a human seat. Recommended: **A**, adopt it here, since it is the same defect through another trigger, and it stops a boot reconcile from spending a script. B: approval turns only.
+  - **Resolved 2026-10-28 (operator, verbatim):** "TASK-0168: I accept the recommended defaults OQ-1 to OQ-4 (A): reuse the resolved check and amend 031, keep the Director in resumed turns, a rejected roll re-interprets as today, and awaiting actions leave every turn's beat."
 
 ## Success Criteria *(mandatory)*
 

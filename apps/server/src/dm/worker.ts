@@ -24,6 +24,7 @@ import {
   enqueueTurn,
   enqueueTurnForced,
   loadCheckpoint,
+  loadPriorTurnCheckpoints,
   reconcileFloorJobs,
   reconcileTurnJobs,
   saveCheckpoint,
@@ -218,6 +219,7 @@ export function createDmWorker(deps: DmWorkerDeps): DmWorker {
     }
     let latest: TurnCheckpoint = loadCheckpoint(job) ?? {
       beat: null,
+      resumed: null,
       npcTurn: null,
       director: null,
       interpret: null,
@@ -290,6 +292,8 @@ export function createDmWorker(deps: DmWorkerDeps): DmWorker {
       gate: deps.gate,
       retrieve: deps.retrieve,
       loadProjections: deps.loadProjections,
+      loadPriorTurns: (sessionId, excludeJobId) =>
+        loadPriorTurnCheckpoints(db, sessionId, excludeJobId),
       srd,
       fence,
       setStage: async (stage) => {
