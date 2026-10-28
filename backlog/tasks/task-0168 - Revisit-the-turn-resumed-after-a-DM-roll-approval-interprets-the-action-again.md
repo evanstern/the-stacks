@@ -4,7 +4,7 @@ title: 'With a human DM, approving a check roll re-proposes the same roll'
 status: In Progress
 assignee: []
 created_date: '2026-10-28 08:50'
-updated_date: '2026-10-28 18:35'
+updated_date: '2026-10-28 18:39'
 labels:
   - dm-runtime
   - gate
@@ -40,6 +40,10 @@ Claimed 2026-10-28 by the M3 sweep (docs/design/m3-table-sweep-runbook.md). Work
 Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
 
 Operator ruling, 2026-10-28, in the M3 sweep chat, verbatim: "TASK-0168: I accept the recommended defaults OQ-1 to OQ-4 (A): reuse the resolved check and amend 031, keep the Director in resumed turns, a rejected roll re-interprets as today, and awaiting actions leave every turn's beat."
+
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Phase 1 (e8620cec): resume.ts (awaitingActionIds, needsPriorTurns, findResumedPlans, refreshSubmission), red on the missing module then 16/16; TurnCheckpoint.resumed, loadPriorTurnCheckpoints, NodeDeps.loadPriorTurns, worker wiring; 031 resolve.md and nodes.md Amended-by lines; OQ rulings in spec.md. No-DB server run: only the known TASK-0138 adjudicate failures.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
