@@ -62,6 +62,12 @@ export interface GateDeps {
   appendSessionEvents?: typeof appendSessionEvents;
   /** Who is at the table (decision-0024). Default: no humans present. */
   presence?: PresenceReader;
+  /**
+   * Milliseconds to wait after a `SeqConflictError` on `attempt` (1 or 2) before the next
+   * attempt. Never called after the last attempt. Default: 10 to 50 ms, random, so two
+   * processes that lost a race do not retry in lockstep. Tests inject `() => 0`.
+   */
+  retryDelayMs?: (attempt: number) => number;
 }
 
 export type PresencePurpose = "director" | "signoff" | "floor";
@@ -122,6 +128,25 @@ export function createGate(deps: GateDeps): Gate {
     isPresent: (_sessionId, actor) => actor.startsWith("ai:"),
     onChange: () => () => {},
   };
+  const retryDelayMs = deps.retryDelayMs ?? (() => 10 + randomInt(0, 41));
+  const sleep = (ms: number): Promise<void> =>
+    new Promise((resolve) => setTimeout(resolve, ms));
+  // Per-session queue tails. A session's writes run one at a time, in arrival order;
+  // different sessions run in parallel. An idle session holds no entry.
+  const tails = new Map<string, Promise<void>>();
+  function inOrder<T>(sessionId: string, fn: () => Promise<T>): Promise<T> {
+    const prev = tails.get(sessionId) ?? Promise.resolve();
+    const next = prev.then(fn, fn);
+    const tail = next.then(
+      () => {},
+      () => {},
+    );
+    tails.set(sessionId, tail);
+    void tail.then(() => {
+      if (tails.get(sessionId) === tail) tails.delete(sessionId);
+    });
+    return next;
+  }
   const listeners = new Set<
     (sessionId: string, events: StoredEvent[]) => void
   >();
@@ -303,7 +328,10 @@ export function createGate(deps: GateDeps): Gate {
       try {
         result = await attempt(sessionId, proposer, request);
       } catch (err) {
-        if (err instanceof SeqConflictError) continue;
+        if (err instanceof SeqConflictError) {
+          if (n < MAX_ATTEMPTS) await sleep(retryDelayMs(n));
+          continue;
+        }
         if (err instanceof SessionEventRefused) {
           return refusal(err.code, err.message, "append");
         }
@@ -333,7 +361,14 @@ export function createGate(deps: GateDeps): Gate {
     }
   }
 
-  async function recordPresence(
+  function recordPresence(
+    sessionId: string,
+    input: { purpose: PresencePurpose; actionId?: string },
+  ): Promise<RecordPresenceResult> {
+    return inOrder(sessionId, () => recordPresenceUnordered(sessionId, input));
+  }
+
+  async function recordPresenceUnordered(
     sessionId: string,
     input: { purpose: PresencePurpose; actionId?: string },
   ): Promise<RecordPresenceResult> {
@@ -363,7 +398,10 @@ export function createGate(deps: GateDeps): Gate {
         notify(sessionId, [event]);
         return { ok: true, event };
       } catch (err) {
-        if (err instanceof SeqConflictError) continue;
+        if (err instanceof SeqConflictError) {
+          if (n < MAX_ATTEMPTS) await sleep(retryDelayMs(n));
+          continue;
+        }
         if (err instanceof SessionEventRefused) {
           return refusal(
             err.code,
@@ -387,14 +425,14 @@ export function createGate(deps: GateDeps): Gate {
       if (!parsed.success) {
         return refusal("INVALID_PROPOSAL", parsed.error.message);
       }
-      return run(sessionId, proposer, parsed.data);
+      return inOrder(sessionId, () => run(sessionId, proposer, parsed.data));
     },
     async handle(sessionId, proposer, request) {
       const parsed = GateRequestSchema.safeParse(request);
       if (!parsed.success) {
         return refusal("INVALID_PROPOSAL", parsed.error.message);
       }
-      return run(sessionId, proposer, parsed.data);
+      return inOrder(sessionId, () => run(sessionId, proposer, parsed.data));
     },
     onAppended(listener) {
       listeners.add(listener);

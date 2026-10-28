@@ -4,7 +4,7 @@ description: The WebSocket gateway — upgrade-time authentication (a socket onl
 kind: component
 sources:
   - apps/server/src/ws/gateway.ts
-verified_against: 4af9ecbd6436d6529ceb61b058a9df75fb805925
+verified_against: dd1f3dc07c014c9ec753c11615c8b31c52bc6a2b
 ---
 
 # WebSocket gateway
@@ -61,9 +61,10 @@ whether or not it opted in, because the Director's marker counts every human at 
   legacy uncatalogued append: the gateway has no write path of its own, and every row reaches a
   subscriber through the gate's `onAppended` listener.
 
-**Known behaviour.** Bursty concurrent `talk` sends through the gate can be refused with
-`internal` / `CONFLICT` once the gate's bounded retry on `SeqConflictError` is exhausted
-([[proposal-gate]]). The gateway reports the refusal and does not retry. Carded as TASK-0157.
+**`CONFLICT`.** The gate runs one session's writes one at a time, so in-process `talk` bursts do
+not conflict. `internal` / `CONFLICT` now means a writer outside this gate instance appended three
+times in a row ([[proposal-gate]]); the gate writes zero rows then. The gateway reports the refusal
+and does not retry; the play client labels it ([[play-route]]).
 
 `createGateway` now requires a `gate` option; `index.ts` creates it and wires
 `gate.onAppended(gateway.publish)`. The gateway returns `{ attach, registry, publish, close }`; it takes an optional `presence`

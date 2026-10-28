@@ -27,7 +27,7 @@ sources:
   - apps/server/test/tsconfig.json
   - apps/server/vitest.config.ts
   - tsconfig.json
-verified_against: 4af9ecbd6436d6529ceb61b058a9df75fb805925
+verified_against: dd1f3dc07c014c9ec753c11615c8b31c52bc6a2b
 ---
 
 # Test suite
@@ -36,24 +36,21 @@ The server's tests run under Vitest (`pnpm --filter @the-stacks/server test`, i.
 run`). This note's scope is the 12 files below, at the top of `apps/server/test/`; TASK-0024
 added a larger suite under `apps/server/test/library/` — see [[ingestion]]
 for that one; its `ai.*.test.ts` siblings are not covered here either.
-TASK-0029 and TASK-0030 share a third subdirectory, `apps/server/test/bench/`: TASK-0029's
-`bow`-embedding determinism unit test plus its per-commit recall regression gate, and
-TASK-0030's unit file plus two environment-gated integration files, all with the
-loud-skip-or-throw pattern of this note's three below — see [[benchmarks]], including why 5 of
-the load bench's tests are always skipped, by name.
+TASK-0029 and TASK-0030 share a third subdirectory, `apps/server/test/bench/` (retrieval and
+load benches, loud-skip-or-throw like this note's three below): see [[benchmarks]], including why 5 of
+the load bench's tests are always skipped.
 TASK-0048 added `test/playtest/` ([[playtest-harness]]): unit files, three database-gated, one the CI playtest ([[m2-demo]]).
 TASK-0045 added gate suites at the same level: `gate.integration.test.ts` (incl. the absent-declare refusal and the presence-plus-order batch) and
-`gate.restart.integration.test.ts` (database-gated; proposals, approvals, conflict retry, restart) and `write-boundary.test.ts` (no database; AC #1 import-graph check, plus only `resolve.ts` builds `scene-presence` and only `dm/floor.ts` builds `floor` proposals, [[turn-floor]]). It extended `events.integration.test.ts` (`expectedLastSeq`,
+`gate.restart.integration.test.ts` (database-gated; approvals, restart) and `write-boundary.test.ts` (no database; AC #1 import-graph check, plus only `resolve.ts` builds `scene-presence` and only `dm/floor.ts` builds `floor` proposals, [[turn-floor]]). It extended `events.integration.test.ts` (`expectedLastSeq`,
 `SeqConflictError`, `readLatestOfType`), `ws.integration.test.ts` (per-viewer delivery, the
-send-path classification, `UNKNOWN_EVENT_TYPE`, error `code`) and `ws.subscribe.test.ts` (the DM-seat subscribe race).
-TASK-0046 added `apps/server/test/dm/` (node unit tests, plus `*.integration.test.ts` suites that
-use `describe.skipIf(!reachable)` like the others, over a scripted `FakeProvider`; see [[dm-runtime]]).
+send-path classification, `UNKNOWN_EVENT_TYPE`, error `code`; `sendTalkAndAwait` no longer resends on `CONFLICT`) and `ws.subscribe.test.ts` (the DM-seat subscribe race).
+TASK-0157 added a retry-wait test and a "per-session ordering" suite (burst fan-out, `recordPresence`, isolation) to `gate.integration.test.ts`, an all-in-flight burst to `ws.integration.test.ts`, and a `CONFLICT` label case to `apps/web/test/play/reduce-frame.test.mjs`.
+TASK-0046 added `apps/server/test/dm/` (unit tests and `skipIf(!reachable)` integration suites over a scripted `FakeProvider`; see [[dm-runtime]]).
 It also extended `ai.gateway`-level fake scripting (`scriptChatFor`, `strict`; [[ai-gateway]]).
-Their counts are not in the totals below, which predate them.
+Their counts are not in the totals below.
 Of these 12, three are integration suites that require a reachable Postgres —
 `auth.integration.test.ts`, `events.integration.test.ts`, `ws.integration.test.ts` — covering
-session auth (US1–US4, plus one case added for TASK-0040: the shared `identityLookup`
-resolves the user for a live token and `null` after sign-out), the event log's
+session auth (US1–US4, plus the shared `identityLookup` case from TASK-0040), the event log's
 append/read/visibility, and the WebSocket gateway's Phase 2–7 behavior (fan-out, server
 authority, the replay/live boundary, visibility filtering) respectively. The rest are
 unit-level: password hashing, `loadConfig`'s `uploadMaxBytes` validation (`config.test.ts`,

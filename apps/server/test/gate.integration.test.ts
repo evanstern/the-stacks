@@ -710,6 +710,36 @@ describe.skipIf(!reachable)("gate — sequence conflicts", () => {
     const stored = await readFrom(requireDb(), { sessionId, limit: 10 });
     expect(stored).toHaveLength(0);
   });
+
+  it("waits between attempts, never after the last (FR-005)", async () => {
+    const entry = {
+      kind: "journal",
+      entry: {
+        entryId: "e1",
+        title: "Vault",
+        body: "The vault was found.",
+        sourceActionIds: [],
+      },
+    };
+    for (const [times, expectOk] of [
+      [2, true],
+      [3, false],
+    ] as const) {
+      const calls: number[] = [];
+      const gate = createGate({
+        db: requireDb(),
+        appendSessionEvents: conflicting(times),
+        retryDelayMs: (attempt) => {
+          calls.push(attempt);
+          return 0;
+        },
+      });
+      const result = await gate.submit(randomUUID(), aiDm, entry);
+      expect(calls).toEqual([1, 2]);
+      if (expectOk) expect(result.ok).toBe(true);
+      else expect(refusalOf(result).code).toBe("CONFLICT");
+    }
+  });
 });
 
 describe.skipIf(!reachable)("gate — race", () => {
@@ -877,5 +907,172 @@ describe.skipIf(!reachable)("gate — scene presence (TASK-0141)", () => {
     expect(p.engine.encounter?.order.map((e) => e.combatantId)).toEqual([
       "ana",
     ]);
+  });
+});
+
+const talk = (text: string) => ({
+  kind: "talk",
+  talk: { text, channel: "ooc", characterId: null },
+});
+
+type BurstGate = ReturnType<typeof createGate>;
+
+/**
+ * Fires `senders` concurrent loops at one session. Each loop sends `perSender` talk lines as a
+ * distinct human player, `inFlight` lines at a time. Counts the outcomes.
+ */
+async function burst(
+  gate: BurstGate,
+  sessionId: string,
+  senders: number,
+  perSender: number,
+  inFlight: number,
+) {
+  let ok = 0;
+  let conflicts = 0;
+  let other = 0;
+  await Promise.all(
+    Array.from({ length: senders }, async (_, s) => {
+      const proposer: Proposer = {
+        kind: "human",
+        userId: `00000000-0000-4000-8000-00000000b0${String(s).padStart(2, "0")}`,
+        role: "player",
+      };
+      for (let i = 0; i < perSender; i += inFlight) {
+        const group = Array.from(
+          { length: Math.min(inFlight, perSender - i) },
+          (_, k) => gate.handle(sessionId, proposer, talk(`s${s} m${i + k}`)),
+        );
+        for (const r of await Promise.all(group)) {
+          if (r.ok) ok++;
+          else if (r.refusal.code === "CONFLICT") conflicts++;
+          else other++;
+        }
+      }
+    }),
+  );
+  return { ok, conflicts, other };
+}
+
+const talkRows = async (sessionId: string) =>
+  (await readFrom(requireDb(), { sessionId, limit: 1000 })).filter(
+    (r) => r.type === "talk",
+  );
+
+describe.skipIf(!reachable)("gate — per-session ordering", () => {
+  it("3 senders × 5 lines, one in flight each: every line lands, zero CONFLICT", async () => {
+    for (let run = 0; run < 20; run++) {
+      const sessionId = randomUUID();
+      const gate = createGate({ db: requireDb() });
+      const result = await burst(gate, sessionId, 3, 5, 1);
+      expect(result, `run ${run}`).toEqual({ ok: 15, conflicts: 0, other: 0 });
+      const rows = await talkRows(sessionId);
+      expect(rows).toHaveLength(15);
+      expect(rows.map((r) => r.seq)).toEqual(
+        Array.from({ length: 15 }, (_, i) => i + 1),
+      );
+      const texts = new Set(
+        rows.map((r) => (r.payload as { text: string }).text),
+      );
+      expect(texts.size).toBe(15);
+    }
+  }, 30_000);
+
+  it("3 senders × 5 lines, all in flight at once: zero CONFLICT", async () => {
+    const sessionId = randomUUID();
+    const gate = createGate({ db: requireDb() });
+    const result = await burst(gate, sessionId, 3, 5, 5);
+    expect(result).toEqual({ ok: 15, conflicts: 0, other: 0 });
+    expect(await talkRows(sessionId)).toHaveLength(15);
+  });
+
+  it("5 senders × 20 lines into a 500-event log: zero CONFLICT", async () => {
+    const sessionId = randomUUID();
+    await appendSessionEvents(
+      requireDb(),
+      Array.from({ length: 500 }, (_, i) => ({
+        sessionId,
+        actor: "user:seed",
+        type: "talk",
+        payload: { text: `seed ${i}`, channel: "ooc", characterId: null },
+        visibility: "public",
+      })),
+    );
+    const gate = createGate({ db: requireDb() });
+    const result = await burst(gate, sessionId, 5, 20, 1);
+    expect(result).toEqual({ ok: 100, conflicts: 0, other: 0 });
+    expect(await talkRows(sessionId)).toHaveLength(600);
+  }, 60_000);
+
+  it("recordPresence interleaved with talk: zero CONFLICT", async () => {
+    const sessionId = randomUUID();
+    const gate = createGate({ db: requireDb() });
+    const [talked, marks] = await Promise.all([
+      burst(gate, sessionId, 3, 5, 1),
+      Promise.all(
+        Array.from({ length: 5 }, () =>
+          gate.recordPresence(sessionId, { purpose: "director" }),
+        ),
+      ),
+    ]);
+    expect(talked).toEqual({ ok: 15, conflicts: 0, other: 0 });
+    expect(marks.every((m) => m.ok)).toBe(true);
+    expect(
+      await readFrom(requireDb(), { sessionId, limit: 1000 }),
+    ).toHaveLength(20);
+  });
+
+  it("sessions do not wait for each other", async () => {
+    const sessionA = randomUUID();
+    const sessionB = randomUUID();
+    let release!: () => void;
+    const blocked = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    let blockedOnce = false;
+    const seam: typeof appendSessionEvents = async (d, inputs, options) => {
+      if (inputs[0]?.sessionId === sessionA && !blockedOnce) {
+        blockedOnce = true;
+        await blocked;
+      }
+      return appendSessionEvents(d, inputs, options);
+    };
+    const gate = createGate({ db: requireDb(), appendSessionEvents: seam });
+    const writeA = gate.handle(sessionA, player, talk("a"));
+    const writeB = gate.handle(sessionB, player, talk("b"));
+    const bResult = await writeB;
+    expect(bResult.ok).toBe(true);
+    let aSettled = false;
+    void writeA.then(() => {
+      aSettled = true;
+    });
+    await new Promise((r) => setTimeout(r, 20));
+    expect(aSettled).toBe(false);
+    release();
+    expect((await writeA).ok).toBe(true);
+  });
+
+  it("a thrown error ends that write only", async () => {
+    const sessionId = randomUUID();
+    let thrown = false;
+    const seam: typeof appendSessionEvents = async (d, inputs, options) => {
+      if (!thrown) {
+        thrown = true;
+        throw new Error("boom");
+      }
+      return appendSessionEvents(d, inputs, options);
+    };
+    const gate = createGate({ db: requireDb(), appendSessionEvents: seam });
+    const first = gate.handle(sessionId, player, talk("first"));
+    const second = gate.handle(sessionId, player, talk("second"));
+    const settled = await Promise.allSettled([first, second]);
+    expect(settled[0]?.status).toBe("rejected");
+    expect(String((settled[0] as PromiseRejectedResult).reason)).toContain(
+      "boom",
+    );
+    expect(settled[1]?.status).toBe("fulfilled");
+    expect((settled[1] as PromiseFulfilledResult<GateResult>).value.ok).toBe(
+      true,
+    );
   });
 });

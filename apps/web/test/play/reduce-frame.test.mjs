@@ -63,6 +63,19 @@ test("an error frame with a refusal code shows the code in the notice", () => {
   assert.equal(s.notice, "Only the seated DM may approve (NOT_DM)");
 });
 
+test("a CONFLICT error frame shows the plain busy-table label", () => {
+  const s = reduceFrame(initialFrameState, {
+    type: "error",
+    kind: "internal",
+    message: "the log kept changing; try again",
+    code: "CONFLICT",
+  });
+  assert.equal(
+    s.notice,
+    "The table was busy, so your line was not sent. Send it again. (CONFLICT)",
+  );
+});
+
 test("a presence frame replaces the present set and keeps the events", () => {
   let s = reduceFrame(initialFrameState, { type: "event", event: ev(1) });
   assert.equal(s.present, null);
