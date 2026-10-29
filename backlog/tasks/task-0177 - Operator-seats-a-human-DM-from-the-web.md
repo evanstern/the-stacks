@@ -1,10 +1,10 @@
 ---
 id: TASK-0177
 title: Operator seats a human DM from the web
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-10-29 03:01'
-updated_date: '2026-10-29 06:07'
+updated_date: '2026-10-29 06:12'
 labels:
   - play-route
   - multiplayer
@@ -76,6 +76,12 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
 
 Phase 6 2a8b3d62: play-route, scene-panels, client-session-hook, hosted-dev NEEDS-REVIEW, amended and re-pinned; CAPSULES and INDEX updated; runbook log row. After merging origin/main (8c4fb476): REQUIRE_DATABASE=1 pnpm ci:check exit 0 (server 1350 passed, web 139), freshness OK 55 notes, spec-bridge check 0.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Frame, command and seat view (card AC #1, #2; OQ-2, OQ-3): 7/7 · The panel, the header and the Start scene check (card AC #1, #2; OQ-1, OQ-3, OQ-4, OQ-6): 11/11 · The newly seated DM's resync (card AC #1; OQ-5): 5/5 · The hosted-dev runbook (card AC #3): 2/2 · Mutation guard, DB suites and live check **[orchestrator]**: 3/3 · Wiki re-ground: 6/6). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
