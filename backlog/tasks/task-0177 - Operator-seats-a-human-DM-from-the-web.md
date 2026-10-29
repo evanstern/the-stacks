@@ -1,10 +1,10 @@
 ---
 id: TASK-0177
 title: Operator seats a human DM from the web
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-10-29 03:01'
-updated_date: '2026-10-29 03:02'
+updated_date: '2026-10-29 04:33'
 labels:
   - play-route
   - multiplayer
@@ -33,6 +33,8 @@ Why: the TASK-0176 spec author (spec 061, 8f8a6808, finding F-1) found that noth
 
 <!-- SECTION:NOTES:BEGIN -->
 Operator, 2026-10-28, in the M3 sweep chat, verbatim: "Before we start on another slice of M-3 I'd like to pause -- after the next PR merges." Read as: the sweep finishes TASK-0176 through its PR merge, then stops; TASK-0177 does not start until the operator resumes.
+
+Claimed 2026-10-29 by the M3 sweep (docs/design/m3-table-sweep-runbook.md). Worktree .worktrees/task-0177, branch task-0177-human-dm-seat, cut from origin/main 7e9ef92f. Spec number 062 claimed with a stub. Resumed by the operator on 2026-10-29 ("resume the sweep").
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
