@@ -4,7 +4,7 @@ title: Operator seats a human DM from the web
 status: In Progress
 assignee: []
 created_date: '2026-10-29 03:01'
-updated_date: '2026-10-29 05:59'
+updated_date: '2026-10-29 06:07'
 labels:
   - play-route
   - multiplayer
@@ -26,9 +26,9 @@ Spec: specs/062-human-dm-seat
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 The play route offers the operator a control that seats a human DM from a gate request, with no modal, and a test
-- [ ] #2 The same control returns the DM seat to the AI DM, with a test
-- [ ] #3 docs/ops/dev-vm-104.md documents seating a human DM for an assisted table
+- [x] #1 The play route offers the operator a control that seats a human DM from a gate request, with no modal, and a test
+- [x] #2 The same control returns the DM seat to the AI DM, with a test
+- [x] #3 docs/ops/dev-vm-104.md documents seating a human DM for an assisted table
 - [ ] #4 Spec phase: Frame, command and seat view (card AC #1, #2; OQ-2, OQ-3)
 - [ ] #5 Spec phase: The panel, the header and the Start scene check (card AC #1, #2; OQ-1, OQ-3, OQ-4, OQ-6)
 - [ ] #6 Spec phase: The newly seated DM's resync (card AC #1; OQ-5)
@@ -71,6 +71,10 @@ Live check 082ed701 (Brave, script mode): steps 2-6 and 8-14 and both refusals p
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
 
 T019a 80e8adf1: Start scene renders the client DM-seat issue (test failed 16/1 before, 17/17 after). Live check run 2 596b21e9: every step passes, step 7 shows the issue inline, 0 dialogs.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
+
+Phase 6 2a8b3d62: play-route, scene-panels, client-session-hook, hosted-dev NEEDS-REVIEW, amended and re-pinned; CAPSULES and INDEX updated; runbook log row. After merging origin/main (8c4fb476): REQUIRE_DATABASE=1 pnpm ci:check exit 0 (server 1350 passed, web 139), freshness OK 55 notes, spec-bridge check 0.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
