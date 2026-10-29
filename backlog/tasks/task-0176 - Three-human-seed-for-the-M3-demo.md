@@ -4,7 +4,7 @@ title: Three-human seed for the M3 demo
 status: In Progress
 assignee: []
 created_date: '2026-10-29 02:48'
-updated_date: '2026-10-29 03:03'
+updated_date: '2026-10-29 03:05'
 labels:
   - seed
   - multiplayer
@@ -48,6 +48,9 @@ Phase 1 (T001-T006) at a5f1a905: seeds/greyhollow-ford-trio.json (the duo seed w
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 Phase 2 (T007-T009) at c7d25658: trio.integration.test.ts (4 cases: three player rows and no companion job; sign-off waits for all three present; an absent player is skipped; the turn floor passes to Odo with no companion turn) and routes.integration trio cases (seeds list, one-user-two-seats 400, three users 202). 22 passed with REQUIRE_DATABASE=1, green on the first run (behaviour already existed). No server source change.
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Phase 3 (T010-T012) at a3df1f21: 5 trio cases in start-scene-panel.test.tsx (three seat selects, Start disabled for two seats or a duplicate user, enabled for three, startBody keeps all three), green on the first run (the form maps every seed human); dev-vm-104.md "Seat three players" subsection. no-dialog passes. ci:check: only the 5 known adjudicate requireDb failures.
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
 
