@@ -32,9 +32,11 @@ Spec: specs/061-trio-seed
 - [x] #4 Spec phase: Trio seed and the no-database server tests (card AC #1; OQ-1 to OQ-5)
 - [x] #5 Spec phase: The three-human DB test (card AC #1; FR-006)
 - [x] #6 Spec phase: Slide-out test and the runbook subsection (card AC #2, #3; OQ-6)
-- [ ] #7 Spec phase: DB suites, mutation guard and live check **[orchestrator]**
+- [x] #7 Spec phase: DB suites, mutation guard and live check **[orchestrator]**
 - [ ] #8 Spec phase: Wiki re-ground and the sweep runbook
 <!-- AC:END -->
+
+
 
 
 
