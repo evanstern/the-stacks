@@ -4,7 +4,7 @@ title: Human DM can end an encounter or change table mode from the table
 status: In Progress
 assignee: []
 created_date: '2026-10-28 07:53'
-updated_date: '2026-10-29 02:11'
+updated_date: '2026-10-29 02:14'
 labels:
   - play-route
   - gate
@@ -34,13 +34,13 @@ Spec: specs/060-human-dm-encounter-mode
 - [ ] #7 Spec phase: Wiki re-ground
 <!-- AC:END -->
 
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
 Claimed 2026-10-28 by the M3 sweep (docs/design/m3-table-sweep-runbook.md). Worktree .worktrees/task-0165, branch task-0165-human-dm-encounter-mode, cut from origin/main dbc06a4f. Spec 060 authored at 5968e469 (opus): OQ-1 to OQ-6 await the operator; DC-1 (human DM cannot start an encounter) applies only if OQ-3 is ruled (c).
 Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
+
+Operator ruling 2026-10-28 in chat, answering "Do you accept the recommended defaults (a) for TASK-0165's OQ-1 to OQ-6?": "Accept all (a)". Recorded in spec.md. DC-1 (human DM starts an encounter) is not carded: it applied only under OQ-3 (c).
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
