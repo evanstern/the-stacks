@@ -167,25 +167,25 @@ its accessible name from the contract.
 
 ## Phase 6: Wiki re-ground
 
-- [ ] T028 Re-verify and re-pin `docs/wiki/play-route.md`: `TableCommands` gains `seatDm?` (live
+- [x] T028 Re-verify and re-pin `docs/wiki/play-route.md`: `TableCommands` gains `seatDm?` (live
       only); `frames.ts` builds `dm.seat`; the operator's "DM seat" slide-out; the resync on a seat
       gain (the "One view, two sources" viewer paragraph); add `dm-seat.ts` and
       `components/dm-seat-panel.tsx` to `sources:`.
-- [ ] T029 Re-verify and re-pin `docs/wiki/scene-panels.md` (Start scene's "The DM cannot hold a
+- [x] T029 Re-verify and re-pin `docs/wiki/scene-panels.md` (Start scene's "The DM cannot hold a
       character seat." issue and the `dmUserId` prop), `docs/wiki/client-session-hook.md`
       (`resync()`), and `docs/wiki/hosted-dev.md` (the "Seat a human DM" runbook section).
-- [ ] T030 Re-read `docs/wiki/proposal-gate.md` and `docs/wiki/session-model.md`. Their claims about
+- [x] T030 Re-read `docs/wiki/proposal-gate.md` and `docs/wiki/session-model.md`. Their claims about
       `dm.seat` must still hold (the gate is unchanged). Edit and re-pin only if the freshness gate
       flags them or a claim is wrong. Re-pin every other note the gate flags for a touched source
       (likely `test-suite`, `chat-ui`); re-verify each claim that names a touched file.
-- [ ] T031 Regenerate `docs/wiki/CAPSULES.md` for every changed `description:`. Add one sentence on
+- [x] T031 Regenerate `docs/wiki/CAPSULES.md` for every changed `description:`. Add one sentence on
       spec 062 to `docs/wiki/INDEX.md`'s state paragraph, and name the slide-out in its
       `[[play-route]]` line.
-- [ ] T032 Add a TASK-0177 "(this PR)" row to the execution log in
+- [x] T032 Add a TASK-0177 "(this PR)" row to the execution log in
       `docs/design/m3-table-sweep-runbook.md`, in the TASK-0165 row's shape: date, task, PR, —,
       dispatches (`spec (opus ×1), impl ×N (sonnet)`), then the outcome, the amended contracts, the
       mutation result and the live check with its shots.
-- [ ] T033 Run the wiki freshness gate
+- [x] T033 Run the wiki freshness gate
       (`node ~/.claude/plugins/cache/praxisflux/grounding-wiki/0.68.0/gates/cli.mjs freshness . docs/wiki`
       prints `OK`) and the spec-bridge check
       (`node ~/.claude/plugins/cache/praxisflux/spec-bridge/0.68.0/gates/cli.mjs check .` exits 0).

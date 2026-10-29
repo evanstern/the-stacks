@@ -1,6 +1,6 @@
 ---
 name: scene-panels
-description: The play route's two scene slide-outs - the operator Start scene panel (TASK-0163, specs/054; TASK-0167, specs/059: the server-derived scene start state, the hidden button and the queued and waiting notes) and the human DM's Change scene panel (TASK-0159, specs/055) - with the scene-seeds view, the scene gate request, the pending-seed reject that queues the next AI DM turn, and fixture-mode local events.
+description: The play route's two scene slide-outs - the operator Start scene panel (TASK-0163, specs/054; TASK-0167, specs/059: the server-derived scene start state, the hidden button and the queued and waiting notes; TASK-0177, specs/062: the client DM-seat issue) and the human DM's Change scene panel (TASK-0159, specs/055) - with the scene-seeds view, the scene gate request, the pending-seed reject that queues the next AI DM turn, and fixture-mode local events.
 kind: component
 sources:
   - apps/web/app/play/components/start-scene-panel.tsx
@@ -9,7 +9,7 @@ sources:
   - apps/web/app/play/components/scene-panel.tsx
   - apps/web/app/play/frames.ts
   - apps/web/app/play/local-log.ts
-verified_against: a079fb05afdb63d49c0ed186d76f578d356e30ca
+verified_against: 68115fdd4cca3cfcb41f7052b408fd2eef27b9cd
 ---
 
 # Scene panels
@@ -36,8 +36,8 @@ carried out the suggestion). `TableView` holds no start flag, and `StartScenePan
 `components/start-scene-panel.tsx`'s `StartScenePanel`, a `Panel` slide-out. On open it calls
 `fetchSeeds` (`start-scene.ts`, `GET /dm/seeds`) and picks the first seed. It shows a select of
 the present users per human seat and, only when the seed has companion seats, a note naming the AI companions (the trio seed, `greyhollow-ford-trio`, shows three selects and no note; TASK-0176). Pure
-helpers: `seatMapIssues` (an empty seat, a user in two seats), `startBody`, `issuesBySeat`. `useLiveTable` wires
-`startScene` to `postStart`, `POST /dm/sessions/:id/start`; a 202 closes the panel and refreshes the state; a 400 shows its issues inline, any other refusal its message ([[dm-runtime]]).
+helpers: `seatMapIssues(humans, seats, dmUserId?)` (an empty seat, a user in two seats, and, when `dmUserId` is set, the DM on a character seat: "The DM cannot hold a character seat."), `startBody`, `issuesBySeat`. `useLiveTable` wires
+`startScene` to `postStart`, `POST /dm/sessions/:id/start`; a 202 closes the panel and refreshes the state; `StartScenePanel` takes `dmUserId` (TASK-0177, specs/062; the human DM's id, else null) from `TableView`; `StartSceneForm` shows the client DM-seat issue on that seat unless the server already sent the same one, and the form is not ready while it stands. A 400 shows its issues inline, any other refusal its message ([[dm-runtime]]).
 
 ## Change scene
 
