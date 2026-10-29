@@ -36,16 +36,6 @@ Spec: specs/061-trio-seed
 - [x] #8 Spec phase: Wiki re-ground and the sweep runbook
 <!-- AC:END -->
 
-
-
-
-
-
-
-
-
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -67,6 +57,8 @@ Phase 4 [orchestrator]: T013 DB suites 4 files 28 passed, REQUIRE_DATABASE=1 ci:
 
 Phase 5 (T018-T025) at 00bf64bd: merged origin/main; re-pinned seed-npc-presence, dm-runtime (tightened to its 8000-char budget; the listSeeds sentence stays in seed-npc-presence), hosted-dev and scene-panels; CAPSULES regenerated, INDEX sentence; runbook amendment row (operator rulings, the pause, the new order) and the TASK-0176 row. Freshness OK, spec-bridge exit 0.
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+spec-bridge sync: Trio seed and the no-database server tests (card AC #1; OQ-1 to OQ-5): 6/6 · The three-human DB test (card AC #1; FR-006): 3/3 · Slide-out test and the runbook subsection (card AC #2, #3; OQ-6): 3/3 · DB suites, mutation guard and live check **[orchestrator]**: 5/5 · Wiki re-ground and the sweep runbook: 8/8 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
