@@ -1,6 +1,6 @@
 {
   "planted": "pdlc:bootstrap",
-  "version": "0.65.3",
+  "version": "0.68.0",
   "name": "the-stacks",
   "peers": [
     "backlog",
@@ -13,5 +13,5 @@
     "root-guard"
   ],
   "localOnly": false,
-  "plantedAt": "2026-09-21T17:22:12.798Z"
+  "plantedAt": "2026-10-29T03:55:31.494Z"
 }
