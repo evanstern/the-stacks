@@ -27,12 +27,14 @@ Spec: specs/060-human-dm-encounter-mode
 <!-- AC:BEGIN -->
 - [ ] #1 The play route offers a seated human DM an end-encounter control built from a gate request, with no modal, and a test
 - [ ] #2 The play route offers a seated human DM a table-mode control built from a gate request, with no modal, and a test
-- [ ] #3 Spec phase: Frames, commands and fixture rows (card AC #1, #2; OQ-2)
+- [x] #3 Spec phase: Frames, commands and fixture rows (card AC #1, #2; OQ-2)
 - [ ] #4 Spec phase: The view, the panel and the header (card AC #1, #2; OQ-1, OQ-3, OQ-4, OQ-5)
 - [ ] #5 Spec phase: The DB test (FR-016; OQ-6)
 - [ ] #6 Spec phase: DB suites, mutation guard and live check **[orchestrator]**
 - [ ] #7 Spec phase: Wiki re-ground
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
