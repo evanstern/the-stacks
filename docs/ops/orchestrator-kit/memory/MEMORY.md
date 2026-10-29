@@ -1,0 +1,17 @@
+- [Host model ID form](host-model-id-form.md) — built-in bare model IDs since 2026-10-18; cc/ router forms removed.
+- [Root-guard staging timing](root-guard-staging-timing.md) — stage backlog/ in a separate Bash call; the hook checks state before the command runs.
+- [Backlog ghost tasks](backlog-ghost-tasks-stale-remote.md) — ghosts on the board mean origin is behind; push, don't hunt files.
+- [Backlog card de-sync after reset](backlog-reset-desyncs-card.md) — reset --hard in root reverts the card; restore from the branch before further CLI edits.
+- [Board track conflicts with branch card](board-track-conflicts-with-branch-card.md) — structural conflict on the card at PR time; merge main, keep whichever side is the superset.
+- [Backlog MCP edits root card](backlog-mcp-edits-root-card.md) — MCP tools write root's card copy; use the CLI inside the worktree for branch cards.
+- [Spec authoring dispatch tier](spec-authoring-dispatch-tier.md) — dispatch spec authoring to opus-implementer, never a session fork.
+- [PR merge order follows green](pr-merge-order-follows-green.md) — operator merges as PRs go green; draft-hold true dependents, budget reconcile merges.
+- [vm-104 command consent](vm-104-command-consent.md) — announce the exact vm-104 command; a generic "go ahead" is blocked; ship code via git bundle.
+- [Root-guard needs literal worktree path](root-guard-literal-worktree-path.md) — commit with git -C <literal worktree path> in its own call; $vars/cd get read as root.
+- [Browser is Brave](browser-is-brave.md) — screenshots/automation use Brave, not Chrome; brief implementers too.
+- [UI: no modals](ui-no-modals.md) — use slide-out panels or autocomplete dropdowns; brief every UI dispatch.
+- [Desktop session tier dispatch](desktop-session-tier-dispatch.md) — after settings/tier edits, start a new session before dispatching.
+- [Session-start layout](session-start-layout.md) — first turn: open CLAUDE.md in Files and ~/.claude/blank.html in the browser pane.
+- [No unplanned "for now"](no-unplanned-for-now.md) — defer known-wanted work only with ordered cards; maybes get a revisit task with a trigger.
+- [Merge-on-green grant](merge-on-green-grant.md) — since 2026-10-27, merge sweep PRs on green; operator reviews at checkpoints I pick.
+- [Relay operator words](relay-operator-words.md) — augment relayed instructions when 85%+ sure; else ask to clarify.
