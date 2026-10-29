@@ -36,8 +36,8 @@ Browser automation uses Brave. The UI has no modals. Steps 5 to 12 follow the ne
    "The DM cannot hold a character seat." and Start disabled. Put `ana` on `Tamsin Vale`. Press
    Start. Expect "Scene start waiting for the DM.".
 8. Carry out the scene suggestion from "Change scene" (spec 055 quickstart steps 6 to 8). In
-   "Pending proposals", approve the scene-start suggestions except the tracker. Leave the tracker
-   pending.
+   "Pending proposals", approve the scene-start suggestions except the two trackers. Leave the
+   two trackers pending.
 
 ### Hand the seat to another account during the scene (US1, US2, OQ-4, OQ-5)
 
@@ -45,7 +45,7 @@ Browser automation uses Brave. The UI has no modals. Steps 5 to 12 follow the ne
    controls Tamsin, the operator holds the seat), "Return the seat to the AI DM", and "Pending
    proposals stay pending under the AI DM: 1. Decide them first.". Take the `panel-human` shots.
 10. Pick `bram`. Type a reason. Press "Seat as DM". In `bram`'s window, expect the DM view without
-    a reload: "Pending proposals (1)" holding the tracker suggestion made before `bram` was seated,
+    a reload: "Pending proposals (2)" holding the two tracker suggestions made before `bram` was seated,
     "Change scene" and "Table mode". In the operator's window, expect the player view and no
     "Pending proposals". Take the `bram-dm` shots.
 11. On the debug page, expect one `dm.seat.changed` row per press, each by the operator, with

@@ -186,6 +186,7 @@ try {
   await op.waitForTimeout(500);
   check(!!opLabel && (await op.getByText("The DM cannot hold a character seat.").count()) > 0, "step 7 operator on Tamsin: issue shown");
   check(await start.isDisabled(), "step 7 Start disabled with the DM on Tamsin");
+  await shoot(op, "start-dm-seat-issue", [[1280, 800, "light"]]);
   await sel.selectOption({ label: anaLabel });
   await op.waitForTimeout(300);
   check(await start.isEnabled(), "step 7 Start enabled with Ana on Tamsin");

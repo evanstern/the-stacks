@@ -68,4 +68,32 @@ Mismatches:
 ## Shots (`evidence/shots/`)
 
 `panel-ai`, `panel-human`, `bram-dm`, `returned` at 1280 and 390 px, light and dark; and
-`player-no-control-1280-light.png`. T027 stays unticked because step 7 failed.
+`player-no-control-1280-light.png`. Run 1 left T027 unticked because step 7 failed; run 2 passes.
+
+## Run 2 (after the step 7 fix, 80e8adf1 / T019a)
+
+**Date**: 2026-10-29. Same stack, rebuilt with `docker compose -p stacks-task-0177 up -d --build
+--force-recreate --wait app` (image created after the pull; no re-migration; `/health` ok). Script
+line re-applied with `printf`; boot log `DM script mode: greyhollow-human-dm (10 calls, 1 dice)`.
+Same script, accounts reused, new table `37e417a9-80af-4b28-ba3e-be25bb45e079`. The script now also
+takes `start-dm-seat-issue-1280-light.png`.
+
+| Step | Result |
+|---|---|
+| 3 | PASS (accounts exist, sign in) |
+| 4 | PASS (three names in the presence strip) |
+| 5 | PASS ("AI DM holds the seat."; `operator (you)`, Bram, Ana; no Return) |
+| 6 | PASS (panel closes; header has Pending proposals, Change scene, Table mode; strip marks operator DM) |
+| 7 | PASS: operator on Tamsin shows "The DM cannot hold a character seat." inline; Start disabled; Ana on Tamsin enables Start; "Scene start waiting for the DM." (defect 1 fixed) |
+| 8 | PASS (Change scene seeded `greyhollow-ford`, Apply; 9 of 11 approved; 2 trackers pending) |
+| 9 | PASS (select lists Bram only; Return button; "Pending proposals stay pending under the AI DM: 2. Decide them first.") |
+| 10 | PASS (Bram sees "Pending proposals (2)", the tracker suggestions, Change scene, Table mode, no reload; operator loses Pending proposals) |
+| 11 | PASS: `dm.seat.changed` at seq 1, 45 and 46, all by the operator |
+| 12 | PASS ("Bram holds the seat.", no pending warning; Return puts the AI DM in the strip; Bram drops to the player view) |
+| 13 | PASS (Ana has no DM seat button) |
+| 14 | PASS (script line removed, app recreated, no script-mode log, stack up) |
+| Refusals | PASS: player `dm.seat` gives `NOT_AUTHORIZED`; non-uuid `userId` gives `INVALID_PROPOSAL` |
+| Shots | PASS: all shots regenerated, 0 dialogs; new `start-dm-seat-issue-1280-light.png` shows the inline issue in the slide-out |
+
+Every step passed in run 2. T027 is ticked. The quickstart now says two tracker suggestions
+(steps 8 to 10). Run 1's defect record above stays as history.

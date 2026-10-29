@@ -159,7 +159,7 @@ its accessible name from the contract.
       the app), with `REQUIRE_DATABASE=1` and only `TEST_DATABASE_URL` exported from the worktree
       `.env`, run `REQUIRE_DATABASE=1 pnpm ci:check`. Re-run a failing WS gateway test once and
       report. Record counts in `specs/062-human-dm-seat/evidence/db-run.md`.
-- [ ] T027 **[orchestrator]** Live check in Brave, script mode, per `quickstart.md` steps 1 to 14.
+- [x] T027 **[orchestrator]** Live check in Brave, script mode, per `quickstart.md` steps 1 to 14.
       Shots at 1280 px and 390 px, light and dark, in `specs/062-human-dm-seat/evidence/shots/`. No
       shot shows a modal. Record everything in `specs/062-human-dm-seat/evidence/live-run.md`,
       including any step of the new runbook section that did not match. Remove the
