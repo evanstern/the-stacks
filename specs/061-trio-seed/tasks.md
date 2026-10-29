@@ -102,7 +102,7 @@ runbook names the trio seed for a three-player table.
 **Independent test**: `pnpm --filter @the-stacks/web exec vitest run test/play/start-scene-panel.test.tsx`
 and `node --test apps/web/test/no-dialog.test.mjs`.
 
-- [ ] T010 [P] [US2] In `apps/web/test/play/start-scene-panel.test.tsx`, add a trio
+- [x] T010 [P] [US2] In `apps/web/test/play/start-scene-panel.test.tsx`, add a trio
       `SeedSummary` (`greyhollow-ford-trio`, `Greyhollow Ford (three players)`, humans Tamsin Vale,
       Brother Odo, Kestrel; companions `[]`) and a third present user (`u3`, `Cass`). Cases: with
       the trio chosen the form renders `id="start-seat-tamsin"`, `id="start-seat-odo"` and
@@ -111,7 +111,7 @@ and `node --test apps/web/test/no-dialog.test.mjs`.
       Start is enabled for three distinct users; `startBody` on the full map keeps all three seats.
       These cases pass on first run: `StartSceneForm` already maps every `seed.humans` entry
       (plan.md R5). Record that in the commit message. Their bite is proved by T015 (b).
-- [ ] T011 [P] [US3] In `docs/ops/dev-vm-104.md`, add a subsection `### Seat three players` at the
+- [x] T011 [P] [US3] In `docs/ops/dev-vm-104.md`, add a subsection `### Seat three players` at the
       end of `## Run a two-player table`, before `## Rollback to a named commit`. Procedural prose:
       one instruction per sentence, imperative, about 20 words at most, one name per concept. Cover,
       in order: repeat steps 3 to 8 for a second player, with a second invitation; every human
@@ -119,7 +119,7 @@ and `node --test apps/web/test/no-dialog.test.mjs`.
       `Greyhollow Ford (three players) (greyhollow-ford-trio)`; choose a different user for
       `Tamsin Vale`, `Brother Odo` and `Kestrel`; no `AI companions:` note shows; each human's
       speaker selector offers only their own character. Do not change steps 1 to 19.
-- [ ] T012 [US2] [US3] Confirm `apps/web/test/no-dialog.test.mjs` passes. Run `pnpm ci:check`.
+- [x] T012 [US2] [US3] Confirm `apps/web/test/no-dialog.test.mjs` passes. Run `pnpm ci:check`.
       Commit.
 
 ## Phase 4: DB suites, mutation guard and live check **[orchestrator]**
