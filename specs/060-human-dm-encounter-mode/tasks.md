@@ -116,24 +116,24 @@ and `node --test apps/web/test/no-dialog.test.mjs`.
 
 **Independent test**: the file below, with `REQUIRE_DATABASE=1` **[orchestrator if no DB]**.
 
-- [ ] T020 Create `apps/server/test/dm/human-dm-encounter.integration.test.ts` on `world.ts` and
+- [x] T020 Create `apps/server/test/dm/human-dm-encounter.integration.test.ts` on `world.ts` and
       `worker-world.ts` (as `human-dm-scene.integration.test.ts` does; `loudSkip`,
       `clearDmJobsBeforeEach`). Setup: `createWorld` with an empty script, `startScene(w)` under the
       AI seat, then `w.as(operator, { kind: "dm.seat", …, after: { kind: "human", userId: HUMAN_DM } })`.
       The human DM (`{ kind: "human", userId: HUMAN_DM, role: "operator" }`) sends `mechanics`
       `initiative.roll` for the party's combatants and `table-mode` turn naming the encounter's
       active actor (`activeActorFor`).
-- [ ] T021 Case (a): the human DM sends `mechanics` `{ type: "encounter.end", reason }` and then
+- [x] T021 Case (a): the human DM sends `mechanics` `{ type: "encounter.end", reason }` and then
       `table-mode` `{ mode: "free" }`. Both return `applied`. The rows are `encounter.ended`
       (actor `HUMAN_DM`, `public`) and `table-mode.changed` (`after.mode: "free"`). Projections give
       `encounter: null`, `tableMode.mode: "free"`. No turn job was queued by those rows.
-- [ ] T022 Case (b): from turn mode, the human DM sends `table-mode` `{ mode: "free" }`, then
+- [x] T022 Case (b): from turn mode, the human DM sends `table-mode` `{ mode: "free" }`, then
       `{ mode: "turn", ...activeActorFor(p, p.encounter.activeCombatantId) }`. The encounter stays.
       When that actor is a companion, one companion `turn` job is queued (rule 4); when it is a
       human, none. Pick the case from the rolled order, or set dice so a companion is active.
-- [ ] T023 Case (c): a player (`player` proposer) sending either request is refused
+- [x] T023 Case (c): a player (`player` proposer) sending either request is refused
       `NOT_AUTHORIZED`; a second encounter end is refused `NO_ACTIVE_ENCOUNTER` (source `engine`).
-- [ ] T024 Run `pnpm --filter @the-stacks/server exec vitest run test/dm/human-dm-encounter.integration.test.ts`
+- [x] T024 Run `pnpm --filter @the-stacks/server exec vitest run test/dm/human-dm-encounter.integration.test.ts`
       without a database and confirm it skips loudly. Run `pnpm ci:check`.
 
 ## Phase 4: DB suites, mutation guard and live check **[orchestrator]**
