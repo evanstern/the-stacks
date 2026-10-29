@@ -4,7 +4,7 @@ title: Human DM can end an encounter or change table mode from the table
 status: In Progress
 assignee: []
 created_date: '2026-10-28 07:53'
-updated_date: '2026-10-29 02:25'
+updated_date: '2026-10-29 02:31'
 labels:
   - play-route
   - gate
@@ -49,6 +49,9 @@ Phase 2 (T010-T019) at 578c4ef2: table-mode.ts view, TableModePanel slide-out (P
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 Phase 3 (T020-T024) at 93955186: human-dm-encounter.integration (4 cases: DM end then free; companion-active free then turn queues one companion job; human-active free then turn queues none; player refused NOT_AUTHORIZED, second end NO_ACTIVE_ENCOUNTER). Green with REQUIRE_DATABASE=1 on stacks-task-0165; no server source change.
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Fix at cb0545bb (T019a): the T028 live check found that "Switch to free mode" and "Switch to turn mode" sent nothing with a blank reason (modeInput passed "", tableModeFrame refused it). modeInput now falls back to tableModeReason(target), where table-mode-control.md puts the default. New red/green case in table-mode-panel.test.tsx.
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
 
