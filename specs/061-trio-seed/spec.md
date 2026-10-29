@@ -4,7 +4,7 @@
 
 **Created**: 2026-10-28
 
-**Status**: Draft. Open questions OQ-1 to OQ-6 await the operator's ruling.
+**Status**: Draft. The operator ruled OQ-1 to OQ-6 (a) on 2026-10-28, answering "Do you accept the recommended defaults (a) for TASK-0176's OQ-1 to OQ-6?": "Accept all (a)".
 
 **Input**: TASK-0176, "Three-human seed for the M3 demo". Outcome: a shipped seed seats three
 humans (`tamsin`, `odo` and `kestrel` all human seats), so the TASK-0053 demo can run three human
@@ -257,7 +257,7 @@ amends them before Phase 1 dispatches.
 - **(c)** `greyhollow-ford-table`, `Greyhollow Ford (the M3 table)`.
   Consequences: ties a shipped seed's name to a milestone that will close.
 
-Ruling:
+Ruling: (a)
 
 ### OQ-2 — Odo's portrayal
 
@@ -272,7 +272,7 @@ Ruling:
 - **(c)** Clear Odo's hooks too, leaving a blank character.
   Consequences: thins the content contract (CR-002); the narrator loses the Kestrel thread.
 
-Ruling:
+Ruling: (a)
 
 ### OQ-3 — Does Odo keep any companion behaviour?
 
@@ -287,7 +287,7 @@ Ruling:
   Consequences: new content (a new character, its combatant and numbers) and a larger fight; the
   seed is no longer the greyhollow party.
 
-Ruling:
+Ruling: (a)
 
 ### OQ-4 — Does the trio seed replace or sit beside the duo seed?
 
@@ -303,7 +303,7 @@ Ruling:
   Consequences: changes the start route's contract and the seed schema; spec 054 Q1 rejected a
   per-seed override.
 
-Ruling:
+Ruling: (a)
 
 ### OQ-5 — What the AI DM is told
 
@@ -318,7 +318,7 @@ Ruling:
 - **(c)** Add a line to the narrate prompt naming the three players.
   Consequences: bumps the narrate prompt; the snapshot already names them.
 
-Ruling:
+Ruling: (a)
 
 ### OQ-6 — Shape of the runbook change
 
@@ -334,7 +334,7 @@ Ruling:
   Consequences: edits the steps TASK-0163's alpha run is about to follow, and changes
   `hosted-dev`'s section anchor.
 
-Ruling:
+Ruling: (a)
 
 ## Findings outside this card (for the orchestrator)
 
