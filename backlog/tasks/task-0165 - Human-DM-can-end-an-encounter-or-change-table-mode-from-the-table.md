@@ -4,7 +4,7 @@ title: Human DM can end an encounter or change table mode from the table
 status: In Progress
 assignee: []
 created_date: '2026-10-28 07:53'
-updated_date: '2026-10-29 02:34'
+updated_date: '2026-10-29 02:37'
 labels:
   - play-route
   - gate
@@ -55,6 +55,9 @@ Fix at cb0545bb (T019a): the T028 live check found that "Switch to free mode" an
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 Phase 4 [orchestrator] at f7a85ea7: T025 DB suites 6 files, 34 passed. T026 mutation guard: (1) thenFree skip fails use-fixture-table; (2) turnAfter without an encounter fails table-mode.test (the panel test stays green: it renders a hand-built view); (3) the header trigger fails table-view only with both the isDm check and the tableMode gate removed. T027 start-encounter.mjs. T028 Brave live check: the first run found the blank-reason mode-switch defect (fixed cb0545bb); the final run (session 8daf454b) passes quickstart steps 4-12, shots at 1280/390 light/dark, no modal, no job queued by the human DM requests. Evidence: specs/060-human-dm-encounter-mode/evidence/. DM_FAKE_SCRIPT removed, app recreated.
+
+Phase 5 (T029-T034) at a140f97a: re-pinned play-route (Table mode section; tightened to its 8000-char budget, Start scene detail left to scene-panels), turn-floor and scene-panels; CAPSULES regenerated, INDEX sentence, runbook row (dispatch count corrected to impl ×5). Freshness OK (55 notes), spec-bridge exit 0.
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
