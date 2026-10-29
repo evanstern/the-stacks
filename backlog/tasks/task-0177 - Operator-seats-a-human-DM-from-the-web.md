@@ -29,13 +29,15 @@ Spec: specs/062-human-dm-seat
 - [x] #1 The play route offers the operator a control that seats a human DM from a gate request, with no modal, and a test
 - [x] #2 The same control returns the DM seat to the AI DM, with a test
 - [x] #3 docs/ops/dev-vm-104.md documents seating a human DM for an assisted table
-- [ ] #4 Spec phase: Frame, command and seat view (card AC #1, #2; OQ-2, OQ-3)
+- [x] #4 Spec phase: Frame, command and seat view (card AC #1, #2; OQ-2, OQ-3)
 - [ ] #5 Spec phase: The panel, the header and the Start scene check (card AC #1, #2; OQ-1, OQ-3, OQ-4, OQ-6)
 - [ ] #6 Spec phase: The newly seated DM's resync (card AC #1; OQ-5)
 - [ ] #7 Spec phase: The hosted-dev runbook (card AC #3)
 - [ ] #8 Spec phase: Mutation guard, DB suites and live check **[orchestrator]**
 - [ ] #9 Spec phase: Wiki re-ground
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
