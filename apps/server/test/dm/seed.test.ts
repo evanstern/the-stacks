@@ -191,6 +191,20 @@ describe("scene seed (AC #13)", () => {
     ).toEqual(["odo"]);
   });
 
+  it("loads the three-player trio seed", () => {
+    const seed = loadSeed("greyhollow-ford-trio");
+    expect(seed.title).toBe("Greyhollow Ford (three players)");
+    expect(
+      seed.characters
+        .filter((c) => c.seat === "human")
+        .map((c) => c.characterId),
+    ).toEqual(["tamsin", "odo", "kestrel"]);
+    expect(seed.characters.filter((c) => c.seat === "companion")).toEqual([]);
+    const odo = seed.characters.find((c) => c.characterId === "odo");
+    expect(odo?.portrayal.voice).toBe("Chosen by the player.");
+    expect(odo?.portrayal.want).toBe("Chosen by the player.");
+  });
+
   it("keeps exactly one human in greyhollow-ford", () => {
     const seed = loadSeed("greyhollow-ford");
     expect(seed.characters.filter((c) => c.seat === "human")).toHaveLength(1);
@@ -200,6 +214,7 @@ describe("scene seed (AC #13)", () => {
     expect(listSeeds().map((s) => s.seedId)).toEqual([
       "greyhollow-ford",
       "greyhollow-ford-duo",
+      "greyhollow-ford-trio",
     ]);
   });
 

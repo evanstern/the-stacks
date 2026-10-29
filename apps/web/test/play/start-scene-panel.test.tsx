@@ -2,7 +2,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { expect, test } from "vitest";
 import { StartSceneForm } from "~/play/components/start-scene-panel";
 import type { TableSource } from "~/play/source";
-import type { SeedSummary } from "~/play/start-scene";
+import { type SeedSummary, startBody } from "~/play/start-scene";
 import { TableView } from "~/play/table-view";
 
 const yes = () => true;
@@ -79,10 +79,21 @@ const seeds: SeedSummary[] = [
     companions: [],
   },
 ];
+const trioSeed: SeedSummary = {
+  seedId: "greyhollow-ford-trio",
+  title: "Greyhollow Ford (three players)",
+  humans: [
+    { characterId: "tamsin", name: "Tamsin Vale" },
+    { characterId: "odo", name: "Brother Odo" },
+    { characterId: "kestrel", name: "Kestrel" },
+  ],
+  companions: [],
+};
 const present = [
   { userId: "u1", displayName: "Ada" },
   { userId: "u2", displayName: "Bram" },
 ];
+const presentThree = [...present, { userId: "u3", displayName: "Cass" }];
 const noop = () => {};
 function form(over: Record<string, unknown> = {}) {
   return renderToStaticMarkup(
@@ -146,4 +157,54 @@ test("a form-level error shows under the form", () => {
   expect(form({ error: "Scene already running." })).toContain(
     "Scene already running.",
   );
+});
+
+const trioForm = (seats: Record<string, string>) =>
+  form({
+    seeds: [...seeds, trioSeed],
+    seedId: "greyhollow-ford-trio",
+    present: presentThree,
+    seats,
+  });
+const startDisabled = /<button[^>]*\sdisabled=""[^>]*>Start</;
+
+test("the trio form renders three seat selects, each offering all three users, and no companion note", () => {
+  const out = trioForm({});
+  for (const id of ["tamsin", "odo", "kestrel"]) {
+    expect(out).toContain(`id="start-seat-${id}"`);
+  }
+  for (const name of ["Ada", "Bram", "Cass"]) {
+    // One option per seat.
+    expect(out.split(`>${name}</option>`).length - 1).toBe(3);
+  }
+  expect(out).not.toContain("AI companions:");
+});
+
+test("trio Start is disabled while a seat is empty", () => {
+  expect(trioForm({ tamsin: "u1", odo: "u2" })).toMatch(startDisabled);
+});
+
+test("trio Start is disabled while one user holds two seats", () => {
+  expect(trioForm({ tamsin: "u1", odo: "u2", kestrel: "u2" })).toMatch(
+    startDisabled,
+  );
+});
+
+test("trio Start is enabled for three distinct users", () => {
+  expect(trioForm({ tamsin: "u1", odo: "u2", kestrel: "u3" })).not.toMatch(
+    startDisabled,
+  );
+});
+
+test("startBody on the full trio map keeps all three seats", () => {
+  expect(
+    startBody("greyhollow-ford-trio", {
+      tamsin: "u1",
+      odo: "u2",
+      kestrel: "u3",
+    }),
+  ).toEqual({
+    seedId: "greyhollow-ford-trio",
+    seats: { tamsin: "u1", odo: "u2", kestrel: "u3" },
+  });
 });

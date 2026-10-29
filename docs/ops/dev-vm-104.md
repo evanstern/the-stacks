@@ -81,6 +81,17 @@ A missing model key fails the scene-start turn job. Add the key under `Secrets`,
 
 Rehearse this run locally first. Follow `specs/054-two-player-alpha-kit/quickstart.md` and `specs/053-env-fake-dm-script/quickstart.md`.
 
+### Seat three players
+
+Do this to seat a third human. It lists only the differences from the steps above.
+
+1. Repeat steps 3 to 8 for the second player. Create a second invitation.
+2. Ask every human to open the table link. Check the presence strip. It shows three names.
+3. In step 14, choose `Greyhollow Ford (three players) (greyhollow-ford-trio)` in `Seed`.
+4. Choose a different user for `Tamsin Vale`, `Brother Odo` and `Kestrel`.
+5. Check that no `AI companions:` note shows.
+6. Check that each human's speaker selector offers only their own character.
+
 ## Rollback to a named commit
 
 Run `gh workflow run deploy-dev.yml -f commit=<sha>`. This deploys that
