@@ -4,7 +4,7 @@ title: Three-human seed for the M3 demo
 status: In Progress
 assignee: []
 created_date: '2026-10-29 02:48'
-updated_date: '2026-10-29 03:05'
+updated_date: '2026-10-29 03:11'
 labels:
   - seed
   - multiplayer
@@ -52,6 +52,8 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 Phase 3 (T010-T012) at a3df1f21: 5 trio cases in start-scene-panel.test.tsx (three seat selects, Start disabled for two seats or a duplicate user, enabled for three, startBody keeps all three), green on the first run (the form maps every seed human); dev-vm-104.md "Seat three players" subsection. no-dialog passes. ci:check: only the 5 known adjudicate requireDb failures.
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Phase 4 [orchestrator]: T013 DB suites 4 files 28 passed, REQUIRE_DATABASE=1 ci:check exit 0. T015 mutation guard: Odo back to companion fails 6 cases; rendering two seats fails the trio form case; deleting the seed fails 2 seed cases; restored. T017 Brave live check, script mode greyhollow-live, session 41ba9d4f: three players invited, seated and greeted by the opening; one character per speaker selector; no companion job; the three refusals hold; no modal. The step 10 job check read a field the route lacks and was verified by a direct read (recorded). Evidence: specs/061-trio-seed/evidence/.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
