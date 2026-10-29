@@ -4,7 +4,7 @@ title: Human DM can end an encounter or change table mode from the table
 status: In Progress
 assignee: []
 created_date: '2026-10-28 07:53'
-updated_date: '2026-10-29 02:17'
+updated_date: '2026-10-29 02:21'
 labels:
   - play-route
   - gate
@@ -43,6 +43,9 @@ Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
 Operator ruling 2026-10-28 in chat, answering "Do you accept the recommended defaults (a) for TASK-0165's OQ-1 to OQ-6?": "Accept all (a)". Recorded in spec.md. DC-1 (human DM starts an encounter) is not carded: it applied only under OQ-3 (c).
 
 Phase 1 (T001-T009) at b0d22371: encounterEndFrame, tableModeFrame and tableModeReason in frames.ts; TableCommands.endEncounter/setTableMode; localEncounterEndEvents/localTableModeEvents; live and fixture commands (planEncounterEnd, planTableMode). 13 new cases. ci:check without DB: only the 5 known adjudicate requireDb failures. Orchestrator rulings on the implementer readings: the contract shapes stand (end returns rows or null, mode returns one row or null); the blank-reason fallback lives in both the frame builder and the local builder; the follow-on free-mode request reuses the end reason; fixture rows use the engine event type encounter.ended, as the floor builder does.
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Phase 2 (T010-T019) at 578c4ef2: table-mode.ts view, TableModePanel slide-out (Panel id table-mode-panel), TableHeader modeOpen/onMode and the DM-only "Table mode" button, view-model tableMode (null for a player); 030 ui-surfaces, live-frames and table-source amended additively. 9 new cases; equivalence and no-dialog unchanged. ci:check: only the 5 known adjudicate requireDb failures. Orchestrator ruling: thenFree follows view.mode === "turn", as OQ-2 (a) says.
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
 
