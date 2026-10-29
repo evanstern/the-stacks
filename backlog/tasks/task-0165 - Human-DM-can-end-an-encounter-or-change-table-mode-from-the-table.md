@@ -62,6 +62,8 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 spec-bridge sync: Frames, commands and fixture rows (card AC #1, #2; OQ-2): 9/9 · The view, the panel and the header (card AC #1, #2; OQ-1, OQ-3, OQ-4, OQ-5): 11/11 · The DB test (FR-016; OQ-6): 5/5 · DB suites, mutation guard and live check **[orchestrator]**: 4/4 · Wiki re-ground: 6/6 — status In Progress → Done
 
 Merged: PR #85 merged 7c18b8ff by the operator ("I merged it"). AC #1 and #2 proven by the frame, fixture, view, panel and header tests, human-dm-encounter.integration, and the Brave live check (evidence/live-run.md). DoD #1: REQUIRE_DATABASE=1 pnpm ci:check exit 0 on the final tree. Worktree, branch and stack removed; env:prune --check: no orphans.
+
+spec-bridge sync: Frames, commands and fixture rows (card AC #1, #2; OQ-2): 9/9 · The view, the panel and the header (card AC #1, #2; OQ-1, OQ-3, OQ-4, OQ-5): 11/11 · The DB test (FR-016; OQ-6): 5/5 · DB suites, mutation guard and live check **[orchestrator]**: 4/4 · Wiki re-ground: 6/6 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
