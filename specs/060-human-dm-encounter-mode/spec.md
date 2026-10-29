@@ -4,7 +4,7 @@
 
 **Created**: 2026-10-28
 
-**Status**: Draft. OQ-1 to OQ-6 await the operator's ruling.
+**Status**: Draft. The operator ruled OQ-1 to OQ-6 (a) on 2026-10-28.
 
 **Input**: TASK-0165. "A seated human DM can end an encounter and change table mode from the play
 route, with no modal." Evidence: the TASK-0159 spec author (spec 055, commit 212a4f8, finding DC-1)
@@ -219,7 +219,8 @@ encounter.activeCombatantId) }`.
 ## Open questions
 
 Each question changes what a DM or a player sees, or who may act. The recommended option is (a).
-The operator rules each one; "Ruling:" stays blank until then.
+
+Operator ruling, 2026-10-28, answering "Do you accept the recommended defaults (a) for TASK-0165's OQ-1 to OQ-6?": "Accept all (a)".
 
 ### OQ-1 — Where the controls live
 
@@ -237,7 +238,7 @@ The operator rules each one; "Ruling:" stays blank until then.
   Consequences: no new header button. Mixes two concerns in one panel. The DM must open "Change
   scene" to leave a fight.
 
-Ruling:
+Ruling: (a)
 
 ### OQ-2 — What "End encounter" sends
 
@@ -253,7 +254,7 @@ Ruling:
   Consequences: never sends free mode on a refused end. Needs pending-send state in the live source
   and a different fixture path.
 
-Ruling:
+Ruling: (a)
 
 ### OQ-3 — What "Switch to turn mode" offers
 
@@ -271,7 +272,7 @@ Ruling:
   Consequences: needs a participant picker, monster combatants and a seed read the play route lacks.
   Larger than this card; it would be a new card.
 
-Ruling:
+Ruling: (a)
 
 ### OQ-4 — Free mode while an encounter is active
 
@@ -286,7 +287,7 @@ Ruling:
 - **(c)** "Switch to free mode" also ends the encounter.
   Consequences: AC #2 collapses into AC #1. No way to pause a fight.
 
-Ruling:
+Ruling: (a)
 
 ### OQ-5 — Who may use the controls
 
@@ -298,7 +299,7 @@ Ruling:
   Consequences: amends the frozen 029 permission matrix and `viewerFor` (an operator views as a
   player on `/play`).
 
-Ruling:
+Ruling: (a)
 
 ### OQ-6 — What the AI DM does after the human DM ends an encounter
 
@@ -316,7 +317,7 @@ Ruling:
   Consequences: the approvals list stays clean. Each reject queues an `approval` turn (rule 2), so
   one click can trigger several AI DM turns.
 
-Ruling:
+Ruling: (a)
 
 ### Deferral candidates (cards for the orchestrator, not rulings on this card)
 
