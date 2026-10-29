@@ -104,6 +104,7 @@ server source change. Tests are written first and seen to fail.
       `specs/062-human-dm-seat/contracts/dm-seat-control.md` and the operator's ruling words from
       the card. Do not rewrite earlier text.
 - [x] T017 Run `pnpm ci:check`.
+- [x] T019a [US1] Render the client DM-seat issue in Start scene (live-check defect, step 7).
 
 ## Phase 3: The newly seated DM's resync (card AC #1; OQ-5)
 

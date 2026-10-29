@@ -240,3 +240,15 @@ test("a seat naming the DM renders the issue and a disabled Start", () => {
   expect(out).toContain("The DM cannot hold a character seat.");
   expect(out).toMatch(/<button[^>]*disabled[^>]*>Start/);
 });
+
+test("the DM picked on a seat shows the issue without a server round trip", () => {
+  const out = form({
+    seedId: "greyhollow-ford-trio",
+    seeds: [trioSeed],
+    seats: { tamsin: "dm" },
+    present: [{ userId: "dm", displayName: "Dee" }],
+    dmUserId: "dm",
+    issues: [],
+  });
+  expect(out).toContain("The DM cannot hold a character seat.");
+});

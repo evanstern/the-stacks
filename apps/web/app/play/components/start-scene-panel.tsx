@@ -49,9 +49,16 @@ export function StartSceneForm({
   onStart,
 }: StartSceneFormProps) {
   const seed = seeds.find((s) => s.seedId === seedId) ?? null;
-  const { bySeat, form } = issuesBySeat(issues);
-  const ready =
-    seed !== null && seatMapIssues(seed.humans, seats, dmUserId).length === 0;
+  const clientIssues =
+    seed === null ? [] : seatMapIssues(seed.humans, seats, dmUserId);
+  // Show only the client-side DM-seat issue (FR-006); skip it when the server already sent it.
+  const dmIssues = clientIssues.filter(
+    (c) =>
+      c.message === "The DM cannot hold a character seat." &&
+      !issues.some((i) => i.path === c.path && i.message === c.message),
+  );
+  const { bySeat, form } = issuesBySeat([...issues, ...dmIssues]);
+  const ready = seed !== null && clientIssues.length === 0;
   return (
     <form
       className="flex flex-col gap-4"
