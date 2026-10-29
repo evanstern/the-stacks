@@ -4,7 +4,7 @@ title: 'Two-player alpha kit: two human seats, player sign-up, scene-start runbo
 status: In Progress
 assignee: []
 created_date: '2026-10-28 04:12'
-updated_date: '2026-10-28 14:45'
+updated_date: '2026-10-29 13:41'
 labels:
   - multiplayer
   - dev-tooling
@@ -95,6 +95,10 @@ Operator, 2026-10-28, in the M3 sweep chat, verbatim: "Spending Ceiling: Since w
 Operator, 2026-10-28, verbatim: "You have a go on those commands" — the four Phase 8 commands T041-T043: curl /health; gh workflow run deploy-dev.yml + gh run watch only if stale; node scripts/deploy-dev.mjs status; node scripts/deploy-dev.mjs backup --name pre-task-0163-alpha.
 
 Phase 8 preflight, 2026-10-28, under the operator's go: T041 /health status ok, database reachable, commit da31a11f (contains #79's 6d6982e), so no manual deploy ran. The push of board commits then auto-deployed 9be9de4f (board-only on top of da31a11f). T042 deploy-dev.mjs status: running commit 9be9de4f, /health ok, exit 0. T043 backup: /home/stacks/dev/backups/manual-pre-task-0163-alpha.dump, exit 0. T044 waits on the operator and the other developer playing. The spec ticks for T041-T045 land with the next task branch.
+
+Operator, 2026-10-29, verbatim: "TASK-0163 AC #4: you have my go on the three preflight commands: the /health curl, `node scripts/deploy-dev.mjs status`, and `node scripts/deploy-dev.mjs backup --name pre-task-0163-alpha-2`, each over ssh from the runner checkout."
+
+Preflight 2026-10-29 under that go: /health status ok, database reachable, commit af74f7cb (contains #89 a998fe7c, TASK-0177). deploy-dev.mjs status: running af74f7cb, exit 0. Backup /home/stacks/dev/backups/manual-pre-task-0163-alpha-2.dump, exit 0. T044 waits on the operator and the other developer playing.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
