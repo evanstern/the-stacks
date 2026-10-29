@@ -20,6 +20,8 @@ ordinal: 164000
 Outcome: on hosted dev the operator can seat a human DM (themself or another account) and return the seat to the AI DM from the web app, with no modal, before or during a scene.
 
 Why: the TASK-0176 spec author (spec 061, 8f8a6808, finding F-1) found that nothing on hosted dev sends `dm.seat`: `git grep "dm.seat" apps/web` is empty, `docs/ops/dev-vm-104.md` has no step for it, and only the local evidence script `specs/055-human-dm-scene-change/evidence/start-human-dm.mjs` sends it. The TASK-0053 demo second run (policy ask, a human DM beside three players) needs it. Operator ruling 2026-10-28 in chat, answering "Should I card F-1, seating a human DM from the web, in m-3 before the demo?": "Card it in m-3".
+
+Spec: specs/062-human-dm-seat
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
