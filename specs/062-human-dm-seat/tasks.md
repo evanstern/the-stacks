@@ -148,13 +148,13 @@ its accessible name from the contract.
 
 ## Phase 5: Mutation guard, DB suites and live check **[orchestrator]**
 
-- [ ] T025 **[orchestrator]** Mutation guard: (1) make `dmSeatView` keep party controllers; confirm
+- [x] T025 **[orchestrator]** Mutation guard: (1) make `dmSeatView` keep party controllers; confirm
       `dm-seat.test.mjs` fails. (2) Make the header show "DM seat" for any live source; confirm
       `table-view.test.tsx` fails. (3) Make `shouldResync` ignore `prev.caughtUp`; confirm
       `viewer.test.mjs` fails. (4) Make `returnInput` send a human seat; confirm
       `dm-seat-panel.test.tsx` fails. Restore; `git diff` is empty. Record in
       `specs/062-human-dm-seat/evidence/mutation-guard.md`.
-- [ ] T026 **[orchestrator]** On the worktree stack (`pnpm env:up`, migrate both databases, restart
+- [x] T026 **[orchestrator]** On the worktree stack (`pnpm env:up`, migrate both databases, restart
       the app), with `REQUIRE_DATABASE=1` and only `TEST_DATABASE_URL` exported from the worktree
       `.env`, run `REQUIRE_DATABASE=1 pnpm ci:check`. Re-run a failing WS gateway test once and
       report. Record counts in `specs/062-human-dm-seat/evidence/db-run.md`.
