@@ -7,14 +7,17 @@ import {
   ReasonSchema,
   RefIdSchema,
   SceneSchema,
+  TableModeSchema,
   TalkV1,
 } from "@the-stacks/session-model";
 import type {
   CommentInput,
   CommitInput,
   DeclareInput,
+  EncounterEndInput,
   FloorInput,
   SceneInput,
+  TableModeInput,
   TalkInput,
   WithdrawInput,
 } from "./source.ts";
@@ -209,6 +212,55 @@ export function sceneFrame(input: SceneInput): EventFrame | null {
       reason: reason.data,
       after,
       summary: sceneSummary(after),
+      rationale: null,
+    },
+    payloadVersion: GATE_REQUEST_VERSION,
+  };
+}
+
+const TABLE_MODE_REASON = {
+  end: "The DM ends the encounter.",
+  free: "The DM switches to free mode.",
+  turn: "The DM switches to turn mode.",
+} as const;
+
+/** The reason a table-mode control sends when the DM types none. */
+export function tableModeReason(action: "end" | "free" | "turn"): string {
+  return TABLE_MODE_REASON[action];
+}
+
+/** A `mechanics` gate request ending the encounter. Null when the reason fails ReasonSchema. */
+export function encounterEndFrame(input: EncounterEndInput): EventFrame | null {
+  const trimmed = input.reason.trim();
+  const reason = ReasonSchema.safeParse(
+    trimmed === "" ? tableModeReason("end") : trimmed,
+  );
+  if (!reason.success) return null;
+  return {
+    eventType: "mechanics",
+    payload: {
+      command: { type: "encounter.end", reason: reason.data },
+      actionId: null,
+      visibility: "public",
+      summary: "End the encounter",
+      rationale: null,
+    },
+    payloadVersion: GATE_REQUEST_VERSION,
+  };
+}
+
+/** A `table-mode` gate request. Null when `reason` or `after` fails its schema. */
+export function tableModeFrame(input: TableModeInput): EventFrame | null {
+  const reason = ReasonSchema.safeParse(input.reason.trim());
+  if (!reason.success) return null;
+  const after = TableModeSchema.safeParse(input.after);
+  if (!after.success) return null;
+  return {
+    eventType: "table-mode",
+    payload: {
+      reason: reason.data,
+      after: after.data,
+      summary: `Table mode: ${after.data.mode}`,
       rationale: null,
     },
     payloadVersion: GATE_REQUEST_VERSION,

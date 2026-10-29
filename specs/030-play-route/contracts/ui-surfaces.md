@@ -93,3 +93,17 @@ Amendment, TASK-0167 (additive, 2026-10-28): the header's start note.
 a `role="status"` text: `Scene start queued.` for `queued`, `Scene start waiting for the DM.` for
 `pending`. The "Start scene" button shows only while the source's `sceneStart` is `none`.
 Detail: `specs/059-start-scene-queued/contracts/scene-start-state.md`.
+
+Amendment, TASK-0165 (additive, 2026-10-28): the Table mode slide-out.
+
+Operator ruling (card, 2026-10-28), answering "Do you accept the recommended defaults (a) for TASK-0165's OQ-1 to OQ-6?": "Accept all (a)".
+
+| Surface | Change |
+|---|---|
+| `TableHeader` | gains `modeOpen: boolean` and `onMode?: () => void`. When `model.isDm` and `onMode` is set, it renders a button named "Table mode" with `aria-controls="table-mode-panel"` and `aria-expanded={modeOpen}`. |
+| `TableModePanel` | `components/table-mode-panel.tsx`; props `view: TableModeView`, `onEndEncounter(input): boolean`, `onSetMode(input): boolean`. `TableView` mounts it in the shared `Panel` (title "Table mode", id `table-mode-panel`) only when `model.tableMode` is not null. |
+
+Accessible names: field "Reason (optional)"; buttons "End encounter", "Switch to free mode",
+"Switch to turn mode", each shown only when allowed; texts "Encounter active.", "No encounter.",
+"The encounter stays active." and "Turn mode needs an encounter. The AI DM starts one." No dialog.
+Detail: `specs/060-human-dm-encounter-mode/contracts/table-mode-control.md`.

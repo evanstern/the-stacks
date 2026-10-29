@@ -14,6 +14,7 @@ import { type LedgerItem, toLedgerItems } from "./ledger-format.ts";
 import type { PendingProposalView } from "./proposals.ts";
 import { type SceneChangeView, sceneChangeView } from "./scene-seeds.ts";
 import { type SignoffRowView, signoffRows } from "./signoff.ts";
+import { type TableModeView, tableModeView } from "./table-mode.ts";
 
 export interface OrderEntry {
   combatantId: string;
@@ -113,6 +114,8 @@ export interface TableViewModel {
   isDm: boolean;
   /** The seeds for the human DM's scene change; null for a player viewer. */
   sceneChange: SceneChangeView | null;
+  /** The human DM's table-mode control state; null for a player viewer. */
+  tableMode: TableModeView | null;
 }
 
 export interface ViewModelInput {
@@ -340,5 +343,6 @@ export function toTableViewModel(
     sceneChange: isDm
       ? sceneChangeView(p, new Set(input.proposals.map((v) => v.proposalId)))
       : null,
+    tableMode: isDm ? tableModeView(p) : null,
   };
 }

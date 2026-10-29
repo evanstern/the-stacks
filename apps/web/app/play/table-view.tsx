@@ -11,6 +11,10 @@ import {
   LEDGER_PANEL_ID,
   TableHeader,
 } from "./components/table-header.tsx";
+import {
+  TABLE_MODE_PANEL_ID,
+  TableModePanel,
+} from "./components/table-mode-panel.tsx";
 import { Transcript } from "./components/transcript.tsx";
 import { TurnOrder } from "./components/turn-order.tsx";
 import { presenceRows } from "./presence.ts";
@@ -46,6 +50,7 @@ export function TableView({
   const [ledgerOpen, setLedgerOpen] = useState(false);
   const [approvalsOpen, setApprovalsOpen] = useState(false);
   const [sceneOpen, setSceneOpen] = useState(false);
+  const [modeOpen, setModeOpen] = useState(false);
   const [startOpen, setStartOpen] = useState(false);
   const { startScene } = source.commands;
   const canStart =
@@ -76,12 +81,14 @@ export function TableView({
         ledgerOpen={ledgerOpen}
         approvalsOpen={approvalsOpen}
         sceneOpen={sceneOpen}
+        modeOpen={modeOpen}
         debugHref={debugHref}
         onLedger={() => setLedgerOpen((was) => !was)}
         onApprovals={() => setApprovalsOpen((was) => !was)}
         onScene={
           model.sceneChange ? () => setSceneOpen((was) => !was) : undefined
         }
+        onMode={model.tableMode ? () => setModeOpen((was) => !was) : undefined}
         onFloor={source.commands.floor}
         onStartScene={canStart ? () => setStartOpen(true) : undefined}
         startNote={startNote}
@@ -139,6 +146,29 @@ export function TableView({
             onApply={(input) => {
               const ok = source.commands.changeScene(input);
               if (ok) setSceneOpen(false);
+              return ok;
+            }}
+          />
+        </Panel>
+      )}
+      {model.tableMode && (
+        <Panel
+          open={modeOpen}
+          onOpenChange={setModeOpen}
+          title="Table mode"
+          description="End the encounter, or switch between free and turn mode."
+          id={TABLE_MODE_PANEL_ID}
+        >
+          <TableModePanel
+            view={model.tableMode}
+            onEndEncounter={(input) => {
+              const ok = source.commands.endEncounter(input);
+              if (ok) setModeOpen(false);
+              return ok;
+            }}
+            onSetMode={(input) => {
+              const ok = source.commands.setTableMode(input);
+              if (ok) setModeOpen(false);
               return ok;
             }}
           />

@@ -1,4 +1,4 @@
-import type { StoredEvent, Viewer } from "@the-stacks/session-model";
+import type { StoredEvent, TableMode, Viewer } from "@the-stacks/session-model";
 import type { PresenceEntry } from "../ws/types.ts";
 import type { PendingProposalView, ProposalCommands } from "./proposals.ts";
 import type { SceneStartView, StartBody, StartResult } from "./start-scene.ts";
@@ -79,6 +79,22 @@ export interface SceneInput {
   closeProposalId: string | null;
 }
 
+/** One end-encounter request. */
+export interface EncounterEndInput {
+  /** Trimmed; 1..500. A blank reason sends the default. */
+  reason: string;
+  /** True when the table is in turn mode: the free-mode request follows. */
+  thenFree: boolean;
+}
+
+/** One table-mode request. */
+export interface TableModeInput {
+  /** Trimmed; 1..500. */
+  reason: string;
+  /** `{ mode: "free" }` or the turn mode from `TableModeView.turnAfter`. */
+  after: TableMode;
+}
+
 export interface TableCommands extends ProposalCommands {
   sendTalk(input: TalkInput): boolean;
   declareAction(input: DeclareInput): boolean;
@@ -88,6 +104,10 @@ export interface TableCommands extends ProposalCommands {
   floor(input: FloorInput): boolean;
   /** A `scene` gate request; closes `closeProposalId` after it leaves. True when sent/applied. */
   changeScene(input: SceneInput): boolean;
+  /** An `encounter.end` mechanics request; with `thenFree`, a free-mode request follows. */
+  endEncounter(input: EncounterEndInput): boolean;
+  /** A `table-mode` gate request. True when sent/applied. */
+  setTableMode(input: TableModeInput): boolean;
   /** Operator only; absent on fixtures. Posts to `/dm/sessions/<id>/start`. */
   startScene?(body: StartBody): Promise<StartResult>;
 }

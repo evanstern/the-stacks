@@ -1,8 +1,13 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { dmApprovals } from "@the-stacks/session-model/fixtures";
 import {
+  dmApprovals,
+  turnModeCombat,
+} from "@the-stacks/session-model/fixtures";
+import {
+  planEncounterEnd,
   planScene,
+  planTableMode,
   proposalsFor,
   viewerForKey,
 } from "../../app/play/use-fixture-table.ts";
@@ -62,6 +67,60 @@ test("planScene with no closeProposalId closes nothing", () => {
 test("planScene returns null for an invalid input", () => {
   assert.equal(
     planScene(events, dm, { reason: "", after: seed, closeProposalId: null }),
+    null,
+  );
+});
+
+const combatDm = turnModeCombat.viewers.dm;
+const combatEvents = turnModeCombat.events.filter((e) => e.seq <= 18);
+
+test("planEncounterEnd with thenFree gives the end row then the free row", () => {
+  const rows = planEncounterEnd(combatEvents, combatDm, {
+    reason: "Done.",
+    thenFree: true,
+  });
+  assert.deepEqual(
+    rows.map((r) => r.eventType),
+    ["encounter.ended", "table-mode.changed"],
+  );
+  assert.deepEqual(rows[1].payload.after, { mode: "free" });
+});
+
+test("planEncounterEnd without thenFree gives only the end row", () => {
+  const rows = planEncounterEnd(combatEvents, combatDm, {
+    reason: "Done.",
+    thenFree: false,
+  });
+  assert.equal(rows.length, 1);
+});
+
+test("planEncounterEnd gives null with no encounter or a bad reason", () => {
+  const ended = turnModeCombat.events;
+  assert.equal(
+    planEncounterEnd(ended, combatDm, { reason: "x", thenFree: true }),
+    null,
+  );
+  assert.equal(
+    planEncounterEnd(combatEvents, combatDm, {
+      reason: "x".repeat(501),
+      thenFree: false,
+    }),
+    null,
+  );
+});
+
+test("planTableMode gives one row, or null when the frame refuses", () => {
+  const rows = planTableMode(combatEvents, combatDm, {
+    reason: "Free.",
+    after: { mode: "free" },
+  });
+  assert.equal(rows.length, 1);
+  assert.equal(rows[0].eventType, "table-mode.changed");
+  assert.equal(
+    planTableMode(combatEvents, combatDm, {
+      reason: "x",
+      after: { mode: "turn" },
+    }),
     null,
   );
 });

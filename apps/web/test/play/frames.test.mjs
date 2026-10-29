@@ -6,11 +6,14 @@ import {
   commentFrame,
   commitFrame,
   declareFrame,
+  encounterEndFrame,
   floorFrame,
   localEventOf,
   rejectFrame,
   sceneFrame,
   sceneSummary,
+  tableModeFrame,
+  tableModeReason,
   talkFrame,
   withdrawFrame,
 } from "../../app/play/frames.ts";
@@ -279,4 +282,69 @@ test("localEventOf returns null for a scene frame", () => {
     closeProposalId: null,
   });
   assert.equal(localEventOf(frame), null);
+});
+
+test("encounterEndFrame builds the mechanics request", () => {
+  assert.deepEqual(
+    encounterEndFrame({ reason: "  The goblin flees.  ", thenFree: true }),
+    {
+      eventType: "mechanics",
+      payloadVersion: GATE_REQUEST_VERSION,
+      payload: {
+        command: { type: "encounter.end", reason: "The goblin flees." },
+        actionId: null,
+        visibility: "public",
+        summary: "End the encounter",
+        rationale: null,
+      },
+    },
+  );
+});
+
+test("encounterEndFrame uses the default reason when blank", () => {
+  const frame = encounterEndFrame({ reason: "   ", thenFree: false });
+  assert.equal(frame.payload.command.reason, tableModeReason("end"));
+  assert.equal(tableModeReason("end"), "The DM ends the encounter.");
+  assert.equal(tableModeReason("free"), "The DM switches to free mode.");
+  assert.equal(tableModeReason("turn"), "The DM switches to turn mode.");
+});
+
+test("encounterEndFrame returns null for a 501-character reason", () => {
+  assert.equal(
+    encounterEndFrame({ reason: "x".repeat(501), thenFree: false }),
+    null,
+  );
+});
+
+test("tableModeFrame builds a free-mode request", () => {
+  assert.deepEqual(
+    tableModeFrame({ reason: " Back to free. ", after: { mode: "free" } }),
+    {
+      eventType: "table-mode",
+      payloadVersion: GATE_REQUEST_VERSION,
+      payload: {
+        reason: "Back to free.",
+        after: { mode: "free" },
+        summary: "Table mode: free",
+        rationale: null,
+      },
+    },
+  );
+});
+
+test("tableModeFrame accepts a turn after and refuses a bad one", () => {
+  const turn = {
+    mode: "turn",
+    activeActor: "00000000-0000-4000-8000-000000000001",
+    activeCharacterId: "ana",
+  };
+  const frame = tableModeFrame({ reason: "Roll initiative.", after: turn });
+  assert.equal(frame.payload.summary, "Table mode: turn");
+  assert.deepEqual(frame.payload.after, turn);
+  assert.equal(tableModeFrame({ reason: "x", after: { mode: "turn" } }), null);
+  assert.equal(tableModeFrame({ reason: "x", after: { mode: "bogus" } }), null);
+  assert.equal(
+    tableModeFrame({ reason: "x".repeat(501), after: { mode: "free" } }),
+    null,
+  );
 });

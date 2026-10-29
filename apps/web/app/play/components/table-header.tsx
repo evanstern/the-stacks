@@ -7,6 +7,7 @@ import { ModeBadge } from "./mode-badge.tsx";
 import { PresenceStrip } from "./presence-strip.tsx";
 import { SCENE_PANEL_ID } from "./scene-panel.tsx";
 import { START_SCENE_PANEL_ID } from "./start-scene-panel.tsx";
+import { TABLE_MODE_PANEL_ID } from "./table-mode-panel.tsx";
 
 const STATUS_TEXT: Record<SourceStatus, string> = {
   connecting: "Connecting…",
@@ -28,10 +29,12 @@ export function TableHeader({
   ledgerOpen,
   approvalsOpen,
   sceneOpen,
+  modeOpen,
   debugHref,
   onLedger,
   onApprovals,
   onScene,
+  onMode,
   onFloor,
   onStartScene,
   startNote,
@@ -42,11 +45,14 @@ export function TableHeader({
   ledgerOpen: boolean;
   approvalsOpen: boolean;
   sceneOpen: boolean;
+  modeOpen: boolean;
   debugHref?: string;
   onLedger: () => void;
   onApprovals: () => void;
   /** Present only for the DM seat; opens the Change scene slide-out. */
   onScene?: () => void;
+  /** Present only for the DM seat; opens the Table mode slide-out. */
+  onMode?: () => void;
   onFloor: (input: FloorInput) => boolean;
   /** Present only when the operator may start a scene. */
   onStartScene?: () => void;
@@ -112,6 +118,18 @@ export function TableHeader({
         >
           <span>Change scene</span>
           {chevron(sceneOpen)}
+        </button>
+      )}
+      {model.isDm && onMode && (
+        <button
+          type="button"
+          onClick={onMode}
+          aria-expanded={modeOpen}
+          aria-controls={TABLE_MODE_PANEL_ID}
+          className={TRIGGER}
+        >
+          <span>Table mode</span>
+          {chevron(modeOpen)}
         </button>
       )}
       {startNote && (
