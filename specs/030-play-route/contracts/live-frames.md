@@ -42,3 +42,14 @@ Amendment (TASK-0159, operator ruling 2026-10-28, D-1): the `changeScene` comman
 | Command | Frame |
 |---|---|
 | `changeScene(input)` | `eventType: "scene"`, `payloadVersion: GATE_REQUEST_VERSION`, `payload: { reason, after, summary, rationale: null }`. When the frame was sent and `input.closeProposalId` is set, a second frame `proposal.reject` closes that pending seed. Detail: `specs/055-human-dm-scene-change/contracts/scene-change.md`. |
+
+Amendment, TASK-0165 (additive, 2026-10-28): the `endEncounter` and `setTableMode` commands.
+
+Operator ruling (card, 2026-10-28), answering "Do you accept the recommended defaults (a) for TASK-0165's OQ-1 to OQ-6?": "Accept all (a)".
+
+| Command | Frame |
+|---|---|
+| `endEncounter(input)` | `eventType: "mechanics"`, `payloadVersion: GATE_REQUEST_VERSION`, `payload: { command: { type: "encounter.end", reason }, actionId: null, visibility: "public", summary: "End the encounter", rationale: null }`. When the frame was sent and `input.thenFree` is set, a second `table-mode` frame with `after: { mode: "free" }` follows. |
+| `setTableMode(input)` | `eventType: "table-mode"`, `payloadVersion: GATE_REQUEST_VERSION`, `payload: { reason, after, summary, rationale: null }`. |
+
+Detail: `specs/060-human-dm-encounter-mode/contracts/table-mode-control.md`.

@@ -69,17 +69,17 @@ server source change. Tests are written first and seen to fail.
 **Independent test**: `pnpm --filter @the-stacks/web exec vitest run test/play/table-mode.test.mjs test/play/table-mode-panel.test.tsx test/play/table-view.test.tsx test/play/equivalence.test.tsx`
 and `node --test apps/web/test/no-dialog.test.mjs`.
 
-- [ ] T010 Create `apps/web/test/play/table-mode.test.mjs`. On `turn-mode-combat` DM projections:
+- [x] T010 Create `apps/web/test/play/table-mode.test.mjs`. On `turn-mode-combat` DM projections:
       turn mode with an encounter → `canEnd`, `canFree`, `turnAfter: null`; after a local free row →
       `canEnd`, not `canFree`, `turnAfter` equals `{ mode: "turn", ...activeActorFor(p,
       p.encounter.activeCombatantId) }`; after the fixture's encounter end (last step) with free
       mode → nothing offered. See it fail (no module).
-- [ ] T011 Create `apps/web/app/play/table-mode.ts` with `TableModeView` and `tableModeView` per
+- [x] T011 Create `apps/web/app/play/table-mode.ts` with `TableModeView` and `tableModeView` per
       the contract. T010 passes.
-- [ ] T012 In `apps/web/test/play/view-model.test.mjs`, assert `tableMode` is set for a DM viewer
+- [x] T012 In `apps/web/test/play/view-model.test.mjs`, assert `tableMode` is set for a DM viewer
       and null for a player viewer. In `apps/web/app/play/view-model.ts`, add
       `TableViewModel.tableMode`.
-- [ ] T013 Create `apps/web/test/play/table-mode-panel.test.tsx` (`renderToStaticMarkup`). Cases:
+- [x] T013 Create `apps/web/test/play/table-mode-panel.test.tsx` (`renderToStaticMarkup`). Cases:
       turn mode with an encounter shows "Turn mode", "Encounter active.", buttons "End encounter"
       and "Switch to free mode", the text "The encounter stays active.", and no "Switch to turn
       mode"; free mode with an encounter shows "Switch to turn mode" and "End encounter"; free with
@@ -88,27 +88,27 @@ and `node --test apps/web/test/no-dialog.test.mjs`.
       (`endInput(view, reason)`, `modeInput(view, target, reason)`) and assert they build
       `thenFree: true` in turn mode, `after: { mode: "free" }`, and `after` equal to
       `view.turnAfter`. See it fail.
-- [ ] T014 Create `apps/web/app/play/components/table-mode-panel.tsx`: `TABLE_MODE_PANEL_ID =
+- [x] T014 Create `apps/web/app/play/components/table-mode-panel.tsx`: `TABLE_MODE_PANEL_ID =
       "table-mode-panel"`, `TableModePanel({ view, onEndEncounter, onSetMode })`, the helpers from
       T013, one "Reason (optional)" field, the accessible names in the contract. A command that
       returns false keeps the draft. T013 passes.
-- [ ] T015 In `apps/web/test/play/table-view.test.tsx`, add: the `turn-mode-combat` DM viewer at
+- [x] T015 In `apps/web/test/play/table-view.test.tsx`, add: the `turn-mode-combat` DM viewer at
       an active-encounter step renders a "Table mode" button with `aria-controls="table-mode-panel"`;
       a player viewer renders none. See it fail.
-- [ ] T016 In `apps/web/app/play/components/table-header.tsx`, add `modeOpen` and `onMode?` and
+- [x] T016 In `apps/web/app/play/components/table-header.tsx`, add `modeOpen` and `onMode?` and
       the "Table mode" trigger (shown when `model.isDm && onMode`), beside "Change scene". In
       `apps/web/app/play/table-view.tsx`, hold `modeOpen` state, pass `onMode` when
       `model.tableMode` is set, and mount `TableModePanel` in `Panel` (title "Table mode",
       description "End the encounter, or switch between free and turn mode.", id
       `TABLE_MODE_PANEL_ID`). Close the panel when a command returns true. T015 passes.
-- [ ] T017 Confirm `apps/web/test/play/equivalence.test.tsx` and `apps/web/test/no-dialog.test.mjs`
+- [x] T017 Confirm `apps/web/test/play/equivalence.test.tsx` and `apps/web/test/no-dialog.test.mjs`
       pass unchanged. If equivalence fails, fix the source, not the test (plan.md "Risks").
-- [ ] T018 Amend `specs/030-play-route/contracts/ui-surfaces.md` (`TableHeader` props, the
+- [x] T018 Amend `specs/030-play-route/contracts/ui-surfaces.md` (`TableHeader` props, the
       `TableModePanel` row, accessible names), `live-frames.md` (`endEncounter`, `setTableMode`
       rows) and `table-source.md` (the two commands). Each is a dated "Amendment, TASK-0165
       (additive, 2026-10-28)" block citing `specs/060-human-dm-encounter-mode/contracts/table-mode-control.md`
       and the operator's ruling words from the card. Do not rewrite earlier text.
-- [ ] T019 Run `pnpm ci:check`.
+- [x] T019 Run `pnpm ci:check`.
 
 ## Phase 3: The DB test (FR-016; OQ-6)
 

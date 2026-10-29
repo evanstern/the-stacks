@@ -260,6 +260,22 @@ test("the dm-approvals DM viewer renders a Change scene trigger; a player render
   expect(player).not.toContain("Change scene");
 });
 
+test("the turn-mode-combat DM renders a Table mode trigger; a player renders none", () => {
+  const f = fixtures.find((x) => x.name === "turn-mode-combat");
+  if (!f) throw new Error("fixture missing");
+  const at = { ...f, events: f.events.filter((e) => e.seq <= 18) };
+  const dm = renderToStaticMarkup(
+    <TableView source={sourceFor(at, f.viewers.dm)} />,
+  );
+  const player = renderToStaticMarkup(
+    <TableView source={sourceFor(at, f.viewers.players[0])} />,
+  );
+  const button = dm.match(/<button[^>]*>(?:(?!<\/button>)[\s\S])*Table mode/);
+  expect(button?.[0]).toContain('aria-controls="table-mode-panel"');
+  expect(dm).not.toContain("aria-modal");
+  expect(player).not.toContain("Table mode");
+});
+
 function liveOperator(sceneStart: TableSource["sceneStart"]): TableSource {
   return {
     kind: "live",

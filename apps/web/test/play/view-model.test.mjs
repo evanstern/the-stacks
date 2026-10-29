@@ -416,3 +416,11 @@ test("sceneChange: a DM viewer sees P3 pending; a player viewer gets null", asyn
     assert.equal(vm(dmApprovals.events, player, proposals).sceneChange, null);
   }
 });
+
+test("tableMode: a DM viewer gets the view; a player viewer gets null", () => {
+  const dmViewer = turnModeCombat.viewers.dm;
+  assert.notEqual(vm(turnModeCombat.events, dmViewer).tableMode, null);
+  for (const player of turnModeCombat.viewers.players) {
+    assert.equal(vm(turnModeCombat.events, player).tableMode, null);
+  }
+});

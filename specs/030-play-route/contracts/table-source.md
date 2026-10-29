@@ -74,3 +74,12 @@ Amendment, TASK-0167 (additive, 2026-10-28): `TableSource.sceneStart`.
 source for a user whose role is `operator` carries it; a fixture source and any other role leave it
 absent. `useLiveTable` fills it from `GET /dm/sessions/:sessionId/start`. `TableView` offers
 "Start scene" only on `none`. Detail: `specs/059-start-scene-queued/contracts/scene-start-state.md`.
+
+Amendment, TASK-0165 (additive, 2026-10-28): two commands on `TableCommands`.
+
+Operator ruling (card, 2026-10-28), answering "Do you accept the recommended defaults (a) for TASK-0165's OQ-1 to OQ-6?": "Accept all (a)".
+
+`TableCommands` gains `endEncounter(input: EncounterEndInput): boolean` and
+`setTableMode(input: TableModeInput): boolean`. A live source sends the frames in `live-frames.md`;
+a fixture source appends `encounter.ended` and `table-mode.changed` rows. Each returns false when
+the input fails its schema. Detail: `specs/060-human-dm-encounter-mode/contracts/table-mode-control.md`.
