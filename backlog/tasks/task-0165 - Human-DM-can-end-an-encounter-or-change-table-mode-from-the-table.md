@@ -4,7 +4,7 @@ title: Human DM can end an encounter or change table mode from the table
 status: In Progress
 assignee: []
 created_date: '2026-10-28 07:53'
-updated_date: '2026-10-29 02:21'
+updated_date: '2026-10-29 02:25'
 labels:
   - play-route
   - gate
@@ -46,6 +46,9 @@ Phase 1 (T001-T009) at b0d22371: encounterEndFrame, tableModeFrame and tableMode
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 Phase 2 (T010-T019) at 578c4ef2: table-mode.ts view, TableModePanel slide-out (Panel id table-mode-panel), TableHeader modeOpen/onMode and the DM-only "Table mode" button, view-model tableMode (null for a player); 030 ui-surfaces, live-frames and table-source amended additively. 9 new cases; equivalence and no-dialog unchanged. ci:check: only the 5 known adjudicate requireDb failures. Orchestrator ruling: thenFree follows view.mode === "turn", as OQ-2 (a) says.
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Phase 3 (T020-T024) at 93955186: human-dm-encounter.integration (4 cases: DM end then free; companion-active free then turn queues one companion job; human-active free then turn queues none; player refused NOT_AUTHORIZED, second end NO_ACTIVE_ENCOUNTER). Green with REQUIRE_DATABASE=1 on stacks-task-0165; no server source change.
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
 
