@@ -4,7 +4,7 @@ title: Operator seats a human DM from the web
 status: In Progress
 assignee: []
 created_date: '2026-10-29 03:01'
-updated_date: '2026-10-29 04:33'
+updated_date: '2026-10-29 05:08'
 labels:
   - play-route
   - multiplayer
@@ -29,6 +29,12 @@ Spec: specs/062-human-dm-seat
 - [ ] #1 The play route offers the operator a control that seats a human DM from a gate request, with no modal, and a test
 - [ ] #2 The same control returns the DM seat to the AI DM, with a test
 - [ ] #3 docs/ops/dev-vm-104.md documents seating a human DM for an assisted table
+- [ ] #4 Spec phase: Frame, command and seat view (card AC #1, #2; OQ-2, OQ-3)
+- [ ] #5 Spec phase: The panel, the header and the Start scene check (card AC #1, #2; OQ-1, OQ-3, OQ-4, OQ-6)
+- [ ] #6 Spec phase: The newly seated DM's resync (card AC #1; OQ-5)
+- [ ] #7 Spec phase: The hosted-dev runbook (card AC #3)
+- [ ] #8 Spec phase: Mutation guard, DB suites and live check **[orchestrator]**
+- [ ] #9 Spec phase: Wiki re-ground
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -37,6 +43,10 @@ Spec: specs/062-human-dm-seat
 Operator, 2026-10-28, in the M3 sweep chat, verbatim: "Before we start on another slice of M-3 I'd like to pause -- after the next PR merges." Read as: the sweep finishes TASK-0176 through its PR merge, then stops; TASK-0177 does not start until the operator resumes.
 
 Claimed 2026-10-29 by the M3 sweep (docs/design/m3-table-sweep-runbook.md). Worktree .worktrees/task-0177, branch task-0177-human-dm-seat, cut from origin/main 7e9ef92f. Spec number 062 claimed with a stub. Resumed by the operator on 2026-10-29 ("resume the sweep").
+
+Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5
+
+Spec set db5fb8c4 (spec 062): six phases, OQ-1 to OQ-6 with (a) defaults, DC-1 and DC-2 candidates. No frozen contract changes under the (a) defaults. Waiting on the operator's ruling.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
