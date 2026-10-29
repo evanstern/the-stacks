@@ -34,8 +34,10 @@ Spec: specs/062-human-dm-seat
 - [x] #6 Spec phase: The newly seated DM's resync (card AC #1; OQ-5)
 - [x] #7 Spec phase: The hosted-dev runbook (card AC #3)
 - [x] #8 Spec phase: Mutation guard, DB suites and live check **[orchestrator]**
-- [ ] #9 Spec phase: Wiki re-ground
+- [x] #9 Spec phase: Wiki re-ground
 <!-- AC:END -->
+
+
 
 
 
