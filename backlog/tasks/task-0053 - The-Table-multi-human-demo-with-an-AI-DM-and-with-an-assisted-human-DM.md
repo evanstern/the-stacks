@@ -10,6 +10,10 @@ labels:
   - acceptance
 milestone: m-3
 dependencies:
+  - TASK-0049
+  - TASK-0050
+  - TASK-0051
+  - TASK-0052
   - TASK-0176
 priority: medium
 ordinal: 43000
