@@ -111,21 +111,21 @@ server source change. Tests are written first and seen to fail.
 
 **Independent test**: `node --test apps/web/test/play/viewer.test.mjs`.
 
-- [ ] T018 [US1] In `apps/web/test/play/viewer.test.mjs`, add `shouldResync` cases: player →
+- [x] T018 [US1] In `apps/web/test/play/viewer.test.mjs`, add `shouldResync` cases: player →
       DM with both caught up → true; player → DM with `prev.caughtUp` false (the seat arrived during
       replay) → false; DM → player → false; player → player (someone else seated) → false; DM → DM →
       false. See them fail.
-- [ ] T019 [US1] In `apps/web/app/play/viewer.ts`, add `shouldResync` per the contract. T018 passes.
-- [ ] T020 [US1] In `apps/web/app/ws/useSession.ts`, add `resync()`: when the socket is open, set
+- [x] T019 [US1] In `apps/web/app/play/viewer.ts`, add `shouldResync` per the contract. T018 passes.
+- [x] T020 [US1] In `apps/web/app/ws/useSession.ts`, add `resync()`: when the socket is open, set
       the frame state to `initialFrameState`, set `highestSeqRef.current` to 0, and send
       `subscribe { sessionId, afterSeq: 0, presence: true }`; otherwise do nothing. Return it from
       the hook.
-- [ ] T021 [US1] In `apps/web/app/play/use-live-table.ts`, keep the previous `{ caughtUp, isDm }` in
+- [x] T021 [US1] In `apps/web/app/play/use-live-table.ts`, keep the previous `{ caughtUp, isDm }` in
       a ref and call `resync()` from an effect when `shouldResync(prev, next)` holds. Amend
       `specs/030-play-route/contracts/live-frames.md`'s `useSession` section with an additive
       TASK-0177 line: `resync()` re-subscribes from 0 on a seat gain, per the 029 `ws-delivery.md`
       rule "its next subscribe replays them".
-- [ ] T022 Run `pnpm ci:check`.
+- [x] T022 Run `pnpm ci:check`.
 
 ## Phase 4: The hosted-dev runbook (card AC #3)
 
@@ -134,7 +134,7 @@ server source change. Tests are written first and seen to fail.
 **Independent test**: the section reads as one instruction per sentence and names every control by
 its accessible name from the contract.
 
-- [ ] T023 [US3] In `docs/ops/dev-vm-104.md`, add a "Seat a human DM" section after "Seat three
+- [x] T023 [US3] In `docs/ops/dev-vm-104.md`, add a "Seat a human DM" section after "Seat three
       players". Use the existing procedural style (one imperative instruction per sentence, numbered
       steps). Cover: (1) every person opens the table link first; (2) seat before a scene: open "DM
       seat", pick the DM in "Seat a human DM", press "Seat as DM", then press "Start scene" without
@@ -144,7 +144,7 @@ its accessible name from the contract.
       table: three players on `greyhollow-ford-trio` plus a fourth account as the human DM. Name the
       refusals: a player sees no "DM seat" button; the DM on a character seat shows "The DM cannot
       hold a character seat.".
-- [ ] T024 [US3] Run `pnpm ci:check` (markdown lint, if any).
+- [x] T024 [US3] Run `pnpm ci:check` (markdown lint, if any).
 
 ## Phase 5: Mutation guard, DB suites and live check **[orchestrator]**
 

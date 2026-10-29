@@ -25,3 +25,11 @@ export function viewerFor(
   if (seat.kind === "human" && seat.userId === user.id) return { role: "dm" };
   return { role: "player", userId: user.id };
 }
+
+/** True once when the signed-in user gains the DM seat after replay (TASK-0177, OQ-5 (a)). */
+export function shouldResync(
+  prev: { caughtUp: boolean; isDm: boolean },
+  next: { caughtUp: boolean; isDm: boolean },
+): boolean {
+  return prev.caughtUp && next.caughtUp && !prev.isDm && next.isDm;
+}

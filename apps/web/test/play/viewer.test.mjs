@@ -4,7 +4,7 @@ import { project } from "@the-stacks/session-model";
 import { fixtureIds, turnModeCombat } from "@the-stacks/session-model/fixtures";
 import { selectPendingProposals } from "../../app/play/proposals.ts";
 import { toTableViewModel } from "../../app/play/view-model.ts";
-import { viewerFor } from "../../app/play/viewer.ts";
+import { shouldResync, viewerFor } from "../../app/play/viewer.ts";
 
 const party = (userId) => [
   {
@@ -99,4 +99,13 @@ test("unseated operator at an AI seat: player view-model with no DM surface", ()
   assert.deepEqual(model.proposals, []);
   assert.deepEqual(model.composer.characters, []);
   assert.equal(model.composer.actionAvailable, false);
+});
+
+test("shouldResync: only a seat gain after replay", () => {
+  const s = (caughtUp, isDm) => ({ caughtUp, isDm });
+  assert.equal(shouldResync(s(true, false), s(true, true)), true);
+  assert.equal(shouldResync(s(false, false), s(true, true)), false);
+  assert.equal(shouldResync(s(true, true), s(true, false)), false);
+  assert.equal(shouldResync(s(true, false), s(true, false)), false);
+  assert.equal(shouldResync(s(true, true), s(true, true)), false);
 });
