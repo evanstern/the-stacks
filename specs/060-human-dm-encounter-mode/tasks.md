@@ -139,21 +139,21 @@ and `node --test apps/web/test/no-dialog.test.mjs`.
 
 ## Phase 4: DB suites, mutation guard and live check **[orchestrator]**
 
-- [ ] T025 **[orchestrator]** On the worktree stack (`pnpm env:up`, migrate both databases, restart
+- [x] T025 **[orchestrator]** On the worktree stack (`pnpm env:up`, migrate both databases, restart
       the app), with `REQUIRE_DATABASE=1` and only `TEST_DATABASE_URL` exported from the worktree
       `.env`, run `human-dm-encounter.integration`, `human-dm-scene.integration`,
       `human-dm-roll-resume`, `floor-jobs`, `enqueue-floor` and `scene` integration suites, then
       `REQUIRE_DATABASE=1 pnpm ci:check`. Record counts in `evidence/db-run.md`.
-- [ ] T026 **[orchestrator]** Mutation guard: (1) make `endEncounter` in `use-live-table.ts` and
+- [x] T026 **[orchestrator]** Mutation guard: (1) make `endEncounter` in `use-live-table.ts` and
       `use-fixture-table.ts` skip the free-mode follow-up; run `use-fixture-table.test.mjs` and
       confirm the `thenFree` case fails. (2) Make `tableModeView` return `turnAfter` with no
       encounter; confirm `table-mode.test.mjs` and `table-mode-panel.test.tsx` fail. (3) Make the
       header show "Table mode" for any viewer; confirm `table-view.test.tsx` fails. Restore; `git
       diff` is empty. Record in `evidence/mutation-guard.md`.
-- [ ] T027 **[orchestrator]** Write `specs/060-human-dm-encounter-mode/evidence/start-encounter.mjs`
+- [x] T027 **[orchestrator]** Write `specs/060-human-dm-encounter-mode/evidence/start-encounter.mjs`
       (quickstart step 6), modelled on `specs/055-human-dm-scene-change/evidence/start-human-dm.mjs`.
       Node built-ins only. It never prints a secret.
-- [ ] T028 **[orchestrator]** Live check in Brave, script mode, per `quickstart.md` steps 1 to 13
+- [x] T028 **[orchestrator]** Live check in Brave, script mode, per `quickstart.md` steps 1 to 13
       (`DM_FAKE_SCRIPT=greyhollow-human-dm`: the shipped script fits, no new DM script). Shots at
       1280 px and 390 px, light and dark, in `evidence/shots/`. No shot shows a modal. Record
       everything in `evidence/live-run.md`. Remove the `DM_FAKE_SCRIPT` line and recreate the app
