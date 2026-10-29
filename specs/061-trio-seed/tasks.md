@@ -36,16 +36,16 @@ and a trio table gives the AI DM no companion to prompt.
 
 **Independent test**: `pnpm --filter @the-stacks/server exec vitest run test/dm/seed.test.ts test/dm/trio-views.test.ts`.
 
-- [ ] T001 [US1] In `apps/server/test/dm/seed.test.ts`, add "loads the three-player trio seed":
+- [x] T001 [US1] In `apps/server/test/dm/seed.test.ts`, add "loads the three-player trio seed":
       `loadSeed("greyhollow-ford-trio")` humans are `["tamsin", "odo", "kestrel"]`, companions are
       `[]`, title is `Greyhollow Ford (three players)`, and Odo's `portrayal.voice` and `.want` are
       `Chosen by the player.`. In "lists the shipped seeds sorted by id", expect
       `["greyhollow-ford", "greyhollow-ford-duo", "greyhollow-ford-trio"]`.
-- [ ] T002 [US1] In `apps/server/test/dm/snapshot-fixtures.ts`, add `THIRD_USER`
+- [x] T002 [US1] In `apps/server/test/dm/snapshot-fixtures.ts`, add `THIRD_USER`
       (`00000000-0000-4000-8000-000000000003`) and `greyhollowTrio()` beside `greyhollowDuo()`:
       the trio seed at its opening, `tamsin`, `odo`, `kestrel` held by `PLAYER_USER`,
       `SECOND_USER`, `THIRD_USER`, no fight.
-- [ ] T003 [US1] Create `apps/server/test/dm/trio-views.test.ts`, modelled on `duo-views.test.ts`.
+- [x] T003 [US1] Create `apps/server/test/dm/trio-views.test.ts`, modelled on `duo-views.test.ts`.
       Cases: the actor snapshot's `fiction` view labels all three `party, human player` and never
       `AI companion`; the `dm` view lists three players and no companion; `buildDirectorPrompt`
       with `aiCompanions: aiCompanionIds(projections)` gives a user prompt with no
@@ -53,13 +53,13 @@ and a trio table gives the AI DM no companion to prompt.
       into `resolve` with the override reason `a named companion is not an AI companion in the party`,
       and empties `companionPrompts: ["odo"]` with the reason
       `a prompted character is not an AI companion in the party`.
-- [ ] T004 [US1] Run T001 and T003 and confirm each new case fails (no seed file).
-- [ ] T005 [US1] Create `apps/server/seeds/greyhollow-ford-trio.json` per plan.md "Data model": a
+- [x] T004 [US1] Run T001 and T003 and confirm each new case fails (no seed file).
+- [x] T005 [US1] Create `apps/server/seeds/greyhollow-ford-trio.json` per plan.md "Data model": a
       copy of `greyhollow-ford-duo.json` with `seedId` `greyhollow-ford-trio`, `title`
       `Greyhollow Ford (three players)`, Odo's `seat` `human`, and Odo's `portrayal.voice` and
       `.want` `Chosen by the player.`. Keep every other field and the character order. Confirm
       `git diff --stat` shows the two existing seeds untouched.
-- [ ] T006 [US1] Run T001 to T003 green. Run the whole server suite (`pnpm --filter
+- [x] T006 [US1] Run T001 to T003 green. Run the whole server suite (`pnpm --filter
       @the-stacks/server test`) to catch any other test that enumerates the seed directory. Run
       `pnpm ci:check`. Commit.
 
