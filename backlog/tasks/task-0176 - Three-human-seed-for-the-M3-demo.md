@@ -4,7 +4,7 @@ title: Three-human seed for the M3 demo
 status: In Progress
 assignee: []
 created_date: '2026-10-29 02:48'
-updated_date: '2026-10-29 03:14'
+updated_date: '2026-10-29 03:21'
 labels:
   - seed
   - multiplayer
@@ -26,9 +26,9 @@ Spec: specs/061-trio-seed
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 A shipped seed seats three humans, loads through loadSeed, and has a test
-- [ ] #2 The Start scene slide-out offers three human seats for it, with no modal, and a test
-- [ ] #3 docs/ops/dev-vm-104.md names the seed for a three-player table
+- [x] #1 A shipped seed seats three humans, loads through loadSeed, and has a test
+- [x] #2 The Start scene slide-out offers three human seats for it, with no modal, and a test
+- [x] #3 docs/ops/dev-vm-104.md names the seed for a three-player table
 - [x] #4 Spec phase: Trio seed and the no-database server tests (card AC #1; OQ-1 to OQ-5)
 - [x] #5 Spec phase: The three-human DB test (card AC #1; FR-006)
 - [x] #6 Spec phase: Slide-out test and the runbook subsection (card AC #2, #3; OQ-6)
@@ -59,10 +59,12 @@ Phase 5 (T018-T025) at 00bf64bd: merged origin/main; re-pinned seed-npc-presence
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 spec-bridge sync: Trio seed and the no-database server tests (card AC #1; OQ-1 to OQ-5): 6/6 · The three-human DB test (card AC #1; FR-006): 3/3 · Slide-out test and the runbook subsection (card AC #2, #3; OQ-6): 3/3 · DB suites, mutation guard and live check **[orchestrator]**: 5/5 · Wiki re-ground and the sweep runbook: 8/8 — status In Progress → Done
+
+Merged: PR #86 merged 664cc7dc by the operator ("I merged it"). AC #1 proven by seed.test and trio-views.test; AC #2 by the start-scene-panel trio cases and the Brave live check; AC #3 by the dev-vm-104.md "Seat three players" subsection, walked against the live run. DoD #1: REQUIRE_DATABASE=1 pnpm ci:check exit 0 on the final tree. Worktree, branch and stack removed; env:prune --check: no orphans. The sweep now pauses at the operator's request; TASK-0177 is next on resume.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
-- [ ] #1 All tests and checks run green
-- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
+- [x] #1 All tests and checks run green
+- [x] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
