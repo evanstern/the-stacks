@@ -4,7 +4,7 @@ title: Operator seats a human DM from the web
 status: In Progress
 assignee: []
 created_date: '2026-10-29 03:01'
-updated_date: '2026-10-29 05:48'
+updated_date: '2026-10-29 05:59'
 labels:
   - play-route
   - multiplayer
@@ -67,6 +67,10 @@ Phase 3 59c8ef21: shouldResync, useSession resync(), wired in use-live-table; ad
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
 
 Live check 082ed701 (Brave, script mode): steps 2-6 and 8-14 and both refusals pass, no modal in 17 shots. Step 7 defect: Start scene disables Start with the DM on a character seat but never shows "The DM cannot hold a character seat." (client issue not rendered). Fix dispatched as T019a.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
+
+T019a 80e8adf1: Start scene renders the client DM-seat issue (test failed 16/1 before, 17/17 after). Live check run 2 596b21e9: every step passes, step 7 shows the issue inline, 0 dialogs.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
