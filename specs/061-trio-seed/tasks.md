@@ -71,13 +71,13 @@ with three, commits with one absent, passes an absent human's floor, and queues 
 **Independent test**: `REQUIRE_DATABASE=1 pnpm --filter @the-stacks/server exec vitest run test/dm/trio.integration.test.ts test/dm/routes.integration.test.ts`
 **[orchestrator runs it]**.
 
-- [ ] T007 [US1] In `apps/server/test/dm/routes.integration.test.ts`, in the `GET /dm/seeds` case,
+- [x] T007 [US1] In `apps/server/test/dm/routes.integration.test.ts`, in the `GET /dm/seeds` case,
       expect the three seed ids sorted, and the trio row's `humans` ids
       `["tamsin", "odo", "kestrel"]` and `companions` `[]`. Add a case: a trio start with one user
       on `odo` and `kestrel` returns 400 with one issue at `seats.kestrel`,
       `A user can hold only one seat.`, and queues no turn job; a trio start with three distinct
       users returns 202.
-- [ ] T008 [US1] Create `apps/server/test/dm/trio.integration.test.ts`, modelled on
+- [x] T008 [US1] Create `apps/server/test/dm/trio.integration.test.ts`, modelled on
       `duo.integration.test.ts` (its `crowd`, world and `declareParty` helpers; `loudSkip` and
       `clearDmJobsBeforeEach` as that file uses them). Start `greyhollow-ford-trio` through the
       real queue with the `scene-start.json` script and three users. Cases:
@@ -89,7 +89,7 @@ with three, commits with one absent, passes an absent human's floor, and queues 
       (d) in turn mode with one user absent, the floor job passes that user's turn to the next
       actor in initiative order, and no companion `turn` job is queued.
       Add a script under `apps/server/test/dm/scripts/` only if `scene-start.json` does not fit.
-- [ ] T009 [US1] Run `pnpm --filter @the-stacks/server exec vitest run test/dm/trio.integration.test.ts`
+- [x] T009 [US1] Run `pnpm --filter @the-stacks/server exec vitest run test/dm/trio.integration.test.ts`
       without a database and confirm it skips loudly. Run `pnpm ci:check`. Commit. The
       orchestrator runs T007 and T008 on the database (Phase 4); a failing case comes back to this
       phase.

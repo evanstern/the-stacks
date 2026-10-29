@@ -209,6 +209,7 @@ describe.skipIf(!reachable)("DM routes (database)", () => {
     expect(json.seeds.map((s) => s.seedId)).toEqual([
       "greyhollow-ford",
       "greyhollow-ford-duo",
+      "greyhollow-ford-trio",
     ]);
     for (const s of json.seeds) {
       expect(Object.keys(s).sort()).toEqual([
@@ -222,6 +223,12 @@ describe.skipIf(!reachable)("DM routes (database)", () => {
       "tamsin",
       "kestrel",
     ]);
+    expect(json.seeds[2]?.humans.map((h) => h.characterId)).toEqual([
+      "tamsin",
+      "odo",
+      "kestrel",
+    ]);
+    expect(json.seeds[2]?.companions).toEqual([]);
     expect(
       (await app.request("/dm/seeds", { headers: { cookie: player.cookie } }))
         .status,
@@ -252,6 +259,34 @@ describe.skipIf(!reachable)("DM routes (database)", () => {
     const ok = await post(app, `/dm/sessions/${sessionId}/start`, cookie, {
       seedId: "greyhollow-ford-duo",
       seats: { tamsin: userId, kestrel: other.userId },
+    });
+    expect(ok.status).toBe(202);
+  });
+
+  it("trio start: one user in two seats is 400 and queues nothing; three users are 202", async () => {
+    const nudges = { count: 0 };
+    const app = appWith(nudges);
+    const { cookie, userId } = await cookieFor("operator");
+    const second = await cookieFor("player");
+    const third = await cookieFor("player");
+    const sessionId = randomUUID();
+    const dup = await post(app, `/dm/sessions/${sessionId}/start`, cookie, {
+      seedId: "greyhollow-ford-trio",
+      seats: { tamsin: userId, odo: second.userId, kestrel: second.userId },
+    });
+    expect(dup.status).toBe(400);
+    const json = (await dup.json()) as {
+      error: { issues: { path: string; message: string }[] };
+    };
+    expect(json.error.issues).toEqual([
+      { path: "seats.kestrel", message: "A user can hold only one seat." },
+    ]);
+    expect(await listDmJobs(requireDb(), sessionId, 10, "turn")).toHaveLength(
+      0,
+    );
+    const ok = await post(app, `/dm/sessions/${sessionId}/start`, cookie, {
+      seedId: "greyhollow-ford-trio",
+      seats: { tamsin: userId, odo: second.userId, kestrel: third.userId },
     });
     expect(ok.status).toBe(202);
   });
