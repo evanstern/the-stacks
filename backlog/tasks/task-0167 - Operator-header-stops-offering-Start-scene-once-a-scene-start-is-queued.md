@@ -30,14 +30,6 @@ Spec: specs/059-start-scene-queued
 - [x] #5 Spec phase: Wiki re-ground
 <!-- AC:END -->
 
-
-
-
-
-
-
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -55,6 +47,8 @@ Phase 3 [orchestrator] T023 at aad6f308 on the stacks-task-0167 test DB: routes.
 
 Phase 4 (T027-T032) at f67daa51: re-pinned scene-panels, play-route (also repaired a truncated Start scene section fused with the Scene panels heading on main), dm-runtime, hosted-dev, debug-view, server-entrypoint-and-app; CAPSULES regenerated, INDEX sentence, runbook row. Freshness OK (55 notes), spec-bridge exit 0. dm-runtime sits at its 8000-char budget; the implementer dropped "never prompt text" from its GET /turns line to fit.
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+spec-bridge sync: The server predicate, the 409 and the read route (card AC #1; OQ-1): 10/10 · The live source and the header (card AC #1; OQ-2, OQ-4): 12/12 · DB suites and the live check **[orchestrator]**: 4/4 · Wiki re-ground: 6/6 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
