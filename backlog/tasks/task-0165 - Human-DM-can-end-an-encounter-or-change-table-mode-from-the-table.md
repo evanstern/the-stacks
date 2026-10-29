@@ -31,8 +31,10 @@ Spec: specs/060-human-dm-encounter-mode
 - [x] #4 Spec phase: The view, the panel and the header (card AC #1, #2; OQ-1, OQ-3, OQ-4, OQ-5)
 - [x] #5 Spec phase: The DB test (FR-016; OQ-6)
 - [x] #6 Spec phase: DB suites, mutation guard and live check **[orchestrator]**
-- [ ] #7 Spec phase: Wiki re-ground
+- [x] #7 Spec phase: Wiki re-ground
 <!-- AC:END -->
+
+
 
 
 
