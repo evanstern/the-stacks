@@ -4,6 +4,7 @@ title: Human DM can end an encounter or change table mode from the table
 status: To Do
 assignee: []
 created_date: '2026-10-28 07:53'
+updated_date: '2026-10-29 02:11'
 labels:
   - play-route
   - gate
@@ -18,6 +19,8 @@ ordinal: 152000
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
 Outcome: a seated human DM can end an encounter and change table mode from the play route, with no modal. Evidence: the TASK-0159 spec author (spec 055, 212a4f8, DC-1) found the play route gives a human DM no control for either. TASK-0159 keeps the table in turn mode when the scene changes (OQ-5 A). Why it matters: the M3 demo second run is ask mode with a human DM (checkpoint C7), and that DM may need to leave an encounter. Operator ruling 2026-10-28: "Card DC-1 (human DM ends an encounter or changes table mode) in m-3".
+
+Spec: specs/060-human-dm-encounter-mode
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
