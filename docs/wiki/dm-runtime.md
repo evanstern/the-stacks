@@ -37,8 +37,9 @@ sources:
   - apps/server/src/dm/scene-start.ts
   - apps/server/seeds/greyhollow-ford.json
   - apps/server/seeds/greyhollow-ford-duo.json
+  - apps/server/seeds/greyhollow-ford-trio.json
   - biome.json
-verified_against: cf4df80ea9f2dcf92e9d167950d97eede568432e
+verified_against: a079fb05afdb63d49c0ed186d76f578d356e30ca
 ---
 
 # DM runtime
@@ -104,8 +105,8 @@ the fallback and the player-facing seed view are in [[dm-narration-quality]].
 
 ## Seed, doctrine, script
 
-- **Scene seed** (`seed/schema.ts`, `seed/load.ts`; `apps/server/seeds/greyhollow-ford.json`, plus the two-human `greyhollow-ford-duo.json`):
-  a validated JSON scene (at least one `human` seat; `listSeeds` lists the valid files) (goal, location, beats with a required `presence` map, NPCs with `aliases`, encounters; [[seed-npc-presence]]);
+- **Scene seed** (`seed/schema.ts`, `seed/load.ts`; `apps/server/seeds/greyhollow-ford.json`, plus `-duo` and `-trio`):
+  a validated JSON scene (at least one `human` seat) (goal, location, beats with a required `presence` map, NPCs with `aliases`, encounters; [[seed-npc-presence]]);
   the seed id is the scene id.
 - **Doctrine** (`doctrine/doctrine.ts`): DM-craft rules adapted from tabletop-dm (commit
   fe2c29b, Copyright (c) 2026 Brad Bush, MIT). `doctrine/NOTICE.md` carries the licence.
@@ -122,7 +123,7 @@ companion, under a human's permission matrix and commit authority. Each run retu
 (default `withdraw` after a human `object`, else `commit`). A human comment on
 an open action queues a `react` run ([[dm-turn-jobs]], [[playtest-harness]]). In turn mode only the active companion
 commits, and a withdraw still takes the hold act so the turn advances.
-A `hold` decision queues a companion job that force-queues the turn. `chronicle.ts` runs off the hot path after narration: `dm.chronicle`
+A `hold` decision queues a companion job that force-queues the turn. A trio table queues no companion job. `chronicle.ts` runs off the hot path after narration: `dm.chronicle`
 turns new narration into `journal` proposals, idempotent when nothing is new. It reads the state at
 its `throughSeq` (`loadProjectionsThrough`, [[session-model]]) and prints it in the `fiction` view
 (`dm.chronicle-v3`; overflow: [[actor-snapshot]]).

@@ -9,7 +9,7 @@ sources:
   - apps/web/app/play/components/scene-panel.tsx
   - apps/web/app/play/frames.ts
   - apps/web/app/play/local-log.ts
-verified_against: 3b24274bbff5ba25bae133d7dc9bafeb9d427fdc
+verified_against: a079fb05afdb63d49c0ed186d76f578d356e30ca
 ---
 
 # Scene panels
@@ -35,7 +35,7 @@ carried out the suggestion). `TableView` holds no start flag, and `StartScenePan
 `onQueued`; a 202 sets the view to `queued` (`nextStartView`) and the poll follows. The button opens
 `components/start-scene-panel.tsx`'s `StartScenePanel`, a `Panel` slide-out. On open it calls
 `fetchSeeds` (`start-scene.ts`, `GET /dm/seeds`) and picks the first seed. It shows a select of
-the present users per human seat and a note naming the AI companions. Pure
+the present users per human seat and, only when the seed has companion seats, a note naming the AI companions (the trio seed, `greyhollow-ford-trio`, shows three selects and no note; TASK-0176). Pure
 helpers: `seatMapIssues` (an empty seat, a user in two seats), `startBody`, `issuesBySeat`. `useLiveTable` wires
 `startScene` to `postStart`, `POST /dm/sessions/:id/start`; a 202 closes the panel and refreshes the state; a 400 shows its issues inline, any other refusal its message ([[dm-runtime]]).
 

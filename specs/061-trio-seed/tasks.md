@@ -156,32 +156,32 @@ and `node --test apps/web/test/no-dialog.test.mjs`.
 prints `OK`, and `node ~/.claude/plugins/cache/praxisflux/spec-bridge/0.68.0/gates/cli.mjs check .`
 exits 0.
 
-- [ ] T018 Run `git -C /Users/evanstern/projects/the-stacks/.worktrees/task-0176 fetch origin`, then
+- [x] T018 Run `git -C /Users/evanstern/projects/the-stacks/.worktrees/task-0176 fetch origin`, then
       `git -C /Users/evanstern/projects/the-stacks/.worktrees/task-0176 merge origin/main`. Keep both
       sides of any conflict.
-- [ ] T019 Run `/grounding-wiki:wiki-update`. Re-verify and re-pin `docs/wiki/seed-npc-presence.md`
+- [x] T019 Run `/grounding-wiki:wiki-update`. Re-verify and re-pin `docs/wiki/seed-npc-presence.md`
       (the trio seed: all three seat `human`, no companion; add
       `apps/server/seeds/greyhollow-ford-trio.json` to `sources:`) and `docs/wiki/dm-runtime.md`
       (the Scene seed line names the trio; add the file to `sources:`; a trio table queues no
       companion job, per plan.md R2).
-- [ ] T020 Re-verify and re-pin `docs/wiki/hosted-dev.md`: its "Run a two-player table" section
+- [x] T020 Re-verify and re-pin `docs/wiki/hosted-dev.md`: its "Run a two-player table" section
       names the `Seat three players` subsection and `greyhollow-ford-trio`.
-- [ ] T021 Review `docs/wiki/scene-panels.md` for its Start scene claims (any seed's human seats,
+- [x] T021 Review `docs/wiki/scene-panels.md` for its Start scene claims (any seed's human seats,
       the companion note). Its sources are unchanged; edit only a claim the trio makes false. Re-pin
       every other note the freshness gate flags, re-verifying each claim that names a touched file.
-- [ ] T022 Regenerate `docs/wiki/CAPSULES.md` for every changed `description:`. Add one sentence on
+- [x] T022 Regenerate `docs/wiki/CAPSULES.md` for every changed `description:`. Add one sentence on
       the trio seed (TASK-0176, specs/061) to `docs/wiki/INDEX.md`'s state paragraph, beside the
       TASK-0163 two-player sentence.
-- [ ] T023 In `docs/design/m3-table-sweep-runbook.md` "Execution log", add an amendment row dated
+- [x] T023 In `docs/design/m3-table-sweep-runbook.md` "Execution log", add an amendment row dated
       2026-10-28: the operator ruled in chat, answering "How should the demo get its three human
       players?": "Card a trio seed". Carded TASK-0176; TASK-0053 depends on it. New order:
       TASK-0176 → the TASK-0163 alpha run (spec 054 Phase 8, AC #4) → the TASK-0053 demo. Name the
       OQ-1 to OQ-6 ruling in the same row once it is on the card.
-- [ ] T024 Add a TASK-0176 "(this PR)" row in the TASK-0165 row's shape: date, task, PR, —,
-      dispatches (`spec (opus ×1), impl ×3 (sonnet)`), then the outcome (the trio seed, no source
+- [x] T024 Add a TASK-0176 "(this PR)" row in the TASK-0165 row's shape: date, task, PR, —,
+      dispatches (`spec (opus ×1), impl ×4 (sonnet)`), then the outcome (the trio seed, no source
       change), the OQ ruling, the DB count, the mutation result (three guards), and the live check
       with three accounts and its shots.
-- [ ] T025 Run the wiki freshness gate, the spec-bridge check and `pnpm ci:check`. Commit and push.
+- [x] T025 Run the wiki freshness gate, the spec-bridge check and `pnpm ci:check`. Commit and push.
 
 ---
 

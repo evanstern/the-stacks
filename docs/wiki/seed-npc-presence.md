@@ -7,6 +7,7 @@ sources:
   - apps/server/src/dm/seed/load.ts
   - apps/server/seeds/greyhollow-ford.json
   - apps/server/seeds/greyhollow-ford-duo.json
+  - apps/server/seeds/greyhollow-ford-trio.json
   - apps/server/src/dm/nodes/resolve.ts
   - apps/server/src/dm/gates/plan-gate.ts
   - apps/server/src/dm/nodes/assemble.ts
@@ -14,7 +15,7 @@ sources:
   - apps/server/src/dm/snapshot/build.ts
   - packages/session-model/src/gate/proposals.ts
   - packages/session-model/src/gate/plan.ts
-verified_against: 28ac1698b24704bac7cdac300316e7f0e00e728c
+verified_against: a079fb05afdb63d49c0ed186d76f578d356e30ca
 ---
 
 # Seed NPC presence
@@ -35,6 +36,7 @@ and aliases "the keeper" (`wenna`), "the boy" (`pell`) and "the goblin leader" (
 `greyhollow-ford-duo.json` (TASK-0163, `specs/054-two-player-alpha-kit/`) is the same scene with
 the same three NPCs and presence maps and three party characters: `tamsin` and `kestrel` seat
 `human`, `odo` seat `companion`.
+`greyhollow-ford-trio.json` (TASK-0176, `specs/061-trio-seed/`) is the same scene again with the same NPCs and presence maps; all three characters seat `human` and no character seats `companion`, so a table that starts it has no AI companion ([[dm-runtime]]).
 
 `crossCheckSeed` (`seed/load.ts`) reports an issue for each of these:
 
@@ -42,7 +44,7 @@ the same three NPCs and presence maps and three party characters: `tamsin` and `
 - a beat that lists an NPC in `npcIds` and declares no presence for it;
 - a beat whose `presence` names an unknown NPC;
 - a beat that lists an NPC in `npcIds` and declares it `absent`;
-- fewer than one character with seat `human` ("at least one character must have seat \"human\""). The rule was exactly one before TASK-0163.
+- fewer than one character with seat `human` ("at least one character must have seat \"human\""). The rule was exactly one before TASK-0163; the trio seed seats three.
 
 `listSeeds(dir)` loads every `*.json` in the seed directory through `loadSeed`, returns the valid
 seeds sorted by `seedId`, and logs one `dm.seeds.load-failed` line per bad file. It never throws
