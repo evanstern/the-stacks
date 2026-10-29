@@ -11,23 +11,33 @@ import {
   commitFrame,
   declareFrame,
   type EventFrame,
+  encounterEndFrame,
   floorFrame,
   localEventOf,
   sceneFrame,
+  tableModeFrame,
   talkFrame,
   withdrawFrame,
 } from "./frames.ts";
 import {
   appendLocal,
   type LocalEventInput,
+  localEncounterEndEvents,
   localFloorEvents,
   localSceneEvents,
+  localTableModeEvents,
 } from "./local-log.ts";
 import {
   type PendingProposalView,
   selectPendingProposals,
 } from "./proposals.ts";
-import type { SceneInput, TableCommands, TableSource } from "./source.ts";
+import type {
+  EncounterEndInput,
+  SceneInput,
+  TableCommands,
+  TableModeInput,
+  TableSource,
+} from "./source.ts";
 
 /** "dm", or the user id of one of the fixture's listed players (falls back to the DM). */
 export function viewerForKey(
@@ -73,6 +83,45 @@ export function planScene(
     closeProposalId: null,
   });
   return row ? { rows: [row], close: input.closeProposalId } : null;
+}
+
+/**
+ * Fixture mode: the rows an end-encounter request appends: the encounter-end row, then with
+ * `thenFree` the free-mode row. Same validation as the live path. Null when refused.
+ */
+export function planEncounterEnd(
+  events: readonly StoredEvent[],
+  dmViewer: Viewer,
+  input: EncounterEndInput,
+): LocalEventInput[] | null {
+  const frame = encounterEndFrame(input);
+  if (!frame) return null;
+  const sent = frame.payload as { command: { reason: string } };
+  const reason = sent.command.reason;
+  const p = project(events, dmViewer);
+  const rows = localEncounterEndEvents(p, { reason, thenFree: input.thenFree });
+  if (!rows) return null;
+  if (!input.thenFree) return rows;
+  const free = tableModeFrame({ reason, after: { mode: "free" } });
+  if (!free) return null;
+  const row = localTableModeEvents(p, { reason, after: { mode: "free" } });
+  return row ? [...rows, row] : null;
+}
+
+/** Fixture mode: the one row a table-mode request appends. Null when the frame refuses. */
+export function planTableMode(
+  events: readonly StoredEvent[],
+  dmViewer: Viewer,
+  input: TableModeInput,
+): LocalEventInput[] | null {
+  const frame = tableModeFrame(input);
+  if (!frame) return null;
+  const sent = frame.payload as TableModeInput;
+  const row = localTableModeEvents(project(events, dmViewer), {
+    reason: sent.reason,
+    after: sent.after,
+  });
+  return row ? [row] : null;
 }
 
 /**
@@ -182,6 +231,16 @@ export function useFixtureTable(
       });
       return true;
     }
+    function appendRows(rows: LocalEventInput[] | null): boolean {
+      if (!rows) return false;
+      setState((prev) => {
+        const cur = prev.key === key ? prev : { key, local: [], decided: [] };
+        let all = [...base, ...cur.local];
+        for (const row of rows) all = appendLocal(all, row, actor);
+        return { ...cur, local: all.slice(base.length) };
+      });
+      return true;
+    }
     function decide(proposalId: string): boolean {
       setState((prev) => {
         const cur = prev.key === key ? prev : { key, local: [], decided: [] };
@@ -197,6 +256,10 @@ export function useFixtureTable(
       withdraw: (input) => append(withdrawFrame(input)),
       floor: appendFloor,
       changeScene,
+      endEncounter: (input) =>
+        appendRows(planEncounterEnd(events, fixture.viewers.dm, input)),
+      setTableMode: (input) =>
+        appendRows(planTableMode(events, fixture.viewers.dm, input)),
       approve: (id) => decide(id),
       reject: (id) => decide(id),
     };

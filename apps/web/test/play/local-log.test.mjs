@@ -1,11 +1,17 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { currentVersion, project } from "@the-stacks/session-model";
-import { dmApprovals, turnFloor } from "@the-stacks/session-model/fixtures";
+import {
+  dmApprovals,
+  turnFloor,
+  turnModeCombat,
+} from "@the-stacks/session-model/fixtures";
 import {
   appendLocal,
+  localEncounterEndEvents,
   localFloorEvents,
   localSceneEvents,
+  localTableModeEvents,
 } from "../../app/play/local-log.ts";
 
 const base = (seq, ts) => ({
@@ -176,4 +182,59 @@ test("localSceneEvents returns null when before and after are both null", () => 
     localSceneEvents(p, { reason: "r", after: null, closeProposalId: null }),
     null,
   );
+});
+
+const combatAt = (seq) =>
+  project(
+    turnModeCombat.events.filter((e) => e.seq <= seq),
+    turnModeCombat.viewers.dm,
+  );
+
+test("localEncounterEndEvents ends the engine encounter", () => {
+  const p = combatAt(18);
+  const rows = localEncounterEndEvents(p, { reason: "Done.", thenFree: false });
+  assert.equal(rows.length, 1);
+  assert.equal(rows[0].eventType, "encounter.ended");
+  const ev = rows[0].payload.event;
+  assert.equal(ev.type, "encounter.ended");
+  assert.equal(ev.reason, "Done.");
+  assert.deepEqual(ev.before, p.engine.encounter);
+  assert.equal(ev.after, null);
+  assert.equal(rows[0].payload.batchId, `b-local-${p.throughSeq + 1}`);
+});
+
+test("localEncounterEndEvents gives null with no encounter", () => {
+  const p = combatAt(23);
+  assert.equal(
+    localEncounterEndEvents(p, { reason: "x", thenFree: false }),
+    null,
+  );
+});
+
+test("localTableModeEvents reads before from the projection", () => {
+  const p = combatAt(18);
+  const row = localTableModeEvents(p, {
+    reason: "Free.",
+    after: { mode: "free" },
+  });
+  assert.equal(row.eventType, "table-mode.changed");
+  assert.deepEqual(row.payload.before, p.tableMode);
+  assert.deepEqual(row.payload.after, { mode: "free" });
+});
+
+test("after both rows, the projection has no encounter and free mode", () => {
+  const events = turnModeCombat.events.filter((e) => e.seq <= 18);
+  const p = project(events, turnModeCombat.viewers.dm);
+  const end = localEncounterEndEvents(p, { reason: "Done.", thenFree: true });
+  const afterEnd = appendLocal(events, end[0], "u");
+  const p2 = project(afterEnd, turnModeCombat.viewers.dm);
+  const free = localTableModeEvents(p2, {
+    reason: "Free.",
+    after: { mode: "free" },
+  });
+  const all = appendLocal(afterEnd, free, "u");
+  const p3 = project(all, turnModeCombat.viewers.dm);
+  assert.equal(p3.encounter, null);
+  assert.equal(p3.tableMode.mode, "free");
+  assert.equal(p3.diagnostics.skippedInvalid, 0);
 });

@@ -5,8 +5,13 @@ import {
   type SessionProjections,
   type StoredEvent,
 } from "@the-stacks/session-model";
-import { floorReason } from "./frames.ts";
-import type { FloorInput, SceneInput } from "./source.ts";
+import { floorReason, tableModeReason } from "./frames.ts";
+import type {
+  EncounterEndInput,
+  FloorInput,
+  SceneInput,
+  TableModeInput,
+} from "./source.ts";
 
 export interface LocalEventInput {
   eventType: string;
@@ -147,6 +152,53 @@ export function localSceneEvents(
   return {
     eventType: "scene.changed",
     payload: { reason: input.reason, before: p.scene, after: input.after },
+    payloadVersion: version,
+  };
+}
+
+/**
+ * Fixture mode: the `encounter.ended` mechanics row an end-encounter request stands for.
+ * Null with no engine encounter. The fixture does not emit the engine's `condition.removed`
+ * rows (the live gate does).
+ */
+export function localEncounterEndEvents(
+  p: SessionProjections,
+  input: EncounterEndInput,
+): LocalEventInput[] | null {
+  const version = currentVersion("encounter.ended");
+  if (version === undefined || !p.engine.encounter) return null;
+  return [
+    {
+      eventType: "encounter.ended",
+      payload: {
+        batchId: `b-local-${p.throughSeq + 1}`,
+        index: 0,
+        count: 1,
+        actionId: null,
+        proposalId: null,
+        event: {
+          type: "encounter.ended",
+          v: version,
+          reason: input.reason.trim() || tableModeReason("end"),
+          before: p.engine.encounter,
+          after: null,
+        },
+      },
+      payloadVersion: version,
+    },
+  ];
+}
+
+/** Fixture mode: the `table-mode.changed` row a `table-mode` request stands for. */
+export function localTableModeEvents(
+  p: SessionProjections,
+  input: TableModeInput,
+): LocalEventInput | null {
+  const version = currentVersion("table-mode.changed");
+  if (version === undefined) return null;
+  return {
+    eventType: "table-mode.changed",
+    payload: { reason: input.reason, before: p.tableMode, after: input.after },
     payloadVersion: version,
   };
 }

@@ -8,9 +8,12 @@ import {
   commitFrame,
   declareFrame,
   type EventFrame,
+  encounterEndFrame,
   floorFrame,
   rejectFrame,
   sceneFrame,
+  tableModeFrame,
+  tableModeReason,
   talkFrame,
   withdrawFrame,
 } from "./frames.ts";
@@ -84,6 +87,19 @@ export function useLiveTable(sessionId: string, user: LiveUser): TableSource {
         }
         return ok;
       },
+      endEncounter: (input) => {
+        const ok = send(encounterEndFrame(input));
+        if (ok && input.thenFree) {
+          send(
+            tableModeFrame({
+              reason: input.reason.trim() || tableModeReason("end"),
+              after: { mode: "free" },
+            }),
+          );
+        }
+        return ok;
+      },
+      setTableMode: (input) => send(tableModeFrame(input)),
       startScene: async (body) => {
         const result = await postStart(sessionId, body);
         if (result.ok) {

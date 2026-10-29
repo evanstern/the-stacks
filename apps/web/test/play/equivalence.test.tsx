@@ -12,6 +12,8 @@ import type { ServerFrame } from "~/ws/types";
 const yes = () => true;
 const commands = {
   floor: yes,
+  endEncounter: yes,
+  setTableMode: yes,
   changeScene: yes,
   sendTalk: yes,
   declareAction: yes,

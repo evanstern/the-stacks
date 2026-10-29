@@ -25,7 +25,7 @@ server source change. Tests are written first and seen to fail.
 **Independent test**: `pnpm --filter @the-stacks/web exec vitest run test/play/frames.test.mjs test/play/local-log.test.mjs test/play/use-fixture-table.test.mjs`
 (or `node --test` for the `.mjs` files, as each file's existing cases run).
 
-- [ ] T001 In `apps/web/test/play/frames.test.mjs`, add `encounterEndFrame` cases: a valid reason
+- [x] T001 In `apps/web/test/play/frames.test.mjs`, add `encounterEndFrame` cases: a valid reason
       gives `eventType: "mechanics"`, `payloadVersion: GATE_REQUEST_VERSION` and the payload in
       `contracts/table-mode-control.md` (`command.type: "encounter.end"`, `actionId: null`,
       `visibility: "public"`, `summary: "End the encounter"`, `rationale: null`); a blank reason
@@ -33,33 +33,33 @@ server source change. Tests are written first and seen to fail.
       `{ mode: "free" }` gives `summary: "Table mode: free"`; a turn `after` with `activeActor` and
       `activeCharacterId` passes; `{ mode: "turn" }` without `activeActor` gives null; an unknown
       mode gives null. See them fail.
-- [ ] T002 In `apps/web/app/play/frames.ts`, add `tableModeReason(action: "end" | "free" |
+- [x] T002 In `apps/web/app/play/frames.ts`, add `tableModeReason(action: "end" | "free" |
       "turn")` (the three defaults in the contract), `encounterEndFrame` and `tableModeFrame`.
       Parse with `ReasonSchema` and `TableModeSchema`. T001 passes.
-- [ ] T003 In `apps/web/app/play/source.ts`, add `EncounterEndInput`, `TableModeInput` and
+- [x] T003 In `apps/web/app/play/source.ts`, add `EncounterEndInput`, `TableModeInput` and
       `TableCommands.endEncounter`, `setTableMode` per the contract.
-- [ ] T004 In `apps/web/test/play/local-log.test.mjs`, add cases on the `turn-mode-combat` DM
+- [x] T004 In `apps/web/test/play/local-log.test.mjs`, add cases on the `turn-mode-combat` DM
       projection at a step with an active encounter: `localEncounterEndEvents` gives one
       `encounter.ended` row whose `event.before` equals `p.engine.encounter` and `after` is null;
       with no encounter it gives null. `localTableModeEvents` gives one `table-mode.changed` row
       with `before` from `p.tableMode`. After appending both rows, `project` gives `encounter: null`
       and `tableMode.mode: "free"`. See them fail.
-- [ ] T005 In `apps/web/app/play/local-log.ts`, add `localEncounterEndEvents` and
+- [x] T005 In `apps/web/app/play/local-log.ts`, add `localEncounterEndEvents` and
       `localTableModeEvents`. T004 passes.
-- [ ] T006 In `apps/web/app/play/use-live-table.ts`, add `endEncounter` (send
+- [x] T006 In `apps/web/app/play/use-live-table.ts`, add `endEncounter` (send
       `encounterEndFrame`; only when it returned true and `thenFree` is set, send
       `tableModeFrame({ reason, after: { mode: "free" } })`; return the first result) and
       `setTableMode` (send one `tableModeFrame`).
-- [ ] T007 In `apps/web/test/play/use-fixture-table.test.mjs`, add cases for two pure helpers
+- [x] T007 In `apps/web/test/play/use-fixture-table.test.mjs`, add cases for two pure helpers
       beside `planScene`: `planEncounterEnd(events, dmViewer, input)` with `thenFree: true` returns
       the encounter-end row and then the free row; with `thenFree: false` only the first; with no
       encounter, null. `planTableMode(events, dmViewer, input)` returns one row, or null when the
       frame builder refuses the input. See them fail.
-- [ ] T008 In `apps/web/app/play/use-fixture-table.ts`, add and export both helpers (validate with
+- [x] T008 In `apps/web/app/play/use-fixture-table.ts`, add and export both helpers (validate with
       the frame builders first, then build rows from `project(events, dmViewer)` with the Phase 1
       `local-log.ts` builders), and the `endEncounter` and `setTableMode` commands that append their
       rows, as `changeScene` does with `planScene`. T007 passes.
-- [ ] T009 Add stub `endEncounter` and `setTableMode` to every test source that builds a
+- [x] T009 Add stub `endEncounter` and `setTableMode` to every test source that builds a
       `TableCommands` literal, so typecheck passes. Run `pnpm ci:check`.
 
 ## Phase 2: The view, the panel and the header (card AC #1, #2; OQ-1, OQ-3, OQ-4, OQ-5)
