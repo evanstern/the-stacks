@@ -4,7 +4,7 @@ title: 'The Table: multi-human demo with an AI DM and with an assisted human DM'
 status: To Do
 assignee: []
 created_date: '2026-10-25 20:00'
-updated_date: '2026-10-29 02:49'
+updated_date: '2026-10-29 03:02'
 labels:
   - multiplayer
   - acceptance
@@ -15,6 +15,7 @@ dependencies:
   - TASK-0051
   - TASK-0052
   - TASK-0176
+  - TASK-0177
 priority: medium
 ordinal: 43000
 ---
@@ -43,6 +44,8 @@ Operator, 2026-10-28, in the M3 sweep chat, verbatim: "Spending Ceiling: Since w
 Orchestrator, 2026-10-28, demo readiness after TASK-0165 merged (7c18b8ff): the demo gate is met (Track A, TASK-0114, TASK-0116, TASK-0117, TASK-0134, TASK-0168 Done; the human-DM controls TASK-0159/0165/0167 merged). Gap: no shipped seed seats three humans. greyhollow-ford seats one (tamsin; odo and kestrel are companions); greyhollow-ford-duo seats two (tamsin, kestrel; odo a companion). AC #1 (three humans with the AI DM) needs a three-human seat map. Open for the operator: (a) card a small sweepable task for a three-human seed and run it before the demo; (b) run the duo seed and record AC #1 as bypassed (two players plus an AI companion), with run 2 as two players plus the human DM. The demo runs on hosted dev (vm-104), after TASK-0163 AC #4 (the two-account alpha run); each vm-104 command needs the operator's go on the exact command.
 
 Operator ruling 2026-10-28 in chat, answering "How should the demo get its three human players?": "Card a trio seed". Carded TASK-0176 (three-human seed); TASK-0053 now depends on it. Sweep order: TASK-0176, then the TASK-0163 alpha run, then the demo.
+
+Operator ruling 2026-10-28 in chat, answering "Should I card F-1, seating a human DM from the web, in m-3 before the demo?": "Card it in m-3". Carded TASK-0177; TASK-0053 now also depends on it. Sweep order: TASK-0176, TASK-0177, the TASK-0163 alpha run, then the demo.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
