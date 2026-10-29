@@ -4,7 +4,7 @@ title: Operator header stops offering Start scene once a scene start is queued
 status: In Progress
 assignee: []
 created_date: '2026-10-28 07:59'
-updated_date: '2026-10-29 01:46'
+updated_date: '2026-10-29 02:02'
 labels:
   - play-route
 milestone: m-3
@@ -23,7 +23,7 @@ Spec: specs/059-start-scene-queued
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 The header hides or disables Start scene once the session has a queued or pending scene start, with a test
+- [x] #1 The header hides or disables Start scene once the session has a queued or pending scene start, with a test
 - [x] #2 Spec phase: The server predicate, the 409 and the read route (card AC #1; OQ-1)
 - [x] #3 Spec phase: The live source and the header (card AC #1; OQ-2, OQ-4)
 - [x] #4 Spec phase: DB suites and the live check **[orchestrator]**
@@ -51,10 +51,12 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 spec-bridge sync: The server predicate, the 409 and the read route (card AC #1; OQ-1): 10/10 · The live source and the header (card AC #1; OQ-2, OQ-4): 12/12 · DB suites and the live check **[orchestrator]**: 4/4 · Wiki re-ground: 6/6 — status In Progress → Done
 
 Phase 3 [orchestrator] T025/T026 at b05d19a8: Brave live check in script mode (greyhollow-human-dm) on stacks-task-0167 after Docker Desktop was restarted by the operator. Human DM: pending note, reload same, second start 409 "A scene start is waiting for the DM.", GET pending then started after Apply; Dismiss brings Start scene back in 4859 ms, GET none. AI DM: "Scene start queued." right after the 202 in all four variants, then the scene. Shots at 1280/390 light/dark, no modal. Evidence: specs/059-start-scene-queued/evidence/{live-run,db-run,mutation-guard}.md. DM_FAKE_SCRIPT removed, app recreated.
+
+Merged: PR #84 merged 3cf55655 by the orchestrator on green under the operator words "You merge on green". AC #1 proven by scene-start.test, human-dm-scene.integration (e)-(g), table-view.test and the Brave live check. DoD #1: REQUIRE_DATABASE=1 pnpm ci:check exit 0 and PR check green. Worktree, branch and stack removed; env:prune --check: no orphans.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
-- [ ] #1 All tests and checks run green
-- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
+- [x] #1 All tests and checks run green
+- [x] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
