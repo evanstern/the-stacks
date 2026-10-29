@@ -1,7 +1,7 @@
 ---
 id: TASK-0165
 title: Human DM can end an encounter or change table mode from the table
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-10-28 07:53'
 updated_date: '2026-10-29 02:11'
@@ -28,6 +28,13 @@ Spec: specs/060-human-dm-encounter-mode
 - [ ] #1 The play route offers a seated human DM an end-encounter control built from a gate request, with no modal, and a test
 - [ ] #2 The play route offers a seated human DM a table-mode control built from a gate request, with no modal, and a test
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Claimed 2026-10-28 by the M3 sweep (docs/design/m3-table-sweep-runbook.md). Worktree .worktrees/task-0165, branch task-0165-human-dm-encounter-mode, cut from origin/main dbc06a4f. Spec 060 authored at 5968e469 (opus): OQ-1 to OQ-6 await the operator; DC-1 (human DM cannot start an encounter) applies only if OQ-3 is ruled (c).
+Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
