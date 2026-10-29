@@ -4,7 +4,7 @@ title: Operator seats a human DM from the web
 status: In Progress
 assignee: []
 created_date: '2026-10-29 03:01'
-updated_date: '2026-10-29 05:17'
+updated_date: '2026-10-29 05:24'
 labels:
   - play-route
   - multiplayer
@@ -57,6 +57,12 @@ Phase 1 a2eff04c: dmSeatFrame, seatDm, dm-seat.ts with tests; web gates green. c
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
 
 Phase 2 6b361c01: DmSeatPanel slide-out, operator DM seat header button, Start scene DM-holds-a-seat check, additive 030 blocks. Web gates green.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
+
+Dispatch: tier=haiku pinned=cc/claude-haiku-5-5 served=claude-haiku-5-5
+
+Phase 3 59c8ef21: shouldResync, useSession resync(), wired in use-live-table; additive 030 live-frames line. Phase 4 59b840c3: docs/ops/dev-vm-104.md "Seat a human DM" section.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
