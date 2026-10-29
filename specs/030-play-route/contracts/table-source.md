@@ -67,3 +67,10 @@ Amendment (TASK-0159, operator ruling 2026-10-28, D-1): `TableCommands.changeSce
 `TableCommands` gains `changeScene(input: SceneInput): boolean`. It returns true when the scene request
 left (live) or was applied to the local log (fixture). `SceneInput` is `{ reason, after | null,
 closeProposalId | null }`. Detail: `specs/055-human-dm-scene-change/contracts/scene-change.md`.
+
+Amendment, TASK-0167 (additive, 2026-10-28): `TableSource.sceneStart`.
+
+`TableSource` gains `sceneStart?: "unknown" | "none" | "queued" | "pending" | "started"`. Only a live
+source for a user whose role is `operator` carries it; a fixture source and any other role leave it
+absent. `useLiveTable` fills it from `GET /dm/sessions/:sessionId/start`. `TableView` offers
+"Start scene" only on `none`. Detail: `specs/059-start-scene-queued/contracts/scene-start-state.md`.

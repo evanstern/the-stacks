@@ -1,5 +1,9 @@
+import { randomUUID } from "node:crypto";
 import { afterAll, describe, expect, it } from "vitest";
+import { createApp } from "../../src/app.js";
+import { createSession } from "../../src/auth/session.js";
 import { listDmJobs } from "../../src/dm/jobs.js";
+import { users } from "../../src/schema/auth.js";
 import {
   clearDmJobsBeforeEach,
   drainAll,
@@ -60,6 +64,51 @@ async function approvalJob(w: World) {
   return turns.find(
     (j) => (j.input as { trigger?: string }).trigger === "approval",
   );
+}
+
+async function cookieFor(role: "operator" | "player") {
+  const [row] = await requireDb()
+    .insert(users)
+    .values({
+      username: `test-${randomUUID()}`,
+      displayName: "Test User",
+      role,
+      passwordHash: "unused",
+    })
+    .returning({ id: users.id });
+  const session = await createSession(requireDb(), (row as { id: string }).id);
+  return `session=${session.token}`;
+}
+
+function appOnWorld() {
+  return createApp({
+    databaseProbe: { reachable: async () => true },
+    db: requireDb(),
+    dm: { nudge: () => {} },
+  });
+}
+
+const startBody = {
+  seedId: SEED_ID,
+  seats: { tamsin: "00000000-0000-4000-8000-0000000000a1" },
+};
+
+async function sceneStartJobs(w: World) {
+  return (await listDmJobs(requireDb(), w.sessionId, 100, "turn")).filter(
+    (j) => (j.input as { trigger?: string }).trigger === "scene-start",
+  );
+}
+
+async function getStartState(
+  app: ReturnType<typeof appOnWorld>,
+  cookie: string,
+  w: World,
+) {
+  const res = await app.request(`/dm/sessions/${w.sessionId}/start`, {
+    headers: { cookie },
+  });
+  expect(res.status).toBe(200);
+  return (await res.json()) as { state: string };
 }
 
 type TurnResult = {
@@ -147,6 +196,67 @@ describe.skipIf(!reachable)(
       expect(
         (await readRows(w)).filter((r) => r.type === "scene.changed"),
       ).toHaveLength(1);
+    });
+
+    it("(e) a second start while the suggestion is pending is 409 and enqueues no job", async () => {
+      const { w } = await humanDmWorld();
+      const app = appOnWorld();
+      const cookie = await cookieFor("operator");
+      const before = (await sceneStartJobs(w)).length;
+      const res = await app.request(`/dm/sessions/${w.sessionId}/start`, {
+        method: "POST",
+        headers: { "content-type": "application/json", cookie },
+        body: JSON.stringify(startBody),
+      });
+      expect(res.status).toBe(409);
+      const json = (await res.json()) as {
+        error: { kind: string; message: string };
+      };
+      expect(json.error.kind).toBe("conflict");
+      expect(json.error.message).toBe("A scene start is waiting for the DM.");
+      expect(await sceneStartJobs(w)).toHaveLength(before);
+    });
+
+    it("(f) GET start reports pending, then started once the DM carries it out", async () => {
+      const { w } = await humanDmWorld();
+      const app = appOnWorld();
+      const cookie = await cookieFor("operator");
+      expect(await getStartState(app, cookie, w)).toEqual({
+        state: "pending",
+      });
+
+      const [seed] = await pendingScenes(w);
+      const after = (seed as unknown as { proposal: { after: unknown } })
+        .proposal.after;
+      const changed = await w.as(operator, {
+        kind: "scene",
+        reason: "The DM carries out the scene suggestion",
+        after,
+      });
+      expect(changed.ok ? "ok" : changed.refusal).toBe("ok");
+      const rejected = await w.as(operator, {
+        kind: "proposal.reject",
+        proposalId: seed?.proposalId,
+        reason: null,
+      });
+      expect(rejected.ok).toBe(true);
+      expect(await getStartState(app, cookie, w)).toEqual({
+        state: "started",
+      });
+    });
+
+    it("(g) GET start returns none after the DM dismisses the suggestion", async () => {
+      const { w } = await humanDmWorld();
+      const app = appOnWorld();
+      const cookie = await cookieFor("operator");
+      const [seed] = await pendingScenes(w);
+      const rejected = await w.as(operator, {
+        kind: "proposal.reject",
+        proposalId: seed?.proposalId,
+        reason: null,
+      });
+      expect(rejected.ok).toBe(true);
+      expect(await getStartState(app, cookie, w)).toEqual({ state: "none" });
     });
   },
 );

@@ -28,7 +28,7 @@ sources:
   - apps/web/app/play/components/turn-order.tsx
   - apps/web/app/play/components/mode-badge.tsx
   - apps/web/app/play/components/commit-control.tsx
-verified_against: fd4d45161c7407d4dcc59ad9ffe43df147e70c29
+verified_against: cf4df80ea9f2dcf92e9d167950d97eede568432e
 ---
 
 # Play route
@@ -45,7 +45,7 @@ ledger slide-out, and a DM approvals slide-out. Everything lives in `apps/web/ap
 (`play/source.ts`) carries the `viewer`, the `actor` id writes are recorded as, `events`,
 `status`, `caughtUp`, `notice`, pending `proposals`, `presence` (the humans at the table, or
 `null` when unknown) and `commands` (`sendTalk`,
-`declareAction`, `comment`, `commit`, `withdraw`, `floor`, `approve`, `reject`, and live-only `startScene`) and `role` (the account role; absent on fixtures). The view runs
+`declareAction`, `comment`, `commit`, `withdraw`, `floor`, `approve`, `reject`, and live-only `startScene`), `role` (the account role; absent on fixtures) and `sceneStart` (TASK-0167, specs/059: the operator's scene start state, `unknown`, `none`, `queued`, `pending` or `started`, fetched by `useLiveTable`; absent for a fixture or a non-operator). The view runs
 `project(events, viewer)` from [[session-model]] and `toTableViewModel` (`view-model.ts`);
 it holds only UI state (which panel is open). Two hooks build a source:
 
@@ -69,8 +69,13 @@ anchor (new tab); the fixture routes pass none. The page is `play/:sessionId/deb
 
 ## Start scene
 
-TASK-0163 (specs/054). `TableView` sets `canStart` only for a live source whose `role` is
-`operator`, once caught up, with no scene (`model.scene === null`) and `## Scene panels
+TASK-0163 (specs/054), amended by TASK-0167 (specs/059). `TableView` sets `canStart` only for a
+live source whose `role` is `operator`, once caught up, with no scene (`model.scene === null`),
+`source.sceneStart === "none"` and `startScene` present. A start in flight (`queued` or
+`pending`) hides the button and shows a header note instead. `TableView` holds no start flag.
+The state, the poll and the notes are in [[scene-panels]].
+
+## Scene panels
 
 Two slide-outs change the scene; both live in [[scene-panels]]. The operator's Start scene
 slide-out (TASK-0163, specs/054) starts a scene on a table with none. The human DM's Change scene

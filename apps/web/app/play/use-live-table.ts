@@ -1,5 +1,5 @@
 import { project, type Viewer } from "@the-stacks/session-model";
-import { useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRevalidator } from "react-router";
 import { useSession } from "../ws/useSession.ts";
 import {
@@ -16,7 +16,13 @@ import {
 } from "./frames.ts";
 import { selectPendingProposals } from "./proposals.ts";
 import type { TableCommands, TableSource } from "./source.ts";
-import { postStart } from "./start-scene.ts";
+import {
+  fetchStartState,
+  nextStartView,
+  postStart,
+  type SceneStartView,
+  shouldPollStart,
+} from "./start-scene.ts";
 import { type LiveUser, viewerFor } from "./viewer.ts";
 
 export type { LiveUser };
@@ -41,6 +47,26 @@ export function useLiveTable(sessionId: string, user: LiveUser): TableSource {
     () => selectPendingProposals(events, viewer),
     [events, viewer],
   );
+  const isOperator = user.role === "operator";
+  const [startView, setStartView] = useState<SceneStartView>("unknown");
+  const refreshStart = useCallback(async () => {
+    const state = await fetchStartState(sessionId);
+    setStartView((prev) =>
+      nextStartView(
+        prev,
+        state ? { type: "fetched", state } : { type: "fetchFailed" },
+      ),
+    );
+  }, [sessionId]);
+  useEffect(() => {
+    if (isOperator && caughtUp) void refreshStart();
+  }, [isOperator, caughtUp, refreshStart]);
+  const polling = shouldPollStart(startView);
+  useEffect(() => {
+    if (!isOperator || !polling) return;
+    const timer = setInterval(() => void refreshStart(), 5000);
+    return () => clearInterval(timer);
+  }, [isOperator, polling, refreshStart]);
   const commands = useMemo<TableCommands>(() => {
     const send = (frame: EventFrame | null): boolean =>
       frame ? sendEvent(frame) : false;
@@ -58,13 +84,20 @@ export function useLiveTable(sessionId: string, user: LiveUser): TableSource {
         }
         return ok;
       },
-      startScene: (body) => postStart(sessionId, body),
+      startScene: async (body) => {
+        const result = await postStart(sessionId, body);
+        if (result.ok) {
+          setStartView((prev) => nextStartView(prev, { type: "started202" }));
+        }
+        void refreshStart();
+        return result;
+      },
       // Decisions leave as gate requests; the panel drops a proposal when the decision
       // event comes back (contracts/proposal-seam.md).
       approve: (proposalId) => send(approveFrame(proposalId)),
       reject: (proposalId, reason) => send(rejectFrame(proposalId, reason)),
     };
-  }, [sendEvent, sessionId]);
+  }, [sendEvent, sessionId, refreshStart]);
   return {
     kind: "live",
     viewer,
@@ -76,6 +109,7 @@ export function useLiveTable(sessionId: string, user: LiveUser): TableSource {
     proposals,
     presence: present,
     role: user.role,
+    ...(isOperator ? { sceneStart: startView } : {}),
     commands,
   };
 }

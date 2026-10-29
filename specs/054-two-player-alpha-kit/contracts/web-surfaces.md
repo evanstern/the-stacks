@@ -52,3 +52,11 @@ has caught up, and the session has no scene.
 - A 400 shows each issue message inline beside its seat, or under the form when the path is
   not a seat. A 409 shows its message inline.
 - When a seated user leaves the table, their choice stays; the server accepts it.
+
+Amendment, TASK-0167 (additive, 2026-10-28): "Play route: Start scene slide-out".
+
+The `Start scene` button shows only while the server's scene-start state is `none`. While the state
+is `queued`, the header shows `Scene start queued.` While it is `pending` (a human DM has not yet
+carried out the suggestion), the header shows `Scene start waiting for the DM.` The header polls the
+state every 5 s while it is `queued` or `pending`. Detail:
+`specs/059-start-scene-queued/contracts/scene-start-state.md`.

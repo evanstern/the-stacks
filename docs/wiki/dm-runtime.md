@@ -34,10 +34,11 @@ sources:
   - apps/server/src/dm/doctrine/doctrine.ts
   - apps/server/src/dm/doctrine/NOTICE.md
   - apps/server/src/routes/dm.ts
+  - apps/server/src/dm/scene-start.ts
   - apps/server/seeds/greyhollow-ford.json
   - apps/server/seeds/greyhollow-ford-duo.json
   - biome.json
-verified_against: 28ac1698b24704bac7cdac300316e7f0e00e728c
+verified_against: cf4df80ea9f2dcf92e9d167950d97eede568432e
 ---
 
 # DM runtime
@@ -129,9 +130,7 @@ its `throughSeq` (`loadProjectionsThrough`, [[session-model]]) and prints it in 
 ## Routes and boundary
 
 `routes/dm.ts` (mounted at `/dm`, operator-only, [[server-entrypoint-and-app]]):
-`GET /dm/seeds` (`{ seeds: [{ seedId, title, humans, companions }] }` from `listSeeds`), `POST /dm/sessions/:id/start` (body `{ seedId, seats }`, 202 `{ jobId }`, 400 when a user holds two seats, 409 if a scene or a
-start job exists), `POST /dm/sessions/:id/turn` (manual retry, 202), and
-`GET /dm/sessions/:id/turns?limit` (job list with outcome, audit record and call metadata, never
-prompt text). Four read-only operator routes serve the debug view: `GET /dm/sessions/:id/events`, `/jobs`, `/seed` and `/calls` ([[debug-view]]). A Biome `noRestrictedImports` override on `apps/server/src/dm/**` forbids the log
+`GET /dm/seeds` (`{ seeds }` from `listSeeds`), `POST /dm/sessions/:id/start` (body `{ seedId, seats }`, 202 `{ jobId }`, 400 when a user holds two seats, 409 unless `sceneStartState` is `none`), `GET /dm/sessions/:id/start` (`{ state }`, TASK-0167), `POST /dm/sessions/:id/turn` (manual retry, 202), and
+`GET /dm/sessions/:id/turns?limit` (job list with outcome, audit record and call metadata). Four read-only operator routes serve the debug view: `GET /dm/sessions/:id/events`, `/jobs`, `/seed` and `/calls` ([[debug-view]]). A Biome `noRestrictedImports` override on `apps/server/src/dm/**` forbids the log
 writers, ingestion, the library store, codex and ws ([[ci-pipeline]], [[monorepo-and-toolchain]]):
 session state is written only through the gate.

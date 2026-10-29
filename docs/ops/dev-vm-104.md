@@ -65,7 +65,7 @@ The scene opening needs a model key. Add one under `Secrets` before you start a 
 14. Choose `Greyhollow Ford (two players) (greyhollow-ford-duo)` in `Seed`.
 15. Choose a user for `Tamsin Vale`. Choose a different user for `Kestrel`.
 16. Check the note `AI companions: Brother Odo.`
-17. Press `Start`. The slide-out closes. The header shows `Scene start queued.`
+17. Press `Start`. The slide-out closes. The header shows `Scene start queued.` With a human DM, the header then shows `Scene start waiting for the DM.` until the DM carries out the suggestion.
 18. Wait a few seconds. The opening narration appears for both humans.
 19. Check that each human's speaker selector offers only their own character. The table shows no chip for Brother Odo. The AI DM voices him.
 

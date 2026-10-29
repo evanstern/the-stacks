@@ -34,7 +34,7 @@ export function TableHeader({
   onScene,
   onFloor,
   onStartScene,
-  startQueued = false,
+  startNote,
 }: {
   model: TableViewModel;
   status: SourceStatus;
@@ -50,7 +50,8 @@ export function TableHeader({
   onFloor: (input: FloorInput) => boolean;
   /** Present only when the operator may start a scene. */
   onStartScene?: () => void;
-  startQueued?: boolean;
+  /** The server says a scene start is in flight; the header shows a note, not the button. */
+  startNote?: "queued" | "pending";
 }) {
   const chevron = (open: boolean) => (
     <ChevronIcon
@@ -113,9 +114,11 @@ export function TableHeader({
           {chevron(sceneOpen)}
         </button>
       )}
-      {startQueued && (
+      {startNote && (
         <span role="status" className="text-xs text-muted-foreground">
-          Scene start queued.
+          {startNote === "queued"
+            ? "Scene start queued."
+            : "Scene start waiting for the DM."}
         </span>
       )}
       {onStartScene && (

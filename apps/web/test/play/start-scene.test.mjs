@@ -2,9 +2,12 @@ import assert from "node:assert/strict";
 import { afterEach, test } from "node:test";
 import {
   fetchSeeds,
+  fetchStartState,
   issuesBySeat,
+  nextStartView,
   postStart,
   seatMapIssues,
+  shouldPollStart,
   startBody,
 } from "../../app/play/start-scene.ts";
 
@@ -113,4 +116,46 @@ test("postStart returns the 400 issues and the 409 message", async () => {
   assert.equal(r.ok, false);
   assert.equal(r.status, 409);
   assert.equal(r.message, "Scene running.");
+});
+
+test("fetchStartState reads GET /dm/sessions/<encoded id>/start", async () => {
+  const calls = stub(() => json(200, { state: "pending" }));
+  assert.equal(await fetchStartState("s 1"), "pending");
+  const [url, init] = calls[0];
+  assert.equal(url, "/dm/sessions/s%201/start");
+  assert.equal(init.credentials, "same-origin");
+  assert.notEqual(init.method, "POST");
+});
+
+test("fetchStartState returns null on a 403, an unknown state or a thrown fetch", async () => {
+  stub(() => json(403, { error: { message: "no" } }));
+  assert.equal(await fetchStartState("s1"), null);
+  stub(() => json(200, { state: "bogus" }));
+  assert.equal(await fetchStartState("s1"), null);
+  globalThis.fetch = async () => {
+    throw new Error("offline");
+  };
+  assert.equal(await fetchStartState("s1"), null);
+});
+
+test("nextStartView folds fetched, fetchFailed and started202", () => {
+  assert.equal(
+    nextStartView("unknown", { type: "fetched", state: "queued" }),
+    "queued",
+  );
+  assert.equal(nextStartView("queued", { type: "fetchFailed" }), "none");
+  assert.equal(nextStartView("unknown", { type: "fetchFailed" }), "none");
+  assert.equal(nextStartView("none", { type: "started202" }), "queued");
+  assert.equal(
+    nextStartView("queued", { type: "fetched", state: "pending" }),
+    "pending",
+  );
+});
+
+test("shouldPollStart is true only for queued and pending", () => {
+  assert.equal(shouldPollStart("queued"), true);
+  assert.equal(shouldPollStart("pending"), true);
+  for (const v of ["unknown", "none", "started"]) {
+    assert.equal(shouldPollStart(v), false);
+  }
 });

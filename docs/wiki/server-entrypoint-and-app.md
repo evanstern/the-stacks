@@ -7,7 +7,7 @@ sources:
   - apps/server/src/app.ts
   - apps/server/src/routes/dm.ts
   - apps/server/src/dm/script/env.ts
-verified_against: 13f64ae03ad40343f9adca7146c9f1102fcab8dc
+verified_against: cf4df80ea9f2dcf92e9d167950d97eede568432e
 ---
 
 # Server entrypoint and app

@@ -91,6 +91,66 @@ export async function fetchSeeds(): Promise<SeedSummary[]> {
   return ((await res.json()) as { seeds: SeedSummary[] }).seeds;
 }
 
+/** What the header knows about the session's scene start (specs/059 contracts/scene-start-state.md). */
+export type SceneStartView =
+  | "unknown"
+  | "none"
+  | "queued"
+  | "pending"
+  | "started";
+
+const SERVER_STATES: readonly string[] = [
+  "none",
+  "queued",
+  "pending",
+  "started",
+];
+
+/** GET /dm/sessions/:sessionId/start (operator only). Null on any failure. */
+export async function fetchStartState(
+  sessionId: string,
+): Promise<Exclude<SceneStartView, "unknown"> | null> {
+  try {
+    const res = await fetch(
+      `/dm/sessions/${encodeURIComponent(sessionId)}/start`,
+      { credentials: "same-origin" },
+    );
+    if (res.status !== 200) return null;
+    const body = (await res.json()) as { state?: unknown };
+    if (typeof body.state !== "string" || !SERVER_STATES.includes(body.state)) {
+      return null;
+    }
+    return body.state as Exclude<SceneStartView, "unknown">;
+  } catch {
+    return null;
+  }
+}
+
+export type StartViewEvent =
+  | { type: "fetched"; state: Exclude<SceneStartView, "unknown"> }
+  | { type: "fetchFailed" }
+  | { type: "started202" };
+
+/** The view after one event. A failed fetch reads as `none`; the POST's 409 is the backstop. */
+export function nextStartView(
+  _prev: SceneStartView,
+  event: StartViewEvent,
+): SceneStartView {
+  switch (event.type) {
+    case "fetched":
+      return event.state;
+    case "fetchFailed":
+      return "none";
+    case "started202":
+      return "queued";
+  }
+}
+
+/** True while a start is in flight and the header must keep asking. */
+export function shouldPollStart(view: SceneStartView): boolean {
+  return view === "queued" || view === "pending";
+}
+
 /** POST /dm/sessions/:sessionId/start. 202 is success; any refusal carries its issues. */
 export async function postStart(
   sessionId: string,
