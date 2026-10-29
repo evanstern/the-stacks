@@ -114,22 +114,22 @@ the DB cases run in Phase 3.
 
 ## Phase 3: DB suites and the live check **[orchestrator]**
 
-- [ ] T023 **[orchestrator]** On the worktree stack (`pnpm env:up`, migrate both databases, restart
+- [x] T023 **[orchestrator]** On the worktree stack (`pnpm env:up`, migrate both databases, restart
       the app), with `REQUIRE_DATABASE=1` and only `TEST_DATABASE_URL` exported from the worktree
       `.env`, run `routes.integration`, `human-dm-scene.integration`, `human-dm-roll-resume`,
       `duo`, `scene` and `worker` integration suites. Record T003's red run (before Phase 1's T006,
       or by stubbing rule 3) and the green run.
-- [ ] T024 **[orchestrator]** Mutation guard: make `sceneStartState` return `none` for rule 3; run
+- [x] T024 **[orchestrator]** Mutation guard: make `sceneStartState` return `none` for rule 3; run
       `scene-start.test` and `human-dm-scene.integration`; confirm the `pending` cases and case (e)
       fail. Restore; `git diff` is empty.
-- [ ] T025 **[orchestrator]** Live check in Brave, script mode, per
+- [x] T025 **[orchestrator]** Live check in Brave, script mode, per
       `specs/055-human-dm-scene-change/quickstart.md` steps 1 to 5 (`<env>` is `task-0167`,
       `DM_FAKE_SCRIPT=greyhollow-human-dm`). Before the human DM acts, open the play URL as the
       operator: expect no "Start scene" button and the note "Scene start waiting for the DM."
       Reload: the same. Send a second start (HTTP): expect 409. Carry out the suggestion: the
       header shows the scene and no note. Then, on a second session, Dismiss the suggestion and
       expect "Start scene" back within 5 s (OQ-2, OQ-3).
-- [ ] T026 **[orchestrator]** AI-DM path: start a scene from the slide-out per
+- [x] T026 **[orchestrator]** AI-DM path: start a scene from the slide-out per
       `specs/054-two-player-alpha-kit/quickstart.md` in script mode. Right after the 202, expect
       "Scene start queued." and no button, then the scene title. Shots at 1280 px and 390 px, light
       and dark, of the pending header and the queued header in
