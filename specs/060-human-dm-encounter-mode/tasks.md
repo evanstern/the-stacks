@@ -161,23 +161,23 @@ and `node --test apps/web/test/no-dialog.test.mjs`.
 
 ## Phase 5: Wiki re-ground
 
-- [ ] T029 Re-verify and re-pin `docs/wiki/play-route.md`: `TableCommands` gains `endEncounter`
+- [x] T029 Re-verify and re-pin `docs/wiki/play-route.md`: `TableCommands` gains `endEncounter`
       and `setTableMode`; `frames.ts` builds `mechanics` and `table-mode`; the "Table mode"
       slide-out; add `table-mode.ts` and `components/table-mode-panel.tsx` to `sources:`.
-- [ ] T030 Re-verify and re-pin `docs/wiki/turn-floor.md` (the human DM now leaves or resumes turn
+- [x] T030 Re-verify and re-pin `docs/wiki/turn-floor.md` (the human DM now leaves or resumes turn
       mode from the panel; floor controls unchanged) and `docs/wiki/scene-panels.md` (the "Change
       scene" turn-mode line now has a way out; re-pin only where it lists a touched source).
-- [ ] T031 Re-pin every other note the freshness gate flags for a touched source (likely
+- [x] T031 Re-pin every other note the freshness gate flags for a touched source (likely
       `chat-ui`, `test-suite`). Re-verify each claim that names a touched file; edit only what
       changed.
-- [ ] T032 Regenerate `docs/wiki/CAPSULES.md` for every changed `description:`. Add one sentence on
+- [x] T032 Regenerate `docs/wiki/CAPSULES.md` for every changed `description:`. Add one sentence on
       spec 060 to `docs/wiki/INDEX.md`'s state paragraph, and name the slide-out in its
       `[[play-route]]` line.
-- [ ] T033 Add a TASK-0165 "(this PR)" row to the execution log in
+- [x] T033 Add a TASK-0165 "(this PR)" row to the execution log in
       `docs/design/m3-table-sweep-runbook.md`, in the TASK-0167 row's shape: date, task, PR, —,
       dispatches (`spec (opus ×1), impl ×3 (sonnet)`), then the outcome, the amended contracts, the
       DB count, the mutation result and the live check with its shots.
-- [ ] T034 Run the wiki freshness gate
+- [x] T034 Run the wiki freshness gate
       (`node ~/.claude/plugins/cache/praxisflux/grounding-wiki/0.68.0/gates/cli.mjs freshness . docs/wiki`
       prints `OK`) and the spec-bridge check
       (`node ~/.claude/plugins/cache/praxisflux/spec-bridge/0.68.0/gates/cli.mjs check .` exits 0).

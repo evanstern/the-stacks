@@ -9,7 +9,7 @@ sources:
   - apps/web/app/play/components/scene-panel.tsx
   - apps/web/app/play/frames.ts
   - apps/web/app/play/local-log.ts
-verified_against: cf4df80ea9f2dcf92e9d167950d97eede568432e
+verified_against: 3b24274bbff5ba25bae133d7dc9bafeb9d427fdc
 ---
 
 # Scene panels
@@ -51,7 +51,7 @@ current scene. Any policy (`suggest` or `ask`) seeds. `draftFor` and `initialDra
 title, summary, location and reason into the form; the oldest pending seed wins, else the current
 scene. The DM edits title, summary, location and reason. `sceneId` is read-only and always comes
 from the seed (`applyInput`), so the AI DM loads the same seed on its next turn. "Clear the scene"
-sends `after: null`. In turn mode the panel adds "The table stays in turn mode." With no scene and
+sends `after: null`. In turn mode the panel adds "The table stays in turn mode." (the Table mode slide-out in [[play-route]] ends the encounter or switches to free mode) With no scene and
 no seed it shows "No scene to change yet. Start a scene, or wait for the AI DM's suggestion." and
 no form. A seed that clears a scene is hidden while no scene is set (the gate refuses it).
 
