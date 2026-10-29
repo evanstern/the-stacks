@@ -4,7 +4,7 @@ title: Three-human seed for the M3 demo
 status: In Progress
 assignee: []
 created_date: '2026-10-29 02:48'
-updated_date: '2026-10-29 03:00'
+updated_date: '2026-10-29 03:03'
 labels:
   - seed
   - multiplayer
@@ -45,6 +45,9 @@ Dispatch: tier=opus pinned=claude-opus-5-5 served=claude-opus-5-5
 Operator ruling 2026-10-28 in chat, answering "Do you accept the recommended defaults (a) for TASK-0176's OQ-1 to OQ-6?": "Accept all (a)". Recorded in spec.md. F-1 (no web control seats a human DM) is put to the operator separately; not carded yet.
 
 Phase 1 (T001-T006) at a5f1a905: seeds/greyhollow-ford-trio.json (the duo seed with Odo a human seat, voice and want "Chosen by the player."), trio-views.test.ts (5 cases: views, aiCompanionIds empty, no companion prompt section, legalizeDirector drops odo), seed.test.ts trio cases; red on the missing seed, then 41/41. No server source change. ci:check: only the 5 known adjudicate requireDb failures.
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+Phase 2 (T007-T009) at c7d25658: trio.integration.test.ts (4 cases: three player rows and no companion job; sign-off waits for all three present; an absent player is skipped; the turn floor passes to Odo with no companion turn) and routes.integration trio cases (seeds list, one-user-two-seats 400, three users 202). 22 passed with REQUIRE_DATABASE=1, green on the first run (behaviour already existed). No server source change.
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
 
