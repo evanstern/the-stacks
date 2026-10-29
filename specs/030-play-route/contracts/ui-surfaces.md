@@ -107,3 +107,6 @@ Accessible names: field "Reason (optional)"; buttons "End encounter", "Switch to
 "Switch to turn mode", each shown only when allowed; texts "Encounter active.", "No encounter.",
 "The encounter stays active." and "Turn mode needs an encounter. The AI DM starts one." No dialog.
 Detail: `specs/060-human-dm-encounter-mode/contracts/table-mode-control.md`.
+
+Amendment, TASK-0177 (additive, 2026-10-29): the operator's "DM seat" slide-out. Operator ruling 2026-10-29: OQ-1 to OQ-6 all (a). See `specs/062-human-dm-seat/contracts/dm-seat-control.md`.
+`TableHeader` gains `seatOpen: boolean` and `onSeat?: () => void`; with `onSeat` set it renders a button named "DM seat" (`aria-controls="dm-seat-panel"`) beside "Start scene". `DmSeatPanel` (`components/dm-seat-panel.tsx`; props `view`, `onSeat`) mounts in the shared `Panel` only when `canSeat` (live, operator, caught up, `commands.seatDm` set). Accessible names: select "Seat a human DM", buttons "Seat as DM" and "Return the seat to the AI DM". `StartScenePanel` and `StartSceneForm` gain `dmUserId: string | null`; a seat naming it shows "The DM cannot hold a character seat.". No dialog.

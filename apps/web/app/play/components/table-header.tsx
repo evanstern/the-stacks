@@ -2,6 +2,7 @@ import { ApprovalsIcon, ChevronIcon, LedgerIcon } from "~/components/icons";
 import type { PresenceRow } from "../presence.ts";
 import type { FloorInput, SourceStatus } from "../source.ts";
 import type { TableViewModel } from "../view-model.ts";
+import { DM_SEAT_PANEL_ID } from "./dm-seat-panel.tsx";
 import { FloorControls } from "./floor-controls.tsx";
 import { ModeBadge } from "./mode-badge.tsx";
 import { PresenceStrip } from "./presence-strip.tsx";
@@ -30,6 +31,7 @@ export function TableHeader({
   approvalsOpen,
   sceneOpen,
   modeOpen,
+  seatOpen,
   debugHref,
   onLedger,
   onApprovals,
@@ -37,6 +39,7 @@ export function TableHeader({
   onMode,
   onFloor,
   onStartScene,
+  onSeat,
   startNote,
 }: {
   model: TableViewModel;
@@ -46,6 +49,7 @@ export function TableHeader({
   approvalsOpen: boolean;
   sceneOpen: boolean;
   modeOpen: boolean;
+  seatOpen: boolean;
   debugHref?: string;
   onLedger: () => void;
   onApprovals: () => void;
@@ -56,6 +60,8 @@ export function TableHeader({
   onFloor: (input: FloorInput) => boolean;
   /** Present only when the operator may start a scene. */
   onStartScene?: () => void;
+  /** Present only when the operator may seat a DM. */
+  onSeat?: () => void;
   /** The server says a scene start is in flight; the header shows a note, not the button. */
   startNote?: "queued" | "pending";
 }) {
@@ -138,6 +144,18 @@ export function TableHeader({
             ? "Scene start queued."
             : "Scene start waiting for the DM."}
         </span>
+      )}
+      {onSeat && (
+        <button
+          type="button"
+          onClick={onSeat}
+          aria-expanded={seatOpen}
+          aria-controls={DM_SEAT_PANEL_ID}
+          className={TRIGGER}
+        >
+          <span>DM seat</span>
+          {chevron(seatOpen)}
+        </button>
       )}
       {onStartScene && (
         <button

@@ -342,3 +342,34 @@ test("a session with a scene shows no Start scene button and no note", () => {
   expect(html).not.toContain(">Start scene<");
   expect(html).not.toContain("Scene start queued.");
 });
+
+test("the operator on a caught-up live table sees DM seat; others do not", () => {
+  const seat = (src: TableSource) => {
+    const out = renderToStaticMarkup(<TableView source={src} />);
+    return out.match(/<button[^>]*>(?:(?!<\/button>)[\s\S])*DM seat/)?.[0];
+  };
+  const withSeat = (s: TableSource): TableSource => ({
+    ...s,
+    commands: { ...s.commands, seatDm: () => true },
+  });
+  expect(seat(withSeat(liveOperator("none")))).toContain(
+    'aria-controls="dm-seat-panel"',
+  );
+  const f = fixtures.find((x) => x.name === "dm-approvals");
+  if (!f) throw new Error("fixture missing");
+  const scene = withSeat({
+    ...sourceFor(f, f.viewers.dm),
+    kind: "live",
+    role: "operator",
+    sceneStart: "started",
+  } as TableSource);
+  expect(seat(scene)).toContain('aria-controls="dm-seat-panel"');
+  expect(seat(withSeat({ ...liveOperator("none"), role: "player" }))).toBe(
+    undefined,
+  );
+  expect(seat(withSeat({ ...liveOperator("none"), caughtUp: false }))).toBe(
+    undefined,
+  );
+  expect(seat(liveOperator("none"))).toBe(undefined);
+  expect(seat(sourceFor(f, f.viewers.dm))).toBe(undefined);
+});

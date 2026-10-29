@@ -2,6 +2,7 @@ import { project } from "@the-stacks/session-model";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Panel } from "~/components/panel";
 import { Composer } from "./components/composer.tsx";
+import { DM_SEAT_PANEL_ID, DmSeatPanel } from "./components/dm-seat-panel.tsx";
 import { LedgerList } from "./components/ledger-list.tsx";
 import { ProposalList } from "./components/proposal-list.tsx";
 import { SCENE_PANEL_ID, ScenePanel } from "./components/scene-panel.tsx";
@@ -17,6 +18,7 @@ import {
 } from "./components/table-mode-panel.tsx";
 import { Transcript } from "./components/transcript.tsx";
 import { TurnOrder } from "./components/turn-order.tsx";
+import { dmSeatView } from "./dm-seat.ts";
 import { presenceRows } from "./presence.ts";
 import type { TableSource } from "./source.ts";
 import { toTableViewModel } from "./view-model.ts";
@@ -52,6 +54,23 @@ export function TableView({
   const [sceneOpen, setSceneOpen] = useState(false);
   const [modeOpen, setModeOpen] = useState(false);
   const [startOpen, setStartOpen] = useState(false);
+  const [seatOpen, setSeatOpen] = useState(false);
+  const { seatDm } = source.commands;
+  const canSeat =
+    source.kind === "live" &&
+    source.role === "operator" &&
+    source.caughtUp &&
+    seatDm !== undefined;
+  const seatView = useMemo(
+    () =>
+      dmSeatView(
+        projected,
+        source.presence,
+        source.actor,
+        model.isDm ? model.proposals.length : null,
+      ),
+    [projected, source.presence, source.actor, model.isDm, model.proposals],
+  );
   const { startScene } = source.commands;
   const canStart =
     source.kind === "live" &&
@@ -82,6 +101,7 @@ export function TableView({
         approvalsOpen={approvalsOpen}
         sceneOpen={sceneOpen}
         modeOpen={modeOpen}
+        seatOpen={seatOpen}
         debugHref={debugHref}
         onLedger={() => setLedgerOpen((was) => !was)}
         onApprovals={() => setApprovalsOpen((was) => !was)}
@@ -91,6 +111,7 @@ export function TableView({
         onMode={model.tableMode ? () => setModeOpen((was) => !was) : undefined}
         onFloor={source.commands.floor}
         onStartScene={canStart ? () => setStartOpen(true) : undefined}
+        onSeat={canSeat ? () => setSeatOpen((was) => !was) : undefined}
         startNote={startNote}
       />
       {model.mode.mode === "turn" && <TurnOrder order={model.mode.order} />}
@@ -131,7 +152,30 @@ export function TableView({
           onOpenChange={setStartOpen}
           present={source.presence ?? []}
           startScene={startScene}
+          dmUserId={
+            projected.gate.seat.kind === "human"
+              ? projected.gate.seat.userId
+              : null
+          }
         />
+      )}
+      {canSeat && seatDm && (
+        <Panel
+          open={seatOpen}
+          onOpenChange={setSeatOpen}
+          title="DM seat"
+          description="Seat a human DM, or return the seat to the AI DM."
+          id={DM_SEAT_PANEL_ID}
+        >
+          <DmSeatPanel
+            view={seatView}
+            onSeat={(input) => {
+              const ok = seatDm(input);
+              if (ok) setSeatOpen(false);
+              return ok;
+            }}
+          />
+        </Panel>
       )}
       {model.sceneChange && (
         <Panel

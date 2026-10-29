@@ -57,7 +57,7 @@ server source change. Tests are written first and seen to fail.
 **Independent test**: `pnpm --filter @the-stacks/web exec vitest run test/play/dm-seat-panel.test.tsx test/play/table-view.test.tsx test/play/start-scene-panel.test.tsx test/play/equivalence.test.tsx`,
 `node --test apps/web/test/play/start-scene.test.mjs` and `node --test apps/web/test/no-dialog.test.mjs`.
 
-- [ ] T008 [US1] Create `apps/web/test/play/dm-seat-panel.test.tsx` (`renderToStaticMarkup`). Cases:
+- [x] T008 [US1] Create `apps/web/test/play/dm-seat-panel.test.tsx` (`renderToStaticMarkup`). Cases:
       an AI-seat view shows "AI DM holds the seat.", the select "Seat a human DM" with one option per
       candidate, a disabled "Seat as DM", and no "Return the seat to the AI DM"; a human-seat view
       shows "<label> holds the seat." and "Return the seat to the AI DM"; `candidates: null` shows
@@ -67,43 +67,43 @@ server source change. Tests are written first and seen to fail.
       warning; the markup has no `role="dialog"`. Export and assert the pure click helpers:
       `seatInput("u1", "")` gives `{ reason: dmSeatReason("seat"), after: { kind: "human", userId:
       "u1" } }`; `returnInput("  x  ")` gives `{ reason: "x", after: { kind: "ai" } }`. See it fail.
-- [ ] T009 [US1] Create `apps/web/app/play/components/dm-seat-panel.tsx`: `DM_SEAT_PANEL_ID =
+- [x] T009 [US1] Create `apps/web/app/play/components/dm-seat-panel.tsx`: `DM_SEAT_PANEL_ID =
       "dm-seat-panel"`, `DmSeatPanel({ view, onSeat })`, the helpers from T008, one "Reason
       (optional)" field, the accessible names in the contract. A command that returns false keeps
       the draft and the picked user. T008 passes.
-- [ ] T010 [US2] In `apps/web/test/play/dm-seat-panel.test.tsx`, add the return case: a human-seat
+- [x] T010 [US2] In `apps/web/test/play/dm-seat-panel.test.tsx`, add the return case: a human-seat
       view's return helper builds `after: { kind: "ai" }`; an AI-seat view renders no return button
       (card AC #2).
-- [ ] T011 [US1] In `apps/web/test/play/table-view.test.tsx`, add: a live caught-up source with
+- [x] T011 [US1] In `apps/web/test/play/table-view.test.tsx`, add: a live caught-up source with
       `role: "operator"` and `commands.seatDm` renders a "DM seat" button with
       `aria-controls="dm-seat-panel"`, both with no scene and with a scene; a live player source, a
       live operator source before `caughtUp`, and a fixture source render none. See it fail.
-- [ ] T012 [US1] In `apps/web/app/play/components/table-header.tsx`, add `seatOpen` and `onSeat?`
+- [x] T012 [US1] In `apps/web/app/play/components/table-header.tsx`, add `seatOpen` and `onSeat?`
       and the "DM seat" trigger (shown when `onSeat` is set), beside "Start scene". In
       `apps/web/app/play/table-view.tsx`, hold `seatOpen` state, compute `canSeat` per the contract,
       build the view with `dmSeatView(projected, source.presence, source.actor, model.isDm ?
       proposals.length : null)`, pass `onSeat` when `canSeat`, and mount `DmSeatPanel` in `Panel`
       (title "DM seat", description "Seat a human DM, or return the seat to the AI DM.", id
       `DM_SEAT_PANEL_ID`). Close the panel when the command returns true. T011 passes.
-- [ ] T013 [US1] In `apps/web/test/play/start-scene.test.mjs`, add: `seatMapIssues(humans, { tamsin:
+- [x] T013 [US1] In `apps/web/test/play/start-scene.test.mjs`, add: `seatMapIssues(humans, { tamsin:
       "dm" }, "dm")` gives the issue `{ path: "seats.tamsin", message: "The DM cannot hold a character
       seat." }`; with `dmUserId` null or omitted the existing cases are unchanged. See it fail.
-- [ ] T014 [US1] In `apps/web/app/play/start-scene.ts`, add the optional `dmUserId` argument to
+- [x] T014 [US1] In `apps/web/app/play/start-scene.ts`, add the optional `dmUserId` argument to
       `seatMapIssues` (checked before the repeated-user rule). In
       `apps/web/app/play/components/start-scene-panel.tsx`, add the `dmUserId: string | null` prop
       to `StartScenePanel` and `StartSceneForm` and pass it to `seatMapIssues`. In
       `apps/web/app/play/table-view.tsx`, pass the projected human seat's `userId`, else null. Add a
       `start-scene-panel.test.tsx` case: a seat naming `dmUserId` renders the issue and a disabled
       Start. T013 passes.
-- [ ] T015 Confirm `apps/web/test/play/equivalence.test.tsx` and `apps/web/test/no-dialog.test.mjs`
+- [x] T015 Confirm `apps/web/test/play/equivalence.test.tsx` and `apps/web/test/no-dialog.test.mjs`
       pass unchanged. If equivalence fails, fix the source, not the test (plan.md "Risks").
-- [ ] T016 Amend `specs/030-play-route/contracts/ui-surfaces.md` (`TableHeader` props, the
+- [x] T016 Amend `specs/030-play-route/contracts/ui-surfaces.md` (`TableHeader` props, the
       `DmSeatPanel` row, `StartScenePanel.dmUserId`, accessible names), `live-frames.md` (the
       `seatDm` row) and `table-source.md` (`TableCommands.seatDm?`, live only). Each is a dated
       "Amendment, TASK-0177 (additive, <date>)" block citing
       `specs/062-human-dm-seat/contracts/dm-seat-control.md` and the operator's ruling words from
       the card. Do not rewrite earlier text.
-- [ ] T017 Run `pnpm ci:check`.
+- [x] T017 Run `pnpm ci:check`.
 
 ## Phase 3: The newly seated DM's resync (card AC #1; OQ-5)
 

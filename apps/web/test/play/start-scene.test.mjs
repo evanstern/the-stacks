@@ -159,3 +159,13 @@ test("shouldPollStart is true only for queued and pending", () => {
     assert.equal(shouldPollStart(v), false);
   }
 });
+
+test("seatMapIssues rejects the DM user on a character seat", () => {
+  assert.deepEqual(seatMapIssues(humans, { tamsin: "dm" }, "dm")[0], {
+    path: "seats.tamsin",
+    message: "The DM cannot hold a character seat.",
+  });
+  const seats = { tamsin: "a", kestrel: "b" };
+  assert.deepEqual(seatMapIssues(humans, seats, null), []);
+  assert.deepEqual(seatMapIssues(humans, seats), []);
+});

@@ -25,6 +25,7 @@ export interface StartSceneFormProps {
   seedId: string;
   seats: SeatMap;
   present: readonly PresenceEntry[];
+  dmUserId: string | null;
   issues: readonly Issue[];
   error: string | null;
   pending: boolean;
@@ -39,6 +40,7 @@ export function StartSceneForm({
   seedId,
   seats,
   present,
+  dmUserId,
   issues,
   error,
   pending,
@@ -48,7 +50,8 @@ export function StartSceneForm({
 }: StartSceneFormProps) {
   const seed = seeds.find((s) => s.seedId === seedId) ?? null;
   const { bySeat, form } = issuesBySeat(issues);
-  const ready = seed !== null && seatMapIssues(seed.humans, seats).length === 0;
+  const ready =
+    seed !== null && seatMapIssues(seed.humans, seats, dmUserId).length === 0;
   return (
     <form
       className="flex flex-col gap-4"
@@ -146,11 +149,13 @@ export function StartScenePanel({
   onOpenChange,
   present,
   startScene,
+  dmUserId,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   present: readonly PresenceEntry[];
   startScene: (body: StartBody) => Promise<StartResult>;
+  dmUserId: string | null;
 }) {
   const [seeds, setSeeds] = useState<SeedSummary[]>([]);
   const [seedId, setSeedId] = useState("");
@@ -209,6 +214,7 @@ export function StartScenePanel({
         seedId={seedId}
         seats={seats}
         present={present}
+        dmUserId={dmUserId}
         issues={issues}
         error={error}
         pending={pending}

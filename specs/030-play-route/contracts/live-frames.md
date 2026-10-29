@@ -53,3 +53,6 @@ Operator ruling (card, 2026-10-28), answering "Do you accept the recommended def
 | `setTableMode(input)` | `eventType: "table-mode"`, `payloadVersion: GATE_REQUEST_VERSION`, `payload: { reason, after, summary, rationale: null }`. |
 
 Detail: `specs/060-human-dm-encounter-mode/contracts/table-mode-control.md`.
+
+Amendment, TASK-0177 (additive, 2026-10-29): the `seatDm` command. Operator ruling 2026-10-29: OQ-1 to OQ-6 all (a). See `specs/062-human-dm-seat/contracts/dm-seat-control.md`.
+`frames.ts` gains `dmSeatReason` and `dmSeatFrame`; `useLiveTable` sets `seatDm: (input) => send(dmSeatFrame(input))`. The frame is the existing 029 `dm.seat` request; no frame shape changes.
