@@ -34,16 +34,6 @@ Spec: specs/060-human-dm-encounter-mode
 - [x] #7 Spec phase: Wiki re-ground
 <!-- AC:END -->
 
-
-
-
-
-
-
-
-
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -68,6 +58,8 @@ Phase 4 [orchestrator] at f7a85ea7: T025 DB suites 6 files, 34 passed. T026 muta
 
 Phase 5 (T029-T034) at a140f97a: re-pinned play-route (Table mode section; tightened to its 8000-char budget, Start scene detail left to scene-panels), turn-floor and scene-panels; CAPSULES regenerated, INDEX sentence, runbook row (dispatch count corrected to impl ×5). Freshness OK (55 notes), spec-bridge exit 0.
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+
+spec-bridge sync: Frames, commands and fixture rows (card AC #1, #2; OQ-2): 9/9 · The view, the panel and the header (card AC #1, #2; OQ-1, OQ-3, OQ-4, OQ-5): 11/11 · The DB test (FR-016; OQ-6): 5/5 · DB suites, mutation guard and live check **[orchestrator]**: 4/4 · Wiki re-ground: 6/6 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
