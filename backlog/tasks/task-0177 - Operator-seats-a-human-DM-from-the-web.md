@@ -4,7 +4,7 @@ title: Operator seats a human DM from the web
 status: In Progress
 assignee: []
 created_date: '2026-10-29 03:01'
-updated_date: '2026-10-29 05:08'
+updated_date: '2026-10-29 05:10'
 labels:
   - play-route
   - multiplayer
@@ -47,6 +47,8 @@ Claimed 2026-10-29 by the M3 sweep (docs/design/m3-table-sweep-runbook.md). Work
 Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5
 
 Spec set db5fb8c4 (spec 062): six phases, OQ-1 to OQ-6 with (a) defaults, DC-1 and DC-2 candidates. No frozen contract changes under the (a) defaults. Waiting on the operator's ruling.
+
+Operator ruled 2026-10-29 in the M3 sweep chat, verbatim: "TASK-0177: I accept the recommended defaults OQ-1 to OQ-6 (a), including the additive 030 amendments. Card DC-1 (server settles pending ai:dm proposals when the seat returns) in m-3; card DC-2 as a revisit." Carded TASK-0178 (DC-1, m-3) and TASK-0179 (DC-2, revisit).
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
