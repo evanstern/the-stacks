@@ -49,6 +49,8 @@ Phase 4 (T027-T032) at f67daa51: re-pinned scene-panels, play-route (also repair
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 spec-bridge sync: The server predicate, the 409 and the read route (card AC #1; OQ-1): 10/10 · The live source and the header (card AC #1; OQ-2, OQ-4): 12/12 · DB suites and the live check **[orchestrator]**: 4/4 · Wiki re-ground: 6/6 — status In Progress → Done
+
+Phase 3 [orchestrator] T025/T026 at b05d19a8: Brave live check in script mode (greyhollow-human-dm) on stacks-task-0167 after Docker Desktop was restarted by the operator. Human DM: pending note, reload same, second start 409 "A scene start is waiting for the DM.", GET pending then started after Apply; Dismiss brings Start scene back in 4859 ms, GET none. AI DM: "Scene start queued." right after the 202 in all four variants, then the scene. Shots at 1280/390 light/dark, no modal. Evidence: specs/059-start-scene-queued/evidence/{live-run,db-run,mutation-guard}.md. DM_FAKE_SCRIPT removed, app recreated.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
