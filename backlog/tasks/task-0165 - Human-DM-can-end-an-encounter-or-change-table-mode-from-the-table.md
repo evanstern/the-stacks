@@ -4,7 +4,7 @@ title: Human DM can end an encounter or change table mode from the table
 status: In Progress
 assignee: []
 created_date: '2026-10-28 07:53'
-updated_date: '2026-10-29 02:37'
+updated_date: '2026-10-29 02:46'
 labels:
   - play-route
   - gate
@@ -25,8 +25,8 @@ Spec: specs/060-human-dm-encounter-mode
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 The play route offers a seated human DM an end-encounter control built from a gate request, with no modal, and a test
-- [ ] #2 The play route offers a seated human DM a table-mode control built from a gate request, with no modal, and a test
+- [x] #1 The play route offers a seated human DM an end-encounter control built from a gate request, with no modal, and a test
+- [x] #2 The play route offers a seated human DM a table-mode control built from a gate request, with no modal, and a test
 - [x] #3 Spec phase: Frames, commands and fixture rows (card AC #1, #2; OQ-2)
 - [x] #4 Spec phase: The view, the panel and the header (card AC #1, #2; OQ-1, OQ-3, OQ-4, OQ-5)
 - [x] #5 Spec phase: The DB test (FR-016; OQ-6)
@@ -60,10 +60,12 @@ Phase 5 (T029-T034) at a140f97a: re-pinned play-route (Table mode section; tight
 Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 
 spec-bridge sync: Frames, commands and fixture rows (card AC #1, #2; OQ-2): 9/9 · The view, the panel and the header (card AC #1, #2; OQ-1, OQ-3, OQ-4, OQ-5): 11/11 · The DB test (FR-016; OQ-6): 5/5 · DB suites, mutation guard and live check **[orchestrator]**: 4/4 · Wiki re-ground: 6/6 — status In Progress → Done
+
+Merged: PR #85 merged 7c18b8ff by the operator ("I merged it"). AC #1 and #2 proven by the frame, fixture, view, panel and header tests, human-dm-encounter.integration, and the Brave live check (evidence/live-run.md). DoD #1: REQUIRE_DATABASE=1 pnpm ci:check exit 0 on the final tree. Worktree, branch and stack removed; env:prune --check: no orphans.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
-- [ ] #1 All tests and checks run green
-- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
+- [x] #1 All tests and checks run green
+- [x] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
