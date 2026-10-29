@@ -4,6 +4,7 @@ title: Operator seats a human DM from the web
 status: To Do
 assignee: []
 created_date: '2026-10-29 03:01'
+updated_date: '2026-10-29 03:02'
 labels:
   - play-route
   - multiplayer
@@ -27,6 +28,12 @@ Why: the TASK-0176 spec author (spec 061, 8f8a6808, finding F-1) found that noth
 - [ ] #2 The same control returns the DM seat to the AI DM, with a test
 - [ ] #3 docs/ops/dev-vm-104.md documents seating a human DM for an assisted table
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Operator, 2026-10-28, in the M3 sweep chat, verbatim: "Before we start on another slice of M-3 I'd like to pause -- after the next PR merges." Read as: the sweep finishes TASK-0176 through its PR merge, then stops; TASK-0177 does not start until the operator resumes.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
