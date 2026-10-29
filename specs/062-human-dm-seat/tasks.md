@@ -26,29 +26,29 @@ server source change. Tests are written first and seen to fail.
 **Independent test**: `node --test apps/web/test/play/frames.test.mjs apps/web/test/play/dm-seat.test.mjs`
 (or the vitest runner, as each file's existing cases run).
 
-- [ ] T001 [US1] In `apps/web/test/play/frames.test.mjs`, add `dmSeatFrame` cases: `after: { kind:
+- [x] T001 [US1] In `apps/web/test/play/frames.test.mjs`, add `dmSeatFrame` cases: `after: { kind:
       "human", userId: <uuid> }` with a reason gives `eventType: "dm.seat"`, `payloadVersion:
       GATE_REQUEST_VERSION` and `payload: { reason, after }`; `after: { kind: "ai" }` passes; a
       reason is trimmed; an empty reason, a 501-character reason, a non-uuid `userId` and an unknown
       `kind` each give null. Add `dmSeatReason("seat")` and `dmSeatReason("return")` cases with the
       contract's strings. See them fail.
-- [ ] T002 [US1] In `apps/web/app/play/frames.ts`, add `dmSeatReason` and `dmSeatFrame`. Parse
+- [x] T002 [US1] In `apps/web/app/play/frames.ts`, add `dmSeatReason` and `dmSeatFrame`. Parse
       `after` with `DmSeatSchema` and `reason` with `ReasonSchema` (both from
       `@the-stacks/session-model`). T001 passes.
-- [ ] T003 [US1] In `apps/web/app/play/source.ts`, add `DmSeatInput` and the optional
+- [x] T003 [US1] In `apps/web/app/play/source.ts`, add `DmSeatInput` and the optional
       `TableCommands.seatDm?(input): boolean` per the contract.
-- [ ] T004 [US1] In `apps/web/app/play/use-live-table.ts`, add `seatDm: (input) =>
+- [x] T004 [US1] In `apps/web/app/play/use-live-table.ts`, add `seatDm: (input) =>
       send(dmSeatFrame(input))`. Leave `use-fixture-table.ts` without it.
-- [ ] T005 [P] [US1] Create `apps/web/test/play/dm-seat.test.mjs`. Build projections with
+- [x] T005 [P] [US1] Create `apps/web/test/play/dm-seat.test.mjs`. Build projections with
       `project` over hand-written rows (a `dm.seat.changed` row and `party.member.changed` rows, as
       `viewer.test.mjs` and `presence.test.mjs` do). Cases: AI seat with presence `[op, ana, bram]`,
       where `ana` controls a party member → `holder: { kind: "ai" }`, candidates `[op (you), bram]`,
       `canReturn: false`; human seat held by `op` → `holder` labelled with op's display name,
       candidates `[bram]`, `canReturn: true`; a human holder not in presence → label `"DM"`; presence
       null → `candidates: null`; `pendingCount` passes through. See it fail (no module).
-- [ ] T006 [US1] Create `apps/web/app/play/dm-seat.ts` with `DmSeatCandidate`, `DmSeatView` and
+- [x] T006 [US1] Create `apps/web/app/play/dm-seat.ts` with `DmSeatCandidate`, `DmSeatView` and
       `dmSeatView` per the contract rules 1 to 3. T005 passes.
-- [ ] T007 Run `pnpm ci:check`.
+- [x] T007 Run `pnpm ci:check`.
 
 ## Phase 2: The panel, the header and the Start scene check (card AC #1, #2; OQ-1, OQ-3, OQ-4, OQ-6)
 

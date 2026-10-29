@@ -6,6 +6,8 @@ import {
   commentFrame,
   commitFrame,
   declareFrame,
+  dmSeatFrame,
+  dmSeatReason,
   encounterEndFrame,
   floorFrame,
   localEventOf,
@@ -346,5 +348,47 @@ test("tableModeFrame accepts a turn after and refuses a bad one", () => {
   assert.equal(
     tableModeFrame({ reason: "x".repeat(501), after: { mode: "free" } }),
     null,
+  );
+});
+
+const UID = "123e4567-e89b-42d3-a456-426614174000";
+
+test("dmSeatFrame builds a dm.seat request for a human and for the AI", () => {
+  assert.deepEqual(
+    dmSeatFrame({
+      reason: "  Ben runs it.  ",
+      after: { kind: "human", userId: UID },
+    }),
+    {
+      eventType: "dm.seat",
+      payloadVersion: GATE_REQUEST_VERSION,
+      payload: {
+        reason: "Ben runs it.",
+        after: { kind: "human", userId: UID },
+      },
+    },
+  );
+  assert.equal(
+    dmSeatFrame({ reason: "back", after: { kind: "ai" } }).payload.after.kind,
+    "ai",
+  );
+});
+
+test("dmSeatFrame returns null for a bad reason or seat", () => {
+  const ok = { kind: "human", userId: UID };
+  assert.equal(dmSeatFrame({ reason: "   ", after: ok }), null);
+  assert.equal(dmSeatFrame({ reason: "x".repeat(501), after: ok }), null);
+  assert.equal(
+    dmSeatFrame({ reason: "r", after: { kind: "human", userId: "nope" } }),
+    null,
+  );
+  assert.equal(dmSeatFrame({ reason: "r", after: { kind: "robot" } }), null);
+});
+
+test("dmSeatReason names the default reasons", () => {
+  assert.equal(dmSeatReason("seat"), "The operator seats a human DM.");
+  assert.equal(
+    dmSeatReason("return"),
+    "The operator returns the seat to the AI DM.",
   );
 });

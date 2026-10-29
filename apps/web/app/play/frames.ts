@@ -3,6 +3,7 @@ import {
   ActionDeclaredV1,
   CombatantIdSchema,
   currentVersion,
+  DmSeatSchema,
   GATE_REQUEST_VERSION,
   ReasonSchema,
   RefIdSchema,
@@ -14,6 +15,7 @@ import type {
   CommentInput,
   CommitInput,
   DeclareInput,
+  DmSeatInput,
   EncounterEndInput,
   FloorInput,
   SceneInput,
@@ -263,6 +265,29 @@ export function tableModeFrame(input: TableModeInput): EventFrame | null {
       summary: `Table mode: ${after.data.mode}`,
       rationale: null,
     },
+    payloadVersion: GATE_REQUEST_VERSION,
+  };
+}
+
+const DM_SEAT_REASON = {
+  seat: "The operator seats a human DM.",
+  return: "The operator returns the seat to the AI DM.",
+} as const;
+
+/** The reason a DM-seat control sends when the operator types none. */
+export function dmSeatReason(action: "seat" | "return"): string {
+  return DM_SEAT_REASON[action];
+}
+
+/** A `dm.seat` gate request. Null when `reason` or `after` fails its schema. */
+export function dmSeatFrame(input: DmSeatInput): EventFrame | null {
+  const reason = ReasonSchema.safeParse(input.reason.trim());
+  if (!reason.success) return null;
+  const after = DmSeatSchema.safeParse(input.after);
+  if (!after.success) return null;
+  return {
+    eventType: "dm.seat",
+    payload: { reason: reason.data, after: after.data },
     payloadVersion: GATE_REQUEST_VERSION,
   };
 }

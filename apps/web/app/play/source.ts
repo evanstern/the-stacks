@@ -1,4 +1,9 @@
-import type { StoredEvent, TableMode, Viewer } from "@the-stacks/session-model";
+import type {
+  DmSeat,
+  StoredEvent,
+  TableMode,
+  Viewer,
+} from "@the-stacks/session-model";
 import type { PresenceEntry } from "../ws/types.ts";
 import type { PendingProposalView, ProposalCommands } from "./proposals.ts";
 import type { SceneStartView, StartBody, StartResult } from "./start-scene.ts";
@@ -95,6 +100,12 @@ export interface TableModeInput {
   after: TableMode;
 }
 
+export interface DmSeatInput {
+  /** Trimmed; 1..500 (ReasonSchema). The panel fills the default for a blank field. */
+  reason: string;
+  after: DmSeat;
+}
+
 export interface TableCommands extends ProposalCommands {
   sendTalk(input: TalkInput): boolean;
   declareAction(input: DeclareInput): boolean;
@@ -109,5 +120,7 @@ export interface TableCommands extends ProposalCommands {
   /** A `table-mode` gate request. True when sent/applied. */
   setTableMode(input: TableModeInput): boolean;
   /** Operator only; absent on fixtures. Posts to `/dm/sessions/<id>/start`. */
+  /** Live operator sources only; absent on fixtures. Sends one `dm.seat` request. */
+  seatDm?(input: DmSeatInput): boolean;
   startScene?(body: StartBody): Promise<StartResult>;
 }

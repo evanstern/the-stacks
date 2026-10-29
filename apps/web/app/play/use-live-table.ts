@@ -7,6 +7,7 @@ import {
   commentFrame,
   commitFrame,
   declareFrame,
+  dmSeatFrame,
   type EventFrame,
   encounterEndFrame,
   floorFrame,
@@ -100,6 +101,7 @@ export function useLiveTable(sessionId: string, user: LiveUser): TableSource {
         return ok;
       },
       setTableMode: (input) => send(tableModeFrame(input)),
+      seatDm: (input) => send(dmSeatFrame(input)),
       startScene: async (body) => {
         const result = await postStart(sessionId, body);
         if (result.ok) {
