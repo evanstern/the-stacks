@@ -37,6 +37,10 @@ It returns `false` unless the socket is open. Everything else in `useSession` (t
 preflight, `Math.max` seq tracking, one path for replayed and live events, no optimistic append) is
 unchanged. An `error` frame sets the source's `notice` to its `message` instead of only logging it.
 
+Amendment (TASK-0177, additive): `useSession` also returns `resync()`. On a seat gain it
+re-subscribes from `afterSeq` 0, per the 029 `ws-delivery.md` rule "its next subscribe replays
+them". Detail: `specs/062-human-dm-seat/contracts/dm-seat-control.md`.
+
 Amendment (TASK-0159, operator ruling 2026-10-28, D-1): the `changeScene` command. Additive.
 
 | Command | Frame |
@@ -53,3 +57,6 @@ Operator ruling (card, 2026-10-28), answering "Do you accept the recommended def
 | `setTableMode(input)` | `eventType: "table-mode"`, `payloadVersion: GATE_REQUEST_VERSION`, `payload: { reason, after, summary, rationale: null }`. |
 
 Detail: `specs/060-human-dm-encounter-mode/contracts/table-mode-control.md`.
+
+Amendment, TASK-0177 (additive, 2026-10-29): the `seatDm` command. Operator ruling 2026-10-29: OQ-1 to OQ-6 all (a). See `specs/062-human-dm-seat/contracts/dm-seat-control.md`.
+`frames.ts` gains `dmSeatReason` and `dmSeatFrame`; `useLiveTable` sets `seatDm: (input) => send(dmSeatFrame(input))`. The frame is the existing 029 `dm.seat` request; no frame shape changes.

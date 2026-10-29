@@ -7,12 +7,12 @@ sources:
   - apps/web/app/ws/types.ts
   - apps/web/app/routes/play.tsx
   - apps/web/app/play/reduce-frame.ts
-verified_against: 4af9ecbd6436d6529ceb61b058a9df75fb805925
+verified_against: 68115fdd4cca3cfcb41f7052b408fd2eef27b9cd
 ---
 
 # Client session hook
 
-`useSession(sessionId, onSignedOut)` returns `{ events, status, caughtUp, notice, present, sendEvent }`
+`useSession(sessionId, onSignedOut)` returns `{ events, status, caughtUp, notice, present, sendEvent, resync }`
 and is the client half of [[replay-live-boundary]]: it opens the socket,
 tracks the events it's been shown, and reconnects on drop. `types.ts` is a hand-kept mirror of
 [[ws-protocol]]'s `RecordedEvent`/`ServerFrame` shapes — not a shared import from the server
@@ -60,6 +60,13 @@ ts), puts it on the wire and stops (it returns false when the socket is not open
 `event` frame comes back over the socket, exactly like everyone else's. This mirrors
 [[websocket-gateway]]'s append-before-broadcast: nothing is shown that isn't confirmed
 recorded.
+
+**Resync on a seat gain.** `resync()` (TASK-0177, specs/062) is for a user who has just gained the
+DM seat: the server filters per viewer, so the events the client already holds were filtered for
+the old seat. It returns without effect unless the socket is open; otherwise it resets the frame
+state, sets `highestSeqRef` to 0 and sends a fresh `subscribe` with `afterSeq: 0` and `presence: true`
+on the same socket. The server replays under the new seat. `useLiveTable` calls it once, when
+`shouldResync` ([[play-route]]) sees `isDm` flip after replay.
 
 ## Connections
 

@@ -30,10 +30,11 @@ export type StartResult =
 /** A seat map, character id to user id; an empty string is an empty choice. */
 export type SeatMap = Record<string, string>;
 
-/** One issue per empty seat, and one per later seat whose user already holds an earlier seat. */
+/** One issue per empty seat, and one per later seat whose user already holds an earlier seat; the DM may hold none. */
 export function seatMapIssues(
   humans: readonly SeedCharacter[],
   seats: SeatMap,
+  dmUserId?: string | null,
 ): Issue[] {
   const issues: Issue[] = [];
   const held = new Set<string>();
@@ -43,6 +44,11 @@ export function seatMapIssues(
       issues.push({
         path: `seats.${human.characterId}`,
         message: "A human seat needs a user.",
+      });
+    } else if (dmUserId && userId === dmUserId) {
+      issues.push({
+        path: `seats.${human.characterId}`,
+        message: "The DM cannot hold a character seat.",
       });
     } else if (held.has(userId)) {
       issues.push({

@@ -92,6 +92,45 @@ Do this to seat a third human. It lists only the differences from the steps abov
 5. Check that no `AI companions:` note shows.
 6. Check that each human's speaker selector offers only their own character.
 
+### Seat a human DM
+
+Do this as the operator to give the DM seat to a human. Every person opens the table link first.
+
+1. Ask every person to open the table link.
+2. Check the presence strip. It shows every name.
+3. Press `DM seat` in the header. A slide-out opens.
+4. Choose a person in `Seat a human DM`.
+5. Press `Seat as DM`. The slide-out closes.
+6. Press `Start scene`. Do not put the DM on a character seat.
+7. Expect `Scene start waiting for the DM.` in the header.
+
+To seat a human DM during a scene, do this.
+
+1. Press `DM seat`.
+2. Type a reason in `Reason (optional)`, or leave it blank for the default.
+3. Choose the new person in `Seat a human DM`.
+4. Press `Seat as DM`. To hand the seat from one account to another, choose the other account.
+
+To return the seat to the AI DM, do this.
+
+1. Press `DM seat`.
+2. Read the line `Pending proposals stay pending under the AI DM: <n>. Decide them first.`, if it shows.
+3. Ask the human DM to decide each pending proposal first.
+4. Press `Return the seat to the AI DM`.
+
+To run the assisted table, do this.
+
+1. Seat three players as in `Seat three players`, using `greyhollow-ford-trio`.
+2. Create a fourth account for the human DM.
+3. Press `DM seat`. Choose the fourth account in `Seat a human DM`.
+4. Press `Seat as DM`.
+5. Check that the fourth account holds no character seat.
+
+The server and table refuse two actions.
+
+- A player sees no `DM seat` button.
+- A start with the DM on a character seat shows `The DM cannot hold a character seat.`
+
 ## Rollback to a named commit
 
 Run `gh workflow run deploy-dev.yml -f commit=<sha>`. This deploys that

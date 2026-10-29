@@ -1,6 +1,6 @@
 ---
 name: hosted-dev
-description: The vm-104 `dev` environment (TASK-0021, spec 016) — CD from `main` via a self-hosted runner, `scripts/deploy-dev.mjs`'s deploy/status/drift/backup/restore/init-secrets verbs, the swap-then-rollback design, hourly drift checking, tailnet-only exposure, and the two-player table runbook. Load for hosted-dev, deploy, rollback, or "how does CD reach vm-104" questions.
+description: The vm-104 `dev` environment (TASK-0021, spec 016) — CD from `main` via a self-hosted runner, `scripts/deploy-dev.mjs`'s deploy/status/drift/backup/restore/init-secrets verbs, the swap-then-rollback design, hourly drift checking, tailnet-only exposure, and the two-player table runbook with its Seat a human DM section. Load for hosted-dev, deploy, rollback, or "how does CD reach vm-104" questions.
 kind: pipeline
 sources:
   - scripts/deploy-dev.mjs
@@ -10,7 +10,7 @@ sources:
   - .github/workflows/deploy-dev.yml
   - .github/workflows/drift-dev.yml
   - docs/ops/dev-vm-104.md
-verified_against: a079fb05afdb63d49c0ed186d76f578d356e30ca
+verified_against: 68115fdd4cca3cfcb41f7052b408fd2eef27b9cd
 ---
 
 # Hosted dev (vm-104)
@@ -111,9 +111,9 @@ The runbook's "Run a two-player table" section (TASK-0163, `specs/054-two-player
 seats two humans: the operator creates an invitation in Settings, the player redeems it on the
 sign-in card, the operator starts a table and, in the Start scene slide-out ([[play-route]]),
 picks `greyhollow-ford-duo` and a different user for each human seat ([[seed-npc-presence]],
-[[invitations]]). The scene opening needs a model key under `Secrets`; the runbook also lists
-three expected refusals (403 on `GET /dm/seeds` as a player, 400 on one user in two seats, 409
-on a second start). The "Seat three players" subsection (TASK-0176, `specs/061-trio-seed/`) lists the differences for a third human: a second invitation, `greyhollow-ford-trio` in `Seed`, a different user per seat, no `AI companions:` note. With a human DM the header then reads "Scene start waiting for the DM." until the DM carries out the suggestion (TASK-0167, specs/059).
+[[invitations]]). The scene opening needs a model key under `Secrets`; the runbook lists three expected refusals. The "Seat three players" subsection (TASK-0176, `specs/061-trio-seed/`) lists the differences for a third human: a second invitation, `greyhollow-ford-trio` in `Seed`, a different user per seat, no `AI companions:` note. With a human DM the header then reads "Scene start waiting for the DM." until the DM carries out the suggestion (TASK-0167, specs/059).
+
+The "Seat a human DM" section (TASK-0177, specs/062) gives operator steps for the `DM seat` slide-out ([[play-route]]); refusals in [[scene-panels]].
 
 ## Connections
 

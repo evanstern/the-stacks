@@ -1,0 +1,428 @@
+the-stacks
+Menu
+Ask
+Library
+Table
+Settings
+About
+operator · operator
+Sign out
+Free mode
+
+Pending proposals: tracker (ask), tracker (ask)
+
+turn
+scene-start
+succeeded
+shipped
+0 s
+attempts 1
+3 calls
+0 tokens
+unpriced
+chronicle
+chronicle
+succeeded
+shipped
+0 s
+attempts 1
+0 calls
+0 tokens
+no cost
+turn
+approval
+succeeded
+empty
+0 s
+attempts 1
+0 calls
+0 tokens
+no cost
+turn
+approval
+succeeded
+empty
+0 s
+attempts 1
+0 calls
+0 tokens
+no cost
+turn
+approval
+succeeded
+empty
+0 s
+attempts 1
+0 calls
+0 tokens
+no cost
+turn
+approval
+succeeded
+empty
+0 s
+attempts 1
+0 calls
+0 tokens
+no cost
+turn
+approval
+succeeded
+empty
+0 s
+attempts 1
+0 calls
+0 tokens
+no cost
+turn
+approval
+succeeded
+empty
+0 s
+attempts 1
+0 calls
+0 tokens
+no cost
+turn
+approval
+succeeded
+empty
+0 s
+attempts 1
+0 calls
+0 tokens
+no cost
+turn
+approval
+succeeded
+empty
+0 s
+attempts 1
+0 calls
+0 tokens
+no cost
+turn
+approval
+succeeded
+empty
+0 s
+attempts 1
+0 calls
+0 tokens
+no cost
+turn
+approval
+succeeded
+empty
+0 s
+attempts 1
+0 calls
+0 tokens
+no cost
+#1
+05:57:39
+4dfdade4-d5e9-4882-bdc5-15bada8c38a6
+dm.seat.changed
+public
+payload
+#2
+05:57:40
+system
+presence.recorded
+public
+payload
+#3
+05:57:40
+DM
+proposal.created
+dm
+payload
+#4
+05:57:40
+DM
+proposal.created
+dm
+payload
+#5
+05:57:40
+DM
+proposal.created
+dm
+payload
+#6
+05:57:40
+DM
+proposal.created
+dm
+payload
+#7
+05:57:40
+DM
+proposal.created
+dm
+payload
+#8
+05:57:40
+DM
+proposal.created
+dm
+payload
+#9
+05:57:40
+DM
+proposal.created
+dm
+payload
+#10
+05:57:40
+DM
+proposal.created
+dm
+payload
+#11
+05:57:40
+DM
+proposal.created
+dm
+payload
+#12
+05:57:40
+DM
+proposal.created
+dm
+payload
+#13
+05:57:40
+DM
+proposal.created
+dm
+payload
+#14
+05:57:40
+DM
+proposal.created
+dm
+payload
+#15
+05:57:52
+4dfdade4-d5e9-4882-bdc5-15bada8c38a6
+scene.changed
+public
+payload
+#16
+05:57:52
+4dfdade4-d5e9-4882-bdc5-15bada8c38a6
+proposal.rejected
+dm
+payload
+#17
+05:57:52
+system
+presence.recorded
+public
+payload
+#18
+05:57:55
+DM
+combatant.added
+public
+payload
+#19
+05:57:55
+4dfdade4-d5e9-4882-bdc5-15bada8c38a6
+proposal.approved
+dm
+payload
+#20
+05:57:55
+system
+presence.recorded
+public
+payload
+#21
+05:57:55
+DM
+party.member.changed
+public
+payload
+#22
+05:57:55
+4dfdade4-d5e9-4882-bdc5-15bada8c38a6
+proposal.approved
+dm
+payload
+#23
+05:57:55
+system
+presence.recorded
+public
+payload
+#24
+05:57:55
+DM
+combatant.added
+public
+payload
+#25
+05:57:55
+4dfdade4-d5e9-4882-bdc5-15bada8c38a6
+proposal.approved
+dm
+payload
+#26
+05:57:55
+system
+presence.recorded
+public
+payload
+#27
+05:57:55
+DM
+party.member.changed
+public
+payload
+#28
+05:57:55
+4dfdade4-d5e9-4882-bdc5-15bada8c38a6
+proposal.approved
+dm
+payload
+#29
+05:57:55
+system
+presence.recorded
+public
+payload
+#30
+05:57:55
+DM
+combatant.added
+public
+payload
+#31
+05:57:55
+4dfdade4-d5e9-4882-bdc5-15bada8c38a6
+proposal.approved
+dm
+payload
+#32
+05:57:55
+system
+presence.recorded
+public
+payload
+#33
+05:57:55
+DM
+party.member.changed
+public
+payload
+#34
+05:57:55
+4dfdade4-d5e9-4882-bdc5-15bada8c38a6
+proposal.approved
+dm
+payload
+#35
+05:57:55
+system
+presence.recorded
+public
+payload
+#36
+05:57:55
+DM
+scene-presence.changed
+dm
+payload
+#37
+05:57:55
+4dfdade4-d5e9-4882-bdc5-15bada8c38a6
+proposal.approved
+dm
+payload
+#38
+05:57:55
+system
+presence.recorded
+public
+payload
+#39
+05:57:55
+DM
+scene-presence.changed
+dm
+payload
+#40
+05:57:55
+4dfdade4-d5e9-4882-bdc5-15bada8c38a6
+proposal.approved
+dm
+payload
+#41
+05:57:55
+system
+presence.recorded
+public
+payload
+#42
+05:57:55
+DM
+narration
+public
+payload
+#43
+05:57:55
+4dfdade4-d5e9-4882-bdc5-15bada8c38a6
+proposal.approved
+dm
+payload
+#44
+05:57:55
+system
+presence.recorded
+public
+payload
+#45
+05:58:01
+4dfdade4-d5e9-4882-bdc5-15bada8c38a6
+dm.seat.changed
+public
+payload
+#46
+05:58:06
+4dfdade4-d5e9-4882-bdc5-15bada8c38a6
+dm.seat.changed
+public
+payload
+State
+live through seq 46
+Seed
+Ledger
+Journal
+Cost
+TABLE
+
+Mode: free
+
+DM seat: AI
+
+Gate policy overrides: none
+
+Scene: The Bell at Greyhollow Ford
+
+PARTY
+Tamsin Vale HP 13/13, conscious
+Brother Odo HP 10/10, conscious
+Kestrel HP 9/9, conscious
+ENCOUNTER
+
+No encounter.
+
+TRACKERS
+
+No trackers.
+
+PENDING PROPOSALS
+tracker (ask) from DM
+tracker (ask) from DM

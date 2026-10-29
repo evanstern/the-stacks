@@ -2,7 +2,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { expect, test } from "vitest";
 import { StartSceneForm } from "~/play/components/start-scene-panel";
 import type { TableSource } from "~/play/source";
-import { type SeedSummary, startBody } from "~/play/start-scene";
+import { type SeedSummary, seatMapIssues, startBody } from "~/play/start-scene";
 import { TableView } from "~/play/table-view";
 
 const yes = () => true;
@@ -98,6 +98,7 @@ const noop = () => {};
 function form(over: Record<string, unknown> = {}) {
   return renderToStaticMarkup(
     <StartSceneForm
+      dmUserId={null}
       seeds={seeds}
       seedId="greyhollow-duo"
       seats={{}}
@@ -207,4 +208,47 @@ test("startBody on the full trio map keeps all three seats", () => {
     seedId: "greyhollow-ford-trio",
     seats: { tamsin: "u1", odo: "u2", kestrel: "u3" },
   });
+});
+
+test("a seat naming the DM renders the issue and a disabled Start", () => {
+  const out = renderToStaticMarkup(
+    <StartSceneForm
+      seeds={[
+        {
+          seedId: "s",
+          title: "S",
+          humans: [{ characterId: "tamsin", name: "Tamsin" }],
+          companions: [],
+        },
+      ]}
+      seedId="s"
+      seats={{ tamsin: "dm" }}
+      present={[{ userId: "dm", displayName: "Dee" }]}
+      dmUserId="dm"
+      issues={seatMapIssues(
+        [{ characterId: "tamsin", name: "Tamsin" }],
+        { tamsin: "dm" },
+        "dm",
+      )}
+      error={null}
+      pending={false}
+      onSeed={() => {}}
+      onSeat={() => {}}
+      onStart={() => {}}
+    />,
+  );
+  expect(out).toContain("The DM cannot hold a character seat.");
+  expect(out).toMatch(/<button[^>]*disabled[^>]*>Start/);
+});
+
+test("the DM picked on a seat shows the issue without a server round trip", () => {
+  const out = form({
+    seedId: "greyhollow-ford-trio",
+    seeds: [trioSeed],
+    seats: { tamsin: "dm" },
+    present: [{ userId: "dm", displayName: "Dee" }],
+    dmUserId: "dm",
+    issues: [],
+  });
+  expect(out).toContain("The DM cannot hold a character seat.");
 });

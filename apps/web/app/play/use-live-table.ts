@@ -1,5 +1,5 @@
 import { project, type Viewer } from "@the-stacks/session-model";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRevalidator } from "react-router";
 import { useSession } from "../ws/useSession.ts";
 import {
@@ -7,6 +7,7 @@ import {
   commentFrame,
   commitFrame,
   declareFrame,
+  dmSeatFrame,
   type EventFrame,
   encounterEndFrame,
   floorFrame,
@@ -26,7 +27,7 @@ import {
   type SceneStartView,
   shouldPollStart,
 } from "./start-scene.ts";
-import { type LiveUser, viewerFor } from "./viewer.ts";
+import { type LiveUser, shouldResync, viewerFor } from "./viewer.ts";
 
 export type { LiveUser };
 
@@ -36,16 +37,21 @@ export type { LiveUser };
  */
 export function useLiveTable(sessionId: string, user: LiveUser): TableSource {
   const revalidator = useRevalidator();
-  const { events, status, caughtUp, notice, present, sendEvent } = useSession(
-    sessionId,
-    revalidator.revalidate,
-  );
+  const { events, status, caughtUp, notice, present, sendEvent, resync } =
+    useSession(sessionId, revalidator.revalidate);
   // Seat and party arrive as events after load, so the viewer is re-derived from them. The
   // seed fold reads only the public seat and party rows, so a player seed serves every user.
   const viewer = useMemo<Viewer>(
     () => viewerFor(user, project(events, { role: "player", userId: user.id })),
     [events, user],
   );
+  const isDm = viewer.role === "dm";
+  const prevSeat = useRef({ caughtUp, isDm });
+  useEffect(() => {
+    const next = { caughtUp, isDm };
+    if (shouldResync(prevSeat.current, next)) resync();
+    prevSeat.current = next;
+  }, [caughtUp, isDm, resync]);
   const proposals = useMemo(
     () => selectPendingProposals(events, viewer),
     [events, viewer],
@@ -100,6 +106,7 @@ export function useLiveTable(sessionId: string, user: LiveUser): TableSource {
         return ok;
       },
       setTableMode: (input) => send(tableModeFrame(input)),
+      seatDm: (input) => send(dmSeatFrame(input)),
       startScene: async (body) => {
         const result = await postStart(sessionId, body);
         if (result.ok) {

@@ -83,3 +83,5 @@ Operator ruling (card, 2026-10-28), answering "Do you accept the recommended def
 `setTableMode(input: TableModeInput): boolean`. A live source sends the frames in `live-frames.md`;
 a fixture source appends `encounter.ended` and `table-mode.changed` rows. Each returns false when
 the input fails its schema. Detail: `specs/060-human-dm-encounter-mode/contracts/table-mode-control.md`.
+
+Amendment, TASK-0177 (additive, 2026-10-29): `TableCommands.seatDm?(input: DmSeatInput): boolean`. Live sources only; fixtures leave it absent. Operator ruling 2026-10-29: OQ-1 to OQ-6 all (a). See `specs/062-human-dm-seat/contracts/dm-seat-control.md`.

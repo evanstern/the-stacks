@@ -145,6 +145,21 @@ export function useSession(sessionId: string, onSignedOut: () => void) {
     [sessionId],
   );
 
+  // TASK-0177: a seat gain changes what the server filters; replay from 0 under the new seat.
+  const resync = useCallback((): void => {
+    const socket = socketRef.current;
+    if (!socket || socket.readyState !== WebSocket.OPEN) return;
+    setFrames(initialFrameState);
+    highestSeqRef.current = 0;
+    const subscribe: SubscribeFrame = {
+      type: "subscribe",
+      sessionId,
+      afterSeq: 0,
+      presence: true,
+    };
+    socket.send(JSON.stringify(subscribe));
+  }, [sessionId]);
+
   return {
     events: frames.events as readonly StoredEvent[],
     status,
@@ -152,5 +167,6 @@ export function useSession(sessionId: string, onSignedOut: () => void) {
     notice: frames.notice,
     present: frames.present,
     sendEvent,
+    resync,
   };
 }

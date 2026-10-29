@@ -1,6 +1,6 @@
 ---
 name: play-route
-description: The play route (TASK-0047, specs/030-play-route) - one shared TableView over a TableSource (live via useLiveTable, fixture via useFixtureTable), the pure modules behind it (view-model, authority, frames, reduce-frame, proposals), live writes as gate requests, the DM approvals and ledger slide-outs, the presence strip, sign-off rows, floor controls, turn-order strip and floor lines, the Debug link, scene panels, the human DM's Table mode slide-out (TASK-0165, specs/060) and fixture routes.
+description: The play route (TASK-0047, specs/030-play-route) - one shared TableView over a TableSource (live via useLiveTable, fixture via useFixtureTable), the pure modules behind it (view-model, authority, frames, reduce-frame, proposals), live writes as gate requests, the DM approvals and ledger slide-outs, the presence strip, sign-off rows, floor controls, turn-order strip and floor lines, the Debug link, scene panels, the Table mode (TASK-0165) and DM seat (TASK-0177) slide-outs and fixture routes.
 kind: component
 sources:
   - apps/web/app/routes/play.tsx
@@ -22,6 +22,7 @@ sources:
   - apps/web/app/play/presence.ts
   - apps/web/app/play/signoff.ts
   - apps/web/app/play/table-mode.ts
+  - apps/web/app/play/dm-seat.ts
   - apps/web/app/play/components/action-card.tsx
   - apps/web/app/play/components/presence-strip.tsx
   - apps/web/app/play/components/table-header.tsx
@@ -30,7 +31,8 @@ sources:
   - apps/web/app/play/components/mode-badge.tsx
   - apps/web/app/play/components/commit-control.tsx
   - apps/web/app/play/components/table-mode-panel.tsx
-verified_against: 3b24274bbff5ba25bae133d7dc9bafeb9d427fdc
+  - apps/web/app/play/components/dm-seat-panel.tsx
+verified_against: 68115fdd4cca3cfcb41f7052b408fd2eef27b9cd
 ---
 
 # Play route
@@ -47,7 +49,7 @@ ledger slide-out, and a DM approvals slide-out. Everything lives in `apps/web/ap
 (`play/source.ts`) carries the `viewer`, the `actor` id writes are recorded as, `events`,
 `status`, `caughtUp`, `notice`, pending `proposals`, `presence` (the humans at the table, or
 `null` when unknown) and `commands` (`sendTalk`,
-`declareAction`, `comment`, `commit`, `withdraw`, `floor`, `changeScene`, `endEncounter`, `setTableMode`, `approve`, `reject`, and live-only `startScene`), `role` (the account role; absent on fixtures) and `sceneStart` (TASK-0167, specs/059: the operator's scene start state, fetched by `useLiveTable`; absent for a fixture or a non-operator). The view runs
+`declareAction`, `comment`, `commit`, `withdraw`, `floor`, `changeScene`, `endEncounter`, `setTableMode`, `approve`, `reject`, `seatDm?` (TASK-0177, live operator sources only) and live-only `startScene`), `role` (the account role; absent on fixtures) and `sceneStart` (TASK-0167, specs/059: the operator's scene start state, fetched by `useLiveTable`; absent for a fixture or a non-operator). The view runs
 `project(events, viewer)` from [[session-model]] and `toTableViewModel` (`view-model.ts`);
 it holds only UI state (which panel is open). Two hooks build a source:
 
@@ -71,16 +73,11 @@ anchor (new tab); the fixture routes pass none. The page is `play/:sessionId/deb
 
 ## Start scene
 
-TASK-0163 (specs/054), amended by TASK-0167 (specs/059). `TableView` sets `canStart` only for a
-live operator source, once caught up, with no scene and `sceneStart === "none"`. A start in
-flight shows a header note instead of the button. The state, the poll and the notes are in
-[[scene-panels]].
+The operator's Start scene slide-out (TASK-0163, TASK-0167): the button gate, the poll and the notes are in [[scene-panels]].
 
 ## Scene panels
 
-Two slide-outs change the scene; both live in [[scene-panels]]: the operator's Start scene
-(TASK-0163) and the human DM's Change scene (TASK-0159, specs/055). `toTableViewModel` sets
-`sceneChange` only when `isDm`.
+The Start scene and Change scene slide-outs are in [[scene-panels]]. `toTableViewModel` sets `sceneChange` only when `isDm`.
 
 With a human DM, a check's roll approval re-proposes the same roll instead of narrating
 (TASK-0168, found in the TASK-0159 live check).
@@ -97,7 +94,7 @@ With a human DM, a check's roll approval re-proposes the same roll instead of na
   action, a closed action or fewer than two humans. They ride `ActionCardView.signoff`;
   `ActionCard` renders them, with Approve and Object on the viewer's own row (`commentFrame`).
 - `frames.ts` - builds gate requests (`talkFrame`, `declareFrame`, `commentFrame`,
-  `commitFrame`, `withdrawFrame`, `floorFrame`, `sceneFrame`, `encounterEndFrame` (a `mechanics` request), `tableModeFrame`, `approveFrame`, `rejectFrame`), schema-validated,
+  `commitFrame`, `withdrawFrame`, `floorFrame`, `sceneFrame`, `encounterEndFrame` (a `mechanics` request), `tableModeFrame`, `dmSeatFrame`, `approveFrame`, `rejectFrame`), schema-validated,
   each with `GATE_REQUEST_VERSION`. `localEventOf` maps a frame to its catalog event for fixtures.
 - `reduce-frame.ts` - `reduceFrame` folds each inbound frame into `FrameState` (`events`,
   `highestSeq` as a max, `caughtUp`, `notice`, `present`); a `presence` frame replaces `present`,
@@ -111,6 +108,14 @@ With a human DM, a check's roll approval re-proposes the same roll instead of na
   `suggest`) from the `proposal.created` row.
 - `ledger-format.ts` formats roll, outcome and change rows; `labels.ts` resolves display names.
 
+## DM seat
+
+TASK-0177 (specs/062). An operator-only "DM seat" header button opens `components/dm-seat-panel.tsx`'s
+`DmSeatPanel` slide-out. `dm-seat.ts`'s `dmSeatView` gives the holder, the candidates (present users with
+no party member), `canReturn` and `pendingCount`. `commands.seatDm` sends `dmSeatFrame` ([[proposal-gate]]).
+`viewer.ts`'s `shouldResync` fires once when this user gains the seat; `useLiveTable` then calls `resync()`
+([[client-session-hook]]).
+
 ## Presence strip
 
 `TableView` derives rows with `presenceRows` and passes them to `TableHeader`, which renders
@@ -123,7 +128,7 @@ strip is inline, not a panel.
 
 Live writes are [[proposal-gate]] requests sent over [[ws-protocol]]'s `send` frame:
 `eventType` is the request kind (`talk`, `action.declare`, `action.comment`, `action.commit`,
-`action.withdraw`, `floor`, `scene`, `mechanics`, `table-mode`, `proposal.approve`, `proposal.reject`) and `payload` is the request without its `kind`.
+`action.withdraw`, `floor`, `scene`, `mechanics`, `table-mode`, `dm.seat`, `proposal.approve`, `proposal.reject`) and `payload` is the request without its `kind`.
 `useSession.sendEvent` adds only permitted fields (never actor, seq or ts). A refusal arrives
 as the error frame; `reduceFrame` stores `message (code)` in `notice`, which the composer shows
 inline. `refusalLabel` in `labels.ts` words the floor codes and `CONFLICT` ("Send it again.");
@@ -144,5 +149,4 @@ the project uses no modals. The approvals panel mounts only for the DM. A `sugge
 
 ## Tests
 
-Markup tests under `apps/web/test/play/` (vitest) cover each pure module and render
-`TableView`; `equivalence.test.tsx` checks both sources render the same view.
+Markup tests under `apps/web/test/play/` cover each pure module and `TableView`.
