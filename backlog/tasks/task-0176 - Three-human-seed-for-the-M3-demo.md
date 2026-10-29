@@ -1,7 +1,7 @@
 ---
 id: TASK-0176
 title: Three-human seed for the M3 demo
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-10-29 02:48'
 updated_date: '2026-10-29 03:21'
@@ -62,6 +62,12 @@ spec-bridge sync: Trio seed and the no-database server tests (card AC #1; OQ-1 t
 
 Merged: PR #86 merged 664cc7dc by the operator ("I merged it"). AC #1 proven by seed.test and trio-views.test; AC #2 by the start-scene-panel trio cases and the Brave live check; AC #3 by the dev-vm-104.md "Seat three players" subsection, walked against the live run. DoD #1: REQUIRE_DATABASE=1 pnpm ci:check exit 0 on the final tree. Worktree, branch and stack removed; env:prune --check: no orphans. The sweep now pauses at the operator's request; TASK-0177 is next on resume.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Trio seed and the no-database server tests (card AC #1; OQ-1 to OQ-5): 6/6 · The three-human DB test (card AC #1; FR-006): 3/3 · Slide-out test and the runbook subsection (card AC #2, #3; OQ-6): 3/3 · DB suites, mutation guard and live check **[orchestrator]**: 5/5 · Wiki re-ground and the sweep runbook: 8/8). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
