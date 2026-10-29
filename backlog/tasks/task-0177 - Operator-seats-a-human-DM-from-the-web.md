@@ -4,7 +4,7 @@ title: Operator seats a human DM from the web
 status: In Progress
 assignee: []
 created_date: '2026-10-29 03:01'
-updated_date: '2026-10-29 05:14'
+updated_date: '2026-10-29 05:17'
 labels:
   - play-route
   - multiplayer
@@ -53,6 +53,10 @@ Operator ruled 2026-10-29 in the M3 sweep chat, verbatim: "TASK-0177: I accept t
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
 
 Phase 1 a2eff04c: dmSeatFrame, seatDm, dm-seat.ts with tests; web gates green. ci:check failed only on the server adjudicate DB test (no stack in the worktree); the orchestrator runs the DB suites in Phase 5.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
+
+Phase 2 6b361c01: DmSeatPanel slide-out, operator DM seat header button, Start scene DM-holds-a-seat check, additive 030 blocks. Web gates green.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
