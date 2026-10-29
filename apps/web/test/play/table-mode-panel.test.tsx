@@ -7,6 +7,7 @@ import {
   modeInput,
   TableModePanel,
 } from "~/play/components/table-mode-panel";
+import { tableModeFrame, tableModeReason } from "~/play/frames";
 import { appendLocal, localTableModeEvents } from "~/play/local-log";
 import { type TableModeView, tableModeView } from "~/play/table-mode";
 
@@ -62,6 +63,21 @@ test("free mode with no encounter shows only the note", () => {
   expect(out).toContain("Turn mode needs an encounter. The AI DM starts one.");
   expect(out).not.toContain("<button");
   expect(out).not.toContain('role="dialog"');
+});
+
+test("a blank reason sends the clicked action's default", () => {
+  expect(modeInput(turnView, "free", "  ")).toEqual({
+    reason: tableModeReason("free"),
+    after: { mode: "free" },
+  });
+  expect(modeInput(freeView, "turn", "")).toEqual({
+    reason: tableModeReason("turn"),
+    after: freeView.turnAfter,
+  });
+  const free = modeInput(turnView, "free", "");
+  expect(free && tableModeFrame(free)).not.toBeNull();
+  const turn = modeInput(freeView, "turn", "");
+  expect(turn && tableModeFrame(turn)).not.toBeNull();
 });
 
 test("click helpers build the contract inputs", () => {

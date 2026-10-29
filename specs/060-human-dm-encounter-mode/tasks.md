@@ -109,6 +109,7 @@ and `node --test apps/web/test/no-dialog.test.mjs`.
       (additive, 2026-10-28)" block citing `specs/060-human-dm-encounter-mode/contracts/table-mode-control.md`
       and the operator's ruling words from the card. Do not rewrite earlier text.
 - [x] T019 Run `pnpm ci:check`.
+- [x] T019a Blank-reason default for the mode switches (found by the T028 live check): `modeInput` now sends `tableModeReason(target)` when the reason field is blank, so free and turn switches no longer fail ReasonSchema.
 
 ## Phase 3: The DB test (FR-016; OQ-6)
 

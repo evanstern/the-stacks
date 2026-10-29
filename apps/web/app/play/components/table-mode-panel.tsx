@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Label } from "~/components/ui/label";
+import { tableModeReason } from "../frames.ts";
 import type { EncounterEndInput, TableModeInput } from "../source.ts";
 import type { TableModeView } from "../table-mode.ts";
 
@@ -24,11 +25,9 @@ export function modeInput(
   target: "free" | "turn",
   reason: string,
 ): TableModeInput | null {
-  if (target === "free")
-    return { reason: reason.trim(), after: { mode: "free" } };
-  return view.turnAfter
-    ? { reason: reason.trim(), after: view.turnAfter }
-    : null;
+  const sent = reason.trim() || tableModeReason(target);
+  if (target === "free") return { reason: sent, after: { mode: "free" } };
+  return view.turnAfter ? { reason: sent, after: view.turnAfter } : null;
 }
 
 /** The human DM's Table mode body. Renders inside the shared slide-out `Panel`. */
