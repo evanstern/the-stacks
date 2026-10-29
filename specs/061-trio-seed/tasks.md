@@ -124,25 +124,25 @@ and `node --test apps/web/test/no-dialog.test.mjs`.
 
 ## Phase 4: DB suites, mutation guard and live check **[orchestrator]**
 
-- [ ] T013 **[orchestrator]** On the worktree stack (`pnpm env:up`, migrate both databases,
+- [x] T013 **[orchestrator]** On the worktree stack (`pnpm env:up`, migrate both databases,
       restart the app), with `REQUIRE_DATABASE=1` and only `TEST_DATABASE_URL` exported from the
       worktree `.env`, run `trio.integration`, `duo.integration`, `routes.integration` and `scene`
       integration suites, then `REQUIRE_DATABASE=1 pnpm ci:check`. Record counts in
       `specs/061-trio-seed/evidence/db-run.md`. A scene or playtest timeout under full-suite load
       gets one re-run, recorded (TASK-0154).
-- [ ] T014 **[orchestrator]** Commit T013's record before T015.
-- [ ] T015 **[orchestrator]** Mutation guard: (a) set Odo's `seat` back to `companion` in
+- [x] T014 **[orchestrator]** Commit T013's record before T015.
+- [x] T015 **[orchestrator]** Mutation guard: (a) set Odo's `seat` back to `companion` in
       `greyhollow-ford-trio.json`; confirm `seed.test.ts` and `trio-views.test.ts` fail. (b) In
       `apps/web/app/play/components/start-scene-panel.tsx`, render `seed.humans.slice(0, 2)`;
       confirm the T010 trio cases fail. (c) Delete `greyhollow-ford-trio.json`; confirm the
       seed-list case fails. Restore after each; `git diff` is empty. Record the failing case names in
       `specs/061-trio-seed/evidence/mutation-guard.md`.
-- [ ] T016 **[orchestrator]** Write `specs/061-trio-seed/evidence/shoot-live.mjs`, modelled on
+- [x] T016 **[orchestrator]** Write `specs/061-trio-seed/evidence/shoot-live.mjs`, modelled on
       `specs/054-two-player-alpha-kit/evidence/shoot-live.mjs` (Playwright with Brave as the
       executable), driving three browser contexts through `quickstart.md` steps 4 to 10. It reads a
       credentials file path from its arguments (never from the repo), generates the two player
       passwords into the scratchpad file, and never prints a secret.
-- [ ] T017 **[orchestrator]** Live check in Brave, script mode, per `quickstart.md`
+- [x] T017 **[orchestrator]** Live check in Brave, script mode, per `quickstart.md`
       (`DM_FAKE_SCRIPT=greyhollow-live`: the shipped script fits, no new DM script; no paid run).
       Shots at 1280 px and 390 px, light and dark, in `evidence/shots/`: the slide-out with the trio
       chosen and three seats filled, and the table after the opening in each of the three contexts.
