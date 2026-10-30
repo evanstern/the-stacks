@@ -171,6 +171,8 @@ export type TurnOutcome =
       talk: TalkResult;
       /** Companion character ids the reaction prompts; empty at the cap. */
       companions: string[];
+      /** The turn-mode job an escalation queues (specs/065 D5); null otherwise. */
+      nextJob?: ResolveOutput["nextJob"];
       /** True when a narration row shipped (a chronicle job follows). */
       shipped: boolean;
       calls: ModelCallRecord[];

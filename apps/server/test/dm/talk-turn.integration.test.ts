@@ -2,7 +2,7 @@ import { afterAll, describe, expect, it } from "vitest";
 import { enqueueTurn, listDmJobs } from "../../src/dm/jobs.js";
 import { assemble } from "../../src/dm/nodes/assemble.js";
 import { PURPOSE_OF } from "../../src/dm/purposes.js";
-import { runTalkTurn } from "../../src/dm/talk-turn.js";
+import { legalEscalation, runTalkTurn } from "../../src/dm/talk-turn.js";
 import {
   clearDmJobsBeforeEach,
   drainAll,
@@ -61,10 +61,10 @@ const reactCall = (value: Record<string, unknown>) => ({
 });
 
 /** A duo table after scene start, with the talk script's calls queued after it. */
-async function table(talkCalls: unknown[]) {
+async function table(talkCalls: unknown[], dice: number[] = []) {
   const sceneStart = script("scene-start.json");
   const w = await createWorld({
-    dice: [],
+    dice,
     calls: [...sceneStart.calls, chronicle(), ...talkCalls],
   });
   const wired = workerFor(w, { retrieve, talkQuietMs: 0 });
@@ -98,7 +98,7 @@ const talkJobs = async (w: World) =>
   );
 const MECHANICS = new Set([
   "roll",
-  "combatant.add",
+  "combatant.added",
   "initiative",
   "table-mode.changed",
   "hp.changed",
@@ -284,5 +284,79 @@ describe.skipIf(!reachable)("talk turn (database)", () => {
     // A human post resets the count.
     await say(w, "Wenna, anything else?");
     expect(await talkJobs(w)).toHaveLength(3);
+  });
+
+  it("escalate writes combatant adds, initiative and a turn-mode row, then queues a turn", async () => {
+    const s = script("talk-escalate.json");
+    const { w, worker } = await table(s.calls, s.dice);
+    const before = (await readRows(w)).length;
+    await say(w, "Wenna, draw steel! They are in the reeds!");
+    await tick();
+    await drainAll(worker);
+    const after = (await readRows(w)).slice(before);
+    const types = after.map((r) => r.type);
+    expect(types).toContain("combatant.added");
+    expect(types).toContain("encounter.started");
+    expect(types).toContain("table-mode.changed");
+    expect(
+      after.filter((r) => r.type === "narration" && r.actor === "ai:dm"),
+    ).toHaveLength(1);
+    // the narration lands after the mode starts; no tracker or scene-end row
+    expect(types).not.toContain("tracker.changed");
+    expect(types).not.toContain("scene.ended");
+    const p = await w.projections();
+    expect(p.tableMode.mode).toBe("turn");
+    expect(p.encounter).not.toBeNull();
+    const [job] = await talkJobs(w);
+    expect(job?.result).toMatchObject({ talk: { outcome: "escalate" } });
+    const queued = (await listDmJobs(requireDb(), w.sessionId, 50)).filter(
+      (j) => j.id !== job?.id && j.kind !== "chronicle",
+    );
+    expect(queued.length).toBeGreaterThan(0);
+  });
+
+  it("an escalate into an unknown encounter ships as scene and stays free", async () => {
+    const { w, worker } = await table([
+      reactCall({
+        outcome: "escalate",
+        speaker: null,
+        encounterId: "no-such-fight",
+        text: "The reeds hiss and the lamp gutters.",
+      }),
+      chronicle(),
+    ]);
+    const before = (await readRows(w)).length;
+    await say(w, "Wenna, what was that?");
+    await drainAll(worker);
+    const after = (await readRows(w)).slice(before);
+    expect(after.filter((r) => MECHANICS.has(r.type))).toEqual([]);
+    expect(after.filter((r) => r.type === "narration")).toHaveLength(1);
+    expect((await w.projections()).tableMode.mode).toBe("free");
+    const [job] = await talkJobs(w);
+    expect(job?.result).toMatchObject({ talk: { outcome: "scene" } });
+  });
+
+  it("legalEscalation refuses a started or ended encounter", async () => {
+    const esc = script("talk-escalate.json");
+    const { w, worker } = await table(esc.calls, esc.dice);
+    const free = await w.projections();
+    const seed = w.ctx().seed;
+    expect(legalEscalation(seed, free, "reed-camp")).toBe(true);
+    expect(legalEscalation(seed, free, "no-such-fight")).toBe(false);
+    await say(w, "Wenna, draw steel! They are in the reeds!");
+    await drainAll(worker);
+    // started: turn mode, monsters are combatants
+    expect(legalEscalation(seed, await w.projections(), "reed-camp")).toBe(
+      false,
+    );
+    // ended but monsters remain combatants, mode free again
+    const ended = await w.projections();
+    expect(
+      legalEscalation(
+        seed,
+        { ...ended, tableMode: { mode: "free" }, encounter: null } as never,
+        "reed-camp",
+      ),
+    ).toBe(false);
   });
 });

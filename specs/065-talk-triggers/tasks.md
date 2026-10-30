@@ -73,13 +73,13 @@ run 3. The operator decides a cut.
 
 ## Phase 4: Escalation to turn mode (card AC #5) — cut 1
 
-- [ ] T026 In `apps/server/src/dm/talk-turn.ts`, add `legalEscalation` and `runTalkTurn` steps 4
+- [x] T026 In `apps/server/src/dm/talk-turn.ts`, add `legalEscalation` and `runTalkTurn` steps 4
       and 6 (plan D5, OQ-9). Drive resolve with the synthetic Director output.
-- [ ] T027 Create `apps/server/test/dm/scripts/talk-escalate.json` (plan D6).
-- [ ] T028 In `talk-turn.integration.test.ts`, cover: escalate writes combatant adds, initiative
+- [x] T027 Create `apps/server/test/dm/scripts/talk-escalate.json` (plan D6).
+- [x] T028 In `talk-turn.integration.test.ts`, cover: escalate writes combatant adds, initiative
       and `table-mode.changed`, then the NPC or companion turn queues; an escalate into a started,
       ended or unknown encounter ships as `scene` and stays free; no tracker or scene-end row.
-- [ ] T029 Run `pnpm ci:check`.
+- [x] T029 Run `pnpm ci:check`.
 
 ## Phase 5: DB suites, mutation guard, live check **[orchestrator]**
 

@@ -5,9 +5,16 @@ import type {
   TranscriptEntry,
 } from "@the-stacks/session-model";
 import type { NarrationFacts } from "./facts.js";
+import { encounterToStart } from "./gates/plan-gate.js";
 import type { AuditIssue } from "./nodes/audit.js";
 import { deterministicChecks } from "./nodes/audit.js";
-import { findLandedNarration, submitNarration } from "./nodes/resolve.js";
+import type { DirectorNodeOutput } from "./nodes/director.js";
+import type { ResolveOutput } from "./nodes/resolve.js";
+import {
+  findLandedNarration,
+  resolve,
+  submitNarration,
+} from "./nodes/resolve.js";
 import { ReactOutput } from "./nodes/schemas.js";
 import { callJson } from "./pipeline/call.js";
 import type {
@@ -34,8 +41,30 @@ import {
  * The talk path (specs/065-talk-triggers plan D3): a `talk` turn with no
  * committed beat. Assemble ran; this reads the posts, asks `react` once (twice
  * after a code refusal), checks the text in code and ships one narration row.
- * Escalation (plan D5) is a later phase: `escalate` ships as `scene` here.
+ * An `escalate` reaction runs resolve's opening move (plan D5) when legal and
+ * ships as `scene` otherwise.
  */
+
+/**
+ * Plan D5 / FR-011: the mode is free and `encounterToStart` finds the encounter
+ * unstarted (no monster of it is a combatant) with no encounter running.
+ */
+export function legalEscalation(
+  seed: TurnContext["seed"],
+  p: SessionProjections,
+  encounterId: string,
+): boolean {
+  if (p.tableMode.mode !== "free" || p.encounter !== null) return false;
+  const enc = encounterToStart(
+    seed,
+    { tableMode: { to: "turn", encounterId, reason: "" } },
+    "talk",
+  );
+  return (
+    enc !== undefined &&
+    !enc.monsters.some((m) => p.engine.combatants[m.combatantId])
+  );
+}
 
 type TalkPost = Extract<TranscriptEntry, { kind: "talk" }>;
 
@@ -127,10 +156,12 @@ export async function runTalkTurn(
     outcome: "none",
     reason: "",
   };
+  let nextJob: ResolveOutput["nextJob"] = null;
   const done = (shipped: boolean, companions: string[]): TurnOutcome => ({
     status: "talk",
     talk: result,
     companions,
+    nextJob,
     shipped,
     calls,
   });
@@ -162,6 +193,7 @@ export async function runTalkTurn(
     (id) =>
       assembled.snapshot.actors.find((a) => a.id === id)?.lifeState !== "dead",
   );
+  const free = p.tableMode.mode === "free";
   const secrets = dmOnlySeedText(ctx.seed).map((s) => s.toLowerCase());
   const view = playerFacingSeed(ctx.seed);
 
@@ -174,7 +206,11 @@ export async function runTalkTurn(
       triggers,
       transcriptTail: assembled.transcriptTail,
       presentNpcIds,
-      encounterIds: [],
+      encounterIds: free
+        ? ctx.seed.encounters
+            .filter((e) => legalEscalation(ctx.seed, p, e.id))
+            .map((e) => e.id)
+        : [],
       reachesCap,
       prior,
     });
@@ -246,8 +282,55 @@ export async function runTalkTurn(
   result.modelTriggers = react.triggers;
   result.reason = react.reason;
   if (react.outcome === "none") return done(false, []);
-  // Phase 4 adds escalation; until then an escalate reaction ships as a scene.
-  result.outcome = react.outcome === "escalate" ? "scene" : react.outcome;
+  result.outcome = react.outcome;
+  let checkpoint = { ...ctx.checkpoint, react };
+
+  // Steps 4 and 6: a legal escalation runs resolve's opening move; else scene.
+  if (react.outcome === "escalate") {
+    // A reclaim after the opening move landed has no unstarted encounter left.
+    const resumed = ctx.checkpoint.submissions.some((x) =>
+      x.key.startsWith("director:"),
+    );
+    const encounterId = react.encounterId ?? "";
+    if (!resumed && !legalEscalation(ctx.seed, p, encounterId)) {
+      result.outcome = "scene";
+    } else {
+      const director: DirectorNodeOutput = {
+        beat: { decision: "resolve" },
+        tableMode: { to: "turn", encounterId, reason: react.reason },
+        trackers: [],
+        scene: { status: "continue" },
+        pacing: { tension: "high", spotlight: null, beatId: null },
+        goalNote: "",
+        companionPrompts: [],
+        overrides: [],
+      };
+      const opened = await resolve({
+        ...ctx,
+        checkpoint,
+        results: {
+          assemble: assembled,
+          director,
+          interpret: { readings: [] },
+          adjudicate: { rulings: [] },
+        },
+      });
+      calls.push(...opened.calls);
+      if (!opened.ok)
+        return {
+          status: "failed",
+          node: "resolve",
+          error: opened.error,
+          calls,
+        };
+      nextJob = opened.output.nextJob;
+      checkpoint = {
+        ...checkpoint,
+        submissions: opened.output.submissions,
+        lastSeq: opened.output.lastSeq,
+      };
+    }
+  }
 
   // Step 7: ship one narration row, then name the companions to prompt.
   if (!(await ctx.deps.fence())) return fenced();
@@ -268,16 +351,17 @@ export async function runTalkTurn(
         flagBody: null,
       },
     },
-    { ...ctx.checkpoint, react },
+    checkpoint,
   );
   if (!shipped.ok)
     return { status: "failed", node: "resolve", error: shipped.error, calls };
-  const companions = reachesCap
-    ? []
-    : react.companionPrompts.filter((id) =>
-        p.party.some(
-          (m) => m.characterId === id && m.controller.kind === "ai-companion",
-        ),
-      );
+  const companions =
+    reachesCap || result.outcome === "escalate"
+      ? []
+      : react.companionPrompts.filter((id) =>
+          p.party.some(
+            (m) => m.characterId === id && m.controller.kind === "ai-companion",
+          ),
+        );
   return done(shipped.shipped, companions);
 }

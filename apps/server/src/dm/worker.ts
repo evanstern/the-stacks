@@ -410,6 +410,23 @@ export function createDmWorker(deps: DmWorkerDeps): DmWorker {
           beatJobId: null,
         });
       }
+      // An escalation started turn mode: queue the first combatant's turn.
+      const esc = outcome.nextJob;
+      if (esc?.kind === "turn") {
+        await enqueueTurn(
+          db,
+          job.sessionId,
+          "npc-turn",
+          latest.lastSeq || null,
+        );
+      } else if (esc?.kind === "companion") {
+        await enqueueCompanion(db, {
+          sessionId: job.sessionId,
+          companions: esc.companions,
+          reason: esc.reason,
+          beatJobId: null,
+        });
+      }
       if (outcome.shipped) {
         const p = await deps.loadProjections(job.sessionId);
         await enqueueChronicle(db, job.sessionId, p.throughSeq);

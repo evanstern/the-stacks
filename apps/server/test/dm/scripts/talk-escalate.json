@@ -1,0 +1,27 @@
+{
+  "v": 1,
+  "name": "talk-escalate",
+  "dice": [15, 12, 10, 8, 6, 4, 3, 2],
+  "calls": [
+    {
+      "purpose": "dm.narrate",
+      "note": "react: the parley breaks; the reed camp springs",
+      "respond": {
+        "type": "json",
+        "value": {
+          "outcome": "escalate",
+          "triggers": [{ "kind": "hostile", "actorId": null }],
+          "speaker": null,
+          "text": "A reed snaps behind the ferry-house, then another. Goblins burst from the rushes with rusted blades raised.",
+          "encounterId": "reed-camp",
+          "companionPrompts": [],
+          "reason": "The challenge at the door was a fight-starter."
+        }
+      }
+    },
+    {
+      "purpose": "dm.chronicle",
+      "respond": { "type": "json", "value": { "entries": [] } }
+    }
+  ]
+}
