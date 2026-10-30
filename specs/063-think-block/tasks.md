@@ -90,18 +90,18 @@ makes two short subscription-backed calls; ask the operator to confirm that spen
 
 ## Phase 4: Wiki **[orchestrator]** (re-ground)
 
-- [ ] T013 **[orchestrator]** Update `docs/wiki/dm-runtime.md`: the `callJson`/`callText`
+- [x] T013 **[orchestrator]** Update `docs/wiki/dm-runtime.md`: the `callJson`/`callText`
       paragraph names the parse order (think strip, fence strip, parse, normalize, schema) and
       that excerpts keep raw text. Re-pin.
-- [ ] T014 **[orchestrator]** Update `docs/wiki/dm-failure-and-gates.md`: a think-only reply's
+- [x] T014 **[orchestrator]** Update `docs/wiki/dm-failure-and-gates.md`: a think-only reply's
       issue string, and that excerpts carry the raw think block. Re-pin.
-- [ ] T015 **[orchestrator]** Update `docs/wiki/ai-gateway.md`: the adapter reads only
+- [x] T015 **[orchestrator]** Update `docs/wiki/ai-gateway.md`: the adapter reads only
       `delta.content`, so a router that renders thinking as `<think>` text passes it through;
       the DM strips it in `call.ts` (link [[dm-runtime]]). Mark the note NEEDS-REVIEW if the
       Phase 3 result is not yet in. Re-pin.
-- [ ] T016 **[orchestrator]** Re-verify `docs/wiki/debug-view.md` against the `call.ts` diff
+- [x] T016 **[orchestrator]** Re-verify `docs/wiki/debug-view.md` against the `call.ts` diff
       (`dm_model_calls` is unchanged) and re-pin honestly.
-- [ ] T017 **[orchestrator]** Refresh the `dm-runtime` and `dm-failure-and-gates` entries in
+- [x] T017 **[orchestrator]** Refresh the `dm-runtime` and `dm-failure-and-gates` entries in
       `docs/wiki/CAPSULES.md` and the `[[dm-runtime]]` line in `docs/wiki/INDEX.md` only if
       their text changed. Run the freshness gate
       (`node ~/.claude/plugins/cache/praxisflux/grounding-wiki/0.68.0/gates/cli.mjs freshness . docs/wiki`)
