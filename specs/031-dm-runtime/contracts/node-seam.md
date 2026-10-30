@@ -163,3 +163,19 @@ Amended by specs/063-think-block/contracts/think-strip.md.
 aborted attempt reaches `recordCall` with `outcome: "aborted"` and never reaches `calls`. The
 worker binds `recordCall` to the claimed job and writes one `dm_model_calls` row per call
 (specs/037-debug-api/data-model.md). A failed insert is logged and never fails the job.
+
+## Amendment 2026-10-30 (specs/064-plan-first-step): the post-planning step
+
+Amended by specs/064-plan-first-step.
+
+In "The runner", step 2 gains a post-planning step. After `adjudicate` (or its skip) and before
+`resolve`, when `checkpoint.cut` is not set and the beat decision is not `hold`:
+
+1. Call `cutPlans` with the table mode, the readings and the rulings.
+2. Call `holdDirector` with `cutBeat` true when any reading or ruling has `followUps`.
+3. Save the cut readings, cut rulings and held Director with `cut: true` in one fenced save.
+   A failed save returns `failed` with kind `fenced`.
+4. Log `dm.plan.cut` with the job id and the cut counts.
+
+`TurnCheckpoint` gains optional `cut?: boolean`. A reclaim with `cut: true` skips the step, so the
+step is idempotent. The pipeline gains no branch, no cycle and no node name.

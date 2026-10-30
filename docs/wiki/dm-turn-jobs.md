@@ -19,7 +19,7 @@ sources:
   - apps/server/src/dm/nodes/resolve.ts
   - apps/server/src/dm/companion.ts
   - apps/server/src/dm/chronicle.ts
-verified_against: 28ac1698b24704bac7cdac300316e7f0e00e728c
+verified_against: 7c84d75e2613315578ad8a1ebd4ab783b57d4147
 ---
 
 # DM turn jobs
@@ -66,7 +66,7 @@ worker aborts an in-flight `chat()` on a lost lease. Resolve heartbeats before e
 
 ## Resume after approval
 
-After a human DM approves an `ai:dm` proposal, the `approval` turn does not interpret that action again (TASK-0168, specs/057). The worker passes `loadPriorTurns` (`loadPriorTurnCheckpoints`: the session's earlier checkpointed turn jobs, newest first) to assemble, which reads it only when an `ai:dm` proposal names a beat action. `TurnCheckpoint.resumed` freezes the plans (absent on older rows). A rejected proposal yields no plan: that action interprets again.
+After a human DM approves an `ai:dm` proposal, the `approval` turn does not interpret that action again (TASK-0168, specs/057). The worker passes `loadPriorTurns` (`loadPriorTurnCheckpoints`: the session's earlier checkpointed turn jobs, newest first) to assemble, which reads it only when an `ai:dm` proposal names a beat action. `TurnCheckpoint.resumed` freezes the plans (absent on older rows). A rejected proposal yields no plan; that action interprets again.
 
 ## Beats
 
@@ -85,7 +85,7 @@ Opening moves (encounter start; a seed-presence group first logs the encounter b
 Every submission is checkpointed (`saveCheckpoint`, fenced) in `jobs.result.checkpoint`, which claim never clears. A reclaimed job replays recorded submissions and looks
 for the one in flight: proposals carry a marker `[<jobId>#<n>]` in their reason text, and the
 checkpoint's `lastSeq` bounds the search. Narration rows carry no marker: `findLandedNarration` finds an `ai:dm` narration row after the job's
-last known seq, and the runner then skips narrate and audit. A reclaim across a deploy that shifts step numbers could mismatch a marker (accepted, TASK-0156). A checkpoint holding the `advance` submission counts the turn as ended, so a reclaim still settles and sets the mode. A claim past `MAX_ATTEMPTS` marks the job `failed` with a failure notice.
+last seq, and the runner then skips narrate and audit. A deploy that shifts step numbers could mismatch a marker (accepted). `TurnCheckpoint.cut` (TASK-0182) marks the cut done. An `advance` submission in the checkpoint ends the turn; a reclaim still settles and sets the mode. A claim past `MAX_ATTEMPTS` marks the job `failed` with a failure notice.
 
 ## Failed turns
 

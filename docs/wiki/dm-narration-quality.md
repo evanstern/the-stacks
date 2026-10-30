@@ -15,7 +15,7 @@ sources:
   - apps/server/src/dm/claims.ts
   - apps/server/src/dm/audit-words.ts
   - specs/034-narration-quality/contracts/audit-criteria.md
-verified_against: 5efa18203f0c3c706ee066a7fc1c189b2c161b84
+verified_against: 7c84d75e2613315578ad8a1ebd4ab783b57d4147
 ---
 
 # DM narration quality
@@ -92,7 +92,7 @@ flag.
 
 ## Prompt versions
 
-`dm.narrate-v5`, `dm.audit-v3`, `dm.director-v3`, `dm.chronicle-v3`, `dm.companion-v5`. Narrate v5 (spec 051) says a fact or the state sections may name a character dead or unconscious, and a dead, unconscious, stable or absent character does not act or speak. (For companion: v3 on the
+`dm.narrate-v6`, `dm.audit-v3`, `dm.director-v4`, `dm.chronicle-v3`, `dm.companion-v5`. Narrate v5 (spec 051) says a fact or the state sections may name a character dead or unconscious, and a dead, unconscious, stable or absent character does not act or speak. (For companion: v3 on the
 snapshot branch added the `seat` state view; v4 added the react trigger and the withdraw and
 revise decisions; companion v5 is both together; see [[dm-runtime]]). The snapshot bumped narrate, audit,
-director, interpret, adjudicate and chronicle too. The presence effect bumped interpret and adjudicate to `dm.interpret-v4` and `dm.adjudicate-v4`.
+director, interpret, adjudicate and chronicle too. Narrate v6 (TASK-0182, specs/064) adds the rule "A not-yet-attempted step has not happened. Stop before it; never show it start."; `FactAction.followUps` render as `not yet attempted: <text>` lines, and `withholdRefusedInputs` drops a refused follow-up. Interpret v5 and director v4 came in the same task. The presence effect bumped interpret and adjudicate to `dm.interpret-v4` and `dm.adjudicate-v4`.

@@ -94,19 +94,19 @@ prompts. No other lane edits them while this branch is open.
 
 ## Phase 5: Contracts and wiki re-ground
 
-- [ ] T030 Amend `specs/031-dm-runtime/contracts/nodes.md` (reading `followUps`, the first-stage
+- [x] T030 Amend `specs/031-dm-runtime/contracts/nodes.md` (reading `followUps`, the first-stage
       cut), `director.md` (the cut-beat hold row in the legality table) and `node-seam.md` (the
       post-planning step). Mark each amendment "Amended by specs/064-plan-first-step".
-- [ ] T031 Amend `specs/034-narration-quality/contracts/narration-facts.md`
+- [x] T031 Amend `specs/034-narration-quality/contracts/narration-facts.md`
       (`FactAction.followUps`, the "not yet attempted" line, narrate v6).
-- [ ] T032 Re-ground `docs/wiki/dm-runtime.md`, `dm-turn-jobs.md`, `dm-failure-and-gates.md` and
+- [x] T032 Re-ground `docs/wiki/dm-runtime.md`, `dm-turn-jobs.md`, `dm-failure-and-gates.md` and
       `dm-narration-quality.md` (NEEDS-REVIEW) against the diff. Re-pin each honestly.
-- [ ] T033 Update `docs/wiki/CAPSULES.md` and the `INDEX.md` state paragraph with one sentence for
+- [x] T033 Update `docs/wiki/CAPSULES.md` and the `INDEX.md` state paragraph with one sentence for
       TASK-0182 (specs/064).
-- [ ] T034 Add the execution-log row for TASK-0182 to `docs/design/m3-table-sweep-runbook.md`:
+- [x] T034 Add the execution-log row for TASK-0182 to `docs/design/m3-table-sweep-runbook.md`:
       dispatches, OQ rulings, test counts, the mutation-guard result, the live check, no frozen
       contract change, no migration.
-- [ ] T035 Run the wiki freshness gate (`OK`), the spec-bridge check (exit 0) and `pnpm ci:check`.
+- [x] T035 Run the wiki freshness gate (`OK`), the spec-bridge check (exit 0) and `pnpm ci:check`.
 
 ## Dependencies
 

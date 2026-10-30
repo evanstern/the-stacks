@@ -95,3 +95,16 @@ Goal and end conditions, beats, trackers with `advanceWhen`, encounters with `tr
 `morale`. Monsters flee or surrender per `morale`: the Director signals it through `goalNote`
 and `tableMode: free`; resolve does not remove fleeing monsters (they leave the encounter by
 `encounter.end`).
+
+## Amendment 2026-10-30 (specs/064-plan-first-step): the cut-beat hold row
+
+Amended by specs/064-plan-first-step.
+
+Add this row to the legality table. Code enforces it after the cut, not the model.
+
+| Decision | Legal when | Otherwise |
+|---|---|---|
+| `turn`, `tracker` advance, scene `end` (cut beat) | no reading or ruling in the beat has `followUps` | treated as `stay`, dropped, or `continue`; recorded as an override with reason "held: the plan was cut to its first stage" |
+
+`holdDirector(director, cutBeat)` applies the row. A `free` decision is never held. The Director
+prompt is `dm.director-v4`.
