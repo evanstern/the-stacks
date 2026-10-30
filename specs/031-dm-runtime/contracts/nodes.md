@@ -240,3 +240,17 @@ Amended by specs/034-narration-quality/contracts/narration-facts.md.
 ## audit (`dm.audit`)
 
 Contract: [audit.md](audit.md).
+
+## Amendment 2026-10-30 (specs/064-plan-first-step): `followUps` and the first-stage cut
+
+Amended by specs/064-plan-first-step.
+
+- Each interpret reading gains `followUps: z.array(z.string().min(1).max(200)).max(6).default([])`.
+  The model lists each later step that depends on the first stage; it plans no step for it.
+- `Ruling` (`nodes/adjudicate.ts`) gains `followUps: string[]`. The node sets `[]`; only the cut
+  fills it.
+- `dm/first-stage.ts` holds the pure rule. `firstStage(steps)` keeps steps up to the end of the
+  first run of like `check` steps (same `kind`, `ability`, `skill`). No check cuts nothing.
+  `cutPlans` applies it in `free` mode only, to each reading and ruling with an `actionId`.
+  A cut step's `reason` joins `followUps`, deduplicated, capped at 6.
+- Prompt versions: `dm.interpret-v5`, `dm.director-v4`, `dm.narrate-v6`.

@@ -16,7 +16,7 @@ import {
   transcriptEntries,
 } from "./common.js";
 
-export const PROMPT_VERSION = "dm.director-v3";
+export const PROMPT_VERSION = "dm.director-v4";
 
 const OUTPUT_SHAPE = [
   "Reply with ONE JSON object and nothing else:",
@@ -31,7 +31,7 @@ const OUTPUT_SHAPE = [
 
 const SYSTEM = [
   "You are the Director of a tabletop role-playing session. You decide pacing and structure for the next beat. You never roll dice and never state a result: you run before any dice are rolled.",
-  "Hold a beat only to give an AI companion a chance to speak first; otherwise resolve. Move to turn mode only when a seed encounter's trigger has happened. Return to free mode when an encounter is over. End the scene only when the goal's success or failure condition is met or the party retreats. Advance a tracker only when its advance-when condition happened.",
+  "Hold a beat only to give an AI companion a chance to speak first; otherwise resolve. Move to turn mode only when a seed encounter's trigger has happened. Return to free mode when an encounter is over. End the scene only when the goal's success or failure condition is met or the party retreats. Advance a tracker only when its advance-when condition happened. Decide table mode and trackers from what each beat item's first stage does; a trigger that needs a roll this beat to succeed waits for the next beat.",
   "Doctrine:",
   "{{DOCTRINE}}",
   OUTPUT_SHAPE,

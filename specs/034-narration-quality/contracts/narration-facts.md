@@ -132,3 +132,15 @@ detection. For tests and review, the case is one of these:
   `interpret-prompt.test.ts` does for its grammar.
 - `narrate.test.ts`: for facts with a `Monster turn` whose roll targets Tamsin with outcome
   `miss` and no change line, the user prompt holds that roll line and no damage change.
+
+## Amendment 2026-10-30 (specs/064-plan-first-step): follow-ups and narrate v6
+
+Amended by specs/064-plan-first-step.
+
+- `FactAction` gains `followUps: string[]`. `BuildFactsInput` gains optional
+  `followUps?: Record<string, string[]>`, keyed by action id. The ruling's list wins over the
+  reading's.
+- `factEntries` renders each follow-up as `  not yet attempted: <text>` under its action.
+- `withholdRefusedInputs` refuses each follow-up the same way as other model text and drops it.
+- `PROMPT_VERSION = "dm.narrate-v6"`. RULES gain, before the closing rule: "A not-yet-attempted
+  step has not happened. Stop before it; never show it start."

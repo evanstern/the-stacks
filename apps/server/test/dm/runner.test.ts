@@ -48,6 +48,7 @@ const reading = (needs: boolean) =>
     rulesQuestion: needs ? "q" : null,
     clarify: null,
     steps: [],
+    followUps: [],
   }) as NodeOutputs["interpret"]["readings"][number];
 
 interface Spy {
@@ -380,5 +381,131 @@ describe("runTurn", () => {
       expect(node.constructor.name).toBe("AsyncFunction");
     }
     expect(testSeed().seedId).toBe("greyhollow-ford");
+  });
+});
+
+describe("runTurn post-planning cut (specs/064)", () => {
+  const chk = (skill: string) => ({
+    step: "check",
+    reason: `${skill} check`,
+    combatantId: "pc-ana",
+    kind: "ability-check",
+    ability: "dex",
+    skill,
+    expression: "1d20+3",
+    mode: "normal",
+    dc: 12,
+    autoFail: null,
+    onSuccess: [],
+    onFailure: [],
+  });
+  const planReading = () =>
+    ({
+      ...reading(false),
+      steps: [chk("stealth"), chk("persuasion")],
+    }) as unknown as NodeOutputs["interpret"]["readings"][number];
+  const free = assembled({
+    projections: { tableMode: { mode: "free" } },
+  } as never);
+  const turnDirector = {
+    ...directorResolve,
+    tableMode: { to: "turn", encounterId: "e1" },
+    trackers: [{ id: "alarm" }],
+  } as unknown as NodeOutputs["director"];
+
+  function spyResolve(spy: Spy) {
+    const seen: { interpret?: unknown; director?: unknown }[] = [];
+    const inner = spy.nodes.resolve;
+    spy.nodes.resolve = (async (ctx) => {
+      seen.push({
+        interpret: ctx.results.interpret,
+        director: ctx.results.director,
+      });
+      return inner(ctx);
+    }) as typeof inner;
+    return seen;
+  }
+
+  it("cuts once before resolve and stores cut: true in one save", async () => {
+    const spy = stubNodes({
+      assemble: free,
+      director: turnDirector,
+      interpret: { readings: [planReading()] },
+    });
+    const seen = spyResolve(spy);
+    const saved: ReturnType<typeof emptyCheckpoint>[] = [];
+    const ctx = makeCtx({
+      deps: {
+        saveCheckpoint: async (c) => {
+          saved.push(c);
+          return true;
+        },
+      },
+    });
+    await runTurn(ctx, spy.nodes);
+    expect(seen).toHaveLength(1);
+    const i = seen[0]?.interpret as NodeOutputs["interpret"];
+    expect(i.readings[0]?.steps).toHaveLength(1);
+    expect(i.readings[0]?.followUps).toEqual(["persuasion check"]);
+    const d = seen[0]?.director as NodeOutputs["director"];
+    expect(d.tableMode).toEqual({ to: "stay" });
+    expect(d.trackers).toEqual([]);
+    expect(saved.at(-1)?.cut).toBe(true);
+    expect(saved.at(-1)?.interpret?.readings[0]?.steps).toHaveLength(1);
+  });
+
+  it("does not cut or hold again on a reclaim with cut: true", async () => {
+    const spy = stubNodes();
+    const cutReading = {
+      ...planReading(),
+      steps: [chk("stealth")],
+      followUps: ["persuasion check"],
+    };
+    const ctx = makeCtx({
+      checkpoint: {
+        ...emptyCheckpoint(),
+        beat: ["a1"],
+        cut: true,
+        director: turnDirector,
+        interpret: { readings: [cutReading] } as never,
+        adjudicate: { rulings: [] },
+      },
+    });
+    const seen = spyResolve(spy);
+    spy.nodes.assemble = (async () => ({
+      ok: true,
+      node: "assemble",
+      calls: [],
+      output: free,
+    })) as never;
+    await runTurn(ctx, spy.nodes);
+    const held = seen[0]?.director as NodeOutputs["director"];
+    expect(held.tableMode).toEqual({
+      to: "turn",
+      encounterId: "e1",
+    });
+  });
+
+  it("never cuts a hold beat", async () => {
+    const spy = stubNodes({
+      assemble: free,
+      director: {
+        ...turnDirector,
+        beat: { decision: "hold", companions: [] },
+      } as never,
+      interpret: { readings: [planReading()] },
+    });
+    const saved: ReturnType<typeof emptyCheckpoint>[] = [];
+    const ctx = makeCtx({
+      deps: {
+        saveCheckpoint: async (c) => {
+          saved.push(c);
+          return true;
+        },
+      },
+    });
+    const out = await runTurn(ctx, spy.nodes);
+    expect(out.status).toBe("held");
+    expect(saved.some((c) => c.cut)).toBe(false);
   });
 });

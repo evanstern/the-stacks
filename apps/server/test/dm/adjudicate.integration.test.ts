@@ -146,6 +146,7 @@ async function setup(opts: { citations: unknown[]; readings: number }) {
       rulesQuestion: `${word} how does a creature grapple a foe?`,
       clarify: null,
       steps: [],
+      followUps: [],
     }),
   );
   const ctx = {

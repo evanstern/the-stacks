@@ -123,6 +123,7 @@ function action(over: Partial<FactAction> = {}): FactAction {
     rolls: [],
     outcomes: [],
     changes: [],
+    followUps: [],
     ...over,
   };
 }

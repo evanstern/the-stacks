@@ -93,6 +93,8 @@ export interface FactAction {
   rolls: FactRoll[];
   outcomes: FactOutcome[];
   changes: FactChange[];
+  /** Later plan steps the first-stage cut held back (specs/064). */
+  followUps: string[];
 }
 
 export interface FactNpcTurn {
@@ -450,6 +452,8 @@ export interface BuildFactsInput {
   /** Rows the gate appended this turn (for damage types). */
   appendedRows: readonly StoredEvent[];
   clarify: { actionId: string; question: string }[];
+  /** Follow-ups per action id, from the ruling when one exists, else the reading. */
+  followUps?: Record<string, string[]>;
 }
 
 export function buildNarrationFacts(input: BuildFactsInput): NarrationFacts {
@@ -492,6 +496,7 @@ export function buildNarrationFacts(input: BuildFactsInput): NarrationFacts {
       outcome,
       refusalCode,
       ...c,
+      followUps: input.followUps?.[item.actionId] ?? [],
     });
   }
 

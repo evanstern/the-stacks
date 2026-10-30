@@ -1,0 +1,43 @@
+the-stacks
+Menu
+Ask
+Library
+Table
+Settings
+About
+operator · operator
+Sign out
+Greyhollow Ford (two players)
+
+Greyhollow Ford
+
+AI DM
+DM
+Kestrel Player
+Player
+operator
+Player
+Free mode
+Connected
+Ledger
+DM seat
+Debug
+
+The party reaches Greyhollow Ford as the light goes amber. The ferry sits chained to the near bank, the ferry-house door hangs open, and the bell that should have rung for them stays silent.
+
+Tamsin Vale
+by You
+Resolved
+
+Plan: diplomacy first, then force. Approach: I walk openly to the goblin camp while Kestrel and Odo follow hidden through the reeds. Contingency: if I raise my hand, Kestrel attacks on my signal.
+
+Committed by You. Outcome: applied
+
+Tamsin steps out onto the open ground while Kestrel and Odo slip into the reeds behind her. The camp lies ahead, and nobody has called out yet. Kestrel — Kestrel slips through the reeds unseen: 1d20 → 8 = 8 vs DC 12: failure Brother Odo — Odo follows Kestrel through the reeds unseen: 1d20 → 15 = 15 vs DC 12: success
+
+Talk
+Action
+In character
+Out of character
+Tamsin Vale
+Send

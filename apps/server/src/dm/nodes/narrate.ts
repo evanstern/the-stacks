@@ -76,11 +76,22 @@ export function withholdRefusedInputs(
   const rulings = facts.rulings.filter(
     (r) => !refuse(`ruling for ${r.actionId}`, r.ruling),
   );
+  const actions = facts.actions.map((a) => ({
+    ...a,
+    followUps: a.followUps.filter(
+      (f) => !refuse(`follow-up for ${a.actionId}`, f),
+    ),
+  }));
   const goalNote = refuse("goalNote", facts.director.goalNote)
     ? ""
     : facts.director.goalNote;
   return {
-    facts: { ...facts, rulings, director: { ...facts.director, goalNote } },
+    facts: {
+      ...facts,
+      actions,
+      rulings,
+      director: { ...facts.director, goalNote },
+    },
     withheld,
   };
 }
@@ -152,6 +163,13 @@ export const narrate: Node<"narrate"> = async (ctx) => {
       ? [{ actionId: r.actionId, question: r.clarify }]
       : [],
   );
+  const followUps: Record<string, string[]> = {};
+  for (const r of ctx.results.interpret?.readings ?? []) {
+    if (r.actionId) followUps[r.actionId] = r.followUps;
+  }
+  for (const r of ctx.results.adjudicate?.rulings ?? []) {
+    if (r.actionId) followUps[r.actionId] = r.followUps;
+  }
   const built = buildNarrationFacts({
     trigger: ctx.job.trigger,
     seed: playerFacingSeed(ctx.seed),
@@ -171,6 +189,7 @@ export const narrate: Node<"narrate"> = async (ctx) => {
     modeBefore: assembled.projections.tableMode.mode,
     appendedRows: resolve.appendedRows,
     clarify,
+    followUps,
   });
   const { facts, withheld } = withholdRefusedInputs(built, {
     snapshot: resolve.snapshot,

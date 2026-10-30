@@ -18,7 +18,7 @@ import {
 } from "./common.js";
 import { STEP_GRAMMAR } from "./step-grammar.js";
 
-export const PROMPT_VERSION = "dm.interpret-v4";
+export const PROMPT_VERSION = "dm.interpret-v5";
 
 /** One complete minimal reading: a check step with empty effect lists. */
 export const EXAMPLE_OUTPUT = {
@@ -30,6 +30,7 @@ export const EXAMPLE_OUTPUT = {
       needsAdjudication: false,
       rulesQuestion: null,
       clarify: null,
+      followUps: [],
       steps: [
         {
           step: "check",
@@ -52,8 +53,8 @@ export const EXAMPLE_OUTPUT = {
 
 export const OUTPUT_SHAPE = [
   "Reply with one JSON object, no prose, no code fence.",
-  '{"readings":[{"actionId":id|null,"intent":"talk"|"move"|"check"|"save"|"attack"|"spell"|"help"|"rest"|"other","uncertain":bool,"needsAdjudication":bool,"rulesQuestion":str|null,"clarify":str|null,"steps":[step]}]}',
-  "Write exactly one reading per beat item, keyed by its actionId. Write one reading with actionId null for a monster turn. Roll only when the outcome is uncertain and failure is interesting; for a certain outcome use a none step. Set needsAdjudication true, with a rulesQuestion, when the rules are unclear or the action is inventive; then leave steps empty. When intent is unclear, set clarify to one short question and leave steps empty. Plan only the steps that are not already applied (see Already applied).",
+  '{"readings":[{"actionId":id|null,"intent":"talk"|"move"|"check"|"save"|"attack"|"spell"|"help"|"rest"|"other","uncertain":bool,"needsAdjudication":bool,"rulesQuestion":str|null,"clarify":str|null,"followUps":[str],"steps":[step]}]}',
+  "Write exactly one reading per beat item, keyed by its actionId. Write one reading with actionId null for a monster turn. Roll only when the outcome is uncertain and failure is interesting; for a certain outcome use a none step. Set needsAdjudication true, with a rulesQuestion, when the rules are unclear or the action is inventive; then leave steps empty. When intent is unclear, set clarify to one short question and leave steps empty. Plan only the steps that are not already applied (see Already applied). When a post holds a plan, an approach and later steps, plan only the first stage: the move or approach, with a check for anyone moving hidden or over hard ground. List each later step that depends on it in followUps, one short sentence each, and plan no step for it.",
   "Keep every field short. Write one sentence per reason, at most 500 characters. Write rulesQuestion at most 500 characters. Write clarify as one short question, at most 200 characters. Write at most 6 steps per reading and at most 4 effects per list. Write source at most 100 characters and expression at most 200 characters.",
   `Example of one complete reading:\n${JSON.stringify(EXAMPLE_OUTPUT)}`,
 ].join("\n");

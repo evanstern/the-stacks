@@ -319,7 +319,10 @@ describe("prompt caps (SC-007)", () => {
       aiCompanions: [],
       runnableEncounterIds: [],
     });
-    expect(DIRECTOR_VERSION).toBe("dm.director-v3");
+    expect(DIRECTOR_VERSION).toBe("dm.director-v4");
+    expect(prompt.system).toContain(
+      "a trigger that needs a roll this beat to succeed waits for the next beat.",
+    );
     const transcript = /## Recent transcript\n([\s\S]*?)(\n\n##|$)/.exec(
       prompt.user,
     );
