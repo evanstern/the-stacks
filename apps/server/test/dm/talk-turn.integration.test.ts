@@ -235,6 +235,56 @@ describe.skipIf(!reachable)("talk turn (database)", () => {
     expect(w.scripted.remaining().calls["dm.narrate"]).toBe(0);
   });
 
+  it("a reclaimed escalation resumes without a second encounter.started or duplicate combatants", async () => {
+    const { w } = await table([], [15, 12, 10, 8, 6, 4, 3, 2]);
+    await say(w, "Wenna, draw steel! They are in the reeds!");
+    const seq = (await w.projections()).throughSeq;
+    const react = {
+      outcome: "escalate" as const,
+      triggers: [],
+      speaker: null,
+      text: "Goblins burst from the rushes with rusted blades raised.",
+      encounterId: "reed-camp",
+      companionPrompts: [],
+      reason: "r",
+    };
+    // Attempt 1 landed the opening move but died before the narration.
+    const { result } = await w.runResolve({
+      director: {
+        beat: { decision: "resolve" },
+        tableMode: { to: "turn", encounterId: "reed-camp", reason: "r" },
+      },
+      job: { trigger: "talk", triggerSeq: seq, attempt: 1 },
+    });
+    if (!result.ok) throw new Error("opening move failed");
+    const before = await readRows(w);
+    const count = (rows: typeof before, type: string) =>
+      rows.filter((r) => r.type === type).length;
+    const checkpoint = {
+      ...w.checkpoint.current,
+      react,
+      submissions: result.output.submissions,
+      lastSeq: result.output.lastSeq,
+    };
+    const base = w.ctx({
+      job: { trigger: "talk", triggerSeq: seq, attempt: 2 },
+      checkpoint,
+    });
+    const assembled = await assemble(base);
+    if (!assembled.ok) throw new Error("assemble failed");
+    const out = await runTalkTurn(
+      { ...base, results: { assemble: assembled.output } },
+      assembled.output,
+    );
+    expect(out).toMatchObject({ status: "talk", shipped: true });
+    const after = await readRows(w);
+    expect(count(after, "encounter.started")).toBe(1);
+    expect(count(after, "combatant.added")).toBe(
+      count(before, "combatant.added"),
+    );
+    expect(count(after, "narration")).toBe(count(before, "narration") + 1);
+  });
+
   it("a chain stops at two DM reactions and the cap reaction prompts no companion", async () => {
     const s = script("talk-chain.json");
     const { w, worker } = await table(s.calls);

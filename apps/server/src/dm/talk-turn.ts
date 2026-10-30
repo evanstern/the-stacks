@@ -144,7 +144,15 @@ export async function runTalkTurn(
 ): Promise<TurnOutcome> {
   const p = assembled.projections;
   const calls: ModelCallRecord[] = [];
-  const posts = readPosts(p, ctx.job.triggerSeq);
+  // A reclaim after the opening move landed: the mode is already `turn`, so
+  // read the posts as the first attempt saw them (mode free).
+  const resumed = ctx.checkpoint.submissions.some((x) =>
+    x.key.startsWith("director:"),
+  );
+  const posts = readPosts(
+    resumed ? { ...p, tableMode: { mode: "free" } } : p,
+    ctx.job.triggerSeq,
+  );
   const perPost = posts.map((e) =>
     codeTriggers(e.text, assembled.snapshot, ctx.seed),
   );
@@ -287,10 +295,7 @@ export async function runTalkTurn(
 
   // Steps 4 and 6: a legal escalation runs resolve's opening move; else scene.
   if (react.outcome === "escalate") {
-    // A reclaim after the opening move landed has no unstarted encounter left.
-    const resumed = ctx.checkpoint.submissions.some((x) =>
-      x.key.startsWith("director:"),
-    );
+    // A resumed run has no unstarted encounter left; resolve skips its landed rows.
     const encounterId = react.encounterId ?? "";
     if (!resumed && !legalEscalation(ctx.seed, p, encounterId)) {
       result.outcome = "scene";
