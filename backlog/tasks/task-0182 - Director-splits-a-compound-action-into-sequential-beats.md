@@ -1,10 +1,10 @@
 ---
 id: TASK-0182
 title: Director splits a compound action into sequential beats
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-10-30 00:56'
-updated_date: '2026-10-30 04:28'
+updated_date: '2026-10-30 04:37'
 labels:
   - dm
   - director
@@ -74,6 +74,12 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
 
 Phase 5 84ec1669: 031 nodes/director/node-seam and 034 narration-facts amended (additive). 8 stale notes re-pinned: dm-runtime, dm-turn-jobs, dm-failure-and-gates, dm-narration-quality NEEDS-REVIEW amended; debug-view, turn-floor, seed-npc-presence, srd-data RE-PIN-ONLY. dm-runtime and dm-turn-jobs trimmed to the 8000-char budget; the orchestrator checked that each removed claim survives (debug routes covered by debug-view). CAPSULES, INDEX and the runbook row updated.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (The pure core (card AC #1, #3, #4): 9/9 · Runner wiring, prompts, facts (card AC #2, #4): 10/10 · The fixture and the live script (card AC #5): 7/7 · DB suites, mutation guard, live check **[orchestrator]**: 3/3 · Contracts and wiki re-ground: 6/6). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
