@@ -35,12 +35,12 @@ Spec: specs/065-talk-triggers
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 A decision record amends decision-0016 so in-character talk can trigger a DM reaction
-- [ ] #2 The decision names the triggers read from an in-character post: a character addressed, mentioned or referred to, speech overheard by someone nearby, and any others it adds
-- [ ] #3 The decision states how the DM turns triggers into a next-beat outcome: an NPC reply, a scene change, or no reaction
-- [ ] #4 The decision caps chained AI-only exchanges and states how the floor returns to the PCs
-- [ ] #5 The decision states when a reaction moves the table into turn mode
-- [ ] #6 A spec is written against the decision, and its implementation tasks are carded
+- [x] #1 A decision record amends decision-0016 so in-character talk can trigger a DM reaction
+- [x] #2 The decision names the triggers read from an in-character post: a character addressed, mentioned or referred to, speech overheard by someone nearby, and any others it adds
+- [x] #3 The decision states how the DM turns triggers into a next-beat outcome: an NPC reply, a scene change, or no reaction
+- [x] #4 The decision caps chained AI-only exchanges and states how the floor returns to the PCs
+- [x] #5 The decision states when a reaction moves the table into turn mode
+- [x] #6 A spec is written against the decision, and its implementation tasks are carded
 - [ ] #7 Spec phase: The pure core (card AC #2, #4)
 - [ ] #8 Spec phase: Enqueue (card AC #3, #4)
 - [ ] #9 Spec phase: The talk path (card AC #3, #4)
@@ -48,6 +48,8 @@ Spec: specs/065-talk-triggers
 - [ ] #11 Spec phase: DB suites, mutation guard, live check **[orchestrator]**
 - [ ] #12 Spec phase: Contracts and wiki re-ground
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
