@@ -25,6 +25,8 @@ Outcome: when a player declares a plan, a movement or approach, and conditional 
 Why: two-browser alpha playtest 2026-10-28, run 2 item 4, session 166b8e59, action act-197dae73. One post held a plan (diplomacy first, force if needed), an approach (Tamsin walks openly to the goblin camp; Kestrel and Odo follow hidden in the reeds), and contingencies (attack on Tamsin's signal). The Director treated it as one beat. It advanced the alarm and dusk trackers, switched to turn mode and opened the reed-camp encounter before the party arrived. The interpret step assumed Tamsin had already been seen and hailed. Nothing resolved the stealth approach as a step that could fail. Players will post this way often. Follow-ups assume earlier steps succeed, so resolving them together removes the chance of failure on the way.
 
 Related: TASK-0085 (Director scene framing and pacing), TASK-0120 (research: exploration, awareness and time), TASK-0180 (reactions to in-character talk).
+
+Spec: specs/064-plan-first-step
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
