@@ -4,7 +4,7 @@ title: 'Design: in-character talk triggers DM reactions (amends D8)'
 status: In Progress
 assignee: []
 created_date: '2026-10-30 00:37'
-updated_date: '2026-10-30 05:33'
+updated_date: '2026-10-30 13:59'
 labels:
   - dm
   - design
@@ -41,6 +41,12 @@ Spec: specs/065-talk-triggers
 - [ ] #4 The decision caps chained AI-only exchanges and states how the floor returns to the PCs
 - [ ] #5 The decision states when a reaction moves the table into turn mode
 - [ ] #6 A spec is written against the decision, and its implementation tasks are carded
+- [ ] #7 Spec phase: The pure core (card AC #2, #4)
+- [ ] #8 Spec phase: Enqueue (card AC #3, #4)
+- [ ] #9 Spec phase: The talk path (card AC #3, #4)
+- [ ] #10 Spec phase: Escalation to turn mode (card AC #5) — cut 1
+- [ ] #11 Spec phase: DB suites, mutation guard, live check **[orchestrator]**
+- [ ] #12 Spec phase: Contracts and wiki re-ground
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -50,6 +56,8 @@ Claimed 2026-10-29 by the M3 sweep, resumed 2026-10-29 (docs/design/m3-table-swe
 
 Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5
 Spec author (2026-10-30): draft decision-0027 (D19, proposed) + spec 065 set, commits b8ede81b 748f0602 a144c4b9, ~172k tokens. OQ-1..OQ-16 await the operator's ruling; no frozen contract touched by the (a) options. Implementation cards wait on the ruling.
+
+Operator ruling 2026-10-30, in this sweep session: "I rule OQ-1 to OQ-16 all (a)." decision-0027 flipped to accepted (no CLI edit verb; status line edited in the file, as decision-0026 was). OQ-15 (a): close TASK-0052 by decision-0027 §7 after this PR merges.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
