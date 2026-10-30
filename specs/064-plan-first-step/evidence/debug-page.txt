@@ -1,0 +1,336 @@
+the-stacks
+Menu
+Ask
+Library
+Table
+Settings
+About
+operator · operator
+Sign out
+Free mode
+nothing queued
+turn
+scene-start
+succeeded
+shipped
+0 s
+attempts 1
+3 calls
+0 tokens
+unpriced
+chronicle
+chronicle
+succeeded
+shipped
+0 s
+attempts 1
+1 calls
+0 tokens
+unpriced
+turn
+commit
+succeeded
+shipped
+0 s
+attempts 1
+4 calls
+0 tokens
+unpriced
+ASSEMBLE
+{
+  "beat": [
+    "act-197dae73"
+  ],
+  "npcTurn": null
+}
+DIRECTOR
+{
+  "beat": {
+    "decision": "resolve"
+  },
+  "scene": {
+    "status": "continue"
+  },
+  "pacing": {
+    "beatId": "reed-camp",
+    "tension": "low",
+    "spotlight": null
+  },
+  "goalNote": "Reward the careful search.",
+  "trackers": [],
+  "overrides": [
+    {
+      "reason": "held: the plan was cut to its first stage",
+      "decision": "turn"
+    },
+    {
+      "reason": "held: the plan was cut to its first stage",
+      "decision": "tracker"
+    }
+  ],
+  "tableMode": {
+    "to": "stay"
+  },
+  "companionPrompts": []
+}
+dm.director · attempt 1 · ok · scripted-chat · 0 in / 0 out · unpriced
+INTERPRET
+{
+  "readings": [
+    {
+      "steps": [
+        {
+          "dc": 12,
+          "kind": "ability-check",
+          "mode": "normal",
+          "step": "check",
+          "skill": "stealth",
+          "reason": "Kestrel slips through the reeds unseen",
+          "ability": "dex",
+          "autoFail": null,
+          "onFailure": [],
+          "onSuccess": [],
+          "expression": "1d20",
+          "combatantId": "kestrel"
+        },
+        {
+          "dc": 12,
+          "kind": "ability-check",
+          "mode": "normal",
+          "step": "check",
+          "skill": "stealth",
+          "reason": "Odo follows Kestrel through the reeds unseen",
+          "ability": "dex",
+          "autoFail": null,
+          "onFailure": [],
+          "onSuccess": [],
+          "expression": "1d20",
+          "combatantId": "odo"
+        }
+      ],
+      "intent": "check",
+      "clarify": null,
+      "actionId": "act-197dae73",
+      "followUps": [
+        "Tamsin hails the goblin camp and asks for parley",
+        "Kestrel attacks Snag on Tamsin's signal"
+      ],
+      "uncertain": true,
+      "rulesQuestion": null,
+      "needsAdjudication": false
+    }
+  ]
+}
+dm.interpret · attempt 1 · ok · scripted-chat · 0 in / 0 out · unpriced
+ADJUDICATE
+{
+  "rulings": []
+}
+RESOLVE
+mechanics · applied · 
+#18
+#19
+mechanics · applied · 
+#20
+#21
+action.resolve · applied · 
+#22
+narration · applied · 
+#23
+NARRATE AND AUDIT
+
+Shipped · 
+#23
+
+Attempt 1: 27 words · prose hash 8addeb4a538d979b35efc506fa9760835ed7be32fd994a201a95c3c1724701ec
+Blocking: none
+Advisory: none
+dm.narrate · attempt 1 · ok · scripted-chat · 0 in / 0 out · unpriced
+dm.audit · attempt 1 · ok · scripted-chat · 0 in / 0 out · unpriced
+FAILURE
+
+not run
+
+chronicle
+chronicle
+succeeded
+shipped
+0 s
+attempts 1
+1 calls
+0 tokens
+unpriced
+#1
+04:20:22
+system
+presence.recorded
+public
+payload
+#2
+04:20:22
+DM
+scene.changed
+public
+payload
+#3
+04:20:22
+DM
+combatant.added
+public
+payload
+#4
+04:20:22
+DM
+party.member.changed
+public
+payload
+#5
+04:20:22
+DM
+combatant.added
+public
+payload
+#6
+04:20:22
+DM
+party.member.changed
+public
+payload
+#7
+04:20:22
+DM
+combatant.added
+public
+payload
+#8
+04:20:22
+DM
+party.member.changed
+public
+payload
+#9
+04:20:22
+DM
+tracker.changed
+dm
+payload
+#10
+04:20:22
+DM
+tracker.changed
+dm
+payload
+#11
+04:20:22
+DM
+scene-presence.changed
+dm
+payload
+#12
+04:20:22
+DM
+scene-presence.changed
+dm
+payload
+#13
+04:20:22
+DM
+narration
+public
+payload
+#14
+04:20:22
+DM
+journal.entry.added
+public
+payload
+#15
+04:20:25
+Tamsin Vale
+action.declared
+public
+payload
+#16
+04:20:25
+Tamsin Vale
+action.committed
+public
+payload
+#17
+04:20:25
+system
+presence.recorded
+public
+payload
+#18
+04:20:25
+DM
+dice.rolled
+public
+payload
+#19
+04:20:25
+DM
+check.resolved
+public
+payload
+#20
+04:20:25
+DM
+dice.rolled
+public
+payload
+#21
+04:20:25
+DM
+check.resolved
+public
+payload
+#22
+04:20:25
+DM
+action.resolved
+public
+payload
+#23
+04:20:25
+DM
+narration
+public
+payload
+#24
+04:20:25
+DM
+journal.entry.added
+public
+payload
+State
+live through seq 24
+Seed
+Ledger
+Journal
+Cost
+TABLE
+
+Mode: free
+
+DM seat: AI
+
+Gate policy overrides: none
+
+Scene: Greyhollow Ford (two players)
+
+PARTY
+Tamsin Vale HP 13/13, conscious
+Brother Odo HP 10/10, conscious
+Kestrel HP 9/9, conscious
+ENCOUNTER
+
+No encounter.
+
+TRACKERS
+Full dark falls on the ford 0/4 (When full, the river-things rise; the scene's failure condition is near.)
+The reed-camp is alerted 0/3 (When full, the goblins ambush the party on the causeway instead of waiting at camp.)
+PENDING PROPOSALS
+
+No pending proposals.

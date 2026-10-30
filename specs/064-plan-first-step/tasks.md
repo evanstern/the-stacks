@@ -87,7 +87,7 @@ prompts. No other lane edits them while this branch is open.
       timeout once (TASK-0154) and report it.
 - [x] T028 **[orchestrator]** Mutation guard (plan D7): stub `firstStage`, then `holdDirector`; record
       the failing test count for each; restore; confirm `git diff` is empty.
-- [ ] T029 **[orchestrator]** Script-mode live check (plan D8): set
+- [x] T029 **[orchestrator]** Script-mode live check (plan D8): set
       `DM_FAKE_SCRIPT=greyhollow-plan-approach`, start the duo scene, run `declare.mjs`. Record in
       Brave: free mode after the turn, two stealth dice lines, no encounter, the held overrides on
       the debug page. Commit the evidence under `specs/064-plan-first-step/evidence/`.
