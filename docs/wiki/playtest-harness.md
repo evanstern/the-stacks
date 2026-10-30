@@ -36,7 +36,7 @@ Code: `apps/server/src/playtest/`. Spec: `specs/032-playtest-harness/` (contract
 `harness.ts`'s `runPlaytest({db, scenario, mode, out, provider?, noAudit?})` builds the gate (with
 a static presence reader that names the scripted seat's user present and counts every `ai:`
 actor present, so each turn's marker lists the scripted seat; [[presence]]),
-gateway, DM enqueuer and worker, seeds the session from the scenario's `seedId`, then loops:
+gateway, DM enqueuer (given `loadSeed`, TASK-0180, so talk rules can match seed role words) and worker, seeds the session from the scenario's `seedId`, then loops:
 `driver.ts`'s `nextMove` picks the next scripted move, the harness submits it through
 `gate.handle` as the human seat, and the worker drains until idle. Dice come from
 `dice.ts`'s `scenarioRng`: the scenario's scripted faces, then `seededRng(seed)` (seed 0 if null). A scenario

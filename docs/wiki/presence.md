@@ -78,6 +78,8 @@ turns it into `AssembleOutput.presence`: `present`, `absent` (human party contro
 from the marker) and `seq`, or `null` before any marker ([[dm-runtime]]). No Director prompt
 text uses it yet.
 
+A `talk` turn records the same marker and stores `presenceSeq` in its result (TASK-0180); the react prompt reads present NPCs from the snapshot, not the marker.
+
 ## The absence wait (floor)
 
 Presence now drives the AI DM's floor passing (specs/049-turn-floor, [[dm-turn-jobs]]). `index.ts` hands `presence.reader` to the DM worker and the enqueuer and registers `presence.reader.onChange` with `dmEnqueuer.onPresenceChange`. When the active human is no longer present under an AI seat, the enqueuer arms an `absence` floor job 30 s ahead (on top of the 5 s grace). When it runs, the floor job reads `presentUsers` again and passes the turn only if the same human is still absent; the gate then plans the `floor` marker with that present set. Worker start also arms absences for turn-mode sessions whose holder is absent.

@@ -45,3 +45,12 @@ caps in [nodes.md](nodes.md). Usage and cost flow through the gateway's `UsageSi
 
 Real-provider runs are an operator checkpoint (runbook: provider, model list, estimate).
 Implementers never set or commit a key.
+
+## Amendment 2026-10-30 (specs/065-talk-triggers): `dm.react-v1`
+
+Amended by specs/065-talk-triggers.
+
+The talk path's `react` call uses purpose `dm.narrate` with prompt version `dm.react-v1`
+(`dm/prompts/react.ts`). It adds no purpose, no `AI_PURPOSES` entry and no output cap: the
+`dm.narrate` cap (500) applies. A talk turn adds one `dm.narrate`-class call, or two after a
+code refusal.

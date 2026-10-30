@@ -18,7 +18,7 @@ via `createApp` without binding a port.
 
 ## How it works
 
-`index.ts` runs, in order: `loadConfig()` (see [[configuration]]), then `createAiRuntime(process.env)`
+`index.ts` passes `loadSeed` to `createDmEnqueuer` (TASK-0180) so the talk rule can match seed role words. `index.ts` runs, in order: `loadConfig()` (see [[configuration]]), then `createAiRuntime(process.env)`
 (from `dm/script/env.ts`, TASK-0158, specs/053), which calls `loadAiConfig` directly (not through
 `loadConfig`; see [[configuration]]) or, when `DM_FAKE_SCRIPT` is
 set, builds script mode ([[ai-gateway]]) and `index.ts` logs `DM script mode: <name> (<n> calls, <n> dice)`.

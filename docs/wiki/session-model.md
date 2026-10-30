@@ -40,7 +40,7 @@ Six kinds exist:
 
 | kind | types |
 |---|---|
-| talk | `talk`, `narration` |
+| talk | `talk`, `narration` (a public IC `talk` row from a human or companion can queue a DM reaction: [[dm-turn-jobs]], TASK-0180) |
 | lifecycle | `action.declared`, `action.commented`, `action.committed`, `action.resolved`, `action.withdrawn` |
 | state-change | `table-mode.changed`, `scene.changed`, `scene-presence.changed`, `party.member.changed`, `tracker.changed` (dm-only), `dm.seat.changed`, `gate.policy.changed`, plus engine events that change state |
 | marker | engine events `dice.rolled`, `attack.resolved`, `check.resolved`, `rest.completed`, and `presence.recorded` |

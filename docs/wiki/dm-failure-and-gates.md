@@ -24,6 +24,8 @@ normalizer is described in [[dm-runtime]].
 
 A `floor` job (spec 049) is code only and has no `TurnFailureResult`: a gate refusal finishes it with outcome `refused`, and a throw logs `dm.floor.threw` and fails it with `stopped at floor: internal` ([[dm-turn-jobs]]).
 
+A failed `talk` turn (TASK-0180) writes the same record with `node` `narrate` (a `react` call or a fence loss) or `resolve` (an escalation's opening move). A `talk` turn that ends `none` or refused twice is not a failure: it finishes as `empty-beat` with `jobs.result.talk` ([[dm-turn-jobs]]).
+
 When a turn fails, the worker writes `jobs.result` as a `TurnFailureResult` (`dm/jobs.ts`):
 the last checkpoint, `outcome: { status: "failed" }`, `audit: null`, every model call made (each with provider, model, token, cost and duration fields since TASK-0116), and
 `failure: { node, kind, message, detail }`. `node` is a pipeline node, or `presence` when the
