@@ -41,9 +41,12 @@
 //         rebase                          (rebases forbidden repo-wide)
 //         push --force | --force-with-lease[=…] | --force-if-includes | -f
 //
-//       BLOCK only when the invocation runs AT THE ROOT CHECKOUT (its
-//       `rev-parse --show-toplevel` realpath-equals $CLAUDE_PROJECT_DIR —
-//       worktrees have their OWN toplevel and pass as NOT root):
+//       BLOCK only when the invocation runs AT THE ROOT CHECKOUT — the main
+//       worktree, derived from `git rev-parse --git-common-dir` (its parent),
+//       NOT from $CLAUDE_PROJECT_DIR (a session opened directly on a linked
+//       worktree sets CLAUDE_PROJECT_DIR to that worktree, which must NOT be
+//       misclassified as root — worktrees have their OWN toplevel and pass as
+//       NOT root):
 //         commit          `--amend` denied OUTRIGHT — checked BEFORE both
 //                         allow paths. Otherwise allowed only if one of two
 //                         allow paths holds, checked in order:
@@ -169,6 +172,25 @@ function realResolve(absPath) {
   const real = realOrNull(cur);
   if (!real) return null;
   return tail.length ? joinPath(real, ...tail) : real;
+}
+
+// Derive the main (root) checkout of the repo containing `realProjectDir`
+// from git itself — `git rev-parse --git-common-dir` reports the shared .git
+// dir, whose parent is the main worktree. CLAUDE_PROJECT_DIR cannot name the
+// root: a session opened directly on a linked worktree sets it to that
+// worktree, and the old derivation then misclassified the worktree as root
+// and blocked every commit there. CLAUDE_PROJECT_DIR is retained only as the
+// jurisdiction anchor (which repo this hook governs). Falls back to
+// `realProjectDir` (the pre-fix behavior) whenever git cannot confirm the
+// derivation (not a repo, exotic GIT_DIR layout, unresolvable path).
+function resolveMainCheckout(realProjectDir) {
+  const common = tryExec('git', ['-C', realProjectDir, 'rev-parse', '--git-common-dir']);
+  if (common.status !== 0) return realProjectDir;
+  const p = common.stdout.trim();
+  if (!p) return realProjectDir;
+  const abs = realResolve(resolvePath(realProjectDir, p));
+  if (!abs || basename(abs) !== '.git') return realProjectDir;
+  return dirname(abs);
 }
 
 // ---------------------------------------------------------------------------
@@ -347,14 +369,15 @@ const COMMIT_SHORT_DENY = 'api';
 
 // Is this pathspec token entirely under backlog/? Relative paths must start
 // with `backlog/` (after stripping a leading `./`); absolute paths must
-// realpath-resolve strictly under <root>/backlog/.
-function boardPathspecOk(tok, realProjectDir) {
+// realpath-resolve strictly under <root>/backlog/ (`realRoot` is the derived
+// main checkout — see resolveMainCheckout).
+function boardPathspecOk(tok, realRoot) {
   let p = tok;
   while (p.startsWith('./')) p = p.slice(2);
   if (p.startsWith('/')) {
     const real = realResolve(p);
     if (!real) return false;
-    return real.startsWith(joinPath(realProjectDir, 'backlog') + '/');
+    return real.startsWith(joinPath(realRoot, 'backlog') + '/');
   }
   return p.startsWith('backlog/');
 }
@@ -364,7 +387,7 @@ function boardPathspecOk(tok, realProjectDir) {
 // Returns { ok: true } to allow, or { ok: false, reason, token? } to deny —
 // `reason`/`token` carry the finding so the refusal can name the SPECIFIC token
 // read as an out-of-scope pathspec (spec 051 R3).
-function classifyBoardSyncCommit(args, effDir, realProjectDir) {
+function classifyBoardSyncCommit(args, effDir, realRoot) {
   const pathspecs = [];
   let afterDashDash = false;
   for (let i = 0; i < args.length; i++) {
@@ -411,7 +434,7 @@ function classifyBoardSyncCommit(args, effDir, realProjectDir) {
     // Explicit pathspecs: every one must be under backlog/ (git commits exactly
     // these paths regardless of what else is staged).
     for (const p of pathspecs) {
-      if (!boardPathspecOk(p, realProjectDir)) {
+      if (!boardPathspecOk(p, realRoot)) {
         return { ok: false, reason: 'pathspec-outside', token: p };
       }
     }
@@ -458,7 +481,8 @@ function block(sub, rule) {
       'The root checkout is READ-ONLY: author changes on a branch in .worktrees/<task-branch> ' +
       'and land them on main only by merge (PR `gh pr merge --merge` or manual `git merge --no-ff` at root). ' +
       'Rebases are forbidden repo-wide.\n' +
-      'See CLAUDE.md "Root checkout is READ-ONLY — worktree + merge only, no rebases". ' +
+      'See AGENTS.md (or CLAUDE.md on hosts not yet re-planted) "Root checkout is READ-ONLY — ' +
+      'worktree + merge only, no rebases". ' +
       'No bypass flag — emergencies go through the operator editing hook config, visibly and deliberately.\n'
   );
   process.exit(2);
@@ -477,11 +501,14 @@ function runPreBash() {
   const command = input?.tool_input?.command;
   if (typeof command !== 'string' || command.trim() === '') process.exit(0);
 
-  // Jurisdiction root: CLAUDE_PROJECT_DIR must be set and resolvable.
+  // Jurisdiction anchor: CLAUDE_PROJECT_DIR must be set and resolvable. It
+  // names the repo this hook governs — a session may open on ANY worktree of
+  // it. The ROOT checkout is derived from git, not from this value.
   const projectDir = process.env.CLAUDE_PROJECT_DIR;
   if (!projectDir) process.exit(0);
   const realProjectDir = realOrNull(projectDir);
   if (!realProjectDir) process.exit(0);
+  const realRoot = resolveMainCheckout(realProjectDir);
 
   const baseCwd = typeof input.cwd === 'string' && input.cwd ? input.cwd : process.cwd();
 
@@ -541,10 +568,10 @@ function runPreBash() {
     // worktree under it). The guard governs its own repo, not every repo a
     // session touches. Pass — explicitly, BEFORE any staged-set query.
     const inJurisdiction =
-      realTop === realProjectDir || realTop.startsWith(realProjectDir + '/');
+      realTop === realRoot || realTop.startsWith(realRoot + '/');
     if (!inJurisdiction) continue;
 
-    const isRoot = realTop === realProjectDir; // worktrees have their own toplevel
+    const isRoot = realTop === realRoot; // main checkout; worktrees have their own toplevel
 
     const sub = inv.subcommand;
     const args = inv.args;
@@ -575,7 +602,7 @@ function runPreBash() {
       const mergeHead = tryExec('git', ['-C', effDir, 'rev-parse', '-q', '--verify', 'MERGE_HEAD']);
       if (mergeHead.status !== 0) {
         // Allow path 2: the board-sync exception (TASK-161).
-        const verdict = classifyBoardSyncCommit(args, effDir, realProjectDir);
+        const verdict = classifyBoardSyncCommit(args, effDir, realRoot);
         if (!verdict.ok) {
           block(
             sub,
@@ -627,25 +654,27 @@ function runPreWrite() {
   if (!projectDir) process.exit(0);
   const realProjectDir = realOrNull(projectDir);
   if (!realProjectDir) process.exit(0);
+  const realRoot = resolveMainCheckout(realProjectDir);
 
   const baseCwd = typeof input.cwd === 'string' && input.cwd ? input.cwd : process.cwd();
   const abs = resolvePath(baseCwd, filePath);
   const realAbs = realResolve(abs);
   if (!realAbs) process.exit(0); // unresolvable: fail open
 
-  // Out of jurisdiction: path not inside the project.
-  if (realAbs !== realProjectDir && !realAbs.startsWith(realProjectDir + '/')) {
+  // Out of jurisdiction: path not inside the project's root checkout tree
+  // (the main checkout plus the worktrees under its .worktrees/).
+  if (realAbs !== realRoot && !realAbs.startsWith(realRoot + '/')) {
     process.exit(0);
   }
 
   // Worktrees are where changes are authored — always allowed.
-  if (realAbs.startsWith(joinPath(realProjectDir, '.worktrees') + '/')) {
+  if (realAbs.startsWith(joinPath(realRoot, '.worktrees') + '/')) {
     process.exit(0);
   }
 
   // Gitignored paths are not part of the checkout's tracked state
   // (.handoff/, .claude/settings.local.json, .worktrees/ itself, …).
-  const ign = tryExec('git', ['-C', realProjectDir, 'check-ignore', '-q', '--', realAbs]);
+  const ign = tryExec('git', ['-C', realRoot, 'check-ignore', '-q', '--', realAbs]);
   if (ign.status === 0) process.exit(0); // ignored: allowed
   if (ign.status !== 1) process.exit(0); // check-ignore error: fail open
 
@@ -654,7 +683,8 @@ function runPreWrite() {
     `root-guard: blocked write to ${realAbs} — the root checkout is READ-ONLY.\n` +
       'Author this change on a branch in a worktree (.worktrees/<task-branch>) and land it on main by merge ' +
       '(PR `gh pr merge --merge` or manual `git merge --no-ff` at root).\n' +
-      'See CLAUDE.md "Root checkout is READ-ONLY — worktree + merge only, no rebases". ' +
+      'See AGENTS.md (or CLAUDE.md on hosts not yet re-planted) "Root checkout is READ-ONLY — ' +
+      'worktree + merge only, no rebases". ' +
       'No bypass flag — emergencies go through the operator editing hook config, visibly and deliberately.\n'
   );
   process.exit(2);
