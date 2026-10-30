@@ -4,11 +4,12 @@ title: DM model calls fail on a <think> prefix from the router
 status: To Do
 assignee: []
 created_date: '2026-10-30 00:45'
-updated_date: '2026-10-30 00:57'
+updated_date: '2026-10-30 01:02'
 labels:
   - dm
   - bug
   - hosted-dev
+  - blocker
 milestone: m-3
 dependencies: []
 references:
@@ -44,6 +45,8 @@ Related: TASK-0132 (players see nothing while a turn runs or fails), TASK-0102 (
 Run 2 item 4 evidence: turns at 00:50 and 00:52 both failed at interpret. Three of four attempts returned only '<think></think>' yet used exactly 1200 output tokens, which suggests hidden thinking consumes the whole output budget. The table stalled, and each turn posted 'The DM runtime stopped at interpret: invalid-output.'
 
 Lead: PURPOSE_MAX_TOKENS in apps/server/src/dm/purposes.ts caps dm.interpret at 800 and dm.director at 600, yet failed attempts show exactly 1200 output tokens with only '<think></think>' as text. The router or model likely spends the cap on hidden reasoning. Longer actions fail more often (00:55 retry of act-197dae73 also failed). Check the router's thinking setting and the effective maxTokens before stripping tags.
+
+Operator ruling 2026-10-29: showstopper. Run 2 of the two-browser alpha playtest ended on it at about 01:00 UTC. The same committed action (act-197dae73) failed four turns in a row (00:50, 00:52, 00:55, 00:59). The 00:59 director attempt 1 was '<think></think>' followed by valid JSON, so stripping the prefix alone would have saved it. Attempt 2 omitted companionPrompts. TASK-0163 run 3 waits on this fix being deployed to vm-104.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
