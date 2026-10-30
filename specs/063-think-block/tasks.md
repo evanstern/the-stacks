@@ -63,7 +63,7 @@ without the block (contracts/think-strip.md).
 
 ## Phase 2: Mutation guard **[orchestrator]** (card AC #3)
 
-- [ ] T008 **[orchestrator]** Make `stripThink` return its input unchanged. Run
+- [x] T008 **[orchestrator]** Make `stripThink` return its input unchanged. Run
       `test/dm/call.test.ts`. Expect T001 (except the unchanged-input cases), T002 and T003 red.
       Revert. Run again green. Record both runs, with the failing test names, in
       `specs/063-think-block/evidence/mutation-guard.md`. Commit it.
