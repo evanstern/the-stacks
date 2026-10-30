@@ -4,7 +4,7 @@ title: DM model calls fail on a <think> prefix from the router
 status: In Progress
 assignee: []
 created_date: '2026-10-30 00:45'
-updated_date: '2026-10-30 16:24'
+updated_date: '2026-10-30 16:25'
 labels:
   - dm
   - bug
@@ -84,6 +84,8 @@ Probe P2 by IP (operator-run, 2026-10-29): reasoning_effort none, status 200, de
 vm-104 DNS (operator-run, 2026-10-30): on vm-104, `sudo resolvectl dns ens18 192.168.1.79` then `resolvectl query 9router.local.infinity-node.win` answered 192.168.1.103 via ens18. Confirms the resolver diagnosis: vm-104 resolves 9router once it asks the Pi-hole. This is a runtime-only change; it lasts until reboot or DHCP renew. Next: confirm from stacks-dev-app-1, then make it permanent in netplan (operator).
 
 Container check (operator-run, 2026-10-30): `sudo docker restart stacks-dev-app-1 && sudo docker exec stacks-dev-app-1 getent hosts 9router.local.infinity-node.win` answered 192.168.1.103. The hosted-dev app container now resolves 9router. Still runtime-only until netplan persists it.
+
+Permanent DNS fix (operator-run, 2026-10-30): the router IPv6 RA supplied the 2605:9fc0:0:53::1/::2 servers; netplan already listed only 192.168.1.79. Added drop-in /etc/systemd/network/10-netplan-ens18.network.d/no-ra-dns.conf ([IPv6AcceptRA] UseDNS=no), then networkctl reload + reconfigure ens18. `resolvectl status ens18` now lists DNS Servers: 192.168.1.79 only. Survives reboot and netplan apply.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
