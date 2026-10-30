@@ -36,8 +36,8 @@ Spec: specs/063-think-block
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
 - [ ] #1 The cause of the think block is identified (router, model or provider setting) and recorded on this card
-- [ ] #2 DM calls parse a reply that starts with a think block, or the source stops emitting it; the spec decides which
-- [ ] #3 A test covers a reply with a leading empty and non-empty think block
+- [x] #2 DM calls parse a reply that starts with a think block, or the source stops emitting it; the spec decides which
+- [x] #3 A test covers a reply with a leading empty and non-empty think block
 - [ ] #4 A hosted-dev turn after deploy shows no invalid-json attempts in the debug calls list
 - [x] #5 Spec phase: Strip leading think blocks (card AC #2, #3; US1)
 - [x] #6 Spec phase: Mutation guard **[orchestrator]** (card AC #3)
@@ -76,6 +76,8 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
 Phase 4 594e98a2: dm-runtime, dm-failure-and-gates and ai-gateway are NEEDS-REVIEW, amended and re-pinned; debug-view RE-PIN-ONLY. Runbook log row. Freshness OK, spec-bridge 0. vm-104 resolver (operator-run resolvectl): current DNS is upstream IPv6 2605:9fc0:0:53::1, not the Pi-hole 192.168.1.79, which holds 9router at 192.168.1.103. The DNS fix is the operator's.
 
 spec-bridge sync: Strip leading think blocks (card AC #2, #3; US1): 7/7 · Mutation guard **[orchestrator]** (card AC #3): 1/1 · Cause probe and source fix **[orchestrator]**, operator's go (card AC #1, #2; US2): 0/4 · Wiki **[orchestrator]** (re-ground): 5/5 · Hosted-dev check after deploy **[orchestrator]**, operator's go (card AC #4; US3): 0/3
+
+Merged as #91 at 86e34adb under the operator's words "Merge PR #91 (TASK-0181) now as a merge commit; CI is green." AC #2 (strip at parse) and AC #3 (test) are met. The card stays In Progress: AC #1 is unconfirmed (the by-IP probe P1 on a trivial prompt showed no think block; a real dm.interpret replay is needed), and AC #4 waits on the operator fixing vm-104 DNS to the Pi-hole, then a hosted turn.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
