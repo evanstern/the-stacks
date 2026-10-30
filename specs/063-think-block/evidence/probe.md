@@ -39,3 +39,16 @@ Neither hostname resolves from the vm-104 app container on 2026-10-29: the LAN n
 Reading: systemd-resolved moved off the LAN server `192.168.1.79` to an upstream IPv6 server, which does not know `local.infinity-node.win`. That server's NXDOMAIN is final, so resolved never falls back. The operator resolves the name from other machines. The fault is vm-104's resolver choice, not 9router. The fix is the operator's infrastructure call, for example limiting `ens18` to `192.168.1.79` in netplan, or stopping the router from advertising the IPv6 DNS servers.
 
 The operator confirmed on 2026-10-29: 9router is defined in the Pi-hole at `192.168.1.79` and resolves to `192.168.1.103`. vm-104 is querying an upstream IPv6 server, so it never asks the Pi-hole.
+
+## P1 by IP (operator-run, 2026-10-29)
+
+The operator ran `probe-ip.mjs p1` in `stacks-dev-app-1`. It sends to `http://192.168.1.103/v1/chat/completions` with `Host: 9router.local.infinity-node.win`, model `cc/claude-sonnet-5` and `max_tokens` 1200.
+
+- The response was status 200 with no server or version header. The stream reported model `claude-sonnet-5`.
+- `delta.content` carried `{"ok":true}`, with no `<think>` block in any delta field.
+- `finish_reason` was `stop`. Usage: `prompt_tokens` 2048, `completion_tokens` 9.
+
+Reading:
+- A trivial prompt does not reproduce the think block. That fits thinking that the model or router turns on adaptively for harder prompts. It does not fit thinking that is always on, so the R1 claim "thinking is always on" is weakened.
+- `prompt_tokens` 2048 for a one-line message means the router adds about 2,000 tokens of its own system prompt on `cc/` routes.
+- The `stripThink` fix holds whatever the trigger. To confirm the cause, replay a real `dm.interpret` prompt, which needs a captured request body.
