@@ -1,9 +1,10 @@
 ---
 id: TASK-0182
 title: Director splits a compound action into sequential beats
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-10-30 00:56'
+updated_date: '2026-10-30 02:43'
 labels:
   - dm
   - director
@@ -34,6 +35,12 @@ Related: TASK-0085 (Director scene framing and pacing), TASK-0120 (research: exp
 - [ ] #4 Trackers and table mode change only for the steps that actually resolved
 - [ ] #5 A test or playtest fixture covers a plan-approach-contingency declaration
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Claimed 2026-10-29 by the M3 sweep, resumed 2026-10-29 (docs/design/m3-table-sweep-runbook.md). Worktree .worktrees/task-0182, branch task-0182-plan-first-step, cut from origin/main ef2afdfb. Spec number 064 claimed with a stub. Runbook amendment 06fe2971: TASK-0182 before TASK-0180, both before alpha run 3.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
