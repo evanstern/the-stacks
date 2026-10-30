@@ -37,11 +37,13 @@ Spec: specs/064-plan-first-step
 - [ ] #4 Trackers and table mode change only for the steps that actually resolved
 - [ ] #5 A test or playtest fixture covers a plan-approach-contingency declaration
 - [x] #6 Spec phase: The pure core (card AC #1, #3, #4)
-- [ ] #7 Spec phase: Runner wiring, prompts, facts (card AC #2, #4)
+- [x] #7 Spec phase: Runner wiring, prompts, facts (card AC #2, #4)
 - [ ] #8 Spec phase: The fixture and the live script (card AC #5)
 - [ ] #9 Spec phase: DB suites, mutation guard, live check **[orchestrator]**
 - [ ] #10 Spec phase: Contracts and wiki re-ground
 <!-- AC:END -->
+
+
 
 
 
