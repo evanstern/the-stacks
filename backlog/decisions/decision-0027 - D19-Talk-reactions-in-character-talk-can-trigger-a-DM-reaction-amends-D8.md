@@ -2,7 +2,7 @@
 id: decision-0027
 title: 'D19 Talk reactions: in-character talk can trigger a DM reaction (amends D8)'
 date: '2026-10-30 05:19'
-status: proposed
+status: accepted
 ---
 ## Context
 
@@ -146,3 +146,7 @@ no dice and no state change outside section 6 (AC #3), and the trigger recorded 
   TASK-0149 attitude moves only through its own facts. A talk reaction never moves it.
 - TASK-0144 (claim gate on companion `say`) gates the companion half of a chain.
 - Implementation cards follow the operator's ruling (TASK-0180 AC #6).
+
+## Ruling
+
+2026-10-30, the operator in the TASK-0180 sweep session: "I rule OQ-1 to OQ-16 all (a)."
