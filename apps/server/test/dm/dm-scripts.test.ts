@@ -3,6 +3,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { ChronicleOutput } from "../../src/dm/chronicle.js";
+import { DirectorOutput, InterpretOutput } from "../../src/dm/nodes/schemas.js";
 import { loadDmScript } from "../../src/dm/script/load.js";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -77,4 +78,21 @@ describe("shipped DM scripts (apps/server/dm-scripts)", () => {
     }
     expect(live.dice).toEqual(plan.dice);
   });
+  it.each([
+    ["live", LIVE_DIR, "greyhollow-plan-approach.json"],
+    ["test", TEST_SCRIPTS, "plan-approach.json"],
+  ])(
+    "%s plan-approach director and interpret replies parse against their schemas",
+    (_k, dir, file) => {
+      const calls = loadDmScript(read(dir, file)).calls;
+      const value = (purpose: string) =>
+        calls
+          .filter((c) => c.purpose === purpose)
+          .map((c) => (c.respond as { value: unknown }).value);
+      for (const v of value("dm.director"))
+        expect(DirectorOutput.safeParse(v)).toMatchObject({ success: true });
+      for (const v of value("dm.interpret"))
+        expect(InterpretOutput.safeParse(v)).toMatchObject({ success: true });
+    },
+  );
 });

@@ -58,7 +58,8 @@
           },
           "tableMode": {
             "to": "turn",
-            "encounterId": "reed-camp"
+            "encounterId": "reed-camp",
+            "reason": "Goblins at the reed camp are near; the party approaches."
           },
           "trackers": [
             {
