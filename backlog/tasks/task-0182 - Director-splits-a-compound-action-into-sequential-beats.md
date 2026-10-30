@@ -4,7 +4,7 @@ title: Director splits a compound action into sequential beats
 status: In Progress
 assignee: []
 created_date: '2026-10-30 00:56'
-updated_date: '2026-10-30 04:03'
+updated_date: '2026-10-30 04:12'
 labels:
   - dm
   - director
@@ -61,6 +61,10 @@ Phase 1 ccbcfa8f: followUps on InterpretReadingSchema and Ruling; dm/first-stage
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
 
 Phase 2 2b19ad0d: runner cut step after adjudicate and before resolve, checkpoint cut:true, reclaim-safe; prompts dm.interpret-v5, dm.director-v4, dm.narrate-v6; follow-ups rendered as "not yet attempted"; refused follow-ups withheld. Runner defaults a missing tableMode to turn (test stubs only). Non-DB gates green.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
+
+Phase 3 802dc3fe plus fixes 7b9b7583 and a7d49c0f: the plan-approach fixture, a DB test with a control, the greyhollow-plan-approach live script, declare.mjs, and offline schema checks of the script replies in dm-scripts.test.ts. On the stack, the orchestrator found: the Director reply was invalid (fixed); the test used non-existent event types (fixed); assertions were not scoped to the action turn and payloads not unwrapped. The orchestrator fixed the last two inline (two lines of test code). DB test 2/2 passed on stacks-task-0182. The turn ran 2 stealth checks, cut true, overrides turn and tracker, 2 follow-ups held, tableMode stay.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
