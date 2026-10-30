@@ -4,7 +4,7 @@ title: DM model calls fail on a <think> prefix from the router
 status: In Progress
 assignee: []
 created_date: '2026-10-30 00:45'
-updated_date: '2026-10-30 02:44'
+updated_date: '2026-10-30 16:23'
 labels:
   - dm
   - bug
@@ -80,6 +80,8 @@ spec-bridge sync: Strip leading think blocks (card AC #2, #3; US1): 7/7 · Mutat
 Merged as #91 at 86e34adb under the operator's words "Merge PR #91 (TASK-0181) now as a merge commit; CI is green." AC #2 (strip at parse) and AC #3 (test) are met. The card stays In Progress: AC #1 is unconfirmed (the by-IP probe P1 on a trivial prompt showed no think block; a real dm.interpret replay is needed), and AC #4 waits on the operator fixing vm-104 DNS to the Pi-hole, then a hosted turn.
 
 Probe P2 by IP (operator-run, 2026-10-29): reasoning_effort none, status 200, delta.content {"ok":true}, no think block, finish_reason stop, 2048 prompt and 9 completion tokens. Identical to P1. On a trivial prompt neither shows a think block, so P2 cannot tell whether reasoning_effort turns thinking off. AC #1 needs a replay of a real dm.interpret request. The P1 result is in specs/063-think-block/evidence/probe.md on main.
+
+vm-104 DNS (operator-run, 2026-10-30): on vm-104, `sudo resolvectl dns ens18 192.168.1.79` then `resolvectl query 9router.local.infinity-node.win` answered 192.168.1.103 via ens18. Confirms the resolver diagnosis: vm-104 resolves 9router once it asks the Pi-hole. This is a runtime-only change; it lasts until reboot or DHCP renew. Next: confirm from stacks-dev-app-1, then make it permanent in netplan (operator).
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
