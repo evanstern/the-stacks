@@ -39,9 +39,11 @@ Spec: specs/064-plan-first-step
 - [x] #6 Spec phase: The pure core (card AC #1, #3, #4)
 - [x] #7 Spec phase: Runner wiring, prompts, facts (card AC #2, #4)
 - [x] #8 Spec phase: The fixture and the live script (card AC #5)
-- [ ] #9 Spec phase: DB suites, mutation guard, live check **[orchestrator]**
+- [x] #9 Spec phase: DB suites, mutation guard, live check **[orchestrator]**
 - [ ] #10 Spec phase: Contracts and wiki re-ground
 <!-- AC:END -->
+
+
 
 
 
