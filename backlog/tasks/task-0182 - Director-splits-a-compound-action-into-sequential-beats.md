@@ -4,7 +4,7 @@ title: Director splits a compound action into sequential beats
 status: In Progress
 assignee: []
 created_date: '2026-10-30 00:56'
-updated_date: '2026-10-30 03:58'
+updated_date: '2026-10-30 04:03'
 labels:
   - dm
   - director
@@ -57,6 +57,10 @@ Operator ruled 2026-10-29 in the M3 sweep chat, verbatim: "TASK-0182: I accept t
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
 
 Phase 1 ccbcfa8f: followUps on InterpretReadingSchema and Ruling; dm/first-stage.ts (firstStage, cutPlans, holdDirector), 12 unit tests. Non-DB gates green.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
+
+Phase 2 2b19ad0d: runner cut step after adjudicate and before resolve, checkpoint cut:true, reclaim-safe; prompts dm.interpret-v5, dm.director-v4, dm.narrate-v6; follow-ups rendered as "not yet attempted"; refused follow-ups withheld. Runner defaults a missing tableMode to turn (test stubs only). Non-DB gates green.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
