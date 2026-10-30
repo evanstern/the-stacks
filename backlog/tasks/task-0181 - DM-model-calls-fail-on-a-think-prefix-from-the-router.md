@@ -4,7 +4,7 @@ title: DM model calls fail on a <think> prefix from the router
 status: In Progress
 assignee: []
 created_date: '2026-10-30 00:45'
-updated_date: '2026-10-30 16:25'
+updated_date: '2026-10-30 16:26'
 labels:
   - dm
   - bug
@@ -86,6 +86,8 @@ vm-104 DNS (operator-run, 2026-10-30): on vm-104, `sudo resolvectl dns ens18 192
 Container check (operator-run, 2026-10-30): `sudo docker restart stacks-dev-app-1 && sudo docker exec stacks-dev-app-1 getent hosts 9router.local.infinity-node.win` answered 192.168.1.103. The hosted-dev app container now resolves 9router. Still runtime-only until netplan persists it.
 
 Permanent DNS fix (operator-run, 2026-10-30): the router IPv6 RA supplied the 2605:9fc0:0:53::1/::2 servers; netplan already listed only 192.168.1.79. Added drop-in /etc/systemd/network/10-netplan-ens18.network.d/no-ra-dns.conf ([IPv6AcceptRA] UseDNS=no), then networkctl reload + reconfigure ens18. `resolvectl status ens18` now lists DNS Servers: 192.168.1.79 only. Survives reboot and netplan apply.
+
+Deploy check (operator-run, 2026-10-30): stacks-dev-app-1 label org.the-stacks.commit = 2b0bb5d1 (deploy-dev success 15:25Z). It contains #91 (stripThink) and #95 (TASK-0180). Later main commits are board-only.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
