@@ -43,16 +43,6 @@ Spec: specs/064-plan-first-step
 - [x] #10 Spec phase: Contracts and wiki re-ground
 <!-- AC:END -->
 
-
-
-
-
-
-
-
-
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -83,6 +73,8 @@ Live check 3b15247d (Brave, script mode greyhollow-plan-approach), every step pa
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
 
 Phase 5 84ec1669: 031 nodes/director/node-seam and 034 narration-facts amended (additive). 8 stale notes re-pinned: dm-runtime, dm-turn-jobs, dm-failure-and-gates, dm-narration-quality NEEDS-REVIEW amended; debug-view, turn-floor, seed-npc-presence, srd-data RE-PIN-ONLY. dm-runtime and dm-turn-jobs trimmed to the 8000-char budget; the orchestrator checked that each removed claim survives (debug routes covered by debug-view). CAPSULES, INDEX and the runbook row updated.
+
+spec-bridge sync: The pure core (card AC #1, #3, #4): 9/9 · Runner wiring, prompts, facts (card AC #2, #4): 10/10 · The fixture and the live script (card AC #5): 7/7 · DB suites, mutation guard, live check **[orchestrator]**: 3/3 · Contracts and wiki re-ground: 6/6 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
