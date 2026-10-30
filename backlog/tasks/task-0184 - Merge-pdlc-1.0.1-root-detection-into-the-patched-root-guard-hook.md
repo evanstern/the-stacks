@@ -4,7 +4,7 @@ title: Merge pdlc 1.0.1 root detection into the patched root-guard hook
 status: In Progress
 assignee: []
 created_date: '2026-10-30 04:46'
-updated_date: '2026-10-30 04:48'
+updated_date: '2026-10-30 04:50'
 labels:
   - tooling
   - bug
@@ -21,12 +21,14 @@ pdlc 1.0.1 fixed root-guard root detection: resolveMainCheckout() derives the ma
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 The hook matches pdlc 1.0.1 except the TASK-0018 -z staged-path change
+- [x] #1 The hook matches pdlc 1.0.1 except the TASK-0018 -z staged-path change
 - [ ] #2 A commit in a linked worktree passes when CLAUDE_PROJECT_DIR names that worktree
 - [ ] #3 A non-board commit at the root checkout is still blocked
 - [ ] #4 A board-sync commit with a non-ASCII backlog path is still allowed
 - [ ] #5 node --test .claude/hooks/ passes
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
