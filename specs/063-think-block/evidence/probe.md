@@ -1,0 +1,22 @@
+# Probe (Phase 3), 2026-10-29
+
+Every command ran under the operator's go on that exact command, recorded on TASK-0181.
+
+## Attempts
+
+1. **P1 with curl.** `curl` does not exist in `stacks-dev-app-1` (`sh: curl: not found`). No model call was made.
+2. **P1 with Node `fetch`, hard-coded URL.** `getaddrinfo ENOTFOUND 9router.local.infinity-node.win`. No model call was made.
+3. **P1 with Node `fetch`, using the app's own `dm.interpret` route** from `AI_PROVIDERS`/`AI_PURPOSES`:
+   - The route: provider `claude`, kind `openai-compatible`, baseUrl `http://9router.local.infinity-node.win/v1`, model `cc/claude-sonnet-5`, maxTokens `1200`.
+   - Result: `ENOTFOUND` again. No model call was made.
+
+P2 was not run.
+
+## DNS checks (read-only)
+
+- The container `/etc/resolv.conf` uses Docker's resolver `127.0.0.11`, which forwards to the host's `127.0.0.53` (systemd-resolved), with `search local.infinity-node.win`. `/etc/hosts` has no 9router entry.
+- `getent hosts 9router.local.infinity-node.win` returned nothing on vm-104 itself and nothing in the container. The combined command exited 2.
+
+## Finding
+
+On 2026-10-29, vm-104 cannot resolve the 9router hostname: not on the host, and not in the app container. The app's configured AI route is unreachable from hosted dev, so every DM model call there fails before it reaches 9router. This is separate from the think-block cause (AC #1), which stays unconfirmed by a probe. Run 2 of the alpha (2026-10-28) reached 9router, so the name stopped resolving after run 2.
