@@ -62,23 +62,23 @@ prompts. No other lane edits them while this branch is open.
 
 ## Phase 3: The fixture and the live script (card AC #5)
 
-- [ ] T020 Create `apps/server/test/dm/scripts/plan-approach.json` (plan D6). Take the post text
+- [x] T020 Create `apps/server/test/dm/scripts/plan-approach.json` (plan D6). Take the post text
       from the playtest log, run 2 item 4. The interpret reading has empty `followUps`.
-- [ ] T021 Create `apps/server/test/dm/plan-first-step.integration.test.ts` on a duo scene (pattern:
+- [x] T021 Create `apps/server/test/dm/plan-first-step.integration.test.ts` on a duo scene (pattern:
       `duo.integration.test.ts`). Declare and commit `act-197dae73` for Tamsin. Run the turn on the
       fixture script.
-- [ ] T022 Assert: two `check.roll` rows, both `stealth`; no `attack.roll`; no reed-camp
+- [x] T022 (written, not yet run on a database) Assert: two `check.roll` rows, both `stealth`; no `attack.roll`; no reed-camp
       `combatant.add`; no `initiative.roll`; no `table-mode` row; no `tracker` row; the action
       resolves `applied`; the checkpoint Director overrides hold `turn` and `tracker`; the facts
       carry two follow-ups (the persuasion and the attack reasons).
-- [ ] T023 Add the control: `exploration-check.json` still advances `dusk` and stores no `cut`
+- [x] T023 (written, not yet run on a database) Add the control: `exploration-check.json` still advances `dusk` and stores no `cut`
       follow-ups.
-- [ ] T024 Create `apps/server/dm-scripts/greyhollow-plan-approach.json` (plan D8). Extend
+- [x] T024 Create `apps/server/dm-scripts/greyhollow-plan-approach.json` (plan D8). Extend
       `apps/server/test/dm/dm-scripts.test.ts` to prove it is `scene-start` plus `plan-approach`
       plus chronicle calls.
-- [ ] T025 Create `specs/064-plan-first-step/evidence/declare.mjs` from the 053 declare script, with
+- [x] T025 Create `specs/064-plan-first-step/evidence/declare.mjs` from the 053 declare script, with
       action id `act-197dae73` and the run 2 post text.
-- [ ] T026 Run `pnpm ci:check`.
+- [x] T026 Run `pnpm ci:check`.
 
 ## Phase 4: DB suites, mutation guard, live check **[orchestrator]**
 

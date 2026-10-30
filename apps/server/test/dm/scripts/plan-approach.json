@@ -1,0 +1,152 @@
+{
+  "v": 1,
+  "name": "plan-approach",
+  "dice": [8, 15],
+  "calls": [
+    {
+      "purpose": "dm.director",
+      "note": "run 2 Director: turn mode, reed-camp encounter, two tracker steps",
+      "respond": {
+        "type": "json",
+        "value": {
+          "beat": {
+            "decision": "resolve"
+          },
+          "tableMode": {
+            "to": "turn",
+            "encounterId": "reed-camp"
+          },
+          "trackers": [
+            {
+              "trackerId": "alarm",
+              "advance": 1,
+              "reason": "The party approaches the camp."
+            },
+            {
+              "trackerId": "dusk",
+              "advance": 1,
+              "reason": "The approach takes time."
+            }
+          ],
+          "scene": {
+            "status": "continue"
+          },
+          "pacing": {
+            "tension": "low",
+            "spotlight": null,
+            "beatId": "reed-camp"
+          },
+          "goalNote": "Reward the careful search.",
+          "companionPrompts": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.interpret",
+      "note": "one reading, four steps: two stealth, a persuasion, an attack; followUps empty",
+      "respond": {
+        "type": "json",
+        "value": {
+          "readings": [
+            {
+              "actionId": "act-197dae73",
+              "intent": "check",
+              "uncertain": true,
+              "needsAdjudication": false,
+              "rulesQuestion": null,
+              "clarify": null,
+              "followUps": [],
+              "steps": [
+                {
+                  "step": "check",
+                  "reason": "Kestrel slips through the reeds unseen",
+                  "combatantId": "kestrel",
+                  "kind": "ability-check",
+                  "ability": "dex",
+                  "skill": "stealth",
+                  "expression": "1d20",
+                  "mode": "normal",
+                  "dc": 12,
+                  "autoFail": null,
+                  "onSuccess": [],
+                  "onFailure": []
+                },
+                {
+                  "step": "check",
+                  "reason": "Odo follows Kestrel through the reeds unseen",
+                  "combatantId": "odo",
+                  "kind": "ability-check",
+                  "ability": "dex",
+                  "skill": "stealth",
+                  "expression": "1d20",
+                  "mode": "normal",
+                  "dc": 12,
+                  "autoFail": null,
+                  "onSuccess": [],
+                  "onFailure": []
+                },
+                {
+                  "step": "check",
+                  "reason": "Tamsin hails the goblin camp and asks for parley",
+                  "combatantId": "tamsin",
+                  "kind": "ability-check",
+                  "ability": "cha",
+                  "skill": "persuasion",
+                  "expression": "1d20",
+                  "mode": "normal",
+                  "dc": 13,
+                  "autoFail": null,
+                  "onSuccess": [],
+                  "onFailure": []
+                },
+                {
+                  "step": "attack",
+                  "reason": "Kestrel attacks Snag on Tamsin's signal",
+                  "attackerId": "kestrel",
+                  "targetId": "snag",
+                  "expression": "1d20+5",
+                  "mode": "normal",
+                  "targetAc": null,
+                  "onHit": [
+                    {
+                      "effect": "damage",
+                      "targetId": "snag",
+                      "components": [
+                        {
+                          "amount": {
+                            "kind": "roll",
+                            "expression": "1d6+3"
+                          },
+                          "damageType": "piercing"
+                        }
+                      ],
+                      "defenses": null
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "purpose": "dm.narrate",
+      "note": "consistent with the recorded success",
+      "respond": {
+        "type": "text",
+        "value": "Tamsin steps out onto the open ground while Kestrel and Odo slip into the reeds behind her. The camp lies ahead, and nobody has called out yet."
+      }
+    },
+    {
+      "purpose": "dm.audit",
+      "respond": {
+        "type": "json",
+        "value": {
+          "verdict": "pass",
+          "issues": []
+        }
+      }
+    }
+  ]
+}

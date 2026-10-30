@@ -59,4 +59,22 @@ describe("shipped DM scripts (apps/server/dm-scripts)", () => {
     }
     expect(human.dice).toEqual(approval.dice);
   });
+  it("greyhollow-plan-approach is scene-start plus plan-approach, then only chronicle calls", () => {
+    const live = loadDmScript(read(LIVE_DIR, "greyhollow-plan-approach.json"));
+    const start = loadDmScript(read(TEST_SCRIPTS, "scene-start.json"));
+    const plan = loadDmScript(read(TEST_SCRIPTS, "plan-approach.json"));
+    const base = [...start.calls, ...plan.calls];
+    expect(live.calls.slice(0, base.length)).toEqual(base);
+    const extra = live.calls.slice(base.length);
+    expect(extra.map((c) => c.purpose)).toEqual([
+      "dm.chronicle",
+      "dm.chronicle",
+    ]);
+    for (const c of extra) {
+      expect(
+        ChronicleOutput.safeParse((c.respond as { value: unknown }).value),
+      ).toMatchObject({ success: true });
+    }
+    expect(live.dice).toEqual(plan.dice);
+  });
 });
