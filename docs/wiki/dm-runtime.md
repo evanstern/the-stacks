@@ -39,7 +39,7 @@ sources:
   - apps/server/seeds/greyhollow-ford-duo.json
   - apps/server/seeds/greyhollow-ford-trio.json
   - biome.json
-verified_against: a079fb05afdb63d49c0ed186d76f578d356e30ca
+verified_against: ba380ac25c4cb6f222144f06bda4499d6fc059b8
 ---
 
 # DM runtime
@@ -69,10 +69,10 @@ async function `(TurnContext) => NodeResult`.
 6. **narrate** - `dm.narrate`. Writes prose from code-built facts, the player-facing seed view and S1 ([[dm-narration-quality]]).
 7. **audit** - deterministic checks, including the claim gate against S1 and the diff ([[output-claim-gate]]), plus one `dm.audit` call (same S1 sections); decides what ships ([[dm-narration-quality]]).
 
-Director, interpret and adjudicate outputs are checkpointed in `jobs.result`; a reclaim does not re-pay model calls. Model output is parsed with Zod through `callJson`/`callText` (`pipeline/call.ts`); every call
-is recorded (no prompt text) to the `recordCall` seam ([[dm-turn-jobs]]).
+Director, interpret and adjudicate outputs are checkpointed in `jobs.result`; a reclaim does not re-pay them. Model output is parsed with Zod through `callJson`/`callText` (`pipeline/call.ts`); every call
+is recorded (no prompt text) to the `recordCall` seam ([[dm-turn-jobs]]). Parse order: think strip, fence strip, parse, normalize, schema. Excerpts keep raw text (TASK-0181).
 
-`callJson` makes at most two attempts, the second with the first's schema issues. Only the director passes a `normalize` hook (`normalizeDirector`): it cuts an over-long `goalNote` or `reason` to 300 characters (spec 033).
+`callJson` makes at most two attempts, the second with the first's issues. Only the director passes a `normalize` hook (`normalizeDirector`): it cuts an over-long `goalNote` or `reason` to 300 characters (spec 033).
 
 ## Actor snapshot
 
@@ -100,8 +100,7 @@ the fallback and the player-facing seed view are in [[dm-narration-quality]].
 
 ## Purposes
 
-`dm/purposes.ts` fixes seven purposes: `dm.director`, `dm.interpret`, `dm.adjudicate`,
-`dm.narrate`, `dm.audit`, `dm.chronicle`, `dm.companion`.  Models: `AI_PURPOSES` ([[ai-gateway]]).
+`dm/purposes.ts` fixes seven purposes (`dm.director`, `interpret`, `adjudicate`, `narrate`, `audit`, `chronicle`, `companion`). Models: `AI_PURPOSES`; see [[ai-gateway]].
 
 ## Seed, doctrine, script
 
@@ -118,11 +117,10 @@ the fallback and the player-facing seed view are in [[dm-narration-quality]].
 ## Companions and chronicle
 
 An AI companion is a party member with controller `ai-companion`. `companion.ts` asks
-`dm.companion` for `say`, `comment` and `act` output and submits it through the gate as that
-companion, under a human's permission matrix and commit authority. Each run returns one `pending` decision per own open action: `commit`, `withdraw` or `revise`
-(default `withdraw` after a human `object`, else `commit`). A human comment on
+`dm.companion` for `say`, `comment` and `act` output and submits it through the gate, under a human's permission matrix and commit authority. Each run returns one `pending` decision per own open action: `commit`, `withdraw` or `revise`
+(`withdraw` after a human `object`, else `commit`). A human comment on
 an open action queues a `react` run ([[dm-turn-jobs]], [[playtest-harness]]). In turn mode only the active companion
-commits, and a withdraw still takes the hold act so the turn advances.
+commits; a withdraw still takes the hold act.
 A `hold` decision queues a companion job that force-queues the turn. A trio table queues no companion job. `chronicle.ts` runs off the hot path after narration: `dm.chronicle`
 turns new narration into `journal` proposals, idempotent when nothing is new. It reads the state at
 its `throughSeq` (`loadProjectionsThrough`, [[session-model]]) and prints it in the `fiction` view

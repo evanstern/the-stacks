@@ -16,7 +16,7 @@ sources:
   - .env.example
   - apps/server/src/dm/script/env.ts
   - apps/server/dm-scripts/greyhollow-live.json
-verified_against: 89d75e2dab43df6326d00177af7c11bd46efe14b
+verified_against: ba380ac25c4cb6f222144f06bda4499d6fc059b8
 ---
 
 # AI gateway
@@ -34,8 +34,7 @@ JSON env vars — `AI_PROVIDERS` (name → `{kind, baseUrl, apiKeyEnv?}`), `AI_P
 `{inputPerMTok, outputPerMTok}`) — Zod-parses and cross-validates them: every purpose names a
 declared provider whose kind supports the purpose's op, and every provider actually used by a
 purpose has its `apiKeyEnv` set. An unused provider's key is never checked. All three env vars
-are optional; unset, `loadAiConfig` returns `{providers: {}, purposes: {}, prices: {}}` — an
-empty, harmless config, not an error.
+are optional; unset, `loadAiConfig` returns an empty config, not an error.
 
 **Providers are named config entries**, keyed by an operator-chosen string (`"hosted"`,
 `"local"`, anything) — never a vendor name in source. Two adapter kinds exist:
@@ -44,7 +43,7 @@ empty, harmless config, not an error.
 (scripted chat/embed for tests, with deterministic hash-derived embeddings; `scriptChatFor(purpose, ...scripts)` queues scripts per purpose, consumed before the global FIFO, and `pendingFor(purpose)` counts them; `strict = true` turns an unscripted chat call into a `config` error instead of an empty `done`). `gateway.ts`'s
 `createGateway({config, sink, fetch?, env?, adapters?})` looks up a purpose, resolves its
 provider (lazily, cached by name) through a kind → `AdapterFactory` registry, and calls
-`provider.chat`/`provider.embed`.
+`provider.chat`/`provider.embed`. The adapter reads only `delta.content`, so router `<think>` text passes through; the DM strips it ([[dm-runtime]]). The router-side cause is unconfirmed (specs/063-think-block/evidence/probe.md).
 
 `chat()` yields zero or more `{type:"text"}` then exactly one `{type:"done"}` or
 `{type:"error", kind}` (`ErrorKind` is `config | auth | rate_limit | refusal | upstream |

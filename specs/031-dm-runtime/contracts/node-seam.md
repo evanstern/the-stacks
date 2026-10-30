@@ -157,6 +157,7 @@ export async function callJson<T>(
 
 Amended by specs/033-director-robustness/contracts/director-output.md.
 Amended by specs/033-director-robustness/contracts/failure-record.md.
+Amended by specs/063-think-block/contracts/think-strip.md.
 
 `callJson` awaits `deps.recordCall?.(…)` after every attempt, including an aborted one. An
 aborted attempt reaches `recordCall` with `outcome: "aborted"` and never reaches `calls`. The
