@@ -40,7 +40,8 @@ sources:
   - apps/server/seeds/greyhollow-ford-duo.json
   - apps/server/seeds/greyhollow-ford-trio.json
   - biome.json
-verified_against: 7c84d75e2613315578ad8a1ebd4ab783b57d4147
+size_budget_exempt: both notes sat within 30 chars of the 8000 budget before TASK-0180; the talk path got its own note (dm-talk-triggers) and only a pointer line lands here; the rest is one pipeline each, not splittable without a TASK of its own
+verified_against: 9bc934ea72b8c9fa57f4905eaa5f49104c9326a9
 ---
 
 # DM runtime
@@ -71,7 +72,7 @@ async function `(TurnContext) => NodeResult`.
 6. **narrate** - `dm.narrate`. Writes prose from code-built facts, the player-facing seed view and S1 ([[dm-narration-quality]]).
 7. **audit** - deterministic checks, including the claim gate against S1 and the diff ([[output-claim-gate]]), plus one `dm.audit` call (same S1 sections); decides what ships ([[dm-narration-quality]]).
 
-A `talk` turn with an empty beat skips this order ([[dm-talk-triggers]]).
+An empty-beat `talk` turn skips this order ([[dm-talk-triggers]]).
 
 Director, interpret and adjudicate outputs are checkpointed in `jobs.result`; a reclaim does not re-pay them. Model output is parsed with Zod through `callJson`/`callText` (`pipeline/call.ts`); every call
 is recorded to `recordCall` ([[dm-turn-jobs]]). Parse order: think strip, fence strip, parse, normalize, schema. Excerpts keep raw text (TASK-0181).

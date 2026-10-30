@@ -19,7 +19,8 @@ sources:
   - apps/server/src/dm/nodes/resolve.ts
   - apps/server/src/dm/companion.ts
   - apps/server/src/dm/chronicle.ts
-verified_against: 7c84d75e2613315578ad8a1ebd4ab783b57d4147
+size_budget_exempt: both notes sat within 30 chars of the 8000 budget before TASK-0180; the talk path got its own note (dm-talk-triggers) and only a pointer line lands here; the rest is one pipeline each, not splittable without a TASK of its own
+verified_against: 9bc934ea72b8c9fa57f4905eaa5f49104c9326a9
 ---
 
 # DM turn jobs
@@ -54,7 +55,7 @@ open action of an AI companion also calls `enqueueCompanionReact`
 (quiet 3 s, max wait 10 s): one queued `react` job per session
 (`jobs_companion_react_queued_key`); a further reaction merges its companion id into it. `enqueueTurn` is `INSERT ... ON CONFLICT
 DO NOTHING` on `jobs_turn_queued_key`, so one beat is queued per session.
-A readable public IC `talk` row queues a coalesced `talk` turn after a quiet window (rule 7, TASK-0180; [[dm-talk-triggers]]). The claim's `notBefore` gate covers `turn` too.
+Rule 7: a `talk` row queues a coalesced `talk` turn ([[dm-talk-triggers]]).
 
 ## Claim, lease, fencing
 
