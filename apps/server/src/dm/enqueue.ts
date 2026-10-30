@@ -16,10 +16,19 @@ import {
   enqueueCompanion,
   enqueueCompanionReact,
   enqueueFloorCheck,
+  enqueueTalkTurn,
   enqueueTurn,
   FLOOR_ABSENCE_WAIT_MS,
   FLOOR_STALL_WINDOW_MS,
 } from "./jobs.js";
+import type { SceneSeed } from "./seed/schema.js";
+import { buildSnapshot } from "./snapshot/build.js";
+import {
+  capReached,
+  codeTriggers,
+  companionOnly,
+  isReadable,
+} from "./talk-triggers.js";
 
 /**
  * The gate listener (contracts/turn-jobs.md "Enqueue"). Registered with
@@ -39,7 +48,10 @@ import {
  *    human, a `stall` check for each open multi-human party action (re-armed by each
  *    comment, cancelled by a commit or withdrawal). `onPresenceChange` arms `absence`
  *    when the active human just left.
- * 6. `nudge()` wakes the worker.
+ * 6. A readable in-character `talk` row (specs/065 D2) queues a coalesced `talk` turn
+ *    after a quiet window. A post that names only AI companions queues a `prompt`
+ *    companion job instead. A reached chain cap, or any queued turn, queues nothing new.
+ * 7. `nudge()` wakes the worker.
  *
  * A listener failure is logged; FR-008's reconcile repairs it at next start.
  */
@@ -53,6 +65,12 @@ export interface DmEnqueuerDeps {
   reactQuietMs?: number;
   /** Cap on the wait, measured from the first reaction (ms). */
   reactMaxWaitMs?: number;
+  /** Quiet window after the latest IC post before a `talk` turn may run (ms; default 3000). */
+  talkQuietMs?: number;
+  /** Cap on the wait, measured from the first IC post (ms; default 10000). */
+  talkMaxWaitMs?: number;
+  /** Loads a scene seed by id for role-word triggers; absent means no seed. */
+  loadSeed?: (seedId: string) => SceneSeed;
   /** Who is at the table. Floor waits arm only when given. */
   presence?: Pick<PresenceReader, "presentUsers">;
   /** Wait before an absent human's turn is passed (ms; default FLOOR_ABSENCE_WAIT_MS). */
@@ -199,6 +217,48 @@ export function createDmEnqueuer(deps: DmEnqueuerDeps): DmEnqueuer {
     }
   }
 
+  /** Rule 7 (specs/065 D2): a readable IC post queues a talk turn or a companion prompt. */
+  async function talkReactions(
+    sessionId: string,
+    rows: StoredEvent[],
+  ): Promise<void> {
+    const talks = rows.filter((r) => r.type === "talk");
+    if (talks.length === 0) return;
+    const p = await deps.loadProjections(sessionId);
+    if (capReached(p)) return;
+    let seed: SceneSeed | null = null;
+    const sceneId = p.scene?.sceneId;
+    if (sceneId && deps.loadSeed) {
+      try {
+        seed = deps.loadSeed(sceneId);
+      } catch {
+        seed = null;
+      }
+    }
+    const snapshot = buildSnapshot(p, seed);
+    for (const row of talks) {
+      if (!isReadable(row, p)) continue;
+      const text = (row.payload as { text?: string }).text ?? "";
+      const triggers = codeTriggers(text, snapshot, seed);
+      if (companionOnly(triggers)) {
+        const ids = triggers
+          .filter((t) => t.kind === "addressed" && t.party)
+          .map((t) => t.actorId);
+        await enqueueCompanion(deps.db, {
+          sessionId,
+          companions: ids,
+          reason: "prompt",
+          beatJobId: null,
+        });
+      } else {
+        await enqueueTalkTurn(deps.db, sessionId, row.seq, {
+          quietMs: deps.talkQuietMs ?? 3000,
+          maxWaitMs: deps.talkMaxWaitMs ?? 10000,
+        });
+      }
+    }
+  }
+
   return {
     async onPresenceChange(sessionId) {
       try {
@@ -226,6 +286,7 @@ export function createDmEnqueuer(deps: DmEnqueuerDeps): DmEnqueuer {
             await enqueueTurn(deps.db, sessionId, "approval", decision.seq);
           }
         }
+        await talkReactions(sessionId, rows);
         for (const companionId of await reactTargets(sessionId, rows)) {
           await enqueueCompanionReact(deps.db, sessionId, companionId, {
             quietMs: deps.reactQuietMs ?? 3000,

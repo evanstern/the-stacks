@@ -31,20 +31,20 @@ run 3. The operator decides a cut.
 
 ## Phase 2: Enqueue (card AC #3, #4)
 
-- [ ] T008 In `apps/server/src/dm/jobs.ts`, add `"talk"` to `TurnTriggerSchema`. Add optional
+- [x] T008 In `apps/server/src/dm/jobs.ts`, add `"talk"` to `TurnTriggerSchema`. Add optional
       `notBefore` and `firstPostAt` to `TurnJobInput` (plan D2).
-- [ ] T009 Add `enqueueTalkTurn` (plan D2, OQ-4). Coalesce onto a queued talk turn. Do nothing on
+- [x] T009 Add `enqueueTalkTurn` (plan D2, OQ-4). Coalesce onto a queued talk turn. Do nothing on
       any other queued turn (OQ-14).
-- [ ] T010 Change `enqueueTurn`: a conflicting queued talk turn takes the new trigger and seq and
+- [x] T010 Change `enqueueTurn`: a conflicting queued talk turn takes the new trigger and seq and
       loses `notBefore` (plan D2, spec US5 #2).
-- [ ] T011 Add `turn` to the claim query's `notBefore` kinds (plan R3).
-- [ ] T012 In `apps/server/src/dm/enqueue.ts`, add rule 7 (plan D2) and the `talkQuietMs` and
+- [x] T011 Add `turn` to the claim query's `notBefore` kinds (plan R3).
+- [x] T012 In `apps/server/src/dm/enqueue.ts`, add rule 7 (plan D2) and the `talkQuietMs` and
       `talkMaxWaitMs` deps. Update the header comment's rule list.
-- [ ] T013 Create `apps/server/test/dm/enqueue-talk.integration.test.ts`. Cover: an IC post queues a
+- [x] T013 Create `apps/server/test/dm/enqueue-talk.integration.test.ts`. Cover: an IC post queues a
       talk turn with `notBefore`; two posts coalesce; the 10 s cap; OOC, whisper, turn mode, human
       seat and the cap queue nothing; a companion-only post queues a `prompt` companion job; a
       queued commit absorbs a post; a commit converts a queued talk turn.
-- [ ] T014 Run `pnpm ci:check`.
+- [x] T014 Run `pnpm ci:check`.
 
 ## Phase 3: The talk path (card AC #3, #4)
 
