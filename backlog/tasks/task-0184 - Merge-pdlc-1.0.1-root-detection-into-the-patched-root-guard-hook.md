@@ -4,6 +4,7 @@ title: Merge pdlc 1.0.1 root detection into the patched root-guard hook
 status: In Progress
 assignee: []
 created_date: '2026-10-30 04:46'
+updated_date: '2026-10-30 04:47'
 labels:
   - tooling
   - bug
@@ -26,6 +27,12 @@ pdlc 1.0.1 fixed root-guard root detection: resolveMainCheckout() derives the ma
 - [ ] #4 A board-sync commit with a non-ASCII backlog path is still allowed
 - [ ] #5 node --test .claude/hooks/ passes
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+2026-10-30: dispatch 1 to sonnet-implementer failed with model_not_found. The dispatch parameter model=sonnet resolved to bare claude-sonnet-5-5, which 9router rejects. Nothing was written. Dispatch 2, with no model parameter so the frontmatter cc/ pin applies, was denied by the auto-mode permission classifier. Waiting on the operator.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
