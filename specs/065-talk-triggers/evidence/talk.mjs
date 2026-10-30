@@ -30,12 +30,15 @@ ws.on("open", () => {
     }),
   );
 });
+let posted = false; // the subscribe replay brings older narration first; wait for our own post
 ws.on("message", (m) => {
   const f = JSON.parse(String(m));
+  if (f.type === "event" && f.event.type === "talk") posted = true;
   if (f.type === "error") console.log("error", f.code ?? f.kind, f.message);
-  if (f.type === "event" && f.event.type === "narration" && f.event.actor === "ai:dm") {
+  if (f.type === "event" && posted && f.event.type === "narration" && f.event.actor === "ai:dm") {
     console.log("DM narration:", f.event.payload.text);
     ws.close();
+    process.exit(0);
   }
 });
 setTimeout(() => process.exit(1), 60_000);

@@ -83,13 +83,13 @@ run 3. The operator decides a cut.
 
 ## Phase 5: DB suites, mutation guard, live check **[orchestrator]**
 
-- [ ] T030 **[orchestrator]** `pnpm env:up`, migrate both databases by hand, restart the app. Run
+- [x] T030 **[orchestrator]** `pnpm env:up`, migrate both databases by hand, restart the app. Run
       the DM DB suites with `REQUIRE_DATABASE=1` and only `TEST_DATABASE_URL` exported. Re-run a
       timeout once (TASK-0154) and report it.
-- [ ] T031 **[orchestrator]** Mutation guard (plan D7): stub `codeTriggers`, `capReached`, then
+- [x] T031 **[orchestrator]** Mutation guard (plan D7): stub `codeTriggers`, `capReached`, then
       `legalEscalation`. Record the failing test count for each. Restore. Confirm `git diff` is
       empty.
-- [ ] T032 **[orchestrator]** Script-mode live check (plan D8) with
+- [x] T032 **[orchestrator]** Script-mode live check (plan D8) with
       `DM_FAKE_SCRIPT=greyhollow-talk` in Brave. Record Wenna's reply, the debug page's talk
       result, no dice line and free mode. Commit the evidence under
       `specs/065-talk-triggers/evidence/`.

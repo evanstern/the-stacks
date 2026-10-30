@@ -1,0 +1,203 @@
+the-stacks
+Menu
+Ask
+Library
+Table
+Settings
+About
+op0180 · operator
+Sign out
+Free mode
+nothing queued
+turn
+scene-start
+succeeded
+shipped
+0 s
+attempts 1
+3 calls
+0 tokens
+unpriced
+chronicle
+chronicle
+succeeded
+shipped
+0 s
+attempts 1
+1 calls
+0 tokens
+unpriced
+turn
+talk
+succeeded
+shipped
+0 s
+attempts 1
+1 calls
+0 tokens
+unpriced
+ASSEMBLE
+{
+  "beat": [],
+  "npcTurn": null
+}
+DIRECTOR
+
+not run
+
+INTERPRET
+
+not run
+
+ADJUDICATE
+
+not run
+
+RESOLVE
+narration · applied · 
+#16
+NARRATE AND AUDIT
+
+Shipped · 
+#16
+
+dm.narrate · attempt 1 · ok · scripted-chat · 0 in / 0 out · unpriced
+FAILURE
+
+not run
+
+chronicle
+chronicle
+succeeded
+shipped
+0 s
+attempts 1
+1 calls
+0 tokens
+unpriced
+#1
+15:01:27
+system
+presence.recorded
+public
+payload
+#2
+15:01:27
+DM
+scene.changed
+public
+payload
+#3
+15:01:27
+DM
+combatant.added
+public
+payload
+#4
+15:01:27
+DM
+party.member.changed
+public
+payload
+#5
+15:01:27
+DM
+combatant.added
+public
+payload
+#6
+15:01:27
+DM
+party.member.changed
+public
+payload
+#7
+15:01:27
+DM
+combatant.added
+public
+payload
+#8
+15:01:27
+DM
+party.member.changed
+public
+payload
+#9
+15:01:27
+DM
+tracker.changed
+dm
+payload
+#10
+15:01:28
+DM
+tracker.changed
+dm
+payload
+#11
+15:01:28
+DM
+scene-presence.changed
+dm
+payload
+#12
+15:01:28
+DM
+scene-presence.changed
+dm
+payload
+#13
+15:01:28
+DM
+narration
+public
+payload
+#14
+15:01:37
+Tamsin Vale
+talk
+public
+payload
+#15
+15:01:41
+system
+presence.recorded
+public
+payload
+#16
+15:01:41
+DM
+narration
+public
+payload
+State
+live through seq 16
+Seed
+Ledger
+Journal
+Cost
+TABLE
+
+Mode: free
+
+DM seat: AI
+
+Gate policy overrides: none
+
+Scene: The Bell at Greyhollow Ford
+
+PARTY
+Tamsin Vale HP 13/13, conscious
+Brother Odo HP 10/10, conscious
+Kestrel HP 9/9, conscious
+ENCOUNTER
+
+No encounter.
+
+TRACKERS
+Full dark falls on the ford 0/4 (When full, the river-things rise; the scene's failure condition is near.)
+The reed-camp is alerted 0/3 (When full, the goblins ambush the party on the causeway instead of waiting at camp.)
+PENDING PROPOSALS
+
+No pending proposals.

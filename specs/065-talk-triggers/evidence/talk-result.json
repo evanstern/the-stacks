@@ -1,0 +1,20 @@
+{
+  "posts": [
+    14
+  ],
+  "reason": "Odo asked the keeper a direct question.",
+  "outcome": "reply",
+  "codeTriggers": [
+    {
+      "kind": "addressed",
+      "party": false,
+      "actorId": "wenna"
+    }
+  ],
+  "modelTriggers": [
+    {
+      "kind": "addressed",
+      "actorId": "wenna"
+    }
+  ]
+}
