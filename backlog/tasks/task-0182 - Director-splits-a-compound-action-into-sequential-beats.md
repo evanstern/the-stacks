@@ -4,7 +4,7 @@ title: Director splits a compound action into sequential beats
 status: In Progress
 assignee: []
 created_date: '2026-10-30 00:56'
-updated_date: '2026-10-30 04:12'
+updated_date: '2026-10-30 04:22'
 labels:
   - dm
   - director
@@ -65,6 +65,10 @@ Phase 2 2b19ad0d: runner cut step after adjudicate and before resolve, checkpoin
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
 
 Phase 3 802dc3fe plus fixes 7b9b7583 and a7d49c0f: the plan-approach fixture, a DB test with a control, the greyhollow-plan-approach live script, declare.mjs, and offline schema checks of the script replies in dm-scripts.test.ts. On the stack, the orchestrator found: the Director reply was invalid (fixed); the test used non-existent event types (fixed); assertions were not scoped to the action turn and payloads not unwrapped. The orchestrator fixed the last two inline (two lines of test code). DB test 2/2 passed on stacks-task-0182. The turn ran 2 stealth checks, cut true, overrides turn and tracker, 2 follow-ups held, tableMode stay.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
+
+Live check 3b15247d (Brave, script mode greyhollow-plan-approach), every step passes: free mode after the turn; two stealth dice lines (Kestrel 8 failure, Odo 15 success vs DC 12); no encounter; narration covers only the approach; debug page shows held turn and tracker overrides; 12 shots, no modal.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
