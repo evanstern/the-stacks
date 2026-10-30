@@ -82,10 +82,10 @@ prompts. No other lane edits them while this branch is open.
 
 ## Phase 4: DB suites, mutation guard, live check **[orchestrator]**
 
-- [ ] T027 **[orchestrator]** `pnpm env:up`, migrate both databases by hand, restart the app. Run
+- [x] T027 **[orchestrator]** `pnpm env:up`, migrate both databases by hand, restart the app. Run
       the DM DB suites with `REQUIRE_DATABASE=1` and only `TEST_DATABASE_URL` exported. Re-run a
       timeout once (TASK-0154) and report it.
-- [ ] T028 **[orchestrator]** Mutation guard (plan D7): stub `firstStage`, then `holdDirector`; record
+- [x] T028 **[orchestrator]** Mutation guard (plan D7): stub `firstStage`, then `holdDirector`; record
       the failing test count for each; restore; confirm `git diff` is empty.
 - [ ] T029 **[orchestrator]** Script-mode live check (plan D8): set
       `DM_FAKE_SCRIPT=greyhollow-plan-approach`, start the duo scene, run `declare.mjs`. Record in
