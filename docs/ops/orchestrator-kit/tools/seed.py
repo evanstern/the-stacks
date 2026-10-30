@@ -5,7 +5,7 @@ import json, os, subprocess, sys
 
 wt, tid, spec = sys.argv[1:4]
 notes = sys.argv[4:]
-cli = os.path.expanduser("~/.claude/plugins/cache/praxisflux/spec-bridge/0.68.0/gates/cli.mjs")
+cli = os.path.expanduser("~/.claude/plugins/cache/praxisflux/spec-bridge/1.0.1/gates/cli.mjs")
 state = json.loads(subprocess.check_output(["node", cli, "state", spec], cwd=wt))
 view = subprocess.check_output(["backlog", "task", "view", tid, "--plain"], cwd=wt, text=True)
 args = []

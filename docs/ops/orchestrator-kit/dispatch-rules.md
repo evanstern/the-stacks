@@ -31,8 +31,8 @@ You were dispatched by the M3 sweep orchestrator. Follow these rules exactly.
 - DB scene/playtest integration tests can hit vitest's 5 s timeout under full-suite load (TASK-0154). Re-run once and report; do not fix.
 - Run DB suites by exporting only `TEST_DATABASE_URL` from the worktree `.env`. Never `source` the whole `.env`: its JSON-valued AI config breaks `test/bench/retrieval.test.ts`.
 - WebSocket gateway tests are known-flaky. If one fails and your change did not touch it, re-run it once and report the re-run. Do not fix it.
-- Wiki freshness: `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/0.68.0/gates/cli.mjs freshness . docs/wiki` prints `OK`.
-- Spec-bridge: `node ~/.claude/plugins/cache/praxisflux/spec-bridge/0.68.0/gates/cli.mjs check .` exits 0.
+- Wiki freshness: `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/1.0.1/gates/cli.mjs freshness . docs/wiki` prints `OK`.
+- Spec-bridge: `node ~/.claude/plugins/cache/praxisflux/spec-bridge/1.0.1/gates/cli.mjs check .` exits 0.
 
 ## Product rules
 - UI: no modals. Use slide-out panels or autocomplete dropdowns. Browser automation uses Brave.
