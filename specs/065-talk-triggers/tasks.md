@@ -16,18 +16,18 @@ run 3. The operator decides a cut.
 
 ## Phase 1: The pure core (card AC #2, #4)
 
-- [ ] T001 Create `apps/server/src/dm/talk-triggers.ts` with `isReadable(row, p)` (plan D1, FR-001).
-- [ ] T002 Add `capReached(p, cap)` and export `TALK_CHAIN_CAP = 2` (plan D1, FR-012, OQ-10).
-- [ ] T003 Add `codeTriggers(text, snapshot, seed)` (plan D1, FR-002). Match aliases and seed role
+- [x] T001 Create `apps/server/src/dm/talk-triggers.ts` with `isReadable(row, p)` (plan D1, FR-001).
+- [x] T002 Add `capReached(p, cap)` and export `TALK_CHAIN_CAP = 2` (plan D1, FR-012, OQ-10).
+- [x] T003 Add `codeTriggers(text, snapshot, seed)` (plan D1, FR-002). Match aliases and seed role
       words as whole words. Drop dead and absent actors.
-- [ ] T004 Add `needsModel(triggers, text)` and `companionOnly(triggers)` (plan D1, OQ-16, OQ-11).
-- [ ] T005 In `apps/server/src/dm/nodes/schemas.ts`, add `ReactOutput` with its `superRefine` (plan
+- [x] T004 Add `needsModel(triggers, text)` and `companionOnly(triggers)` (plan D1, OQ-16, OQ-11).
+- [x] T005 In `apps/server/src/dm/nodes/schemas.ts`, add `ReactOutput` with its `superRefine` (plan
       D4).
-- [ ] T006 Create `apps/server/test/dm/talk-triggers.test.ts`. Cover each `isReadable` condition;
+- [x] T006 Create `apps/server/test/dm/talk-triggers.test.ts`. Cover each `isReadable` condition;
       `capReached` at 0, 1 and 2 rows and its reset by a human row; Odo's run 2 line giving
       `addressed: wenna`; a role word; a shared role word giving `mentioned` twice; a dead NPC
       dropped; `overheard`; `needsModel`; `companionOnly`; each `ReactOutput` refinement.
-- [ ] T007 Run `pnpm ci:check`.
+- [x] T007 Run `pnpm ci:check`.
 
 ## Phase 2: Enqueue (card AC #3, #4)
 
