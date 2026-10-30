@@ -4,7 +4,7 @@ title: Director splits a compound action into sequential beats
 status: In Progress
 assignee: []
 created_date: '2026-10-30 00:56'
-updated_date: '2026-10-30 03:53'
+updated_date: '2026-10-30 03:54'
 labels:
   - dm
   - director
@@ -51,6 +51,8 @@ Claimed 2026-10-29 by the M3 sweep, resumed 2026-10-29 (docs/design/m3-table-swe
 Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5
 
 Spec set 4460a382 (spec 064): 5 phases, OQ-1 to OQ-7 with (a) defaults; no frozen-contract change (additive 031 and 034 amendments); no migration. The author read for about an hour before writing; the orchestrator told it to write.
+
+Operator ruled 2026-10-29 in the M3 sweep chat, verbatim: "TASK-0182: I accept the recommended defaults OQ-1 to OQ-7 (a), including the interpret-v5, director-v4 and narrate-v6 prompt bumps and the additive 031 and 034 amendments. Card the OQ-5 turn-mode revisit." Carded TASK-0183 (OQ-5 turn-mode revisit).
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
