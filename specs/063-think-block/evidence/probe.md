@@ -20,3 +20,11 @@ P2 was not run.
 ## Finding
 
 On 2026-10-29, vm-104 cannot resolve the 9router hostname: not on the host, and not in the app container. The app's configured AI route is unreachable from hosted dev, so every DM model call there fails before it reaches 9router. This is separate from the think-block cause (AC #1), which stays unconfirmed by a probe. Run 2 of the alpha (2026-10-28) reached 9router, so the name stopped resolving after run 2.
+
+## Tailnet URL (operator-run, 2026-10-29)
+
+The operator suggested `https://9router.tailb3c1b6.ts.net/`. From the orchestrator's Mac, `/v1/models` resolves to `100.81.194.62` and answers HTTP 401 without a key, so 9router is up on the tailnet.
+
+The operator ran P1 and P2 personally, with the override `https://9router.tailb3c1b6.ts.net/v1`. Both failed in `stacks-dev-app-1` with `getaddrinfo ENOTFOUND 9router.tailb3c1b6.ts.net`. No model call was made.
+
+Neither hostname resolves from the vm-104 app container on 2026-10-29: the LAN name and the tailnet name both fail.
