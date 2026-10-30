@@ -94,21 +94,19 @@ function checkpointOf(turn: { result: unknown } | undefined): TurnCheckpoint {
 describe.skipIf(!reachable)("plan first step (database)", () => {
   it("resolves two stealth checks and holds the rest of the plan", async () => {
     const { rows, turn } = await runTurn("plan-approach.json", "act-197dae73");
-    const checks = rows.filter((r) => r.type === "check.roll");
+    // Event types are the real catalog names (engine and session catalogs).
+    const checks = rows.filter((r) => r.type === "check.resolved");
     expect(checks).toHaveLength(2);
     for (const c of checks)
-      expect(JSON.stringify(c.payload)).toContain("stealth");
-    expect(rows.filter((r) => r.type === "attack.roll")).toHaveLength(0);
-    expect(
-      rows.filter(
-        (r) =>
-          r.type === "combatant.add" &&
-          JSON.stringify(r.payload).includes("reed"),
-      ),
-    ).toHaveLength(0);
-    expect(rows.filter((r) => r.type === "initiative.roll")).toHaveLength(0);
-    expect(rows.filter((r) => r.type === "table-mode.changed")).toHaveLength(0);
-    expect(rows.filter((r) => r.type === "tracker.changed")).toHaveLength(0);
+      expect(c.payload).toMatchObject({ skill: "stealth" });
+    const none = (type: string) =>
+      expect(rows.filter((r) => r.type === type)).toHaveLength(0);
+    none("attack.resolved");
+    none("combatant.added");
+    none("encounter.started");
+    none("turn.advanced");
+    none("table-mode.changed");
+    none("tracker.changed");
 
     const resolved = rows.find(
       (r) =>
