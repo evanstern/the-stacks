@@ -1,9 +1,10 @@
 ---
 id: TASK-0180
 title: 'Design: in-character talk triggers DM reactions (amends D8)'
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-10-30 00:37'
+updated_date: '2026-10-30 04:47'
 labels:
   - dm
   - design
@@ -39,6 +40,12 @@ Related: TASK-0172 and TASK-0173 (what each actor knows), TASK-0149 (NPC attitud
 - [ ] #5 The decision states when a reaction moves the table into turn mode
 - [ ] #6 A spec is written against the decision, and its implementation tasks are carded
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Claimed 2026-10-29 by the M3 sweep, resumed 2026-10-29 (docs/design/m3-table-sweep-runbook.md). Worktree .worktrees/task-0180, branch task-0180-talk-triggers, cut from origin/main cf9bdeb9. Spec number 065 claimed with a stub. Actual claim date 2026-10-30, fresh session after the pdlc 1.0.1 re-plant (#93). Next free decision id: decision-0027.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
