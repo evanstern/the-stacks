@@ -200,14 +200,29 @@ export function stripFence(text: string): string {
   return m ? (m[1] as string).trim() : trimmed;
 }
 
+/**
+ * Strips leading `<think>…</think>` blocks a router may render as text
+ * (contracts/think-strip.md). Parse order: think, then fence.
+ */
+export function stripThink(text: string): string {
+  return text.replace(/^(?:\s*<think>[\s\S]*?<\/think>)+\s*/, "");
+}
+
 function parseAgainst<T>(
   text: string,
   schema: ZodType<T>,
   normalize?: (json: unknown) => unknown,
 ): { ok: true; value: T } | { ok: false; issues: string } {
   let json: unknown;
+  const body = stripThink(text);
+  if (body.trim() === "" && body !== text) {
+    return {
+      ok: false,
+      issues: "not valid JSON: the reply held only a think block",
+    };
+  }
   try {
-    json = JSON.parse(stripFence(text));
+    json = JSON.parse(stripFence(body));
   } catch (error) {
     return { ok: false, issues: `not valid JSON: ${(error as Error).message}` };
   }
@@ -280,5 +295,5 @@ export async function callText(
   ]);
   if (!result.ok) return failure(deps, result, req, 1, calls);
   await settle(deps, req, 1, "ok", null, result.usage, calls);
-  return { ok: true, text: result.text, calls };
+  return { ok: true, text: stripThink(result.text), calls };
 }

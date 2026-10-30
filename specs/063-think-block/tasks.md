@@ -29,36 +29,36 @@ without the block (contracts/think-strip.md).
 
 **Independent test**: `pnpm --filter @the-stacks/server exec vitest run test/dm/call.test.ts`.
 
-- [ ] T001 [US1] In `apps/server/test/dm/call.test.ts`, add a `describe("stripThink")` block:
+- [x] T001 [US1] In `apps/server/test/dm/call.test.ts`, add a `describe("stripThink")` block:
       `<think></think>{"a":1}` gives `{"a":1}`; `<think>step one\nstep two</think>\n\n{"a":1}`
       gives `{"a":1}`; leading whitespace before the block is stripped; two leading blocks are
       both stripped; `{"a":"<think>x</think>"}` is unchanged; an unclosed
       `<think>reasoning {"a":1}` is unchanged; plain `{"a":1}` is unchanged;
       `<think></think>` alone gives `""`. Import `stripThink` from `../../src/dm/pipeline/call.js`.
-- [ ] T002 [US1] In the same file's `describe("callJson")`, add three cases on the existing fake
+- [x] T002 [US1] In the same file's `describe("callJson")`, add three cases on the existing fake
       gateway helpers: (a) the reply `<think></think>` plus valid JSON returns `ok` with one
       call record, `attempt: 1`, `outcome: "ok"`, and no second gateway call; (b) the same with
       a non-empty block `<think>The player wants to search.</think>` returns `ok` on attempt 1;
       (c) a fenced body after the block (`<think></think>\n```json\n{...}\n```) returns `ok`.
-- [ ] T003 [US1] In the same file, add: (a) a think-only first reply `<think></think>` then a
+- [x] T003 [US1] In the same file, add: (a) a think-only first reply `<think></think>` then a
       valid second reply gives `invalid-json` then `ok`; the re-ask's `assistant` message is the
       raw `<think></think>`, and the first attempt's issue contains
       `the reply held only a think block`; (b) two think-only replies give `invalid-output`
       whose `attempts[0].excerpt` is the raw `<think></think>`; (c) `callText` with the reply
       `<think>plan</think>\nThe door creaks.` returns `The door creaks.`.
-- [ ] T004 [US1] Run the file. See T001–T003 fail (`stripThink` is not exported; the parse
+- [x] T004 [US1] Run the file. See T001–T003 fail (`stripThink` is not exported; the parse
       rejects the block).
-- [ ] T005 [US1] In `apps/server/src/dm/pipeline/call.ts`, add and export `stripThink(text)`:
+- [x] T005 [US1] In `apps/server/src/dm/pipeline/call.ts`, add and export `stripThink(text)`:
       `text.replace(/^(?:\s*<think>[\s\S]*?<\/think>)+\s*/, "")`. In `parseAgainst`, compute
       `const body = stripThink(text)`; when `body.trim() === ""` and `body !== text`, return
       `{ ok: false, issues: "not valid JSON: the reply held only a think block" }`; else parse
       `stripFence(body)`. In `callText`, return `stripThink(result.text)` as `text`. Keep the raw
       `first.text` in the re-ask message and in `attemptOf`. Update the doc comment on
       `stripFence`'s neighbour to name the order: think, then fence.
-- [ ] T006 [US1] In `specs/031-dm-runtime/contracts/node-seam.md`, under "Model calls", add the
+- [x] T006 [US1] In `specs/031-dm-runtime/contracts/node-seam.md`, under "Model calls", add the
       line `Amended by specs/063-think-block/contracts/think-strip.md.` after the existing
       "Amended by" lines.
-- [ ] T007 [US1] Run the file green, then `pnpm ci:check` green. Commit
+- [x] T007 [US1] Run the file green, then `pnpm ci:check` green. Commit
       `TASK-0181: strip leading think blocks before the DM parse`.
 
 ## Phase 2: Mutation guard **[orchestrator]** (card AC #3)

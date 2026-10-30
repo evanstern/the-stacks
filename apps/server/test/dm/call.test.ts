@@ -10,6 +10,7 @@ import {
   callText,
   excerptOf,
   stripFence,
+  stripThink,
 } from "../../src/dm/pipeline/call.js";
 import type { RecordedCall } from "../../src/dm/pipeline/context.js";
 
@@ -396,6 +397,89 @@ describe("callText", () => {
     const { schema: _schema, ...rest } = req();
     const r = await callText({ gateway }, rest);
     expect(r).toMatchObject({ ok: true, text: "The ferry groans." });
+  });
+});
+
+describe("stripThink", () => {
+  it("strips leading think blocks only", () => {
+    expect(stripThink('<think></think>{"a":1}')).toBe('{"a":1}');
+    expect(stripThink('<think>step one\nstep two</think>\n\n{"a":1}')).toBe(
+      '{"a":1}',
+    );
+    expect(stripThink('  \n<think>x</think>{"a":1}')).toBe('{"a":1}');
+    expect(stripThink('<think>a</think> <think>b</think>{"a":1}')).toBe(
+      '{"a":1}',
+    );
+    expect(stripThink('{"a":"<think>x</think>"}')).toBe(
+      '{"a":"<think>x</think>"}',
+    );
+    expect(stripThink('<think>reasoning {"a":1}')).toBe(
+      '<think>reasoning {"a":1}',
+    );
+    expect(stripThink('{"a":1}')).toBe('{"a":1}');
+    expect(stripThink("<think></think>")).toBe("");
+  });
+});
+
+describe("think blocks in callJson/callText", () => {
+  it("parses a think-prefixed reply on attempt 1", async () => {
+    for (const prefix of [
+      "<think></think>",
+      "<think>The player wants to search.</think>",
+    ]) {
+      const { gateway, requests } = gatewayOf([text(`${prefix}{"n": 3}`)]);
+      const r = await callJson({ gateway }, req());
+      expect(r).toMatchObject({ ok: true, value: { n: 3 } });
+      expect(r.calls).toHaveLength(1);
+      expect(r.calls[0]).toMatchObject({ attempt: 1, outcome: "ok" });
+      expect(requests).toHaveLength(1);
+    }
+  });
+
+  it("parses a fenced body after the block", async () => {
+    const { gateway } = gatewayOf([
+      text('<think></think>\n```json\n{"n": 3}\n```'),
+    ]);
+    expect(await callJson({ gateway }, req())).toMatchObject({
+      ok: true,
+      value: { n: 3 },
+    });
+  });
+
+  it("re-asks on a think-only reply with the raw text", async () => {
+    const { gateway, requests } = gatewayOf([
+      text("<think></think>"),
+      text('{"n": 1}'),
+    ]);
+    const r = await callJson({ gateway }, req());
+    expect(r).toMatchObject({ ok: true });
+    expect(r.calls.map((c) => c.outcome)).toEqual(["invalid-json", "ok"]);
+    const msgs = requests[1]!.messages;
+    expect(msgs[1]).toEqual({ role: "assistant", content: "<think></think>" });
+    expect(msgs[2]!.content).toContain("the reply held only a think block");
+  });
+
+  it("keeps the raw think text in the failure excerpt", async () => {
+    const { gateway } = gatewayOf([
+      text("<think></think>"),
+      text("<think></think>"),
+    ]);
+    const r = await callJson({ gateway }, req());
+    expect(r).toMatchObject({ ok: false, error: { kind: "invalid-output" } });
+    if (r.ok) throw new Error("expected failure");
+    const detail = r.error.detail as { attempts: { excerpt: string }[] };
+    expect(detail.attempts[0]?.excerpt).toBe("<think></think>");
+  });
+
+  it("callText drops the think block", async () => {
+    const { gateway } = gatewayOf([
+      text("<think>plan</think>\nThe door creaks."),
+    ]);
+    const { schema: _schema, ...rest } = req();
+    expect(await callText({ gateway }, rest)).toMatchObject({
+      ok: true,
+      text: "The door creaks.",
+    });
   });
 });
 
