@@ -22,11 +22,13 @@ pdlc 1.0.1 fixed root-guard root detection: resolveMainCheckout() derives the ma
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
 - [x] #1 The hook matches pdlc 1.0.1 except the TASK-0018 -z staged-path change
-- [ ] #2 A commit in a linked worktree passes when CLAUDE_PROJECT_DIR names that worktree
+- [x] #2 A commit in a linked worktree passes when CLAUDE_PROJECT_DIR names that worktree
 - [ ] #3 A non-board commit at the root checkout is still blocked
 - [ ] #4 A board-sync commit with a non-ASCII backlog path is still allowed
 - [ ] #5 node --test .claude/hooks/ passes
 <!-- AC:END -->
+
+
 
 
 
