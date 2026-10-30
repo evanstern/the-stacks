@@ -4,7 +4,7 @@ title: DM model calls fail on a <think> prefix from the router
 status: In Progress
 assignee: []
 created_date: '2026-10-30 00:45'
-updated_date: '2026-10-30 01:38'
+updated_date: '2026-10-30 01:59'
 labels:
   - dm
   - bug
@@ -39,6 +39,11 @@ Spec: specs/063-think-block
 - [ ] #2 DM calls parse a reply that starts with a think block, or the source stops emitting it; the spec decides which
 - [ ] #3 A test covers a reply with a leading empty and non-empty think block
 - [ ] #4 A hosted-dev turn after deploy shows no invalid-json attempts in the debug calls list
+- [ ] #5 Spec phase: Strip leading think blocks (card AC #2, #3; US1)
+- [ ] #6 Spec phase: Mutation guard **[orchestrator]** (card AC #3)
+- [ ] #7 Spec phase: Cause probe and source fix **[orchestrator]**, operator's go (card AC #1, #2; US2)
+- [ ] #8 Spec phase: Wiki **[orchestrator]** (re-ground)
+- [ ] #9 Spec phase: Hosted-dev check after deploy **[orchestrator]**, operator's go (card AC #4; US3)
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -53,6 +58,10 @@ Operator ruling 2026-10-29: showstopper. Run 2 of the two-browser alpha playtest
 Operator ruling 2026-10-29, sweep order: 'Add TASK-0181 to the runbook ahead of TASK-0163 AC #4: fix it, merge on green, confirm it deployed to vm-104, then stop for run 3.' Each vm-104 command still needs the operator's go.
 
 Claimed 2026-10-29 by the M3 sweep, resumed 2026-10-29 (docs/design/m3-table-sweep-runbook.md). Worktree .worktrees/task-0181, branch task-0181-think-block, cut from origin/main 06fe2971. Spec number 063 claimed with a stub. Runbook amendment 141e4994: TASK-0181 first, then TASK-0182, TASK-0180, stop before run 3.
+
+Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5
+
+Spec set 72811b2d (spec 063): 5 phases, OQ-1 to OQ-4 with (a) defaults; no frozen-contract change (additive 031 node-seam.md line). Cause from repo evidence: 9router cc/ routes run extended thinking, rendered as literal <think> text in delta.content, with hidden tokens consuming max_tokens (think-only replies at exactly 1200 tokens). Probe P1/P2 on vm-104 waits on the operator's go.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
