@@ -4,7 +4,7 @@ title: Show progress between Commit and the DM's narration
 status: To Do
 assignee: []
 created_date: '2026-10-27 02:44'
-updated_date: '2026-10-30 00:42'
+updated_date: '2026-10-30 00:45'
 labels:
   - web
   - dm
@@ -35,6 +35,8 @@ Evidence: M2 demo record (docs/design/m2-demo.md, operator finding 2). Each turn
 
 <!-- SECTION:NOTES:BEGIN -->
 Two-browser alpha playtest 2026-10-28, run 2 item 2: a DM turn on hosted dev took 60 s or more with no indication, and the operator thought it was a fatal error. Repeat evidence beyond the M2 demo's 30-60 s.
+
+Run 2 item 3 (same playtest): a failed turn is also invisible. Turn bb36c8a9 failed after 40 s (cause carded as TASK-0181), and the reconcile turn re-ran it; players saw neither the failure nor the retry. The indicator should cover running, failed and retrying.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
