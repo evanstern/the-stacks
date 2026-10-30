@@ -4,7 +4,7 @@ title: DM model calls fail on a <think> prefix from the router
 status: In Progress
 assignee: []
 created_date: '2026-10-30 00:45'
-updated_date: '2026-10-30 01:59'
+updated_date: '2026-10-30 02:00'
 labels:
   - dm
   - bug
@@ -62,6 +62,8 @@ Claimed 2026-10-29 by the M3 sweep, resumed 2026-10-29 (docs/design/m3-table-swe
 Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5
 
 Spec set 72811b2d (spec 063): 5 phases, OQ-1 to OQ-4 with (a) defaults; no frozen-contract change (additive 031 node-seam.md line). Cause from repo evidence: 9router cc/ routes run extended thinking, rendered as literal <think> text in delta.content, with hidden tokens consuming max_tokens (think-only replies at exactly 1200 tokens). Probe P1/P2 on vm-104 waits on the operator's go.
+
+Operator ruled 2026-10-29 in the M3 sweep chat, verbatim: "TASK-0181: I accept the recommended defaults OQ-1 to OQ-4 (a), including the additive 031 node-seam amendment."
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
