@@ -1,0 +1,64 @@
+{
+  "v": 1,
+  "name": "talk-chain",
+  "dice": [],
+  "calls": [
+    {
+      "purpose": "dm.narrate",
+      "note": "react 1: Wenna answers and prompts Odo",
+      "respond": {
+        "type": "json",
+        "value": {
+          "outcome": "reply",
+          "triggers": [{ "kind": "addressed", "actorId": "wenna" }],
+          "speaker": "wenna",
+          "text": "Wenna glances at the friar. \"Ask your priest what the bell wants, then.\"",
+          "encounterId": null,
+          "companionPrompts": ["odo"],
+          "reason": "The keeper turns the question to Odo."
+        }
+      }
+    },
+    {
+      "purpose": "dm.companion",
+      "note": "Odo answers",
+      "respond": {
+        "type": "json",
+        "value": {
+          "say": "Wenna, does the bell want a hand on the rope?",
+          "comment": null,
+          "act": null,
+          "pending": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.narrate",
+      "note": "react 2: reaches the cap; asks for Odo again, which code ignores",
+      "respond": {
+        "type": "json",
+        "value": {
+          "outcome": "reply",
+          "triggers": [{ "kind": "addressed", "actorId": "wenna" }],
+          "speaker": "wenna",
+          "text": "Wenna shrugs and turns back to the hearth. The room waits on the rest of you.",
+          "encounterId": null,
+          "companionPrompts": ["odo"],
+          "reason": "Hands the scene to the player characters."
+        }
+      }
+    },
+    {
+      "purpose": "dm.chronicle",
+      "respond": { "type": "json", "value": { "entries": [] } }
+    },
+    {
+      "purpose": "dm.chronicle",
+      "respond": { "type": "json", "value": { "entries": [] } }
+    },
+    {
+      "purpose": "dm.chronicle",
+      "respond": { "type": "json", "value": { "entries": [] } }
+    }
+  ]
+}

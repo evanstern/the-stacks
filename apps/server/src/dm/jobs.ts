@@ -25,7 +25,7 @@ import type { AdjudicateOutput } from "./nodes/adjudicate.js";
 import type { AuditRecord } from "./nodes/audit.js";
 import type { DirectorNodeOutput } from "./nodes/director.js";
 import type { Submission } from "./nodes/resolve.js";
-import type { InterpretOutput } from "./nodes/schemas.js";
+import type { InterpretOutput, ReactOutput } from "./nodes/schemas.js";
 import type {
   ModelCallRecord,
   NodeErrorKind,
@@ -161,6 +161,8 @@ export interface TurnCheckpoint {
   adjudicate: AdjudicateOutput | null;
   /** True once the first-stage cut ran for this turn (specs/064). */
   cut?: boolean;
+  /** The talk turn's react output, reused on a reclaim (specs/065 D3). */
+  react?: ReactOutput | null;
   submissions: Submission[];
   lastSeq: number; // highest seq the gate returned to this job
   /** The plan gate's verdict per action group; absent on rows stored before TASK-0112. */

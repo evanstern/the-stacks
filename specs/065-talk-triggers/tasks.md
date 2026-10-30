@@ -48,28 +48,28 @@ run 3. The operator decides a cut.
 
 ## Phase 3: The talk path (card AC #3, #4)
 
-- [ ] T015 Create `apps/server/src/dm/prompts/react.ts` with `PROMPT_VERSION = "dm.react-v1"`,
+- [x] T015 Create `apps/server/src/dm/prompts/react.ts` with `PROMPT_VERSION = "dm.react-v1"`,
       purpose `dm.narrate` (plan D4). It takes the `PlayerSeedView`, never the full seed.
-- [ ] T016 Create `apps/server/src/dm/talk-turn.ts` with `runTalkTurn` steps 1 to 3, 5, 7 and 8
+- [x] T016 Create `apps/server/src/dm/talk-turn.ts` with `runTalkTurn` steps 1 to 3, 5, 7 and 8
       (plan D3). Store the react output in `TurnCheckpoint.react`.
-- [ ] T017 In `apps/server/src/dm/pipeline/runner.ts`, branch to `runTalkTurn` at the empty beat
+- [x] T017 In `apps/server/src/dm/pipeline/runner.ts`, branch to `runTalkTurn` at the empty beat
       when the trigger is `talk` (plan D3). A non-empty beat runs the full pipeline.
-- [ ] T018 In `apps/server/src/dm/worker.ts`, record `talk` in the job result and pass the talk
+- [x] T018 In `apps/server/src/dm/worker.ts`, record `talk` in the job result and pass the talk
       deps.
-- [ ] T019 Create `apps/server/test/dm/react-prompt.test.ts`: version, rules, and the cap line.
+- [x] T019 Create `apps/server/test/dm/react-prompt.test.ts`: version, rules, and the cap line.
       Extend `player-facing-prompts.test.ts` so the react prompt builder rejects the DM-only view.
-- [ ] T020 Create `apps/server/test/dm/scripts/talk-reply.json`, `talk-none.json` and
+- [x] T020 Create `apps/server/test/dm/scripts/talk-reply.json`, `talk-none.json` and
       `talk-chain.json` (plan D6).
-- [ ] T021 Create `apps/server/test/dm/talk-turn.integration.test.ts` for reply, none, the
+- [x] T021 Create `apps/server/test/dm/talk-turn.integration.test.ts` for reply, none, the
       refused-then-dropped leak, the full-pipeline case with a committed beat, and reclaim reuse.
-- [ ] T022 In the same file, cover the chain: two `ai:dm` narration rows, then no talk turn for the
+- [x] T022 In the same file, cover the chain: two `ai:dm` narration rows, then no talk turn for the
       next companion line; the cap reaction prompts no companion.
-- [ ] T023 Extend `apps/server/test/dm/runner.test.ts`: a talk trigger with an empty beat runs the
+- [x] T023 Extend `apps/server/test/dm/runner.test.ts`: a talk trigger with an empty beat runs the
       talk path; every other trigger still returns `empty-beat`.
-- [ ] T024 Create `apps/server/dm-scripts/greyhollow-talk.json` and extend
+- [x] T024 Create `apps/server/dm-scripts/greyhollow-talk.json` and extend
       `apps/server/test/dm/dm-scripts.test.ts` (plan D8). Create
       `specs/065-talk-triggers/evidence/talk.mjs`.
-- [ ] T025 Run `pnpm ci:check`.
+- [x] T025 Run `pnpm ci:check`.
 
 ## Phase 4: Escalation to turn mode (card AC #5) — cut 1
 

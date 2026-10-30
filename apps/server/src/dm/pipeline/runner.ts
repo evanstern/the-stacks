@@ -3,6 +3,7 @@ import { cutPlans, holdDirector } from "../first-stage.js";
 import type { TurnCheckpoint } from "../jobs.js";
 import { findLandedNarration, submitNarration } from "../nodes/resolve.js";
 import { SnapshotOverflowError } from "../snapshot/index.js";
+import { runTalkTurn } from "../talk-turn.js";
 import {
   depsFor,
   type ModelCallRecord,
@@ -191,6 +192,8 @@ export async function runTurn(
         assembled.npcTurn === null &&
         ctx.job.trigger !== "scene-start"
       ) {
+        // A talk turn with nothing committed reads the posts (specs/065 D3).
+        if (ctx.job.trigger === "talk") return runTalkTurn(ctx, assembled);
         return { status: "empty-beat" };
       }
     }

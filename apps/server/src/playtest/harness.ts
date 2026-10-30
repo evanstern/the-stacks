@@ -284,6 +284,7 @@ export async function runPlaytest(
     db,
     nudge: () => {},
     loadProjections: loadDm,
+    loadSeed: (id) => loadSeed(id),
   });
   gate.onAppended((sid, rows) => {
     void enqueuer.onAppended(sid, rows);

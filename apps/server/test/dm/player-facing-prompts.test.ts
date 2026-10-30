@@ -14,6 +14,7 @@ import { buildChroniclePrompt } from "../../src/dm/prompts/chronicle.js";
 import { rosterOf } from "../../src/dm/prompts/common.js";
 import { buildCompanionPrompt } from "../../src/dm/prompts/companion.js";
 import { buildNarratePrompt } from "../../src/dm/prompts/narrate.js";
+import { buildReactPrompt } from "../../src/dm/prompts/react.js";
 import { dmOnlySeedText, playerFacingSeed } from "../../src/dm/seed/views.js";
 import { buildSnapshot } from "../../src/dm/snapshot/index.js";
 import { projectDm, row, testSeed } from "./helpers.js";
@@ -148,6 +149,19 @@ const clarifyFacts = facts({
   clarify: [{ actionId: "act-x", question: "Which way do you press on?" }],
 });
 
+const reactInput = () => ({
+  seed: VIEW,
+  roster: rosterOf(projections.party),
+  snapshot,
+  posts: [],
+  triggers: [],
+  transcriptTail: [],
+  presentNpcIds: [],
+  encounterIds: [],
+  reachesCap: false,
+  prior: null,
+});
+
 const prompts: { name: string; text: string }[] = [];
 const add = (name: string, p: { system: string; user: string }) =>
   prompts.push({ name, text: `${p.system}\n${p.user}` });
@@ -215,6 +229,26 @@ add(
     roster: rosterOf(projections.party),
   }),
 );
+const reactPosts = projections.transcript.filter(
+  (e): e is Extract<typeof e, { kind: "talk" }> => e.kind === "talk",
+);
+for (const reachesCap of [false, true]) {
+  add(
+    `react cap=${reachesCap}`,
+    buildReactPrompt({
+      seed: VIEW,
+      roster: rosterOf(projections.party),
+      snapshot,
+      posts: reactPosts.slice(-2),
+      triggers: [{ kind: "addressed", actorId: "wenna", party: false }],
+      transcriptTail: projections.transcript,
+      presentNpcIds: ["wenna"],
+      encounterIds: ["reed-camp"],
+      reachesCap,
+      prior: null,
+    }),
+  );
+}
 for (const id of ["odo", "kestrel"]) {
   for (const active of [true, false]) {
     add(
@@ -232,7 +266,7 @@ for (const id of ["odo", "kestrel"]) {
 
 describe("player-facing prompts (card AC #1)", () => {
   it("builds every variant", () => {
-    expect(prompts).toHaveLength(11);
+    expect(prompts).toHaveLength(13);
     expect(USER_ID).not.toBe("");
   });
 
@@ -258,6 +292,11 @@ describe("player-facing prompts (card AC #1)", () => {
       "## State at the end of this transcript",
     );
     expect(by("companion odo active=true")).toContain("## State");
+  });
+
+  it("the react prompt builder takes the player view, never the full seed", () => {
+    // @ts-expect-error the DM-only seed is not a PlayerSeedView
+    buildReactPrompt({ ...reactInput(), seed: SEED });
   });
 
   it("holds no river-things or ward wording", () => {

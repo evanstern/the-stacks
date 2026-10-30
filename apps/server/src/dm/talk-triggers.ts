@@ -109,3 +109,13 @@ export function companionOnly(triggers: CodeTrigger[]): boolean {
     !triggers.some((t) => !t.party && t.kind !== "overheard")
   );
 }
+
+/** What a talk turn records in `jobs.result.talk` (FR-014). */
+export interface TalkResult {
+  /** Seqs of the posts the turn read. */
+  posts: number[];
+  codeTriggers: CodeTrigger[];
+  modelTriggers: { kind: string; actorId: string | null }[];
+  outcome: "none" | "reply" | "scene" | "escalate";
+  reason: string;
+}

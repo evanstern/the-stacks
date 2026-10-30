@@ -3,7 +3,11 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { ChronicleOutput } from "../../src/dm/chronicle.js";
-import { DirectorOutput, InterpretOutput } from "../../src/dm/nodes/schemas.js";
+import {
+  DirectorOutput,
+  InterpretOutput,
+  ReactOutput,
+} from "../../src/dm/nodes/schemas.js";
 import { loadDmScript } from "../../src/dm/script/load.js";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -78,6 +82,27 @@ describe("shipped DM scripts (apps/server/dm-scripts)", () => {
     }
     expect(live.dice).toEqual(plan.dice);
   });
+  it("greyhollow-talk is scene-start, its chronicle call, then talk-reply", () => {
+    const live = loadDmScript(read(LIVE_DIR, "greyhollow-talk.json"));
+    const start = loadDmScript(read(TEST_SCRIPTS, "scene-start.json"));
+    const reply = loadDmScript(read(TEST_SCRIPTS, "talk-reply.json"));
+    expect(live.calls.slice(0, start.calls.length)).toEqual(start.calls);
+    expect(live.calls.slice(start.calls.length + 1)).toEqual(reply.calls);
+    expect(live.calls[start.calls.length]?.purpose).toBe("dm.chronicle");
+    expect(live.dice).toEqual([]);
+  });
+  it.each(["talk-reply", "talk-none", "talk-chain"])(
+    "%s react replies parse against ReactOutput",
+    (name) => {
+      const calls = loadDmScript(read(TEST_SCRIPTS, `${name}.json`)).calls;
+      const reacts = calls.filter((c) => c.purpose === "dm.narrate");
+      expect(reacts.length).toBeGreaterThan(0);
+      for (const c of reacts)
+        expect(
+          ReactOutput.safeParse((c.respond as { value: unknown }).value),
+        ).toMatchObject({ success: true });
+    },
+  );
   it.each([
     ["live", LIVE_DIR, "greyhollow-plan-approach.json"],
     ["test", TEST_SCRIPTS, "plan-approach.json"],

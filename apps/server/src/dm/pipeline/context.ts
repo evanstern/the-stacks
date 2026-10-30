@@ -15,6 +15,7 @@ import type { InterpretOutput } from "../nodes/schemas.js";
 import type { DmPurpose } from "../purposes.js";
 import type { PriorTurn } from "../resume.js";
 import type { SceneSeed } from "../seed/schema.js";
+import type { TalkResult } from "../talk-triggers.js";
 
 /**
  * The node seam (specs/031-dm-runtime contracts/node-seam.md). Every node is
@@ -165,6 +166,15 @@ export type Node<N extends NodeName> = (
 export type TurnOutcome =
   | { status: "completed"; results: NodeOutputs; calls: ModelCallRecord[] }
   | { status: "empty-beat" }
+  | {
+      status: "talk";
+      talk: TalkResult;
+      /** Companion character ids the reaction prompts; empty at the cap. */
+      companions: string[];
+      /** True when a narration row shipped (a chronicle job follows). */
+      shipped: boolean;
+      calls: ModelCallRecord[];
+    }
   | { status: "held"; companions: string[]; calls: ModelCallRecord[] }
   | {
       status: "failed";
