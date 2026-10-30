@@ -42,9 +42,11 @@ Spec: specs/063-think-block
 - [x] #5 Spec phase: Strip leading think blocks (card AC #2, #3; US1)
 - [x] #6 Spec phase: Mutation guard **[orchestrator]** (card AC #3)
 - [ ] #7 Spec phase: Cause probe and source fix **[orchestrator]**, operator's go (card AC #1, #2; US2)
-- [ ] #8 Spec phase: Wiki **[orchestrator]** (re-ground)
+- [x] #8 Spec phase: Wiki **[orchestrator]** (re-ground)
 - [ ] #9 Spec phase: Hosted-dev check after deploy **[orchestrator]**, operator's go (card AC #4; US3)
 <!-- AC:END -->
+
+
 
 
 
