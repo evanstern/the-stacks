@@ -66,6 +66,8 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
 Phases (2026-10-30), one line each above: P1 pure core 0bbd0e69; P2 enqueue 8a142292; P3 talk path eb45dded; P4 escalation 447b321e; P5 gates + reclaim fix c2e6d785 + live check ccf6a49e; P6 contracts + wiki 0c9f9dc4 9bc934ea 91509eaa. REQUIRE_DATABASE=1 ci:check exit 0 (server 1424, web 139). Mutation: codeTriggers 9, capReached 3, legalEscalation 2. Brave live check (greyhollow-talk): Wenna replies, free mode, 8 shots, no modal.
+
+spec-bridge sync: The pure core (card AC #2, #4): 7/7 · Enqueue (card AC #3, #4): 7/7 · The talk path (card AC #3, #4): 11/11 · Escalation to turn mode (card AC #5) — cut 1: 4/4 · DB suites, mutation guard, live check **[orchestrator]**: 3/3 · Contracts and wiki re-ground: 5/5 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
