@@ -117,6 +117,7 @@ const ruling = (actionId: string): Ruling => ({
   citations: [],
   dropped: 0,
   steps: [],
+  followUps: [],
 });
 
 function sub(

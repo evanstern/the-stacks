@@ -382,6 +382,7 @@ describe("narrate", () => {
                 citations: [],
                 dropped: 0,
                 steps: [],
+                followUps: [],
               },
             ],
           },

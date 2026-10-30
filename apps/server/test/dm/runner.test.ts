@@ -48,6 +48,7 @@ const reading = (needs: boolean) =>
     rulesQuestion: needs ? "q" : null,
     clarify: null,
     steps: [],
+    followUps: [],
   }) as NodeOutputs["interpret"]["readings"][number];
 
 interface Spy {

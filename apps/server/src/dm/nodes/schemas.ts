@@ -185,6 +185,7 @@ export const InterpretReadingSchema = z
     rulesQuestion: z.string().min(1).max(500).nullable(),
     clarify: z.string().min(1).max(200).nullable(),
     steps: z.array(StepSchema).max(6),
+    followUps: z.array(z.string().min(1).max(200)).max(6).default([]),
   })
   .superRefine((r, ctx) => {
     if (r.needsAdjudication && r.rulesQuestion === null) {

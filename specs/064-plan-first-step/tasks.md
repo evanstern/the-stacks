@@ -13,26 +13,26 @@ prompts. No other lane edits them while this branch is open.
 
 ## Phase 1: The pure core (card AC #1, #3, #4)
 
-- [ ] T001 In `apps/server/src/dm/nodes/schemas.ts`, add
+- [x] T001 In `apps/server/src/dm/nodes/schemas.ts`, add
       `followUps: z.array(z.string().min(1).max(200)).max(6).default([])` to `InterpretReadingSchema`
       (plan D1). Keep the `superRefine`.
-- [ ] T002 In `apps/server/src/dm/nodes/adjudicate.ts`, add `followUps: string[]` to `Ruling`. Set
+- [x] T002 In `apps/server/src/dm/nodes/adjudicate.ts`, add `followUps: string[]` to `Ruling`. Set
       `[]` where rulings are built. The adjudicate model schema is unchanged.
-- [ ] T003 Fix every TypeScript literal of `InterpretReading` or `Ruling` that no longer typechecks.
+- [x] T003 Fix every TypeScript literal of `InterpretReading` or `Ruling` that no longer typechecks.
       Add `followUps: []`; change nothing else.
-- [ ] T004 Create `apps/server/src/dm/first-stage.ts` with `firstStage(steps)` (plan D2, OQ-4 (a)).
-- [ ] T005 Add `cutPlans({ mode, readings, rulings })` (plan D2, OQ-5 (a)). Never cut the
+- [x] T004 Create `apps/server/src/dm/first-stage.ts` with `firstStage(steps)` (plan D2, OQ-4 (a)).
+- [x] T005 Add `cutPlans({ mode, readings, rulings })` (plan D2, OQ-5 (a)). Never cut the
       `actionId: null` reading. Dedupe follow-ups and cap them at six.
-- [ ] T006 Add `holdDirector(director, cutBeat)` (plan D2, OQ-3 (a)). Hold `turn`, trackers and scene
+- [x] T006 Add `holdDirector(director, cutBeat)` (plan D2, OQ-3 (a)). Hold `turn`, trackers and scene
       end. Never hold `free`. Append one `DirectorOverride` per held decision.
-- [ ] T007 Create `apps/server/test/dm/first-stage.test.ts`. Cover: a same-skill check run stays
+- [x] T007 Create `apps/server/test/dm/first-stage.test.ts`. Cover: a same-skill check run stays
       whole; a different-skill second check is cut; steps after the run are cut with their reasons
       as follow-ups; no check cuts nothing; turn mode cuts nothing; the NPC reading is never cut;
       model-written follow-ups are kept and merged; dedupe and the cap of six.
-- [ ] T008 In the same file, cover `holdDirector`: a cut beat holds `turn`, trackers and scene end
+- [x] T008 In the same file, cover `holdDirector`: a cut beat holds `turn`, trackers and scene end
       with three overrides; `free` is kept; a non-cut beat returns the input unchanged; holding an
       already-held output adds no override.
-- [ ] T009 Run `pnpm ci:check`.
+- [x] T009 Run `pnpm ci:check`.
 
 ## Phase 2: Runner wiring, prompts, facts (card AC #2, #4)
 

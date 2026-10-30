@@ -46,6 +46,8 @@ export interface Ruling {
   /** Citations that failed verification. */
   dropped: number;
   steps: Step[];
+  /** Later steps cut by the first-stage rule (specs/064). */
+  followUps: string[];
 }
 
 export interface AdjudicateOutput {
@@ -175,6 +177,7 @@ export const adjudicate: Node<"adjudicate"> = async (ctx) => {
       citations,
       dropped,
       steps: result.value.steps,
+      followUps: [],
     });
   }
   for (const plan of assembled.resumed ?? []) {
