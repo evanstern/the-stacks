@@ -4,7 +4,7 @@ title: DM model calls fail on a <think> prefix from the router
 status: In Progress
 assignee: []
 created_date: '2026-10-30 00:45'
-updated_date: '2026-10-30 02:30'
+updated_date: '2026-10-30 02:42'
 labels:
   - dm
   - bug
@@ -39,12 +39,14 @@ Spec: specs/063-think-block
 - [ ] #2 DM calls parse a reply that starts with a think block, or the source stops emitting it; the spec decides which
 - [ ] #3 A test covers a reply with a leading empty and non-empty think block
 - [ ] #4 A hosted-dev turn after deploy shows no invalid-json attempts in the debug calls list
-- [ ] #5 Spec phase: Strip leading think blocks (card AC #2, #3; US1)
+- [x] #5 Spec phase: Strip leading think blocks (card AC #2, #3; US1)
 - [ ] #6 Spec phase: Mutation guard **[orchestrator]** (card AC #3)
 - [ ] #7 Spec phase: Cause probe and source fix **[orchestrator]**, operator's go (card AC #1, #2; US2)
 - [ ] #8 Spec phase: Wiki **[orchestrator]** (re-ground)
 - [ ] #9 Spec phase: Hosted-dev check after deploy **[orchestrator]**, operator's go (card AC #4; US3)
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
