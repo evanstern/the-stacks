@@ -29,6 +29,8 @@ Grounding: decision-0016 (D8) says talk never changes state and never triggers a
 Scope: the operator's wanted model. Every in-character post is read for triggers: a character addressed, mentioned or referred to; speech loud enough to be overheard by someone nearby; other triggers the design names. The DM decides what each trigger means for the next beat. Reactions can chain, but AI-only exchanges are capped so PCs drive the scene. A reaction that turns into combat, or action fast enough that turns matter, moves the table into turn mode.
 
 Related: TASK-0172 and TASK-0173 (what each actor knows), TASK-0149 (NPC attitude), TASK-0152 (NPC doctrine), TASK-0144 (companion say gate).
+
+Spec: specs/065-talk-triggers
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
