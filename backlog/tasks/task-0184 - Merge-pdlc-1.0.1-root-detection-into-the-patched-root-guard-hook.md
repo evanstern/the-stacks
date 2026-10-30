@@ -28,16 +28,6 @@ pdlc 1.0.1 fixed root-guard root detection: resolveMainCheckout() derives the ma
 - [x] #5 node --test .claude/hooks/ passes
 <!-- AC:END -->
 
-
-
-
-
-
-
-
-
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -46,7 +36,15 @@ pdlc 1.0.1 fixed root-guard root detection: resolveMainCheckout() derives the ma
 2026-10-30: the operator approved the sonnet-implementer dispatch in chat. The retry, with no model parameter, was again denied by the auto-mode classifier.
 
 2026-10-30: Operator checkpoint (recorded before work): the operator said 'do TASK-0184 inline in this session' after the auto-mode classifier denied the dispatches. Implemented inline by the orchestrator session (cc/claude-opus-5-5); no implementer dispatch.
+
+Hook = pdlc 1.0.1 plus the TASK-0018 -z hunk; diff vs origin/main shows only upstream changes. Added 3 linked-worktree spawn tests: 2 fail on the old hook, all 23 hook tests pass on the merged one.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Rebased .claude/hooks/root-guard-hook.mjs on pdlc 1.0.1 (resolveMainCheckout derives root from git --git-common-dir) and kept the TASK-0018 -z NUL-split staged-path fix. Added regression tests for linked-worktree root detection. Implemented inline under a recorded operator checkpoint.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
