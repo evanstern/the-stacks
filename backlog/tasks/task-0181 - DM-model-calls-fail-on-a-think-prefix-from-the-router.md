@@ -4,7 +4,7 @@ title: DM model calls fail on a <think> prefix from the router
 status: In Progress
 assignee: []
 created_date: '2026-10-30 00:45'
-updated_date: '2026-10-30 02:03'
+updated_date: '2026-10-30 02:23'
 labels:
   - dm
   - bug
@@ -68,6 +68,8 @@ Operator ruled 2026-10-29 in the M3 sweep chat, verbatim: "TASK-0181: I accept t
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
 
 Phase 1 d5aba097: stripThink in dm/pipeline/call.ts, used by parseAgainst and callText; raw text kept for re-ask and excerpts; 031 node-seam.md amended (additive). call.test.ts 5/26 failed before, 26/26 after.
+
+Probe 2026-10-29 under the operator's go on each exact command (evidence/probe.md): curl is absent from the app container; Node fetch on the app's own dm.interpret route (http://9router.local.infinity-node.win/v1, cc/claude-sonnet-5, maxTokens 1200) failed with ENOTFOUND. getent finds no address on vm-104 or in the container. No model call was made and P2 was not run. AC #1 stays unconfirmed by probe. Hosted dev cannot reach 9router at all right now, a blocker for run 3 that is separate from the think block; raised with the operator.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
