@@ -46,12 +46,6 @@ Spec: specs/063-think-block
 - [ ] #9 Spec phase: Hosted-dev check after deploy **[orchestrator]**, operator's go (card AC #4; US3)
 <!-- AC:END -->
 
-
-
-
-
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -80,6 +74,8 @@ Probe 2026-10-29 under the operator's go on each exact command (evidence/probe.m
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
 
 Phase 4 594e98a2: dm-runtime, dm-failure-and-gates and ai-gateway are NEEDS-REVIEW, amended and re-pinned; debug-view RE-PIN-ONLY. Runbook log row. Freshness OK, spec-bridge 0. vm-104 resolver (operator-run resolvectl): current DNS is upstream IPv6 2605:9fc0:0:53::1, not the Pi-hole 192.168.1.79, which holds 9router at 192.168.1.103. The DNS fix is the operator's.
+
+spec-bridge sync: Strip leading think blocks (card AC #2, #3; US1): 7/7 · Mutation guard **[orchestrator]** (card AC #3): 1/1 · Cause probe and source fix **[orchestrator]**, operator's go (card AC #1, #2; US2): 0/4 · Wiki **[orchestrator]** (re-ground): 5/5 · Hosted-dev check after deploy **[orchestrator]**, operator's go (card AC #4; US3): 0/3
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
