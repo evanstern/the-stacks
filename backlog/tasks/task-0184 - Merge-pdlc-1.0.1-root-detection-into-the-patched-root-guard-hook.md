@@ -34,6 +34,8 @@ pdlc 1.0.1 fixed root-guard root detection: resolveMainCheckout() derives the ma
 2026-10-30: dispatch 1 to sonnet-implementer failed with model_not_found. The dispatch parameter model=sonnet resolved to bare claude-sonnet-5-5, which 9router rejects. Nothing was written. Dispatch 2, with no model parameter so the frontmatter cc/ pin applies, was denied by the auto-mode permission classifier. Waiting on the operator.
 
 2026-10-30: the operator approved the sonnet-implementer dispatch in chat. The retry, with no model parameter, was again denied by the auto-mode classifier.
+
+2026-10-30: Operator checkpoint (recorded before work): the operator said 'do TASK-0184 inline in this session' after the auto-mode classifier denied the dispatches. Implemented inline by the orchestrator session (cc/claude-opus-5-5); no implementer dispatch.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
