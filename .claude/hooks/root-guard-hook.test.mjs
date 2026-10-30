@@ -190,3 +190,41 @@ describe('classifyBoardSyncCommit — US3 pre-write audit (Phase 4, T008)', () =
     assert.equal(result.status, 0);
   });
 });
+
+describe('root detection — linked worktree is not root (pdlc 1.0.1 resolveMainCheckout)', () => {
+  // A repo with a linked worktree at <repo>/.worktrees/wt, a non-backlog file
+  // staged in each checkout. Returns [mainDir, worktreeDir].
+  function makeRepoWithWorktree(t) {
+    const repo = makeRepo(t);
+    const wt = join(repo, '.worktrees', 'wt');
+    execFileSync('git', ['-C', repo, 'worktree', 'add', '-q', '-b', 'wt', wt]);
+    for (const dir of [repo, wt]) {
+      writeFileSync(join(dir, 'src.txt'), 'x\n');
+      execFileSync('git', ['-C', dir, 'add', '--', 'src.txt']);
+    }
+    return [repo, realpathSync(wt)];
+  }
+
+  function runPreBash(projectDir, cwd) {
+    return spawnSync(process.execPath, [HOOK_PATH, 'pre-bash'], {
+      env: { ...process.env, CLAUDE_PROJECT_DIR: projectDir },
+      input: JSON.stringify({ tool_input: { command: 'git commit -m x' }, cwd }),
+      encoding: 'utf8',
+    });
+  }
+
+  test('a commit in a linked worktree passes when CLAUDE_PROJECT_DIR names that worktree', (t) => {
+    const [, wt] = makeRepoWithWorktree(t);
+    assert.equal(runPreBash(wt, wt).status, 0);
+  });
+
+  test('a non-board commit at the main checkout is blocked when CLAUDE_PROJECT_DIR names the worktree', (t) => {
+    const [repo, wt] = makeRepoWithWorktree(t);
+    assert.equal(runPreBash(wt, repo).status, 2);
+  });
+
+  test('a non-board commit at the main checkout is blocked when CLAUDE_PROJECT_DIR names the main checkout', (t) => {
+    const [repo] = makeRepoWithWorktree(t);
+    assert.equal(runPreBash(repo, repo).status, 2);
+  });
+});
