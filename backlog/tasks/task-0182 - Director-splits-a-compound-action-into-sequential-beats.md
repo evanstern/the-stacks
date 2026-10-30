@@ -4,7 +4,7 @@ title: Director splits a compound action into sequential beats
 status: In Progress
 assignee: []
 created_date: '2026-10-30 00:56'
-updated_date: '2026-10-30 04:22'
+updated_date: '2026-10-30 04:28'
 labels:
   - dm
   - director
@@ -69,6 +69,10 @@ Phase 3 802dc3fe plus fixes 7b9b7583 and a7d49c0f: the plan-approach fixture, a 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
 
 Live check 3b15247d (Brave, script mode greyhollow-plan-approach), every step passes: free mode after the turn; two stealth dice lines (Kestrel 8 failure, Odo 15 success vs DC 12); no encounter; narration covers only the approach; debug page shows held turn and tracker overrides; 12 shots, no modal.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
+
+Phase 5 84ec1669: 031 nodes/director/node-seam and 034 narration-facts amended (additive). 8 stale notes re-pinned: dm-runtime, dm-turn-jobs, dm-failure-and-gates, dm-narration-quality NEEDS-REVIEW amended; debug-view, turn-floor, seed-npc-presence, srd-data RE-PIN-ONLY. dm-runtime and dm-turn-jobs trimmed to the 8000-char budget; the orchestrator checked that each removed claim survives (debug routes covered by debug-view). CAPSULES, INDEX and the runbook row updated.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
