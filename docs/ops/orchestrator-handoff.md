@@ -50,7 +50,7 @@ Do these in order before dispatching anything.
 2. If the form differs, edit `.claude/model-tiers.json` on a branch. Regenerate with
    `node ~/.claude/plugins/cache/praxisflux/pdlc/<version>/scripts/tiers.mjs --root .`. Then
    **restart the session**: the agent registry loads at session start. (memory: `desktop-session-tier-dispatch`)
-3. **Check the plugin versions.** Gate commands in the kit name praxisflux `0.68.0` paths under
+3. **Check the plugin versions.** Gate commands in the kit name praxisflux `1.0.1` paths under
    `~/.claude/plugins/cache/praxisflux/`. Update the paths if the installed version differs.
 4. **Check the tools:** `backlog --version`, `gh auth status`, `docker ps`, `pnpm --version`, and Tailscale
    reaching `https://vm-104.tailb3c1b6.ts.net:8443/health`.
