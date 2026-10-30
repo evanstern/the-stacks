@@ -4,7 +4,7 @@ title: 'Design: in-character talk triggers DM reactions (amends D8)'
 status: In Progress
 assignee: []
 created_date: '2026-10-30 00:37'
-updated_date: '2026-10-30 04:47'
+updated_date: '2026-10-30 05:33'
 labels:
   - dm
   - design
@@ -47,6 +47,9 @@ Spec: specs/065-talk-triggers
 
 <!-- SECTION:NOTES:BEGIN -->
 Claimed 2026-10-29 by the M3 sweep, resumed 2026-10-29 (docs/design/m3-table-sweep-runbook.md). Worktree .worktrees/task-0180, branch task-0180-talk-triggers, cut from origin/main cf9bdeb9. Spec number 065 claimed with a stub. Actual claim date 2026-10-30, fresh session after the pdlc 1.0.1 re-plant (#93). Next free decision id: decision-0027.
+
+Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5
+Spec author (2026-10-30): draft decision-0027 (D19, proposed) + spec 065 set, commits b8ede81b 748f0602 a144c4b9, ~172k tokens. OQ-1..OQ-16 await the operator's ruling; no frozen contract touched by the (a) options. Implementation cards wait on the ruling.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
