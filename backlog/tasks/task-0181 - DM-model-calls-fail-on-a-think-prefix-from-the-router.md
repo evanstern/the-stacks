@@ -1,10 +1,10 @@
 ---
 id: TASK-0181
 title: DM model calls fail on a <think> prefix from the router
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-10-30 00:45'
-updated_date: '2026-10-30 01:31'
+updated_date: '2026-10-30 01:38'
 labels:
   - dm
   - bug
@@ -49,6 +49,8 @@ Lead: PURPOSE_MAX_TOKENS in apps/server/src/dm/purposes.ts caps dm.interpret at 
 Operator ruling 2026-10-29: showstopper. Run 2 of the two-browser alpha playtest ended on it at about 01:00 UTC. The same committed action (act-197dae73) failed four turns in a row (00:50, 00:52, 00:55, 00:59). The 00:59 director attempt 1 was '<think></think>' followed by valid JSON, so stripping the prefix alone would have saved it. Attempt 2 omitted companionPrompts. TASK-0163 run 3 waits on this fix being deployed to vm-104.
 
 Operator ruling 2026-10-29, sweep order: 'Add TASK-0181 to the runbook ahead of TASK-0163 AC #4: fix it, merge on green, confirm it deployed to vm-104, then stop for run 3.' Each vm-104 command still needs the operator's go.
+
+Claimed 2026-10-29 by the M3 sweep, resumed 2026-10-29 (docs/design/m3-table-sweep-runbook.md). Worktree .worktrees/task-0181, branch task-0181-think-block, cut from origin/main 06fe2971. Spec number 063 claimed with a stub. Runbook amendment 141e4994: TASK-0181 first, then TASK-0182, TASK-0180, stop before run 3.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
