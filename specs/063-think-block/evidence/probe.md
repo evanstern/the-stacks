@@ -28,3 +28,12 @@ The operator suggested `https://9router.tailb3c1b6.ts.net/`. From the orchestrat
 The operator ran P1 and P2 personally, with the override `https://9router.tailb3c1b6.ts.net/v1`. Both failed in `stacks-dev-app-1` with `getaddrinfo ENOTFOUND 9router.tailb3c1b6.ts.net`. No model call was made.
 
 Neither hostname resolves from the vm-104 app container on 2026-10-29: the LAN name and the tailnet name both fail.
+
+## vm-104 resolver (operator-run, 2026-10-29)
+
+`resolvectl status` on vm-104:
+- Link `ens18` lists the DNS servers `192.168.1.79 2605:9fc0:0:53::1 2605:9fc0:0:53::2`, with DNS domain `local.infinity-node.win`.
+- The current DNS server is `2605:9fc0:0:53::1`.
+- `resolvectl query 9router.local.infinity-node.win` answers "not found".
+
+Reading: systemd-resolved moved off the LAN server `192.168.1.79` to an upstream IPv6 server, which does not know `local.infinity-node.win`. That server's NXDOMAIN is final, so resolved never falls back. The operator resolves the name from other machines. The fault is vm-104's resolver choice, not 9router. The fix is the operator's infrastructure call, for example limiting `ens18` to `192.168.1.79` in netplan, or stopping the router from advertising the IPv6 DNS servers.
