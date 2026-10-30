@@ -4,7 +4,7 @@ title: Merge pdlc 1.0.1 root detection into the patched root-guard hook
 status: In Progress
 assignee: []
 created_date: '2026-10-30 04:46'
-updated_date: '2026-10-30 04:47'
+updated_date: '2026-10-30 04:48'
 labels:
   - tooling
   - bug
@@ -32,6 +32,8 @@ pdlc 1.0.1 fixed root-guard root detection: resolveMainCheckout() derives the ma
 
 <!-- SECTION:NOTES:BEGIN -->
 2026-10-30: dispatch 1 to sonnet-implementer failed with model_not_found. The dispatch parameter model=sonnet resolved to bare claude-sonnet-5-5, which 9router rejects. Nothing was written. Dispatch 2, with no model parameter so the frontmatter cc/ pin applies, was denied by the auto-mode permission classifier. Waiting on the operator.
+
+2026-10-30: the operator approved the sonnet-implementer dispatch in chat. The retry, with no model parameter, was again denied by the auto-mode classifier.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
