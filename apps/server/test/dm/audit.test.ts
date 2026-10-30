@@ -49,6 +49,7 @@ function action(over: Partial<FactAction> = {}): FactAction {
     rolls: [roll()],
     outcomes: ["success"],
     changes: [],
+    followUps: [],
     ...over,
   };
 }

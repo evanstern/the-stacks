@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { cutPlans, holdDirector } from "../first-stage.js";
 import type { TurnCheckpoint } from "../jobs.js";
 import { findLandedNarration, submitNarration } from "../nodes/resolve.js";
 import { SnapshotOverflowError } from "../snapshot/index.js";
@@ -191,6 +192,54 @@ export async function runTurn(
         ctx.job.trigger !== "scene-start"
       ) {
         return { status: "empty-beat" };
+      }
+    }
+
+    if (name === "adjudicate" && !ctx.checkpoint.cut) {
+      // Post-planning step (specs/064): cut plans to their first stage.
+      const interpreted = ctx.results.interpret;
+      const director = ctx.results.director;
+      if (
+        interpreted &&
+        director &&
+        director.beat.decision !== "hold" &&
+        ctx.results.adjudicate
+      ) {
+        const adjudicated = ctx.results.adjudicate;
+        const cut = cutPlans({
+          mode:
+            (ctx.results.assemble as NodeOutputs["assemble"]).projections
+              .tableMode?.mode ?? "turn",
+          readings: interpreted.readings,
+          rulings: adjudicated.rulings,
+        });
+        const cutBeat =
+          cut.readings.some((r) => r.followUps.length > 0) ||
+          cut.rulings.some((r) => r.followUps.length > 0);
+        const held = holdDirector(director, cutBeat);
+        ctx = {
+          ...ctx,
+          results: {
+            ...ctx.results,
+            interpret: { ...interpreted, readings: cut.readings },
+            adjudicate: { ...adjudicated, rulings: cut.rulings },
+            director: held,
+          },
+        };
+        const saved = await store({
+          ...ctx.checkpoint,
+          interpret: ctx.results.interpret ?? null,
+          adjudicate: ctx.results.adjudicate ?? null,
+          director: held,
+          cut: true,
+        });
+        if (!saved) return fenced(name);
+        ctx.deps.log({
+          event: "dm.plan.cut",
+          jobId: ctx.job.id,
+          readings: cut.readings.filter((r) => r.followUps.length > 0).length,
+          rulings: cut.rulings.filter((r) => r.followUps.length > 0).length,
+        });
       }
     }
 

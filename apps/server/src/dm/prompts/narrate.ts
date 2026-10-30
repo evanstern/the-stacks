@@ -20,7 +20,7 @@ import {
   transcriptEntries,
 } from "./common.js";
 
-export const PROMPT_VERSION = "dm.narrate-v5";
+export const PROMPT_VERSION = "dm.narrate-v6";
 
 const RULES = [
   "You narrate the result of one beat of a tabletop role-playing session. The facts below are TRUE and already decided by the rules engine. Retell them as story.",
@@ -35,6 +35,7 @@ const RULES = [
   "Cover every Event line.",
   "Name a character as dead or unconscious only when a fact or the state sections say so; when a fact says so, say so.",
   "A dead, unconscious, stable or absent character does not act or speak. Count only what the state sections show.",
+  "A not-yet-attempted step has not happened. Stop before it; never show it start.",
   "End on something that demands a response. Do not end with an either-or question.",
 ].join("\n");
 
@@ -81,6 +82,7 @@ export function factEntries(facts: NarrationFacts): string[] {
     }
     for (const r of a.rolls) out.push(rollEntry(r));
     for (const c of a.changes) out.push(`  change: ${describeChange(c)}`);
+    for (const f of a.followUps) out.push(`  not yet attempted: ${f}`);
   }
   if (facts.npcTurn) {
     out.push(`Monster turn: ${facts.npcTurn.name}`);

@@ -451,11 +451,13 @@ describe("facts v2: party, events, target, setting (run-5 rows)", () => {
       rolls: [],
       outcomes: [],
       changes: [],
+      followUps: ["Hail the camp."],
     };
     const none = factEntries({ ...base, actions: [act], clarify: [] });
     expect(none[0]).toBe(
       'Action a1 by Ana: "waves" -> no rules effect (nothing rolled, no game state changed; the attempt still happens in the story)',
     );
+    expect(none[1]).toBe("  not yet attempted: Hail the camp.");
     const hold = factEntries({
       ...base,
       actions: [act],

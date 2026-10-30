@@ -36,29 +36,29 @@ prompts. No other lane edits them while this branch is open.
 
 ## Phase 2: Runner wiring, prompts, facts (card AC #2, #4)
 
-- [ ] T010 In `apps/server/src/dm/jobs.ts`, add `cut?: boolean` to `TurnCheckpoint`.
-- [ ] T011 In `apps/server/src/dm/pipeline/runner.ts`, add the post-planning step after adjudicate
+- [x] T010 In `apps/server/src/dm/jobs.ts`, add `cut?: boolean` to `TurnCheckpoint`.
+- [x] T011 In `apps/server/src/dm/pipeline/runner.ts`, add the post-planning step after adjudicate
       and before resolve (plan D3). Save cut readings, cut rulings, the held Director and `cut: true`
       in one checkpoint save. Skip the step when `ctx.checkpoint.cut` is true. Log `dm.plan.cut`.
-- [ ] T012 Extend `apps/server/test/dm/runner.test.ts`: the step runs once before resolve; resolve
+- [x] T012 Extend `apps/server/test/dm/runner.test.ts`: the step runs once before resolve; resolve
       sees cut readings and the held Director; the checkpoint stores `cut: true`; a reclaim with
       `cut: true` does not cut or hold again; a Director `hold` beat never reaches the step.
-- [ ] T013 In `apps/server/src/dm/prompts/interpret.ts`, add the rule line, `"followUps":[str]` in
+- [x] T013 In `apps/server/src/dm/prompts/interpret.ts`, add the rule line, `"followUps":[str]` in
       the reading shape and `followUps: []` in `EXAMPLE_OUTPUT` (plan D4). Bump to
       `dm.interpret-v5`. Update the version test and the inline snapshot in
       `apps/server/test/dm/interpret-prompt.test.ts`.
-- [ ] T014 In `apps/server/src/dm/prompts/director.ts`, add the one rule sentence (plan D4). Bump to
+- [x] T014 In `apps/server/src/dm/prompts/director.ts`, add the one rule sentence (plan D4). Bump to
       `dm.director-v4`. Add a test that the system prompt holds the sentence.
-- [ ] T015 In `apps/server/src/dm/facts.ts`, add `followUps: string[]` to `FactAction`. Read it from
+- [x] T015 In `apps/server/src/dm/facts.ts`, add `followUps: string[]` to `FactAction`. Read it from
       the action's ruling when one exists, else its reading. Pass the readings in from
       `apps/server/src/dm/nodes/narrate.ts`.
-- [ ] T016 In `apps/server/src/dm/nodes/narrate.ts`, check each follow-up in
+- [x] T016 In `apps/server/src/dm/nodes/narrate.ts`, check each follow-up in
       `withholdRefusedInputs` and drop a refused one with a withheld issue (plan D5).
-- [ ] T017 In `apps/server/src/dm/prompts/narrate.ts`, render `  not yet attempted: <text>` and add
+- [x] T017 In `apps/server/src/dm/prompts/narrate.ts`, render `  not yet attempted: <text>` and add
       the rule line (plan D4). Bump to `dm.narrate-v6`.
-- [ ] T018 Extend `apps/server/test/dm/facts.test.ts` and `narrate.test.ts`: the follow-up line
+- [x] T018 Extend `apps/server/test/dm/facts.test.ts` and `narrate.test.ts`: the follow-up line
       renders; the rule is in the system prompt; a follow-up naming a dead actor acting is withheld.
-- [ ] T019 Run `pnpm ci:check`.
+- [x] T019 Run `pnpm ci:check`.
 
 ## Phase 3: The fixture and the live script (card AC #5)
 

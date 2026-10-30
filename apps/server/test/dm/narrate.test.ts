@@ -307,7 +307,7 @@ describe("narrate", () => {
       facts,
       prior: null,
     });
-    expect(NARRATE_VERSION).toBe("dm.narrate-v5");
+    expect(NARRATE_VERSION).toBe("dm.narrate-v6");
     expect(prompt.system).toContain(
       "Name a character as dead or unconscious only when a fact or the state sections say so; when a fact says so, say so.",
     );
@@ -359,7 +359,11 @@ describe("narrate", () => {
   });
 
   describe("input check on rulings and goalNote (spec 051, OQ-2)", () => {
-    async function withheldRun(ruling: string, goalNote: string) {
+    async function withheldRun(
+      ruling: string,
+      goalNote: string,
+      followUps: string[] = [],
+    ) {
       const base = await setup(["x"]);
       // goblin-3 ("Goblin lookout") died on an earlier turn: dead in S1,
       // absent from the diff.
@@ -382,7 +386,7 @@ describe("narrate", () => {
                 citations: [],
                 dropped: 0,
                 steps: [],
-                followUps: [],
+                followUps,
               },
             ],
           },
@@ -416,6 +420,24 @@ describe("narrate", () => {
       expect(n.withheld[0]?.kind).toBe("ledger-mismatch");
       expect(n.withheld[0]?.detail).toMatch(
         /^Actor state: withheld ruling for act-lockpick: /,
+      );
+    });
+
+    it("withholds a follow-up that names a dead actor acting", async () => {
+      const { n, prompt } = await withheldRun(
+        "The lock yields to patient work.",
+        "Keep the vault door in view.",
+        ["The goblin lookout rallies the others.", "Search the door."],
+      );
+      expect(n.facts.actions[0]?.followUps).toEqual(["Search the door."]);
+      expect(prompt.user).toContain("  not yet attempted: Search the door.");
+      expect(prompt.user).not.toContain("rallies the others");
+      expect(n.withheld).toHaveLength(1);
+      expect(n.withheld[0]?.detail).toMatch(
+        /^Actor state: withheld follow-up for act-lockpick: /,
+      );
+      expect(prompt.system).toContain(
+        "A not-yet-attempted step has not happened.",
       );
     });
 

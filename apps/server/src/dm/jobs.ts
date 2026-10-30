@@ -155,6 +155,8 @@ export interface TurnCheckpoint {
   director: DirectorNodeOutput | null;
   interpret: InterpretOutput | null;
   adjudicate: AdjudicateOutput | null;
+  /** True once the first-stage cut ran for this turn (specs/064). */
+  cut?: boolean;
   submissions: Submission[];
   lastSeq: number; // highest seq the gate returned to this job
   /** The plan gate's verdict per action group; absent on rows stored before TASK-0112. */
