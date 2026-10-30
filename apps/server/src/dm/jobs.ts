@@ -25,7 +25,7 @@ import type { AdjudicateOutput } from "./nodes/adjudicate.js";
 import type { AuditRecord } from "./nodes/audit.js";
 import type { DirectorNodeOutput } from "./nodes/director.js";
 import type { Submission } from "./nodes/resolve.js";
-import type { InterpretOutput } from "./nodes/schemas.js";
+import type { InterpretOutput, ReactOutput } from "./nodes/schemas.js";
 import type {
   ModelCallRecord,
   NodeErrorKind,
@@ -55,6 +55,7 @@ export const TurnTriggerSchema = z.enum([
   "scene-start", // POST /dm/sessions/:id/start
   "manual", // POST /dm/sessions/:id/turn
   "reconcile", // worker start found an unanswered commit (FR-008)
+  "talk", // an in-character post the world may react to (specs/065)
 ]);
 export type TurnTrigger = z.infer<typeof TurnTriggerSchema>;
 
@@ -72,6 +73,9 @@ export const TurnJobInput = z.object({
     })
     .nullable()
     .default(null),
+  // Trigger "talk" only (specs/065): first unanswered post and the earliest claim.
+  firstPostAt: z.iso.datetime().optional(),
+  notBefore: z.iso.datetime().optional(),
 });
 export type TurnJobInput = z.infer<typeof TurnJobInput>;
 
@@ -157,6 +161,8 @@ export interface TurnCheckpoint {
   adjudicate: AdjudicateOutput | null;
   /** True once the first-stage cut ran for this turn (specs/064). */
   cut?: boolean;
+  /** The talk turn's react output, reused on a reclaim (specs/065 D3). */
+  react?: ReactOutput | null;
   submissions: Submission[];
   lastSeq: number; // highest seq the gate returned to this job
   /** The plan gate's verdict per action group; absent on rows stored before TASK-0112. */
@@ -239,7 +245,7 @@ export async function claimDmJob(
                     AND r.heartbeat_at >= now() - (interval '1 millisecond' * ${LEASE_MS})
                 )
                 AND (
-                  j.kind NOT IN ('companion', 'floor')
+                  j.kind NOT IN ('turn', 'companion', 'floor')
                   OR j.input->>'notBefore' IS NULL
                   OR (j.input->>'notBefore')::timestamptz <= now()
                 )
@@ -335,6 +341,23 @@ export async function enqueueTurn(
     .onConflictDoNothing()
     .returning({ id: jobs.id });
   if (inserted[0]) return { jobId: inserted[0].id, inserted: true };
+  // A queued talk turn yields to the new trigger: take its trigger and seq,
+  // drop the wait (specs/065 D2).
+  if (trigger !== "talk") {
+    const converted = await db
+      .update(jobs)
+      .set({
+        input: sql`(${jobs.input} - 'notBefore' - 'firstPostAt') || jsonb_build_object('trigger', ${trigger}::text, 'triggerSeq', ${triggerSeq}::int)`,
+      })
+      .where(
+        and(
+          queuedWhere(sessionId, "turn"),
+          sql`${jobs.input}->>'trigger' = 'talk'`,
+        ),
+      )
+      .returning({ id: jobs.id });
+    if (converted[0]) return { jobId: converted[0].id, inserted: false };
+  }
   const [existing] = await db
     .select({ id: jobs.id })
     .from(jobs)
@@ -460,6 +483,64 @@ export async function enqueueCompanionReact(
     `);
     const updatedRow = upd.rows[0] as { id: string } | undefined;
     if (updatedRow) return { jobId: updatedRow.id, inserted: false };
+    // The queued row was claimed in between; loop to insert a fresh one.
+  }
+}
+
+/**
+ * Queues a `talk` turn, coalesced per session (specs/065 D2). Inserts with
+ * `notBefore = least(now() + quietMs, firstPostAt + maxWaitMs)`. A queued talk
+ * turn takes the new `triggerSeq` and a later `notBefore`. Any other queued
+ * turn absorbs the post: nothing changes and `inserted` is false.
+ */
+export async function enqueueTalkTurn(
+  db: DbClient,
+  sessionId: string,
+  triggerSeq: number,
+  opts: { quietMs: number; maxWaitMs: number },
+): Promise<EnqueueResult> {
+  const quiet = sql`(interval '1 millisecond' * ${opts.quietMs})`;
+  const maxWait = sql`(interval '1 millisecond' * ${opts.maxWaitMs})`;
+  for (;;) {
+    const ins = await db.execute(sql`
+      INSERT INTO jobs (kind, session_id, input)
+      VALUES (
+        'turn',
+        ${sessionId}::uuid,
+        jsonb_build_object(
+          'v', 1,
+          'sessionId', ${sessionId}::text,
+          'trigger', 'talk',
+          'triggerSeq', ${triggerSeq}::int,
+          'forceResolve', false,
+          'start', 'null'::jsonb,
+          'firstPostAt', ${isoUtc(sql`now()`)},
+          'notBefore', ${isoUtc(sql`least(now() + ${quiet}, now() + ${maxWait})`)}
+        )
+      )
+      ON CONFLICT DO NOTHING
+      RETURNING id
+    `);
+    const insertedRow = ins.rows[0] as { id: string } | undefined;
+    if (insertedRow) return { jobId: insertedRow.id, inserted: true };
+    const upd = await db.execute(sql`
+      UPDATE jobs SET input = input || jsonb_build_object(
+        'triggerSeq', ${triggerSeq}::int,
+        'notBefore', ${isoUtc(sql`least(now() + ${quiet}, (input->>'firstPostAt')::timestamptz + ${maxWait})`)}
+      )
+      WHERE session_id = ${sessionId}::uuid
+        AND kind = 'turn'
+        AND status = 'queued'
+        AND input->>'trigger' = 'talk'
+      RETURNING id
+    `);
+    const updatedRow = upd.rows[0] as { id: string } | undefined;
+    if (updatedRow) return { jobId: updatedRow.id, inserted: false };
+    const [other] = await db
+      .select({ id: jobs.id })
+      .from(jobs)
+      .where(queuedWhere(sessionId, "turn"));
+    if (other) return { jobId: other.id, inserted: false };
     // The queued row was claimed in between; loop to insert a fresh one.
   }
 }

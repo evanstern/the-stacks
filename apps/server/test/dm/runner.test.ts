@@ -10,7 +10,13 @@ import {
 } from "../../src/dm/pipeline/context.js";
 import { type Nodes, runTurn } from "../../src/dm/pipeline/runner.js";
 import { buildSnapshot } from "../../src/dm/snapshot/index.js";
-import { emptyCheckpoint, makeCtx, makeDeps, testSeed } from "./helpers.js";
+import {
+  emptyCheckpoint,
+  makeCtx,
+  makeDeps,
+  projectDm,
+  testSeed,
+} from "./helpers.js";
 import { greyhollowFight } from "./snapshot-fixtures.js";
 
 const assembled = (over: Partial<NodeOutputs["assemble"]> = {}) =>
@@ -306,6 +312,31 @@ describe("runTurn", () => {
     expect(outcome).toEqual({ status: "empty-beat" });
     expect(spy.order).toEqual(["assemble"]);
   });
+
+  it("runs the talk path for a talk trigger with an empty beat", async () => {
+    const spy = stubNodes({
+      assemble: assembled({
+        beat: [],
+        projections: projectDm([]),
+        snapshot: { actors: [] },
+      } as never),
+    });
+    const outcome = await runTurn(
+      makeCtx({ job: { trigger: "talk", triggerSeq: 1 } }),
+      spy.nodes,
+    );
+    expect(outcome).toMatchObject({ status: "talk", shipped: false });
+    expect(spy.order).toEqual(["assemble"]);
+  });
+
+  it.each(["commit", "approval", "npc-turn", "manual", "reconcile"] as const)(
+    "still returns empty-beat for the %s trigger",
+    async (trigger) => {
+      const spy = stubNodes({ assemble: assembled({ beat: [] }) });
+      const outcome = await runTurn(makeCtx({ job: { trigger } }), spy.nodes);
+      expect(outcome).toEqual({ status: "empty-beat" });
+    },
+  );
 
   it("does not treat an empty beat as empty on scene start", async () => {
     const spy = stubNodes({ assemble: assembled({ beat: [] }) });

@@ -179,3 +179,13 @@ In "The runner", step 2 gains a post-planning step. After `adjudicate` (or its s
 
 `TurnCheckpoint` gains optional `cut?: boolean`. A reclaim with `cut: true` skips the step, so the
 step is idempotent. The pipeline gains no branch, no cycle and no node name.
+
+## Amendment 2026-10-30 (specs/065-talk-triggers): the talk outcome
+
+Amended by specs/065-talk-triggers.
+
+`TurnOutcome` gains `{ status: "talk", talk, companions, nextJob?, shipped, calls }`. The runner
+returns it from `runTalkTurn` where it returned `empty-beat` for a `talk` trigger. The worker
+stores `talk` (`{ posts, codeTriggers, modelTriggers, outcome, reason }`) in `jobs.result` and
+finishes the job as `empty-beat` when the outcome is `none`, else `completed`. The pipeline gains
+no node name and no cycle. `createDmEnqueuer` gains `talkQuietMs`, `talkMaxWaitMs` and `loadSeed`.

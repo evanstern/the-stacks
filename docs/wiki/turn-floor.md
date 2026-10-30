@@ -19,7 +19,7 @@ sources:
   - apps/web/app/play/local-log.ts
   - apps/web/app/play/components/floor-controls.tsx
   - apps/web/app/play/components/turn-order.tsx
-verified_against: 7c84d75e2613315578ad8a1ebd4ab783b57d4147
+verified_against: 9bc934ea72b8c9fa57f4905eaa5f49104c9326a9
 ---
 
 # Turn floor
@@ -46,6 +46,7 @@ Before the closing `turn.advance`, resolve skips the advance, the settle and the
 
 Kind `floor` (migration 0007 adds it to `jobs_kind_valid`, recreates `jobs_session_running_key` to cover it and adds `jobs_floor_queued_key`, one queued row per session, `check` and `actionId`). Claim priority 2, after `turn`. `FloorJobInput`: `check` (`absence` or `stall`), `actionId`, `holder`, `stanceSeq`, `notBefore` (database time). `FLOOR_ABSENCE_WAIT_MS` is 30 s (after the 5 s presence grace); `FLOOR_STALL_WINDOW_MS` is 120 s.
 
+- **Turn jobs wait too** (TASK-0180): the claim's `notBefore` gate covers kind `turn`, for the coalesced `talk` turn ([[dm-turn-jobs]]); floor checks are unchanged.
 - **Arming** (`dm/enqueue.ts`): under an AI seat, and only with a presence reader, a turn-mode `table-mode.changed` row naming an absent human arms `absence`; `onPresenceChange` (wired to `presence.reader.onChange` in `index.ts`) arms it when the active human leaves; a declare or comment on an open multi-human party action arms or re-arms `stall`; a commit or withdrawal cancels it. `enqueueFloorCheck` inserts, or moves `notBefore`, `holder` and `stanceSeq` on the queued row.
 - **Follow-ups**: a turn-mode `table-mode.changed` row written by a human queues an `npc-turn` (`ai:dm` active) or a companion `turn` job (a companion active). Rows written by `ai:dm` queue none; the floor job queues its own.
 - **Run** (`dm/floor.ts`, no model call, only `gate.submit` as `ai:dm`): acts only under an AI seat and only if the wait it was armed for still holds. `absence`: the same human is still absent, so it submits `floor` `end` for the current turn, then queues the next holder's follow-up. `stall`: the action is still an open party candidate, no comment arrived since `stanceSeq` and nobody present objects, so it submits `action.commit` with the stall override. Outcomes: `passed`, `committed`, `noop`, `skipped`, `refused`. The worker runs it as `runFloorJobFenced`.

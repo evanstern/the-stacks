@@ -293,3 +293,26 @@ worker deps (`floorAbsenceWaitMs`, `floorStallWindowMs`), as `reactQuietMs` is f
 - `listJobs` and `getJob` filter `kind = 'ingest'`.
 - Fenced writes move to `jobs/queue.ts`; `jobs.ts` keeps its exported names and signatures.
 - The ingestion suites run unchanged and pass.
+
+## Amendment 2026-10-30 (specs/065-talk-triggers): the `talk` trigger
+
+Amended by specs/065-talk-triggers.
+
+- `TurnTriggerSchema` gains `"talk"`: an in-character post the world may react to.
+- `TurnJobInput` gains optional `firstPostAt` and `notBefore` (ISO UTC strings, trigger `talk` only).
+- The claim's `notBefore` gate now covers kind `turn` as well as `companion` and `floor`. This is
+  a SQL text change; there is no migration.
+- Enqueue rule 7: a public IC `talk` row from a human or an `ai:companion:*` actor, under an AI
+  seat in free mode, queues a coalesced `talk` turn when the chain cap is not reached. A post that
+  names only AI companions queues a `prompt` companion job instead. OOC, whisper, turn-mode and
+  human-seat posts queue nothing.
+- `enqueueTalkTurn` inserts `ON CONFLICT DO NOTHING` with `notBefore = least(now() + quietMs,
+  firstPostAt + maxWaitMs)` (3 s and 10 s). A queued `talk` turn takes the new `triggerSeq` and a
+  later `notBefore`. Any other queued turn absorbs the post.
+- `enqueueTurn` gains one step: a queued `talk` turn is converted to the new trigger, and its
+  `notBefore` and `firstPostAt` are removed.
+- A `talk` turn with no committed beat runs the talk path (nodes.md). The worker records
+  `jobs.result.talk` and queues the after-turn jobs: a `prompt` companion job for the named
+  companions, a chronicle job when a row shipped, and the first `npc-turn` or companion turn after
+  an escalation.
+- `reconcileTurnJobs` does not repair a lost `talk` turn.

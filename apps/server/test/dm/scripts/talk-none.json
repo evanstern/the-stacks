@@ -1,0 +1,23 @@
+{
+  "v": 1,
+  "name": "talk-none",
+  "dice": [],
+  "calls": [
+    {
+      "purpose": "dm.narrate",
+      "note": "react: nothing in the world reacts",
+      "respond": {
+        "type": "json",
+        "value": {
+          "outcome": "none",
+          "triggers": [{ "kind": "overheard", "actorId": "wenna" }],
+          "speaker": null,
+          "text": "",
+          "encounterId": null,
+          "companionPrompts": [],
+          "reason": "Idle table chatter that touches no one."
+        }
+      }
+    }
+  ]
+}

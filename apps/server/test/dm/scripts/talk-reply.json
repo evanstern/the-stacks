@@ -1,0 +1,27 @@
+{
+  "v": 1,
+  "name": "talk-reply",
+  "dice": [],
+  "calls": [
+    {
+      "purpose": "dm.narrate",
+      "note": "react: Wenna answers Odo",
+      "respond": {
+        "type": "json",
+        "value": {
+          "outcome": "reply",
+          "triggers": [{ "kind": "addressed", "actorId": "wenna" }],
+          "speaker": "wenna",
+          "text": "Wenna wipes her hands on her apron. \"Folk go missing at the ford, aye. Ask the old water, not me.\" Her eyes slide toward the back room.",
+          "encounterId": null,
+          "companionPrompts": [],
+          "reason": "Odo asked the keeper a direct question."
+        }
+      }
+    },
+    {
+      "purpose": "dm.chronicle",
+      "respond": { "type": "json", "value": { "entries": [] } }
+    }
+  ]
+}

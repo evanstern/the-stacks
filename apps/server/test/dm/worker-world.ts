@@ -5,6 +5,7 @@ import { sql } from "drizzle-orm";
 import { beforeEach } from "vitest";
 import { createDmEnqueuer } from "../../src/dm/enqueue.js";
 import type { Nodes } from "../../src/dm/pipeline/runner.js";
+import { loadSeed } from "../../src/dm/seed/load.js";
 import { createDmWorker, type DmWorkerDeps } from "../../src/dm/worker.js";
 import type { PresenceReader } from "../../src/presence/index.js";
 import { db, requireDb, type World } from "./world.js";
@@ -22,6 +23,10 @@ export function workerFor(
     retrieve?: DmWorkerDeps["retrieve"];
     nodes?: Nodes;
     reactQuietMs?: number;
+    /** Talk turns (specs/065): quiet window in ms (default 3000). */
+    talkQuietMs?: number;
+    /** False leaves the gate listener off, so a test queues jobs by hand. */
+    listen?: boolean;
     /** Floor jobs (specs/049-turn-floor): the presence reader and the injected waits (ms). */
     presence?: PresenceReader;
     floorAbsenceWaitMs?: number;
@@ -40,13 +45,17 @@ export function workerFor(
     },
     loadProjections: base.loadProjections,
     reactQuietMs: opts.reactQuietMs,
+    talkQuietMs: opts.talkQuietMs,
+    loadSeed: (id) => loadSeed(id),
     presence: opts.presence,
     floorAbsenceWaitMs: opts.floorAbsenceWaitMs,
     floorStallWindowMs: opts.floorStallWindowMs,
   });
-  w.gate.onAppended((sessionId, rows) => {
-    void enqueuer.onAppended(sessionId, rows);
-  });
+  if (opts.listen !== false) {
+    w.gate.onAppended((sessionId, rows) => {
+      void enqueuer.onAppended(sessionId, rows);
+    });
+  }
   const worker = createDmWorker({
     db: requireDb(),
     gateway: opts.gateway ?? base.gateway,

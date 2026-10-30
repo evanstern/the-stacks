@@ -258,6 +258,52 @@ export const DirectorOutput = z.object({
 });
 export type DirectorOutput = z.infer<typeof DirectorOutput>;
 
+/** The talk-turn `react` output (specs/065-talk-triggers plan D4). */
+export const ReactOutput = z
+  .object({
+    outcome: z.enum(["none", "reply", "scene", "escalate"]),
+    triggers: z
+      .array(
+        z.object({
+          kind: z.enum([
+            "addressed",
+            "mentioned",
+            "overheard",
+            "narrator",
+            "hostile",
+          ]),
+          actorId: RefIdSchema.nullable(),
+        }),
+      )
+      .max(8),
+    speaker: RefIdSchema.nullable(),
+    text: z.string().max(1200),
+    encounterId: RefIdSchema.nullable(),
+    companionPrompts: z.array(RefIdSchema).max(2),
+    reason: z.string().min(1).max(300),
+  })
+  .superRefine((o, ctx) => {
+    if (o.outcome === "reply" && !o.speaker)
+      ctx.addIssue({
+        code: "custom",
+        message: "reply needs a speaker",
+        path: ["speaker"],
+      });
+    if (o.outcome === "escalate" && !o.encounterId)
+      ctx.addIssue({
+        code: "custom",
+        message: "escalate needs an encounterId",
+        path: ["encounterId"],
+      });
+    if (o.outcome === "none" && o.text !== "")
+      ctx.addIssue({
+        code: "custom",
+        message: "none needs empty text",
+        path: ["text"],
+      });
+  });
+export type ReactOutput = z.infer<typeof ReactOutput>;
+
 export const AdjudicateModelOutput = z.object({
   ruling: z.string().min(1).max(600),
   citations: z

@@ -1,0 +1,35 @@
+the-stacks
+Menu
+Ask
+Library
+Table
+Settings
+About
+op0180 · operator
+Sign out
+The Bell at Greyhollow Ford
+
+Greyhollow Ford
+
+AI DM
+DM
+op0180
+Player
+Free mode
+Connected
+Ledger
+DM seat
+Debug
+
+The party reaches Greyhollow Ford as the light goes amber. The ferry sits chained to the near bank, the ferry-house door hangs open, and the bell that should have rung for them stays silent.
+
+Tamsin Vale IC Wenna, who's missing from this house?
+
+Wenna wipes her hands on her apron. "Folk go missing at the ford, aye. Ask the old water, not me." Her eyes slide toward the back room.
+
+Talk
+Action
+In character
+Out of character
+Tamsin Vale
+Send

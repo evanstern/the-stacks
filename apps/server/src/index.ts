@@ -12,6 +12,7 @@ import { createDatabaseProbe, createDb } from "./db.js";
 import { createDmEnqueuer } from "./dm/enqueue.js";
 import { missingDmPurposes } from "./dm/purposes.js";
 import { createAiRuntime } from "./dm/script/env.js";
+import { loadSeed } from "./dm/seed/load.js";
 import { startDmWorker } from "./dm/worker.js";
 import { createGate } from "./gate/index.js";
 import { loadAnswerConfig } from "./library/answer.js";
@@ -97,6 +98,7 @@ const dmEnqueuer = createDmEnqueuer({
   db,
   nudge: dmWorker.nudge,
   loadProjections: loadDmProjections,
+  loadSeed: (id) => loadSeed(id),
   presence: presence.reader,
   log: (line) => console.error(JSON.stringify(line)),
 });

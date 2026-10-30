@@ -1,0 +1,90 @@
+{
+  "v": 1,
+  "name": "greyhollow-talk",
+  "dice": [],
+  "calls": [
+    {
+      "purpose": "dm.director",
+      "note": "scene start keeps only pacing",
+      "respond": {
+        "type": "json",
+        "value": {
+          "beat": {
+            "decision": "resolve"
+          },
+          "tableMode": {
+            "to": "stay"
+          },
+          "trackers": [],
+          "scene": {
+            "status": "continue"
+          },
+          "pacing": {
+            "tension": "low",
+            "spotlight": null,
+            "beatId": "ferry-house"
+          },
+          "goalNote": "Open at the ford and let the party look around.",
+          "companionPrompts": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.narrate",
+      "note": "opening framing",
+      "respond": {
+        "type": "text",
+        "value": "The party reaches Greyhollow Ford as the light goes amber. The ferry sits chained to the near bank, the ferry-house door hangs open, and the bell that should have rung for them stays silent."
+      }
+    },
+    {
+      "purpose": "dm.audit",
+      "respond": {
+        "type": "json",
+        "value": {
+          "verdict": "pass",
+          "issues": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.chronicle",
+      "respond": {
+        "type": "json",
+        "value": {
+          "entries": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.narrate",
+      "note": "react: Wenna answers Odo",
+      "respond": {
+        "type": "json",
+        "value": {
+          "outcome": "reply",
+          "triggers": [
+            {
+              "kind": "addressed",
+              "actorId": "wenna"
+            }
+          ],
+          "speaker": "wenna",
+          "text": "Wenna wipes her hands on her apron. \"Folk go missing at the ford, aye. Ask the old water, not me.\" Her eyes slide toward the back room.",
+          "encounterId": null,
+          "companionPrompts": [],
+          "reason": "Odo asked the keeper a direct question."
+        }
+      }
+    },
+    {
+      "purpose": "dm.chronicle",
+      "respond": {
+        "type": "json",
+        "value": {
+          "entries": []
+        }
+      }
+    }
+  ]
+}

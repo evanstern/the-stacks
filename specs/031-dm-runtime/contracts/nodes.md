@@ -254,3 +254,23 @@ Amended by specs/064-plan-first-step.
   `cutPlans` applies it in `free` mode only, to each reading and ruling with an `actionId`.
   A cut step's `reason` joins `followUps`, deduplicated, capped at 6.
 - Prompt versions: `dm.interpret-v5`, `dm.director-v4`, `dm.narrate-v6`.
+
+## Amendment 2026-10-30 (specs/065-talk-triggers): the talk path and `react`
+
+Amended by specs/065-talk-triggers.
+
+- A `talk` turn with an empty beat and no NPC turn skips the node order. `runTalkTurn`
+  (`dm/talk-turn.ts`) reads the readable posts since the last `ai:dm` narration, runs
+  `codeTriggers`, calls `react` once (twice after a code refusal), checks the text in code and
+  ships one narration row through `submitNarration` with no action ids. A talk turn with a
+  non-empty beat runs the full pipeline.
+- `ReactOutput` (`nodes/schemas.ts`): `outcome` (`none`, `reply`, `scene`, `escalate`),
+  `triggers` (max 8), `speaker`, `text` (max 1200), `encounterId`, `companionPrompts` (max 2),
+  `reason`. `reply` needs `speaker`, `escalate` needs `encounterId`, `none` needs empty `text`.
+- Model skip: `needsModel` is false when no trigger names a non-party NPC and no post holds `?`.
+- Code checks: `deterministicChecks` with `trigger: "talk"` and empty actions, plus a DM-only seed
+  text substring check and a present-speaker check. A second refusal records `none`.
+- `escalate` runs resolve's opening move with a synthetic Director output when `legalEscalation`
+  holds (free mode, no running encounter, an unstarted encounter). Otherwise it ships as `scene`.
+- The output is checkpointed in `TurnCheckpoint.react`. A reclaim reuses it and reads the posts
+  as free mode once an opening move landed.

@@ -14,7 +14,7 @@ sources:
   - apps/server/src/dm/nodes/assemble.ts
   - packages/session-model/src/events/presence.ts
   - apps/web/app/play/presence.ts
-verified_against: 84b2de8b900500246b3757232b5378d6ed6bc5a0
+verified_against: 9bc934ea72b8c9fa57f4905eaa5f49104c9326a9
 ---
 
 # Presence
@@ -77,6 +77,8 @@ queues a turn. The playtest harness injects a reader that names the scripted sea
 turns it into `AssembleOutput.presence`: `present`, `absent` (human party controllers missing
 from the marker) and `seq`, or `null` before any marker ([[dm-runtime]]). No Director prompt
 text uses it yet.
+
+A `talk` turn records the same marker and stores `presenceSeq` in its result (TASK-0180); the react prompt reads present NPCs from the snapshot, not the marker.
 
 ## The absence wait (floor)
 

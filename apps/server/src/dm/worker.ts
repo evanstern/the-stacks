@@ -387,6 +387,53 @@ export function createDmWorker(deps: DmWorkerDeps): DmWorker {
       return;
     }
 
+    if (outcome.status === "talk") {
+      const talked = await finishJob(db, job, {
+        result: {
+          checkpoint: latest,
+          outcome: {
+            status:
+              outcome.talk.outcome === "none" ? "empty-beat" : "completed",
+          },
+          audit: null,
+          calls: outcome.calls,
+          presenceSeq,
+          talk: outcome.talk,
+        },
+      });
+      if (!talked) return;
+      if (outcome.companions.length > 0) {
+        await enqueueCompanion(db, {
+          sessionId: job.sessionId,
+          companions: outcome.companions,
+          reason: "prompt",
+          beatJobId: null,
+        });
+      }
+      // An escalation started turn mode: queue the first combatant's turn.
+      const esc = outcome.nextJob;
+      if (esc?.kind === "turn") {
+        await enqueueTurn(
+          db,
+          job.sessionId,
+          "npc-turn",
+          latest.lastSeq || null,
+        );
+      } else if (esc?.kind === "companion") {
+        await enqueueCompanion(db, {
+          sessionId: job.sessionId,
+          companions: esc.companions,
+          reason: esc.reason,
+          beatJobId: null,
+        });
+      }
+      if (outcome.shipped) {
+        const p = await deps.loadProjections(job.sessionId);
+        await enqueueChronicle(db, job.sessionId, p.throughSeq);
+      }
+      return;
+    }
+
     const calls =
       outcome.status === "completed" || outcome.status === "held"
         ? outcome.calls
