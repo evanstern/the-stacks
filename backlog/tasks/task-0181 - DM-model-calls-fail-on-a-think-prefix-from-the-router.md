@@ -4,7 +4,7 @@ title: DM model calls fail on a <think> prefix from the router
 status: To Do
 assignee: []
 created_date: '2026-10-30 00:45'
-updated_date: '2026-10-30 01:02'
+updated_date: '2026-10-30 01:31'
 labels:
   - dm
   - bug
@@ -47,6 +47,8 @@ Run 2 item 4 evidence: turns at 00:50 and 00:52 both failed at interpret. Three 
 Lead: PURPOSE_MAX_TOKENS in apps/server/src/dm/purposes.ts caps dm.interpret at 800 and dm.director at 600, yet failed attempts show exactly 1200 output tokens with only '<think></think>' as text. The router or model likely spends the cap on hidden reasoning. Longer actions fail more often (00:55 retry of act-197dae73 also failed). Check the router's thinking setting and the effective maxTokens before stripping tags.
 
 Operator ruling 2026-10-29: showstopper. Run 2 of the two-browser alpha playtest ended on it at about 01:00 UTC. The same committed action (act-197dae73) failed four turns in a row (00:50, 00:52, 00:55, 00:59). The 00:59 director attempt 1 was '<think></think>' followed by valid JSON, so stripping the prefix alone would have saved it. Attempt 2 omitted companionPrompts. TASK-0163 run 3 waits on this fix being deployed to vm-104.
+
+Operator ruling 2026-10-29, sweep order: 'Add TASK-0181 to the runbook ahead of TASK-0163 AC #4: fix it, merge on green, confirm it deployed to vm-104, then stop for run 3.' Each vm-104 command still needs the operator's go.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
