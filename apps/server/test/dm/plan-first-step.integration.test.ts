@@ -95,12 +95,20 @@ describe.skipIf(!reachable)("plan first step (database)", () => {
   it("resolves two stealth checks and holds the rest of the plan", async () => {
     const { rows, turn } = await runTurn("plan-approach.json", "act-197dae73");
     // Event types are the real catalog names (engine and session catalogs).
-    const checks = rows.filter((r) => r.type === "check.resolved");
+    // Only the rows the action turn wrote: the scene start writes its own
+    // combatants and trackers before the commit.
+    const commitSeq =
+      rows.find((r) => r.type === "action.committed")?.seq ??
+      Number.POSITIVE_INFINITY;
+    const after = rows.filter((r) => r.seq > commitSeq);
+    const checks = after.filter((r) => r.type === "check.resolved");
     expect(checks).toHaveLength(2);
     for (const c of checks)
-      expect(c.payload).toMatchObject({ skill: "stealth" });
+      expect((c.payload as { event: unknown }).event).toMatchObject({
+        skill: "stealth",
+      });
     const none = (type: string) =>
-      expect(rows.filter((r) => r.type === type)).toHaveLength(0);
+      expect(after.filter((r) => r.type === type)).toHaveLength(0);
     none("attack.resolved");
     none("combatant.added");
     none("encounter.started");
