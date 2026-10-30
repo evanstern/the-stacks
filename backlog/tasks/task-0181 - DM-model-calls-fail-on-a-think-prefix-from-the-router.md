@@ -4,6 +4,7 @@ title: DM model calls fail on a <think> prefix from the router
 status: To Do
 assignee: []
 created_date: '2026-10-30 00:45'
+updated_date: '2026-10-30 00:56'
 labels:
   - dm
   - bug
@@ -36,6 +37,12 @@ Related: TASK-0132 (players see nothing while a turn runs or fails), TASK-0102 (
 - [ ] #3 A test covers a reply with a leading empty and non-empty think block
 - [ ] #4 A hosted-dev turn after deploy shows no invalid-json attempts in the debug calls list
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Run 2 item 4 evidence: turns at 00:50 and 00:52 both failed at interpret. Three of four attempts returned only '<think></think>' yet used exactly 1200 output tokens, which suggests hidden thinking consumes the whole output budget. The table stalled, and each turn posted 'The DM runtime stopped at interpret: invalid-output.'
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
