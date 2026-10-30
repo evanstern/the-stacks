@@ -4,7 +4,7 @@ title: DM model calls fail on a <think> prefix from the router
 status: In Progress
 assignee: []
 created_date: '2026-10-30 00:45'
-updated_date: '2026-10-30 16:26'
+updated_date: '2026-10-30 16:28'
 labels:
   - dm
   - bug
@@ -38,7 +38,7 @@ Spec: specs/063-think-block
 - [ ] #1 The cause of the think block is identified (router, model or provider setting) and recorded on this card
 - [x] #2 DM calls parse a reply that starts with a think block, or the source stops emitting it; the spec decides which
 - [x] #3 A test covers a reply with a leading empty and non-empty think block
-- [ ] #4 A hosted-dev turn after deploy shows no invalid-json attempts in the debug calls list
+- [x] #4 A hosted-dev turn after deploy shows no invalid-json attempts in the debug calls list
 - [x] #5 Spec phase: Strip leading think blocks (card AC #2, #3; US1)
 - [x] #6 Spec phase: Mutation guard **[orchestrator]** (card AC #3)
 - [ ] #7 Spec phase: Cause probe and source fix **[orchestrator]**, operator's go (card AC #1, #2; US2)
@@ -88,6 +88,8 @@ Container check (operator-run, 2026-10-30): `sudo docker restart stacks-dev-app-
 Permanent DNS fix (operator-run, 2026-10-30): the router IPv6 RA supplied the 2605:9fc0:0:53::1/::2 servers; netplan already listed only 192.168.1.79. Added drop-in /etc/systemd/network/10-netplan-ens18.network.d/no-ra-dns.conf ([IPv6AcceptRA] UseDNS=no), then networkctl reload + reconfigure ens18. `resolvectl status ens18` now lists DNS Servers: 192.168.1.79 only. Survives reboot and netplan apply.
 
 Deploy check (operator-run, 2026-10-30): stacks-dev-app-1 label org.the-stacks.commit = 2b0bb5d1 (deploy-dev success 15:25Z). It contains #91 (stripThink) and #95 (TASK-0180). Later main commits are board-only.
+
+AC #4 hosted check (operator-run, 2026-10-30, deploy 2b0bb5d1): operator posted a turn on hosted dev. dm_model_calls for the last 2 hours: 10 rows between 16:26:59Z and 16:27:46Z (two turns with director, interpret, narrate and audit; one companion; two chronicle). Every row has outcome ok and call_attempt 1. No invalid-json, no error, no retry. Models: cc/claude-opus-5 (director), cc/claude-sonnet-5 (interpret, narrate, companion), cc/claude-haiku-4-5-20251001 (audit, chronicle). dm.interpret-v5, the call that failed in run 2, parsed on its first attempt.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
