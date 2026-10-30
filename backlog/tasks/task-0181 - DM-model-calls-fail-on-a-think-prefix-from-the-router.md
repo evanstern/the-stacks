@@ -29,6 +29,8 @@ Why: two-browser alpha playtest 2026-10-28, run 2 item 3, session 166b8e59. Turn
 Grounding: parseAgainst in apps/server/src/dm/pipeline/call.ts runs JSON.parse(stripFence(text)). stripFence removes only a code fence. The cc/ model IDs arrived with the 9router switch on 2026-10-28 (TASK-0101), which is the suspected source of the think block. Not yet confirmed on vm-104.
 
 Related: TASK-0132 (players see nothing while a turn runs or fails), TASK-0102 (director output survives real models).
+
+Spec: specs/063-think-block
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
