@@ -40,11 +40,13 @@ Spec: specs/063-think-block
 - [ ] #3 A test covers a reply with a leading empty and non-empty think block
 - [ ] #4 A hosted-dev turn after deploy shows no invalid-json attempts in the debug calls list
 - [x] #5 Spec phase: Strip leading think blocks (card AC #2, #3; US1)
-- [ ] #6 Spec phase: Mutation guard **[orchestrator]** (card AC #3)
+- [x] #6 Spec phase: Mutation guard **[orchestrator]** (card AC #3)
 - [ ] #7 Spec phase: Cause probe and source fix **[orchestrator]**, operator's go (card AC #1, #2; US2)
 - [ ] #8 Spec phase: Wiki **[orchestrator]** (re-ground)
 - [ ] #9 Spec phase: Hosted-dev check after deploy **[orchestrator]**, operator's go (card AC #4; US3)
 <!-- AC:END -->
+
+
 
 
 
