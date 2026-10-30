@@ -96,18 +96,18 @@ run 3. The operator decides a cut.
 
 ## Phase 6: Contracts and wiki re-ground
 
-- [ ] T033 Amend `specs/031-dm-runtime/contracts/turn-jobs.md` (trigger `talk`, rule 7, turn
+- [x] T033 Amend `specs/031-dm-runtime/contracts/turn-jobs.md` (trigger `talk`, rule 7, turn
       `notBefore`, the talk-turn upsert, the after-turn row), `nodes.md` and `node-seam.md` (the
       talk path), and `purposes.md` (`dm.react-v1` under `dm.narrate`). Mark each "Amended by
       specs/065-talk-triggers".
-- [ ] T034 Re-ground `docs/wiki/dm-turn-jobs.md`, `dm-runtime.md`, `dm-narration-quality.md` and
+- [x] T034 Re-ground `docs/wiki/dm-turn-jobs.md`, `dm-runtime.md`, `dm-narration-quality.md` and
       `session-model.md` (NEEDS-REVIEW) against the diff. Re-pin each honestly.
-- [ ] T035 Update `docs/wiki/CAPSULES.md` and the `INDEX.md` state paragraph with one sentence for
+- [x] T035 Update `docs/wiki/CAPSULES.md` and the `INDEX.md` state paragraph with one sentence for
       TASK-0180 (specs/065).
-- [ ] T036 Add the execution-log row for TASK-0180 to `docs/design/m3-table-sweep-runbook.md`:
+- [x] T036 Add the execution-log row for TASK-0180 to `docs/design/m3-table-sweep-runbook.md`:
       dispatches, OQ rulings, test counts, the mutation-guard result, the live check, no frozen
       contract change, no migration.
-- [ ] T037 Run the wiki freshness gate (`OK`), the spec-bridge check (exit 0) and `pnpm ci:check`.
+- [x] T037 Run the wiki freshness gate (`OK`), the spec-bridge check (exit 0) and `pnpm ci:check`.
 
 ## Dependencies
 

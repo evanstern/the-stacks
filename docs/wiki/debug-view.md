@@ -76,8 +76,6 @@ stays as it was.
 
 ## Linking a job to its events
 
-A `talk` turn's result carries a `talk` object (`posts`, `codeTriggers`, `modelTriggers`, `outcome`, `reason`; TASK-0180); the jobs API returns it unchanged and the page does not render it.
-
 A job wrote seq `s` when `s` is in a `seqs` list of its result: `checkpoint.submissions[].seqs`,
 `checkpoint.narration.seqs`, `plays[].submissions[].seqs`, or a chronicle's `seqs`
 ([[dm-turn-jobs]]). Three edges: a checkpoint stored before TASK-0116 has no narration `seqs`

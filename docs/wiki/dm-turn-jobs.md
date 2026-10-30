@@ -42,7 +42,7 @@ carries `firstReactionAt` and `notBefore` (ISO UTC; specs/036-companion-react).
 
 Payloads are Zod schemas in `dm/jobs.ts` (`TurnJobInput`, `FloorJobInput`, `CompanionJobInput`,
 `ChronicleJobInput`, all `v: 1`, each with `sessionId`). `TurnTriggerSchema`: `commit`,
-`approval`, `npc-turn`, `scene-start`, `manual`, `reconcile`, `talk` (TASK-0180, specs/065). A `talk` turn adds optional `firstPostAt` and `notBefore`; the claim's `notBefore` gate now covers `turn` as well as `companion` and `floor`. `book` is null and `session_id` required (CHECK constraints).
+`approval`, `npc-turn`, `scene-start`, `manual`, `reconcile`, `talk` ([[dm-talk-triggers]]). `book` is null and `session_id` required (CHECK constraints).
 
 ## Enqueue
 
@@ -53,7 +53,8 @@ in the DM projection) enqueues an `approval` turn so the DM resumes. Floor follo
 open action of an AI companion also calls `enqueueCompanionReact`
 (quiet 3 s, max wait 10 s): one queued `react` job per session
 (`jobs_companion_react_queued_key`); a further reaction merges its companion id into it. `enqueueTurn` is `INSERT ... ON CONFLICT
-DO NOTHING` on `jobs_turn_queued_key`, so one beat is queued per session. Rule 7 (TASK-0180): a readable public IC `talk` row under an AI seat in free mode queues a `talk` turn through `enqueueTalkTurn` (quiet 3 s, max wait 10 s, one queued per session; any other queued turn absorbs it; a later `enqueueTurn` converts a queued `talk` turn to its own trigger). A post naming only AI companions queues a `prompt` companion job instead; a reached chain cap queues nothing. The worker stores `jobs.result.talk` and queues the companion prompt, the chronicle pass and, after an escalation, the first `npc-turn`. Reconcile does not repair a lost `talk` turn.
+DO NOTHING` on `jobs_turn_queued_key`, so one beat is queued per session.
+A readable public IC `talk` row queues a coalesced `talk` turn after a quiet window (rule 7, TASK-0180; [[dm-talk-triggers]]). The claim's `notBefore` gate covers `turn` too.
 
 ## Claim, lease, fencing
 

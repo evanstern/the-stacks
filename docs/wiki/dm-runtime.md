@@ -71,7 +71,7 @@ async function `(TurnContext) => NodeResult`.
 6. **narrate** - `dm.narrate`. Writes prose from code-built facts, the player-facing seed view and S1 ([[dm-narration-quality]]).
 7. **audit** - deterministic checks, including the claim gate against S1 and the diff ([[output-claim-gate]]), plus one `dm.audit` call (same S1 sections); decides what ships ([[dm-narration-quality]]).
 
-A `talk` turn with an empty beat skips this order (TASK-0180, specs/065): `runTalkTurn` (`dm/talk-turn.ts`) runs code triggers (`talk-triggers.ts`), at most two `react` calls (purpose `dm.narrate`, `dm.react-v1`, `ReactOutput`), code checks, then ships one narration row with no action ids. `escalate` runs resolve's opening move through a synthetic Director output when `legalEscalation` holds, else it ships as `scene`. `TurnOutcome` gains status `talk`; `TurnCheckpoint.react` lets a reclaim reuse the output.
+A `talk` turn with an empty beat skips this order ([[dm-talk-triggers]]).
 
 Director, interpret and adjudicate outputs are checkpointed in `jobs.result`; a reclaim does not re-pay them. Model output is parsed with Zod through `callJson`/`callText` (`pipeline/call.ts`); every call
 is recorded to `recordCall` ([[dm-turn-jobs]]). Parse order: think strip, fence strip, parse, normalize, schema. Excerpts keep raw text (TASK-0181).

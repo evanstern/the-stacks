@@ -42,7 +42,7 @@ with rolls and changes, `npcTurn`, director pacing, `modeChange`, present NPCs, 
 `clarify` questions, plus v2 fields: `party` (id, name, controller), `events` (public encounter
 and turn changes, plus a `presence` fact from each `scene-presence.changed` row: name, new presence and reason; the name falls back to the seed NPC name) and `setting` (`locationName`, `openingFraming`). `party` stays for the audit's
 party-name filter and the fallback. The `npcNames` field is gone (TASK-0140): the world list
-now comes from the snapshot. A roll fact carries its `target`. `settled` holds the death saves rolled for combatants the turn passed (`FactSettled`; a `death-saves` change; the fallback says "holds on" or "slips closer to death"), and a turn with only settled facts is narrated. The talk path (TASK-0180) builds `NarrationFacts` with `trigger: "talk"` and empty `actions`, so `deterministicChecks` refuses digits and dice language with no roll; it adds a `dmOnlySeedText` substring check ([[dm-runtime]]). `factEntries` renders
+now comes from the snapshot. A roll fact carries its `target`. `settled` holds the death saves rolled for combatants the turn passed (`FactSettled`; a `death-saves` change; the fallback says "holds on" or "slips closer to death"), and a turn with only settled facts is narrated. The talk path builds facts with `trigger: "talk"` and no actions, so the checks refuse digits and dice language ([[dm-talk-triggers]]). The talk path builds facts with `trigger: "talk"` and no actions ([[dm-talk-triggers]]). `factEntries` renders
 the facts for the prompt; `renderDiceLines` still renders every number. The narrate prompt renders a presence fact as `Event: <name> is now <presence> (<reason>)`, and the fallback says the actor arrives, leaves, flees, is removed, surrenders or concedes.
 
 ## State sections from the snapshot
@@ -92,7 +92,7 @@ flag.
 
 ## Prompt versions
 
-`dm.react-v1` (TASK-0180, purpose `dm.narrate`), `dm.narrate-v6`, `dm.audit-v3`, `dm.director-v4`, `dm.chronicle-v3`, `dm.companion-v5`. Narrate v5 (spec 051) says a fact or the state sections may name a character dead or unconscious, and a dead, unconscious, stable or absent character does not act or speak. (For companion: v3 on the
+`dm.react-v1` (talk path, purpose `dm.narrate`), `dm.narrate-v6`, `dm.audit-v3`, `dm.director-v4`, `dm.chronicle-v3`, `dm.companion-v5`. Narrate v5 (spec 051) says a fact or the state sections may name a character dead or unconscious, and a dead, unconscious, stable or absent character does not act or speak. (For companion: v3 on the
 snapshot branch added the `seat` state view; v4 added the react trigger and the withdraw and
 revise decisions; companion v5 is both together; see [[dm-runtime]]). The snapshot bumped narrate, audit,
 director, interpret, adjudicate and chronicle too. Narrate v6 (TASK-0182, specs/064) adds the rule "A not-yet-attempted step has not happened. Stop before it; never show it start."; `FactAction.followUps` render as `not yet attempted: <text>` lines, and `withholdRefusedInputs` drops a refused follow-up. Interpret v5 and director v4 came in the same task. The presence effect bumped interpret and adjudicate to `dm.interpret-v4` and `dm.adjudicate-v4`.
