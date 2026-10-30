@@ -25,8 +25,10 @@ pdlc 1.0.1 fixed root-guard root detection: resolveMainCheckout() derives the ma
 - [x] #2 A commit in a linked worktree passes when CLAUDE_PROJECT_DIR names that worktree
 - [x] #3 A non-board commit at the root checkout is still blocked
 - [x] #4 A board-sync commit with a non-ASCII backlog path is still allowed
-- [ ] #5 node --test .claude/hooks/ passes
+- [x] #5 node --test .claude/hooks/ passes
 <!-- AC:END -->
+
+
 
 
 
