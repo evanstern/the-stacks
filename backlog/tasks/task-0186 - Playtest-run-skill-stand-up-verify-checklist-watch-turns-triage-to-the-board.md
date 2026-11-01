@@ -3,7 +3,7 @@ id: TASK-0186
 title: >-
   Playtest-run skill: stand up, verify, checklist, watch turns, triage to the
   board
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-11-01 21:09'
 updated_date: '2026-11-01 21:21'
@@ -52,6 +52,8 @@ Design:
 
 <!-- SECTION:NOTES:BEGIN -->
 Operator, 2026-11-01: "Build it" — with the four suggestions added. Suggestions added to the design: (7) Rehearsal mode: a scripted-DM (DM_FAKE_SCRIPT) dry run on a local stack before every hosted run. (8) Reuse the auditor: run `pnpm playtest audit --session <id>` at wrap as a second opinion. (9) Stable checklist ids carried across runs; "not reached" items roll forward automatically. (10) Spend tracker: running cost from the calls ledger against the ceiling on the card under test, warn at 50% and 80%. No spec set: a direct operator request outside the M3 runbook; the card ACs drive the work.
+
+Claimed 2026-11-01. Worktree .worktrees/task-0186, branch task-0186-playtest-run-skill, cut from origin/main 0479e5f3. No spec set (direct operator request, card ACs drive). Built by a sonnet-implementer using skill-creator.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
