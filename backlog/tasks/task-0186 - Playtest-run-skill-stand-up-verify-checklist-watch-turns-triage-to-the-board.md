@@ -3,10 +3,10 @@ id: TASK-0186
 title: >-
   Playtest-run skill: stand up, verify, checklist, watch turns, triage to the
   board
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-11-01 21:09'
-updated_date: '2026-11-01 21:21'
+updated_date: '2026-11-01 21:33'
 labels:
   - tooling
   - playtest
@@ -36,22 +36,27 @@ Design:
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 SKILL.md documents target setup for a local stack and for hosted dev, with every vm-104 command proposed for the operator's go
-- [ ] #2 A freshness step reports intended versus deployed commit and the merged PRs and Done cards since the last run
-- [ ] #3 A checklist is derived from the board and the previous run log and tracked in the run log with stable ids and statuses
+- [x] #1 SKILL.md documents target setup for a local stack and for hosted dev, with every vm-104 command proposed for the operator's go
+- [x] #2 A freshness step reports intended versus deployed commit and the merged PRs and Done cards since the last run
+- [x] #3 A checklist is derived from the board and the previous run log and tracked in the run log with stable ids and statuses
 - [ ] #4 A watch step reads the debug events, jobs and calls routes per turn, through the browser pane on hosted dev, and reports each turn
-- [ ] #5 Each finding is matched against existing cards before a new card is created, and the run log records which
-- [ ] #6 A run against a local stack in DM_FAKE_SCRIPT mode exercises every step and its log is committed as evidence
-- [ ] #7 Rehearsal mode runs the full flow on a local stack with DM_FAKE_SCRIPT before a hosted run
-- [ ] #8 Wrap runs the playtest auditor on the session and folds its verdict into the run summary
-- [ ] #9 Not-reached checklist items roll forward to the next run under their stable ids
-- [ ] #10 A spend tracker totals model-call cost per run against the card's ceiling and warns at 50% and 80%
+- [x] #5 Each finding is matched against existing cards before a new card is created, and the run log records which
+- [x] #6 A run against a local stack in DM_FAKE_SCRIPT mode exercises every step and its log is committed as evidence
+- [x] #7 Rehearsal mode runs the full flow on a local stack with DM_FAKE_SCRIPT before a hosted run
+- [x] #8 Wrap runs the playtest auditor on the session and folds its verdict into the run summary
+- [x] #9 Not-reached checklist items roll forward to the next run under their stable ids
+- [x] #10 A spend tracker totals model-call cost per run against the card's ceiling and warns at 50% and 80%
 <!-- AC:END -->
 
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
 Operator, 2026-11-01: "Build it" — with the four suggestions added. Suggestions added to the design: (7) Rehearsal mode: a scripted-DM (DM_FAKE_SCRIPT) dry run on a local stack before every hosted run. (8) Reuse the auditor: run `pnpm playtest audit --session <id>` at wrap as a second opinion. (9) Stable checklist ids carried across runs; "not reached" items roll forward automatically. (10) Spend tracker: running cost from the calls ledger against the ceiling on the card under test, warn at 50% and 80%. No spec set: a direct operator request outside the M3 runbook; the card ACs drive the work.
+
+Claimed 2026-11-01. Worktree .worktrees/task-0186, branch task-0186-playtest-run-skill, cut from origin/main 0479e5f3. No spec set (direct operator request, card ACs drive). Built by a sonnet-implementer using skill-creator.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
+Build 2026-11-01: skill 22b3e787, rehearsal log 6fafff90, ~127k tokens. Local rehearsal (DM_FAKE_SCRIPT=greyhollow-talk) exercised freshness, checklist roll-forward, watch, triage search (matched TASK-0169, nothing created) and the auditor (--auditor fake, pass). ci:check green with REQUIRE_DATABASE=1; wiki freshness OK. AC #4 stays open: the hosted browser-pane fetch is untested until its first use on vm-104. Known limits: freshness reads Done dates from updated_date; a paid auditor ceiling is stated, not enforced.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
