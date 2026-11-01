@@ -6,6 +6,7 @@ title: >-
 status: To Do
 assignee: []
 created_date: '2026-11-01 21:09'
+updated_date: '2026-11-01 21:21'
 labels:
   - tooling
   - playtest
@@ -41,7 +42,17 @@ Design:
 - [ ] #4 A watch step reads the debug events, jobs and calls routes per turn, through the browser pane on hosted dev, and reports each turn
 - [ ] #5 Each finding is matched against existing cards before a new card is created, and the run log records which
 - [ ] #6 A run against a local stack in DM_FAKE_SCRIPT mode exercises every step and its log is committed as evidence
+- [ ] #7 Rehearsal mode runs the full flow on a local stack with DM_FAKE_SCRIPT before a hosted run
+- [ ] #8 Wrap runs the playtest auditor on the session and folds its verdict into the run summary
+- [ ] #9 Not-reached checklist items roll forward to the next run under their stable ids
+- [ ] #10 A spend tracker totals model-call cost per run against the card's ceiling and warns at 50% and 80%
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Operator, 2026-11-01: "Build it" — with the four suggestions added. Suggestions added to the design: (7) Rehearsal mode: a scripted-DM (DM_FAKE_SCRIPT) dry run on a local stack before every hosted run. (8) Reuse the auditor: run `pnpm playtest audit --session <id>` at wrap as a second opinion. (9) Stable checklist ids carried across runs; "not reached" items roll forward automatically. (10) Spend tracker: running cost from the calls ledger against the ceiling on the card under test, warn at 50% and 80%. No spec set: a direct operator request outside the M3 runbook; the card ACs drive the work.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
