@@ -3,10 +3,10 @@ id: TASK-0193
 title: >-
   NPC turns ship as bare fallback lines when the narrator writes ahead of the
   turn
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-11-02 04:31'
-updated_date: '2026-11-02 08:43'
+updated_date: '2026-11-02 08:49'
 labels:
   - dm
   - narration
@@ -58,8 +58,14 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 071 phases 3-4, e6f5e67d 9574507b)
 <!-- SECTION:NOTES:END -->
 
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+NPC turns narrate what the NPC did or that it held: facts carry Turn/Next lines and the monster's plan, narrate v7 forbids narrating the next actor, audit v4 lets the turn's actor act without a roll, and the fallback voices the planned action. Absence passes say why. Merged in PR #104.
+<!-- SECTION:FINAL_SUMMARY:END -->
+
 ## Definition of Done
 <!-- DOD:BEGIN -->
-- [ ] #1 All tests and checks run green
-- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
+- [x] #1 All tests and checks run green
+- [x] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
