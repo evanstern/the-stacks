@@ -36,16 +36,6 @@ Spec: specs/072-party-slideout
 - [x] #5 The slide-out opens from the table header as a slide-out, never a modal, in light and dark mode
 <!-- AC:END -->
 
-
-
-
-
-
-
-
-
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -61,6 +51,9 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 072 phase 2, 288a1318)
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 072 phase 3, 8b41b9bb)
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 072 T006 and phase 4, 0c5c064c 3d5b7751)
+T006 released after TASK-0194 merged (PR #106). Merge with main: one conflict in specs/030 ui-surfaces.md, both amendments kept. ci:check: one known-flaky ws.integration T012 failed, passed on re-run.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
