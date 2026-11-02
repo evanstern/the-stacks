@@ -4,10 +4,10 @@ title: 'Revisit: Director and interpret transcript lines name characters, not us
 status: To Do
 assignee: []
 created_date: '2026-10-26 18:11'
+updated_date: '2026-11-02 05:22'
 labels:
   - dm
   - revisit
-milestone: m-3
 dependencies: []
 priority: low
 ordinal: 98000
@@ -26,6 +26,12 @@ Context: TASK-0106 (specs/034-narration-quality) found that transcript lines sho
 - [ ] #1 Director and interpret transcript lines render the acting character's name, with a test
 - [ ] #2 The triggering evidence is cited on this card
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Operator ruling 2026-11-02 (M3 planning, orchestrator session local_6a4a04a4): research, doctrine and low-priority revisits move out of m-3. Milestone cleared, revisit label added. Re-enter a milestone when its trigger fires.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
