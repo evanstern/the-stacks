@@ -299,14 +299,14 @@ session id.
 - [x] T042 [US4] On vm-104, as `stacks`, from the checkout, run `node scripts/deploy-dev.mjs status`. Done 2026-10-28 under the operator's go; result recorded on TASK-0163.
 - [x] T043 [US4] On vm-104, as `stacks`, from the checkout, before play, run
   `node scripts/deploy-dev.mjs backup --name pre-task-0163-alpha`. Done 2026-10-28 under the operator's go; result recorded on TASK-0163.
-- [ ] T044 [US4] The operator and the other developer play in their own browsers, following the
+- [x] T044 [US4] The operator and the other developer play in their own browsers, following the
   `Run a two-player table` section of `docs/ops/dev-vm-104.md`: issue an invitation, redeem it,
   both open one `/play/<uuid>` link, start `greyhollow-ford-duo` with one seat each, and play one
-  scene with the provider-backed AI DM. No command runs in this step.
-- [ ] T045 [US4] Record the result on TASK-0163 with the `backlog` CLI, from the operator's report:
+  scene with the provider-backed AI DM. No command runs in this step. Done 2026-11-02 (alpha run 3, session e8e8326d): the operator played both seats from two accounts, as in runs 1 and 2; log docs/playtests/2026-11-01-two-browser-alpha-run-3.md.
+- [x] T045 [US4] Record the result on TASK-0163 with the `backlog` CLI, from the operator's report:
   date, deployed commit, session id, seed, each account's role (never a password or token),
   outcome, the cost from the debug page's cost slide-out, and each bug found. Card each bug, or
-  name it as an open question for the operator. Tick card AC #4.
+  name it as an open question for the operator. Tick card AC #4. Done 2026-11-02: run 3 recorded on TASK-0163, bugs carded TASK-0187 to TASK-0194, AC #4 ticked.
 
 ---
 
