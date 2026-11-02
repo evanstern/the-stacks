@@ -4,7 +4,7 @@ title: Interpret's maxTokens is too low for router-side thinking on cc/ routes
 status: In Progress
 assignee: []
 created_date: '2026-11-02 04:27'
-updated_date: '2026-11-02 06:45'
+updated_date: '2026-11-02 06:53'
 labels:
   - dm
   - ai
@@ -32,10 +32,12 @@ Spec: specs/067-dm-maxtokens-headroom
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 .env.example and the vm-104 runbook give dm.* maxTokens values with thinking headroom, with the reason stated
-- [ ] #2 A DM call whose output hits maxTokens is recorded as truncated, distinct from invalid-json, in the calls ledger
-- [ ] #3 A test covers the truncation outcome with the fake gateway
+- [x] #1 .env.example and the vm-104 runbook give dm.* maxTokens values with thinking headroom, with the reason stated
+- [x] #2 A DM call whose output hits maxTokens is recorded as truncated, distinct from invalid-json, in the calls ledger
+- [x] #3 A test covers the truncation outcome with the fake gateway
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
