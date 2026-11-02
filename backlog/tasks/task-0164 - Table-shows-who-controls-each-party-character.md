@@ -1,10 +1,10 @@
 ---
 id: TASK-0164
 title: 'Party slide-out: each party character, its controller, vitals and turn order'
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-10-28 05:50'
-updated_date: '2026-10-28 19:39'
+updated_date: '2026-11-02 08:49'
 labels:
   - play-route
   - web
@@ -34,7 +34,11 @@ Grounding: seed characters carry HP, AC and ability modifiers (identity.combatan
 - [ ] #5 The slide-out opens from the table header as a slide-out, never a modal, in light and dark mode
 <!-- AC:END -->
 
+## Implementation Notes
 
+<!-- SECTION:NOTES:BEGIN -->
+Claimed 2026-11-02 by M3 runbook A (docs/design/m3-runbook-a-run3-fixes.md). Worktree .worktrees/task-0164, branch task-0164-party-slideout, cut from origin/main f3c408c1. Spec number 072 claimed with a stub. Lane A4, after TASK-0191 (PR #100). Spec 072. Compare plan.md with spec 068 (TASK-0194) before implementation.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
