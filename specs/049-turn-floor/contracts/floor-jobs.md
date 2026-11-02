@@ -65,3 +65,7 @@ The turn-advance group compares the fresh projection with the turn at assemble
 
 `FLOOR_ABSENCE_WAIT_MS = 30_000`, `FLOOR_STALL_WINDOW_MS = 120_000`, injectable through
 `createDmEnqueuer` and the worker deps, as `quietMs`/`maxWaitMs` are for react.
+
+**Amendment (TASK-0188).** Amended 2026-11-02 (decision-0028 §8; operator ruling 2026-11-02: "All (a), amend"). The `stall` check covers direct party
+declares only. An `action.accept` batch holds `action.committed`, so it never arms a stall. No
+floor rule changes.

@@ -53,3 +53,8 @@ recordPresence(
 
 TASK-0049 (`signoff`) and TASK-0050 (`floor`) build the marker row inside the gate and append it
 in the same batch as the commit it fed, with `actionId` set.
+
+**Amendment (TASK-0188).** Amended 2026-11-02 (decision-0028 §8; operator ruling 2026-11-02: "All (a), amend"). `purpose` gains `"read"`. The DM worker calls
+`recordPresence(sessionId, { purpose: "read" })` in place of `director` before each claimed
+`turn` job with trigger `talk`. Clients read the marker as the start of the DM's read (spec 066
+FR-024). Every other rule above is unchanged.
