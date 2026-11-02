@@ -1,10 +1,10 @@
 ---
 id: TASK-0127
 title: 'Stakes before dice: outcome bands and pre-declared consequences'
-status: In Progress
+status: To Do
 assignee: []
 created_date: '2026-10-27 02:32'
-updated_date: '2026-11-02 06:16'
+updated_date: '2026-11-02 07:54'
 labels:
   - dm
   - doctrine
@@ -45,6 +45,9 @@ Claimed 2026-11-02 by M3 runbook A (docs/design/m3-runbook-a-run3-fixes.md). Wor
 Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5
 
 Operator ruling 2026-11-02 (in chat, answering 'How should the remaining lanes get write access to .worktrees/?'): "Allow edits via Bash". The harness edit guard blocks Write/Edit outside the session worktree; dispatched agents edit worktree files through Bash (heredocs, sed, scripts) instead.
+
+Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5 (spec 070 authoring, C1)
+Spec 070 committed (94d555be). Card back to To Do per runbook A side lane: spec-only PR; runbook B builds it. Open for runbook B sign-off (spec written against default (a)): OQ-1 house-rule flags as an optional tableRules object on the scene seed vs a session event; OQ-2 retry detected by code vs flagged by the model. Build order: after TASK-0113, TASK-0193 and TASK-0194 merge (shared facts.ts, narrate.ts, resolve.ts, plan-gate.ts).
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
