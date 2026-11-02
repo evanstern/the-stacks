@@ -4,7 +4,7 @@ title: The Table landing lists the tables you play at
 status: In Progress
 assignee: []
 created_date: '2026-10-29 01:52'
-updated_date: '2026-11-02 05:47'
+updated_date: '2026-11-02 05:50'
 labels:
   - web
   - server
@@ -37,6 +37,8 @@ Spec: specs/069-table-landing-list
 
 <!-- SECTION:NOTES:BEGIN -->
 Claimed 2026-11-02 by M3 runbook A (docs/design/m3-runbook-a-run3-fixes.md). Worktree .worktrees/task-0175, branch task-0175-table-landing-list, cut from origin/main 7e252840. Spec number 069 claimed with a stub. Lane A5.
+
+Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
