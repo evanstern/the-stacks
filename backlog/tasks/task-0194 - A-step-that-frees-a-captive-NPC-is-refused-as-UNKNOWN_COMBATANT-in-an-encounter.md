@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-11-02 04:31'
-updated_date: '2026-11-02 15:17'
+updated_date: '2026-11-02 15:21'
 labels:
   - dm
   - gate
@@ -41,8 +41,6 @@ Spec: specs/068-noncombatant-targets
 - [x] #4 A step that targets a present actor outside the order adds that actor as a combatant with its own initiative roll, when it can act
 <!-- AC:END -->
 
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -62,6 +60,9 @@ Orchestrator review: accepted the edit to resolve.integration.test.ts (outside t
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 068 phase 2, 7040a5db)
 Phase 3 [orchestrator] run by the orchestrator (gating only, no product edits): DM DB suites 826/826; mutation guard 2/3 fail per mutation, restored clean.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 068 phase 4, 1215dbad)
+Gate: the implementer's ci:check hit one playtest.integration 5 s timeout (TASK-0154 flake). The orchestrator re-ran REQUIRE_DATABASE=1 pnpm ci:check in full: exit 0.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
