@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-11-02 04:21'
-updated_date: '2026-11-02 06:16'
+updated_date: '2026-11-02 06:31'
 labels:
   - web
   - ux
@@ -33,9 +33,11 @@ References: docs/playtests (run 3 log, lands at wrap).
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 The header and the turn-order strip stay visible while the transcript scrolls, at 1280 px and 390 px
-- [ ] #2 Only the transcript scrolls; the composer stays pinned at the bottom
+- [x] #1 The header and the turn-order strip stay visible while the transcript scrolls, at 1280 px and 390 px
+- [x] #2 Only the transcript scrolls; the composer stays pinned at the bottom
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
