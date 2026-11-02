@@ -28,6 +28,8 @@ Why: two-browser alpha playtest 2026-10-28, items 4 and 6. The opening was well 
 Grounding: the scene-start prompt passes only one framing line (apps/server/src/dm/prompts/narrate.ts, 'Open the scene. Framing: ${seed.openingFraming}'). The seed's opening.framing is a single sentence (apps/server/seeds/greyhollow-ford-duo.json). The seed has no field for why the party came. Location identity and portrayal, the goal statement, and character identity and portrayal exist but do not reach the opening.
 
 Related: TASK-0164 (party slide-out) shows the same facts in the UI. The knowledge-ledger card (under discussion 2026-10-28) later lets the opening tell NPCs the party already knows apart from strangers.
+
+Spec: specs/076-scene-start-intros
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
