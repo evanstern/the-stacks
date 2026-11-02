@@ -7,7 +7,7 @@ sources:
   - specs/007-spa-shell-demo/spec.md
   - specs/025-frontend-stack/quickstart.md
   - apps/web/app/routes/play.tsx
-verified_against: 796789aff1155daf0baf77c66ba90f272100035a
+verified_against: 095b85f615387975ce3ae59a3c95aa46ca903b10
 ---
 
 # M0 demo

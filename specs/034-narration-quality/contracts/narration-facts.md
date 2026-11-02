@@ -50,6 +50,7 @@ Rules:
 | Each roll | `  roll: <reason> [target <target>] -> <outcome>` (reason marker stripped) |
 | Each change | unchanged |
 | NPC turn | `Monster turn: <name>`, then its roll lines and changes |
+| Turn marking (amended by spec 071, TASK-0193) | In turn mode, first: `Turn: <actor> acts in this beat.` and, when the turn advanced, `Next: <next> acts after this beat and has not acted yet.` Under `Monster turn`: `  planned: <intent>; <reason>...`, `  held: the plan did not go ahead`, and `  no rules effect (nothing rolled; <name> still acts in the story)` when nothing rolled |
 | Each event | `Event: a fight starts (<names>); <first> acts first`, `Event: the fight ends`, `Event: <next> acts next`, `Event: <name> joins`, `Event: <name> leaves` |
 | Clarify | `Unclear intent for <id>: <question>` |
 

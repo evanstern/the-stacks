@@ -249,7 +249,15 @@ export async function callJson<T>(
     await settle(deps, req, 1, "ok", null, first.usage, calls);
     return { ok: true, value: parsedFirst.value, calls };
   }
-  await settle(deps, req, 1, "invalid-json", null, first.usage, calls);
+  await settle(
+    deps,
+    req,
+    1,
+    first.usage?.truncated ? "truncated" : "invalid-json",
+    null,
+    first.usage,
+    calls,
+  );
 
   const attempts: AttemptExcerpt[] = [attemptOf(1, first, parsedFirst.issues)];
   messages.push(
@@ -266,7 +274,15 @@ export async function callJson<T>(
     await settle(deps, req, 2, "ok", null, second.usage, calls);
     return { ok: true, value: parsedSecond.value, calls };
   }
-  await settle(deps, req, 2, "invalid-json", null, second.usage, calls);
+  await settle(
+    deps,
+    req,
+    2,
+    second.usage?.truncated ? "truncated" : "invalid-json",
+    null,
+    second.usage,
+    calls,
+  );
   attempts.push(attemptOf(2, second, parsedSecond.issues));
   return {
     ok: false,
@@ -294,6 +310,14 @@ export async function callText(
     { role: "user", content: req.user },
   ]);
   if (!result.ok) return failure(deps, result, req, 1, calls);
-  await settle(deps, req, 1, "ok", null, result.usage, calls);
+  await settle(
+    deps,
+    req,
+    1,
+    result.usage?.truncated ? "truncated" : "ok",
+    null,
+    result.usage,
+    calls,
+  );
   return { ok: true, text: stripThink(result.text), calls };
 }

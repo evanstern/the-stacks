@@ -20,7 +20,7 @@ sources:
   - apps/server/test/playtest/playtest.integration.test.ts
   - apps/server/test/playtest/stats.test.ts
   - .env.example
-verified_against: 9bc934ea72b8c9fa57f4905eaa5f49104c9326a9
+verified_against: 4b9c7549af7e22e6be7c198f02743d124fa98e84
 ---
 
 # Playtest harness

@@ -298,7 +298,34 @@ describe("factualSummary: one sentence per fact", () => {
     const bare = facts({
       npcTurn: { name: "Warden", rolls: [], outcomes: [], changes: [] },
     });
-    expect(sum(bare)).toBe("Warden makes a move.");
+    expect(sum(bare)).toBe("Warden holds back, watching.");
+  });
+
+  it("an NPC turn without a roll voices its plan", () => {
+    const npc = (intent: string, reasons: string[], held = false) =>
+      facts({
+        npcTurn: {
+          name: "Snag",
+          rolls: [],
+          outcomes: [],
+          changes: [],
+          plan: { intent, reasons, held },
+        },
+      });
+    expect(sum(npc("talk", ["Snag offers a parley."]))).toBe(
+      "Snag offers a parley.",
+    );
+    expect(sum(npc("talk", []))).toBe("Snag speaks up.");
+    expect(sum(npc("move", []))).toBe("Snag shifts ground.");
+    expect(sum(npc("help", []))).toBe("Snag lends a hand.");
+    expect(sum(npc("attack", []))).toBe("Snag holds back, watching.");
+    expect(sum(npc("talk", ["Snag offers a parley."], true))).toBe(
+      "Snag holds back, watching.",
+    );
+    // a digit or system word is not voiced; the intent sentence stands in
+    expect(sum(npc("talk", ["Snag rolls a 4 to bluff."]))).toBe(
+      "Snag speaks up.",
+    );
   });
 
   it("events", () => {
@@ -544,6 +571,18 @@ describe("factualSummary: property", () => {
           rolls: [roll("hit", { reason: pick(reasons) })],
           outcomes: ["hit"],
           changes: [],
+        };
+      } else if (rnd(3) === 0) {
+        f.npcTurn = {
+          name: pick(names),
+          rolls: [],
+          outcomes: [],
+          changes: [],
+          plan: {
+            intent: pick(["talk", "move", "help", "attack", "other"]),
+            reasons: rnd(2) ? [pick(reasons)] : [],
+            held: rnd(3) === 0,
+          },
         };
       }
       f.director.sceneEnded = rnd(4) === 0;

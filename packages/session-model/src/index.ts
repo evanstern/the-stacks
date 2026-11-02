@@ -116,6 +116,7 @@ export type {
 export { signoffState } from "./gate/signoff.js";
 export type { SettleStep, TurnRef } from "./gate/turn.js";
 export {
+  ABSENCE_PASS_REASON,
   activeActorFor,
   canAct,
   currentTurn,

@@ -32,7 +32,7 @@ sources:
   - apps/web/app/play/components/commit-control.tsx
   - apps/web/app/play/components/table-mode-panel.tsx
   - apps/web/app/play/components/dm-seat-panel.tsx
-verified_against: 68115fdd4cca3cfcb41f7052b408fd2eef27b9cd
+verified_against: 095b85f615387975ce3ae59a3c95aa46ca903b10
 ---
 
 # Play route
@@ -45,7 +45,7 @@ ledger slide-out, and a DM approvals slide-out. Everything lives in `apps/web/ap
 
 ## One view, two sources
 
-`play/table-view.tsx`'s `TableView({ source })` is the only view. A `TableSource`
+`play/table-view.tsx`'s `TableView({ source })` is the only view. Routes bound height (TASK-0191). A `TableSource`
 (`play/source.ts`) carries the `viewer`, the `actor` id writes are recorded as, `events`,
 `status`, `caughtUp`, `notice`, pending `proposals`, `presence` (the humans at the table, or
 `null` when unknown) and `commands` (`sendTalk`,

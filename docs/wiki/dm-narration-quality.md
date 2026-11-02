@@ -15,7 +15,7 @@ sources:
   - apps/server/src/dm/claims.ts
   - apps/server/src/dm/audit-words.ts
   - specs/034-narration-quality/contracts/audit-criteria.md
-verified_against: 7c84d75e2613315578ad8a1ebd4ab783b57d4147
+verified_against: 095b85f615387975ce3ae59a3c95aa46ca903b10
 ---
 
 # DM narration quality
@@ -86,13 +86,13 @@ for each clarify, and a scene-end line. It holds no digit, system word or tracke
 `deterministicChecks` by construction and is never sent to `dm.audit`. `factualSummary(facts, state?)` passes
 each roll reason through `checkClaims` in `reasonUsable` (a refused reason is not voiced), and
 says "<name> dies" instead of "is dead" for a numbered name ("Goblin three"), which the checker
-would read as the count word. It ships after three
+would read as the count word. With no roll, an NPC turn voices the first speakable planned reason (`reasonSpeakable`), else an intent sentence ("speaks up", "shifts ground", "lends a hand"), else "<name> holds back, watching."; "makes a move" is gone. It ships after three
 failed attempts, a failed audit call or a failed regeneration, with a `dm`-visibility journal
 flag.
 
 ## Prompt versions
 
-`dm.react-v1` (talk path, purpose `dm.narrate`), `dm.narrate-v6`, `dm.audit-v3`, `dm.director-v4`, `dm.chronicle-v3`, `dm.companion-v6`. Narrate v5 (spec 051) says a fact or the state sections may name a character dead or unconscious, and a dead, unconscious, stable or absent character does not act or speak. (For companion: v3 on the
+`dm.react-v1` (talk path, purpose `dm.narrate`), `dm.narrate-v7`, `dm.audit-v4`, `dm.director-v4`, `dm.chronicle-v3`, `dm.companion-v6`. Narrate v5 (spec 051) says a fact or the state sections may name a character dead or unconscious, and a dead, unconscious, stable or absent character does not act or speak. (For companion: v3 on the
 snapshot branch added the `seat` state view; v4 added the react trigger and the withdraw and
 revise decisions; companion v5 is both together; companion v6 (TASK-0189) adds the "Post that triggered you" section naming the speaking PC and whom the post addressed; see [[dm-runtime]]). The snapshot bumped narrate, audit,
-director, interpret, adjudicate and chronicle too. Narrate v6 (TASK-0182, specs/064) adds the rule "A not-yet-attempted step has not happened. Stop before it; never show it start."; `FactAction.followUps` render as `not yet attempted: <text>` lines, and `withholdRefusedInputs` drops a refused follow-up. Interpret v5 and director v4 came in the same task. The presence effect bumped interpret and adjudicate to `dm.interpret-v4` and `dm.adjudicate-v4`.
+director, interpret, adjudicate and chronicle too. Narrate v6 (TASK-0182, specs/064) adds the rule "A not-yet-attempted step has not happened. Stop before it; never show it start."; `FactAction.followUps` render as `not yet attempted: <text>` lines, and `withholdRefusedInputs` drops a refused follow-up. Interpret v5 and director v4 came in the same task. Narrate v7 and audit v4 (TASK-0193, specs/071) add the `Turn:` and `Next:` lines (from `NarrationFacts.turn`, set only in turn mode) and the rule that only the Turn actor acts in the beat; audit definition 6 treats showing the Next actor act as `invented-mechanics`. A monster turn also renders `planned:`, `held:` and a no-rules-effect line from `FactNpcTurn.plan`. The presence effect bumped interpret and adjudicate to `dm.interpret-v4` and `dm.adjudicate-v4`.
