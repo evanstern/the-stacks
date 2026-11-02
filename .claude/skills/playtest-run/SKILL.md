@@ -28,10 +28,11 @@ Rehearse on a local stack before every hosted run (Section 3).
 
 1. Run `pnpm env:up` in your worktree.
 2. Migrate both databases by hand. Follow `specs/053-env-fake-dm-script/quickstart.md`, step 2.
-3. For a scripted DM, append `DM_FAKE_SCRIPT=<name>` with `printf`. Names live in `apps/server/dm-scripts/`. Recreate the app container.
+3. For a scripted DM, append `DM_FAKE_SCRIPT=<name>` with `printf`. Names live in `apps/server/dm-scripts/`. Rebuild and recreate the app container (`docker compose -p stacks-<env> up -d --build --force-recreate --wait app`): the scripts are baked into the image.
 4. Expect the boot line `DM script mode: <name>`.
 5. Create the operator inside the app container with a generated password. Store it in the creds file as `{"operator": {"username", "password"}}`.
-6. Run `node .claude/skills/playtest-run/scripts/local-table.mjs seed <creds> <port>`. It adds a second account and starts a scene. It prints the session id.
+6. Run `node .claude/skills/playtest-run/scripts/local-table.mjs seed <creds> <port> [seedId] [character[,character]]`. It adds a second account and starts a scene. A second character seats `player2`. It prints the session id.
+7. Drive scripted turns with `local-table.mjs talk` and `local-table.mjs act <creds> <port> <session> "<text>" <character> <actionId> [operator|player]`. Each scripted call is consumed in order: act in the order the script expects.
 
 ### Hosted dev (vm-104)
 
@@ -55,7 +56,7 @@ Run the full flow once on a local stack with `DM_FAKE_SCRIPT` before a hosted ru
 ## 4. Derive the checklist
 
 1. Start the log from `references/log-template.md`. Use the log format of `docs/playtests/2026-10-28-two-browser-alpha.md`.
-2. Run `checklist.mjs derive --prev <last log> --cards <merged card ids> --under-test <TASK-n>:<ac numbers>`.
+2. Run `checklist.mjs derive --prev <last log> --cards <merged card ids> --under-test <TASK-n>:<ac numbers> [--scenario <checklist file>]`. Pass the runbook's checklist file as `--scenario` (Section 8).
 3. Paste the table into the log. Each row keeps its id for ever.
 4. Roll-forward: a row that was `pending`, `blocked` or `not reached` last run returns as `not reached` under the same id.
 5. Update a row with `checklist.mjs set <log> <id> <pass|fail|blocked|not reached|pending> "<note>"`.
@@ -93,3 +94,12 @@ The script totals `costUsd` from the calls ledger. It warns at 50% and 80% of th
 3. Add a note to the card under test: `backlog task edit <id> --append-notes`. Tick an AC only with evidence from the run.
 4. Open a PR that lands the log under `docs/playtests/`. The operator approves it.
 5. Leave `not reached` rows in the log. The next run rolls them forward.
+
+## 8. Per-runbook scenario
+
+Each sweep runbook ships a scenario: a seed, an optional `DM_FAKE_SCRIPT` setup script, and a checklist file. Convention: `docs/design/playtest-scenarios.md`.
+
+1. Read the runbook's "Last step". It names the scenario's seed, script and checklist file.
+2. Rehearse on a local stack first: seed with the scenario's seed, set its script, drive it with `talk` and `act`. Commit the rehearsal log under `docs/playtests/`.
+3. For the real run, start the seed with no script unless the operator asks for one. Paid-model turns stay paid. Derive the checklist with `--scenario <checklist file>`.
+4. Runbook A's scenario: seed `greyhollow-ford-reed-camp`, script `runbook-a-reed-camp`, checklist `docs/playtests/scenarios/runbook-a-reed-camp.md`.

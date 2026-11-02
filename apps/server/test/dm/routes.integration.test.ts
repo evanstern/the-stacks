@@ -209,6 +209,7 @@ describe.skipIf(!reachable)("DM routes (database)", () => {
     expect(json.seeds.map((s) => s.seedId)).toEqual([
       "greyhollow-ford",
       "greyhollow-ford-duo",
+      "greyhollow-ford-reed-camp",
       "greyhollow-ford-trio",
     ]);
     for (const s of json.seeds) {
@@ -223,12 +224,12 @@ describe.skipIf(!reachable)("DM routes (database)", () => {
       "tamsin",
       "kestrel",
     ]);
-    expect(json.seeds[2]?.humans.map((h) => h.characterId)).toEqual([
+    expect(json.seeds[3]?.humans.map((h) => h.characterId)).toEqual([
       "tamsin",
       "odo",
       "kestrel",
     ]);
-    expect(json.seeds[2]?.companions).toEqual([]);
+    expect(json.seeds[3]?.companions).toEqual([]);
     expect(
       (await app.request("/dm/seeds", { headers: { cookie: player.cookie } }))
         .status,

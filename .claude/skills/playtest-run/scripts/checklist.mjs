@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // Checklist tracked in the run log as a markdown table with stable ids.
-//   derive --prev <log> [--cards TASK-1,TASK-2] [--under-test TASK-3:1,2]   print the table
+//   derive --prev <log> [--cards TASK-1,TASK-2] [--under-test TASK-3:1,2] [--scenario <file>]   print the table
+//        --scenario adds the rows of a per-runbook checklist file (docs/design/playtest-scenarios.md)
 //   set <log> <id> <status> [note]                                        edit one row in place
 //   summary <log>                                                         count rows per status
 // Statuses: pending, pass, fail, blocked, not reached. Rows with the "pending", "blocked" or
@@ -35,6 +36,7 @@ if (cmd === "derive") {
     if (p.status === "pass" || p.status === "fail") continue; // settled last run
     add({ ...p, status: p.status === "blocked" ? "pending" : "not reached", note: `rolled forward (was ${p.status})` });
   }
+  if (flag("scenario")) for (const r of parse(readFileSync(flag("scenario"), "utf8"))) add({ ...r, status: "pending", note: "" });
   const [uid, acs] = (flag("under-test") ?? "").split(":");
   if (uid) for (const n of (acs ?? "").split(",").filter(Boolean))
     add({ id: `${uid}-AC${n}`, item: `${uid} acceptance criterion #${n}`, source: "card under test", status: "pending" });
