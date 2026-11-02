@@ -59,6 +59,8 @@ export interface UsageSummary {
   outputTokens: number;
   /** HTTP attempts the provider made for this call (retry.ts); default 1 when omitted. */
   attempts?: number;
+  /** True when the provider stopped on its output cap (`finish_reason: "length"`). */
+  truncated?: boolean;
 }
 
 /** `chat()` yields zero or more `text`, then exactly one `done` or `error`. */
@@ -89,6 +91,8 @@ export interface UsageRecord {
   costUsd: number | null;
   durationMs: number;
   attempts: number;
+  /** True when the call hit its output cap: the provider said so, or outputTokens reached `maxTokens`. */
+  truncated: boolean;
   outcome: "ok" | "error" | "cancelled";
   at: string;
 }

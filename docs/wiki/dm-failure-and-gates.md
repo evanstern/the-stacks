@@ -14,7 +14,7 @@ sources:
   - apps/server/src/dm/prompts/step-grammar.ts
   - apps/server/src/dm/seed/schema.ts
   - specs/033-director-robustness/contracts/rules-terms.md
-verified_against: 9bc934ea72b8c9fa57f4905eaa5f49104c9326a9
+verified_against: 4b9c7549af7e22e6be7c198f02743d124fa98e84
 ---
 
 # DM failure record and rules-term gates
@@ -35,7 +35,7 @@ holds `view`, `tokens`, `cap`, `actors`, `compressed` and the `node`; the runner
 `dm.node.state-overflow`; [[actor-snapshot]]) or `seed` (the bad-seed
 path, `detail: null`). The turn's `presenceSeq` sits beside `failure`. An `invalid-output` detail holds `purpose`, `promptVersion`, `issues` and
 one `AttemptExcerpt` per attempt (`outputTokens`, `chars`, `issues`, `excerpt`). `excerptOf`
-(`pipeline/call.ts`) bounds each excerpt: text up to 8,000 characters whole, else the first
+(`pipeline/call.ts`; a capped attempt settles as `truncated`, not `invalid-json`, TASK-0192) bounds each excerpt: text up to 8,000 characters whole, else the first
 6,000, an elision marker, the last 2,000. A think-only reply fails with `not valid JSON: the reply held only a think block`; its excerpt keeps the raw think block (TASK-0181). The `dm.turn.failed` log line carries the detail
 without `attempts`, because they hold model text. `jobs.error` stays a fixed string
 ([[dm-turn-jobs]]).

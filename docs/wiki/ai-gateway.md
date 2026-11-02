@@ -16,7 +16,7 @@ sources:
   - .env.example
   - apps/server/src/dm/script/env.ts
   - apps/server/dm-scripts/greyhollow-live.json
-verified_against: 9bc934ea72b8c9fa57f4905eaa5f49104c9326a9
+verified_against: 4b9c7549af7e22e6be7c198f02743d124fa98e84
 ---
 
 # AI gateway
@@ -51,8 +51,7 @@ cancelled`); an unknown purpose fails before any provider call, with no usage re
 splits the input into `purpose.batchSize`-sized chunks (default 128), preserves order, rejects
 the whole call if any returned vector isn't length 1024, and short-circuits `[]` input with no
 provider call and no usage record. Every call — success, error, or cancellation — emits exactly
-one `UsageRecord` to the injected `UsageSink` (`logSink` logs a JSON line; `memorySink()` collects them); a record never carries prompt or completion text,
-and an unpriced provider/model gets `costUsd: null`, never `0`. `ChatRequest.onUsage` (TASK-0116) receives that record after `sink.record`; a throw is swallowed ([[dm-turn-jobs]]).
+one `UsageRecord` to the injected `UsageSink` (`logSink` logs a JSON line; `memorySink()` collects them); a record never carries prompt or completion text, and an unpriced provider/model gets `costUsd: null`, never `0`. `UsageRecord.truncated` (TASK-0192): `finish_reason: "length"` or `outputTokens >= maxTokens`. `ChatRequest.onUsage` (TASK-0116) receives that record after `sink.record`; a throw is swallowed ([[dm-turn-jobs]]).
 
 `sse.ts`'s `parseSse` turns a fetch body into an async iterable of `data:` payloads (stops at
 `[DONE]`; the OpenAI-compatible adapter also treats a non-null `finish_reason` as completion, since
@@ -96,10 +95,10 @@ failure) to a terminal SSE `error` event, never a crash.
 Since TASK-0046 (specs/031-dm-runtime), the DM runtime is the gateway's third caller. It uses
 seven `op: "chat"` purposes whose names are code constants in `dm/purposes.ts` (`DM_PURPOSES`):
 `dm.director`, `dm.interpret`, `dm.adjudicate`, `dm.narrate`, `dm.audit`, `dm.chronicle`,
-`dm.companion`. Model choice and `maxTokens` per purpose stay in `AI_PURPOSES`; `.env.example`
+`dm.companion`. Model choice and `maxTokens` per purpose stay in `AI_PURPOSES` (4000 each); `.env.example`
 carries a commented seven-purpose example. `index.ts` passes the same `aiGateway` into
-`startDmWorker` and `console.warn`s `missingDmPurposes(aiConfig.purposes)` at boot; a missing
-purpose never blocks boot, it fails only the node that calls it.
+`startDmWorker` and warns `missingDmPurposes(aiConfig.purposes)` at boot; a missing purpose
+never blocks boot, it fails only its node.
 
 Since TASK-0048, the playtest auditor adds an eighth chat purpose, `playtest.audit`
 (`PLAYTEST_AUDIT_PURPOSE`, 700 `maxTokens` default), one call per transcript segment.
@@ -108,13 +107,13 @@ Since TASK-0048, the playtest auditor adds an eighth chat purpose, `playtest.aud
 ## Connections
 
 Constructed in [[server-entrypoint-and-app]]'s `index.ts` (config from `createAiRuntime`, not
-[[configuration]]'s `loadConfig`). `.env.example` documents the three env vars under "AI gateway".
+[[configuration]]'s `loadConfig`). `.env.example` documents the env vars.
 Callers: [[ingestion]]'s worker (`embed()`), [[rules-answerer]]'s `answer()` (`chat()`, `embed()`),
 [[dm-runtime]]'s nodes (`chat()`) and the [[playtest-harness]] auditor (`chat()`); see [[overview]].
 
 ## Operational notes
 
-All AI env vars are optional; unset, the server starts as before.
+All AI env vars are optional.
 `apps/server/test/ai.gateway.test.ts` includes a standing test (invariant 10) that recursively
 greps every `.ts` file under `apps/server/src/ai/` for vendor/provider name tokens (openai,
 anthropic, google, azure, …) and all-caps `*_KEY`/`*_API_KEY` variable names, failing the

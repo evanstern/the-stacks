@@ -26,15 +26,18 @@ export const PURPOSE_OF = {
   companion: "dm.companion",
 } as const;
 
-/** Output caps per purpose (`maxTokens`), from the contract's cost notes. */
+/**
+ * Output caps per purpose (`maxTokens`). Hidden thinking on routed models counts against the
+ * cap, so each is 4000 (1200 truncated interpret in alpha run 3). Matches `.env.example`.
+ */
 export const PURPOSE_MAX_TOKENS: Record<DmPurpose, number> = {
-  "dm.director": 600,
-  "dm.interpret": 800,
-  "dm.adjudicate": 800,
-  "dm.narrate": 500,
-  "dm.audit": 300,
-  "dm.chronicle": 600,
-  "dm.companion": 400,
+  "dm.director": 4000,
+  "dm.interpret": 4000,
+  "dm.adjudicate": 4000,
+  "dm.narrate": 4000,
+  "dm.audit": 4000,
+  "dm.chronicle": 4000,
+  "dm.companion": 4000,
 };
 
 /** The `dm.*` purposes absent from an `AiConfig.purposes` map (log by name at boot). */

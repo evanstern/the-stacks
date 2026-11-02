@@ -28,5 +28,9 @@ function LiveTable({
   const source = useLiveTable(sessionId, user);
   const debugHref =
     user.role === "operator" ? `/play/${sessionId}/debug` : undefined;
-  return <TableView source={source} debugHref={debugHref} />;
+  return (
+    <div className="h-dvh overflow-hidden narrow:h-[calc(100dvh-3.5rem)]">
+      <TableView source={source} debugHref={debugHref} />
+    </div>
+  );
 }

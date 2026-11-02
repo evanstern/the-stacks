@@ -4,7 +4,7 @@ title: DM model calls fail on a <think> prefix from the router
 status: In Progress
 assignee: []
 created_date: '2026-10-30 00:45'
-updated_date: '2026-11-02 04:27'
+updated_date: '2026-11-02 06:58'
 labels:
   - dm
   - bug
@@ -35,15 +35,15 @@ Spec: specs/063-think-block
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 The cause of the think block is identified (router, model or provider setting) and recorded on this card
+- [x] #1 The cause of the think block is identified (router, model or provider setting) and recorded on this card
 - [x] #2 DM calls parse a reply that starts with a think block, or the source stops emitting it; the spec decides which
 - [x] #3 A test covers a reply with a leading empty and non-empty think block
 - [x] #4 A hosted-dev turn after deploy shows no invalid-json attempts in the debug calls list
 - [x] #5 Spec phase: Strip leading think blocks (card AC #2, #3; US1)
 - [x] #6 Spec phase: Mutation guard **[orchestrator]** (card AC #3)
-- [ ] #7 Spec phase: Cause probe and source fix **[orchestrator]**, operator's go (card AC #1, #2; US2)
+- [x] #7 Spec phase: Cause probe and source fix **[orchestrator]**, operator's go (card AC #1, #2; US2)
 - [x] #8 Spec phase: Wiki **[orchestrator]** (re-ground)
-- [ ] #9 Spec phase: Hosted-dev check after deploy **[orchestrator]**, operator's go (card AC #4; US3)
+- [x] #9 Spec phase: Hosted-dev check after deploy **[orchestrator]**, operator's go (card AC #4; US3)
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -96,6 +96,8 @@ Alpha run 3 evidence (2026-11-01, session e8e8326d, deploy 84b130a0): 21 calls, 
 AC #1 cause, strong evidence (alpha run 3, 2026-11-02 ~04:18Z, session e8e8326d, turn mode after the causeway fight started): 'I run to Pell and attempt to free him' failed interpret on 3 turn attempts in a row (6 calls, dm.interpret-v5, cc/claude-sonnet-5). Every failed call returned exactly 1200 output tokens = the dm.interpret maxTokens. Reading: hidden thinking uses the whole output budget on harder prompts, so the reply truncates before any JSON; stripThink cannot help because no JSON was emitted. Free-mode interpret calls this run used about 200 output tokens and passed. Fix candidates: raise dm.interpret maxTokens in vm-104 AI_PURPOSES (operator config, then redeploy to re-read the env), and/or turn router-side thinking off for cc/ routes. Spend at this point: $1.32 of $50.
 
 Fix confirmed (operator, 2026-11-02): vm-104 AI_PURPOSES dm.interpret maxTokens 1200 -> 4000 (before/after printed, provider claude, model cc/claude-sonnet-5 unchanged), then deploy-dev run 41388342321 success, /health ok at b481e308. The stalled 'free Pell' action then got past interpret on the next turn job (seq 133). Interpret had failed 8 times at exactly 1200 output tokens before the change. Follow-up: the repo default/example values (.env.example 800) are below what thinking needs; card it.
+
+Closed by runbook A lane A1 (2026-11-02). AC #1 and #7: the cause is the 2026-11-02 note above. Hidden thinking spent the whole dm.interpret maxTokens (1200), so interpret truncated before any JSON. The source fix the operator picked: raise maxTokens (vm-104 env 4000, 2026-11-02). Repo defaults followed in TASK-0192, PR #102 (8b2a283b), which also records truncated calls distinctly. Probes P1/P2 were superseded by run 3's ledger evidence. AC #9: the 2026-10-30 hosted check above (deploy 2b0bb5d1, every call ok on attempt 1).
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done

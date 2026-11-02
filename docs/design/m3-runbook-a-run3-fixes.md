@@ -181,6 +181,8 @@ follow `.claude/skills/playtest-run/SKILL.md`.
 
 | Date | Task | PR | Merge | Dispatches | Notes |
 |---|---|---|---|---|---|
+| 2026-11-02 | (amendment) | — | — | — | Root-session handoff: the app's edit guard blocks Write/Edit on `.worktrees/task-*` from harness-worktree sessions. Operator ruling, in chat: "Allow edits via Bash". Scope relayed by the orchestrator: claimed task worktrees only, whole-file or small scripted edits with a diff shown after each, never root, `.claude/` or `backlog/` files; stop on any denial. |
+| 2026-11-02 | TASK-0189 | #99 | d63e1093 | sonnet (stopped draft, kept after orchestrator review) | E1. Companion v6. |
 
 ## Later runbooks (order on record; each gets its own runbook and sign-off)
 

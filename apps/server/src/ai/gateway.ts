@@ -164,6 +164,10 @@ export function createGateway(opts: GatewayOptions): Gateway {
           // The provider reports attempts on its terminal event's usage
           // (retry.ts wraps its own request); absent means it never retried.
           attempts: usage.attempts ?? 1,
+          truncated:
+            usage.truncated === true ||
+            (purpose.maxTokens != null &&
+              usage.outputTokens >= purpose.maxTokens),
           outcome,
           at: new Date().toISOString(),
         };
@@ -247,6 +251,7 @@ export function createGateway(opts: GatewayOptions): Gateway {
           ),
           durationMs: Date.now() - startedAt,
           attempts: usage.attempts ?? 1,
+          truncated: false,
           outcome,
           at: new Date().toISOString(),
         });

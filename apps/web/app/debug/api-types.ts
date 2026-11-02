@@ -49,7 +49,7 @@ export interface DebugCall {
   purpose: string;
   promptVersion: string;
   callAttempt: number;
-  outcome: "ok" | "invalid-json" | "error" | "aborted";
+  outcome: "ok" | "invalid-json" | "truncated" | "error" | "aborted";
   errorKind: string | null;
   provider: string | null;
   model: string | null;
