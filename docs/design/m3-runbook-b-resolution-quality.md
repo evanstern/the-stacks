@@ -1,6 +1,8 @@
 # M3 runbook B — resolution quality (milestone m-3) — sweep runbook (2026-11-02)
 
-- **Status:** draft, awaiting operator sign-off (C0, C1).
+- **Status:** signed-off (operator, 2026-11-02, in chat, answering "Do you sign off on runbook
+  B's merge spine and re-splits (C0), with Opus for spec authoring (C1)?"): "Signed off, start".
+  C0 and C1 are both granted.
 - **Milestone:** m-3, "The Table (multiplayer)" (`docs/design/milestones.md`, M3 section).
 - **Orchestrator:** this session plans, dispatches and gates. It never implements.
 - **Predecessor:** `docs/design/m3-runbook-a-run3-fixes.md` (done 2026-11-02). Its "Gates",
