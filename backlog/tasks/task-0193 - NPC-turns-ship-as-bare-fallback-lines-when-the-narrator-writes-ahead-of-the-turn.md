@@ -3,10 +3,10 @@ id: TASK-0193
 title: >-
   NPC turns ship as bare fallback lines when the narrator writes ahead of the
   turn
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-11-02 04:31'
-updated_date: '2026-11-02 04:31'
+updated_date: '2026-11-02 06:59'
 labels:
   - dm
   - narration
@@ -42,6 +42,8 @@ References: docs/playtests/2026-11-01-two-browser-alpha-run-3.md (run 3, session
 
 <!-- SECTION:NOTES:BEGIN -->
 Also from run 3 (finding 14): when the absence job passed Kestrel's turn (seq 161-163, purpose floor), the table shows only a floor line 'Tamsin's turn' after 'Snag makes a move. Kestrel moves next.', so players read it as a skipped turn. A floor pass should say why ('Kestrel is away; the turn passes').
+
+Claimed 2026-11-02 by M3 runbook A (docs/design/m3-runbook-a-run3-fixes.md). Worktree .worktrees/task-0193, branch task-0193-npc-turn-narration, cut from origin/main 5b4d8bda. Spec number 071 claimed with a stub. Lane A1, after TASK-0192 (PR #102). Spec 071. Rides: spec 063 tasks.md superseded ticks so TASK-0181 can close.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
