@@ -4,7 +4,7 @@ title: Companion reply misnames who spoke to it
 status: In Progress
 assignee: []
 created_date: '2026-11-02 04:03'
-updated_date: '2026-11-02 05:47'
+updated_date: '2026-11-02 05:50'
 labels:
   - dm
   - companion
@@ -39,6 +39,8 @@ References: docs/playtests/2026-11-01-two-browser-alpha-run-3.md (run 3, session
 
 <!-- SECTION:NOTES:BEGIN -->
 Claimed 2026-11-02 by M3 runbook A (docs/design/m3-runbook-a-run3-fixes.md). Worktree .worktrees/task-0189, branch task-0189-companion-addressee, cut from origin/main 7e252840. No spec dir: signed escape line covers this task. Lane A3. Escape E1: card ACs drive.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
