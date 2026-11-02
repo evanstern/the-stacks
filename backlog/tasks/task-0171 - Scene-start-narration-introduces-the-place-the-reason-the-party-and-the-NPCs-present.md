@@ -45,6 +45,8 @@ Spec: specs/076-scene-start-intros
 
 <!-- SECTION:NOTES:BEGIN -->
 Claimed 2026-11-02 by M3 runbook B (docs/design/m3-runbook-b-resolution-quality.md). Worktree .worktrees/task-0171, branch task-0171-scene-start-intros, cut from origin/main b756b68f. Spec number 076 claimed with a stub. Spine #17; spec authored early.
+
+Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5 (spec 076 authoring, C1)
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
