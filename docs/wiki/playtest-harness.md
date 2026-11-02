@@ -20,7 +20,12 @@ sources:
   - apps/server/test/playtest/playtest.integration.test.ts
   - apps/server/test/playtest/stats.test.ts
   - .env.example
-verified_against: 4b9c7549af7e22e6be7c198f02743d124fa98e84
+  - .claude/skills/playtest-run/scripts/checklist.mjs
+  - .claude/skills/playtest-run/scripts/local-table.mjs
+  - apps/server/seeds/greyhollow-ford-reed-camp.json
+  - apps/server/dm-scripts/runbook-a-reed-camp.json
+size_budget_exempt: the note sat within 40 chars of the 8000 budget before TASK-0195; the per-runbook scenario section is a short pointer to docs/design/playtest-scenarios.md, and the in-process harness above is one pipeline that does not split without a TASK of its own
+verified_against: 54b63816537598f02d2cd1aeac2a8303476d148f
 ---
 
 # Playtest harness
@@ -136,3 +141,13 @@ unconfirmed, 4 refused, 64 usage.
 and asserts outcome `ended` and a passing report. Other suites in `apps/server/test/playtest/`
 cover the scenario, driver, dice, checks, audit, budget, CLI and a doctored run directory the
 auditor must fail. The manual milestone run is a runbook under `docs/design/`.
+
+## Per-runbook scenarios (human playtests)
+
+Separate from the in-process harness above: each sweep runbook ships a scenario the operator
+plays (TASK-0195, `docs/design/playtest-scenarios.md`). Parts: a seed, an optional
+`DM_FAKE_SCRIPT` setup script, a checklist file under `docs/playtests/scenarios/`. The
+`playtest-run` skill's `checklist.mjs derive --scenario <file>` adds the file's rows;
+`local-table.mjs seed <creds> <port> <seedId> a,b` seats two humans and `act` declares and
+commits one action. Runbook A ships seed `greyhollow-ford-reed-camp` and script
+`runbook-a-reed-camp`; a script consumes its calls in order, so a companion prompt must be scripted.
