@@ -92,7 +92,7 @@ flag.
 
 ## Prompt versions
 
-`dm.react-v1` (talk path, purpose `dm.narrate`), `dm.narrate-v6`, `dm.audit-v3`, `dm.director-v4`, `dm.chronicle-v3`, `dm.companion-v5`. Narrate v5 (spec 051) says a fact or the state sections may name a character dead or unconscious, and a dead, unconscious, stable or absent character does not act or speak. (For companion: v3 on the
+`dm.react-v1` (talk path, purpose `dm.narrate`), `dm.narrate-v6`, `dm.audit-v3`, `dm.director-v4`, `dm.chronicle-v3`, `dm.companion-v6`. Narrate v5 (spec 051) says a fact or the state sections may name a character dead or unconscious, and a dead, unconscious, stable or absent character does not act or speak. (For companion: v3 on the
 snapshot branch added the `seat` state view; v4 added the react trigger and the withdraw and
-revise decisions; companion v5 is both together; see [[dm-runtime]]). The snapshot bumped narrate, audit,
+revise decisions; companion v5 is both together; companion v6 (TASK-0189) adds the "Post that triggered you" section naming the speaking PC and whom the post addressed; see [[dm-runtime]]). The snapshot bumped narrate, audit,
 director, interpret, adjudicate and chronicle too. Narrate v6 (TASK-0182, specs/064) adds the rule "A not-yet-attempted step has not happened. Stop before it; never show it start."; `FactAction.followUps` render as `not yet attempted: <text>` lines, and `withholdRefusedInputs` drops a refused follow-up. Interpret v5 and director v4 came in the same task. The presence effect bumped interpret and adjudicate to `dm.interpret-v4` and `dm.adjudicate-v4`.
