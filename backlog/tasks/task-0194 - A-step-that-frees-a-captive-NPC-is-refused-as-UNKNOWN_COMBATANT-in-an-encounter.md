@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-11-02 04:31'
-updated_date: '2026-11-02 14:50'
+updated_date: '2026-11-02 15:02'
 labels:
   - dm
   - gate
@@ -54,6 +54,9 @@ Operator ruling 2026-11-02 (in chat, answering 'How should the remaining lanes g
 
 Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5 (spec 068 authoring, C1)
 Operator ruling 2026-11-02 (in chat, on spec 068 OQ-1 to OQ-5): "Accept all defaults (Recommended)". OQ-1 SRD commoner for an NPC with no srdMonsterId; OQ-2 objects out of scope (carded); OQ-3 no seed starting conditions, 'remove restrained' refused visibly (carded); OQ-4 attacks and damage on a non-combatant stay refused; OQ-5 replay rebuilt from the run 3 log, no vm-104 read.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 068 phase 1, 80a47f8f)
+Orchestrator review: accepted the edit to resolve.integration.test.ts (outside the plan's file list). Its 'later step names a non-combatant' case now uses attackStep('pell'), which is still refused. Same intent under the new rule.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
