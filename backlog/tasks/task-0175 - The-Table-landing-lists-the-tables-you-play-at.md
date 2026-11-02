@@ -1,10 +1,10 @@
 ---
 id: TASK-0175
 title: The Table landing lists the tables you play at
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-10-29 01:52'
-updated_date: '2026-11-02 15:15'
+updated_date: '2026-11-02 15:21'
 labels:
   - web
   - server
@@ -53,8 +53,14 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 069 phases 3-4, 00ea3f40 58519171)
 <!-- SECTION:NOTES:END -->
 
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+/play lists the account's tables (newest activity first, scene title, relation) from the new GET /api/tables. The operator sees every table, and a player only sees tables with their seat. Brave evidence for the operator and a player at 1280/390, light and dark. Merged in PR #105.
+<!-- SECTION:FINAL_SUMMARY:END -->
+
 ## Definition of Done
 <!-- DOD:BEGIN -->
-- [ ] #1 All tests and checks run green
-- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
+- [x] #1 All tests and checks run green
+- [x] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
