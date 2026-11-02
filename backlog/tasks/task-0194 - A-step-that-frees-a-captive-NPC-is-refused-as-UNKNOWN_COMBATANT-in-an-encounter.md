@@ -1,11 +1,12 @@
 ---
 id: TASK-0194
 title: >-
-  A step that frees a captive NPC is refused as UNKNOWN_COMBATANT in an
+  Acting on anyone or anything outside the turn order pulls it into the
   encounter
 status: To Do
 assignee: []
 created_date: '2026-11-02 04:31'
+updated_date: '2026-11-02 04:54'
 labels:
   - dm
   - gate
@@ -35,7 +36,14 @@ References: docs/playtests/2026-11-01-two-browser-alpha-run-3.md (run 3, session
 - [ ] #1 A plan step may name a present non-combatant NPC as its target for non-attack steps (check, presence, condition) without UNKNOWN_COMBATANT
 - [ ] #2 An attack or damage step on a non-combatant is still refused
 - [ ] #3 A test replays run 3 seq 118 and resolves the free-Pell action
+- [ ] #4 A step that targets a present actor outside the order adds that actor as a combatant with its own initiative roll, when it can act
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Operator, 2026-11-02, verbatim: "Not only that, but acting on anyone or anything not \"in combat turn order\" should be fine -- they or it just gets pulled into turn order and rolls their own initiative (if applicable)". Read as: widen this card. A step that targets a present actor or object outside the order is legal; an actor who can act joins the encounter (combatant.added plus its own initiative roll) instead of the plan gate refusing UNKNOWN_COMBATANT. Objects join without initiative. The spec decides which actors are 'applicable'. Evidence of the cost: free-Pell was finally done by Odo's later free-mode action (seq 214-218), after the encounter ended.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
