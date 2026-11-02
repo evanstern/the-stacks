@@ -1,9 +1,10 @@
 ---
 id: TASK-0195
 title: Per-runbook playtest scenarios
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-11-02 05:22'
+updated_date: '2026-11-02 15:49'
 labels:
   - playtest
   - tooling
@@ -26,6 +27,12 @@ Outcome: each M3 runbook ships a playtest scenario aimed at the features it buil
 - [ ] #3 Runbook A ships a combat-heavy scenario with a companion moment, used for its post-sweep playtest
 - [ ] #4 The runbook template or sweep doctrine says each runbook ends with authoring its scenario
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Claimed 2026-11-02 by M3 runbook A (docs/design/m3-runbook-a-run3-fixes.md). Worktree .worktrees/task-0195, branch task-0195-runbook-a-scenario, cut from origin/main 7e4a6219. No spec dir: signed escape line covers this task. Lane Last, after A1-A5 merged (#99-#107). Escape E3: card ACs drive. Rides: spec 072 T008 tick (done in 883a75a8; missed during the T006 hold) so TASK-0164 can close.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
