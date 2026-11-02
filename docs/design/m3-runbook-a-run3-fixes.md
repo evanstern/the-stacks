@@ -183,6 +183,11 @@ follow `.claude/skills/playtest-run/SKILL.md`.
 |---|---|---|---|---|---|
 | 2026-11-02 | (amendment) | — | — | — | Root-session handoff: the app's edit guard blocks Write/Edit on `.worktrees/task-*` from harness-worktree sessions. Operator ruling, in chat: "Allow edits via Bash". Scope relayed by the orchestrator: claimed task worktrees only, whole-file or small scripted edits with a diff shown after each, never root, `.claude/` or `backlog/` files; stop on any denial. |
 | 2026-11-02 | TASK-0189 | #99 | d63e1093 | sonnet (stopped draft, kept after orchestrator review) | E1. Companion v6. |
+| 2026-11-02 | TASK-0191 | #100 | fb5ad254 | haiku (impl, evidence) | E2. Play route height bound. Left 4 wiki notes stale on main; re-pinned in #104. |
+| 2026-11-02 | TASK-0192 | #102 | 8b2a283b | opus (spec 067), sonnet x3 | Migration 0008 (`truncated`). Cards TASK-0196, TASK-0197. |
+| 2026-11-02 | TASK-0127 | #103 | 10d2c2bc | opus (spec 070) | Spec only; card To Do for runbook B. |
+| 2026-11-02 | TASK-0193 | #104 | c06b0693 | opus (spec 071), sonnet x3 | Narrate v7, audit v4. No overlap with 068. Card TASK-0200. TASK-0181 closed after. |
+| 2026-11-02 | (amendment) | — | — | — | Overlap from plan.md: spec 072 (TASK-0164) and spec 068 (TASK-0194) both edit `dm/nodes/resolve.ts` (separate hunks). 0164's T006 is draft-held behind 0194, unless the operator rules otherwise. Spec 071 (TASK-0193) shared no source file with 068 and built in parallel. |
 
 ## Later runbooks (order on record; each gets its own runbook and sign-off)
 
