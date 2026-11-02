@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-11-02 04:03'
-updated_date: '2026-11-02 05:00'
+updated_date: '2026-11-02 06:49'
 labels:
   - design
   - web
@@ -37,7 +37,7 @@ References: docs/playtests/2026-11-01-two-browser-alpha-run-3.md (run 3, session
 - [x] #1 A decision record states the single-stream model: what an in-character post, an out-of-character post and an @dm post each mean to the DM
 - [x] #2 The decision states what replaces or removes group sign-off, and how a player retracts or amends a declared action
 - [x] #3 The decision states how the model maps onto events a VTT could also emit
-- [ ] #4 A spec is written against the decision and its implementation tasks are carded
+- [x] #4 A spec is written against the decision and its implementation tasks are carded
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -58,7 +58,16 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-
 Round 2 selection (2026-11-01), operator: "A, just talk". decision-0028 rewritten against round 2 A, still proposed. Pending: OQ-R1 to OQ-R5, OQ-7, OQ-10, OQ-11, and the section 8 frozen-contract amendments (029 proposals, policy-and-authority and proposal-events; 030 proposal-seam; 031 additive). No ws-protocol frame change, no TalkV1 change.
 
 Ruling (2026-11-02), operator, verbatim: "All (a), amend". decision-0028 is accepted, and the section 8 frozen-contract amendments are approved. Spec number 066 claimed (no 066 on origin/main or any remote branch). Spec authoring goes to opus-implementer.
+
+Spec 066 authored (commit bca3e238): specs/066-one-chat-stream (spec, plan, tasks; 6 phases, 61 tasks) and Amendment (TASK-0188) blocks appended to 18 contract files across 028/029/030/031/035/044/049. Three decision gaps are settled in spec.md, with no frozen change beyond §8. Implementation carded as TASK-0199 (Spec marker, 6 phase ACs, depends on TASK-0188). The spec-bridge cli.mjs could not run on this host (its plugin lib/ is empty), so the marker and phase ACs were set by hand with the CLI. Re-run spec-bridge:link once the plugin is fixed.
+Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=cc/claude-opus-5-5
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Design rounds for one chat stream. Round 1 offered three directions; the operator picked C (Say or Do), then reworked it into a quiet ring plus a DM confirm. Round 2 A (just talk) was chosen. decision-0028 (D20) amends D8 and D19 and was accepted on the operator's ruling "All (a), amend" (2026-11-02). Spec 066 and the approved frozen-contract amendments are on this branch. Implementation is TASK-0199.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
