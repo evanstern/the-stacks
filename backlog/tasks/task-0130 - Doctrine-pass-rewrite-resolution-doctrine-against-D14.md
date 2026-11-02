@@ -4,11 +4,12 @@ title: 'Doctrine pass: rewrite resolution doctrine against D14'
 status: To Do
 assignee: []
 created_date: '2026-10-27 02:33'
+updated_date: '2026-11-02 05:22'
 labels:
   - dm
   - doctrine
   - narration
-milestone: m-3
+  - revisit
 dependencies:
   - TASK-0127
   - TASK-0104
@@ -28,6 +29,12 @@ Outcome: the doctrine pairs, narrate rules and audit definitions that govern res
 - [ ] #2 The flavour-intensity rule is in the narrate doctrine, with an audit check that flavour never adds a state change
 - [ ] #3 A captured run measures player-agency and fallback rates before and after the pass
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Operator ruling 2026-11-02 (M3 planning, orchestrator session local_6a4a04a4): research, doctrine and low-priority revisits move out of m-3. Milestone cleared, revisit label added. Re-enter a milestone when its trigger fires.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->

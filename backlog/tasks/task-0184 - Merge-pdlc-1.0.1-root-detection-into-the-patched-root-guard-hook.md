@@ -1,10 +1,10 @@
 ---
 id: TASK-0184
 title: Merge pdlc 1.0.1 root detection into the patched root-guard hook
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-10-30 04:46'
-updated_date: '2026-10-30 04:50'
+updated_date: '2026-11-02 05:22'
 labels:
   - tooling
   - bug
@@ -43,7 +43,7 @@ Hook = pdlc 1.0.1 plus the TASK-0018 -z hunk; diff vs origin/main shows only ups
 ## Final Summary
 
 <!-- SECTION:FINAL_SUMMARY:BEGIN -->
-Rebased .claude/hooks/root-guard-hook.mjs on pdlc 1.0.1 (resolveMainCheckout derives root from git --git-common-dir) and kept the TASK-0018 -z NUL-split staged-path fix. Added regression tests for linked-worktree root detection. Implemented inline under a recorded operator checkpoint.
+Merged in PR #94 (c0b7f282, 2026-10-30): root-guard hook rebased on pdlc 1.0.1 resolveMainCheckout(), TASK-0018 -z staged-path fix kept. ACs #1-#5 ticked from the PR's evidence. Closed 2026-11-02 by M3 planning.
 <!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done

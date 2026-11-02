@@ -4,11 +4,12 @@ title: 'Research branch 4: the table contract (session zero, safety, spotlight)'
 status: To Do
 assignee: []
 created_date: '2026-10-27 02:06'
+updated_date: '2026-11-02 05:22'
 labels:
   - research
   - dm
   - doctrine
-milestone: m-3
+  - revisit
 dependencies:
   - TASK-0120
 priority: medium
@@ -28,6 +29,12 @@ Outcome: the multiplayer table (M3) has a researched contract for content limits
 - [ ] #3 A decision record is created with the backlog CLI after operator go
 - [ ] #4 Follow-up cards exist in M3 for each accepted change
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Operator ruling 2026-11-02 (M3 planning, orchestrator session local_6a4a04a4): research, doctrine and low-priority revisits move out of m-3. Milestone cleared, revisit label added. Re-enter a milestone when its trigger fires.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->

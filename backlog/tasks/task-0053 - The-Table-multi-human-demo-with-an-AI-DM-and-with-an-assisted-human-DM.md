@@ -4,11 +4,11 @@ title: 'The Table: multi-human demo with an AI DM and with an assisted human DM'
 status: To Do
 assignee: []
 created_date: '2026-10-25 20:00'
-updated_date: '2026-10-29 03:02'
+updated_date: '2026-11-02 05:05'
 labels:
   - multiplayer
   - acceptance
-milestone: m-3
+  - revisit
 dependencies:
   - TASK-0049
   - TASK-0050
@@ -46,6 +46,8 @@ Orchestrator, 2026-10-28, demo readiness after TASK-0165 merged (7c18b8ff): the 
 Operator ruling 2026-10-28 in chat, answering "How should the demo get its three human players?": "Card a trio seed". Carded TASK-0176 (three-human seed); TASK-0053 now depends on it. Sweep order: TASK-0176, then the TASK-0163 alpha run, then the demo.
 
 Operator ruling 2026-10-28 in chat, answering "Should I card F-1, seating a human DM from the web, in m-3 before the demo?": "Card it in m-3". Carded TASK-0177; TASK-0053 now also depends on it. Sweep order: TASK-0176, TASK-0177, the TASK-0163 alpha run, then the demo.
+
+Operator ruling 2026-11-02, in the M3 sweep session, verbatim: "I want to skip TASK-0053 for now -- revisit it after M3 is done. The 2player run got most of what we need already". Read as: the demo no longer gates M3. Evidence it leans on: alpha run 3 (docs/playtests/2026-11-01-two-browser-alpha-run-3.md, TASK-0163 Done) played the duo seed to the scene goal on hosted dev with the AI DM. Trigger to revisit: the last other m-3 task reaches Done. Milestone cleared so M3 can close without it; the human-DM run (AC #2) and the trio seed (TASK-0176) stay ready.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
