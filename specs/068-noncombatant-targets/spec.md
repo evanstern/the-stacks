@@ -4,7 +4,7 @@
 
 **Created**: 2026-11-02
 
-**Status**: Draft. Open questions OQ-1 to OQ-4 (here) and OQ-5 (plan.md) await the operator; each has a recommended default (a).
+**Status**: Draft. Open questions OQ-1 to OQ-5 resolved 2026-11-02 at the defaults (a); see Open questions.
 
 **Input**: TASK-0194 (widened 2026-11-02). Card outcome: "during an encounter a PC can act on a
 non-combatant NPC (free a captive, hand them something, drag them clear); the plan gate does not
@@ -165,6 +165,8 @@ order and for free mode.
 | #4 a targeted actor outside the order joins with its own initiative, when it can act | FR-005 to FR-009, FR-011; Story 2 |
 
 ## Open questions (operator)
+
+**Resolved 2026-11-02.** Operator ruling on OQ-1 to OQ-5: "Accept all defaults (Recommended)". Every OQ below stands at (a). OQ-2 is carded as TASK-0201. OQ-3 is carded as TASK-0202. OQ-5 (plan.md): the replay is rebuilt from the run 3 log, with no vm-104 access.
 
 - **OQ-1 — Stat block for an NPC with no `srdMonsterId`.** (a) SRD `commoner` (recommended: a
   captive or bystander is a commoner by default). (b) A new seed field. That edits

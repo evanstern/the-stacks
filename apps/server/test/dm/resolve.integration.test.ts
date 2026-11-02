@@ -669,7 +669,7 @@ describe.skipIf(!reachable)("resolve (database)", () => {
         const before = (await readRows(w)).length;
         const out = await run(
           w,
-          [reading(id, [checkStep(), checkStep({ combatantId: "pell" })])],
+          [reading(id, [checkStep(), attackStep("pell")])],
           { job: nextJob() },
         );
         expect(out.actionResults).toMatchObject([

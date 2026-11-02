@@ -13,21 +13,21 @@ commit led by `TASK-0194:`. Shared files: `dm/nodes/resolve.ts` (TASK-0193) and
 
 ## Phase 1: The gate and the snapshot, pure (card AC #1, #2, #4)
 
-- [ ] T001 In `apps/server/src/dm/gates/plan-gate.ts`, add `pullable: boolean` to `NamedId` (plan
+- [x] T001 In `apps/server/src/dm/gates/plan-gate.ts`, add `pullable: boolean` to `NamedId` (plan
       D1). Set it true for a `check` step's `combatantId` and for `condition` and `heal` effect
       targets. Set it false for `attack` ids and `damage` effect targets.
-- [ ] T002 In `checkPlan`, pass a non-presence id that is an exact S0 `npc` actor id with no
+- [x] T002 In `checkPlan`, pass a non-presence id that is an exact S0 `npc` actor id with no
       combatant when `pullable` is true. Keep today's failure otherwise. Keep the absent check after
       it, unchanged.
-- [ ] T003 Compute the group's pull ids (plan D1). Add `pull?: string[]` to the ok verdict. Set it
+- [x] T003 Compute the group's pull ids (plan D1). Add `pull?: string[]` to the ok verdict. Set it
       only when non-empty.
-- [ ] T004 In `apps/server/src/dm/snapshot/build.ts`, link a seed NPC to an engine combatant whose
+- [x] T004 In `apps/server/src/dm/snapshot/build.ts`, link a seed NPC to an engine combatant whose
       id equals the NPC id when `identity.combatant` is null (plan D2).
-- [ ] T005 Extend `apps/server/test/dm/plan-gate.test.ts` with every case plan D5 lists under
+- [x] T005 Extend `apps/server/test/dm/plan-gate.test.ts` with every case plan D5 lists under
       "Unit tests". Keep the existing damage-on-`pell` test unchanged.
-- [ ] T006 Extend `apps/server/test/dm/snapshot.test.ts`: an engine combatant `pell` builds one
+- [x] T006 Extend `apps/server/test/dm/snapshot.test.ts`: an engine combatant `pell` builds one
       `npc` actor with `combatantId: "pell"`, and no `ACTOR_ID_COLLISION`.
-- [ ] T007 Run `pnpm ci:check`.
+- [x] T007 Run `pnpm ci:check`.
 
 ## Phase 2: The pull in resolve and the run 3 replay (card AC #3, #4; merge condition)
 
