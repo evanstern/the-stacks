@@ -21,35 +21,35 @@ fallback.
 **Independent test**: `facts.test.ts`, `fallback.test.ts` and `narrate.test.ts` pass with the new
 cases.
 
-- [ ] T001 [US1] In `apps/server/src/dm/facts.ts`, apply plan D1. Add `plan` to `FactNpcTurn`,
+- [X] T001 [US1] In `apps/server/src/dm/facts.ts`, apply plan D1. Add `plan` to `FactNpcTurn`,
       optional `turn` to `NarrationFacts`, and optional `npcPlan` and `turnActorId` to
       `BuildFactsInput`. Derive `held` from `input.resolve.planGate` (verdict for `null`,
       `ok: false`) or an empty step list. Keep every existing field and behavior.
-- [ ] T002 [US1] In `apps/server/src/dm/nodes/narrate.ts`, apply plan D2. Pass `npcPlan` from the
+- [X] T002 [US1] In `apps/server/src/dm/nodes/narrate.ts`, apply plan D2. Pass `npcPlan` from the
       `actionId: null` reading, with a `null` ruling's steps replacing the reading's. Pass
       `turnActorId` only when the table was in turn mode at the start.
-- [ ] T003 [US2] In `apps/server/src/dm/prompts/narrate.ts`, apply plan D3. Set
+- [X] T003 [US2] In `apps/server/src/dm/prompts/narrate.ts`, apply plan D3. Set
       `PROMPT_VERSION` to `dm.narrate-v7`. Write the `Turn:`, `Next:`, `planned:`, `held:` and
       no-rules-effect lines. Add the one new rule after "Cover every Event line.".
-- [ ] T004 [US2] In `apps/server/src/dm/prompts/audit.ts`, apply plan D4. Set `PROMPT_VERSION`
+- [X] T004 [US2] In `apps/server/src/dm/prompts/audit.ts`, apply plan D4. Set `PROMPT_VERSION`
       to `dm.audit-v4`. Add definition 6.
-- [ ] T005 [US1] In `apps/server/src/dm/fallback.ts`, apply plan D5. Split out
+- [X] T005 [US1] In `apps/server/src/dm/fallback.ts`, apply plan D5. Split out
       `reasonSpeakable`. Voice the first speakable planned reason, else the intent sentence,
       else the hold sentence. Remove "makes a move".
-- [ ] T006 [P] [US1] Extend `apps/server/test/dm/facts.test.ts`: `plan` and `turn` from the new
+- [X] T006 [P] [US1] Extend `apps/server/test/dm/facts.test.ts`: `plan` and `turn` from the new
       inputs; a refused `null` verdict sets `held`; absent inputs give today's facts plus the
       empty plan.
-- [ ] T007 [P] [US1] Extend `apps/server/test/dm/fallback.test.ts`: replace the "makes a move"
+- [X] T007 [P] [US1] Extend `apps/server/test/dm/fallback.test.ts`: replace the "makes a move"
       expectation; one exact-string case per intent sentence and the hold sentence; a planned
       reason with a digit or system word is not voiced. Extend the property generator with
       monster plans; the property still passes.
-- [ ] T008 [P] [US2] In `apps/server/test/dm/narrate.test.ts`, pin `dm.narrate-v7` and
+- [X] T008 [P] [US2] In `apps/server/test/dm/narrate.test.ts`, pin `dm.narrate-v7` and
       `dm.audit-v4`. Add one case: turn-mode facts render the `Turn:` and `Next:` lines in both
       the narrate and audit prompts; free-mode facts render neither.
-- [ ] T009 Amend `specs/034-narration-quality/contracts/fallback-summary.md` and
+- [X] T009 Amend `specs/034-narration-quality/contracts/fallback-summary.md` and
       `narration-facts.md` as plan "Contracts" says. Mark each change "Amended by spec 071
       (TASK-0193)".
-- [ ] T010 Run `pnpm ci:check`. Commit as `TASK-0193 phase 1: NPC plan and turn in narration facts`.
+- [X] T010 Run `pnpm ci:check`. Commit as `TASK-0193 phase 1: NPC plan and turn in narration facts`.
 
 ## Phase 2: The run 3 replay (card AC #3, merge condition; US1, US2)
 

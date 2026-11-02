@@ -20,7 +20,7 @@ import {
   transcriptEntries,
 } from "./common.js";
 
-export const PROMPT_VERSION = "dm.narrate-v6";
+export const PROMPT_VERSION = "dm.narrate-v7";
 
 const RULES = [
   "You narrate the result of one beat of a tabletop role-playing session. The facts below are TRUE and already decided by the rules engine. Retell them as story.",
@@ -33,6 +33,7 @@ const RULES = [
   "When a foe's attack misses, its grab fails, or a party member succeeds on a save against it, describe only what the foe did. The party member stays unchanged and unmoved: no wound, no dodge, no twisting free. Never show a wound on a party member unless a fact records damage to them.",
   "When an intent is unclear, describe the moment, then end with one short open question in your own words that asks what that character does. Never offer options.",
   "Cover every Event line.",
+  "Only the actor named on the Turn line acts in this beat. The actor on the Next line has not acted: never show them move, speak or strike.",
   "Name a character as dead or unconscious only when a fact or the state sections say so; when a fact says so, say so.",
   "A dead, unconscious, stable or absent character does not act or speak. Count only what the state sections show.",
   "A not-yet-attempted step has not happened. Stop before it; never show it start.",
@@ -64,6 +65,14 @@ function eventEntry(e: FactEvent): string {
 
 export function factEntries(facts: NarrationFacts): string[] {
   const out: string[] = [];
+  if (facts.turn) {
+    out.push(`Turn: ${facts.turn.actor} acts in this beat.`);
+    if (facts.turn.next) {
+      out.push(
+        `Next: ${facts.turn.next} acts after this beat and has not acted yet.`,
+      );
+    }
+  }
   for (const a of facts.actions) {
     const head = `Action ${a.actionId} by ${a.characterName ?? "the party"}: "${a.text}" -> `;
     const onHold = facts.clarify.some((c) => c.actionId === a.actionId);
@@ -86,6 +95,16 @@ export function factEntries(facts: NarrationFacts): string[] {
   }
   if (facts.npcTurn) {
     out.push(`Monster turn: ${facts.npcTurn.name}`);
+    const plan = facts.npcTurn.plan;
+    if (plan && plan.reasons.length > 0) {
+      out.push(`  planned: ${[plan.intent, ...plan.reasons].join("; ")}`);
+    }
+    if (plan?.held) out.push("  held: the plan did not go ahead");
+    if (facts.npcTurn.rolls.length === 0) {
+      out.push(
+        `  no rules effect (nothing rolled; ${facts.npcTurn.name} still acts in the story)`,
+      );
+    }
     for (const r of facts.npcTurn.rolls) out.push(rollEntry(r));
     for (const c of facts.npcTurn.changes)
       out.push(`  change: ${describeChange(c)}`);
