@@ -4,7 +4,7 @@ title: 'Party slide-out: each party character, its controller, vitals and turn o
 status: In Progress
 assignee: []
 created_date: '2026-10-28 05:50'
-updated_date: '2026-11-02 08:49'
+updated_date: '2026-11-02 09:22'
 labels:
   - play-route
   - web
@@ -40,6 +40,9 @@ Spec: specs/072-party-slideout
 
 <!-- SECTION:NOTES:BEGIN -->
 Claimed 2026-11-02 by M3 runbook A (docs/design/m3-runbook-a-run3-fixes.md). Worktree .worktrees/task-0164, branch task-0164-party-slideout, cut from origin/main f3c408c1. Spec number 072 claimed with a stub. Lane A4, after TASK-0191 (PR #100). Spec 072. Compare plan.md with spec 068 (TASK-0194) before implementation.
+
+Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5 (spec 072 authoring, C1)
+Overlap check vs spec 068 (orchestrator, 2026-11-02): one shared source file, apps/server/src/dm/nodes/resolve.ts (0164: party class/level hunk in directorOpening; 0194: pullIn). Runbook rule: draft-hold. T006 waits until 0194 merges or the operator rules. Implementation held for OQ-1 (it widens the frozen 029 party proposal schema; operator ruling needed).
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
