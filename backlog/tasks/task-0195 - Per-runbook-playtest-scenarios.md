@@ -4,7 +4,7 @@ title: Per-runbook playtest scenarios
 status: Done
 assignee: []
 created_date: '2026-11-02 05:22'
-updated_date: '2026-11-02 16:23'
+updated_date: '2026-11-02 16:31'
 labels:
   - playtest
   - tooling
@@ -34,6 +34,8 @@ Outcome: each M3 runbook ships a playtest scenario aimed at the features it buil
 Claimed 2026-11-02 by M3 runbook A (docs/design/m3-runbook-a-run3-fixes.md). Worktree .worktrees/task-0195, branch task-0195-runbook-a-scenario, cut from origin/main 7e4a6219. No spec dir: signed escape line covers this task. Lane Last, after A1-A5 merged (#99-#107). Escape E3: card ACs drive. Rides: spec 072 T008 tick (done in 883a75a8; missed during the T006 hold) so TASK-0164 can close.
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (TASK-0195 scenario, 54b63816 df0d4460)
+
+C6 cost ceiling for runbook A's playtest (operator, 2026-11-02, in chat): "Open the ceiling to $100, our estimates are wildly over compensating". Context the operator gave: 9router usage over the last 7 days is under $8.
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
