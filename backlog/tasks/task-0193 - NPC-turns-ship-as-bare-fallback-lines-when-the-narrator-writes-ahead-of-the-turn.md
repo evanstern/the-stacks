@@ -6,6 +6,7 @@ title: >-
 status: To Do
 assignee: []
 created_date: '2026-11-02 04:31'
+updated_date: '2026-11-02 04:31'
 labels:
   - dm
   - narration
@@ -36,6 +37,12 @@ References: docs/playtests/2026-11-01-two-browser-alpha-run-3.md (run 3, session
 - [ ] #2 The narrator prompt marks which actor's turn this is and forbids narrating the next actor's action
 - [ ] #3 A fake-gateway test replays run 3 seq 150-157 and ships a described Snag action, not the bare fallback
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Also from run 3 (finding 14): when the absence job passed Kestrel's turn (seq 161-163, purpose floor), the table shows only a floor line 'Tamsin's turn' after 'Snag makes a move. Kestrel moves next.', so players read it as a skipped turn. A floor pass should say why ('Kestrel is away; the turn passes').
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
