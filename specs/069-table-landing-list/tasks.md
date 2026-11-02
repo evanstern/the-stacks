@@ -64,7 +64,7 @@ with only `TEST_DATABASE_URL` exported from the worktree `.env`.
 **Independent test**: `pnpm --filter @the-stacks/web exec vitest run test/table-list.test.tsx` and
 `node --test apps/web/test/no-dialog.test.mjs`.
 
-- [ ] T006 [US1] [US3] Create `apps/web/test/table-list.test.tsx` (`renderToStaticMarkup`). Cases
+- [x] T006 [US1] [US3] Create `apps/web/test/table-list.test.tsx` (`renderToStaticMarkup`). Cases
       for an exported pure `TableList({ state })`, where `state` is `{ kind: "loading" }`,
       `{ kind: "error" }` or `{ kind: "ready", tables }`:
       1. Ready with two tables renders two links in the given order, hrefs `/play/<sessionId>`,
@@ -77,14 +77,14 @@ with only `TEST_DATABASE_URL` exported from the worktree `.env`.
       6. Error renders "Could not load your tables." with `role="alert"`.
       7. No markup contains `dialog`.
       See them fail.
-- [ ] T007 [US1] [US3] In `apps/web/app/routes/table.tsx`: restate the `TableSummary` type; add
+- [x] T007 [US1] [US3] In `apps/web/app/routes/table.tsx`: restate the `TableSummary` type; add
       and export `TableList` (a `<section aria-labelledby>` with an `h2` "Your tables" and a `ul`
       of React Router `Link`s, styled with existing tokens: `border-border`, `hover:bg-accent`,
       `text-muted-foreground`; legible in both schemes); fetch `/api/tables` with
       `credentials: "same-origin"` in a `useEffect` after mount; render the list below the Join
       form and above the fixtures link. Do not change Start, Join or the fixtures link. T006
       passes.
-- [ ] T008 Run `pnpm ci:check`. Commit `TASK-0175: the Table landing lists your tables`.
+- [x] T008 Run `pnpm ci:check`. Commit `TASK-0175: the Table landing lists your tables`.
 
 ## Phase 3: Live check and Brave screenshots (card AC #2; merge condition; SC-001 to SC-004)
 
