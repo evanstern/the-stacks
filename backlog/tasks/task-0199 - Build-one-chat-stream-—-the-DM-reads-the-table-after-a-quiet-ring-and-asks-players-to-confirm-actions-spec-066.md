@@ -25,16 +25,7 @@ Outcome: the play route has one composer and one Send button. The AI DM reads th
 
 Why: alpha run 3 finding 2 (2026-11-01). Group sign-off had no teeth, and the Talk/Action split meant TASK-0180's talk path never ran. Design: TASK-0188, decision-0028 (D20, accepted 2026-11-02, operator ruling "All (a), amend").
 
-Spec: specs/066-one-chat-stream (spec.md, plan.md, tasks.md). The frozen-contract amendments are already approved and appended on the TASK-0188 branch. Run it as a pdlc:sweep lane after TASK-0188 merges. UI: no modals. Use Brave for the live check.
-
-Acceptance Criteria:
---------------------------------------------------
-No acceptance criteria defined
-
-Definition of Done:
---------------------------------------------------
-- [ ] #1 All tests and checks run green
-- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
+The frozen-contract amendments are already approved and appended on the TASK-0188 branch. Run it as a pdlc:sweep lane after TASK-0188 merges. UI: no modals. Use Brave for the live check.
 
 Spec: specs/066-one-chat-stream
 <!-- SECTION:DESCRIPTION:END -->
