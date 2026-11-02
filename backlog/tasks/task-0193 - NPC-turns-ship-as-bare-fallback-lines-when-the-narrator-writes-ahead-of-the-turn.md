@@ -40,8 +40,6 @@ Spec: specs/071-npc-turn-narration
 - [x] #3 A fake-gateway test replays run 3 seq 150-157 and ships a described Snag action, not the bare fallback
 <!-- AC:END -->
 
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -56,6 +54,8 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (
 Rides this branch: re-pin of 4 wiki notes main left stale after PR #100 (TASK-0191, 4df70e2b): client-session-hook, m0-demo, play-route, react-router-app. Orchestrator miss: freshness was not re-run on the merged 0191 tree.
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 071 phase 2, 395872ed)
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 071 phases 3-4, e6f5e67d 9574507b)
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
