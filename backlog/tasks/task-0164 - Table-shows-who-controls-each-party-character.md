@@ -4,7 +4,7 @@ title: 'Party slide-out: each party character, its controller, vitals and turn o
 status: In Progress
 assignee: []
 created_date: '2026-10-28 05:50'
-updated_date: '2026-11-02 15:00'
+updated_date: '2026-11-02 15:07'
 labels:
   - play-route
   - web
@@ -47,6 +47,8 @@ Overlap check vs spec 068 (orchestrator, 2026-11-02): one shared source file, ap
 Operator rulings 2026-11-02 (in chat): spec 072 OQ-1 (class and level optional on party members, widening the frozen 029 party proposal schema additively): "Accept additive change (Recommended)". Overlap with spec 068 on dm/nodes/resolve.ts: "Hold until 0194 merges (Recommended)". T006 and the wiki phase wait for TASK-0194's merge; other phases run now. OQ-2 (away controller shows as 'Player (away)'): orchestrator takes the spec default.
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 072 phase 1 minus T006, 883a75a8)
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 072 phase 2, 288a1318)
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
