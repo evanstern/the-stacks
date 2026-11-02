@@ -25,8 +25,10 @@ Outcome: each M3 runbook ships a playtest scenario aimed at the features it buil
 - [x] #1 A documented convention says where a runbook's scenario lives (seed file or setup step) and how playtest-run loads it
 - [x] #2 playtest-run accepts a per-runbook checklist and derives its tracked checklist from it
 - [x] #3 Runbook A ships a combat-heavy scenario with a companion moment, used for its post-sweep playtest
-- [ ] #4 The runbook template or sweep doctrine says each runbook ends with authoring its scenario
+- [x] #4 The runbook template or sweep doctrine says each runbook ends with authoring its scenario
 <!-- AC:END -->
+
+
 
 
 
