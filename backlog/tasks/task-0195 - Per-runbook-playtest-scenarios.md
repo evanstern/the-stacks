@@ -4,7 +4,7 @@ title: Per-runbook playtest scenarios
 status: Done
 assignee: []
 created_date: '2026-11-02 05:22'
-updated_date: '2026-11-02 16:31'
+updated_date: '2026-11-02 23:22'
 labels:
   - playtest
   - tooling
@@ -36,6 +36,8 @@ Claimed 2026-11-02 by M3 runbook A (docs/design/m3-runbook-a-run3-fixes.md). Wor
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (TASK-0195 scenario, 54b63816 df0d4460)
 
 C6 cost ceiling for runbook A's playtest (operator, 2026-11-02, in chat): "Open the ceiling to $100, our estimates are wildly over compensating". Context the operator gave: 9router usage over the last 7 days is under $8.
+
+Runbook A playtest run 1 (2026-11-02, hosted dev, session 9296c653): the operator played the reed-camp scenario end to end, 25 DM turns, $2.91 of a $100 ceiling. Scenario rows: 7 pass, 1 fail (free-captive), 1 superseded (attack on a non-combatant, by the operator's ruling in TASK-0210). Deterministic auditor: fail (dice-lines at seq 103; TASK-0213). Log: docs/playtests/2026-11-02-runbook-a-playtest.md. New cards TASK-0203 to 0214.
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
