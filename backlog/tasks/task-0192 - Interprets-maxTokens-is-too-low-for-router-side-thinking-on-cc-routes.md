@@ -4,7 +4,7 @@ title: Interpret's maxTokens is too low for router-side thinking on cc/ routes
 status: In Progress
 assignee: []
 created_date: '2026-11-02 04:27'
-updated_date: '2026-11-02 06:39'
+updated_date: '2026-11-02 06:45'
 labels:
   - dm
   - ai
@@ -49,6 +49,8 @@ Operator ruling 2026-11-02 (in chat, answering 'How should the remaining lanes g
 Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5 (spec 067 authoring, C1)
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 067 phase 1, d793ccff)
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 067 phase 2, 10837195)
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
