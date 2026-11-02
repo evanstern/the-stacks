@@ -6,7 +6,7 @@ title: >-
 status: Done
 assignee: []
 created_date: '2026-11-02 04:21'
-updated_date: '2026-11-02 06:37'
+updated_date: '2026-11-02 23:07'
 labels:
   - web
   - ux
@@ -47,6 +47,8 @@ Dispatch: tier=haiku pinned=cc/claude-haiku-5-5 served=claude-haiku-5-5
 Operator ruling 2026-11-02 (in chat, answering 'How should the remaining lanes get write access to .worktrees/?'): "Allow edits via Bash". The harness edit guard blocks Write/Edit outside the session worktree; dispatched agents edit worktree files through Bash (heredocs, sed, scripts) instead.
 
 Dispatch: tier=haiku pinned=cc/claude-haiku-5-5 served=claude-haiku-5-5
+
+Hosted evidence, runbook A playtest run 1 (2026-11-02, session 9296c653): with a long transcript, the operator confirmed 'Scrolling worked'.
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
