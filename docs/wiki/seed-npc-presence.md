@@ -15,7 +15,7 @@ sources:
   - apps/server/src/dm/snapshot/build.ts
   - packages/session-model/src/gate/proposals.ts
   - packages/session-model/src/gate/plan.ts
-verified_against: 9a9410e001b77bb5772d70335fc8213d5175a74c
+verified_against: 0c5c064c0f43566445e806a0cc21452015752504
 ---
 
 # Seed NPC presence
@@ -31,7 +31,7 @@ the DM pipeline is in [[dm-runtime]].
 `SceneSeedSchema` (`seed/schema.ts`) gives every beat a required `presence`: a record from NPC
 id to `ScenePresenceSchema` (`present`, `yielded`, `absent`). There is no default, so a seed
 without it fails to load. `SeedNpc.identity` gains `aliases` (up to 6 strings of up to 60
-characters, default empty). `greyhollow-ford.json` declares all three NPCs in all three beats
+characters, default empty). `SeedCharacter.identity` gains required `class` (up to 40 characters) and `level` (1 to 20); the three seeds set them. Scene start copies both onto each `director:party:<id>` row's `after` (TASK-0164; `PartyMemberSchema` holds them as optional fields). `greyhollow-ford.json` declares all three NPCs in all three beats
 and aliases "the keeper" (`wenna`), "the boy" (`pell`) and "the goblin leader" (`snag`).
 `greyhollow-ford-duo.json` (TASK-0163, `specs/054-two-player-alpha-kit/`) is the same scene with
 the same three NPCs and presence maps and three party characters: `tamsin` and `kestrel` seat

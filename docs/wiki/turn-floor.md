@@ -19,7 +19,7 @@ sources:
   - apps/web/app/play/local-log.ts
   - apps/web/app/play/components/floor-controls.tsx
   - apps/web/app/play/components/turn-order.tsx
-verified_against: 9a9410e001b77bb5772d70335fc8213d5175a74c
+verified_against: 0c5c064c0f43566445e806a0cc21452015752504
 ---
 
 # Turn floor
@@ -56,7 +56,7 @@ Write boundary: only `dm/floor.ts` builds a `floor` proposal or the stall overri
 
 ## The table UI
 
-`toTableViewModel` adds `ModeView.held`, `ModeView.order` (`OrderEntry`: active, next, viewer) and `floor` (`FloorControls`). `components/floor-controls.tsx` in the header shows End turn to the active player (not while the DM holds the floor) and, for the seated human DM in turn mode, Pass (an `end`), Take floor and Return floor; each click sends one `floor` request carrying the turn the viewer saw, with no confirmation. `components/turn-order.tsx` renders an ordered list "Turn order" under the header: the active chip marked, "next" and "you" flags. The mode badge reads "The DM has the floor" while held. The transcript gets a `floor` line per turn-mode `table-mode.changed` row. In turn mode a player's own open character action shows "Commits on your turn", and a party member's comment box on the active player's action reads "Suggest an alternative" (the same `action.comment`). Fixture mode builds floor rows with `local-log.ts`'s `localFloorEvents` (no downed-combatant settling). `labels.ts`'s `refusalLabel` words the three floor refusals.
+`toTableViewModel` adds `ModeView.held`, `ModeView.order` (`OrderEntry`: active, next, viewer) and `floor` (`FloorControls`). `components/floor-controls.tsx` in the header shows End turn to the active player (not while the DM holds the floor) and, for the seated human DM in turn mode, Pass (an `end`), Take floor and Return floor; each click sends one `floor` request carrying the turn the viewer saw, with no confirmation. `components/turn-order.tsx` renders an ordered list "Turn order" (the `label` prop; the Party slide-out reuses it as "Initiative") under the header: the active chip marked, "next" and "you" flags. The mode badge reads "The DM has the floor" while held. The transcript gets a `floor` line per turn-mode `table-mode.changed` row. In turn mode a player's own open character action shows "Commits on your turn", and a party member's comment box on the active player's action reads "Suggest an alternative" (the same `action.comment`). Fixture mode builds floor rows with `local-log.ts`'s `localFloorEvents` (no downed-combatant settling). `labels.ts`'s `refusalLabel` words the three floor refusals.
 
 The human DM leaves or resumes turn mode from the Table mode slide-out ([[play-route]], TASK-0165, specs/060); the floor controls above are unchanged.
 

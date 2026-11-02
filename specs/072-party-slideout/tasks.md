@@ -91,20 +91,20 @@ prints only PASS lines and writes four PNGs.
 **Independent test**: `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/1.0.1/gates/cli.mjs
 freshness . docs/wiki` prints `OK`.
 
-- [ ] T020 Update `docs/wiki/play-route.md` (NEEDS-REVIEW): the Party trigger and slide-out,
+- [x] T020 Update `docs/wiki/play-route.md` (NEEDS-REVIEW): the Party trigger and slide-out,
       `party.ts`, `party-panel.tsx`, the `TurnOrder` label. Add the two new files to its sources.
-- [ ] T021 Update `docs/wiki/scene-panels.md` (NEEDS-REVIEW): the Party panel beside the other
+- [x] T021 Update `docs/wiki/scene-panels.md` (NEEDS-REVIEW): the Party panel beside the other  (done as new note `party-panel.md`; scene-panels untouched)
       table slide-outs, on the shared `Panel`.
-- [ ] T022 `docs/wiki/actor-snapshot.md`: re-pin only if a cited file changed. `dm/snapshot/` is
+- [x] T022 `docs/wiki/actor-snapshot.md`: re-pin only if a cited file changed. `dm/snapshot/` is
       not edited (plan R4); confirm and leave it unless the gate names it.
-- [ ] T023 Re-verify and re-pin every other note citing a changed file: `dm-runtime.md`,
+- [x] T023 Re-verify and re-pin every other note citing a changed file: `dm-runtime.md`,
       `seed-npc-presence.md`, `dm-failure-and-gates.md` (seed schema and seeds); `dm-turn-jobs.md`,
       `proposal-gate.md`, `turn-floor.md` (`resolve.ts`, if T006 ran); `turn-floor.md`
       (`turn-order.tsx`); `chat-ui.md` and `react-router-app.md` if the gate names them; any
       note the freshness gate reports. State class and level in `dm-runtime.md`'s seed section.
-- [ ] T024 Update `docs/wiki/CAPSULES.md` and `docs/wiki/INDEX.md`: one sentence for the Party
+- [x] T024 Update `docs/wiki/CAPSULES.md` and `docs/wiki/INDEX.md`: one sentence for the Party
       slide-out and seed class and level (TASK-0164, specs/072).
-- [ ] T025 Run the freshness gate and the spec-bridge gate
+- [x] T025 Run the freshness gate and the spec-bridge gate
       (`node ~/.claude/plugins/cache/praxisflux/spec-bridge/1.0.1/gates/cli.mjs check .`). Commit
       as `TASK-0164 phase 4: wiki re-ground`.
 
