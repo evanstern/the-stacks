@@ -80,15 +80,15 @@ the reason.
 
 **Goal**: the corpus describes the new caps, the flag, the outcome and migration 0008.
 
-- [ ] T017 Re-ground `docs/wiki/ai-gateway.md`, `debug-view.md`, `database-schema.md`,
+- [x] T017 Re-ground `docs/wiki/ai-gateway.md`, `debug-view.md`, `database-schema.md`,
       `migrations.md`, `hosted-dev.md` and `configuration.md` (NEEDS-REVIEW) against the diff.
       Re-pin each honestly.
-- [ ] T018 Re-pin any other note the freshness gate flags because its sources changed (expected:
+- [x] T018 Re-pin any other note the freshness gate flags because its sources changed (expected:
       `dm-runtime`, `dm-turn-jobs`, `dm-failure-and-gates`, `playtest-harness`). Review each
       against the diff before re-pinning.
-- [ ] T019 Update the `docs/wiki/INDEX.md` state paragraph with one sentence for TASK-0192.
+- [x] T019 Update the `docs/wiki/INDEX.md` state paragraph with one sentence for TASK-0192.
       Regenerate `docs/wiki/CAPSULES.md` if any `description:` changed.
-- [ ] T020 Run the wiki freshness gate (`OK`), the spec-bridge check (exit 0) and `pnpm ci:check`.
+- [x] T020 Run the wiki freshness gate (`OK`), the spec-bridge check (exit 0) and `pnpm ci:check`.
       Commit as `TASK-0192 phase 3: wiki re-ground`.
 
 ## Dependencies

@@ -41,7 +41,7 @@ sources:
   - apps/server/seeds/greyhollow-ford-trio.json
   - biome.json
 size_budget_exempt: both notes sat within 30 chars of the 8000 budget before TASK-0180; the talk path got its own note (dm-talk-triggers) and only a pointer line lands here; the rest is one pipeline each, not splittable without a TASK of its own
-verified_against: 9bc934ea72b8c9fa57f4905eaa5f49104c9326a9
+verified_against: 4b9c7549af7e22e6be7c198f02743d124fa98e84
 ---
 
 # DM runtime
@@ -104,7 +104,7 @@ the fallback and the player-facing seed view are in [[dm-narration-quality]].
 
 ## Purposes
 
-`dm/purposes.ts` fixes seven purposes (`dm.director`, `interpret`, `adjudicate`, `narrate`, `audit`, `chronicle`, `companion`). Models: `AI_PURPOSES`; see [[ai-gateway]].
+`dm/purposes.ts` fixes seven purposes (`dm.director`, `interpret`, `adjudicate`, `narrate`, `audit`, `chronicle`, `companion`). Models: `AI_PURPOSES`; see [[ai-gateway]]. Each `PURPOSE_MAX_TOKENS` default is 4000 (TASK-0192). In `callJson`/`callText`, an attempt whose usage says `truncated` settles as `truncated`, not `invalid-json`/`ok`.
 
 ## Seed, doctrine, script
 
