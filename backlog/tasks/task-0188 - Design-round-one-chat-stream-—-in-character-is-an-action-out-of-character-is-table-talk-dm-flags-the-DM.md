@@ -3,9 +3,10 @@ id: TASK-0188
 title: >-
   Design round: one chat stream — in character is an action, out of character is
   table talk, @dm flags the DM
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-11-02 04:03'
+updated_date: '2026-11-02 04:06'
 labels:
   - design
   - web
@@ -38,6 +39,12 @@ References: docs/playtests/2026-11-01-two-browser-alpha-run-3.md (run 3, session
 - [ ] #3 The decision states how the model maps onto events a VTT could also emit
 - [ ] #4 A spec is written against the decision and its implementation tasks are carded
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Claimed for pdlc:design-rounds on 2026-11-01. Long-running worktree: /Users/evanstern/projects/the-stacks/.claude/worktrees/nostalgic-shaw-8530e9 (harness isolation root), branch task-0188-one-chat-stream. Rounds land under docs/design/one-chat-stream/. No spec number is claimed until the decision exists.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
