@@ -1,6 +1,7 @@
 import type { EngineCommand } from "@the-stacks/dnd5e-engine";
 import {
   activeActorFor,
+  canAct,
   floorHeld,
   type GateRefusal,
   mechanicsProposal,
@@ -978,8 +979,57 @@ function actionGroupSteps(
   return { steps: reading.steps, clarify: reading.clarify !== null };
 }
 
+/**
+ * Spec 068: pull each plan-gate pull id into the scene before its group's
+ * steps run. `combatant.add` from the NPC's SRD block (default `commoner`),
+ * then `initiative.join` when an encounter is active and the actor can act.
+ * Pull rows carry `actionId: null`, so they never change a group's outcome.
+ */
+async function pullIn(
+  run: Run,
+  ctx: TurnContext,
+  prefix: string,
+  ids: readonly string[],
+): Promise<void> {
+  for (const id of ids) {
+    let fresh = await ctx.deps.loadProjections(ctx.job.sessionId);
+    const npc = ctx.seed.npcs.find((n) => n.id === id);
+    if (!fresh.engine.combatants[id]) {
+      if (!npc) continue;
+      const srdId = npc.identity.srdMonsterId ?? "commoner";
+      const rec = ctx.deps.srd.getById("monster", srdId);
+      if (!rec) throw stop("internal", `no SRD monster ${srdId}`);
+      await run.mech(
+        `${prefix}:pull:${id}`,
+        {
+          type: "combatant.add",
+          combatant: combatantFromSrd(rec, id, npc.name),
+        },
+        `${npc.name} joins the scene`,
+        null,
+      );
+      fresh = await ctx.deps.loadProjections(ctx.job.sessionId);
+    }
+    const enc = fresh.encounter;
+    if (
+      enc &&
+      !enc.order.some((o) => o.combatantId === id) &&
+      canAct(fresh.engine, id) &&
+      (fresh.scenePresence[id]?.presence ?? "present") === "present"
+    ) {
+      await run.mech(
+        `${prefix}:pull:${id}:join`,
+        { type: "initiative.join", combatantId: id, mode: "normal" },
+        `${npc?.name ?? id} joins the fight`,
+        null,
+      );
+    }
+  }
+}
+
 async function resolveAction(
   run: Run,
+  ctx: TurnContext,
   item: BeatItem,
   reading: InterpretReading | undefined,
   ruling: { steps: Step[] } | undefined,
@@ -987,6 +1037,9 @@ async function resolveAction(
 ): Promise<ResolveOutput["actionResults"][number]> {
   const { steps, clarify } = actionGroupSteps(reading, ruling);
   const planRefused = verdict !== undefined && !verdict.ok;
+  if (verdict?.ok && !clarify) {
+    await pullIn(run, ctx, `act:${item.actionId}`, verdict.pull ?? []);
+  }
   const chain: ChainResult =
     planRefused || clarify
       ? { batchIds: [], awaiting: false, firstRefusal: null }
@@ -1169,6 +1222,7 @@ export const resolve: Node<"resolve"> = async (ctx) => {
         actionResults.push(
           await resolveAction(
             run,
+            ctx,
             item,
             reading,
             ruling,
@@ -1183,6 +1237,8 @@ export const resolve: Node<"resolve"> = async (ctx) => {
         const ruling = rulings.find((r) => r.actionId === null);
         const { steps } = actionGroupSteps(reading, ruling);
         const npcVerdict = verdictFor(null);
+        if (npcVerdict?.ok)
+          await pullIn(run, ctx, "npc", npcVerdict.pull ?? []);
         const chain =
           npcVerdict && !npcVerdict.ok
             ? { batchIds: [] as string[], awaiting: false }

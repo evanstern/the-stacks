@@ -31,19 +31,19 @@ commit led by `TASK-0194:`. Shared files: `dm/nodes/resolve.ts` (TASK-0193) and
 
 ## Phase 2: The pull in resolve and the run 3 replay (card AC #3, #4; merge condition)
 
-- [ ] T008 In `apps/server/src/dm/nodes/resolve.ts`, add `pullIn(run, ctx, prefix, ids)` (plan
+- [x] T008 In `apps/server/src/dm/nodes/resolve.ts`, add `pullIn(run, ctx, prefix, ids)` (plan
       D3). Use `combatantFromSrd` with the NPC's `srdMonsterId`, else `commoner`. Gate the join on
       an active encounter, not in order, `canAct` and presence `present`.
-- [ ] T009 Call `pullIn` before `runSteps` in `resolveAction` for an ok, non-clarify verdict. Call
+- [x] T009 Call `pullIn` before `runSteps` in `resolveAction` for an ok, non-clarify verdict. Call
       it before the NPC group's `runSteps`. Pass `ctx` into `resolveAction`.
-- [ ] T010 Create `apps/server/test/dm/scripts/free-pell.json` (plan D5). Take the post text from
+- [x] T010 Create `apps/server/test/dm/scripts/free-pell.json` (plan D5). Take the post text from
       run 3 seq 118 (`docs/playtests/2026-11-01-two-browser-alpha-run-3.md` item 11).
-- [ ] T011 Create `apps/server/test/dm/noncombatant-targets.integration.test.ts` on a duo scene.
+- [x] T011 Create `apps/server/test/dm/noncombatant-targets.integration.test.ts` on a duo scene.
       Write the free-Pell replay case (plan D5 case 1). This is the merge condition, part one.
-- [ ] T012 In the same file, write the attack control (plan D5 case 2). This is the merge
+- [x] T012 In the same file, write the attack control (plan D5 case 2). This is the merge
       condition, part two.
-- [ ] T013 In the same file, write the reclaim case (plan D5 case 3).
-- [ ] T014 Run `pnpm ci:check`. Mark T011 to T013 "written, not yet run on a database" if no stack
+- [x] T013 In the same file, write the reclaim case (plan D5 case 3).
+- [x] T014 Run `pnpm ci:check`. Mark T011 to T013 "written, not yet run on a database" if no stack
       is up.
 
 ## Phase 3: DB suites and mutation guard **[orchestrator]**
