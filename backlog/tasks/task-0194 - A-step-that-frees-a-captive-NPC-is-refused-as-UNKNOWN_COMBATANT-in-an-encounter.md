@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-11-02 04:31'
-updated_date: '2026-11-02 15:21'
+updated_date: '2026-11-02 15:23'
 labels:
   - dm
   - gate
@@ -63,6 +63,8 @@ Phase 3 [orchestrator] run by the orchestrator (gating only, no product edits): 
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 068 phase 4, 1215dbad)
 Gate: the implementer's ci:check hit one playtest.integration 5 s timeout (TASK-0154 flake). The orchestrator re-ran REQUIRE_DATABASE=1 pnpm ci:check in full: exit 0.
+
+Dispatch: tier=haiku pinned=cc/claude-haiku-5-5 served=claude-haiku-5-5 (wiki re-pin after main merge, 3d880bec)
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
