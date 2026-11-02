@@ -4,7 +4,7 @@ title: Interpret's maxTokens is too low for router-side thinking on cc/ routes
 status: Done
 assignee: []
 created_date: '2026-11-02 04:27'
-updated_date: '2026-11-02 06:58'
+updated_date: '2026-11-02 22:43'
 labels:
   - dm
   - ai
@@ -53,6 +53,8 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 067 phase 2, 10837195)
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 067 phase 3, 14af5dd6)
+
+Hosted evidence, runbook A playtest run 1 (2026-11-02, session 9296c653, seq 48-50): dm.narrate recorded 'truncated' 3 times at exactly 500 output tokens with no visible text. The new outcome surfaced this at once. The repo default is 4000; vm-104 AI_PURPOSES likely still caps dm.narrate at 500 (only interpret was raised on 2026-11-02). Operator config fix per docs/ops/dev-vm-104.md 'Model budget'.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
