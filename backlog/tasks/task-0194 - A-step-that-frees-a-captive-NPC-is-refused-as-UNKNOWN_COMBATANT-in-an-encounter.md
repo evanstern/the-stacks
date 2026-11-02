@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-11-02 04:31'
-updated_date: '2026-11-02 05:47'
+updated_date: '2026-11-02 05:50'
 labels:
   - dm
   - gate
@@ -47,6 +47,8 @@ Spec: specs/068-noncombatant-targets
 Operator, 2026-11-02, verbatim: "Not only that, but acting on anyone or anything not \"in combat turn order\" should be fine -- they or it just gets pulled into turn order and rolls their own initiative (if applicable)". Read as: widen this card. A step that targets a present actor or object outside the order is legal; an actor who can act joins the encounter (combatant.added plus its own initiative roll) instead of the plan gate refusing UNKNOWN_COMBATANT. Objects join without initiative. The spec decides which actors are 'applicable'. Evidence of the cost: free-Pell was finally done by Odo's later free-mode action (seq 214-218), after the encounter ended.
 
 Claimed 2026-11-02 by M3 runbook A (docs/design/m3-runbook-a-run3-fixes.md). Worktree .worktrees/task-0194, branch task-0194-noncombatant-targets, cut from origin/main 7e252840. Spec number 068 claimed with a stub. Lane A2.
+
+Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
