@@ -4,6 +4,7 @@ title: Chronicle conflates distinct combatants in the dm journal
 status: To Do
 assignee: []
 created_date: '2026-10-26 19:15'
+updated_date: '2026-11-02 04:54'
 labels:
   - dm
   - chronicle
@@ -26,6 +27,12 @@ Evidence: TASK-0106 verification run 20261026T183818Z (specs/034-narration-quali
 - [ ] #1 The chronicle prompt receives each combatant's id and display name, and a test proves two combatants are rendered as distinct
 - [ ] #2 A regression test over row 176's inputs shows the journal names Snag and the pot-helm goblin separately
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Run 3 evidence (2026-11-02, session e8e8326d, seq 220): the chronicle called Snag 'the ferryman' (Snag is the goblin leader); seq 195 also mixed up which goblin acts next. Same family as this card's conflation.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
