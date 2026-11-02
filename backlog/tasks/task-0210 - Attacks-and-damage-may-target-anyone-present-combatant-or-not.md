@@ -4,7 +4,7 @@ title: 'Attacks and damage may target anyone present, combatant or not'
 status: In Progress
 assignee: []
 created_date: '2026-11-02 23:15'
-updated_date: '2026-11-02 23:39'
+updated_date: '2026-11-02 23:41'
 labels:
   - dm
   - rules
@@ -41,6 +41,8 @@ Spec: specs/075-attack-anyone
 
 <!-- SECTION:NOTES:BEGIN -->
 Claimed 2026-11-02 by M3 runbook B (docs/design/m3-runbook-b-resolution-quality.md). Worktree .worktrees/task-0210, branch task-0210-attack-anyone, cut from origin/main b756b68f. Spec number 075 claimed with a stub. Spine #4.
+
+Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5 (spec 075 authoring, C1)
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
