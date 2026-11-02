@@ -23,6 +23,8 @@ Outcome: every viewer at a table opens a party slide-out (no modal) that lists e
 Why: originally a maybe. The play header shows presence chips for humans and the AI DM only. An AI companion such as Brother Odo has no chip, and a seat's snapshot view has no marker for the seat's own character (TASK-0163 Phase 2 evidence/two-human-check.md, Phase 6 live run). Players learn their own character only from the speaker select. The revisit trigger fired 2026-10-28 in the two-browser alpha playtest, item 5: the operator did not know Brother Odo was an AI party member until he spoke. Operator approved promoting and widening the card.
 
 Grounding: seed characters carry HP, AC and ability modifiers (identity.combatant, identity.abilityMods) but no class or level. A turn-order strip exists for turn mode (apps/web/app/play/components/turn-order.tsx, TASK-0050). Full sheets stay TASK-0058 (m-4).
+
+Spec: specs/072-party-slideout
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
