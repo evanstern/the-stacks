@@ -4,7 +4,7 @@ title: DM model calls fail on a <think> prefix from the router
 status: In Progress
 assignee: []
 created_date: '2026-10-30 00:45'
-updated_date: '2026-10-30 16:28'
+updated_date: '2026-11-02 04:03'
 labels:
   - dm
   - bug
@@ -90,6 +90,8 @@ Permanent DNS fix (operator-run, 2026-10-30): the router IPv6 RA supplied the 26
 Deploy check (operator-run, 2026-10-30): stacks-dev-app-1 label org.the-stacks.commit = 2b0bb5d1 (deploy-dev success 15:25Z). It contains #91 (stripThink) and #95 (TASK-0180). Later main commits are board-only.
 
 AC #4 hosted check (operator-run, 2026-10-30, deploy 2b0bb5d1): operator posted a turn on hosted dev. dm_model_calls for the last 2 hours: 10 rows between 16:26:59Z and 16:27:46Z (two turns with director, interpret, narrate and audit; one companion; two chronicle). Every row has outcome ok and call_attempt 1. No invalid-json, no error, no retry. Models: cc/claude-opus-5 (director), cc/claude-sonnet-5 (interpret, narrate, companion), cc/claude-haiku-4-5-20251001 (audit, chronicle). dm.interpret-v5, the call that failed in run 2, parsed on its first attempt.
+
+Alpha run 3 evidence (2026-11-01, session e8e8326d, deploy 84b130a0): 21 calls, 2 invalid-json on attempt 1, both recovered on attempt 2: dm.chronicle-v3 (haiku) and dm.audit-v3 (haiku). No invalid-json on director, interpret or narrate. The ledger holds no text, so whether these were think blocks (which stripThink would remove) or another shape is unknown; AC #1 stays open.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
