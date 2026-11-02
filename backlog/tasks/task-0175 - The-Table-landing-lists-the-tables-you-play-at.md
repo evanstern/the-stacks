@@ -4,7 +4,7 @@ title: The Table landing lists the tables you play at
 status: In Progress
 assignee: []
 created_date: '2026-10-29 01:52'
-updated_date: '2026-11-02 06:16'
+updated_date: '2026-11-02 06:34'
 labels:
   - web
   - server
@@ -41,6 +41,8 @@ Claimed 2026-11-02 by M3 runbook A (docs/design/m3-runbook-a-run3-fixes.md). Wor
 Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5
 
 Operator ruling 2026-11-02 (in chat, answering 'How should the remaining lanes get write access to .worktrees/?'): "Allow edits via Bash". The harness edit guard blocks Write/Edit outside the session worktree; dispatched agents edit worktree files through Bash (heredocs, sed, scripts) instead.
+
+Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5 (spec 069 authoring, C1)
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
