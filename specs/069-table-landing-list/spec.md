@@ -4,7 +4,7 @@
 
 **Created**: 2026-11-02
 
-**Status**: Draft. OQ-1 is open for the operator; the spec is written against its default (a).
+**Status**: Draft. OQ-1 is resolved: (a).
 
 **Input**: TASK-0175, "The Table landing lists the tables you play at". Outcome: `/play` lists the
 tables the signed-in account has a seat at (as a player or the DM), newest activity first, each
@@ -35,7 +35,7 @@ table), and that one has a safe default recorded below.
 
 ## Open questions
 
-- **OQ-1 — What "the tables they started" means for the operator.** Nothing records who started a
+- **OQ-1 (RESOLVED 2026-11-02) — What "the tables they started" means for the operator.** Operator ruling: "Every table (Recommended)". The operator sees every table; no `startedBy` field. Nothing records who started a
   table. (a) **Default:** the operator sees every table in the log. On a one-operator install
   every scene start is theirs, so this equals "the tables they started" with no new record.
   (b) Record `startedBy` on the scene-start job and list only those. This adds a field to

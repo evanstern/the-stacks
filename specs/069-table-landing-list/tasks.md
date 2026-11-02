@@ -26,9 +26,9 @@ or `specs/030-play-route/contracts/proposal-seam.md`. Tests are written first an
 **Independent test**: `REQUIRE_DATABASE=1 pnpm --filter @the-stacks/server exec vitest run test/tables.integration.test.ts`
 with only `TEST_DATABASE_URL` exported from the worktree `.env`.
 
-- [ ] T001 **[orchestrator]** On the worktree stack: `pnpm env:up`, migrate both databases by
+- [x] T001 **[orchestrator]** On the worktree stack: `pnpm env:up`, migrate both databases by
       hand, restart the app. Leave the stack up.
-- [ ] T002 [US1] [US2] Create `apps/server/test/tables.integration.test.ts`. Follow the DB guard
+- [x] T002 [US1] [US2] Create `apps/server/test/tables.integration.test.ts`. Follow the DB guard
       and `cookieFor` helper of `apps/server/test/dm/human-dm-scene.integration.test.ts`, and
       `createApp` with a reachable probe. Write rows with `append`/`appendBatch` from
       `src/events/log.ts`, using fresh session ids. Cases:
@@ -47,14 +47,14 @@ with only `TEST_DATABASE_URL` exported from the worktree `.env`.
       7. A session with no `scene.changed` row returns `title: null`.
       8. No cookie → 401 in the error-contract shape.
       See them fail (no route).
-- [ ] T003 [US1] [US2] Create `apps/server/src/routes/tables.ts`: export `TableSummary`,
+- [x] T003 [US1] [US2] Create `apps/server/src/routes/tables.ts`: export `TableSummary`,
       `listTables(db, { userId, role })` (one SQL query per plan.md, `sql` from `drizzle-orm`,
       50-row cap, the ordering rule) and `createTablesRoute({ db, validateSession })`
       (`createAuthMiddleware`, `UnauthorizedError` on no identity, `GET /` returns
       `{ tables }`). Add the plan's `ponytail:` comment on the missing index.
-- [ ] T004 In `apps/server/src/app.ts`, mount `app.route("/api/tables", createTablesRoute({ db,
+- [x] T004 In `apps/server/src/app.ts`, mount `app.route("/api/tables", createTablesRoute({ db,
       validateSession }))` after `/api/echo` and before the web middleware. T002 passes.
-- [ ] T005 Run `pnpm ci:check`, then `REQUIRE_DATABASE=1` on the new test file. Commit
+- [x] T005 Run `pnpm ci:check`, then `REQUIRE_DATABASE=1` on the new test file. Commit
       `TASK-0175: GET /api/tables lists the account's tables`.
 
 ## Phase 2: The landing list (card AC #2; FR-007 to FR-009)
