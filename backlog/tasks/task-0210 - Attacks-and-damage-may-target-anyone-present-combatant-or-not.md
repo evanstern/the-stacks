@@ -1,9 +1,10 @@
 ---
 id: TASK-0210
 title: 'Attacks and damage may target anyone present, combatant or not'
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-11-02 23:15'
+updated_date: '2026-11-02 23:39'
 labels:
   - dm
   - rules
@@ -33,6 +34,12 @@ Where: apps/server/src/dm/gates/plan-gate.ts (stepIds: attackerId/targetId pulla
 - [ ] #2 An absent actor is still refused, with a test
 - [ ] #3 The spec 068 contract amendment and wiki notes record the reversal and cite this ruling
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Claimed 2026-11-02 by M3 runbook B (docs/design/m3-runbook-b-resolution-quality.md). Worktree .worktrees/task-0210, branch task-0210-attack-anyone, cut from origin/main b756b68f. Spec number 075 claimed with a stub. Spine #4.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
