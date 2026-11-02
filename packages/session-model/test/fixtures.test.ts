@@ -260,6 +260,13 @@ describe("fixture facts (guarantee 4)", () => {
 
   it("turn-mode-combat: table mode, encounter, goblin HP and the refusal (AC #3, #4, #6)", () => {
     const f = turnModeCombat;
+    const joined = f.events
+      .filter((e) => e.type === "party.member.changed")
+      .map((e) => (e.payload as { after: Record<string, unknown> }).after);
+    expect(joined.map((m) => [m.class, m.level])).toEqual([
+      ["Fighter", 3],
+      ["Ranger", 3],
+    ]);
     const modeRows = f.events.filter((e) => e.type === "table-mode.changed");
     expect(modeRows).toHaveLength(3);
     const modes = modeRows.map((e) => foldUpTo(f, e.seq + 1).tableMode);

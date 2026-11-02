@@ -16,6 +16,8 @@ export const PartyMemberSchema = z.object({
   name: z.string().min(1).max(100),
   controller: ControllerSchema,
   combatantId: CombatantIdSchema.nullable(),
+  class: z.string().min(1).max(40).optional(),
+  level: z.number().int().min(1).max(20).optional(),
 });
 
 export const PartyMemberChangedV1 = z

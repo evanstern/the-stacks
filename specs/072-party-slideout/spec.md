@@ -207,13 +207,13 @@ open in combat and the turn order shown. The no-dialog test still passes.
 
 ## Open questions (orchestrator rules; default in bold)
 
-- **OQ-1. The party member payload gains two optional fields.** `PartyMemberSchema` (session-model)
+- **OQ-1. The party member payload gains two optional fields.** **Resolved 2026-11-02: (a), operator ruling "Accept additive change (Recommended)".** `PartyMemberSchema` (session-model)
   is named by the frozen `specs/029-proposal-gate/contracts/proposals.md` as the `party`
   proposal's `after`. Adding optional `class` and `level` widens that proposal's accepted shape
   without editing the frozen file. (a) **Accept: additive optional fields, payload stays v1, the
   028 session-events contract is amended, no 029 file changes.** (b) Treat it as a frozen-contract
   change and get an operator ruling first. (c) Avoid the log: serve class and level from a new
   read route that loads the seed (adds a server route and its auth).
-- **OQ-2. An absent player's name.** (a) **"Player (away)"; no name.** (b) Record the display name
+- **OQ-2. An absent player's name.** **Resolved 2026-11-02: (a) default, taken by the orchestrator.** (a) **"Player (away)"; no name.** (b) Record the display name
   on the party member at scene start (needs a user lookup in resolve, and the name goes stale on
   a rename).

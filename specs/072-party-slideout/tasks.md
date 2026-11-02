@@ -21,24 +21,24 @@ member.
 **Independent test**: `seed.test.ts`, `catalog.test.ts` and `fixtures.test.ts` pass with the new
 cases; the DB scene-start test sees Odo as `Cleric` 1.
 
-- [ ] T001 [US2] In `apps/server/src/dm/seed/schema.ts`, apply plan D1: add required
+- [x] T001 [US2] In `apps/server/src/dm/seed/schema.ts`, apply plan D1: add required
       `identity.class` (`Text(40)`) and `identity.level` (int 1..20) to `SeedCharacter`.
-- [ ] T002 [US2] Fill `class` and `level` per plan R5 in `apps/server/seeds/greyhollow-ford.json`,
+- [x] T002 [US2] Fill `class` and `level` per plan R5 in `apps/server/seeds/greyhollow-ford.json`,
       `greyhollow-ford-duo.json` and `greyhollow-ford-trio.json`. Put both keys first in each
       `identity`. Copy `greyhollow-ford.json` byte for byte to
       `specs/031-dm-runtime/data/greyhollow-ford.seed.json`.
-- [ ] T003 [US2] In `packages/session-model/src/events/party.ts`, apply plan D2: optional `class`
+- [x] T003 [US2] In `packages/session-model/src/events/party.ts`, apply plan D2: optional `class`
       and `level` on `PartyMemberSchema`.
-- [ ] T004 [US2] In `packages/session-model/src/fixtures/turn-mode-combat.ts`, apply plan D4.
-- [ ] T005 [P] [US2] Extend `apps/server/test/dm/seed.test.ts`,
+- [x] T004 [US2] In `packages/session-model/src/fixtures/turn-mode-combat.ts`, apply plan D4.
+- [x] T005 [P] [US2] Extend `apps/server/test/dm/seed.test.ts`,
       `packages/session-model/test/catalog.test.ts` and
       `packages/session-model/test/fixtures.test.ts` as plan "Tests" says.
 - [ ] T006 [US2] **Orchestrator-cleared only (Overlap rule).** In
       `apps/server/src/dm/nodes/resolve.ts` `directorOpening`, apply plan D3: add `class` and
       `level` to the `director:party:<id>` `after`. Extend the scene-start case in
       `apps/server/test/dm/resolve.integration.test.ts` and run it with `REQUIRE_DATABASE=1` on the
-      worktree stack.
-- [ ] T007 Amend `specs/031-dm-runtime/contracts/scene-seed.md` and
+      worktree stack. — held: draft-hold behind TASK-0194 (shared resolve.ts), operator ruling 2026-11-02
+- [x] T007 Amend `specs/031-dm-runtime/contracts/scene-seed.md` and
       `specs/028-session-model/contracts/session-events.md` as plan "Contracts" says. Mark each
       change "Amended by spec 072 (TASK-0164)".
 - [ ] T008 Run `pnpm ci:check`. Commit as `TASK-0164 phase 1: class and level on seed characters
