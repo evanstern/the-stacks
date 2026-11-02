@@ -57,22 +57,22 @@ cases.
 
 **Independent test**: `npc-turn-narration.test.ts` passes.
 
-- [ ] T011 [US1] Create `apps/server/test/dm/npc-turn-narration.test.ts` as plan "Tests" says.
+- [X] T011 [US1] Create `apps/server/test/dm/npc-turn-narration.test.ts` as plan "Tests" says.
       Build the beat from the `greyhollow-ford-duo` seed and the run 3 log, finding 15. State
       that source in the file header (OQ-1 (a)). Follow the
       `narration-quality-repro.test.ts` pattern: scripted DM, real gateway, `narrate` then
       `audit` nodes.
-- [ ] T012 [US2] Case 1: the narrate prompt holds `Turn: Snag acts in this beat.`, the
+- [X] T012 [US2] Case 1: the narrate prompt holds `Turn: Snag acts in this beat.`, the
       `Next: Kestrel …` line, the `planned:` line and the new rule. The audit prompt holds the
       turn lines and definition 6.
-- [ ] T013 [US1] Case 2: scripted prose describing Snag's parley and an audit `pass` ship that
+- [X] T013 [US1] Case 2: scripted prose describing Snag's parley and an audit `pass` ship that
       prose with `fallback: false`.
-- [ ] T014 [US1] Case 3: three refused audits (`invented-mechanics`, then `ledger-mismatch`,
+- [X] T014 [US1] Case 3: three refused audits (`invented-mechanics`, then `ledger-mismatch`,
       then `ledger-mismatch`) ship the fallback. The shipped text holds Snag's planned reason
       and does not hold "makes a move".
-- [ ] T015 [US1] Case 4: a refused `null` plan verdict ships "Snag holds back, watching." in the
+- [X] T015 [US1] Case 4: a refused `null` plan verdict ships "Snag holds back, watching." in the
       fallback.
-- [ ] T016 Run `pnpm ci:check`. Commit as `TASK-0193 phase 2: run 3 NPC turn replay`.
+- [X] T016 Run `pnpm ci:check`. Commit as `TASK-0193 phase 2: run 3 NPC turn replay`.
 
 ## Phase 3: A passed turn says why (card note, finding 14; US3)
 
