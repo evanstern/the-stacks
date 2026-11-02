@@ -4,7 +4,7 @@ title: 'Party slide-out: each party character, its controller, vitals and turn o
 status: Done
 assignee: []
 created_date: '2026-10-28 05:50'
-updated_date: '2026-11-02 16:23'
+updated_date: '2026-11-02 23:05'
 labels:
   - play-route
   - web
@@ -54,6 +54,8 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 072 T006 and phase 4, 0c5c064c 3d5b7751)
 T006 released after TASK-0194 merged (PR #106). Merge with main: one conflict in specs/030 ui-surfaces.md, both amendments kept. ci:check: one known-flaky ws.integration T012 failed, passed on re-run.
+
+Hosted evidence, runbook A playtest run 1 (2026-11-02, session 9296c653): the operator opened the Party slide-out during combat — 'I did test the party tab -- seems good'.
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
