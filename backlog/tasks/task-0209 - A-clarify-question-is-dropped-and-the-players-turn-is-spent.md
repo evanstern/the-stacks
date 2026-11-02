@@ -1,10 +1,10 @@
 ---
 id: TASK-0209
 title: A clarify question is dropped and the player's turn is spent
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-11-02 23:13'
-updated_date: '2026-11-02 23:15'
+updated_date: '2026-11-02 23:39'
 labels:
   - dm
   - playtest
@@ -38,6 +38,8 @@ Where: dm/nodes/resolve.ts (the turn advance after a clarify group), dm/fallback
 
 <!-- SECTION:NOTES:BEGIN -->
 Operator ruling 2026-11-02 on the open question: "I actually think that the rule itself is incorrect -- we should be able to attack anyone regardless of combatant state." Carded as TASK-0210. This card stays about the dropped clarify question.
+
+Claimed 2026-11-02 by M3 runbook B (docs/design/m3-runbook-b-resolution-quality.md). Worktree .worktrees/task-0209, branch task-0209-clarify-keeps-turn, cut from origin/main b756b68f. Spec number 073 claimed with a stub. Spine #2.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
