@@ -1,4 +1,5 @@
 import {
+  ABSENCE_PASS_REASON,
   currentTurn,
   type SessionProjections,
   signoffState,
@@ -68,7 +69,7 @@ async function runAbsence(
     kind: "floor",
     op: "end",
     turn,
-    reason: "The AI DM passes the turn of an absent player.",
+    reason: ABSENCE_PASS_REASON,
   });
   if (!result.ok) return refused(result.refusal);
   const seqs = result.events.map((e) => e.seq);

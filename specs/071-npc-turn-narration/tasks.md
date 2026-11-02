@@ -80,18 +80,18 @@ cases.
 
 **Independent test**: the new `view-model.test.mjs` cases pass.
 
-- [ ] T017 [US3] In `packages/session-model/src/gate/turn.ts`, export `ABSENCE_PASS_REASON`
+- [X] T017 [US3] In `packages/session-model/src/gate/turn.ts`, export `ABSENCE_PASS_REASON`
       with the exact text in plan D6. Re-export it from `packages/session-model/src/index.ts`.
-- [ ] T018 [US3] In `apps/server/src/dm/floor.ts`, use `ABSENCE_PASS_REASON` for the floor
+- [X] T018 [US3] In `apps/server/src/dm/floor.ts`, use `ABSENCE_PASS_REASON` for the floor
       proposal reason. The text does not change.
-- [ ] T019 [US3] In `apps/web/app/play/view-model.ts`, apply plan D6 in the floor loop. Only an
+- [X] T019 [US3] In `apps/web/app/play/view-model.ts`, apply plan D6 in the floor loop. Only an
       `ai:dm` row with that reason and a `before` holding an `activeCharacterId` gets the new
       text.
-- [ ] T020 [US3] Extend `apps/web/test/play/view-model.test.mjs`: an absence pass row reads
+- [X] T020 [US3] Extend `apps/web/test/play/view-model.test.mjs`: an absence pass row reads
       "<absent> is away; the turn passes to <holder>." for another viewer and
       "<absent> is away; your turn." for the new holder. A normal turn advance keeps
       "<name>'s turn".
-- [ ] T021 Run `pnpm ci:check`. Commit as `TASK-0193 phase 3: absence pass floor line`.
+- [X] T021 Run `pnpm ci:check`. Commit as `TASK-0193 phase 3: absence pass floor line`.
 
 ## Phase 4: Wiki re-ground
 

@@ -1,4 +1,5 @@
 import {
+  ABSENCE_PASS_REASON,
   type ActionAuthority,
   type ActionView,
   currentTurn,
@@ -292,6 +293,14 @@ export function toTableViewModel(
     const after = row.after as TableMode;
     if (after.mode !== "turn") continue;
     const seat = p.gate.seat;
+    const absent =
+      row.actor === "ai:dm" &&
+      row.reason === ABSENCE_PASS_REASON &&
+      row.before !== null &&
+      typeof row.before === "object" &&
+      (row.before as TableMode).mode === "turn"
+        ? (row.before as Extract<TableMode, { mode: "turn" }>)
+        : null;
     const heldRow =
       seat.kind === "human" &&
       after.activeActor === seat.userId &&
@@ -301,9 +310,15 @@ export function toTableViewModel(
       seq: row.seq,
       text: heldRow
         ? "The DM has the floor"
-        : viewer.role === "player" && after.activeActor === viewer.userId
-          ? "Your turn"
-          : `${turnLabel(after, party, input.actor)}'s turn`,
+        : absent?.activeCharacterId
+          ? `${turnLabel(absent, party, input.actor)} is away; ${
+              viewer.role === "player" && after.activeActor === viewer.userId
+                ? "your turn."
+                : `the turn passes to ${turnLabel(after, party, input.actor)}.`
+            }`
+          : viewer.role === "player" && after.activeActor === viewer.userId
+            ? "Your turn"
+            : `${turnLabel(after, party, input.actor)}'s turn`,
     });
   }
   transcript.sort((a, b) => a.seq - b.seq);
