@@ -4,7 +4,7 @@ title: Haiku dm.audit and dm.chronicle return invalid-json on the first attempt
 status: To Do
 assignee: []
 created_date: '2026-11-02 19:42'
-updated_date: '2026-11-02 22:21'
+updated_date: '2026-11-02 22:55'
 labels:
   - dm
   - playtest
@@ -35,6 +35,8 @@ Where: apps/server/src/dm/pipeline/call.ts (callJson), the haiku purposes' promp
 
 <!-- SECTION:NOTES:BEGIN -->
 Run 1 again (seq 31-32): dm.chronicle-v3 invalid-json on attempt 1, ok on attempt 2. 3 of 3 chronicle/audit job starts so far had a first-attempt failure.
+
+Run 1 seq 59: dm.companion-v6 invalid-json on attempt 1 (460 output tokens), ok on attempt 2. So the first-attempt failure is not haiku-only.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
