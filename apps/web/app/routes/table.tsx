@@ -4,6 +4,68 @@ import type { loader as rootLoader } from "~/root";
 
 const UUID_RE = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
 
+type TableRelation = "dm" | "player" | "started";
+// Restated from apps/server/src/routes/tables.ts (one consumer; no shared type).
+export interface TableSummary {
+  sessionId: string;
+  title: string | null;
+  lastActivityAt: string | null;
+  relation: TableRelation;
+}
+export type TableListState =
+  | { kind: "loading" }
+  | { kind: "error" }
+  | { kind: "ready"; tables: TableSummary[] };
+
+const RELATION_LABEL: Record<TableRelation, string> = {
+  dm: "DM",
+  player: "Player",
+  started: "Started",
+};
+
+/** The "Your tables" list: plain links to play/:sessionId, newest first as given. */
+export function TableList({ state }: { state: TableListState }) {
+  return (
+    <section aria-labelledby="your-tables" className="flex flex-col gap-2">
+      <h2 id="your-tables" className="text-sm font-medium">
+        Your tables
+      </h2>
+      {state.kind === "error" && (
+        <p role="alert" className="text-sm text-destructive">
+          Could not load your tables.
+        </p>
+      )}
+      {state.kind === "ready" && state.tables.length === 0 && (
+        <p className="text-sm text-muted-foreground">No tables yet.</p>
+      )}
+      {state.kind === "ready" && state.tables.length > 0 && (
+        <ul className="flex flex-col gap-2">
+          {state.tables.map((t) => (
+            <li key={t.sessionId}>
+              <Link
+                to={`/play/${t.sessionId}`}
+                className="flex flex-col gap-1 rounded-md border border-border px-3 py-2 text-sm hover:bg-accent"
+              >
+                <span className="font-medium">
+                  {t.title ?? `Untitled table ${t.sessionId.slice(0, 8)}`}
+                </span>
+                <span className="flex gap-2 text-muted-foreground">
+                  <span>{RELATION_LABEL[t.relation]}</span>
+                  {t.lastActivityAt && (
+                    <time dateTime={t.lastActivityAt}>
+                      {new Date(t.lastActivityAt).toLocaleString()}
+                    </time>
+                  )}
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
+  );
+}
+
 /**
  * The Table landing (plan D14, FR-005): start a fresh table (a random id)
  * or join one by pasting its link or id. Client-only — `crypto.randomUUID`
@@ -16,7 +78,23 @@ export default function Table() {
   const [joinValue, setJoinValue] = useState("");
   const [joinError, setJoinError] = useState<string | null>(null);
 
+  const [tables, setTables] = useState<TableListState>({ kind: "loading" });
+
   useEffect(() => setMounted(true), []);
+
+  useEffect(() => {
+    let live = true;
+    fetch("/api/tables", { credentials: "same-origin" })
+      .then(async (res) => {
+        if (!res.ok) throw new Error(String(res.status));
+        const body = (await res.json()) as { tables: TableSummary[] };
+        if (live) setTables({ kind: "ready", tables: body.tables });
+      })
+      .catch(() => live && setTables({ kind: "error" }));
+    return () => {
+      live = false;
+    };
+  }, []);
 
   function handleJoin(event: React.FormEvent) {
     event.preventDefault();
@@ -67,6 +145,8 @@ export default function Table() {
           </p>
         )}
       </form>
+
+      <TableList state={tables} />
 
       {root?.user?.role === "operator" && (
         <Link

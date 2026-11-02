@@ -23,7 +23,7 @@ sources:
   - apps/web/app/routes/settings.tsx
   - apps/web/app/library/books.ts
   - apps/web/app/library/upload.ts
-verified_against: 13f64ae03ad40343f9adca7146c9f1102fcab8dc
+verified_against: 85f778d1365d9968af0b94e21e78f5c058aebd1e
 ---
 
 # Chat UI
@@ -95,7 +95,7 @@ collapse toggle.
 (`/`, `/play/:sessionId`): `ask`, `books` (the Library page — `/library` is reserved for
 the HTTP API, plan D3 checkpoint), `play` (the Table landing, `routes/table.tsx`: start a
 fresh table or join one by pasting its id/link; an operator also sees a "Preview fixtures"
-link to `/play/fixtures`, see [[play-route]]), and `settings`. `home.tsx` is now
+link to `/play/fixtures`, see [[play-route]]; since TASK-0175, specs/069, it also fetches `GET /api/tables` after mount and lists "Your tables" under Join as links to `play/:sessionId`, newest activity first, via the exported pure `TableList`), and `settings`. `home.tsx` is now
 loader-only, redirecting a signed-in operator to `/ask` and a signed-in player to `/play`.
 `ask.tsx` and `books.tsx` share one loader shape: `{ forbidden: true }` for a non-operator
 without calling `jobs()` at all (so a player's SSR never even asks for job data), else
