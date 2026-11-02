@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-11-02 04:31'
-updated_date: '2026-11-02 05:50'
+updated_date: '2026-11-02 06:16'
 labels:
   - dm
   - gate
@@ -49,6 +49,8 @@ Operator, 2026-11-02, verbatim: "Not only that, but acting on anyone or anything
 Claimed 2026-11-02 by M3 runbook A (docs/design/m3-runbook-a-run3-fixes.md). Worktree .worktrees/task-0194, branch task-0194-noncombatant-targets, cut from origin/main 7e252840. Spec number 068 claimed with a stub. Lane A2.
 
 Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5
+
+Operator ruling 2026-11-02 (in chat, answering 'How should the remaining lanes get write access to .worktrees/?'): "Allow edits via Bash". The harness edit guard blocks Write/Edit outside the session worktree; dispatched agents edit worktree files through Bash (heredocs, sed, scripts) instead.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
