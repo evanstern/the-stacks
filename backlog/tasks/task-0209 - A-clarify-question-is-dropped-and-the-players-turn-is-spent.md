@@ -4,6 +4,7 @@ title: A clarify question is dropped and the player's turn is spent
 status: To Do
 assignee: []
 created_date: '2026-11-02 23:13'
+updated_date: '2026-11-02 23:15'
 labels:
   - dm
   - playtest
@@ -32,6 +33,12 @@ Where: dm/nodes/resolve.ts (the turn advance after a clarify group), dm/fallback
 - [ ] #1 A clarify reading holds the turn (no turn.advance) until the player answers, with a test replaying seq 172-176
 - [ ] #2 The narration or fallback shows the clarify question itself, with a test
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Operator ruling 2026-11-02 on the open question: "I actually think that the rule itself is incorrect -- we should be able to attack anyone regardless of combatant state." Carded as TASK-0210. This card stays about the dropped clarify question.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
