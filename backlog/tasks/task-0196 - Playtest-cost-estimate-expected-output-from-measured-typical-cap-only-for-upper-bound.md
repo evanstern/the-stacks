@@ -6,6 +6,7 @@ title: >-
 status: To Do
 assignee: []
 created_date: '2026-11-02 06:33'
+updated_date: '2026-11-02 16:31'
 labels:
   - playtest
   - cost
@@ -30,6 +31,12 @@ Where: apps/server/src/dm/purposes.ts, the playtest budget estimate and test/pla
 - [ ] #1 Expected cost per purpose uses a measured typical output, cited to its source
 - [ ] #2 The upper bound still uses maxTokens
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Operator, 2026-11-02: "our estimates are wildly over compensating"; 9router 7-day spend under $8 against estimates sized for far more. Supports measuring typical output.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
