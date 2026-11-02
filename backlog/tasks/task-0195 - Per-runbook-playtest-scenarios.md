@@ -1,10 +1,10 @@
 ---
 id: TASK-0195
 title: Per-runbook playtest scenarios
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-11-02 05:22'
-updated_date: '2026-11-02 16:19'
+updated_date: '2026-11-02 16:23'
 labels:
   - playtest
   - tooling
@@ -36,8 +36,14 @@ Claimed 2026-11-02 by M3 runbook A (docs/design/m3-runbook-a-run3-fixes.md). Wor
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (TASK-0195 scenario, 54b63816 df0d4460)
 <!-- SECTION:NOTES:END -->
 
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Runbooks now end with a playtest scenario (seed, optional DM_FAKE_SCRIPT setup, checklist) that playtest-run loads. Runbook A's scenario: seed greyhollow-ford-reed-camp, script runbook-a-reed-camp, 9-row checklist; local scripted rehearsal ran end to end. Merged in PR #108.
+<!-- SECTION:FINAL_SUMMARY:END -->
+
 ## Definition of Done
 <!-- DOD:BEGIN -->
-- [ ] #1 All tests and checks run green
-- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
+- [x] #1 All tests and checks run green
+- [x] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
