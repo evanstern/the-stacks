@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-11-02 04:31'
-updated_date: '2026-11-02 08:31'
+updated_date: '2026-11-02 08:35'
 labels:
   - dm
   - narration
@@ -52,6 +52,8 @@ Orchestrator rulings 2026-11-02 on spec 071 (all inside the card's scope, no con
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 071 phase 1, c8c93dea)
 Rides this branch: re-pin of 4 wiki notes main left stale after PR #100 (TASK-0191, 4df70e2b): client-session-hook, m0-demo, play-route, react-router-app. Orchestrator miss: freshness was not re-run on the merged 0191 tree.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 071 phase 2, 395872ed)
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
