@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-11-02 04:31'
-updated_date: '2026-11-02 15:02'
+updated_date: '2026-11-02 15:13'
 labels:
   - dm
   - gate
@@ -57,6 +57,9 @@ Operator ruling 2026-11-02 (in chat, on spec 068 OQ-1 to OQ-5): "Accept all defa
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 068 phase 1, 80a47f8f)
 Orchestrator review: accepted the edit to resolve.integration.test.ts (outside the plan's file list). Its 'later step names a non-combatant' case now uses attackStep('pell'), which is still refused. Same intent under the new rule.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 068 phase 2, 7040a5db)
+Phase 3 [orchestrator] run by the orchestrator (gating only, no product edits): DM DB suites 826/826; mutation guard 2/3 fail per mutation, restored clean.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
