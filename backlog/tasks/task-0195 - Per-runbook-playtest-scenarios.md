@@ -1,9 +1,10 @@
 ---
 id: TASK-0195
 title: Per-runbook playtest scenarios
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-11-02 05:22'
+updated_date: '2026-11-02 16:19'
 labels:
   - playtest
   - tooling
@@ -21,11 +22,19 @@ Outcome: each M3 runbook ships a playtest scenario aimed at the features it buil
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 A documented convention says where a runbook's scenario lives (seed file or setup step) and how playtest-run loads it
-- [ ] #2 playtest-run accepts a per-runbook checklist and derives its tracked checklist from it
-- [ ] #3 Runbook A ships a combat-heavy scenario with a companion moment, used for its post-sweep playtest
-- [ ] #4 The runbook template or sweep doctrine says each runbook ends with authoring its scenario
+- [x] #1 A documented convention says where a runbook's scenario lives (seed file or setup step) and how playtest-run loads it
+- [x] #2 playtest-run accepts a per-runbook checklist and derives its tracked checklist from it
+- [x] #3 Runbook A ships a combat-heavy scenario with a companion moment, used for its post-sweep playtest
+- [x] #4 The runbook template or sweep doctrine says each runbook ends with authoring its scenario
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Claimed 2026-11-02 by M3 runbook A (docs/design/m3-runbook-a-run3-fixes.md). Worktree .worktrees/task-0195, branch task-0195-runbook-a-scenario, cut from origin/main 7e4a6219. No spec dir: signed escape line covers this task. Lane Last, after A1-A5 merged (#99-#107). Escape E3: card ACs drive. Rides: spec 072 T008 tick (done in 883a75a8; missed during the T006 hold) so TASK-0164 can close.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (TASK-0195 scenario, 54b63816 df0d4460)
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->

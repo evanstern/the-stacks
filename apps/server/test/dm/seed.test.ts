@@ -244,6 +244,7 @@ describe("scene seed (AC #13)", () => {
     expect(listSeeds().map((s) => s.seedId)).toEqual([
       "greyhollow-ford",
       "greyhollow-ford-duo",
+      "greyhollow-ford-reed-camp",
       "greyhollow-ford-trio",
     ]);
   });

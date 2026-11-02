@@ -1,0 +1,1025 @@
+{
+  "v": 1,
+  "name": "runbook-a-reed-camp",
+  "dice": [15, 12, 7, 20, 3, 2, 1, 1, 15, 12, 3, 12, 1, 5],
+  "calls": [
+    {
+      "purpose": "dm.director",
+      "note": "scene start keeps only pacing",
+      "respond": {
+        "type": "json",
+        "value": {
+          "beat": {
+            "decision": "resolve"
+          },
+          "tableMode": {
+            "to": "stay"
+          },
+          "trackers": [],
+          "scene": {
+            "status": "continue"
+          },
+          "pacing": {
+            "tension": "low",
+            "spotlight": null,
+            "beatId": "causeway-edge"
+          },
+          "goalNote": "Open at the end of the causeway; the camp is one beat away.",
+          "companionPrompts": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.narrate",
+      "note": "opening framing",
+      "respond": {
+        "type": "text",
+        "value": "The party reaches the end of the causeway as the light goes amber. Wenna Marsh keeps close with her boathook, and smoke from the goblins' reed-camp curls up from the reeds ahead."
+      }
+    },
+    {
+      "purpose": "dm.audit",
+      "respond": {
+        "type": "json",
+        "value": {
+          "verdict": "pass",
+          "issues": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.narrate",
+      "note": "react: Wenna answers and turns to Odo (TASK-0189)",
+      "respond": {
+        "type": "json",
+        "value": {
+          "outcome": "reply",
+          "triggers": [
+            {
+              "kind": "addressed",
+              "actorId": "odo"
+            },
+            {
+              "kind": "overheard",
+              "actorId": "wenna"
+            }
+          ],
+          "speaker": "wenna",
+          "text": "Wenna squints at the smoke and mutters into her collar. \"That is no cookfire, friar. Tell them what you smell.\"",
+          "encounterId": null,
+          "companionPrompts": [],
+          "reason": "Odo was asked a direct question with Wenna beside him; she hands him the answer."
+        }
+      }
+    },
+    {
+      "purpose": "dm.companion",
+      "note": "Odo answers the PC (talk)",
+      "respond": {
+        "type": "json",
+        "value": {
+          "say": "Woodsmoke and wet iron, and something stewed in a pot. Keep to the posts and keep close.",
+          "comment": null,
+          "act": null,
+          "pending": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.director",
+      "note": "enter turn mode for reed-camp; Snag wins initiative",
+      "respond": {
+        "type": "json",
+        "value": {
+          "beat": {
+            "decision": "resolve"
+          },
+          "tableMode": {
+            "to": "turn",
+            "encounterId": "reed-camp",
+            "reason": "The goblins spring up as the party reaches the island."
+          },
+          "trackers": [],
+          "scene": {
+            "status": "continue"
+          },
+          "pacing": {
+            "tension": "high",
+            "spotlight": null,
+            "beatId": "reed-camp"
+          },
+          "goalNote": "Run the camp fight; the goblins break when two fall.",
+          "companionPrompts": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.interpret",
+      "note": "a move needs no roll",
+      "respond": {
+        "type": "json",
+        "value": {
+          "readings": [
+            {
+              "actionId": "act-advance",
+              "intent": "move",
+              "uncertain": false,
+              "needsAdjudication": false,
+              "rulesQuestion": null,
+              "clarify": null,
+              "steps": [
+                {
+                  "step": "none",
+                  "reason": "Moving along the posts needs no roll."
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "purpose": "dm.narrate",
+      "note": "entering the fight",
+      "respond": {
+        "type": "text",
+        "value": "Tamsin follows the old timber posts into the reeds, and the party spreads out behind her. A smoky fire and a ring of watchful goblins wait on the mud island ahead, and Snag springs up first with his scimitar raised."
+      }
+    },
+    {
+      "purpose": "dm.audit",
+      "respond": {
+        "type": "json",
+        "value": {
+          "verdict": "pass",
+          "issues": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.director",
+      "note": "Snag's turn: a parley, no mechanics",
+      "respond": {
+        "type": "json",
+        "value": {
+          "beat": {
+            "decision": "resolve"
+          },
+          "tableMode": {
+            "to": "stay"
+          },
+          "trackers": [],
+          "scene": {
+            "status": "continue"
+          },
+          "pacing": {
+            "tension": "high",
+            "spotlight": null,
+            "beatId": "reed-camp"
+          },
+          "goalNote": "Snag talks before he fights.",
+          "companionPrompts": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.interpret",
+      "note": "NPC reading with no mechanical step (run 3 seq 150-157)",
+      "respond": {
+        "type": "json",
+        "value": {
+          "readings": [
+            {
+              "actionId": null,
+              "intent": "attack",
+              "uncertain": true,
+              "needsAdjudication": false,
+              "rulesQuestion": null,
+              "clarify": null,
+              "steps": [
+                {
+                  "step": "none",
+                  "reason": "Snag offers the party a parley, hands open."
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "purpose": "dm.narrate",
+      "note": "Snag, no mechanical step",
+      "respond": {
+        "type": "text",
+        "value": "Snag lowers his scimitar and calls across the mud, offering a parley with his hands held open."
+      }
+    },
+    {
+      "purpose": "dm.audit",
+      "respond": {
+        "type": "json",
+        "value": {
+          "verdict": "pass",
+          "issues": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.director",
+      "note": "Tamsin frees Pell, a captive non-combatant",
+      "respond": {
+        "type": "json",
+        "value": {
+          "beat": {
+            "decision": "resolve"
+          },
+          "tableMode": {
+            "to": "stay"
+          },
+          "trackers": [],
+          "scene": {
+            "status": "continue"
+          },
+          "pacing": {
+            "tension": "high",
+            "spotlight": null,
+            "beatId": "reed-camp"
+          },
+          "goalNote": "Tamsin frees Pell.",
+          "companionPrompts": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.interpret",
+      "note": "run 3 seq 118/133: one check on Pell, a non-combatant",
+      "respond": {
+        "type": "json",
+        "value": {
+          "readings": [
+            {
+              "actionId": "act-free-pell",
+              "intent": "check",
+              "uncertain": true,
+              "needsAdjudication": false,
+              "rulesQuestion": null,
+              "clarify": null,
+              "steps": [
+                {
+                  "step": "check",
+                  "reason": "Tamsin works the rope at Pell's wrists loose",
+                  "combatantId": "tamsin",
+                  "kind": "ability-check",
+                  "ability": "dex",
+                  "skill": "sleight-of-hand",
+                  "expression": "1d20",
+                  "mode": "normal",
+                  "dc": 12,
+                  "autoFail": null,
+                  "onSuccess": [
+                    {
+                      "effect": "condition",
+                      "op": "remove",
+                      "targetId": "pell",
+                      "condition": "restrained",
+                      "source": "cut free"
+                    }
+                  ],
+                  "onFailure": []
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "purpose": "dm.narrate",
+      "note": "Tamsin reaches the post",
+      "respond": {
+        "type": "text",
+        "value": "Tamsin runs across the mud to the post where Pell is tied and works at the rope around his wrists."
+      }
+    },
+    {
+      "purpose": "dm.audit",
+      "respond": {
+        "type": "json",
+        "value": {
+          "verdict": "pass",
+          "issues": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.companion",
+      "note": "Odo's turn",
+      "respond": {
+        "type": "json",
+        "value": {
+          "say": null,
+          "comment": null,
+          "act": {
+            "text": "Odo swings his mace at the goblin lookout.",
+            "commit": true
+          },
+          "pending": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.director",
+      "note": "companion action",
+      "respond": {
+        "type": "json",
+        "value": {
+          "beat": {
+            "decision": "resolve"
+          },
+          "tableMode": {
+            "to": "stay"
+          },
+          "trackers": [],
+          "scene": {
+            "status": "continue"
+          },
+          "pacing": {
+            "tension": "high",
+            "spotlight": null,
+            "beatId": "reed-camp"
+          },
+          "goalNote": "Odo presses the lookout.",
+          "companionPrompts": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.interpret",
+      "note": "Odo attacks",
+      "respond": {
+        "type": "json",
+        "value": {
+          "readings": [
+            {
+              "actionId": "act-odo-1",
+              "intent": "attack",
+              "uncertain": true,
+              "needsAdjudication": false,
+              "rulesQuestion": null,
+              "clarify": null,
+              "steps": [
+                {
+                  "step": "attack",
+                  "reason": "Odo swings his mace at the goblin lookout",
+                  "attackerId": "odo",
+                  "targetId": "goblin-3",
+                  "expression": "1d20+3",
+                  "mode": "normal",
+                  "targetAc": null,
+                  "onHit": [
+                    {
+                      "effect": "damage",
+                      "targetId": "goblin-3",
+                      "components": [
+                        {
+                          "amount": {
+                            "kind": "roll",
+                            "expression": "1d6+1"
+                          },
+                          "damageType": "bludgeoning"
+                        }
+                      ],
+                      "defenses": null
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "purpose": "dm.narrate",
+      "note": "Odo hits",
+      "respond": {
+        "type": "text",
+        "value": "Brother Odo brings his mace down on the goblin lookout, who yelps and stumbles back, hunting for solid footing."
+      }
+    },
+    {
+      "purpose": "dm.audit",
+      "respond": {
+        "type": "json",
+        "value": {
+          "verdict": "pass",
+          "issues": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.director",
+      "note": "Kestrel's turn, human",
+      "respond": {
+        "type": "json",
+        "value": {
+          "beat": {
+            "decision": "resolve"
+          },
+          "tableMode": {
+            "to": "stay"
+          },
+          "trackers": [],
+          "scene": {
+            "status": "continue"
+          },
+          "pacing": {
+            "tension": "high",
+            "spotlight": null,
+            "beatId": "reed-camp"
+          },
+          "goalNote": "Kestrel looses an arrow.",
+          "companionPrompts": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.interpret",
+      "note": "Kestrel attacks",
+      "respond": {
+        "type": "json",
+        "value": {
+          "readings": [
+            {
+              "actionId": "act-kestrel-1",
+              "intent": "attack",
+              "uncertain": true,
+              "needsAdjudication": false,
+              "rulesQuestion": null,
+              "clarify": null,
+              "steps": [
+                {
+                  "step": "attack",
+                  "reason": "Kestrel looses an arrow at the goblin by the fire",
+                  "attackerId": "kestrel",
+                  "targetId": "goblin-4",
+                  "expression": "1d20+5",
+                  "mode": "normal",
+                  "targetAc": null,
+                  "onHit": [
+                    {
+                      "effect": "damage",
+                      "targetId": "goblin-4",
+                      "components": [
+                        {
+                          "amount": {
+                            "kind": "roll",
+                            "expression": "1d6+3"
+                          },
+                          "damageType": "piercing"
+                        }
+                      ],
+                      "defenses": null
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "purpose": "dm.narrate",
+      "note": "Kestrel hits",
+      "respond": {
+        "type": "text",
+        "value": "Kestrel's arrow whistles across the island and bites the goblin by the fire, who howls and ducks behind the smoke."
+      }
+    },
+    {
+      "purpose": "dm.audit",
+      "respond": {
+        "type": "json",
+        "value": {
+          "verdict": "pass",
+          "issues": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.director",
+      "note": "goblin-2 turn",
+      "respond": {
+        "type": "json",
+        "value": {
+          "beat": {
+            "decision": "resolve"
+          },
+          "tableMode": {
+            "to": "stay"
+          },
+          "trackers": [],
+          "scene": {
+            "status": "continue"
+          },
+          "pacing": {
+            "tension": "high",
+            "spotlight": null,
+            "beatId": "reed-camp"
+          },
+          "goalNote": "The goblin in the pot-helm answers.",
+          "companionPrompts": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.interpret",
+      "note": "goblin-2 attacks Tamsin",
+      "respond": {
+        "type": "json",
+        "value": {
+          "readings": [
+            {
+              "actionId": null,
+              "intent": "attack",
+              "uncertain": true,
+              "needsAdjudication": false,
+              "rulesQuestion": null,
+              "clarify": null,
+              "steps": [
+                {
+                  "step": "attack",
+                  "reason": "The goblin in the pot-helm jabs at Tamsin",
+                  "attackerId": "goblin-2",
+                  "targetId": "tamsin",
+                  "expression": "1d20+4",
+                  "mode": "normal",
+                  "targetAc": null,
+                  "onHit": [
+                    {
+                      "effect": "damage",
+                      "targetId": "tamsin",
+                      "components": [
+                        {
+                          "amount": {
+                            "kind": "roll",
+                            "expression": "1d6+2"
+                          },
+                          "damageType": "slashing"
+                        }
+                      ],
+                      "defenses": null
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "purpose": "dm.narrate",
+      "note": "goblin-2 misses",
+      "respond": {
+        "type": "text",
+        "value": "The goblin in the pot-helm jabs at Tamsin, but she turns the blow aside on her shield."
+      }
+    },
+    {
+      "purpose": "dm.audit",
+      "respond": {
+        "type": "json",
+        "value": {
+          "verdict": "pass",
+          "issues": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.director",
+      "note": "goblin-3 turn",
+      "respond": {
+        "type": "json",
+        "value": {
+          "beat": {
+            "decision": "resolve"
+          },
+          "tableMode": {
+            "to": "stay"
+          },
+          "trackers": [],
+          "scene": {
+            "status": "continue"
+          },
+          "pacing": {
+            "tension": "high",
+            "spotlight": null,
+            "beatId": "reed-camp"
+          },
+          "goalNote": "The lookout hangs back.",
+          "companionPrompts": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.interpret",
+      "note": "goblin-3, no mechanical step",
+      "respond": {
+        "type": "json",
+        "value": {
+          "readings": [
+            {
+              "actionId": null,
+              "intent": "attack",
+              "uncertain": true,
+              "needsAdjudication": false,
+              "rulesQuestion": null,
+              "clarify": null,
+              "steps": [
+                {
+                  "step": "none",
+                  "reason": "The goblin lookout hangs back, watching the party."
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "purpose": "dm.narrate",
+      "note": "goblin-3, no step",
+      "respond": {
+        "type": "text",
+        "value": "The goblin lookout hangs back at the edge of the firelight, watching the party and gripping his spear."
+      }
+    },
+    {
+      "purpose": "dm.audit",
+      "respond": {
+        "type": "json",
+        "value": {
+          "verdict": "pass",
+          "issues": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.director",
+      "note": "goblin-4 turn",
+      "respond": {
+        "type": "json",
+        "value": {
+          "beat": {
+            "decision": "resolve"
+          },
+          "tableMode": {
+            "to": "stay"
+          },
+          "trackers": [],
+          "scene": {
+            "status": "continue"
+          },
+          "pacing": {
+            "tension": "high",
+            "spotlight": null,
+            "beatId": "reed-camp"
+          },
+          "goalNote": "The fire-tender hangs back.",
+          "companionPrompts": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.interpret",
+      "note": "goblin-4, no mechanical step",
+      "respond": {
+        "type": "json",
+        "value": {
+          "readings": [
+            {
+              "actionId": null,
+              "intent": "attack",
+              "uncertain": true,
+              "needsAdjudication": false,
+              "rulesQuestion": null,
+              "clarify": null,
+              "steps": [
+                {
+                  "step": "none",
+                  "reason": "The goblin by the fire stays low behind the smoke."
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "purpose": "dm.narrate",
+      "note": "goblin-4, no step",
+      "respond": {
+        "type": "text",
+        "value": "The goblin by the fire stays low behind the smoke, eyes darting between the party and Snag."
+      }
+    },
+    {
+      "purpose": "dm.audit",
+      "respond": {
+        "type": "json",
+        "value": {
+          "verdict": "pass",
+          "issues": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.director",
+      "note": "Pell's turn",
+      "respond": {
+        "type": "json",
+        "value": {
+          "beat": {
+            "decision": "resolve"
+          },
+          "tableMode": {
+            "to": "stay"
+          },
+          "trackers": [],
+          "scene": {
+            "status": "continue"
+          },
+          "pacing": {
+            "tension": "high",
+            "spotlight": null,
+            "beatId": "reed-camp"
+          },
+          "goalNote": "Pell scrambles clear.",
+          "companionPrompts": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.interpret",
+      "note": "Pell, no mechanical step",
+      "respond": {
+        "type": "json",
+        "value": {
+          "readings": [
+            {
+              "actionId": null,
+              "intent": "attack",
+              "uncertain": true,
+              "needsAdjudication": false,
+              "rulesQuestion": null,
+              "clarify": null,
+              "steps": [
+                {
+                  "step": "none",
+                  "reason": "Pell scrambles toward the party, clutching his freed wrists."
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "purpose": "dm.narrate",
+      "note": "Pell, no step",
+      "respond": {
+        "type": "text",
+        "value": "Pell scrambles across the mud toward the party, rubbing his freed wrists and blinking at the smoke."
+      }
+    },
+    {
+      "purpose": "dm.audit",
+      "respond": {
+        "type": "json",
+        "value": {
+          "verdict": "pass",
+          "issues": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.director",
+      "note": "Snag offers the clapper; scene ends",
+      "respond": {
+        "type": "json",
+        "value": {
+          "beat": {
+            "decision": "resolve"
+          },
+          "tableMode": {
+            "to": "free",
+            "reason": "Snag offers the clapper for safe passage."
+          },
+          "trackers": [],
+          "scene": {
+            "status": "end",
+            "outcome": "goal-met",
+            "reason": "Snag trades the clapper for safe passage and the way is clear."
+          },
+          "pacing": {
+            "tension": "low",
+            "spotlight": null,
+            "beatId": "reed-camp"
+          },
+          "goalNote": "Close the scene.",
+          "companionPrompts": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.interpret",
+      "note": "Snag bargains, no mechanical step",
+      "respond": {
+        "type": "json",
+        "value": {
+          "readings": [
+            {
+              "actionId": null,
+              "intent": "attack",
+              "uncertain": true,
+              "needsAdjudication": false,
+              "rulesQuestion": null,
+              "clarify": null,
+              "steps": [
+                {
+                  "step": "none",
+                  "reason": "Snag offers the clapper for safe passage."
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "purpose": "dm.narrate",
+      "note": "Snag bargains",
+      "respond": {
+        "type": "text",
+        "value": "Snag lowers his blade and calls out, offering the bell's clapper in return for safe passage out of his reeds."
+      }
+    },
+    {
+      "purpose": "dm.audit",
+      "respond": {
+        "type": "json",
+        "value": {
+          "verdict": "pass",
+          "issues": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.chronicle",
+      "respond": {
+        "type": "json",
+        "value": {
+          "entries": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.chronicle",
+      "respond": {
+        "type": "json",
+        "value": {
+          "entries": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.chronicle",
+      "respond": {
+        "type": "json",
+        "value": {
+          "entries": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.chronicle",
+      "respond": {
+        "type": "json",
+        "value": {
+          "entries": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.chronicle",
+      "respond": {
+        "type": "json",
+        "value": {
+          "entries": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.chronicle",
+      "respond": {
+        "type": "json",
+        "value": {
+          "entries": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.chronicle",
+      "respond": {
+        "type": "json",
+        "value": {
+          "entries": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.chronicle",
+      "respond": {
+        "type": "json",
+        "value": {
+          "entries": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.chronicle",
+      "respond": {
+        "type": "json",
+        "value": {
+          "entries": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.chronicle",
+      "respond": {
+        "type": "json",
+        "value": {
+          "entries": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.chronicle",
+      "respond": {
+        "type": "json",
+        "value": {
+          "entries": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.chronicle",
+      "respond": {
+        "type": "json",
+        "value": {
+          "entries": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.chronicle",
+      "respond": {
+        "type": "json",
+        "value": {
+          "entries": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.chronicle",
+      "respond": {
+        "type": "json",
+        "value": {
+          "entries": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.chronicle",
+      "respond": {
+        "type": "json",
+        "value": {
+          "entries": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.chronicle",
+      "respond": {
+        "type": "json",
+        "value": {
+          "entries": []
+        }
+      }
+    }
+  ]
+}

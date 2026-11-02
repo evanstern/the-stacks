@@ -153,6 +153,8 @@ Starts after A1–A5 merge. The scenario aims at this runbook's fixes:
   combat; return to the table from `/play`.
 - **Model budget** (0192): hard interpret turns in combat, with the ledger checked for `truncated`.
 - `DM_FAKE_SCRIPT` may set the scene up directly to keep the run short.
+- Shipped (TASK-0195): seed `greyhollow-ford-reed-camp`, script `runbook-a-reed-camp`, checklist
+  `docs/playtests/scenarios/runbook-a-reed-camp.md`. Convention: `docs/design/playtest-scenarios.md`.
 
 Then **stop for the operator to play it** (checkpoint C7). The playtest's own run log and cards
 follow `.claude/skills/playtest-run/SKILL.md`.
