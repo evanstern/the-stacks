@@ -298,3 +298,15 @@ gate.onAppended((sessionId, events) => gateway.publish(sessionId, events));
 
 `gateway.publish` broadcasts each stored event as an `event` frame (ws-delivery.md). The DM
 runtime (TASK-0046) receives the same `gate` instance from `index.ts`.
+
+> **Amendment (TASK-0188).** Amended 2026-11-02 (decision-0028 §8; operator ruling 2026-11-02: "All (a), amend"). Spec `specs/066-one-chat-stream`.
+> Rows per kind gain:
+>
+> | Kind | Rows | Kind-specific checks (refusal code) |
+> |---|---|---|
+> | `action.suggest` | one `action.suggested` (`public`) | `suggestionId` unused and no derived action id exists (`INVALID_PROPOSAL`); from `ai:dm`, no readable post newer than `readSeq` (`SUGGESTION_STALE`) |
+> | `action.accept` | `action.declared` (actor the acceptor, id `<suggestionId>.<itemId>`, text the DM's wording plus " — <check>" when set, `suggestionId`) then `action.committed` (the accept authority), one batch, no sign-off marker | the accept rule in policy-and-authority.md (`SUGGESTION_NOT_FOUND`, `SUGGESTION_STALE`, `ACTION_EXISTS`, `NOT_AUTHORIZED`, `CHARACTER_UNABLE`, `COMMIT_NOT_ALLOWED`) |
+>
+> The `action.withdraw` row also accepts a `committed` action; `ACTION_NOT_OPEN` covers only
+> `resolved` and `withdrawn`. An `action.declare` carrying `suggestionId` is `INVALID_PROPOSAL`.
+> `GateRefusalCodeSchema` gains `SUGGESTION_STALE` and `SUGGESTION_NOT_FOUND` (21 codes).

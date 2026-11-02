@@ -1,0 +1,49 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>TASK-0188 round 1 · one chat stream</title><style>
+:root{--background:#f4f6f6;--foreground:#1b2023;--card:#fff;--primary:#0f6f63;--primary-foreground:#fff;--muted:#eef1f1;--muted-foreground:#5b6570;--destructive:#8a2a1e;--destructive-surface:#fbe7e2;--ok:#1a6b3c;--ok-surface:#e3f3e8;--proc:#8a5a05;--proc-surface:#fbeecb;--border:#d7dbe0;--input:#7a848d;--ring:#1a5fb4;--mark:#cfeee7;--radius:.625rem}
+@media (prefers-color-scheme:dark) and (min-width:99999px){:root{--background:#14181a;--foreground:#e8ecee;--card:#1c2124;--primary:#4fd1c0;--primary-foreground:#0b2620;--muted:#242a2d;--muted-foreground:#a9b2b8;--destructive:#f2a89b;--destructive-surface:#3a1f1a;--ok:#8fd6ac;--ok-surface:#1c3327;--proc:#e0b23a;--proc-surface:#3a2f14;--border:#343b3f;--input:#6b757c;--ring:#8ec2ff;--mark:#2c4a44}}
+*{box-sizing:border-box}body{margin:0;background:var(--background);color:var(--foreground);font:15px/1.5 system-ui,-apple-system,sans-serif}
+main{max-width:860px;margin:0 auto;padding:24px 16px 64px}h1{font-size:1.5rem;margin:.2em 0}h2{font-size:1.1rem;margin:2rem 0 .5rem}
+a{color:var(--primary)}.sub{color:var(--muted-foreground);margin:0 0 1rem}
+.frame{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);margin:18px 0;overflow:hidden}
+.fh{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:8px 14px;background:var(--muted);border-bottom:1px solid var(--border);font-weight:600}
+.fh .n{background:var(--primary);color:var(--primary-foreground);border-radius:99px;padding:0 9px;font-size:.85rem}
+.fh .v{margin-left:auto;font-weight:500;font-size:.8rem;color:var(--muted-foreground);border:1px solid var(--border);border-radius:99px;padding:0 9px;background:var(--card)}
+.fnote{padding:6px 14px;font-size:.8rem;color:var(--muted-foreground);border-top:1px dashed var(--border)}
+.log{padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.ln{padding:6px 10px;border-radius:8px}.who{font-weight:700;font-size:.85rem}.who small{font-weight:400;color:var(--muted-foreground);margin-left:6px}
+.ic{background:var(--background);border-left:3px solid var(--primary)}
+.ooc{color:var(--muted-foreground);font-style:italic;border:1px dashed var(--border);background:transparent;font-size:.9rem}
+.ooc .tag,.aside .tag{display:inline-block;font-style:normal;font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.03em;background:var(--muted);border-radius:4px;padding:0 6px;margin-left:6px;color:var(--muted-foreground)}
+.aside{border:1px dashed var(--ring);background:transparent;margin-left:22px;font-size:.92rem}
+.aside .tag{background:var(--mark);color:var(--foreground)}
+.narr{background:var(--proc-surface);border-left:3px solid var(--proc);color:var(--foreground)}
+.hl{outline:2px solid var(--proc);background:var(--proc-surface)}
+.struck .t{text-decoration:line-through;color:var(--muted-foreground)}
+.banner{background:var(--proc-surface);color:var(--proc);font-weight:600;padding:4px 14px;font-size:.85rem}
+.win{margin-top:6px;display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.bar{flex:1 1 140px;height:8px;background:var(--muted);border-radius:99px;overflow:hidden;min-width:120px}
+.bar i{display:block;height:100%;background:var(--primary)}
+.bar.paused i{background:repeating-linear-gradient(45deg,var(--proc) 0 6px,var(--proc-surface) 6px 12px)}
+.bar.thin{height:3px;flex:1 1 100%}
+.lbl{font-size:.8rem;color:var(--muted-foreground)}
+button,.btn{font:inherit;font-size:.82rem;border:1px solid var(--input);background:var(--card);color:var(--foreground);border-radius:6px;padding:2px 10px;cursor:pointer}
+.btn.p{background:var(--primary);color:var(--primary-foreground);border-color:var(--primary)}.btn.d{color:var(--destructive);border-color:var(--destructive)}
+.chipq{display:inline-flex;gap:6px;margin-top:6px}
+.comp{border-top:1px solid var(--border);padding:10px 14px;position:relative}
+.crow{display:flex;gap:8px;align-items:center}
+.spk{border:1px solid var(--input);border-radius:99px;padding:3px 12px;font-weight:600;font-size:.85rem;white-space:nowrap;background:var(--card)}
+.spk.o{background:var(--muted);font-style:italic}
+.inp{flex:1;border:1px solid var(--input);border-radius:8px;padding:6px 10px;min-height:34px;background:var(--card)}
+.inp.ph{color:var(--muted-foreground)}
+.send{display:inline-flex}.send .btn{border-radius:8px 0 0 8px}.send .btn+.btn{border-radius:0 8px 8px 0;border-left:0}
+.send .on{background:var(--primary);color:var(--primary-foreground);border-color:var(--primary)}
+.dd{border:1px solid var(--border);background:var(--card);border-radius:8px;box-shadow:0 4px 14px rgba(0,0,0,.12);margin:0 0 8px;max-width:340px;padding:4px 0;font-size:.88rem}
+.dd div{padding:3px 12px}.dd .sel{background:var(--mark);font-weight:600}.dd .h{font-size:.7rem;text-transform:uppercase;color:var(--muted-foreground)}
+.notice{margin-top:8px;background:var(--destructive-surface);color:var(--destructive);padding:5px 10px;border-radius:6px;font-size:.88rem}
+.hint{margin-top:6px;font-size:.8rem;color:var(--muted-foreground)}
+table{border-collapse:collapse;width:100%;font-size:.85rem;background:var(--card)}th,td{border:1px solid var(--border);padding:5px 8px;text-align:left;vertical-align:top}th{background:var(--muted)}
+tr.red td{background:var(--destructive-surface)}tr.red td:last-child{color:var(--destructive);font-weight:600}
+.cards{display:grid;gap:14px}.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px}
+.card h3{margin:0 0 4px}.nav{font-size:.85rem;margin-bottom:8px}
+@media(max-width:480px){main{padding:12px 8px}.fh .v{margin-left:0}.crow{flex-wrap:wrap}.inp{flex-basis:100%;order:3}}
+</style></head><body><main><h1>TASK-0188 · One chat stream · round 1</h1><p class="sub">Axis: who decides that a line is a deed? Source: alpha run 3, finding 2. Each option mocks the same 10 states with the same copy.</p><div class="cards"><div class="card"><h3><a href="a-every-line-a-move.html">A — Every line is a move</a></h3><div class="sub">The system decides</div><p><b>Thesis.</b> Nothing a character says is ever lost to the wrong mode. The DM sees everything.</p><p><b>Risk.</b> Every IC line costs a full turn, including small talk. The D19 talk path no longer runs for human posts. Small talk waits 8 s before anyone answers.</p></div><div class="card"><h3><a href="b-dm-reads-the-room.html">B — The DM reads the room</a></h3><div class="sub">The DM decides</div><p><b>Thesis.</b> Players just talk, like at a real table, and the DM asks "are you doing that?"</p><p><b>Risk.</b> A deed waits for the 3 s quiet window plus a model call before the window starts. The chip needs a structured marker: a new event type or an additive field on narration. Both are frozen-contract amendments. A player who ignores the chip does nothing.</p></div><div class="card"><h3><a href="c-say-or-do.html">C — Say or Do</a></h3><div class="sub">The player decides</div><p><b>Thesis.</b> The player decides after writing, not before. The closest to today's events.</p><p><b>Risk.</b> It is still a choice. Run 3 showed players default to the heavier one. Mitigation: the composer suggests Do when the line starts with "I " and Say when it starts with a quote.</p></div></div><h2>Shared baseline</h2><div class="card"><ul><li>One composer with a speaker chip: <code>Tamsin ▾</code> lists the viewer's characters, The party, and You (out of character). <code>((</code> or <code>/ooc</code> flips to OOC. <code>@</code> opens an autocomplete: @dm, then characters and NPCs.</li><li>OOC posts are talk rows, channel ooc. The DM never reads them, except @dm posts.</li><li>@dm: the AI DM answers once as an OOC aside from PlayerSeedView, with no state change. Under a human DM it is highlighted and nothing is generated.</li><li>Sign-off is a hold window: free mode 8 s. Hold (one click), Release, Retract, Amend, Go now (no other human present). Nobody commits over a Hold except the DM.</li><li>Turn mode: 3 s undo window, no Hold by others, talk and OOC still free.</li><li>The window lapse needs a new <code>action.commit</code> override <code>"window"</code>: a 029 amendment in every option.</li><li>No modals. Chat is a view over the event log.</li></ul></div></main></body></html>

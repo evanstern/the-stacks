@@ -60,3 +60,13 @@ Detail: `specs/060-human-dm-encounter-mode/contracts/table-mode-control.md`.
 
 Amendment, TASK-0177 (additive, 2026-10-29): the `seatDm` command. Operator ruling 2026-10-29: OQ-1 to OQ-6 all (a). See `specs/062-human-dm-seat/contracts/dm-seat-control.md`.
 `frames.ts` gains `dmSeatReason` and `dmSeatFrame`; `useLiveTable` sets `seatDm: (input) => send(dmSeatFrame(input))`. The frame is the existing 029 `dm.seat` request; no frame shape changes.
+
+Amendment (TASK-0188, decision-0028 §8; operator ruling 2026-11-02: "All (a), amend"). Spec `specs/066-one-chat-stream`, D20 §1 and §5.
+
+| Command | Frame |
+|---|---|
+| `accept(input)` | `eventType: "action.accept"`, `payload: { suggestionId, itemId }` |
+| `suggest(input)` | `eventType: "action.suggest"`, `payload: { suggestion: { suggestionId: "sug-" + crypto.randomUUID(), readSeq, items } }` (`ActionSuggestedV1`) |
+
+The `declareAction` and `comment` rows leave the web client; the gate still accepts both requests.
+The `send` frame shape is unchanged.

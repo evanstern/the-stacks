@@ -150,3 +150,33 @@ For every `action.committed` event in every session-model fixture, `commitAuthor
 DM projection folded through the preceding event, with the event's actor as committer,
 returns `ok: true` and the event's recorded `authority`. Fixtures carry no `dm.seat.changed`,
 so their seat is the AI DM.
+
+**Amendment (TASK-0188).** Amended 2026-11-02 (decision-0028 §8; operator ruling 2026-11-02: "All (a), amend"). Spec `specs/066-one-chat-stream` (FR-027).
+
+The policy table gains `"action.suggest": "auto"`, and the DM kinds number fourteen. An AI seat
+still resolves every kind to `auto`. `routeProposal` refuses `ai:dm` `action.accept` with
+`NOT_AUTHORIZED`, beside `action.declare` and `action.withdraw`.
+
+decision-0016's commit-authority table gains a first row (decision-0028 §4):
+
+| Mode | Who commits | Authority recorded |
+|---|---|---|
+| Any mode, a DM-suggested action | the acceptor of the item (below), by `action.accept` | `group` for a `party` item; else `active-player` in turn mode; else `declarer` |
+
+**The accept rule.** Checks, first failure wins:
+
+1. The suggestion and its item exist, else `SUGGESTION_NOT_FOUND`.
+2. The suggestion is not stale, else `SUGGESTION_STALE`. It is stale when a later public
+   `action.suggested` row or a later public `narration` row with empty `actionIds` exists.
+3. The derived action id `<suggestionId>.<itemId>` is unused, else `ACTION_EXISTS`.
+4. A `character` item: the proposer is the human controller of `characterId`. A `party` item: the
+   proposer is a human party member. Else `NOT_AUTHORIZED`. The acceptor counts as present, as the
+   spec 044 committer does; no other presence is consulted.
+5. The character is able (`CHARACTER_UNABLE`, the `action.declare` rule).
+6. Turn mode, a `character` item: the proposer is the active actor, else `COMMIT_NOT_ALLOWED`.
+
+`ai:dm` `action.suggest` is also refused `SUGGESTION_STALE` when a readable post (spec 066 FR-005)
+is newer than its `readSeq`.
+
+New refusal codes: `SUGGESTION_STALE`, `SUGGESTION_NOT_FOUND`. `commitAuthority` is unchanged and
+still governs direct commits, the spec 044 quorum included (OQ-11 (a)).
