@@ -4,7 +4,7 @@ title: 'Two-player alpha kit: two human seats, player sign-up, scene-start runbo
 status: In Progress
 assignee: []
 created_date: '2026-10-28 04:12'
-updated_date: '2026-10-30 01:31'
+updated_date: '2026-11-02 04:56'
 labels:
   - multiplayer
   - dev-tooling
@@ -35,7 +35,7 @@ Spec: specs/054-two-player-alpha-kit
 - [x] #1 A shipped seed seats at least two humans, loads through loadSeed, and has a test
 - [x] #2 A second person can get a player account through the web app from an operator-issued invitation, with no modal, and a test
 - [x] #3 docs/ops/dev-vm-104.md documents issuing an invitation, creating a session, and starting a scene with a seat per human on hosted dev
-- [ ] #4 The runbook is run once on hosted dev with two accounts, and the result is recorded on this card
+- [x] #4 The runbook is run once on hosted dev with two accounts, and the result is recorded on this card
 - [x] #5 Spec phase: Duo seed, seat rules and the seeds route (card AC #1)
 - [x] #6 Spec phase: Two-human behaviour check and mutation guard (card AC #1)
 - [x] #7 Spec phase: Redeem toggle and the invite section (card AC #2)
@@ -43,7 +43,7 @@ Spec: specs/054-two-player-alpha-kit
 - [x] #9 Spec phase: Runbook section and the DM API contract (card AC #3)
 - [x] #10 Spec phase: Local live run on this worktree's stack (card AC #2, #3)
 - [x] #11 Spec phase: Merge main, wiki re-ground and runbook rows (card AC #1, #2, #3)
-- [ ] #12 Spec phase: Hosted-dev alpha run (card AC #4) — orchestrator-run, after operator go
+- [x] #12 Spec phase: Hosted-dev alpha run (card AC #4) — orchestrator-run, after operator go
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -101,6 +101,8 @@ Operator, 2026-10-29, verbatim: "TASK-0163 AC #4: you have my go on the three pr
 Preflight 2026-10-29 under that go: /health status ok, database reachable, commit af74f7cb (contains #89 a998fe7c, TASK-0177). deploy-dev.mjs status: running af74f7cb, exit 0. Backup /home/stacks/dev/backups/manual-pre-task-0163-alpha-2.dump, exit 0. T044 waits on the operator and the other developer playing.
 
 AC #4 run 2 (2026-10-29, about 00:23-01:00 UTC, hosted dev at af74f7cb, session 166b8e59), from the merged log docs/playtests/2026-10-28-two-browser-alpha.md (PR #90, 6b07e16c). Result: ended early on a showstopper; AC #4 not met. Checklist: A passed (invite, redeem, Start scene, both windows; the scene opened in 10 s). F spot-checked. D seen in passing (Odo answered after each beat). G tried (Retry ran four times, none succeeded). B, C and E not reached. Blocker: TASK-0181, DM calls on hosted dev fail on a <think></think> prefix; one action failed four turns in a row and stalled the table. New cards: TASK-0180, TASK-0181, TASK-0182. Evidence added to TASK-0132. Operator ruling 2026-10-29: TASK-0181 goes ahead of AC #4 (fix, merge on green, confirm the vm-104 deploy, then stop for run 3); TASK-0053 stays after AC #4.
+
+Alpha run 3, 2026-11-02 (session e8e8326d-0344-4fac-a4d4-3e4bcd82e2d5, hosted dev 84b130a0 then b481e308): the operator played both seats of greyhollow-ford-duo from two Brave accounts (operator and Billy Bob) on hosted dev with the real AI DM. Invite, sign-in, Start scene and both windows worked. Play ran through talk, a cut plan, stealth, an encounter, an absence pass (30 s), a stall commit (120 s), persuasion, flight, encounter end, and the scene goal (Pell freed). Spend $2.55 of the $50 ceiling. Deterministic auditor verdict pass (0 fail, 0 warn, 8 notes). One in-run blocker (interpret truncation, TASK-0181) was fixed by raising vm-104 dm.interpret maxTokens. New cards TASK-0187 to TASK-0194. Log: docs/playtests/2026-11-01-two-browser-alpha-run-3.md (lands by PR). This meets AC #4: the runbook ran once on hosted dev with two accounts, and the result is recorded here. A second human was not used (the operator played both seats, as in runs 1 and 2).
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
