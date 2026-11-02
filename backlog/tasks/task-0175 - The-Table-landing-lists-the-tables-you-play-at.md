@@ -22,6 +22,8 @@ ordinal: 162000
 Outcome: /play lists the tables the signed-in account has a seat at (as a player or the DM), newest activity first, each with its scene title and a link. The operator also sees the tables they started. Start fresh and Join by link stay.
 
 Why: two-browser alpha playtest 2026-10-28, item 8. After a system reboot the operator could not find the table again. /play (apps/web/app/routes/table.tsx) offers only 'start a fresh table' (a random id) and 'join by pasting a link or id'. Nothing lists past tables, so the only way back was browser history.
+
+Spec: specs/069-table-landing-list
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
