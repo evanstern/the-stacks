@@ -4,7 +4,7 @@ title: The Table landing lists the tables you play at
 status: Done
 assignee: []
 created_date: '2026-10-29 01:52'
-updated_date: '2026-11-02 15:21'
+updated_date: '2026-11-02 23:14'
 labels:
   - web
   - server
@@ -51,6 +51,8 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 069 phase 2, 0c8feec8)
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 069 phases 3-4, 00ea3f40 58519171)
+
+Hosted evidence, runbook A playtest run 1 (2026-11-02, session 9296c653): the operator left the table and returned through /play 'Your tables'; it worked.
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
