@@ -4,6 +4,7 @@ title: adjudicate integration test lacks its no-database skip guard
 status: To Do
 assignee: []
 created_date: '2026-10-30 15:19'
+updated_date: '2026-11-02 05:22'
 labels:
   - test
   - dm
@@ -24,6 +25,12 @@ Outcome: apps/server/test/dm/adjudicate.integration.test.ts skips cleanly when n
 - [ ] #1 The adjudicate describe block uses describe.skipIf(!reachable) like jobs.integration.test.ts
 - [ ] #2 pnpm ci:check with no database skips these 5 tests instead of failing
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+2026-11-02: duplicate of TASK-0138; criteria merged there. Archived.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
