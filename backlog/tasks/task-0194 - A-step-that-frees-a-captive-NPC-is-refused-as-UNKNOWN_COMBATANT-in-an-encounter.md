@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-11-02 04:31'
-updated_date: '2026-11-02 06:16'
+updated_date: '2026-11-02 14:50'
 labels:
   - dm
   - gate
@@ -51,6 +51,9 @@ Claimed 2026-11-02 by M3 runbook A (docs/design/m3-runbook-a-run3-fixes.md). Wor
 Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5
 
 Operator ruling 2026-11-02 (in chat, answering 'How should the remaining lanes get write access to .worktrees/?'): "Allow edits via Bash". The harness edit guard blocks Write/Edit outside the session worktree; dispatched agents edit worktree files through Bash (heredocs, sed, scripts) instead.
+
+Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5 (spec 068 authoring, C1)
+Operator ruling 2026-11-02 (in chat, on spec 068 OQ-1 to OQ-5): "Accept all defaults (Recommended)". OQ-1 SRD commoner for an NPC with no srdMonsterId; OQ-2 objects out of scope (carded); OQ-3 no seed starting conditions, 'remove restrained' refused visibly (carded); OQ-4 attacks and damage on a non-combatant stay refused; OQ-5 replay rebuilt from the run 3 log, no vm-104 read.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
