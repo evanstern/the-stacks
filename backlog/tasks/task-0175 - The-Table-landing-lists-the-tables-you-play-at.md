@@ -4,7 +4,7 @@ title: The Table landing lists the tables you play at
 status: In Progress
 assignee: []
 created_date: '2026-10-29 01:52'
-updated_date: '2026-11-02 15:02'
+updated_date: '2026-11-02 15:07'
 labels:
   - web
   - server
@@ -47,6 +47,8 @@ Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5 (spec 0
 Operator ruling 2026-11-02 (in chat, on spec 069 OQ-1 'which tables does the operator see'): "Every table (Recommended)". Spec 069 as written; no startedBy field.
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 069 phase 1, 2a9a2d1b)
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 069 phase 2, 0c8feec8)
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
