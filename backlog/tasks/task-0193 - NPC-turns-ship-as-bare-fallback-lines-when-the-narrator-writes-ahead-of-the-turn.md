@@ -6,7 +6,7 @@ title: >-
 status: Done
 assignee: []
 created_date: '2026-11-02 04:31'
-updated_date: '2026-11-02 08:49'
+updated_date: '2026-11-02 23:05'
 labels:
   - dm
   - narration
@@ -56,6 +56,8 @@ Rides this branch: re-pin of 4 wiki notes main left stale after PR #100 (TASK-01
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 071 phase 2, 395872ed)
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 071 phases 3-4, e6f5e67d 9574507b)
+
+Hosted evidence, runbook A playtest run 1 (2026-11-02, session 9296c653): the no-mechanics goblin turn (seq 131) fell back to its planned action in fiction, not 'makes a move'. But narrate-v7's Turn/Next rule did not stop the narrator from showing other actors in the beat: 3 refusals each for Pell (seq 126) and the pot-helm goblin (seq 131). Pell's talk turn fell back to 'Pell Marsh speaks up' (TASK-0207).
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
