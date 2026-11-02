@@ -37,8 +37,6 @@ Spec: specs/067-dm-maxtokens-headroom
 - [x] #3 A test covers the truncation outcome with the fake gateway
 <!-- AC:END -->
 
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -53,6 +51,8 @@ Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5 (spec 0
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 067 phase 1, d793ccff)
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 067 phase 2, 10837195)
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 067 phase 3, 14af5dd6)
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
