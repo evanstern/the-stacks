@@ -77,13 +77,8 @@ function aliasesOf(name: string): string[] {
   );
 }
 
-/** True when a roll reason may precede its outcome sentence. */
-function reasonUsable(
-  reason: string,
-  subject: string,
-  outcome: FactOutcome,
-  state?: ClaimState,
-): boolean {
+/** True when a reason may be voiced at all (no digit, system, dice or death word, no refuted claim). */
+function reasonSpeakable(reason: string, state?: ClaimState): boolean {
   if (reason.length === 0 || reason.includes("?")) return false;
   const spoken = spellDigits(reason);
   if (/[0-9]/.test(spoken)) return false;
@@ -91,6 +86,18 @@ function reasonUsable(
   if (DICE_LANGUAGE.test(spoken)) return false;
   if (DEATH_WORDS.test(spoken) || UNCONSCIOUS_WORDS.test(spoken)) return false;
   if (state && !checkClaims(state, spoken).pass) return false;
+  return true;
+}
+
+/** True when a roll reason may precede its outcome sentence. */
+function reasonUsable(
+  reason: string,
+  subject: string,
+  outcome: FactOutcome,
+  state?: ClaimState,
+): boolean {
+  if (!reasonSpeakable(reason, state)) return false;
+  const spoken = spellDigits(reason);
   const positive =
     outcome === "hit" || outcome === "critical-hit" || outcome === "success";
   const opposite = positive ? NEGATIVE_WORDS : POSITIVE_WORDS;
@@ -189,6 +196,25 @@ function presenceLine(e: Extract<FactEvent, { kind: "presence" }>): string {
   return `${spellDigits(e.name)} ${PRESENCE_VERB[e.reason] ?? "changes place"}.`;
 }
 
+/** A monster turn with no rolled outcome: the planned reason, else the intent, else the hold (spec 071). */
+function plannedSentence(
+  npc: NonNullable<NarrationFacts["npcTurn"]>,
+  name: string,
+  state?: ClaimState,
+): string {
+  const plan = npc.plan;
+  if (plan && !plan.held) {
+    for (const r of plan.reasons) {
+      const spoken = spellDigits(r).replace(/[.!]+$/, "");
+      if (reasonSpeakable(spoken, state)) return `${spoken}.`;
+    }
+    if (plan.intent === "talk") return `${name} speaks up.`;
+    if (plan.intent === "move") return `${name} shifts ground.`;
+    if (plan.intent === "help") return `${name} lends a hand.`;
+  }
+  return `${name} holds back, watching.`;
+}
+
 export function factualSummary(
   facts: NarrationFacts,
   state?: ClaimState,
@@ -222,7 +248,7 @@ export function factualSummary(
     const name = spellDigits(facts.npcTurn.name);
     const sentences = rollSentences(facts.npcTurn.rolls, name, state);
     if (sentences.length > 0) out.push(...sentences);
-    else out.push(`${name} makes a move.`);
+    else out.push(plannedSentence(facts.npcTurn, name, state));
     for (const c of facts.npcTurn.changes) {
       const s = changeSentence(c);
       if (s) out.push(s);

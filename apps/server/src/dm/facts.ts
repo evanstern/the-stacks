@@ -97,8 +97,17 @@ export interface FactAction {
   followUps: string[];
 }
 
+/** What the monster planned this beat (spec 071). `held`: no step ran or the plan gate refused it. */
+export interface FactNpcPlan {
+  intent: string;
+  reasons: string[];
+  held: boolean;
+}
+
 export interface FactNpcTurn {
   name: string;
+  /** Always set by `buildNarrationFacts`; optional so existing literals compile. */
+  plan?: FactNpcPlan;
   rolls: FactRoll[];
   outcomes: FactOutcome[];
   changes: FactChange[];
@@ -116,6 +125,8 @@ export interface NarrationFacts {
   trigger: TurnTrigger;
   actions: FactAction[];
   npcTurn: FactNpcTurn | null;
+  /** Whose beat this is and who acts after it; set only in turn mode (spec 071). */
+  turn?: { actor: string; next: string | null };
   /** Settled death-save turns (TASK-0112); omitted when settling rolled nothing. */
   settled?: FactSettled[];
   director: {
@@ -454,7 +465,14 @@ export interface BuildFactsInput {
   clarify: { actionId: string; question: string }[];
   /** Follow-ups per action id, from the ruling when one exists, else the reading. */
   followUps?: Record<string, string[]>;
+  /** The monster's reading (ruling steps replace the reading's); null when none. */
+  npcPlan?: { intent: string; steps: { reason: string }[] } | null;
+  /** The combatant active at the start of the beat; set only when the table was in turn mode. */
+  turnActorId?: string | null;
 }
+
+const PLAN_MAX_REASONS = 4;
+const PLAN_MAX_CHARS = 200;
 
 export function buildNarrationFacts(input: BuildFactsInput): NarrationFacts {
   const { projections: p, seed } = input;
@@ -505,9 +523,31 @@ export function buildNarrationFacts(input: BuildFactsInput): NarrationFacts {
   if (npc && !npc.awaitingDm) {
     const batches = new Set(npc.batchIds);
     const rows = p.ledger.filter((r) => r.batchId && batches.has(r.batchId));
+    const steps = input.npcPlan?.steps ?? [];
+    const refused = (input.resolve.planGate ?? []).some(
+      (v) => v.actionId === null && !v.ok,
+    );
     npcTurn = {
       name: nameOf(npc.combatantId),
+      plan: {
+        intent: input.npcPlan?.intent ?? "other",
+        reasons: steps
+          .slice(0, PLAN_MAX_REASONS)
+          .map((s) => stripMarker(s.reason).slice(0, PLAN_MAX_CHARS)),
+        held: refused || steps.length === 0,
+      },
       ...collectFacts(rows, nameOf, types),
+    };
+  }
+
+  let turn: NarrationFacts["turn"];
+  if (npcTurn || input.turnActorId) {
+    const next = [...buildEvents(input.appendedRows, nameOf)]
+      .reverse()
+      .find((e) => e.kind === "turn-advanced");
+    turn = {
+      actor: npcTurn?.name ?? nameOf(input.turnActorId ?? null),
+      next: next?.kind === "turn-advanced" ? next.next : null,
     };
   }
 
@@ -552,6 +592,7 @@ export function buildNarrationFacts(input: BuildFactsInput): NarrationFacts {
     trigger: input.trigger,
     actions,
     npcTurn,
+    ...(turn ? { turn } : {}),
     ...(settled.length > 0 ? { settled } : {}),
     director: {
       pacing: input.director.pacing,

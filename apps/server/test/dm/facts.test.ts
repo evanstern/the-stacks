@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 import type { LedgerRow, StoredEvent } from "@the-stacks/session-model";
 import { describe, expect, it } from "vitest";
 import {
+  type BuildFactsInput,
   buildNarrationFacts,
   collectFacts,
   type NarrationFacts,
@@ -334,6 +335,7 @@ describe("facts v2: party, events, target, setting (run-5 rows)", () => {
     from: number,
     modeBefore: "free" | "turn",
     over: Partial<ResolveOutput> = {},
+    extra: Partial<BuildFactsInput> = {},
   ) => {
     const rows = fixture.transcript.filter(
       (r) => r.seq >= from && r.seq <= through,
@@ -353,6 +355,7 @@ describe("facts v2: party, events, target, setting (run-5 rows)", () => {
       modeBefore,
       appendedRows: rows,
       clarify: [],
+      ...extra,
     });
   };
 
@@ -437,6 +440,69 @@ describe("facts v2: party, events, target, setting (run-5 rows)", () => {
     expect(f.setting).toEqual({
       locationName: VIEW.location.name,
       openingFraming: VIEW.openingFraming,
+    });
+  });
+
+  describe("monster plan and turn (spec 071)", () => {
+    const npc = {
+      combatantId: "goblin-3",
+      batchIds: [] as string[],
+      awaitingDm: false,
+    };
+    const plan = {
+      intent: "talk",
+      steps: [{ reason: "Snag offers a parley." }],
+    };
+
+    it("carries the plan and the turn from the new inputs", () => {
+      const f = build(
+        58,
+        56,
+        "turn",
+        { npcTurn: npc },
+        { npcPlan: plan, turnActorId: "goblin-3" },
+      );
+      expect(f.npcTurn?.plan).toEqual({
+        intent: "talk",
+        reasons: ["Snag offers a parley."],
+        held: false,
+      });
+      expect(f.turn?.actor).toBe(f.npcTurn?.name);
+      const lines = factEntries(f);
+      expect(lines).toContain("  planned: talk; Snag offers a parley.");
+      expect(lines[0]).toMatch(/^Turn: .+ acts in this beat\.$/);
+    });
+
+    it("a refused null verdict sets held", () => {
+      const f = build(
+        58,
+        56,
+        "turn",
+        {
+          npcTurn: npc,
+          planGate: [
+            {
+              actionId: null,
+              ok: false,
+              code: "UNKNOWN_COMBATANT",
+              failure: {} as never,
+            },
+          ],
+        },
+        { npcPlan: plan },
+      );
+      expect(f.npcTurn?.plan?.held).toBe(true);
+      expect(factEntries(f)).toContain("  held: the plan did not go ahead");
+    });
+
+    it("absent inputs give the empty plan and no turn", () => {
+      const f = build(58, 56, "turn", { npcTurn: npc });
+      expect(f.npcTurn?.plan).toEqual({
+        intent: "other",
+        reasons: [],
+        held: true,
+      });
+      expect(build(58, 39, "free").turn).toBeUndefined();
     });
   });
 
