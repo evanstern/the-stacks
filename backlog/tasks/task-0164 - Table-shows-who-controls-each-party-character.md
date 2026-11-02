@@ -4,7 +4,7 @@ title: 'Party slide-out: each party character, its controller, vitals and turn o
 status: In Progress
 assignee: []
 created_date: '2026-10-28 05:50'
-updated_date: '2026-11-02 15:42'
+updated_date: '2026-11-02 15:43'
 labels:
   - play-route
   - web
@@ -33,8 +33,10 @@ Spec: specs/072-party-slideout
 - [x] #2 A player's own character is marked
 - [x] #3 The slide-out shows each character's class, level, current and max HP, and AC, and the seed schema adds class and level to party characters, which the shipped seeds fill
 - [x] #4 When turn order applies, the slide-out lists initiative order and marks the active turn
-- [ ] #5 The slide-out opens from the table header as a slide-out, never a modal, in light and dark mode
+- [x] #5 The slide-out opens from the table header as a slide-out, never a modal, in light and dark mode
 <!-- AC:END -->
+
+
 
 
 
