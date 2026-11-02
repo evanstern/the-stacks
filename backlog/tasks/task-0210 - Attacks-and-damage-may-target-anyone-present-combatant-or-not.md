@@ -26,6 +26,8 @@ Outcome: an attack or damage step may name any present actor. A target outside t
 Why: operator ruling 2026-11-02, during runbook A playtest run 1 (session 9296c653), answering 'once a captive like Pell has been pulled into the fight, should attacks on him still be refused?': "I actually think that the rule itself is incorrect -- we should be able to attack anyone regardless of combatant state." This reverses spec 068 OQ-4 (operator accepted the default 2026-11-02) and TASK-0194 AC #2, which kept attacks and damage on a non-combatant refused with UNKNOWN_COMBATANT.
 
 Where: apps/server/src/dm/gates/plan-gate.ts (stepIds: attackerId/targetId pullable false today; damage effects pullable false), dm/nodes/resolve.ts pullIn, the 058 plan-reason-gate contract amendment, and the spec 068 tests that assert the refusal (noncombatant-targets.integration, plan-gate.test, resolve.integration). Related: TASK-0206 (an NPC the narration reveals stays absent; an absent NPC is still not targetable), TASK-0209.
+
+Spec: specs/075-attack-anyone
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
