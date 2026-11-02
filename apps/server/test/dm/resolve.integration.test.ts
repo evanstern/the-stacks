@@ -71,6 +71,13 @@ describe.skipIf(!reachable)("resolve (database)", () => {
       kind: "ai-companion",
       actor: "ai:companion:odo",
     });
+    for (const r of rows.filter((r) => r.type === "party.member.changed")) {
+      const after = payloadOf<{
+        after: { class?: string; level?: number };
+      }>(r).after;
+      expect(after.class?.length).toBeGreaterThan(0);
+      expect(after.level).toBeGreaterThanOrEqual(1);
+    }
     expect(p.trackers.map((t) => t.filled)).toEqual([0, 0]);
   });
 

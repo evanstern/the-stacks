@@ -33,11 +33,11 @@ cases; the DB scene-start test sees Odo as `Cleric` 1.
 - [x] T005 [P] [US2] Extend `apps/server/test/dm/seed.test.ts`,
       `packages/session-model/test/catalog.test.ts` and
       `packages/session-model/test/fixtures.test.ts` as plan "Tests" says.
-- [ ] T006 [US2] **Orchestrator-cleared only (Overlap rule).** In
+- [X] T006 [US2] In
       `apps/server/src/dm/nodes/resolve.ts` `directorOpening`, apply plan D3: add `class` and
       `level` to the `director:party:<id>` `after`. Extend the scene-start case in
       `apps/server/test/dm/resolve.integration.test.ts` and run it with `REQUIRE_DATABASE=1` on the
-      worktree stack. — held: draft-hold behind TASK-0194 (shared resolve.ts), operator ruling 2026-11-02
+      worktree stack.
 - [x] T007 Amend `specs/031-dm-runtime/contracts/scene-seed.md` and
       `specs/028-session-model/contracts/session-events.md` as plan "Contracts" says. Mark each
       change "Amended by spec 072 (TASK-0164)".

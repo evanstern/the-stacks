@@ -825,6 +825,8 @@ async function directorOpening(
           name: c.name,
           controller,
           combatantId: init.id,
+          class: c.identity.class,
+          level: c.identity.level,
         },
       }));
     }
