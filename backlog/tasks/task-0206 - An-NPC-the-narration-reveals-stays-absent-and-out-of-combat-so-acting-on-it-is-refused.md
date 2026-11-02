@@ -6,6 +6,7 @@ title: >-
 status: To Do
 assignee: []
 created_date: '2026-11-02 22:42'
+updated_date: '2026-11-02 22:59'
 labels:
   - dm
   - playtest
@@ -34,6 +35,12 @@ Related: TASK-0194 (non-combatant targets, merged: it pulls present non-combatan
 - [ ] #2 An attack on a present hostile NPC that belongs to a seed encounter starts that encounter (or joins it to initiative) and resolves, with a test replaying seq 45
 - [ ] #3 The chronicle never calls a revealed, present NPC departed
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Run 1 seq 63-89: once the reed-camp encounter started (seq 76, after Odo's parley), Snag became a combatant and 'I shoot at Snag' resolved (miss 7 vs AC 15). The gap is the reveal before the encounter starts.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
