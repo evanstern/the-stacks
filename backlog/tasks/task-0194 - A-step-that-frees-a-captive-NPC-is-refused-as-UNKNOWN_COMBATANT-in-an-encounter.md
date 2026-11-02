@@ -6,7 +6,7 @@ title: >-
 status: Done
 assignee: []
 created_date: '2026-11-02 04:31'
-updated_date: '2026-11-02 22:59'
+updated_date: '2026-11-02 23:15'
 labels:
   - dm
   - gate
@@ -67,6 +67,8 @@ Gate: the implementer's ci:check hit one playtest.integration 5 s timeout (TASK-
 Dispatch: tier=haiku pinned=cc/claude-haiku-5-5 served=claude-haiku-5-5 (wiki re-pin after main merge, 3d880bec)
 
 Hosted evidence, runbook A playtest run 1 (2026-11-02, session 9296c653, seq 97-99): Snag's NPC turn named Pell, the gate passed with pull: [pell], and resolve added Pell as a combatant (hp 4) and rolled him into initiative (16).
+
+Operator ruling 2026-11-02 (playtest run 1) reverses AC #2 / spec 068 OQ-4: "we should be able to attack anyone regardless of combatant state." Follow-up: TASK-0210.
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
