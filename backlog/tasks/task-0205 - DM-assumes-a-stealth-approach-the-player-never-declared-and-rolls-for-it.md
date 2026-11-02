@@ -4,6 +4,7 @@ title: DM assumes a stealth approach the player never declared and rolls for it
 status: To Do
 assignee: []
 created_date: '2026-11-02 22:21'
+updated_date: '2026-11-02 23:04'
 labels:
   - dm
   - playtest
@@ -32,6 +33,12 @@ Related: TASK-0128 (group checks), TASK-0127/spec 070 (stakes before dice), TASK
 - [ ] #2 A check from one player's action rolls for that player's character, never another human's, with a test
 - [ ] #3 The Director's goal note cannot prescribe a skill the player did not choose (prompt rule plus test)
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Run 1 again, seq 114-122. Tamsin: 'I move towards Pell' became an Athletics check (6+5 = 11 vs DC 13, failure); the Director's goal note told interpret to show 'the hidden goblins tracking her'. The operator: 'the result assumed stealth was still on … I never said to stop sneaking, however, the stealth check failed so I had assumed we were out of stealth because of that.' The DM keeps an approach mode (stealth) the player never declared and that a failed check should have ended. Add: a failed stealth check ends the hidden state, and the hidden state is tracked, not assumed from goal-note prose.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
