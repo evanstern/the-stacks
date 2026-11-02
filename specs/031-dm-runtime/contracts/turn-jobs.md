@@ -316,3 +316,21 @@ Amended by specs/065-talk-triggers.
   companions, a chronicle job when a row shipped, and the first `npc-turn` or companion turn after
   an escalation.
 - `reconcileTurnJobs` does not repair a lost `talk` turn.
+
+## Amendment 2026-11-02 (TASK-0188, specs/066-one-chat-stream): the ring window and the interrupt
+
+**Amendment (TASK-0188).** decision-0028 §8; operator ruling 2026-11-02: "All (a), amend". Additive (§8.5).
+
+- Rule 7 reads a post when spec 066 FR-005 holds (`isReadablePost` in `@the-stacks/session-model`):
+  free-mode IC posts by humans and companions, the active human's IC post in turn mode, and human
+  OOC posts holding `@dm`, under an AI seat and the chain cap.
+- `enqueueTalkTurn` sets `notBefore = post ts + 10 s` (`+ 5 s` for the turn-mode rule) and moves it
+  on every readable post. The `firstPostAt` cap is removed. Any other queued turn still absorbs
+  the post.
+- Before it queues, rule 7 calls `interruptRead`: a running `talk` turn with an empty beat and
+  nothing shipped is finished `succeeded` with `result.talk.outcome = "interrupted"` and a fresh
+  `claim_token`, so the worker's next fenced write fails and it ships nothing.
+- The worker records `presence.recorded` with purpose `read` for a `talk` turn, in place of
+  `director`.
+- `reconcileTurnJobs` skips a committed action with a later `action.withdrawn`.
+- No migration: kinds, statuses and indexes are unchanged.

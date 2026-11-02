@@ -1,0 +1,88 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>TASK-0188 round 2 · one chat stream</title><style>
+:root{--background:#f4f6f6;--foreground:#1b2023;--card:#fff;--primary:#0f6f63;--primary-foreground:#fff;--muted:#eef1f1;--muted-foreground:#5b6570;--destructive:#8a2a1e;--destructive-surface:#fbe7e2;--ok:#1a6b3c;--ok-surface:#e3f3e8;--proc:#8a5a05;--proc-surface:#fbeecb;--border:#d7dbe0;--input:#7a848d;--ring:#1a5fb4;--mark:#cfeee7;--radius:.625rem}
+@media (prefers-color-scheme:dark) and (min-width:99999px){:root{--background:#14181a;--foreground:#e8ecee;--card:#1c2124;--primary:#4fd1c0;--primary-foreground:#0b2620;--muted:#242a2d;--muted-foreground:#a9b2b8;--destructive:#f2a89b;--destructive-surface:#3a1f1a;--ok:#8fd6ac;--ok-surface:#1c3327;--proc:#e0b23a;--proc-surface:#3a2f14;--border:#343b3f;--input:#6b757c;--ring:#8ec2ff;--mark:#2c4a44}}
+*{box-sizing:border-box}body{margin:0;background:var(--background);color:var(--foreground);font:15px/1.5 system-ui,-apple-system,sans-serif}
+main{max-width:860px;margin:0 auto;padding:24px 16px 64px}h1{font-size:1.5rem;margin:.2em 0}h2{font-size:1.1rem;margin:2rem 0 .5rem}
+a{color:var(--primary)}.sub{color:var(--muted-foreground);margin:0 0 1rem}
+.frame{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);margin:18px 0;overflow:hidden}
+.fh{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:8px 14px;background:var(--muted);border-bottom:1px solid var(--border);font-weight:600}
+.fh .n{background:var(--primary);color:var(--primary-foreground);border-radius:99px;padding:0 9px;font-size:.85rem}
+.fh .v{margin-left:auto;font-weight:500;font-size:.8rem;color:var(--muted-foreground);border:1px solid var(--border);border-radius:99px;padding:0 9px;background:var(--card)}
+.fnote{padding:6px 14px;font-size:.8rem;color:var(--muted-foreground);border-top:1px dashed var(--border)}
+.log{padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.ln{padding:6px 10px;border-radius:8px}.who{font-weight:700;font-size:.85rem}.who small{font-weight:400;color:var(--muted-foreground);margin-left:6px}
+.ic{background:var(--background);border-left:3px solid var(--primary)}
+.ooc{color:var(--muted-foreground);font-style:italic;border:1px dashed var(--border);background:transparent;font-size:.9rem}
+.ooc .tag,.aside .tag{display:inline-block;font-style:normal;font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.03em;background:var(--muted);border-radius:4px;padding:0 6px;margin-left:6px;color:var(--muted-foreground)}
+.aside{border:1px dashed var(--ring);background:transparent;margin-left:22px;font-size:.92rem}
+.aside .tag{background:var(--mark);color:var(--foreground)}
+.narr{background:var(--proc-surface);border-left:3px solid var(--proc);color:var(--foreground)}
+.hl{outline:2px solid var(--proc);background:var(--proc-surface)}
+.struck .t{text-decoration:line-through;color:var(--muted-foreground)}
+.banner{background:var(--proc-surface);color:var(--proc);font-weight:600;padding:4px 14px;font-size:.85rem}
+.win{margin-top:6px;display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.bar{flex:1 1 140px;height:8px;background:var(--muted);border-radius:99px;overflow:hidden;min-width:120px}
+.bar i{display:block;height:100%;background:var(--primary)}
+.bar.paused i{background:repeating-linear-gradient(45deg,var(--proc) 0 6px,var(--proc-surface) 6px 12px)}
+.bar.thin{height:3px;flex:1 1 100%}
+.lbl{font-size:.8rem;color:var(--muted-foreground)}
+button,.btn{font:inherit;font-size:.82rem;border:1px solid var(--input);background:var(--card);color:var(--foreground);border-radius:6px;padding:2px 10px;cursor:pointer}
+.btn.p{background:var(--primary);color:var(--primary-foreground);border-color:var(--primary)}.btn.d{color:var(--destructive);border-color:var(--destructive)}
+.chipq{display:inline-flex;gap:6px;margin-top:6px}
+.comp{border-top:1px solid var(--border);padding:10px 14px;position:relative}
+.crow{display:flex;gap:8px;align-items:center}
+.spk{border:1px solid var(--input);border-radius:99px;padding:3px 12px;font-weight:600;font-size:.85rem;white-space:nowrap;background:var(--card)}
+.spk.o{background:var(--muted);font-style:italic}
+.inp{flex:1;border:1px solid var(--input);border-radius:8px;padding:6px 10px;min-height:34px;background:var(--card)}
+.inp.ph{color:var(--muted-foreground)}
+.send{display:inline-flex}.send .btn{border-radius:8px 0 0 8px}.send .btn+.btn{border-radius:0 8px 8px 0;border-left:0}
+.send .on{background:var(--primary);color:var(--primary-foreground);border-color:var(--primary)}
+.dd{border:1px solid var(--border);background:var(--card);border-radius:8px;box-shadow:0 4px 14px rgba(0,0,0,.12);margin:0 0 8px;max-width:340px;padding:4px 0;font-size:.88rem}
+.dd div{padding:3px 12px}.dd .sel{background:var(--mark);font-weight:600}.dd .h{font-size:.7rem;text-transform:uppercase;color:var(--muted-foreground)}
+.notice{margin-top:8px;background:var(--destructive-surface);color:var(--destructive);padding:5px 10px;border-radius:6px;font-size:.88rem}
+.hint{margin-top:6px;font-size:.8rem;color:var(--muted-foreground)}
+table{border-collapse:collapse;width:100%;font-size:.85rem;background:var(--card)}th,td{border:1px solid var(--border);padding:5px 8px;text-align:left;vertical-align:top}th{background:var(--muted)}
+tr.red td{background:var(--destructive-surface)}tr.red td:last-child{color:var(--destructive);font-weight:600}
+.cards{display:grid;gap:14px}.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px}
+.card h3{margin:0 0 4px}.nav{font-size:.85rem;margin-bottom:8px}
+
+
+.btn.warn{background:var(--proc);color:#fff;border-color:var(--proc)}
+.rail{padding:4px 14px 10px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.ring{display:block;flex:none}.ring path{fill:none;stroke:var(--primary);stroke-width:6;stroke-linecap:butt}.ring path.off{opacity:.15}
+.think{display:inline-flex;align-items:center;gap:8px;background:var(--proc-surface);color:var(--proc);border:1px solid var(--proc);border-radius:99px;padding:4px 14px;font-weight:600;font-size:.88rem}
+.think i{width:7px;height:7px;border-radius:50%;background:var(--proc);animation:pulse 1.2s infinite ease-in-out}.think i:nth-child(2){animation-delay:.2s}.think i:nth-child(3){animation-delay:.4s}
+@keyframes pulse{0%,100%{opacity:.25;transform:scale(.8)}50%{opacity:1;transform:scale(1.2)}}
+.confirm{background:var(--card);border:2px solid var(--ring);padding:0;overflow:hidden;border-radius:10px}
+.confirm .ch{background:var(--ring);color:#fff;font-weight:700;font-size:.78rem;letter-spacing:.04em;text-transform:uppercase;padding:3px 10px;display:flex;gap:8px;flex-wrap:wrap}
+.confirm .cb{padding:8px 10px;display:flex;flex-direction:column;gap:8px}
+.confirm .ct{font-size:1rem;font-weight:600}
+.confirm .btns{display:flex;gap:8px;flex-wrap:wrap}
+.confirm .wait{color:var(--muted-foreground);font-style:italic}
+.confirm .btn.p{font-weight:700;padding:5px 16px;font-size:.92rem}
+.confirm .btn:not(.p){background:transparent;border-color:var(--border);color:var(--muted-foreground)}
+.confirm.struck{border-color:var(--border)}.confirm.struck .ch{background:var(--muted-foreground)}
+.confirm.struck .ct{text-decoration:line-through;color:var(--muted-foreground)}
+.deed{display:inline-block;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;background:var(--proc-surface);color:var(--proc);border:1px solid var(--proc);border-radius:4px;padding:0 6px;margin-left:6px}
+.strip{margin-top:8px;background:var(--proc-surface);border:1px solid var(--proc);border-radius:8px;padding:8px 10px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:.88rem}
+.strip span.m{flex:1 1 240px}
+.demo{margin:0 14px 12px;border:1px dashed var(--ring);border-radius:8px;padding:8px 12px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;font-size:.85rem}
+.ced{border:1px solid var(--input);border-radius:8px;padding:8px 10px;margin-top:6px;background:var(--card)}
+.ced .lab{font-size:.72rem;text-transform:uppercase;color:var(--muted-foreground);font-weight:600}
+.ced .ta{border:1px solid var(--input);border-radius:6px;padding:6px 10px;margin:4px 0 8px;min-height:44px}
+.dmtool{margin-top:6px}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:700px){.cols{grid-template-columns:1fr}}
+@media(max-width:480px){main{padding:12px 8px}.fh .v{margin-left:0}.crow{flex-wrap:wrap}.inp{flex-basis:100%;order:3}.rail{padding:4px 10px 10px}}
+@media (prefers-reduced-motion:reduce){.ring.live path,.ring.live{animation:none!important}.think i{animation:none}}
+@keyframes rv{0%,19.99%{opacity:0}20%,100%{opacity:1}}@keyframes s0{0%,29.99%{opacity:1}30.00%,100%{opacity:.15}}@keyframes s1{0%,39.99%{opacity:1}40.00%,100%{opacity:.15}}@keyframes s2{0%,49.99%{opacity:1}50.00%,100%{opacity:.15}}@keyframes s3{0%,59.99%{opacity:1}60.00%,100%{opacity:.15}}@keyframes s4{0%,69.99%{opacity:1}70.00%,100%{opacity:.15}}@keyframes s5{0%,79.99%{opacity:1}80.00%,100%{opacity:.15}}@keyframes s6{0%,89.99%{opacity:1}90.00%,100%{opacity:.15}}@keyframes s7{0%,99.99%{opacity:1}100.00%,100%{opacity:.15}}</style></head><body><main><div class="nav"><a href="../round-1/index.html">← Round 1 index</a></div><h1>TASK-0188 · One chat stream · round 2</h1>
+<p class="sub">Round 1 picked C, "Say or Do". Since then the operator replaced the hold window with a quiet window: 2 s after the last message an 8-segment ring appears and empties over 8 s. When it empties, the DM reads the conversation and asks for a 👍 on its reading of each action. The axis now: does the player still mark a deed?</p>
+<div class="cards"><div class="card"><h3><a href="a-just-talk.html">A — Just talk</a></h3><div class="sub">One Send button</div><p><b>Thesis.</b> Players talk like at a real table, and the DM always checks its reading before anything rolls.</p><p><b>Risk.</b> Every deed waits at least 10 s plus a model call. A deed the DM misses never gets a confirm, so the player has to say it again more plainly.</p></div>
+<div class="card"><h3><a href="b-flag-a-deed.html">B — Talk, or flag a deed</a></h3><div class="sub">Send with a Do flag</div><p><b>Thesis.</b> The DM still words and checks every action, but the player can say "this one is a deed, don't miss it".</p><p><b>Risk.</b> It brings back a choice. The deed flag is a new field on <code>talk</code>: a frozen-contract amendment to <code>TalkV1</code>.</p></div></div>
+<h2>Shared baseline</h2><div class="card"><div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap"><svg class="ring" width="36" height="36" viewBox="0 0 36 36" role="img" aria-label="Ring: 5 of 8 segments left"><path d="M19.05 3.04A15 15 0 0 1 27.84 6.68" class="off"/><path d="M29.32 8.16A15 15 0 0 1 32.96 16.95" class="off"/><path d="M32.96 19.05A15 15 0 0 1 29.32 27.84" class="off"/><path d="M27.84 29.32A15 15 0 0 1 19.05 32.96"/><path d="M16.95 32.96A15 15 0 0 1 8.16 29.32"/><path d="M6.68 27.84A15 15 0 0 1 3.04 19.05"/><path d="M3.04 16.95A15 15 0 0 1 6.68 8.16"/><path d="M8.16 6.68A15 15 0 0 1 16.95 3.04"/></svg><svg class="ring live" width="44" height="44" viewBox="0 0 44 44" role="img" aria-label="Animated ring: 2 s blank then 8 s" style="animation:rv 10s linear infinite"><path d="M23.05 7.04A15 15 0 0 1 31.84 10.68" style="animation:s0 10s linear infinite"/><path d="M33.32 12.16A15 15 0 0 1 36.96 20.95" style="animation:s1 10s linear infinite"/><path d="M36.96 23.05A15 15 0 0 1 33.32 31.84" style="animation:s2 10s linear infinite"/><path d="M31.84 33.32A15 15 0 0 1 23.05 36.96" style="animation:s3 10s linear infinite"/><path d="M20.95 36.96A15 15 0 0 1 12.16 33.32" style="animation:s4 10s linear infinite"/><path d="M10.68 31.84A15 15 0 0 1 7.04 23.05" style="animation:s5 10s linear infinite"/><path d="M7.04 20.95A15 15 0 0 1 10.68 12.16" style="animation:s6 10s linear infinite"/><path d="M12.16 10.68A15 15 0 0 1 20.95 7.04" style="animation:s7 10s linear infinite"/></svg><span class="lbl">Static ring (5 of 8) and the animated pacing demo.</span></div><ul><li><b>Quiet window.</b> The server sets the D19 <code>talk</code> turn's <code>notBefore</code> to the last post + 10 s. Clients draw the ring from the last post's arrival. Any public IC post or <code>@dm</code> post restarts it. OOC chatter does not.</li><li><b>Thinking.</b> When the turn is claimed, the ring becomes a pulsing "The DM is reading the table…" chip.</li><li><b>One DM read.</b> It returns one outcome: <code>none</code>, <code>reply</code>, <code>scene</code>, <code>escalate</code>, or the new <code>confirm</code>.</li><li><b>Confirm row.</b> A public DM row, set apart from narration, with one line per proposed action. 👍 Yes commits. Not quite opens the composer. An unanswered confirm commits nothing.</li><li><b>Interrupt.</b> During Thinking, Send reads "Send — interrupts the DM". An inline strip asks I'm sure or Wait. OOC posts skip it.</li><li><b>Turn mode.</b> The active player's ring is 1 s + 4 s.</li><li>No modals. Chat is a view over the event log. A VTT can drive the same events.</li></ul></div>
+<h2>Open questions</h2><table><tr><th>ID</th><th>Question</th><th>Recommendation</th></tr>
+<tr><td>OQ-R1</td><td>Does typing restart the ring, or only sending? Typing needs a new WS frame, and the protocol excludes typing indicators.</td><td>Sending only.</td></tr>
+<tr><td>OQ-R2</td><td>Party confirm: the first 👍, or every present human?</td><td>The first.</td></tr>
+<tr><td>OQ-R3</td><td>Does an interrupt cancel the running read, or let it finish and then reread?</td><td>Cancel and requeue.</td></tr>
+<tr><td>OQ-R4</td><td>Does Withdraw stay for a committed-but-unresolved action?</td><td>Yes, for the declarer and the DM.</td></tr>
+<tr><td>OQ-R5</td><td>Turn-mode ring length.</td><td>1 s + 4 s.</td></tr></table></main></body></html>

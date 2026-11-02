@@ -254,3 +254,8 @@ export type LedgerRow =
 5. **Purity.** `applyEvent` does not mutate its input (tests deep-freeze it).
 
 > Extended by specs/029-proposal-gate/contracts/proposal-events.md and policy-and-authority.md: the `gate` and `proposals` projection fields, `pendingProposals`, `findProposal`, and `commitAuthority`.
+
+**Amendment (TASK-0188).** Amended 2026-11-02 (decision-0028 §8; operator ruling 2026-11-02: "All (a), amend"). `SessionProjections` gains `suggestions`; the
+transcript gains the `action.suggested` entry; `ActionView` gains `suggestionId`; `ActionStatus`
+is unchanged, but `action.withdrawn` also closes a `committed` action. Detail:
+`specs/029-proposal-gate/contracts/proposal-events.md`, "Suggestions and the read marker".

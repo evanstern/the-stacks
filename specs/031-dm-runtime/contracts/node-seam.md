@@ -189,3 +189,9 @@ returns it from `runTalkTurn` where it returned `empty-beat` for a `talk` trigge
 stores `talk` (`{ posts, codeTriggers, modelTriggers, outcome, reason }`) in `jobs.result` and
 finishes the job as `empty-beat` when the outcome is `none`, else `completed`. The pipeline gains
 no node name and no cycle. `createDmEnqueuer` gains `talkQuietMs`, `talkMaxWaitMs` and `loadSeed`.
+
+## Amendment 2026-11-02 (TASK-0188, specs/066-one-chat-stream): the read result
+
+**Amendment (TASK-0188).** decision-0028 §8; operator ruling 2026-11-02: "All (a), amend". Additive (§8.5). `jobs.result.talk.outcome` gains `confirm` and
+`interrupted`; `talk` gains `confirmItems` (a count) and `answered` (boolean). `createDmEnqueuer`
+replaces `talkQuietMs` and `talkMaxWaitMs` with `readWindowMs`. The pipeline gains no node name.

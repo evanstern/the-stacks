@@ -87,3 +87,26 @@ change to any of them is a spec amendment recorded in `spec.md`, not an implemen
 **Amendment (TASK-0049, operator ruling 2026-10-27, Q4):** the sign-off props on the action card (`ActionCardView.signoff` and the `present` argument of `commitAuthorityFor`) are additive; `CommitAuthority` is unchanged.
 
 **Amendment (TASK-0100, operator ruling 2026-10-27, R1 option A):** `PendingProposalView` gains `policy: "ask" | "suggest"`, copied from the projection; a `suggest` row offers Dismiss (`onReject(id, null)`) and no Approve. `ProposalCommands` and component props are unchanged. See `specs/047-suggest-no-approve/contracts/pending-proposal-policy.md`.
+
+**Amendment (TASK-0188, decision-0028 §8; operator ruling 2026-11-02: "All (a), amend").** Spec `specs/066-one-chat-stream` (FR-029). `ActionCardView.signoff`
+leaves the view, with `play/signoff.ts`; the TASK-0049 amendment above is withdrawn for the web.
+`ActionCardView.commit` is null for every viewer but the DM. A new `ConfirmView` rides the
+transcript as `{ kind: "confirm"; seq; confirm: ConfirmView }`:
+
+```ts
+export interface ConfirmView {
+  suggestionId: string;
+  readSeq: number;
+  lines: {
+    itemId: string;
+    text: string;
+    check: string | null;
+    state: "open" | "confirmed" | "superseded";
+    canAccept: boolean;          // the viewer may press 👍 Yes
+    waitingOn: string | null;    // "Kestrel", "the party", or null when canAccept
+  }[];
+}
+```
+
+`ConfirmView` is a pure function of the projection (`suggestionState`). `ProposalCommands`,
+`PendingProposalView` and `CommitAuthority` are unchanged.
