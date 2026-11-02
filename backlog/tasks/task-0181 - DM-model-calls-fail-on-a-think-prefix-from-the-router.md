@@ -4,7 +4,7 @@ title: DM model calls fail on a <think> prefix from the router
 status: In Progress
 assignee: []
 created_date: '2026-10-30 00:45'
-updated_date: '2026-11-02 04:03'
+updated_date: '2026-11-02 04:21'
 labels:
   - dm
   - bug
@@ -92,6 +92,8 @@ Deploy check (operator-run, 2026-10-30): stacks-dev-app-1 label org.the-stacks.c
 AC #4 hosted check (operator-run, 2026-10-30, deploy 2b0bb5d1): operator posted a turn on hosted dev. dm_model_calls for the last 2 hours: 10 rows between 16:26:59Z and 16:27:46Z (two turns with director, interpret, narrate and audit; one companion; two chronicle). Every row has outcome ok and call_attempt 1. No invalid-json, no error, no retry. Models: cc/claude-opus-5 (director), cc/claude-sonnet-5 (interpret, narrate, companion), cc/claude-haiku-4-5-20251001 (audit, chronicle). dm.interpret-v5, the call that failed in run 2, parsed on its first attempt.
 
 Alpha run 3 evidence (2026-11-01, session e8e8326d, deploy 84b130a0): 21 calls, 2 invalid-json on attempt 1, both recovered on attempt 2: dm.chronicle-v3 (haiku) and dm.audit-v3 (haiku). No invalid-json on director, interpret or narrate. The ledger holds no text, so whether these were think blocks (which stripThink would remove) or another shape is unknown; AC #1 stays open.
+
+AC #1 cause, strong evidence (alpha run 3, 2026-11-02 ~04:18Z, session e8e8326d, turn mode after the causeway fight started): 'I run to Pell and attempt to free him' failed interpret on 3 turn attempts in a row (6 calls, dm.interpret-v5, cc/claude-sonnet-5). Every failed call returned exactly 1200 output tokens = the dm.interpret maxTokens. Reading: hidden thinking uses the whole output budget on harder prompts, so the reply truncates before any JSON; stripThink cannot help because no JSON was emitted. Free-mode interpret calls this run used about 200 output tokens and passed. Fix candidates: raise dm.interpret maxTokens in vm-104 AI_PURPOSES (operator config, then redeploy to re-read the env), and/or turn router-side thinking off for cc/ routes. Spend at this point: $1.32 of $50.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
