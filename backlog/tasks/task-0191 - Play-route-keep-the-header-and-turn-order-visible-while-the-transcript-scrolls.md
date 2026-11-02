@@ -37,8 +37,6 @@ References: docs/playtests (run 3 log, lands at wrap).
 - [x] #2 Only the transcript scrolls; the composer stays pinned at the bottom
 <!-- AC:END -->
 
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -47,6 +45,8 @@ Claimed 2026-11-02 by M3 runbook A (docs/design/m3-runbook-a-run3-fixes.md). Wor
 Dispatch: tier=haiku pinned=cc/claude-haiku-5-5 served=claude-haiku-5-5
 
 Operator ruling 2026-11-02 (in chat, answering 'How should the remaining lanes get write access to .worktrees/?'): "Allow edits via Bash". The harness edit guard blocks Write/Edit outside the session worktree; dispatched agents edit worktree files through Bash (heredocs, sed, scripts) instead.
+
+Dispatch: tier=haiku pinned=cc/claude-haiku-5-5 served=claude-haiku-5-5
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
