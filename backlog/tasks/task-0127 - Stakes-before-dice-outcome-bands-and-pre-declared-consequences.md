@@ -4,7 +4,7 @@ title: 'Stakes before dice: outcome bands and pre-declared consequences'
 status: In Progress
 assignee: []
 created_date: '2026-10-27 02:32'
-updated_date: '2026-11-02 05:50'
+updated_date: '2026-11-02 06:16'
 labels:
   - dm
   - doctrine
@@ -43,6 +43,8 @@ OPERATOR RULING 2026-10-26, in the operator's words: 'Yes, nat 20 = success nat 
 Claimed 2026-11-02 by M3 runbook A (docs/design/m3-runbook-a-run3-fixes.md). Worktree .worktrees/task-0127, branch task-0127-stakes-before-dice, cut from origin/main 7e252840. Spec number 070 claimed with a stub. Side lane: spec only, built in runbook B.
 
 Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5
+
+Operator ruling 2026-11-02 (in chat, answering 'How should the remaining lanes get write access to .worktrees/?'): "Allow edits via Bash". The harness edit guard blocks Write/Edit outside the session worktree; dispatched agents edit worktree files through Bash (heredocs, sed, scripts) instead.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
