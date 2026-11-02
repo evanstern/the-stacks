@@ -5,6 +5,7 @@ import type { SessionProjections } from "@the-stacks/session-model";
 import { renderDoctrine } from "../doctrine/doctrine.js";
 import type { PlayerSeedView } from "../seed/views.js";
 import { type ActorSnapshot, snapshotSection } from "../snapshot/index.js";
+import { codeTriggers } from "../talk-triggers.js";
 import {
   CAPS,
   capEntries,
@@ -14,7 +15,7 @@ import {
   transcriptEntries,
 } from "./common.js";
 
-export const PROMPT_VERSION = "dm.companion-v5";
+export const PROMPT_VERSION = "dm.companion-v6";
 
 const OUTPUT_SHAPE = [
   "Reply with ONE JSON object and nothing else:",
@@ -32,6 +33,46 @@ const SYSTEM = [
   "{{DOCTRINE}}",
   OUTPUT_SHAPE,
 ].join("\n\n");
+
+/**
+ * The newest public talk or declared action from someone other than this
+ * companion or the DM, with the speaker's character name and whom it addressed
+ * (TASK-0189: run 3 seq 31, Odo answered the NPC instead of the PC who spoke).
+ */
+function triggeringPost(
+  projections: SessionProjections,
+  snapshot: ActorSnapshot,
+  characterId: string,
+): string[] {
+  const roster = rosterOf(projections.party);
+  const post = [...projections.transcript]
+    .reverse()
+    .find(
+      (e) =>
+        e.visibility === "public" &&
+        (e.kind === "talk" || e.kind === "action.declared") &&
+        e.actor !== "ai:dm" &&
+        e.characterId !== characterId,
+    );
+  if (!post || (post.kind !== "talk" && post.kind !== "action.declared"))
+    return [];
+  const speaker =
+    roster.find((r) => r.characterId === post.characterId) ??
+    roster.find((r) => r.actor === post.actor);
+  if (!speaker) return [];
+  const names = codeTriggers(post.text, snapshot, null)
+    .filter((t) => t.kind === "addressed")
+    .map((t) =>
+      t.actorId === characterId
+        ? "you"
+        : (snapshot.actors.find((a) => a.id === t.actorId)?.name ?? t.actorId),
+    );
+  return [
+    `[${post.seq}] ${speaker.name} (a player character, not an NPC) said: ${post.text}`,
+    `Addressed to: ${names.length ? names.join(", ") : "no one by name"}.`,
+    `If you answer, you answer ${speaker.name}${names.includes("you") ? "" : " only if it concerns you"}. Do not answer as if an NPC had spoken to you.`,
+  ];
+}
 
 export interface CompanionPromptInput {
   seed: PlayerSeedView;
@@ -110,6 +151,12 @@ export function buildCompanionPrompt(input: CompanionPromptInput): {
       ),
       CAPS.transcript,
       "start",
+    ),
+    section(
+      "Post that triggered you",
+      triggeringPost(projections, snapshot, characterId),
+      400,
+      "end",
     ),
     section("Your open actions (decide each one in pending)", own, 600, "end"),
     section("Other open actions you may comment on", open, 400, "end"),
