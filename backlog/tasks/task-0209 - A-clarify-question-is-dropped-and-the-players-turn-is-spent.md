@@ -26,6 +26,8 @@ Why: runbook A playtest run 1 (2026-11-02, session 9296c653, seq 172-182). Tamsi
 Also: once a pulled non-combatant becomes a combatant, an attack on him is legal. Whether TASK-0194's refusal of attacks on non-combatants should still cover a pulled captive is an open question for the operator.
 
 Where: dm/nodes/resolve.ts (the turn advance after a clarify group), dm/fallback.ts:280-284 (voice the clarify question, not 'What does X do?').
+
+Spec: specs/073-clarify-keeps-turn
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
