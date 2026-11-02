@@ -3,10 +3,10 @@ id: TASK-0191
 title: >-
   Play route: keep the header and turn order visible while the transcript
   scrolls
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-11-02 04:21'
-updated_date: '2026-11-02 06:31'
+updated_date: '2026-11-02 06:37'
 labels:
   - web
   - ux
@@ -48,6 +48,12 @@ Operator ruling 2026-11-02 (in chat, answering 'How should the remaining lanes g
 
 Dispatch: tier=haiku pinned=cc/claude-haiku-5-5 served=claude-haiku-5-5
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+The play route bounds its height (play.tsx, play-fixture.tsx), so the header and composer stay pinned and only the transcript scrolls. Brave evidence at 1280 and 390 px, light and dark. Merged in PR #100.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
