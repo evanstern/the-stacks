@@ -6,7 +6,7 @@ title: >-
 status: To Do
 assignee: []
 created_date: '2026-10-26 20:08'
-updated_date: '2026-10-27 02:33'
+updated_date: '2026-11-02 23:32'
 labels:
   - dm
   - narration
@@ -29,6 +29,8 @@ Evidence: TASK-0106 rerun 20261026T192319Z (specs/034-narration-quality/evidence
 - [ ] #1 A narrate rule or check covers the hero at scene start, with a test over the opening framing
 - [ ] #2 The v3 miss rule's adherence is measured on a captured run, and a fix with a test follows if it is below a stated rate
 - [ ] #3 The playtest auditor's hero-is-theirs check states whether companions count, with a test
+- [ ] #4 The Director's goal notes state no volitional act, method or skill for a PC that its player did not declare, with a prompt test
+- [ ] #5 Interpret steps carry no volitional act for a PC that its player did not declare, with a test
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -44,6 +46,8 @@ RESEARCH FINDINGS 2026-10-26 (TASK-0115 branch Resolution-and-Outcome; decision-
 (d) Control effects compel only through a recorded fact naming the effect.
 (e) player-agency blocks volitional acts only: intent, speech, purposeful movement, choices, chosen emotions.
 Reserve an outcome-band field in NarrationFacts: TASK-0127 (stakes before dice) extends this card's facts shape and depends on it. The flavour-intensity rule goes to TASK-0130.
+
+WIDENED 2026-11-02 (operator ruling, relayed by the orchestrator for M3 runbook B, docs/design/m3-runbook-b-resolution-quality.md lane B1): scope covers the Director's goal notes and interpret, not only the narrator. Evidence: runbook A playtest run 1 (docs/playtests/2026-11-02-runbook-a-playtest.md) findings 4, 14, 19, where the Director prescribed Stealth and a reaction swing and interpret followed. ACs #4 and #5 added. This card sets the shared rule; TASK-0205 and TASK-0208 apply it.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
