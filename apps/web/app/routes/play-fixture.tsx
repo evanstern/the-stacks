@@ -66,7 +66,7 @@ function FixtureBody({
   }
 
   return (
-    <div className="flex h-full min-h-0 flex-1 flex-col">
+    <div className="h-dvh overflow-hidden narrow:h-[calc(100dvh-3.5rem)] flex min-h-0 flex-1 flex-col">
       <FixtureToolbar
         fixture={fixture}
         viewerKey={viewerKey}

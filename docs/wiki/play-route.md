@@ -45,7 +45,7 @@ ledger slide-out, and a DM approvals slide-out. Everything lives in `apps/web/ap
 
 ## One view, two sources
 
-`play/table-view.tsx`'s `TableView({ source })` is the only view. A `TableSource`
+`play/table-view.tsx`'s `TableView({ source })` is the only view. Routes bound height (TASK-0191). A `TableSource`
 (`play/source.ts`) carries the `viewer`, the `actor` id writes are recorded as, `events`,
 `status`, `caughtUp`, `notice`, pending `proposals`, `presence` (the humans at the table, or
 `null` when unknown) and `commands` (`sendTalk`,
