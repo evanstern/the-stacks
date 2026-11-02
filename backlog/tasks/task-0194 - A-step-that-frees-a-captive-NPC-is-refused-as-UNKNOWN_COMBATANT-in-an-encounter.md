@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-11-02 04:31'
-updated_date: '2026-11-02 15:13'
+updated_date: '2026-11-02 15:17'
 labels:
   - dm
   - gate
@@ -35,11 +35,13 @@ Spec: specs/068-noncombatant-targets
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 A plan step may name a present non-combatant NPC as its target for non-attack steps (check, presence, condition) without UNKNOWN_COMBATANT
-- [ ] #2 An attack or damage step on a non-combatant is still refused
-- [ ] #3 A test replays run 3 seq 118 and resolves the free-Pell action
-- [ ] #4 A step that targets a present actor outside the order adds that actor as a combatant with its own initiative roll, when it can act
+- [x] #1 A plan step may name a present non-combatant NPC as its target for non-attack steps (check, presence, condition) without UNKNOWN_COMBATANT
+- [x] #2 An attack or damage step on a non-combatant is still refused
+- [x] #3 A test replays run 3 seq 118 and resolves the free-Pell action
+- [x] #4 A step that targets a present actor outside the order adds that actor as a combatant with its own initiative roll, when it can act
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
