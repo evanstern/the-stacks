@@ -100,16 +100,16 @@ cases.
 **Independent test**: `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/1.0.1/gates/cli.mjs
 freshness . docs/wiki` prints `OK`.
 
-- [ ] T022 Run `/grounding-wiki:wiki-update`. Review `dm-narration-quality.md` (NEEDS-REVIEW):
+- [X] T022 Run `/grounding-wiki:wiki-update`. Review `dm-narration-quality.md` (NEEDS-REVIEW):
       add `dm.narrate-v7` and `dm.audit-v4` to the prompt-version list with one sentence each,
       and describe the planned-action fallback and the turn lines. Keep `dm.companion-v6`.
-- [ ] T023 Review `dm-runtime.md` (NEEDS-REVIEW): narrate now reads the monster reading and the
+- [X] T023 Review `dm-runtime.md` (NEEDS-REVIEW): narrate now reads the monster reading and the
       turn holder.
-- [ ] T024 Review `turn-floor.md` and `play-route.md`: the absence-pass floor line. Re-pin
+- [X] T024 Review `turn-floor.md` and `play-route.md`: the absence-pass floor line. Re-pin
       `presence.md`, `test-suite.md`, `session-model.md` and `proposal-gate.md` after checking
       their claims against the diff.
-- [ ] T025 Update `docs/wiki/CAPSULES.md` and `docs/wiki/INDEX.md` for any changed note summary.
-- [ ] T026 Run the freshness gate and `pnpm ci:check`. Commit as `TASK-0193 phase 4: wiki re-ground`.
+- [X] T025 Update `docs/wiki/CAPSULES.md` and `docs/wiki/INDEX.md` for any changed note summary.
+- [X] T026 Run the freshness gate and `pnpm ci:check`. Commit as `TASK-0193 phase 4: wiki re-ground`.
 
 ## Dependencies
 
