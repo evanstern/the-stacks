@@ -13,6 +13,7 @@ import { createDmRoutes } from "./routes/dm.js";
 import { createEchoRoute } from "./routes/echo.js";
 import { createHealthRoute } from "./routes/health.js";
 import { createLibraryRoutes } from "./routes/library.js";
+import { createTablesRoute } from "./routes/tables.js";
 import { loadProjections as loadSessionProjections } from "./session/projections.js";
 import { createWebMiddleware } from "./static.js";
 
@@ -74,6 +75,7 @@ export function createApp({
   app.notFound(notFoundHandler);
   app.route("/health", createHealthRoute(databaseProbe, commit));
   app.route("/api/echo", createEchoRoute());
+  app.route("/api/tables", createTablesRoute({ db, validateSession }));
   app.route("/auth", createAuthRoutes({ db, validateSession, identityLookup }));
   app.route(
     "/library",

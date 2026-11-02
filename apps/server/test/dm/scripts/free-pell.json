@@ -1,0 +1,165 @@
+{
+  "v": 1,
+  "name": "free-pell",
+  "dice": [20, 3, 3, 2, 2, 2, 2, 1, 15],
+  "calls": [
+    {
+      "purpose": "dm.director",
+      "note": "enter turn mode for reed-camp; Tamsin wins initiative",
+      "respond": {
+        "type": "json",
+        "value": {
+          "beat": {
+            "decision": "resolve"
+          },
+          "tableMode": {
+            "to": "turn",
+            "encounterId": "reed-camp",
+            "reason": "The goblins spring up as the party reaches the island."
+          },
+          "trackers": [],
+          "scene": {
+            "status": "continue"
+          },
+          "pacing": {
+            "tension": "rising",
+            "spotlight": null,
+            "beatId": "reed-camp"
+          },
+          "goalNote": "Run the camp fight; the goblins break when two fall.",
+          "companionPrompts": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.interpret",
+      "note": "a move needs no roll",
+      "respond": {
+        "type": "json",
+        "value": {
+          "readings": [
+            {
+              "actionId": "act-advance",
+              "intent": "move",
+              "uncertain": false,
+              "needsAdjudication": false,
+              "rulesQuestion": null,
+              "clarify": null,
+              "steps": [
+                {
+                  "step": "none",
+                  "reason": "Moving along the posts needs no roll."
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "purpose": "dm.narrate",
+      "note": "entering the fight",
+      "respond": {
+        "type": "text",
+        "value": "Tamsin follows the old timber posts into the reeds, and the party spreads out behind her. A smoky fire and a ring of watchful goblins wait on the mud island ahead, and Snag springs up first with his scimitar raised."
+      }
+    },
+    {
+      "purpose": "dm.audit",
+      "respond": {
+        "type": "json",
+        "value": {
+          "verdict": "pass",
+          "issues": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.director",
+      "note": "Tamsin frees Pell; encounter already active",
+      "respond": {
+        "type": "json",
+        "value": {
+          "beat": {
+            "decision": "resolve"
+          },
+          "tableMode": {
+            "to": "stay"
+          },
+          "trackers": [],
+          "scene": {
+            "status": "continue"
+          },
+          "pacing": {
+            "tension": "high",
+            "spotlight": null,
+            "beatId": "reed-camp"
+          },
+          "goalNote": "Tamsin frees Pell.",
+          "companionPrompts": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.interpret",
+      "note": "run 3 seq 118/133: one check on Pell, a non-combatant",
+      "respond": {
+        "type": "json",
+        "value": {
+          "readings": [
+            {
+              "actionId": "act-free-pell",
+              "intent": "check",
+              "uncertain": true,
+              "needsAdjudication": false,
+              "rulesQuestion": null,
+              "clarify": null,
+              "steps": [
+                {
+                  "step": "check",
+                  "reason": "Tamsin works the rope at Pell's wrists loose",
+                  "combatantId": "tamsin",
+                  "kind": "ability-check",
+                  "ability": "dex",
+                  "skill": "sleight-of-hand",
+                  "expression": "1d20",
+                  "mode": "normal",
+                  "dc": 12,
+                  "autoFail": null,
+                  "onSuccess": [
+                    {
+                      "effect": "condition",
+                      "op": "remove",
+                      "targetId": "pell",
+                      "condition": "restrained",
+                      "source": "cut free"
+                    }
+                  ],
+                  "onFailure": []
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "purpose": "dm.narrate",
+      "note": "Tamsin reaches the post",
+      "respond": {
+        "type": "text",
+        "value": "Tamsin runs across the mud to the post where Pell is tied and works at the rope around his wrists."
+      }
+    },
+    {
+      "purpose": "dm.audit",
+      "respond": {
+        "type": "json",
+        "value": {
+          "verdict": "pass",
+          "issues": []
+        }
+      }
+    }
+  ]
+}

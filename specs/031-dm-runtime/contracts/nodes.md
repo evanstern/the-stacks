@@ -274,3 +274,23 @@ Amended by specs/065-talk-triggers.
   holds (free mode, no running encounter, an unstarted encounter). Otherwise it ships as `scene`.
 - The output is checkpointed in `TurnCheckpoint.react`. A reclaim reuses it and reads the posts
   as free mode once an opening move landed.
+
+## Amendment 2026-11-02 (TASK-0188, specs/066-one-chat-stream): `confirm` and the `@dm` answer
+
+**Amendment (TASK-0188).** decision-0028 §8; operator ruling 2026-11-02: "All (a), amend". Additive (§8.5).
+
+- `ReactOutput.outcome` gains `confirm`. New fields: `confirm` (0 to 4 items `{ characterId,
+  scope, text, check }`; 1 to 4 when the outcome is `confirm`, else empty) and `answer` (text or
+  null).
+- The talk path reads the readable posts after the latest DM read output (an `ai:dm` narration,
+  an `action.suggested` row, or an `ai:dm` OOC talk row). It calls the model whenever a read post
+  is human-authored.
+- Code keeps a confirm item only for a present, conscious, human-controlled party character (in
+  turn mode, the active one) or for `party`. `check` is kept only as a `SkillSchema` value or
+  `attack`.
+- Every shipped text (reply, confirm item, answer) passes the D19 code checks. One regenerate.
+- Ship order: the answer as `talk` (`ai:dm`, `ooc`, public), then the confirm as `action.suggest`
+  (`suggestionId` `sug-<jobId>`), or the D19 row. A `SUGGESTION_STALE` refusal records
+  `interrupted`.
+- A confirm row and an answer do not count toward the chain cap. A confirm prompts no companion.
+- Resolve skips a beat action withdrawn before its group runs.

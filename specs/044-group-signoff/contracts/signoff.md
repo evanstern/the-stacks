@@ -119,3 +119,9 @@ Spec 049 adds `override: "stall"` to `action.commit` for `ai:dm`. It commits a p
 authority `dm` when no present quorum member objects, and writes a `signoff` marker first. The
 rule "a `dm` commit writes no marker" (FR-008) has this one exception. `signoffState` is
 unchanged. See `specs/049-turn-floor/contracts/floor-request.md`.
+
+**Amendment (TASK-0188).** Amended 2026-11-02 (decision-0028 §8; operator ruling 2026-11-02: "All (a), amend"). Spec `specs/066-one-chat-stream`. The
+"Client" section above leaves the web: `apps/web/app/play/signoff.ts` is deleted and the action
+card shows no sign-off rows. A DM-suggested action commits by `action.accept` and writes no
+`signoff` marker. `signoffState`, the quorum in `commitAuthority`, the auto-commit on an approving
+comment and the stall override stay in the gate for direct declares (OQ-11 (a)).

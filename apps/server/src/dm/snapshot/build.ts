@@ -179,7 +179,8 @@ export function buildSnapshot(
   // Rule 3: seed NPCs; one joined to a live combatant is one actor.
   const npcActors: SnapshotActor[] = [];
   for (const npc of seed?.npcs ?? []) {
-    const linked = npc.identity.combatant;
+    const linked =
+      npc.identity.combatant ?? (combatants[npc.id] ? npc.id : null);
     const combatant = linked ? combatants[linked] : undefined;
     const combatantId = combatant ? (linked as string) : null;
     if (combatantId) claimed.add(combatantId);

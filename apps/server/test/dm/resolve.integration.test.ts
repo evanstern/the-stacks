@@ -639,15 +639,12 @@ describe.skipIf(!reachable)("resolve (database)", () => {
       const id = await commitAction(w, "Tamsin bargains with Pell.");
       freshCheckpoint(w);
       // The plan gate (TASK-0112) refuses this plan; the refusal must land
-      // before the encounter ends.
-      const out = await run(
-        w,
-        [reading(id, [checkStep({ combatantId: "pell" })])],
-        {
-          director: { tableMode: { to: "free", reason: "The goblins flee." } },
-          job: nextJob(),
-        },
-      );
+      // before the encounter ends. An attack stays refused on a non-combatant
+      // (spec 068); a check on Pell would pull him in.
+      const out = await run(w, [reading(id, [attackStep("pell")])], {
+        director: { tableMode: { to: "free", reason: "The goblins flee." } },
+        job: nextJob(),
+      });
       expect(out.actionResults[0]).toMatchObject({
         outcome: "refused",
         refusalCode: "UNKNOWN_COMBATANT",
@@ -669,7 +666,7 @@ describe.skipIf(!reachable)("resolve (database)", () => {
         const before = (await readRows(w)).length;
         const out = await run(
           w,
-          [reading(id, [checkStep(), checkStep({ combatantId: "pell" })])],
+          [reading(id, [checkStep(), attackStep("pell")])],
           { job: nextJob() },
         );
         expect(out.actionResults).toMatchObject([

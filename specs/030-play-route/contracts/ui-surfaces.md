@@ -112,3 +112,17 @@ Amendment, TASK-0177 (additive, 2026-10-29): the operator's "DM seat" slide-out.
 `TableHeader` gains `seatOpen: boolean` and `onSeat?: () => void`; with `onSeat` set it renders a button named "DM seat" (`aria-controls="dm-seat-panel"`) beside "Start scene". `DmSeatPanel` (`components/dm-seat-panel.tsx`; props `view`, `onSeat`) mounts in the shared `Panel` only when `canSeat` (live, operator, caught up, `commands.seatDm` set). Accessible names: select "Seat a human DM", buttons "Seat as DM" and "Return the seat to the AI DM". `StartScenePanel` and `StartSceneForm` gain `dmUserId: string | null`; a seat naming it shows "The DM cannot hold a character seat.". No dialog.
 
 Amended by spec 072 (TASK-0164, additive): the Party slide-out. `TableHeader` gains `partyOpen: boolean` and `onParty: () => void`, and renders a button named "Party" (`aria-controls="party-panel"`, `aria-expanded={partyOpen}`) before "Ledger", for every viewer. `PartyPanel` (`components/party-panel.tsx`; props `rows: PartyRow[]`, `order: OrderEntry[]`) mounts in the shared `Panel` (title "Party", id `party-panel`); rows come from `partyRows` in `play/party.ts`. `TurnOrder` gains an optional `label` prop (default "Turn order"). Accessible names: list "Party", list "Initiative", badge "Your character", label "AI companion". No dialog.
+
+Amendment (TASK-0188, decision-0028 §8; operator ruling 2026-11-02: "All (a), amend"). Spec `specs/066-one-chat-stream`, D20 §1 to §4. No modal anywhere.
+
+| Surface | Change |
+|---|---|
+| `Composer` | One Send button. A speaker chip (accessible name "Speaker") opens an inline listbox: the viewer's characters, "The party", "You (out of character)". `((` or `/ooc` flips it to out of character. `@` opens an inline listbox named "Mention": `@dm`, then names. During Thinking an IC Send reads "Send — interrupts the DM"; its first press opens an inline group named "Interrupt the DM?" with "I'm sure" and "Wait". The "Message type", "Channel" and "Scope" radio groups and the Declare button are removed. |
+| `ReadRing` (new) | above the composer, AI seat, player viewers: the 8- or 4-segment ring with "The DM reads the table in N s. Keep talking to wait.", or the `role="status"` chip "The DM is reading the table…". |
+| `ConfirmRow` (new) | in the transcript: header "DM · Confirm this action"; per line "<text> — <check>. Is this right?" with "👍 Yes" and "Not quite", or "Waiting on <name>", "Confirmed", "Superseded". |
+| `ConfirmEditor` (new) | the human DM's inline editor under an IC line, opened by "Confirm as action…": fields "Confirm wording", "Check (optional)", "Who"; buttons "Send confirm", "Cancel". |
+| `Transcript` | OOC lines tagged "Table talk"; `ai:dm` OOC lines drawn as "DM aside"; `@dm` posts highlighted for the DM viewer. |
+| `ActionCard` | the comment form, the stance buttons, the sign-off rows and the player Commit leave. The DM keeps Commit and Withdraw; a declarer keeps Withdraw until the action resolves. |
+
+The accessible names "Message type", "Channel", "Scope", "Declare", "Comment on this action",
+"Approve", "Object" and "Suggest an alternative" no longer appear in a player's view.

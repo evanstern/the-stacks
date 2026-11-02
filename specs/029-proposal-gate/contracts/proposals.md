@@ -239,3 +239,35 @@ Further checks inside a permitted kind:
 
 "Applied directly" is AC #7: a seated human DM's submission of a DM kind skips the policy
 and applies through the same planner an approved proposal uses.
+
+**Amendment (TASK-0188).** Amended 2026-11-02 (decision-0028 §8; operator ruling 2026-11-02: "All (a), amend"). Spec `specs/066-one-chat-stream` (FR-026).
+
+The kinds grow from fifteen to seventeen: `action.suggest` (a DM kind) and `action.accept` (a
+player request) are new. The DM kinds grow from thirteen to fourteen:
+`DmProposalKindSchema` excludes `action.declare`, `action.withdraw` and `action.accept`.
+`GATE_REQUEST_KINDS` grows from 19 to 21 literals.
+
+```ts
+z.object({ kind: z.literal("action.suggest"), ...ProposalNote,
+  suggestion: ActionSuggestedV1 }),                 // proposal-events.md, TASK-0188 amendment
+z.object({ kind: z.literal("action.accept"), ...ProposalNote,
+  suggestionId: RefIdSchema, itemId: z.string().regex(/^i[1-4]$/) }),
+```
+
+Permission matrix additions:
+
+| Request | Seated human DM | AI DM (`ai:dm`) | AI companion | Human player |
+|---|---|---|---|---|
+| `action.suggest` | yes, applied directly | yes (policy `auto`) | no | no |
+| `action.accept` | as controller only | no (`NOT_AUTHORIZED`) | no (`NOT_AUTHORIZED`) | per the accept rule (policy-and-authority.md) |
+
+Rule changes:
+
+- `action.withdraw` also accepts a `committed` action that has not resolved. The planner refuses
+  `ACTION_NOT_OPEN` only for `resolved` or `withdrawn`. Permission is unchanged: the declarer and
+  the seated human DM; `ai:dm` is `NOT_AUTHORIZED`.
+- `ai:dm` never sends `action.accept`, `action.declare` or `action.withdraw`.
+- A direct `action.declare` whose `action` carries `suggestionId` is refused `INVALID_PROPOSAL`.
+  Only `action.accept` links an action to a suggestion.
+- Visibility: `action.suggest` is always `public`.
+- `action.declare`, `action.comment` and `action.commit` keep every rule above (OQ-11 (a)).

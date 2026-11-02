@@ -10,7 +10,7 @@ sources:
   - apps/server/src/dm/snapshot/render.ts
   - apps/server/src/dm/snapshot/index.ts
   - specs/040-actor-snapshot/contracts/actor-snapshot.md
-verified_against: 5efa18203f0c3c706ee066a7fc1c189b2c161b84
+verified_against: e8854f9086d7aef95cb2d32051600e647e6cb381
 ---
 
 # Actor snapshot
@@ -37,7 +37,7 @@ session-model types only, never a value; narrate's import closure includes it.
 
 `buildSnapshot(projections, seed | null)` is pure and deterministic. Party actors come first and
 copy the seed character's sheet numbers. Combatant state copies the engine combatant. A seed NPC
-whose `identity.combatant` names an engine combatant and that combatant are **one actor**: the
+whose `identity.combatant` names an engine combatant (or, when unset, a combatant whose id equals the NPC id) and that combatant are **one actor**: the
 NPC id and name, the combatant's state, the engine name in `aliases`. Every other combatant is a
 `monster` actor. Order: party, encounter order, remaining combatants by id, then seed NPCs with
 no combatant. With a null seed the build adds no NPC and no sheet. `presence` is the `scenePresence` projection entry keyed by actor `id` (party: character id;

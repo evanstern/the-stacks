@@ -53,7 +53,7 @@ export interface ReasonFailure {
 }
 
 export type PlanVerdict =
-  | { actionId: string | null; ok: true }
+  | { actionId: string | null; ok: true; pull?: string[] }
   | {
       actionId: string | null;
       ok: false;
@@ -136,6 +136,8 @@ interface NamedId {
   id: string;
   /** Set on a presence effect's target: the effect's reason. */
   presenceReason?: string;
+  /** True when a non-combatant NPC may be named here (spec 068): not an attack or damage. */
+  pullable: boolean;
 }
 
 function effectIds(effects: readonly Effect[], list: string): NamedId[] {
@@ -143,6 +145,7 @@ function effectIds(effects: readonly Effect[], list: string): NamedId[] {
     return {
       field: `${list}[${j}].targetId`,
       id: e.targetId,
+      pullable: e.effect === "condition" || e.effect === "heal",
       ...(e.effect === "presence" ? { presenceReason: e.reason } : {}),
     };
   });
@@ -159,7 +162,7 @@ function stepIds(step: Step): NamedId[] {
     case "check":
       return [
         ...(step.combatantId
-          ? [{ field: "combatantId", id: step.combatantId }]
+          ? [{ field: "combatantId", id: step.combatantId, pullable: true }]
           : []),
         ...effectIds(step.onSuccess, "onSuccess"),
         ...effectIds(step.onFailure, "onFailure"),
@@ -167,9 +170,9 @@ function stepIds(step: Step): NamedId[] {
     case "attack":
       return [
         ...(step.attackerId
-          ? [{ field: "attackerId", id: step.attackerId }]
+          ? [{ field: "attackerId", id: step.attackerId, pullable: false }]
           : []),
-        { field: "targetId", id: step.targetId },
+        { field: "targetId", id: step.targetId, pullable: false },
         ...effectIds(step.onHit, "onHit"),
       ];
   }
@@ -279,6 +282,9 @@ export function checkPlan(input: PlanInput): PlanVerdict[] {
   const { snapshot } = input;
   const valid = new Set<string>(input.joining);
   const noCombatant = new Set<string>();
+  // Spec 068: exact ids of S0 npc actors with no combatant (never aliases).
+  const npcIds = new Set<string>();
+  const inOrder = new Set<string>(snapshot.stage.encounter?.order ?? []);
   const actorIds = new Set<string>(input.joining);
   const absentIds = new Set<string>();
   for (const a of snapshot.actors) {
@@ -290,6 +296,7 @@ export function checkPlan(input: PlanInput): PlanVerdict[] {
     if (a.combatantId) valid.add(a.combatantId);
     else {
       noCombatant.add(a.id);
+      if (a.kind === "npc") npcIds.add(a.id);
       for (const alias of a.aliases) noCombatant.add(alias);
     }
   }
@@ -308,8 +315,9 @@ export function checkPlan(input: PlanInput): PlanVerdict[] {
   const verdicts: PlanVerdict[] = [];
   for (const [actionId, steps] of groups) {
     let failure: PlanFailure | null = null;
+    const pull = new Set<string>();
     for (const [stepIndex, step] of steps.entries()) {
-      for (const { field, id, presenceReason } of stepIds(step)) {
+      for (const { field, id, presenceReason, pullable } of stepIds(step)) {
         if (presenceReason !== undefined) {
           // A presence effect targets any S0 actor, combatant or not.
           const reason: PlanFailureReason | null = !actorIds.has(id)
@@ -321,7 +329,7 @@ export function checkPlan(input: PlanInput): PlanVerdict[] {
           failure = { stepIndex, field, id, reason };
           break;
         }
-        if (!valid.has(id)) {
+        if (!valid.has(id) && !(pullable && npcIds.has(id))) {
           failure = {
             stepIndex,
             field,
@@ -333,6 +341,21 @@ export function checkPlan(input: PlanInput): PlanVerdict[] {
         if (absentIds.has(id)) {
           failure = { stepIndex, field, id, reason: "absent" };
           break;
+        }
+        // Spec 068: a named actor outside the order is pulled in. Free mode
+        // pulls only an actor with no combatant (nothing else to do).
+        const actor = snapshot.actors.find(
+          (a) =>
+            a.combatantId === id || (a.combatantId === null && a.id === id),
+        );
+        if (
+          actor &&
+          !inOrder.has(actor.id) &&
+          !inOrder.has(id) &&
+          !input.joining.includes(id) &&
+          (snapshot.stage.encounter || actor.combatantId === null)
+        ) {
+          pull.add(id);
         }
       }
       if (failure) break;
@@ -367,7 +390,9 @@ export function checkPlan(input: PlanInput): PlanVerdict[] {
             code: REASON_REFUSAL_CODE,
             failure: reasonFailure,
           }
-        : { actionId, ok: true },
+        : pull.size > 0
+          ? { actionId, ok: true, pull: [...pull] }
+          : { actionId, ok: true },
     );
   }
   return verdicts;

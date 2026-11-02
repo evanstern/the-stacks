@@ -405,3 +405,8 @@ A refusal writes nothing.
 ```
 
 > Extended by specs/029-proposal-gate/contracts/proposal-events.md: five catalog types (`proposal.created`, `proposal.approved`, `proposal.rejected`, `dm.seat.changed`, `gate.policy.changed`), the `proposal` event kind, and the mechanics envelope `proposalId` definition.
+
+**Amendment (TASK-0188).** Amended 2026-11-02 (decision-0028 §8; operator ruling 2026-11-02: "All (a), amend"). The catalog gains `action.suggested`
+(`lifecycle`, any, `ActionSuggestedV1`); `ActionDeclaredV1` gains optional `suggestionId`;
+`PresenceRecordedV1.purpose` gains `read`. Payload versions are unchanged. Detail:
+`specs/029-proposal-gate/contracts/proposal-events.md`, "Suggestions and the read marker".
