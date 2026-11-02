@@ -154,6 +154,10 @@ the DM view.
    `identity.combatant` names a combatant in engine state, the NPC and that combatant are
    **one actor**: the NPC id, `combatantId` set, state per rule 2. Its `name` is the NPC
    name; the engine name joins `aliases`.
+
+   *Amended by spec 068 (TASK-0194):* an NPC whose `identity.combatant` is unset links the
+   combatant whose id equals the NPC id, when one exists in engine state. This is an exact id
+   match, never an alias or name match.
 4. **Other combatants.** Every engine combatant not claimed by rule 1 or rule 3 is one actor:
    `id` and `combatantId` are the combatant id, `kind` is `monster`, `controller` is
    `{ kind: "dm" }`, `name` is the engine name. A seed encounter monster's seed `name`, when

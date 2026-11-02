@@ -209,11 +209,12 @@ describe("buildSnapshot", () => {
   it("throws ACTOR_ID_COLLISION when two actors share an id", () => {
     const { projections, seed } = greyhollowFight();
     const p = clone(projections);
-    // A seed NPC with no combatant link whose id equals a monster combatant id.
+    // A seed NPC whose id equals a party actor id. (An NPC id equal to a monster
+    // combatant id is one actor since spec 068: rule 3 links it.)
     const s2 = clone(seed);
     const wenna = s2.npcs.find((n) => n.id === "wenna");
     if (!wenna) throw new Error("no wenna");
-    wenna.id = "goblin-3";
+    wenna.id = "tamsin";
     expect(() => buildSnapshot(p, s2)).toThrow(SnapshotBuildError);
     try {
       buildSnapshot(p, s2);
@@ -275,6 +276,18 @@ describe("one identity across the NPC and its combatant (US4)", () => {
     expect(s1.actors.some((a) => a.kind === "monster" && a.id === "snag")).toBe(
       false,
     );
+  });
+});
+
+describe("a pulled NPC (spec 068)", () => {
+  it("an engine combatant with a seed NPC id builds one npc actor", () => {
+    const { projections, seed } = greyhollowFight();
+    const p = clone(projections);
+    p.engine.combatants.pell = combatant("pell", "Pell");
+    const s = buildSnapshot(p, seed);
+    const a = s.actors.filter((x) => x.id === "pell");
+    expect(a).toHaveLength(1);
+    expect(a[0]).toMatchObject({ kind: "npc", combatantId: "pell" });
   });
 });
 

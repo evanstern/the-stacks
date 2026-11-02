@@ -587,3 +587,120 @@ describe("arrivingNpcs", () => {
     expect(arrivingNpcs(seed, undefined, {})).toEqual([]);
   });
 });
+
+describe("checkPlan: non-combatant NPC pull (spec 068)", () => {
+  const condOn = (targetId: string) => ({
+    effect: "condition",
+    op: "remove",
+    targetId,
+    condition: "restrained",
+    source: "cut free",
+  });
+  const healOn = (targetId: string) => ({
+    effect: "heal",
+    targetId,
+    amount: { kind: "roll", expression: "1d4" },
+  });
+  const presenceOn = (targetId: string) => ({
+    effect: "presence",
+    targetId,
+    reason: "fled",
+  });
+
+  it("passes a check combatantId, a condition effect and a heal effect on pell", () => {
+    for (const step of [
+      checkStep({ combatantId: "pell" }),
+      checkStep({ onSuccess: [condOn("pell")] }),
+      checkStep({ onFailure: [healOn("pell")] }),
+    ]) {
+      expect(plan([read("a1", [step])])).toEqual([
+        { actionId: "a1", ok: true, pull: ["pell"] },
+      ]);
+    }
+  });
+
+  it("still refuses attack ids and damage effects on pell", () => {
+    for (const step of [
+      attackStep("pell"),
+      attackStep("goblin-2", { attackerId: "pell" }),
+      checkStep({ onSuccess: [damageOn("pell")] }),
+    ]) {
+      expect(plan([read("a1", [step])])[0]).toMatchObject({
+        ok: false,
+        code: "UNKNOWN_COMBATANT",
+        failure: { id: "pell", reason: "not-a-combatant" },
+      });
+    }
+  });
+
+  it("refuses an alias of pell", () => {
+    const alias = snapshot.actors
+      .find((a) => a.id === "pell")
+      ?.aliases.find((x) => x !== "pell");
+    expect(alias).toBeDefined();
+    const v = plan([
+      read("a1", [checkStep({ onSuccess: [condOn(alias as string)] })]),
+    ]);
+    expect(v[0]).toMatchObject({
+      ok: false,
+      failure: { reason: "not-a-combatant" },
+    });
+  });
+
+  it("refuses an absent pell as absent", () => {
+    const f = greyhollowFight();
+    f.projections.scenePresence.pell = {
+      presence: "absent",
+      reason: "fled",
+      seq: 125,
+    };
+    const v = checkPlan({
+      snapshot: buildSnapshot(f.projections, f.seed),
+      readings: [read("a1", [checkStep({ combatantId: "pell" })])],
+      rulings: [],
+      joining: [],
+      arriving: [],
+      resumed: [],
+    });
+    expect(v[0]).toMatchObject({ ok: false, failure: { reason: "absent" } });
+  });
+
+  it("pulls a combatant outside the order; skips in-order and joining ids", () => {
+    const order = new Set(snapshot.stage.encounter?.order ?? []);
+    const out = snapshot.actors.find(
+      (a) => a.combatantId && !order.has(a.id) && !order.has(a.combatantId),
+    );
+    const inside = snapshot.actors.find(
+      (a) => a.combatantId && order.has(a.id),
+    );
+    expect(out).toBeDefined();
+    expect(inside).toBeDefined();
+    const v = plan([
+      read("a1", [
+        checkStep({
+          combatantId: inside?.id,
+          onSuccess: [condOn(out?.id as string)],
+        }),
+      ]),
+    ]);
+    expect(v).toEqual([{ actionId: "a1", ok: true, pull: [out?.id] }]);
+    const j = plan([read("a1", [checkStep({ combatantId: "goblin-9" })])], {
+      joining: ["goblin-9"],
+    });
+    expect(j).toEqual([{ actionId: "a1", ok: true }]);
+  });
+
+  it("does not pull a presence-effect target and dedupes in step order", () => {
+    const p = plan([
+      read("a1", [checkStep({ onSuccess: [presenceOn("pell")] })]),
+    ]);
+    expect(p).toEqual([{ actionId: "a1", ok: true }]);
+    const d = plan([
+      read("a1", [
+        checkStep({ combatantId: "pell", onSuccess: [condOn("pell")] }),
+        checkStep({ combatantId: "pell" }),
+      ]),
+    ]);
+    expect(d).toEqual([{ actionId: "a1", ok: true, pull: ["pell"] }]);
+  });
+});

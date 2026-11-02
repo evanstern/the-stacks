@@ -38,6 +38,12 @@ Resolve runs these groups in order. Each group is a list of submissions. The ord
    turn's encounter start adds. A refused action group submits `action.resolve` `refused`
    `UNKNOWN_COMBATANT` and runs no step. A refused NPC group runs no step; the turn still
    advances. The verdicts go to `TurnCheckpoint.planGate`.
+
+   *Amended by spec 068 (TASK-0194):* when an `ok` verdict carries `pull`, resolve pulls each
+   id into the scene before that group's steps run: `combatant.add` from the NPC's SRD block
+   (`identity.srdMonsterId`, default `commoner`), then `initiative.join` when an encounter is
+   active, the actor can act and its presence is `present`. Pull rows carry `actionId: null`,
+   so they never change the group's outcome. The NPC group pulls the same way.
    Amended by `specs/058-roll-reason-plan-gate/contracts/plan-reason-gate.md` (spec 058 / TASK-0161):
    the plan gate also checks each step reason against S0 with `checkClaims`. A reason-refused action
    group submits `action.resolve` `refused` with the verdict's code and runs no step. A reason-refused

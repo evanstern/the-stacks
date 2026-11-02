@@ -3,10 +3,10 @@ id: TASK-0194
 title: >-
   Acting on anyone or anything outside the turn order pulls it into the
   encounter
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-11-02 04:31'
-updated_date: '2026-11-02 04:54'
+updated_date: '2026-11-02 15:23'
 labels:
   - dm
   - gate
@@ -29,20 +29,42 @@ Where: dm/gates/plan-gate.ts checkPlan id check (docs/wiki/dm-failure-and-gates.
 Related: TASK-0141 (absent actors), TASK-0142 (seed aliases), TASK-0182.
 
 References: docs/playtests/2026-11-01-two-browser-alpha-run-3.md (run 3, session e8e8326d)
+
+Spec: specs/068-noncombatant-targets
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 A plan step may name a present non-combatant NPC as its target for non-attack steps (check, presence, condition) without UNKNOWN_COMBATANT
-- [ ] #2 An attack or damage step on a non-combatant is still refused
-- [ ] #3 A test replays run 3 seq 118 and resolves the free-Pell action
-- [ ] #4 A step that targets a present actor outside the order adds that actor as a combatant with its own initiative roll, when it can act
+- [x] #1 A plan step may name a present non-combatant NPC as its target for non-attack steps (check, presence, condition) without UNKNOWN_COMBATANT
+- [x] #2 An attack or damage step on a non-combatant is still refused
+- [x] #3 A test replays run 3 seq 118 and resolves the free-Pell action
+- [x] #4 A step that targets a present actor outside the order adds that actor as a combatant with its own initiative roll, when it can act
 <!-- AC:END -->
 
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
 Operator, 2026-11-02, verbatim: "Not only that, but acting on anyone or anything not \"in combat turn order\" should be fine -- they or it just gets pulled into turn order and rolls their own initiative (if applicable)". Read as: widen this card. A step that targets a present actor or object outside the order is legal; an actor who can act joins the encounter (combatant.added plus its own initiative roll) instead of the plan gate refusing UNKNOWN_COMBATANT. Objects join without initiative. The spec decides which actors are 'applicable'. Evidence of the cost: free-Pell was finally done by Odo's later free-mode action (seq 214-218), after the encounter ended.
+
+Claimed 2026-11-02 by M3 runbook A (docs/design/m3-runbook-a-run3-fixes.md). Worktree .worktrees/task-0194, branch task-0194-noncombatant-targets, cut from origin/main 7e252840. Spec number 068 claimed with a stub. Lane A2.
+
+Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5
+
+Operator ruling 2026-11-02 (in chat, answering 'How should the remaining lanes get write access to .worktrees/?'): "Allow edits via Bash". The harness edit guard blocks Write/Edit outside the session worktree; dispatched agents edit worktree files through Bash (heredocs, sed, scripts) instead.
+
+Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5 (spec 068 authoring, C1)
+Operator ruling 2026-11-02 (in chat, on spec 068 OQ-1 to OQ-5): "Accept all defaults (Recommended)". OQ-1 SRD commoner for an NPC with no srdMonsterId; OQ-2 objects out of scope (carded); OQ-3 no seed starting conditions, 'remove restrained' refused visibly (carded); OQ-4 attacks and damage on a non-combatant stay refused; OQ-5 replay rebuilt from the run 3 log, no vm-104 read.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 068 phase 1, 80a47f8f)
+Orchestrator review: accepted the edit to resolve.integration.test.ts (outside the plan's file list). Its 'later step names a non-combatant' case now uses attackStep('pell'), which is still refused. Same intent under the new rule.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 068 phase 2, 7040a5db)
+Phase 3 [orchestrator] run by the orchestrator (gating only, no product edits): DM DB suites 826/826; mutation guard 2/3 fail per mutation, restored clean.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 068 phase 4, 1215dbad)
+Gate: the implementer's ci:check hit one playtest.integration 5 s timeout (TASK-0154 flake). The orchestrator re-ran REQUIRE_DATABASE=1 pnpm ci:check in full: exit 0.
+
+Dispatch: tier=haiku pinned=cc/claude-haiku-5-5 served=claude-haiku-5-5 (wiki re-pin after main merge, 3d880bec)
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done

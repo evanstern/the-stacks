@@ -32,7 +32,7 @@ sources:
   - apps/web/app/play/components/commit-control.tsx
   - apps/web/app/play/components/table-mode-panel.tsx
   - apps/web/app/play/components/dm-seat-panel.tsx
-verified_against: 85f778d1365d9968af0b94e21e78f5c058aebd1e
+verified_against: e8854f9086d7aef95cb2d32051600e647e6cb381
 ---
 
 # Play route
