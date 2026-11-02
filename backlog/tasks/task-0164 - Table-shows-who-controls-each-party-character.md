@@ -32,9 +32,11 @@ Spec: specs/072-party-slideout
 - [x] #1 The table lists each party character with its controller (human display name or AI companion)
 - [x] #2 A player's own character is marked
 - [x] #3 The slide-out shows each character's class, level, current and max HP, and AC, and the seed schema adds class and level to party characters, which the shipped seeds fill
-- [ ] #4 When turn order applies, the slide-out lists initiative order and marks the active turn
+- [x] #4 When turn order applies, the slide-out lists initiative order and marks the active turn
 - [ ] #5 The slide-out opens from the table header as a slide-out, never a modal, in light and dark mode
 <!-- AC:END -->
+
+
 
 
 
