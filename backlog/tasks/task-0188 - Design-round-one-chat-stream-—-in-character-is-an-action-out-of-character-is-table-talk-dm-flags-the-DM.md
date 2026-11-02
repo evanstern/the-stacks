@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-11-02 04:03'
-updated_date: '2026-11-02 04:46'
+updated_date: '2026-11-02 04:59'
 labels:
   - design
   - web
@@ -54,6 +54,8 @@ Operator feedback on decision-0028 OQ-1 (2026-11-01), verbatim: "I'm conflicted 
 
 Round 2 (2026-11-01): docs/design/one-chat-stream/round-2/ (brief.md, index.html, A just-talk, B flag-a-deed, Brave shots). It develops the operator's quiet-ring UX: a 2 s + 8 s ring, the DM reads the table, a confirm row (👍 Yes / Not quite), and an inline I'm sure strip to interrupt. Axis: does the player still mark a deed? A: one Send. B: Send plus a Do flag (a TalkV1 field). Both need the new action.suggest kind, the action.suggested event, and suggestionId on declare (frozen). Asked of the operator: pick A or B, and rule OQ-R1 to OQ-R5.
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5
+
+Round 2 selection (2026-11-01), operator: "A, just talk". decision-0028 rewritten against round 2 A, still proposed. Pending: OQ-R1 to OQ-R5, OQ-7, OQ-10, OQ-11, and the section 8 frozen-contract amendments (029 proposals, policy-and-authority and proposal-events; 030 proposal-seam; 031 additive). No ws-protocol frame change, no TalkV1 change.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
