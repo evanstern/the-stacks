@@ -1,10 +1,10 @@
 ---
 id: TASK-0192
 title: Interpret's maxTokens is too low for router-side thinking on cc/ routes
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-11-02 04:27'
-updated_date: '2026-11-02 06:53'
+updated_date: '2026-11-02 06:58'
 labels:
   - dm
   - ai
