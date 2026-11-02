@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-11-02 04:31'
-updated_date: '2026-11-02 08:35'
+updated_date: '2026-11-02 08:43'
 labels:
   - dm
   - narration
@@ -35,10 +35,12 @@ Spec: specs/071-npc-turn-narration
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 An NPC turn ships narration that states what that NPC did, or states that it held, in fiction
-- [ ] #2 The narrator prompt marks which actor's turn this is and forbids narrating the next actor's action
-- [ ] #3 A fake-gateway test replays run 3 seq 150-157 and ships a described Snag action, not the bare fallback
+- [x] #1 An NPC turn ships narration that states what that NPC did, or states that it held, in fiction
+- [x] #2 The narrator prompt marks which actor's turn this is and forbids narrating the next actor's action
+- [x] #3 A fake-gateway test replays run 3 seq 150-157 and ships a described Snag action, not the bare fallback
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
