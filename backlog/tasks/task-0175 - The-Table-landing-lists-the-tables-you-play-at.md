@@ -4,7 +4,7 @@ title: The Table landing lists the tables you play at
 status: In Progress
 assignee: []
 created_date: '2026-10-29 01:52'
-updated_date: '2026-11-02 15:07'
+updated_date: '2026-11-02 15:14'
 labels:
   - web
   - server
@@ -28,10 +28,12 @@ Spec: specs/069-table-landing-list
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 A read route returns the sessions the signed-in account has a seat at or started, with scene title and last activity, and an integration test covers a player and the operator
-- [ ] #2 /play lists those tables newest activity first, each linking to play/:sessionId, in light and dark mode
-- [ ] #3 A player never sees a table they have no seat at, with a test
+- [x] #1 A read route returns the sessions the signed-in account has a seat at or started, with scene title and last activity, and an integration test covers a player and the operator
+- [x] #2 /play lists those tables newest activity first, each linking to play/:sessionId, in light and dark mode
+- [x] #3 A player never sees a table they have no seat at, with a test
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
