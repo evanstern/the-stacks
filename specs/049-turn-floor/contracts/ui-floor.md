@@ -41,3 +41,8 @@ has the floor". Free-mode changes add nothing.
 ## Fixture route
 
 `play/fixtures` lists `turn-floor`. Its steps match `floor-request.md` "Fixture".
+
+**Amendment (TASK-0188).** Amended 2026-11-02 (decision-0028 §8; operator ruling 2026-11-02: "All (a), amend"). Spec `specs/066-one-chat-stream`. The two
+"Action card" lines above leave the player view: a player no longer commits or comments from the
+card, so "Commits on your turn" and "Suggest an alternative" are not shown. The header controls,
+the turn-order strip and the floor lines are unchanged.

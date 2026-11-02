@@ -54,3 +54,8 @@ The talk path's `react` call uses purpose `dm.narrate` with prompt version `dm.r
 (`dm/prompts/react.ts`). It adds no purpose, no `AI_PURPOSES` entry and no output cap: the
 `dm.narrate` cap (500) applies. A talk turn adds one `dm.narrate`-class call, or two after a
 code refusal.
+
+## Amendment 2026-11-02 (TASK-0188, specs/066-one-chat-stream): `dm.react-v2`
+
+**Amendment (TASK-0188).** decision-0028 §8; operator ruling 2026-11-02: "All (a), amend". Additive (§8.5). The read's call uses purpose `dm.narrate` with
+prompt version `dm.react-v2`. No purpose, `AI_PURPOSES` entry or output cap is added.

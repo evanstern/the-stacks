@@ -85,3 +85,10 @@ a fixture source appends `encounter.ended` and `table-mode.changed` rows. Each r
 the input fails its schema. Detail: `specs/060-human-dm-encounter-mode/contracts/table-mode-control.md`.
 
 Amendment, TASK-0177 (additive, 2026-10-29): `TableCommands.seatDm?(input: DmSeatInput): boolean`. Live sources only; fixtures leave it absent. Operator ruling 2026-10-29: OQ-1 to OQ-6 all (a). See `specs/062-human-dm-seat/contracts/dm-seat-control.md`.
+
+Amendment (TASK-0188, decision-0028 §8; operator ruling 2026-11-02: "All (a), amend"). Spec `specs/066-one-chat-stream`, D20 §1.
+
+`TableCommands` loses `declareAction` and `comment`. It gains `accept(input: { suggestionId,
+itemId }): boolean` and `suggest(input: { readSeq, items }): boolean`. `commit` stays, used by
+the DM viewer only. Rule 1's UI state gains the speaker choice, the open dropdown, the interrupt
+strip and the open confirm editor. The ring and Thinking are derived from `events` and the clock.

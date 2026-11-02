@@ -148,3 +148,47 @@ Projection rules:
 - The transcript gains the entry `{ kind: "action.withdrawn"; actionId: string }`.
 - A `withdrawn` action never joins a beat, enqueues no turn and shows no commit control.
 - The catalog grows from 34 to 35 entries (17 session entries, 18 mechanics entries).
+
+## Suggestions and the read marker (TASK-0188 amendment)
+
+**Amendment (TASK-0188).** Amended 2026-11-02 (decision-0028 §8; operator ruling 2026-11-02: "All (a), amend"). Spec `specs/066-one-chat-stream` (FR-028).
+
+| Type | Kind | Visibility rule | Payload schema |
+|---|---|---|---|
+| `action.suggested` | `lifecycle` | any (gate writes `public`) | `ActionSuggestedV1` |
+
+```ts
+export const SuggestionItemV1 = z.object({
+  itemId: z.string().regex(/^i[1-4]$/),
+  characterId: RefIdSchema.nullable(),
+  scope: z.enum(["character", "party"]),
+  text: z.string().min(1).max(500),          // the DM's wording
+  check: z.string().min(1).max(40).nullable(),
+}).refine((i) => i.scope === "party" || i.characterId !== null);
+
+export const ActionSuggestedV1 = z.object({   // version 1
+  suggestionId: RefIdSchema,
+  readSeq: z.number().int().min(0),           // the last post the read saw
+  items: z.array(SuggestionItemV1).min(1).max(4),
+});
+```
+
+The row's actor is the proposer (`ai:dm`, or the seated human DM).
+
+Changed payloads, version unchanged:
+
+- `ActionDeclaredV1` gains `suggestionId: RefIdSchema.optional()`. Rows without it parse as before.
+- `PresenceRecordedV1.purpose` gains `"read"`. The DM worker writes it once per claimed `talk` turn.
+
+Projection rules:
+
+- `SessionProjections` gains `suggestions: { suggestionId, seq, ts, actor, readSeq, items }[]`,
+  `[]` initially, in log order. A duplicate `suggestionId` counts `ignoredTransitions`.
+- The transcript gains `{ kind: "action.suggested"; suggestionId; readSeq; items }`.
+- `ActionView` gains `suggestionId: string | null`.
+- `PresenceView.purpose` gains `"read"`.
+- `action.withdrawn` also moves a `committed` action to `withdrawn`. It stays ignored (counted) on a
+  `resolved` or `withdrawn` action. This narrows the "Action withdrawal" rule above.
+- Staleness is not folded. It is derived from the transcript (`suggestionState`), so the
+  talk-isolation invariant is unchanged.
+- The catalog grows from 37 to 38 entries (20 session entries, 18 mechanics entries).
