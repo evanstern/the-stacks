@@ -53,17 +53,17 @@ mode.
 **Independent test**: `party.test.mjs`, `party-panel.test.tsx`, `table-view.test.tsx`,
 `turn-order.test.tsx` and `no-dialog.test.mjs` pass.
 
-- [ ] T009 [US1] Create `apps/web/app/play/party.ts` per plan D5.
-- [ ] T010 [US1] Create `apps/web/app/play/components/party-panel.tsx` per plan D6.
-- [ ] T011 [US3] In `apps/web/app/play/components/turn-order.tsx`, apply plan D7.
-- [ ] T012 [US4] In `apps/web/app/play/components/table-header.tsx` and
+- [x] T009 [US1] Create `apps/web/app/play/party.ts` per plan D5.
+- [x] T010 [US1] Create `apps/web/app/play/components/party-panel.tsx` per plan D6.
+- [x] T011 [US3] In `apps/web/app/play/components/turn-order.tsx`, apply plan D7.
+- [x] T012 [US4] In `apps/web/app/play/components/table-header.tsx` and
       `apps/web/app/play/table-view.tsx`, apply plan D8. Do not edit `routes/play.tsx` or
       `routes/play-fixture.tsx`.
-- [ ] T013 [P] [US1] Create `apps/web/test/play/party.test.mjs` and
+- [x] T013 [P] [US1] Create `apps/web/test/play/party.test.mjs` and
       `apps/web/test/play/party-panel.test.tsx`; extend `table-view.test.tsx` and
       `turn-order.test.tsx`, as plan "Tests" says.
-- [ ] T014 Amend `specs/030-play-route/contracts/ui-surfaces.md` as plan "Contracts" says.
-- [ ] T015 Run `pnpm ci:check`. Commit as `TASK-0164 phase 2: party slide-out`.
+- [x] T014 Amend `specs/030-play-route/contracts/ui-surfaces.md` as plan "Contracts" says.
+- [x] T015 Run `pnpm ci:check`. Commit as `TASK-0164 phase 2: party slide-out`.
 
 ## Phase 3: Brave evidence (merge condition; SC-003)
 

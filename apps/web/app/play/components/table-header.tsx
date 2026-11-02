@@ -5,6 +5,7 @@ import type { TableViewModel } from "../view-model.ts";
 import { DM_SEAT_PANEL_ID } from "./dm-seat-panel.tsx";
 import { FloorControls } from "./floor-controls.tsx";
 import { ModeBadge } from "./mode-badge.tsx";
+import { PARTY_PANEL_ID } from "./party-panel.tsx";
 import { PresenceStrip } from "./presence-strip.tsx";
 import { SCENE_PANEL_ID } from "./scene-panel.tsx";
 import { START_SCENE_PANEL_ID } from "./start-scene-panel.tsx";
@@ -28,12 +29,14 @@ export function TableHeader({
   status,
   presence,
   ledgerOpen,
+  partyOpen,
   approvalsOpen,
   sceneOpen,
   modeOpen,
   seatOpen,
   debugHref,
   onLedger,
+  onParty,
   onApprovals,
   onScene,
   onMode,
@@ -46,12 +49,14 @@ export function TableHeader({
   status: SourceStatus;
   presence: readonly PresenceRow[];
   ledgerOpen: boolean;
+  partyOpen: boolean;
   approvalsOpen: boolean;
   sceneOpen: boolean;
   modeOpen: boolean;
   seatOpen: boolean;
   debugHref?: string;
   onLedger: () => void;
+  onParty: () => void;
   onApprovals: () => void;
   /** Present only for the DM seat; opens the Change scene slide-out. */
   onScene?: () => void;
@@ -90,6 +95,16 @@ export function TableHeader({
       <span className="text-xs text-muted-foreground">
         {STATUS_TEXT[status]}
       </span>
+      <button
+        type="button"
+        onClick={onParty}
+        aria-expanded={partyOpen}
+        aria-controls={PARTY_PANEL_ID}
+        className={TRIGGER}
+      >
+        <span>Party</span>
+        {chevron(partyOpen)}
+      </button>
       <button
         type="button"
         onClick={onLedger}

@@ -4,6 +4,7 @@ import { Panel } from "~/components/panel";
 import { Composer } from "./components/composer.tsx";
 import { DM_SEAT_PANEL_ID, DmSeatPanel } from "./components/dm-seat-panel.tsx";
 import { LedgerList } from "./components/ledger-list.tsx";
+import { PARTY_PANEL_ID, PartyPanel } from "./components/party-panel.tsx";
 import { ProposalList } from "./components/proposal-list.tsx";
 import { SCENE_PANEL_ID, ScenePanel } from "./components/scene-panel.tsx";
 import { StartScenePanel } from "./components/start-scene-panel.tsx";
@@ -19,6 +20,7 @@ import {
 import { Transcript } from "./components/transcript.tsx";
 import { TurnOrder } from "./components/turn-order.tsx";
 import { dmSeatView } from "./dm-seat.ts";
+import { partyRows } from "./party.ts";
 import { presenceRows } from "./presence.ts";
 import type { TableSource } from "./source.ts";
 import { toTableViewModel } from "./view-model.ts";
@@ -49,6 +51,11 @@ export function TableView({
     () => presenceRows(source.presence, projected),
     [source.presence, projected],
   );
+  const party = useMemo(
+    () => partyRows(projected, source.presence),
+    [projected, source.presence],
+  );
+  const [partyOpen, setPartyOpen] = useState(false);
   const [ledgerOpen, setLedgerOpen] = useState(false);
   const [approvalsOpen, setApprovalsOpen] = useState(false);
   const [sceneOpen, setSceneOpen] = useState(false);
@@ -98,12 +105,14 @@ export function TableView({
         status={source.status}
         presence={presence}
         ledgerOpen={ledgerOpen}
+        partyOpen={partyOpen}
         approvalsOpen={approvalsOpen}
         sceneOpen={sceneOpen}
         modeOpen={modeOpen}
         seatOpen={seatOpen}
         debugHref={debugHref}
         onLedger={() => setLedgerOpen((was) => !was)}
+        onParty={() => setPartyOpen((was) => !was)}
         onApprovals={() => setApprovalsOpen((was) => !was)}
         onScene={
           model.sceneChange ? () => setSceneOpen((was) => !was) : undefined
@@ -137,6 +146,18 @@ export function TableView({
         }
         notice={source.notice}
       />
+      <Panel
+        open={partyOpen}
+        onOpenChange={setPartyOpen}
+        title="Party"
+        description="Each party character, who controls it, and its vitals."
+        id={PARTY_PANEL_ID}
+      >
+        <PartyPanel
+          rows={party}
+          order={model.mode.mode === "turn" ? model.mode.order : []}
+        />
+      </Panel>
       <Panel
         open={ledgerOpen}
         onOpenChange={setLedgerOpen}

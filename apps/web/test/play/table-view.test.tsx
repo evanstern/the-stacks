@@ -373,3 +373,21 @@ test("the operator on a caught-up live table sees DM seat; others do not", () =>
   expect(seat(liveOperator("none"))).toBe(undefined);
   expect(seat(sourceFor(f, f.viewers.dm))).toBe(undefined);
 });
+
+test("the Party trigger renders for a DM, a player and a spectator", () => {
+  const f = fixtures.find((x) => x.name === "turn-floor");
+  if (!f) throw new Error("turn-floor fixture missing");
+  const viewers = [
+    f.viewers.dm,
+    f.viewers.players[0],
+    { role: "player" as const, userId: "spectator-nobody" },
+  ];
+  for (const viewer of viewers) {
+    const html = renderToStaticMarkup(
+      <TableView source={sourceFor(f, viewer)} />,
+    );
+    expect(html).toContain(">Party<");
+    expect(html).toContain('aria-controls="party-panel"');
+    expect(html).not.toContain("<dialog");
+  }
+});
