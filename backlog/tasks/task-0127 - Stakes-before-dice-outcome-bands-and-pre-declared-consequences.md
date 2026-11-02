@@ -20,6 +20,8 @@ ordinal: 114000
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
 Outcome: every check's consequences are fixed before the engine rolls, and narration tells the outcome band it is handed instead of inventing a consequence afterwards. Why: fail-forward and trying-costs (doctrine P10, P11) are prompt-only today and run after the dice, which is where invented near-misses and dodges came from (TASK-0106 evidence seq 130, F6). Shape (D14 points 2, 3, 6): interpret declares the consequence per outcome band on each check step; code computes margin (total minus DC) and band; bands for ability checks are success, success at a cost (miss by 1-2), failure, severe failure (miss by 5 or more); attacks and saves stay SRD-binary. A check with no failure consequence resolves without a roll. A retry with no new risk succeeds without a roll. Table-rules settings (operator ruling 2026-10-26): outcome bands ON by default; natural 20 succeeds on any d20 test ON by default; group checks OFF by default. Extends the NarrationFacts shape TASK-0113 defines; spec as a doctrine and contract change. Grounding: decision-0022 (D14) and docs/research/Resolution-and-Outcome/Analysis-Dice-Versus-Player.md (TASK-0115, lands with TASK-0115's PR).
+
+Spec: specs/070-stakes-before-dice
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
