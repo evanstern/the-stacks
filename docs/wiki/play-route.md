@@ -32,7 +32,7 @@ sources:
   - apps/web/app/play/components/commit-control.tsx
   - apps/web/app/play/components/table-mode-panel.tsx
   - apps/web/app/play/components/dm-seat-panel.tsx
-verified_against: 095b85f615387975ce3ae59a3c95aa46ca903b10
+verified_against: 85f778d1365d9968af0b94e21e78f5c058aebd1e
 ---
 
 # Play route
@@ -40,12 +40,11 @@ verified_against: 095b85f615387975ce3ae59a3c95aa46ca903b10
 TASK-0047 (specs/030-play-route) replaces the M0 echo page at `play/:sessionId` with the
 table: a transcript, a composer, action cards with a commit control and a Withdraw control, a table-mode badge, a
 ledger slide-out, and a DM approvals slide-out. Everything lives in `apps/web/app/play/`;
-`routes/play.tsx` is a thin wrapper. All three routes are client-only (`clientLoader` plus
-`HydrateFallback`, no server `loader`; [[react-router-app]]).
+`routes/play.tsx` is a thin wrapper. Routes are client-only (`clientLoader`, `HydrateFallback`, no server `loader`; [[react-router-app]]).
 
 ## One view, two sources
 
-`play/table-view.tsx`'s `TableView({ source })` is the only view. Routes bound height (TASK-0191). A `TableSource`
+`play/table-view.tsx`'s `TableView({ source })` is the only view. A `TableSource`
 (`play/source.ts`) carries the `viewer`, the `actor` id writes are recorded as, `events`,
 `status`, `caughtUp`, `notice`, pending `proposals`, `presence` (the humans at the table, or
 `null` when unknown) and `commands` (`sendTalk`,
@@ -145,8 +144,8 @@ the project uses no modals. The approvals panel mounts only for the DM. A `sugge
 
 `play/fixtures` (`play-fixtures.tsx`) lists fixtures; `play/fixtures/:fixtureName`
 (`play-fixture.tsx`) renders one through `TableView` with a viewer and step toolbar. Both render
-`OperatorOnly` for non-operators; `routes/table.tsx` links to them for operators only.
+`OperatorOnly` for non-operators; `routes/table.tsx` links to them for operators only. The landing lists your tables (TASK-0175).
 
 ## Tests
 
-Markup tests under `apps/web/test/play/` cover each pure module and `TableView`.
+Markup tests in `apps/web/test/play/` cover the pure modules and `TableView`.

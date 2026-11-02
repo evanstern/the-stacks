@@ -94,22 +94,22 @@ dark.
 **Independent test**: `specs/069-table-landing-list/evidence/live-run.md` records PASS for each
 check, and `shots/` holds the eight screenshots.
 
-- [ ] T009 **[orchestrator]** On the worktree stack, turn script mode on with
+- [x] T009 **[orchestrator]** On the worktree stack, turn script mode on with
       `DM_FAKE_SCRIPT=greyhollow-live` and recreate the app container (plan.md "Quickstart" step
       1). Create the operator with a generated password in a scratchpad outside the repo.
-- [ ] T010 Write `specs/069-table-landing-list/evidence/shoot.mjs`, modeled on
+- [x] T010 Write `specs/069-table-landing-list/evidence/shoot.mjs`, modeled on
       `specs/061-trio-seed/evidence/shoot-live.mjs` (playwright-core resolved through
       `PLAYWRIGHT_CORE`, Brave executable, a creds file outside the repo, never printing a password
       or token). It runs plan.md "Quickstart" steps 2-5 and prints one PASS/FAIL line per check:
       operator lists A and B newest first with titles; `player2` lists A only; `player2` never
       lists B; an entry navigates to `/play/<sessionId>`; `GET /api/tables` with no cookie is 401.
-- [ ] T011 Run it. Save shots as `shots/landing-<operator|player2>-<1280|390>-<light|dark>.png`
+- [x] T011 Run it. Save shots as `shots/landing-<operator|player2>-<1280|390>-<light|dark>.png`
       (eight files). Record the PASS lines in `evidence/live-run.md`. Confirm by eye that the list
       is legible in dark mode.
-- [ ] T012 Run `REQUIRE_DATABASE=1 pnpm ci:check` once on the stack (export only
+- [x] T012 Run `REQUIRE_DATABASE=1 pnpm ci:check` once on the stack (export only
       `TEST_DATABASE_URL`). Record the result in `evidence/db-run.md`. Re-run a flaky WS gateway
       test once and report it; do not fix it.
-- [ ] T013 Commit `TASK-0175: live check and screenshots`. Leave the stack up.
+- [x] T013 Commit `TASK-0175: live check and screenshots`. Leave the stack up.
 
 ## Phase 4: Wiki (re-ground)
 
@@ -118,15 +118,15 @@ check, and `shots/` holds the eight screenshots.
 **Independent test**: `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/1.0.1/gates/cli.mjs freshness . docs/wiki`
 prints `OK`.
 
-- [ ] T014 Run `/grounding-wiki:wiki-update`. Review these notes against the diff (NEEDS-REVIEW):
+- [x] T014 Run `/grounding-wiki:wiki-update`. Review these notes against the diff (NEEDS-REVIEW):
       `play-route` (the landing's list and its link to `play/:sessionId`), `react-router-app`
       (`/play` now reads server data after hydration), `server-entrypoint-and-app` (the
       `/api/tables` mount and its place in the order; add `routes/tables.ts` to its sources).
-- [ ] T015 Review `chat-ui` (it lists `routes/table.tsx`: update its Table landing sentence) and
+- [x] T015 Review `chat-ui` (it lists `routes/table.tsx`: update its Table landing sentence) and
       `static-serving` (it lists `app.ts`: `/api` stays reserved; re-pin when no claim changes).
-- [ ] T016 Update `docs/wiki/INDEX.md` and `docs/wiki/CAPSULES.md`: one sentence that `/play`
+- [x] T016 Update `docs/wiki/INDEX.md` and `docs/wiki/CAPSULES.md`: one sentence that `/play`
       lists the account's tables from `GET /api/tables` (TASK-0175, specs/069).
-- [ ] T017 Run the freshness gate and the spec-bridge gate
+- [x] T017 Run the freshness gate and the spec-bridge gate
       (`node ~/.claude/plugins/cache/praxisflux/spec-bridge/1.0.1/gates/cli.mjs check .`). Both
       pass. Commit `TASK-0175: re-ground the wiki`.
 
