@@ -4,7 +4,7 @@ title: Interpret's maxTokens is too low for router-side thinking on cc/ routes
 status: In Progress
 assignee: []
 created_date: '2026-11-02 04:27'
-updated_date: '2026-11-02 06:16'
+updated_date: '2026-11-02 06:32'
 labels:
   - dm
   - ai
@@ -45,6 +45,8 @@ Claimed 2026-11-02 by M3 runbook A (docs/design/m3-runbook-a-run3-fixes.md). Wor
 Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5
 
 Operator ruling 2026-11-02 (in chat, answering 'How should the remaining lanes get write access to .worktrees/?'): "Allow edits via Bash". The harness edit guard blocks Write/Edit outside the session worktree; dispatched agents edit worktree files through Bash (heredocs, sed, scripts) instead.
+
+Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5 (spec 067 authoring, C1)
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
