@@ -3,9 +3,10 @@ id: TASK-0191
 title: >-
   Play route: keep the header and turn order visible while the transcript
   scrolls
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-11-02 04:21'
+updated_date: '2026-11-02 05:47'
 labels:
   - web
   - ux
@@ -35,6 +36,12 @@ References: docs/playtests (run 3 log, lands at wrap).
 - [ ] #1 The header and the turn-order strip stay visible while the transcript scrolls, at 1280 px and 390 px
 - [ ] #2 Only the transcript scrolls; the composer stays pinned at the bottom
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Claimed 2026-11-02 by M3 runbook A (docs/design/m3-runbook-a-run3-fixes.md). Worktree .worktrees/task-0191, branch task-0191-sticky-table-header, cut from origin/main 7e252840. No spec dir: signed escape line covers this task. Lane A4. Escape E2: card ACs drive.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
