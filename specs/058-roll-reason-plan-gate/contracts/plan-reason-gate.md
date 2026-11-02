@@ -19,7 +19,7 @@ interface PlanInput {
 }
 
 type PlanVerdict =
-  | { actionId: string | null; ok: true }
+  | { actionId: string | null; ok: true; pull?: string[] }   // spec 068
   | { actionId: string | null; ok: false; code: "UNKNOWN_COMBATANT"; failure: PlanFailure }
   | { actionId: string | null; ok: false; code: ReasonRefusalCode; failure: ReasonFailure };
 
@@ -73,3 +73,11 @@ checked at the plan gate before resolve logs them (spec 058)."
 
 Append a row to `specs/026-dnd5e-engine/contracts/refusals.md`: `REASON_CONTRADICTS_STATE` — "A DM
 step reason contradicts actor state. Plan gate only (spec 058); `execute` never returns it."
+
+## Non-combatant targets (spec 068)
+
+*Amended by spec 068 (TASK-0194):* the id check also accepts the exact id of an S0 `npc` actor
+with no combatant, but only where the field is not an attack or damage target: `check`
+`combatantId`, and `condition` or `heal` effect targets. `attackerId`, `targetId` and damage
+effects still refuse. An accepted actor outside the encounter order (or any such actor in free
+mode) is listed in the `ok` verdict as `pull`, in first-seen order and without duplicates.

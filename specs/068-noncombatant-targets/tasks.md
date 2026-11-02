@@ -58,20 +58,20 @@ commit led by `TASK-0194:`. Shared files: `dm/nodes/resolve.ts` (TASK-0193) and
 
 ## Phase 4: Contracts and wiki re-ground
 
-- [ ] T017 Amend `specs/031-dm-runtime/contracts/resolve.md` (the pull before a group's steps),
+- [x] T017 Amend `specs/031-dm-runtime/contracts/resolve.md` (the pull before a group's steps),
       `specs/040-actor-snapshot/contracts/actor-snapshot.md` (rule 3) and
       `specs/058-roll-reason-plan-gate/contracts/plan-reason-gate.md` (`pull` on the ok verdict).
       Mark each amendment "Amended by specs/068-noncombatant-targets".
-- [ ] T018 Re-ground `docs/wiki/dm-failure-and-gates.md` and `docs/wiki/dm-runtime.md`
+- [x] T018 Re-ground `docs/wiki/dm-failure-and-gates.md` and `docs/wiki/dm-runtime.md`
       (NEEDS-REVIEW, runbook list) against the diff. Re-pin each honestly.
-- [ ] T019 Re-pin the other notes whose sources the diff touches: `actor-snapshot.md`,
+- [x] T019 Re-pin the other notes whose sources the diff touches: `actor-snapshot.md`,
       `seed-npc-presence.md`, `dm-turn-jobs.md`, `turn-floor.md`, `output-claim-gate.md`. Edit text
       only where it is now wrong.
-- [ ] T020 Leave `docs/wiki/dnd5e-engine.md` unchanged: the engine is untouched. Confirm its
+- [x] T020 Leave `docs/wiki/dnd5e-engine.md` unchanged: the engine is untouched. Confirm its
       sources are not in the diff.
-- [ ] T021 Update `docs/wiki/CAPSULES.md` and the `INDEX.md` state paragraph with one sentence for
+- [x] T021 Update `docs/wiki/CAPSULES.md` and the `INDEX.md` state paragraph with one sentence for
       TASK-0194 (specs/068).
-- [ ] T022 Run the wiki freshness gate (`OK`), the spec-bridge check (exit 0) and `pnpm ci:check`.
+- [x] T022 Run the wiki freshness gate (`OK`), the spec-bridge check (exit 0) and `pnpm ci:check`.
 
 ## Dependencies
 
