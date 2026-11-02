@@ -26,6 +26,8 @@ Why: alpha run 3 (2026-11-02). dm.interpret at maxTokens 1200 failed 8 times in 
 Scope: review each dm.* purpose's maxTokens against observed output plus thinking headroom; update .env.example and docs/ops/dev-vm-104.md; decide whether the gateway should log a distinct error when output equals maxTokens (truncation) instead of invalid-json.
 
 References: docs/playtests (run 3 log), TASK-0181.
+
+Spec: specs/067-dm-maxtokens-headroom
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
