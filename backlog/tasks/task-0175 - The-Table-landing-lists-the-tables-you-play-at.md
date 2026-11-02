@@ -4,7 +4,7 @@ title: The Table landing lists the tables you play at
 status: In Progress
 assignee: []
 created_date: '2026-10-29 01:52'
-updated_date: '2026-11-02 15:14'
+updated_date: '2026-11-02 15:15'
 labels:
   - web
   - server
@@ -33,8 +33,6 @@ Spec: specs/069-table-landing-list
 - [x] #3 A player never sees a table they have no seat at, with a test
 <!-- AC:END -->
 
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -51,6 +49,8 @@ Operator ruling 2026-11-02 (in chat, on spec 069 OQ-1 'which tables does the ope
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 069 phase 1, 2a9a2d1b)
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 069 phase 2, 0c8feec8)
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 069 phases 3-4, 00ea3f40 58519171)
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
