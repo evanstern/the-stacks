@@ -3,10 +3,10 @@ id: TASK-0194
 title: >-
   Acting on anyone or anything outside the turn order pulls it into the
   encounter
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-11-02 04:31'
-updated_date: '2026-11-02 15:23'
+updated_date: '2026-11-02 15:28'
 labels:
   - dm
   - gate
@@ -67,8 +67,14 @@ Gate: the implementer's ci:check hit one playtest.integration 5 s timeout (TASK-
 Dispatch: tier=haiku pinned=cc/claude-haiku-5-5 served=claude-haiku-5-5 (wiki re-pin after main merge, 3d880bec)
 <!-- SECTION:NOTES:END -->
 
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+A present non-combatant NPC can be named in checks, conditions and heals. Resolve pulls it in (SRD commoner by default) and into initiative during an encounter. Attacks and damage on one stay refused. Run 3 seq 118 replay resolves free-Pell. Merged in PR #106.
+<!-- SECTION:FINAL_SUMMARY:END -->
+
 ## Definition of Done
 <!-- DOD:BEGIN -->
-- [ ] #1 All tests and checks run green
-- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
+- [x] #1 All tests and checks run green
+- [x] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
