@@ -1,10 +1,10 @@
 ---
 id: TASK-0181
 title: DM model calls fail on a <think> prefix from the router
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-10-30 00:45'
-updated_date: '2026-11-02 06:58'
+updated_date: '2026-11-02 08:49'
 labels:
   - dm
   - bug
@@ -100,8 +100,14 @@ Fix confirmed (operator, 2026-11-02): vm-104 AI_PURPOSES dm.interpret maxTokens 
 Closed by runbook A lane A1 (2026-11-02). AC #1 and #7: the cause is the 2026-11-02 note above. Hidden thinking spent the whole dm.interpret maxTokens (1200), so interpret truncated before any JSON. The source fix the operator picked: raise maxTokens (vm-104 env 4000, 2026-11-02). Repo defaults followed in TASK-0192, PR #102 (8b2a283b), which also records truncated calls distinctly. Probes P1/P2 were superseded by run 3's ledger evidence. AC #9: the 2026-10-30 hosted check above (deploy 2b0bb5d1, every call ok on attempt 1).
 <!-- SECTION:NOTES:END -->
 
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Cause: hidden thinking on 9router cc/ routes spent the whole maxTokens, so interpret truncated before any JSON (think blocks also rendered as text). Fixes: stripThink (#91), vm-104 interpret maxTokens 4000 (operator, 2026-11-02), and repo defaults 4000 plus a truncated outcome (TASK-0192, PR #102). Spec 063 probe and hosted tasks were ticked as superseded in PR #104.
+<!-- SECTION:FINAL_SUMMARY:END -->
+
 ## Definition of Done
 <!-- DOD:BEGIN -->
-- [ ] #1 All tests and checks run green
-- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
+- [x] #1 All tests and checks run green
+- [x] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
