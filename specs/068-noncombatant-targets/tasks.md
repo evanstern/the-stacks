@@ -48,11 +48,13 @@ commit led by `TASK-0194:`. Shared files: `dm/nodes/resolve.ts` (TASK-0193) and
 
 ## Phase 3: DB suites and mutation guard **[orchestrator]**
 
-- [ ] T015 **[orchestrator]** `pnpm env:up`, migrate both databases by hand, restart the app. Run
+- [X] T015 **[orchestrator]** `pnpm env:up`, migrate both databases by hand, restart the app. Run
       the DM DB suites with `REQUIRE_DATABASE=1` and only `TEST_DATABASE_URL` exported. Re-run a
       timeout once (TASK-0154) and report it.
-- [ ] T016 **[orchestrator]** Mutation guard (plan D6): stub `pullIn`, then revert the `pullable`
+- [X] T016 **[orchestrator]** Mutation guard (plan D6): stub `pullIn`, then revert the `pullable`
       pass. Record the failing test count for each. Restore. Confirm `git diff` is empty.
+      Result 2026-11-02: T015 DM DB suites 69 files, 826 passed, no timeouts. T016 stub `pullIn`: 2 of 3
+      new tests fail; revert `pullable`: 2 of 3 fail; restored, `git diff` empty.
 
 ## Phase 4: Contracts and wiki re-ground
 
