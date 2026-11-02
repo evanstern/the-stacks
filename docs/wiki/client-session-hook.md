@@ -7,7 +7,7 @@ sources:
   - apps/web/app/ws/types.ts
   - apps/web/app/routes/play.tsx
   - apps/web/app/play/reduce-frame.ts
-verified_against: 68115fdd4cca3cfcb41f7052b408fd2eef27b9cd
+verified_against: 095b85f615387975ce3ae59a3c95aa46ca903b10
 ---
 
 # Client session hook

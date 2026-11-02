@@ -29,6 +29,7 @@ describe("memorySink", () => {
       costUsd: 0.001,
       durationMs: 42,
       attempts: 1,
+      truncated: false,
       outcome: "ok",
       at: new Date().toISOString(),
     };

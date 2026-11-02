@@ -6,6 +6,10 @@ import type { SessionProjections } from "../projections/types.js";
  * research R1, R2, R6). Pure: reads a projection or an engine state, nothing else.
  */
 
+/** The floor reason the AI DM writes when it passes an absent player's turn (spec 071 D6). */
+export const ABSENCE_PASS_REASON =
+  "The AI DM passes the turn of an absent player.";
+
 /** Conditions that stop a combatant acting; the engine's `INCAPACITATING` list. */
 export const INCAPACITATING: readonly string[] = [
   "incapacitated",

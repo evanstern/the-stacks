@@ -307,7 +307,7 @@ describe("narrate", () => {
       facts,
       prior: null,
     });
-    expect(NARRATE_VERSION).toBe("dm.narrate-v6");
+    expect(NARRATE_VERSION).toBe("dm.narrate-v7");
     expect(prompt.system).toContain(
       "Name a character as dead or unconscious only when a fact or the state sections say so; when a fact says so, say so.",
     );
@@ -504,7 +504,33 @@ describe("narrate", () => {
       snapshot,
       prose: "Prose.",
     });
-    expect(AUDIT_VERSION).toBe("dm.audit-v3");
+    expect(AUDIT_VERSION).toBe("dm.audit-v4");
+    expect(p.system).toContain("6. The actor on the Turn line acts");
+    const turnFacts = {
+      ...out.output.facts,
+      turn: { actor: "Snag", next: "Kestrel" },
+    };
+    const narrateUser = buildNarratePrompt({
+      seed: playerFacingSeed(ctx.seed),
+      roster: rosterOf(fight.projections.party),
+      assembled: (await setup(["x"])).assembled,
+      snapshot,
+      facts: turnFacts,
+      prior: null,
+    }).user;
+    const auditUser = buildAuditPrompt({
+      facts: turnFacts,
+      snapshot,
+      prose: "P.",
+    }).user;
+    for (const u of [narrateUser, auditUser]) {
+      expect(u).toContain("Turn: Snag acts in this beat.");
+      expect(u).toContain(
+        "Next: Kestrel acts after this beat and has not acted yet.",
+      );
+    }
+    expect(p.user).not.toContain("Turn: ");
+    expect(p.user).not.toContain("Next: ");
     expect(p.user).toContain("## Party (player characters)");
     expect(p.user).toContain("Brother Odo (party, AI companion)");
     expect(p.user).toContain("## Other characters (the world)");

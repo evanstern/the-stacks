@@ -170,6 +170,15 @@ export const narrate: Node<"narrate"> = async (ctx) => {
   for (const r of ctx.results.adjudicate?.rulings ?? []) {
     if (r.actionId) followUps[r.actionId] = r.followUps;
   }
+  const reading = (ctx.results.interpret?.readings ?? []).find(
+    (r) => r.actionId === null,
+  );
+  const npcRuling = (ctx.results.adjudicate?.rulings ?? []).find(
+    (r) => r.actionId === null,
+  );
+  const npcPlan = reading
+    ? { intent: reading.intent, steps: npcRuling?.steps ?? reading.steps }
+    : null;
   const built = buildNarrationFacts({
     trigger: ctx.job.trigger,
     seed: playerFacingSeed(ctx.seed),
@@ -190,6 +199,11 @@ export const narrate: Node<"narrate"> = async (ctx) => {
     appendedRows: resolve.appendedRows,
     clarify,
     followUps,
+    npcPlan,
+    turnActorId:
+      assembled.projections.tableMode.mode === "turn"
+        ? (assembled.projections.encounter?.activeCombatantId ?? null)
+        : null,
   });
   const { facts, withheld } = withholdRefusedInputs(built, {
     snapshot: resolve.snapshot,

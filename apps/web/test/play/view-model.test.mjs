@@ -424,3 +424,34 @@ test("tableMode: a DM viewer gets the view; a player viewer gets null", () => {
     assert.equal(vm(turnModeCombat.events, player).tableMode, null);
   }
 });
+
+test("an absence pass reads as an absence, not a skipped turn (spec 071)", () => {
+  const reason = "The AI DM passes the turn of an absent player.";
+  const events = turnFloor.events.map((e) =>
+    e.type === "table-mode.changed" &&
+    e.payload.reason === "Ana is away; the DM passes her turn."
+      ? { ...e, payload: { ...e.payload, reason } }
+      : e,
+  );
+  const seq = events.find((e) => e.payload.reason === reason).seq;
+  const line = (viewer) =>
+    vm(events, viewer).transcript.find(
+      (t) => t.kind === "floor" && t.seq === seq,
+    ).text;
+  assert.equal(
+    line(turnFloor.viewers.dm),
+    "Ana is away; the turn passes to Bram.",
+  );
+  assert.equal(line(tfAna), "Ana is away; the turn passes to Bram.");
+  assert.equal(line(tfBram), "Ana is away; your turn.");
+  // A normal advance keeps its line.
+  const normal = turnFloor.events.find(
+    (e) => e.type === "table-mode.changed" && e.seq < seq,
+  );
+  assert.match(
+    vm(turnFloor.events, turnFloor.viewers.dm).transcript.find(
+      (t) => t.kind === "floor" && t.seq === normal.seq,
+    ).text,
+    /turn$|floor$/,
+  );
+});

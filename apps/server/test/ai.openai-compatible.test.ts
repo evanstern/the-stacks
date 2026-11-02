@@ -389,3 +389,30 @@ describe("OpenAiCompatibleProvider.embed", () => {
     );
   });
 });
+
+describe("OpenAiCompatibleProvider.chat truncation (TASK-0192)", () => {
+  it("sets usage.truncated on finish_reason length, even when a later usage chunk replaces usage", async () => {
+    const fetchDouble = vi.fn().mockResolvedValue(
+      sseResponse([
+        sseChunk({
+          choices: [{ delta: { content: "hi" }, finish_reason: "length" }],
+        }),
+        sseChunk({
+          choices: [],
+          usage: { prompt_tokens: 3, completion_tokens: 9 },
+        }),
+        "data: [DONE]\n\n",
+      ]),
+    );
+    const provider = new OpenAiCompatibleProvider(
+      CFG,
+      { fetch: fetchDouble as unknown as typeof fetch, env: {} },
+      { sleep: noSleep },
+    );
+    const events = await collect(provider.chat("m", REQUEST, {}));
+    expect(events.at(-1)).toEqual({
+      type: "done",
+      usage: { inputTokens: 3, outputTokens: 9, attempts: 1, truncated: true },
+    });
+  });
+});

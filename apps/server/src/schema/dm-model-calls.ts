@@ -61,7 +61,7 @@ export const dmModelCalls = pgTable(
     ),
     check(
       "dm_model_calls_outcome_valid",
-      sql`${table.outcome} IN ('ok', 'invalid-json', 'error', 'aborted')`,
+      sql`${table.outcome} IN ('ok', 'invalid-json', 'truncated', 'error', 'aborted')`,
     ),
   ],
 );
