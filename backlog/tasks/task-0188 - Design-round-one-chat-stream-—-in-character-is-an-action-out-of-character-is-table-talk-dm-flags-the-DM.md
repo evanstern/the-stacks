@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-11-02 04:03'
-updated_date: '2026-11-02 04:59'
+updated_date: '2026-11-02 05:00'
 labels:
   - design
   - web
@@ -34,9 +34,9 @@ References: docs/playtests/2026-11-01-two-browser-alpha-run-3.md (run 3, session
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 A decision record states the single-stream model: what an in-character post, an out-of-character post and an @dm post each mean to the DM
-- [ ] #2 The decision states what replaces or removes group sign-off, and how a player retracts or amends a declared action
-- [ ] #3 The decision states how the model maps onto events a VTT could also emit
+- [x] #1 A decision record states the single-stream model: what an in-character post, an out-of-character post and an @dm post each mean to the DM
+- [x] #2 The decision states what replaces or removes group sign-off, and how a player retracts or amends a declared action
+- [x] #3 The decision states how the model maps onto events a VTT could also emit
 - [ ] #4 A spec is written against the decision and its implementation tasks are carded
 <!-- AC:END -->
 
@@ -56,6 +56,8 @@ Round 2 (2026-11-01): docs/design/one-chat-stream/round-2/ (brief.md, index.html
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5
 
 Round 2 selection (2026-11-01), operator: "A, just talk". decision-0028 rewritten against round 2 A, still proposed. Pending: OQ-R1 to OQ-R5, OQ-7, OQ-10, OQ-11, and the section 8 frozen-contract amendments (029 proposals, policy-and-authority and proposal-events; 030 proposal-seam; 031 additive). No ws-protocol frame change, no TalkV1 change.
+
+Ruling (2026-11-02), operator, verbatim: "All (a), amend". decision-0028 is accepted, and the section 8 frozen-contract amendments are approved. Spec number 066 claimed (no 066 on origin/main or any remote branch). Spec authoring goes to opus-implementer.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
