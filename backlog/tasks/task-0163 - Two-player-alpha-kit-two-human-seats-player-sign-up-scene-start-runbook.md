@@ -1,10 +1,10 @@
 ---
 id: TASK-0163
 title: 'Two-player alpha kit: two human seats, player sign-up, scene-start runbook'
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-10-28 04:12'
-updated_date: '2026-11-02 04:56'
+updated_date: '2026-11-02 04:57'
 labels:
   - multiplayer
   - dev-tooling
@@ -104,6 +104,12 @@ AC #4 run 2 (2026-10-29, about 00:23-01:00 UTC, hosted dev at af74f7cb, session 
 
 Alpha run 3, 2026-11-02 (session e8e8326d-0344-4fac-a4d4-3e4bcd82e2d5, hosted dev 84b130a0 then b481e308): the operator played both seats of greyhollow-ford-duo from two Brave accounts (operator and Billy Bob) on hosted dev with the real AI DM. Invite, sign-in, Start scene and both windows worked. Play ran through talk, a cut plan, stealth, an encounter, an absence pass (30 s), a stall commit (120 s), persuasion, flight, encounter end, and the scene goal (Pell freed). Spend $2.55 of the $50 ceiling. Deterministic auditor verdict pass (0 fail, 0 warn, 8 notes). One in-run blocker (interpret truncation, TASK-0181) was fixed by raising vm-104 dm.interpret maxTokens. New cards TASK-0187 to TASK-0194. Log: docs/playtests/2026-11-01-two-browser-alpha-run-3.md (lands by PR). This meets AC #4: the runbook ran once on hosted dev with two accounts, and the result is recorded here. A second human was not used (the operator played both seats, as in runs 1 and 2).
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Duo seed, seat rules and the seeds route (card AC #1): 9/9 · Two-human behaviour check and mutation guard (card AC #1): 5/5 · Redeem toggle and the invite section (card AC #2): 8/8 · Start scene slide-out (card AC #3): 6/6 · Runbook section and the DM API contract (card AC #3): 3/3 · Local live run on this worktree's stack (card AC #2, #3): 4/4 · Merge main, wiki re-ground and runbook rows (card AC #1, #2, #3): 5/5 · Hosted-dev alpha run (card AC #4) — orchestrator-run, after operator go: 5/5). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
