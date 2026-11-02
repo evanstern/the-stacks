@@ -6,6 +6,7 @@ title: >-
 status: To Do
 assignee: []
 created_date: '2026-11-02 04:03'
+updated_date: '2026-11-02 04:06'
 labels:
   - design
   - web
@@ -38,6 +39,12 @@ References: docs/playtests/2026-11-01-two-browser-alpha-run-3.md (run 3, session
 - [ ] #3 The decision states how the model maps onto events a VTT could also emit
 - [ ] #4 A spec is written against the decision and its implementation tasks are carded
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Run 3 evidence (2026-11-01, seq 47): every resolved action card reads 'Outcome: no-effect', even when the beat produced an NPC reply, a lead, or a held follow-up (TASK-0182 cut). Players cannot see what an action did or what is still pending. The redesign should state what a resolved post shows.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
