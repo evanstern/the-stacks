@@ -29,6 +29,8 @@ Questions for the spec: should an NPC turn with no mechanical step still get a d
 Related: dm-narration-quality fallback (apps/server/src/dm/fallback.ts), TASK-0133 (roll line before prose), TASK-0170.
 
 References: docs/playtests/2026-11-01-two-browser-alpha-run-3.md (run 3, session e8e8326d)
+
+Spec: specs/071-npc-turn-narration
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
