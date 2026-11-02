@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-11-02 04:21'
-updated_date: '2026-11-02 05:50'
+updated_date: '2026-11-02 06:16'
 labels:
   - web
   - ux
@@ -43,6 +43,8 @@ References: docs/playtests (run 3 log, lands at wrap).
 Claimed 2026-11-02 by M3 runbook A (docs/design/m3-runbook-a-run3-fixes.md). Worktree .worktrees/task-0191, branch task-0191-sticky-table-header, cut from origin/main 7e252840. No spec dir: signed escape line covers this task. Lane A4. Escape E2: card ACs drive.
 
 Dispatch: tier=haiku pinned=cc/claude-haiku-5-5 served=claude-haiku-5-5
+
+Operator ruling 2026-11-02 (in chat, answering 'How should the remaining lanes get write access to .worktrees/?'): "Allow edits via Bash". The harness edit guard blocks Write/Edit outside the session worktree; dispatched agents edit worktree files through Bash (heredocs, sed, scripts) instead.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
