@@ -4,7 +4,7 @@ title: 'Party slide-out: each party character, its controller, vitals and turn o
 status: In Progress
 assignee: []
 created_date: '2026-10-28 05:50'
-updated_date: '2026-11-02 15:07'
+updated_date: '2026-11-02 15:22'
 labels:
   - play-route
   - web
@@ -49,6 +49,8 @@ Operator rulings 2026-11-02 (in chat): spec 072 OQ-1 (class and level optional o
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 072 phase 1 minus T006, 883a75a8)
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 072 phase 2, 288a1318)
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 072 phase 3, 8b41b9bb)
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
