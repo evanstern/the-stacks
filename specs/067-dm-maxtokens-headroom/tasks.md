@@ -15,16 +15,16 @@ every choice; read them before starting a phase.
 **Independent test**: the budget test passes with the new default, and both docs name 4000 and
 the reason.
 
-- [ ] T001 [P] [US1] In `.env.example`, set `maxTokens` to 4000 for all seven `dm.*` entries in the
+- [X] T001 [P] [US1] In `.env.example`, set `maxTokens` to 4000 for all seven `dm.*` entries in the
       DM `AI_PURPOSES` example line. Above it, add a comment: hidden thinking on routed models
       counts against `maxTokens`; 1200 truncated interpret in alpha run 3; a cap is a ceiling,
       not a spend.
-- [ ] T002 [P] [US1] In `docs/ops/dev-vm-104.md`, add a "Model budget" section after "Secrets".
+- [X] T002 [P] [US1] In `docs/ops/dev-vm-104.md`, add a "Model budget" section after "Secrets".
       State 4000 for every `dm.*` purpose and the same reason. Write it in simplified technical
       English. Do not change vm-104 itself.
-- [ ] T003 [US1] In `apps/server/src/dm/purposes.ts`, set every `PURPOSE_MAX_TOKENS` value to
+- [X] T003 [US1] In `apps/server/src/dm/purposes.ts`, set every `PURPOSE_MAX_TOKENS` value to
       4000. Rewrite the doc comment to give the reason and point to `.env.example`.
-- [ ] T004 [US1] In `apps/server/test/playtest/budget.test.ts`, change the purpose-default
+- [X] T004 [US1] In `apps/server/test/playtest/budget.test.ts`, change the purpose-default
       assertion for `dm.director` from 600 to 4000. Fix any other assertion that pinned an old
       default.
 - [ ] T005 [US1] Run `pnpm ci:check`. Commit as `TASK-0192 phase 1: dm.* maxTokens headroom`.
