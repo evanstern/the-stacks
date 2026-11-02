@@ -193,20 +193,10 @@ follow `.claude/skills/playtest-run/SKILL.md`.
 
 ## Later runbooks (order on record; each gets its own runbook and sign-off)
 
-### Runbook B — resolution quality
+### Runbook B and runbook C
 
-- TASK-0113 → TASK-0127 (built from the side lane's spec) → TASK-0170.
-- TASK-0104 → TASK-0105 and TASK-0128.
-- TASK-0171, TASK-0111, TASK-0109.
-- Ends with its own playtest scenario (TASK-0195 convention).
-
-### Runbook C — actor state and NPC information
-
-- TASK-0145, TASK-0146, TASK-0147.
-- TASK-0148 and TASK-0149 → TASK-0150 and TASK-0151 → TASK-0152.
-- TASK-0109 → TASK-0144 (0109 lands in B first).
-- TASK-0172 → TASK-0173.
-- Ends with its own playtest scenario.
+Superseded 2026-11-02 by `docs/design/m3-runbook-b-resolution-quality.md`. It holds runbook B's
+lanes and the updated runbook C stub.
 
 ### Runbook D — one chat stream (after TASK-0188's spec 066 merges)
 
