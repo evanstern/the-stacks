@@ -73,14 +73,14 @@ in combat and the initiative order shown.
 **Independent test**: `node specs/072-party-slideout/evidence/shoot.mjs .handoff/072-operator.json`
 prints only PASS lines and writes four PNGs.
 
-- [ ] T016 On the worktree stack, run `pnpm env:up`, migrate both databases by hand, and restart
+- [x] T016 On the worktree stack, run `pnpm env:up`, migrate both databases by hand, and restart
       the app. Create the local-stack-only operator per plan D9 step 1. Store the random password
       only in `.handoff/072-operator.json`. Never print, log or commit it.
-- [ ] T017 Write `specs/072-party-slideout/evidence/shoot.mjs` per plan D9: Node built-in
+- [x] T017 Write `specs/072-party-slideout/evidence/shoot.mjs` per plan D9: Node built-in
       `fetch` and `WebSocket` over CDP, Brave headless, no Playwright, no new dependency.
-- [ ] T018 Run it. Look at each PNG and confirm the panel, the initiative list with the active
+- [x] T018 Run it. Look at each PNG and confirm the panel, the initiative list with the active
       turn, the "Your character" badge and the "AI companion" label are legible in both themes.
-- [ ] T019 Write `specs/072-party-slideout/evidence/README.md`: date, commit, command and the
+- [x] T019 Write `specs/072-party-slideout/evidence/README.md`: date, commit, command and the
       PASS lines. Commit the script, the README and `shots/*.png` as
       `TASK-0164 phase 3: Brave evidence`. Leave the stack up.
 
