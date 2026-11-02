@@ -122,7 +122,7 @@ export interface ModelCallRecord {
   promptVersion: string;
   /** 1, or 2 for the one JSON repair re-ask. */
   attempt: number;
-  outcome: "ok" | "invalid-json" | "error";
+  outcome: "ok" | "invalid-json" | "truncated" | "error";
   errorKind: ErrorKind | null;
   /** From the gateway's usage record for this attempt; null when none arrived. */
   provider: string | null;

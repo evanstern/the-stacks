@@ -87,6 +87,20 @@ describe.skipIf(!reachable)("usage ledger (database)", () => {
     expect(JSON.stringify(row)).not.toContain(SCRIPTED_TEXT);
   });
 
+  it("stores and reads back a truncated outcome", async () => {
+    const sessionId = randomUUID();
+    const jobId = await makeJob(sessionId);
+    await insertModelCall(
+      requireDb(),
+      { jobId, sessionId, jobKind: "turn", jobAttempt: 1 },
+      call({ outcome: "truncated" }),
+    );
+    const [row] = (
+      await listModelCalls(requireDb(), sessionId, { after: 0, limit: 10 })
+    ).rows;
+    expect(row?.outcome).toBe("truncated");
+  });
+
   it("pages by after, and totals cover the whole session with unpriced calls", async () => {
     const sessionId = randomUUID();
     const jobId = await makeJob(sessionId);

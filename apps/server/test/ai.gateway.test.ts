@@ -9,7 +9,10 @@ import type { ChatEvent, UsageRecord } from "../src/ai/types.js";
 import { memorySink } from "../src/ai/usage.js";
 
 /** Builds a gateway wired to one or more named fake providers, keyed by purpose. */
-function buildGateway(byPurpose: Record<string, FakeProvider>) {
+function buildGateway(
+  byPurpose: Record<string, FakeProvider>,
+  maxTokens?: number,
+) {
   const providers: AiConfig["providers"] = {};
   const purposes: AiConfig["purposes"] = {};
   const byBaseUrl: Record<string, FakeProvider> = {};
@@ -22,6 +25,7 @@ function buildGateway(byPurpose: Record<string, FakeProvider>) {
       provider: providerName,
       model: `${purposeName}-model`,
       op: "chat",
+      ...(maxTokens === undefined ? {} : { maxTokens }),
     };
     byBaseUrl[baseUrl] = provider;
   }
@@ -490,5 +494,29 @@ describe("no vendor lock-in (decision-0007, invariant 10)", () => {
       expect(content, file).not.toMatch(vendorPattern);
       expect(content, file).not.toMatch(keyVarPattern);
     }
+  });
+});
+
+describe("gateway.chat truncated flag (TASK-0192)", () => {
+  const run = async (outputTokens: number, maxTokens?: number) => {
+    const provider = new FakeProvider();
+    provider.scriptChat([
+      { type: "text", text: "x" },
+      { type: "done", usage: { inputTokens: 1, outputTokens } },
+    ]);
+    const { gateway, sink } = buildGateway({ answering: provider }, maxTokens);
+    await collect(
+      gateway.chat({
+        purpose: "answering",
+        messages: [{ role: "user", content: "hi" }],
+      }),
+    );
+    return sink.records[0]?.truncated;
+  };
+
+  it("is true at the cap, false below it, false with no maxTokens", async () => {
+    expect(await run(1200, 1200)).toBe(true);
+    expect(await run(1199, 1200)).toBe(false);
+    expect(await run(5000)).toBe(false);
   });
 });

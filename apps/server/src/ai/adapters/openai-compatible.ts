@@ -147,6 +147,7 @@ export class OpenAiCompatibleProvider implements Provider {
     let usage: UsageSummary = { inputTokens: 0, outputTokens: 0, attempts };
     let refusal = false;
     let sawFinish = false;
+    let truncated = false;
 
     try {
       for await (const data of events) {
@@ -162,6 +163,7 @@ export class OpenAiCompatibleProvider implements Provider {
         if (text) yield { type: "text", text };
         if (choice?.finish_reason) sawFinish = true;
         if (choice?.finish_reason === "content_filter") refusal = true;
+        if (choice?.finish_reason === "length") truncated = true;
         if (chunk.usage) {
           usage = {
             inputTokens: chunk.usage.prompt_tokens ?? 0,
@@ -169,6 +171,7 @@ export class OpenAiCompatibleProvider implements Provider {
             attempts,
           };
         }
+        if (truncated) usage = { ...usage, truncated: true };
       }
     } catch (err) {
       if (req.signal?.aborted) return;

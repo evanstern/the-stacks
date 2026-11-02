@@ -9,7 +9,7 @@ sources:
   - apps/server/scripts/migrate.ts
   - apps/server/src/cli/create-operator.ts
   - package.json
-verified_against: 89d75e2dab43df6326d00177af7c11bd46efe14b
+verified_against: 4b9c7549af7e22e6be7c198f02743d124fa98e84
 ---
 
 # Configuration
@@ -92,7 +92,7 @@ Read by [[server-entrypoint-and-app]] (`index.ts` calls `loadConfig()` once, unc
 and by [[compose-stack]]'s env-var contract. `.env.example` is the template `docker-compose.yml`
 and this file both assume, and now also documents the AI gateway's three env vars (see
 [[ai-gateway]]), retrieval's three (see [[retrieval]]), and (TASK-0027) answering's one,
-`ASK_MIN_SIMILARITY` (see [[rules-answerer]]), a commented seven-purpose `AI_PURPOSES` example for the DM runtime (TASK-0046, [[dm-runtime]]), and a commented `DM_FAKE_SCRIPT=greyhollow-live` (TASK-0158). See [[overview]]'s "environment contract"
+`ASK_MIN_SIMILARITY` (see [[rules-answerer]]), a commented seven-purpose `AI_PURPOSES` example (`maxTokens` 4000 each, TASK-0192) for the DM runtime (TASK-0046, [[dm-runtime]]), and a commented `DM_FAKE_SCRIPT=greyhollow-live` (TASK-0158). See [[overview]]'s "environment contract"
 callout for the same trap at a higher level.
 
 ## Operational notes

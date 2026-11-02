@@ -179,6 +179,18 @@ Redeploy to pick up the change: run `gh workflow run deploy-dev.yml`.
 
 Never print this file. Never commit this file.
 
+## Model budget
+
+Set `maxTokens` to 4000 for every `dm.*` purpose in `AI_PURPOSES`.
+
+Hidden thinking on routed models counts against `maxTokens`. A low cap lets thinking spend the whole budget before any JSON.
+
+In alpha run 3, `dm.interpret` at 1200 failed 8 times in combat. Each failed call returned exactly 1200 tokens and no JSON.
+
+The cap is a ceiling, not a spend. A call pays only for the tokens it uses.
+
+The code default and `.env.example` use the same value.
+
 ## Exposure
 
 Run this once to expose dev on the tailnet:

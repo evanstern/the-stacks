@@ -74,7 +74,7 @@ describe("estimate", () => {
       e.lines.map((l) => [l.purpose, l.outputTokensPerCall]),
     );
     expect(out["dm.narrate"]).toBe(123);
-    expect(out["dm.director"]).toBe(600);
+    expect(out["dm.director"]).toBe(4000);
     expect(out["playtest.audit"]).toBe(700);
     expect(out.embedding).toBe(0);
   });

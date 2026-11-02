@@ -13,7 +13,8 @@ sources:
   - apps/server/drizzle/0005_unknown_lizard.sql
   - apps/server/drizzle/0006_fearless_jamie_braddock.sql
   - apps/server/drizzle/0007_aromatic_baron_zemo.sql
-verified_against: 4af9ecbd6436d6529ceb61b058a9df75fb805925
+  - apps/server/drizzle/0008_bored_blade.sql
+verified_against: 4b9c7549af7e22e6be7c198f02743d124fa98e84
 ---
 
 # Database Schema
@@ -109,7 +110,7 @@ cursor, read in number mode), `job_id` uuid FK to `jobs.id` `ON DELETE CASCADE`,
 (double; null when unpriced, never 0), `duration_ms`, `http_attempts`, and `created_at`. It has
 no prompt or completion column. Checks: `dm_model_calls_job_kind_valid` (`turn`, `companion`,
 `chronicle`), `dm_model_calls_call_attempt_valid` (1 or 2), `dm_model_calls_outcome_valid`
-(`ok`, `invalid-json`, `error`, `aborted`). Indexes: `dm_model_calls_session_idx`
+(`ok`, `invalid-json`, `truncated`, `error`, `aborted`; `truncated` added by migration 0008, TASK-0192). Indexes: `dm_model_calls_session_idx`
 `(session_id, id)` and `dm_model_calls_job_idx` `(job_id)`. Who writes and reads it:
 [[dm-turn-jobs]] and [[debug-view]].
 
