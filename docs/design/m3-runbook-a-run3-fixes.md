@@ -1,6 +1,8 @@
 # M3 runbook A — alpha run 3 fixes (milestone m-3) — sweep runbook (2026-11-02)
 
-- **Status:** awaiting operator sign-off (checkpoint C0).
+- **Status:** signed-off (operator, 2026-11-02, in chat, answering the C0 question "Do you sign
+  off on runbook A's lanes (C0), with the C1 opus sign-off for spec authoring?"): "Signed off,
+  start". C0 and C1 are both granted.
 - **Milestone:** m-3, "The Table (multiplayer)" (`docs/design/milestones.md`, M3 section).
 - **Orchestrator:** this session plans, dispatches and gates. It never implements.
 - **Predecessor:** `docs/design/m3-table-sweep-runbook.md` (paused 2026-11-02, order exhausted).
