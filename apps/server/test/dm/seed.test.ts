@@ -54,6 +54,36 @@ describe("scene seed skill gate", () => {
   });
 });
 
+describe("seed character class and level (spec 072)", () => {
+  it("names class when a character omits it", () => {
+    const issues = issuesFor((s) => {
+      delete s.characters[0].identity.class;
+    });
+    expect(issues.join("\n")).toContain("class");
+  });
+  it("names level when a character omits it", () => {
+    const issues = issuesFor((s) => {
+      delete s.characters[0].identity.level;
+    });
+    expect(issues.join("\n")).toContain("level");
+  });
+  it.each([0, 21])("refuses level %i", (level) => {
+    expect(
+      issuesFor((s) => {
+        s.characters[0].identity.level = level;
+      }).join("\n"),
+    ).toContain("level");
+  });
+  it("every shipped seed declares class and level on every character", () => {
+    for (const seed of listSeeds()) {
+      for (const c of seed.characters) {
+        expect(c.identity.class.length).toBeGreaterThan(0);
+        expect(c.identity.level).toBeGreaterThanOrEqual(1);
+      }
+    }
+  });
+});
+
 describe("scene seed (AC #13)", () => {
   it("loads the shipped seed", () => {
     const seed = loadSeed("greyhollow-ford");

@@ -126,6 +126,8 @@
       "name": "Tamsin Vale",
       "seat": "human",
       "identity": {
+        "class": "Fighter",
+        "level": 1,
         "combatant": {
           "id": "tamsin",
           "name": "Tamsin Vale",
@@ -159,6 +161,8 @@
       "name": "Brother Odo",
       "seat": "companion",
       "identity": {
+        "class": "Cleric",
+        "level": 1,
         "combatant": {
           "id": "odo",
           "name": "Brother Odo",
@@ -192,6 +196,8 @@
       "name": "Kestrel",
       "seat": "human",
       "identity": {
+        "class": "Rogue",
+        "level": 1,
         "combatant": {
           "id": "kestrel",
           "name": "Kestrel",

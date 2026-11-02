@@ -90,6 +90,7 @@ codex, system modules, or agents yet. `main` is now continuously deployed to a r
 - [[client-session-hook]] — subscribe, cursor tracking, `sendEvent`, `reduceFrame`-folded frames with a refusal notice, and the reconnect preflight.
 - [[play-route]] — the table at `play/:sessionId`: one `TableView` over live or fixture sources, pure view-model/frames/reduce-frame modules, gate-request writes with refusal codes, ledger and DM approvals slide-outs, the operator Start scene slide-out, the human DM's Change scene and Table mode slide-outs, the operator's DM seat slide-out, operator-only fixture routes.
 - [[scene-panels]] — the play route's Start scene (operator) and Change scene (human DM) slide-outs: the scene-seeds view, the `scene` gate request, the pending-seed reject that queues the next AI DM turn.
+- [[party-panel]] — the play route's Party slide-out: the header button, `partyRows` (controller, class and level, HP, AC), the Initiative list, and the class and level scene start records.
 - [[chat-ui]] — the app-level store, the SSE parser and turn reducer behind streamed answers, the Sheet-based Panel, Daylight theme tokens and UI cookies, and the Ask/Library/Table/Settings route tree; `/play` lists the account's tables from `GET /api/tables` (TASK-0175, specs/069).
 
 ## Library

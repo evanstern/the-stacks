@@ -283,3 +283,33 @@ describe("AC #6: reason, before and after are required", () => {
     }
   }
 });
+
+describe("party.member.changed class and level (spec 072)", () => {
+  const schema = catalogEntry("party.member.changed", 1)?.schema;
+  const member = {
+    characterId: "odo",
+    name: "Odo",
+    controller: { kind: "ai-companion", actor: "ai:companion:odo" },
+    combatantId: null,
+  };
+  const row = (after: object) => ({
+    reason: "joins",
+    characterId: "odo",
+    before: null,
+    after,
+  });
+  it("accepts a row without class and level", () => {
+    expect(schema?.safeParse(row(member)).success).toBe(true);
+  });
+  it("accepts and keeps class and level", () => {
+    const r = schema?.safeParse(row({ ...member, class: "Cleric", level: 1 }));
+    expect(r?.success).toBe(true);
+    expect((r as { data: { after: object } }).data.after).toMatchObject({
+      class: "Cleric",
+      level: 1,
+    });
+  });
+  it("refuses level 0", () => {
+    expect(schema?.safeParse(row({ ...member, level: 0 })).success).toBe(false);
+  });
+});

@@ -32,7 +32,7 @@ sources:
   - apps/web/app/play/components/commit-control.tsx
   - apps/web/app/play/components/table-mode-panel.tsx
   - apps/web/app/play/components/dm-seat-panel.tsx
-verified_against: e8854f9086d7aef95cb2d32051600e647e6cb381
+verified_against: 0c5c064c0f43566445e806a0cc21452015752504
 ---
 
 # Play route
@@ -135,7 +135,7 @@ any other code shows the server message. A refusal does not close the socket.
 
 ## Surfaces
 
-Proposals made by the AI DM ([[dm-runtime]]) appear in the same approvals list for the human DM. The ledger and the DM approvals list open in `components/panel.tsx`'s `Panel` ([[chat-ui]]);
+Proposals made by the AI DM ([[dm-runtime]]) appear in the same approvals list for the human DM. The ledger, [[party-panel]] and DM approvals open in `components/panel.tsx`'s `Panel` ([[chat-ui]]);
 the project uses no modals. The approvals panel mounts only for the DM. A `suggest` row
 (TASK-0100, specs/047) shows a Suggestion label and a Dismiss button, never Approve: Dismiss sends
 `proposal.reject`, because the gate refuses Approve on a suggestion. An `ask` row keeps Approve and Reject; that includes `scene-presence` (policy `ask`), whose details are Actor, Reason, New value (from `REASON_TO_PRESENCE`) and Visibility `Everyone`.

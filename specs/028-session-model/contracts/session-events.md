@@ -266,6 +266,8 @@ export const PartyMemberSchema = z.object({
   name: z.string().min(1).max(100),
   controller: ControllerSchema,
   combatantId: CombatantIdSchema.nullable(),     // the engine combatant, once added
+  class: z.string().min(1).max(40).optional(),   // Amended by spec 072 (TASK-0164)
+  level: z.number().int().min(1).max(20).optional(), // Amended by spec 072 (TASK-0164)
 });
 
 export const PartyMemberChangedV1 = z.object({
@@ -277,6 +279,9 @@ export const PartyMemberChangedV1 = z.object({
   // not both null; every non-null side has characterId === p.characterId
 });
 ```
+
+Amended by spec 072 (TASK-0164): `PartyMemberSchema` gains optional `class` and `level`; the payload
+stays v1.
 
 ### Secret trackers
 

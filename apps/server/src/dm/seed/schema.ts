@@ -67,6 +67,8 @@ export const SeedCharacter = z.object({
   name: Text(100),
   seat: z.enum(["human", "companion"]),
   identity: z.object({
+    class: Text(40),
+    level: z.number().int().min(1).max(20),
     combatant: CombatantInitSchema,
     abilityMods: z.partialRecord(
       AbilitySchema,

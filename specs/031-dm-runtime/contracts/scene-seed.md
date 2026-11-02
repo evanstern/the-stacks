@@ -191,3 +191,7 @@ states a DM-only fact.
 - `npcs[snag].hooks.secrets`: append "He keeps the clapper because its ring keeps the
   river-things off his camp."
 - `characters[odo].hooks.knows[0]`: "Goblins will bargain for anything that rings or shines."
+
+### Amended by spec 072 (TASK-0164)
+
+`characters[].identity` gains required `class` (1..40 chars) and `level` (1..20).

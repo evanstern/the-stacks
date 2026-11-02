@@ -116,3 +116,13 @@ test("no controls and no turn render nothing", () => {
     }),
   ).toBeNull();
 });
+
+test("the label prop sets the aria-label", () => {
+  const o = [entry({ combatantId: "a", label: "A" })];
+  expect(renderToStaticMarkup(<TurnOrder order={o} />)).toContain(
+    'aria-label="Turn order"',
+  );
+  expect(
+    renderToStaticMarkup(<TurnOrder order={o} label="Initiative" />),
+  ).toContain('aria-label="Initiative"');
+});

@@ -5,11 +5,17 @@ import type { OrderEntry } from "../view-model.ts";
  * per combatant in order, the active one marked, the next one flagged "next", the viewer's own
  * flagged "you". It wraps at phone width.
  */
-export function TurnOrder({ order }: { order: readonly OrderEntry[] }) {
+export function TurnOrder({
+  order,
+  label = "Turn order",
+}: {
+  order: readonly OrderEntry[];
+  label?: string;
+}) {
   if (order.length === 0) return null;
   return (
     <ol
-      aria-label="Turn order"
+      aria-label={label}
       className="flex flex-wrap items-center gap-1.5 border-b border-border bg-card px-3 py-2 text-sm"
     >
       {order.map((entry) => (
