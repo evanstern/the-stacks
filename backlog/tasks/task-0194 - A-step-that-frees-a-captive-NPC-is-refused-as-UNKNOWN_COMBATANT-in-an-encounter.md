@@ -29,6 +29,8 @@ Where: dm/gates/plan-gate.ts checkPlan id check (docs/wiki/dm-failure-and-gates.
 Related: TASK-0141 (absent actors), TASK-0142 (seed aliases), TASK-0182.
 
 References: docs/playtests/2026-11-01-two-browser-alpha-run-3.md (run 3, session e8e8326d)
+
+Spec: specs/068-noncombatant-targets
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
