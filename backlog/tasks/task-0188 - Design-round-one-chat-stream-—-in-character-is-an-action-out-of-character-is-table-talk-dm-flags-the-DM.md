@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-11-02 04:03'
-updated_date: '2026-11-02 04:19'
+updated_date: '2026-11-02 04:26'
 labels:
   - design
   - web
@@ -47,6 +47,8 @@ Claimed for pdlc:design-rounds on 2026-11-01. Long-running worktree: /Users/evan
 
 Round 1 (2026-11-01): docs/design/one-chat-stream/round-1/ (brief.md, index.html, options A/B/C, Brave shots). Shared baseline: one composer with a speaker chip, OOC is table talk the DM never reads, @dm gets one read-only OOC answer, and a hold window (Hold/Release/Retract/Amend) replaces Approve/Object/Comment/Commit. Axis: who decides that a line is a deed. A: every IC line is a declare. B: IC is talk, and the DM privately asks Do it / Just talking. C: a split Say/Do send button. Frozen-contract cost: all three need a 029 action.commit override 'window'. B also needs an intent marker on narration. Asked of the operator: pick a direction, or a hybrid. Mock build dispatched below.
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5
+
+Round 1 selection (2026-11-01), operator: "C, Say or Do". decision-0028 (D20) drafted as proposed, written against C. Open: OQ-1 to OQ-10 and the section 6 frozen-contract amendments (029 commit authority, 044 sign-off, 049 floor-jobs, 030 proposal-seam). No ws-protocol frame change.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
