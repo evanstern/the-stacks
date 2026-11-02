@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-11-02 04:31'
-updated_date: '2026-11-02 08:18'
+updated_date: '2026-11-02 08:31'
 labels:
   - dm
   - narration
@@ -49,6 +49,9 @@ Claimed 2026-11-02 by M3 runbook A (docs/design/m3-runbook-a-run3-fixes.md). Wor
 
 Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5 (spec 071 authoring, C1)
 Orchestrator rulings 2026-11-02 on spec 071 (all inside the card's scope, no contract or vm-104 change): OQ-1 (a) rebuild the replay from the run 3 log and duo seed, no vm-104 read; OQ-2 (a) no interpret change (avoids lane A2's file); OQ-3 (a) not in this task, carded separately; OQ-4 (a) the floor-pass line stays here, as the card's finding-14 note folds it in. Overlap check vs spec 068: no shared source file (only the dm-runtime wiki note), so 0193 builds in parallel with 0194.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 071 phase 1, c8c93dea)
+Rides this branch: re-pin of 4 wiki notes main left stale after PR #100 (TASK-0191, 4df70e2b): client-session-hook, m0-demo, play-route, react-router-app. Orchestrator miss: freshness was not re-run on the merged 0191 tree.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
