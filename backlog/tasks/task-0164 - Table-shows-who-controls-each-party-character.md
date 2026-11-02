@@ -1,10 +1,10 @@
 ---
 id: TASK-0164
 title: 'Party slide-out: each party character, its controller, vitals and turn order'
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-10-28 05:50'
-updated_date: '2026-11-02 15:43'
+updated_date: '2026-11-02 16:23'
 labels:
   - play-route
   - web
@@ -56,8 +56,14 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (
 T006 released after TASK-0194 merged (PR #106). Merge with main: one conflict in specs/030 ui-surfaces.md, both amendments kept. ci:check: one known-flaky ws.integration T012 failed, passed on re-run.
 <!-- SECTION:NOTES:END -->
 
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+A Party slide-out in the table header shows each party character with its controller, class, level, HP and AC, plus the initiative order with the active turn. Seeds carry class and level; scene start copies them. Brave evidence light and dark, no modal. Merged in PR #107; T008 tick in PR #108.
+<!-- SECTION:FINAL_SUMMARY:END -->
+
 ## Definition of Done
 <!-- DOD:BEGIN -->
-- [ ] #1 All tests and checks run green
-- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
+- [x] #1 All tests and checks run green
+- [x] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
