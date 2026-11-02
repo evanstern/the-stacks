@@ -4,7 +4,7 @@ title: 'Party slide-out: each party character, its controller, vitals and turn o
 status: In Progress
 assignee: []
 created_date: '2026-10-28 05:50'
-updated_date: '2026-11-02 09:22'
+updated_date: '2026-11-02 14:50'
 labels:
   - play-route
   - web
@@ -43,6 +43,8 @@ Claimed 2026-11-02 by M3 runbook A (docs/design/m3-runbook-a-run3-fixes.md). Wor
 
 Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5 (spec 072 authoring, C1)
 Overlap check vs spec 068 (orchestrator, 2026-11-02): one shared source file, apps/server/src/dm/nodes/resolve.ts (0164: party class/level hunk in directorOpening; 0194: pullIn). Runbook rule: draft-hold. T006 waits until 0194 merges or the operator rules. Implementation held for OQ-1 (it widens the frozen 029 party proposal schema; operator ruling needed).
+
+Operator rulings 2026-11-02 (in chat): spec 072 OQ-1 (class and level optional on party members, widening the frozen 029 party proposal schema additively): "Accept additive change (Recommended)". Overlap with spec 068 on dm/nodes/resolve.ts: "Hold until 0194 merges (Recommended)". T006 and the wiki phase wait for TASK-0194's merge; other phases run now. OQ-2 (away controller shows as 'Player (away)'): orchestrator takes the spec default.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
