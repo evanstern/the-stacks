@@ -1,0 +1,39 @@
+---
+id: TASK-0214
+title: Combat narration fails the audit on most turns
+status: To Do
+assignee: []
+created_date: '2026-11-02 23:22'
+labels:
+  - dm
+  - narration
+  - playtest
+milestone: m-3
+dependencies: []
+references:
+  - docs/playtests/2026-11-02-runbook-a-playtest.md
+priority: high
+ordinal: 200000
+---
+
+## Description
+
+<!-- SECTION:DESCRIPTION:BEGIN -->
+Outcome: most narrations pass the audit on the first attempt, so turns are faster and players read authored prose, not the fallback.
+
+Why: runbook A playtest run 1 (2026-11-02, session 9296c653, 23 narrations). The auditor reports 16 of 23 needed a regenerate (6) or shipped the fallback (10). The repeated issues are invented-mechanics (the narration shows the next actor or another NPC acting in this beat, or shows a followUp as done), player-agency (it decides a PC's, companion's or NPC's feelings or reactions), and doctrine (it ends on 'What do you do?', or offers an option menu). Combat turns took a median 40 s (max 73 s; 7 over 45 s), mostly regenerate loops. narrate-v7's Turn/Next rule (TASK-0193) is not holding.
+
+Related: TASK-0193, TASK-0204 (question ending), TASK-0113 (player agency), TASK-0207 (talk fallback), TASK-0212.
+<!-- SECTION:DESCRIPTION:END -->
+
+## Acceptance Criteria
+<!-- AC:BEGIN -->
+- [ ] #1 On a hosted run of 15+ combat turns, at least 70% of narrations pass the audit on attempt 1
+- [ ] #2 The narrate prompt or facts change is replay-tested against the run 1 refusals (seq 103, 126, 131, 161, 196)
+<!-- AC:END -->
+
+## Definition of Done
+<!-- DOD:BEGIN -->
+- [ ] #1 All tests and checks run green
+- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
+<!-- DOD:END -->
