@@ -4,7 +4,7 @@ title: Haiku dm.audit and dm.chronicle return invalid-json on the first attempt
 status: In Progress
 assignee: []
 created_date: '2026-11-02 19:42'
-updated_date: '2026-11-02 23:39'
+updated_date: '2026-11-02 23:41'
 labels:
   - dm
   - playtest
@@ -39,6 +39,8 @@ Run 1 again (seq 31-32): dm.chronicle-v3 invalid-json on attempt 1, ok on attemp
 Run 1 seq 59: dm.companion-v6 invalid-json on attempt 1 (460 output tokens), ok on attempt 2. So the first-attempt failure is not haiku-only.
 
 Claimed 2026-11-02 by M3 runbook B (docs/design/m3-runbook-b-resolution-quality.md). Worktree .worktrees/task-0203, branch task-0203-haiku-parse, cut from origin/main b756b68f. No spec dir: signed escape line covers this task. Escape E1 (card ACs drive).
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (E1 implementation)
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
