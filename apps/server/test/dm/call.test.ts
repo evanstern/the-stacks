@@ -9,6 +9,7 @@ import {
   callJson,
   callText,
   excerptOf,
+  extractObject,
   stripFence,
   stripThink,
 } from "../../src/dm/pipeline/call.js";
@@ -591,5 +592,62 @@ describe("truncated outcome (TASK-0192)", () => {
       req(),
     );
     expect(calls.map((c) => c.outcome)).toEqual(["error"]);
+  });
+});
+
+describe("loose parse (TASK-0203)", () => {
+  const ok = async (reply: string) =>
+    callJson({ gateway: gatewayOf([text(reply)]).gateway }, req());
+
+  it("accepts prose before and after one object", async () => {
+    const r = await ok('Here is the JSON:\n{"n": 3}\nHope that helps!');
+    expect(r).toMatchObject({ ok: true, value: { n: 3 } });
+    expect(r.calls).toHaveLength(1);
+  });
+  it("accepts a fence wrapped in prose", async () => {
+    const r = await ok('Sure!\n```json\n{"n": 4}\n```\nDone.');
+    expect(r).toMatchObject({ ok: true, value: { n: 4 } });
+    expect(r.calls).toHaveLength(1);
+  });
+  it("accepts an unclosed think block before the object", async () => {
+    const r = await ok('<think>planning the reply\n{"n": 5}');
+    expect(r).toMatchObject({ ok: true, value: { n: 5 } });
+  });
+  it("handles braces and escaped quotes inside strings", async () => {
+    const s = z.object({ n: z.string() });
+    const r = await callJson(
+      { gateway: gatewayOf([text('ok {"n": "a } \\" {"} bye')]).gateway },
+      { ...req(), schema: s },
+    );
+    expect(r).toMatchObject({ ok: true, value: { n: 'a } " {' } });
+  });
+  it("rejects two top-level objects, unbalanced and object-free replies", async () => {
+    expect(extractObject('{"n":1} and {"n":2}')).toBeNull();
+    expect(extractObject('{"n": 1')).toBeNull();
+    expect(extractObject("no json here")).toBeNull();
+    const r = await callJson(
+      { gateway: gatewayOf([text('{"n":1} {"n":2}'), text("nope")]).gateway },
+      req(),
+    );
+    expect(r.ok).toBe(false);
+  });
+  it("logs a bounded head/tail of an unparsable reply", async () => {
+    const lines: Record<string, unknown>[] = [];
+    const long = `${"a".repeat(500)}${"b".repeat(500)}`;
+    await callJson(
+      {
+        gateway: gatewayOf([text(long), text('{"n":1}')]).gateway,
+        log: (l) => lines.push(l),
+      },
+      req(),
+    );
+    expect(lines).toHaveLength(1);
+    expect(lines[0]).toMatchObject({
+      event: "dm.call.invalid-json",
+      attempt: 1,
+      chars: 1000,
+      head: "a".repeat(200),
+      tail: "b".repeat(200),
+    });
   });
 });
