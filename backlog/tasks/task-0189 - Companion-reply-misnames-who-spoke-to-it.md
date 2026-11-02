@@ -1,9 +1,10 @@
 ---
 id: TASK-0189
 title: Companion reply misnames who spoke to it
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-11-02 04:03'
+updated_date: '2026-11-02 05:47'
 labels:
   - dm
   - companion
@@ -33,6 +34,12 @@ References: docs/playtests/2026-11-01-two-browser-alpha-run-3.md (run 3, session
 - [ ] #1 The companion prompt names the PC whose post triggered it, and who that post addressed
 - [ ] #2 A test replays run 3's seq 31 and checks the reply addresses Tamsin, not Wenna (fake gateway, prompt-content assertion)
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Claimed 2026-11-02 by M3 runbook A (docs/design/m3-runbook-a-run3-fixes.md). Worktree .worktrees/task-0189, branch task-0189-companion-addressee, cut from origin/main 7e252840. No spec dir: signed escape line covers this task. Lane A3. Escape E1: card ACs drive.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
