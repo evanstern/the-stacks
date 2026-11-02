@@ -41,7 +41,7 @@ sources:
   - apps/server/seeds/greyhollow-ford-trio.json
   - biome.json
 size_budget_exempt: both notes sat within 30 chars of the 8000 budget before TASK-0180; the talk path got its own note (dm-talk-triggers) and only a pointer line lands here; the rest is one pipeline each, not splittable without a TASK of its own
-verified_against: 0c5c064c0f43566445e806a0cc21452015752504
+verified_against: 2f9b45c48816a6f97a9ede5c07c269c0e921b397
 ---
 
 # DM runtime
@@ -75,7 +75,7 @@ async function `(TurnContext) => NodeResult`.
 An empty-beat `talk` turn skips this order ([[dm-talk-triggers]]).
 
 Director, interpret and adjudicate outputs are checkpointed in `jobs.result`; a reclaim does not re-pay them. Model output is parsed with Zod through `callJson`/`callText` (`pipeline/call.ts`); every call
-is recorded to `recordCall` ([[dm-turn-jobs]]). Parse order: think strip, fence strip, parse, normalize, schema. Excerpts keep raw text (TASK-0181).
+is recorded to `recordCall` ([[dm-turn-jobs]]). Parse order: think strip, strict parse (fence stripped), else the one top-level object inside surrounding prose, then normalize, schema. Each unparsable reply logs `dm.call.invalid-json` with a 200-char head and tail (TASK-0203). Excerpts keep raw text (TASK-0181).
 
 `callJson` makes at most two attempts, the second with the first's issues. Only the director passes a `normalize` hook (`normalizeDirector`): it cuts an over-long `goalNote` or `reason` to 300 characters (spec 033).
 
