@@ -41,8 +41,8 @@ cases; the DB scene-start test sees Odo as `Cleric` 1.
 - [x] T007 Amend `specs/031-dm-runtime/contracts/scene-seed.md` and
       `specs/028-session-model/contracts/session-events.md` as plan "Contracts" says. Mark each
       change "Amended by spec 072 (TASK-0164)".
-- [ ] T008 Run `pnpm ci:check`. Commit as `TASK-0164 phase 1: class and level on seed characters
-      and party members`.
+- [X] T008 Run `pnpm ci:check`. Commit as `TASK-0164 phase 1: class and level on seed characters
+      and party members`. — done in 883a75a8 (ci:check green); tick missed during the T006 hold.
 
 ## Phase 2: The Party slide-out (card AC #1, #2, #4, #5; US1, US3, US4)
 
