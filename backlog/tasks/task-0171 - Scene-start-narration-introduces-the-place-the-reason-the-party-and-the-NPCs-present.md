@@ -3,9 +3,10 @@ id: TASK-0171
 title: >-
   Scene-start narration introduces the place, the reason, the party and the NPCs
   present
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-10-28 19:39'
+updated_date: '2026-11-02 23:41'
 labels:
   - dm
   - narration
@@ -37,6 +38,12 @@ Related: TASK-0164 (party slide-out) shows the same facts in the UI. The knowled
 - [ ] #4 The audit flags a scene-start narration that omits a party character or a present NPC, with a test
 - [ ] #5 No DM-only seed text (secrets, knows) reaches the scene-start prompt, with a type-level or prompt test
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Claimed 2026-11-02 by M3 runbook B (docs/design/m3-runbook-b-resolution-quality.md). Worktree .worktrees/task-0171, branch task-0171-scene-start-intros, cut from origin/main b756b68f. Spec number 076 claimed with a stub. Spine #17; spec authored early.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
