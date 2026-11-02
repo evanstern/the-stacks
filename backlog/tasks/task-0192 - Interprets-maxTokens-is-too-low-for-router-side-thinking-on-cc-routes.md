@@ -1,9 +1,10 @@
 ---
 id: TASK-0192
 title: Interpret's maxTokens is too low for router-side thinking on cc/ routes
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-11-02 04:27'
+updated_date: '2026-11-02 05:46'
 labels:
   - dm
   - ai
@@ -33,6 +34,12 @@ References: docs/playtests (run 3 log), TASK-0181.
 - [ ] #2 A DM call whose output hits maxTokens is recorded as truncated, distinct from invalid-json, in the calls ledger
 - [ ] #3 A test covers the truncation outcome with the fake gateway
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Claimed 2026-11-02 by M3 runbook A (docs/design/m3-runbook-a-run3-fixes.md). Worktree .worktrees/task-0192, branch task-0192-dm-maxtokens-headroom, cut from origin/main 7e252840. Spec number 067 claimed with a stub. Lane A1.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
