@@ -1,10 +1,10 @@
 ---
 id: TASK-0127
 title: 'Stakes before dice: outcome bands and pre-declared consequences'
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-10-27 02:32'
-updated_date: '2026-10-27 02:33'
+updated_date: '2026-11-02 05:47'
 labels:
   - dm
   - doctrine
@@ -37,6 +37,8 @@ Outcome: every check's consequences are fixed before the engine rolls, and narra
 
 <!-- SECTION:NOTES:BEGIN -->
 OPERATOR RULING 2026-10-26, in the operator's words: 'Yes, nat 20 = success nat 1 = failure'. Applies to every d20 test as a table-rules flag, default ON (SRD 5.2.1 reserves this for attack rolls only; this extends it to checks and saves).
+
+Claimed 2026-11-02 by M3 runbook A (docs/design/m3-runbook-a-run3-fixes.md). Worktree .worktrees/task-0127, branch task-0127-stakes-before-dice, cut from origin/main 7e252840. Spec number 070 claimed with a stub. Side lane: spec only, built in runbook B.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
