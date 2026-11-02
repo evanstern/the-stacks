@@ -38,6 +38,7 @@ const usageRecord = (over: Partial<UsageRecord> = {}): UsageRecord => ({
   costUsd: 0.002,
   durationMs: 15,
   attempts: 1,
+  truncated: false,
   outcome: "ok",
   at: "2026-10-26T00:00:00.000Z",
   ...over,
@@ -503,5 +504,92 @@ describe("excerptOf", () => {
     expect(out).toBe(
       `${"h".repeat(6000)}\n…[1 characters elided]…\n${"t".repeat(2000)}`,
     );
+  });
+});
+
+describe("truncated outcome (TASK-0192)", () => {
+  const trunc = (over: Partial<UsageRecord> = {}) =>
+    usageRecord({ truncated: true, ...over });
+
+  it("records ok when a truncated reply still parses", async () => {
+    const calls: RecordedCall[] = [];
+    const { gateway } = usageGatewayOf([
+      { events: text('{"n": 1}'), record: trunc() },
+    ]);
+    const res = await callJson(
+      {
+        gateway,
+        recordCall: async (c) => {
+          calls.push(c);
+        },
+      },
+      req(),
+    );
+    expect(res.ok).toBe(true);
+    expect(calls.map((c) => c.outcome)).toEqual(["ok"]);
+  });
+
+  it("records truncated for an unparsable truncated attempt, then re-asks", async () => {
+    const calls: RecordedCall[] = [];
+    const { gateway } = usageGatewayOf([
+      { events: text("nope"), record: trunc() },
+      { events: text("nope"), record: usageRecord() },
+    ]);
+    await callJson(
+      {
+        gateway,
+        recordCall: async (c) => {
+          calls.push(c);
+        },
+      },
+      req(),
+    );
+    expect(calls.map((c) => c.outcome)).toEqual(["truncated", "invalid-json"]);
+  });
+
+  it("records truncated for a truncated callText", async () => {
+    const calls: RecordedCall[] = [];
+    const { gateway } = usageGatewayOf([
+      { events: text("The door"), record: trunc() },
+    ]);
+    const { schema: _s, ...rest } = req();
+    const res = await callText(
+      {
+        gateway,
+        recordCall: async (c) => {
+          calls.push(c);
+        },
+      },
+      rest,
+    );
+    expect(res).toMatchObject({ ok: true, text: "The door" });
+    expect(calls.map((c) => c.outcome)).toEqual(["truncated"]);
+  });
+
+  it("keeps error as error", async () => {
+    const calls: RecordedCall[] = [];
+    const { gateway } = usageGatewayOf([
+      {
+        events: [
+          {
+            type: "error",
+            kind: "upstream",
+            message: "boom",
+            usage: { inputTokens: 0, outputTokens: 0 },
+          },
+        ],
+        record: trunc({ outcome: "error" }),
+      },
+    ]);
+    await callJson(
+      {
+        gateway,
+        recordCall: async (c) => {
+          calls.push(c);
+        },
+      },
+      req(),
+    );
+    expect(calls.map((c) => c.outcome)).toEqual(["error"]);
   });
 });

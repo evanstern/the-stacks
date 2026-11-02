@@ -27,7 +27,7 @@ the reason.
 - [X] T004 [US1] In `apps/server/test/playtest/budget.test.ts`, change the purpose-default
       assertion for `dm.director` from 600 to 4000. Fix any other assertion that pinned an old
       default.
-- [ ] T005 [US1] Run `pnpm ci:check`. Commit as `TASK-0192 phase 1: dm.* maxTokens headroom`.
+- [X] T005 [US1] Run `pnpm ci:check`. Commit as `TASK-0192 phase 1: dm.* maxTokens headroom`.
 
 ## Phase 2: The truncated outcome (card AC #2, #3, User Story 2)
 
@@ -35,46 +35,46 @@ the reason.
 
 **Independent test**: T013 passes over the real gateway and the fake provider.
 
-- [ ] T006 [US2] In `apps/server/src/ai/types.ts`, add `truncated?: boolean` to `UsageSummary`
+- [X] T006 [US2] In `apps/server/src/ai/types.ts`, add `truncated?: boolean` to `UsageSummary`
       and `truncated: boolean` to `UsageRecord`, each with a one-line doc comment.
-- [ ] T007 [US2] In `apps/server/src/ai/adapters/openai-compatible.ts`, set `truncated: true` on
+- [X] T007 [US2] In `apps/server/src/ai/adapters/openai-compatible.ts`, set `truncated: true` on
       the terminal event's usage when any chunk carried `finish_reason: "length"`. Keep the flag
       when a later `chunk.usage` replaces `usage`.
-- [ ] T008 [US2] In `apps/server/src/ai/gateway.ts` `chat()`, set `record.truncated` to true when
+- [X] T008 [US2] In `apps/server/src/ai/gateway.ts` `chat()`, set `record.truncated` to true when
       `usage.truncated` is true, or when `purpose.maxTokens` is set and `usage.outputTokens >=
       purpose.maxTokens`. Else false. In `embed()`, record `truncated: false`.
-- [ ] T009 [US2] In `apps/server/src/dm/pipeline/context.ts`, add `"truncated"` to
+- [X] T009 [US2] In `apps/server/src/dm/pipeline/context.ts`, add `"truncated"` to
       `ModelCallRecord.outcome`.
-- [ ] T010 [US2] In `apps/server/src/dm/pipeline/call.ts`, apply plan R3. In `callJson`, a failed
+- [X] T010 [US2] In `apps/server/src/dm/pipeline/call.ts`, apply plan R3. In `callJson`, a failed
       parse settles `truncated` when `usage?.truncated` is true, else `invalid-json`. In
       `callText`, a truncated call settles `truncated`, else `ok`. Errors and aborts are unchanged.
       The repair re-ask still runs after a truncated attempt.
-- [ ] T011 [US2] In `apps/server/src/schema/dm-model-calls.ts`, add `'truncated'` to
+- [X] T011 [US2] In `apps/server/src/schema/dm-model-calls.ts`, add `'truncated'` to
       `dm_model_calls_outcome_valid`. Update the doc comment if it lists outcomes. Run
       `pnpm --filter @the-stacks/server db:generate`. Commit the generated `0008_*.sql`,
       `meta/0008_snapshot.json` and `meta/_journal.json` as generated. Never hand-edit the
       journal. If `origin/main` already holds an `0008`, merge it in and regenerate.
-- [ ] T012 [P] [US2] In `apps/web/app/debug/api-types.ts`, add `"truncated"` to
+- [X] T012 [P] [US2] In `apps/web/app/debug/api-types.ts`, add `"truncated"` to
       `DebugCall.outcome`. In `specs/037-debug-api/contracts/debug-api.md`, add `"truncated"` to
       both outcome unions with a note citing TASK-0192.
-- [ ] T013 [US2] **Merge condition.** In `apps/server/test/ai.gateway.test.ts` or a new
+- [X] T013 [US2] **Merge condition.** In `apps/server/test/ai.gateway.test.ts` or a new
       `apps/server/test/dm/truncated.test.ts`, build the real gateway over a `FakeProvider` with a
       `dm.interpret` purpose at `maxTokens: 1200`. Script a reply with no JSON whose `done` usage
       has `outputTokens: 1200`. Call `callJson` with a `recordCall` spy. Assert the attempt's
       recorded outcome is `truncated`. Assert a second scripted reply at 1199 tokens with no JSON
       records `invalid-json`.
-- [ ] T014 [P] [US2] Add unit tests. In `apps/server/test/ai.gateway.test.ts`: the record's
+- [X] T014 [P] [US2] Add unit tests. In `apps/server/test/ai.gateway.test.ts`: the record's
       `truncated` is true at the cap, false below it, false with no `maxTokens`. In
       `apps/server/test/ai.openai-compatible.test.ts`: `finish_reason: "length"` sets
       `usage.truncated`. In `apps/server/test/dm/call.test.ts`: a truncated reply that parses
       records `ok`; a truncated `callText` records `truncated`; an error stays `error`. Add
       `truncated: false` to the `UsageRecord` fixtures in `apps/server/test/ai.usage.test.ts` and
       `apps/server/test/dm/call.test.ts`.
-- [ ] T015 [US2] In `apps/server/test/dm/model-calls.integration.test.ts`, assert a row with
+- [X] T015 [US2] In `apps/server/test/dm/model-calls.integration.test.ts`, assert a row with
       outcome `truncated` inserts and reads back. Run it with `REQUIRE_DATABASE=1` on the
       worktree's own stack: `pnpm env:up`, migrate both databases by hand, then run the suite
       with only `TEST_DATABASE_URL` exported. Leave the stack up.
-- [ ] T016 [US2] Run `pnpm ci:check`. Commit as `TASK-0192 phase 2: truncated call outcome`.
+- [X] T016 [US2] Run `pnpm ci:check`. Commit as `TASK-0192 phase 2: truncated call outcome`.
 
 ## Phase 3: Wiki re-ground
 
