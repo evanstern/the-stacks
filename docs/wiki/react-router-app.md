@@ -16,7 +16,7 @@ sources:
   - apps/web/server.ts
   - apps/web/vite.config.ts
   - apps/web/app/context.ts
-verified_against: 095b85f615387975ce3ae59a3c95aa46ca903b10
+verified_against: 85f778d1365d9968af0b94e21e78f5c058aebd1e
 ---
 
 # React Router app
@@ -41,7 +41,7 @@ its provider, and every loader that reads it live in one module graph (plan D5, 
 **`routes.ts`** declares ten routes (TASK-0028 added four to the original two; TASK-0043 added `about`; TASK-0047 added the two fixture routes; TASK-0117 added the debug route):
 `index("routes/home.tsx")`, `route("ask", "routes/ask.tsx")`,
 `route("books", "routes/books.tsx")`, `route("play", "routes/table.tsx")` (the Table
-landing — join-by-id or start a fresh one), `route("play/fixtures", "routes/play-fixtures.tsx")` and
+landing — join-by-id, start a fresh one, or follow "Your tables"; since TASK-0175 it reads `GET /api/tables` client-side after hydration, not through a loader), `route("play/fixtures", "routes/play-fixtures.tsx")` and
 `route("play/fixtures/:fixtureName", "routes/play-fixture.tsx")` (operator-only fixture previews),
 `route("play/:sessionId", "routes/play.tsx")`
 (the live session, rendered by `TableView`), `route("play/:sessionId/debug", "routes/play-debug.tsx")`

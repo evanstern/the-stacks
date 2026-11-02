@@ -138,7 +138,7 @@ hand; regenerate whenever any note's `description:` changes:
 - [[scene-panels]] — the play route's Start scene (operator) and Change scene (human DM) slide-outs: the scene-seeds view, the `scene` gate request, the pending-seed reject that queues the next AI DM turn.
   The play route's two scene slide-outs - the operator Start scene panel (TASK-0163, specs/054; TASK-0167, specs/059: the server-derived scene start state, the hidden button and the queued and waiting notes; TASK-0177, specs/062: the client DM-seat issue) and the human DM's Change scene panel (TASK-0159, specs/055) - with the scene-seeds view, the scene gate request, the pending-seed reject that queues the next AI DM turn, and fixture-mode local events.
 
-- [[chat-ui]] — the app-level store, the SSE parser and turn reducer behind streamed answers, the Sheet-based Panel, Daylight theme tokens and UI cookies, and the Ask/Library/Table/Settings route tree.
+- [[chat-ui]] — the app-level store, the SSE parser and turn reducer behind streamed answers, the Sheet-based Panel, Daylight theme tokens and UI cookies, and the Ask/Library/Table/Settings route tree; `/play` lists the account's tables from `GET /api/tables` (TASK-0175, specs/069).
   The Chat UI (TASK-0028, specs/024-chat-ui) — the app-level store (upload, jobs poll, streamed ask, citations) that outlives any one route; the incremental SSE parser and pure turn reducer behind streaming answers; the Sheet-based slide-out Panel (the project's only modal-shaped UI, never a <dialog>); the Daylight theme tokens and the two client-written UI cookies; and the role-aware route tree (Ask, Library, Table landing, Settings) and shell around them.
 
 - [[ddb-parser]] — turning saved D&D Beyond export HTML into ordered, anchored blocks.

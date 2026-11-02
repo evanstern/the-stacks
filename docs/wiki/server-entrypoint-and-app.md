@@ -6,8 +6,9 @@ sources:
   - apps/server/src/index.ts
   - apps/server/src/app.ts
   - apps/server/src/routes/dm.ts
+  - apps/server/src/routes/tables.ts
   - apps/server/src/dm/script/env.ts
-verified_against: 9bc934ea72b8c9fa57f4905eaa5f49104c9326a9
+verified_against: 85f778d1365d9968af0b94e21e78f5c058aebd1e
 ---
 
 # Server entrypoint and app
@@ -78,7 +79,7 @@ returns a plain `Hono` app with no port bound. It builds one `identityLookup`
 (`createIdentityLookup({ db, validateSession })`, plan D2) shared by `/auth/me` and the web
 load context, so the two callers cannot drift. It registers, **in this exact order**:
 `app.onError(errorHandler)` / `app.notFound(notFoundHandler)` first, then `app.route("/health",
-...)`, `app.route("/api/echo", ...)`, `app.route("/auth", ...)`, `app.route("/library",
+...)`, `app.route("/api/echo", ...)`, `app.route("/api/tables", createTablesRoute({ db, validateSession }))` (TASK-0175), `app.route("/auth", ...)`, `app.route("/library",
 createLibraryRoutes(...))` (TASK-0024, [[ingestion]]), `app.route("/dm",
 createDmRoutes(...))` (TASK-0046, operator-only, [[dm-runtime]]; since TASK-0163 it also serves `GET /dm/seeds` and refuses a start that seats one user twice), and finally `app.use("*",
 createWebMiddleware({ clientRoot: web?.clientRoot, handler: web?.handler, lookup:
@@ -104,9 +105,7 @@ now called by `answer()` — [[rules-answerer]]), [[ingestion]] (worker started,
 mounted), [[dm-runtime]] (DM worker, enqueuer and `/dm` routes), [[rules-answerer]] (`loadAnswerConfig`, validated here; `answerConfig` and the shared
 `aiGateway`/`retrievalConfig` threaded into `createApp`'s `library.answer`),
 [[error-contract]] (`errorHandler`/`notFoundHandler`), [[static-serving]] (mount-order
-guarantee), [[session-auth]] (`createValidateSession` shared by all three: HTTP auth routes,
-`/library`, and the socket), and the websocket gateway. See [[overview]] for the "one process,
-one port" framing this file implements.
+guarantee), [[session-auth]] (`createValidateSession`), and the websocket gateway. See [[overview]].
 
 ## Operational notes
 
