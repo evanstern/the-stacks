@@ -14,7 +14,7 @@ sources:
   - apps/server/src/dm/prompts/step-grammar.ts
   - apps/server/src/dm/seed/schema.ts
   - specs/033-director-robustness/contracts/rules-terms.md
-verified_against: 0c5c064c0f43566445e806a0cc21452015752504
+verified_against: 2f9b45c48816a6f97a9ede5c07c269c0e921b397
 ---
 
 # DM failure record and rules-term gates
@@ -36,7 +36,7 @@ holds `view`, `tokens`, `cap`, `actors`, `compressed` and the `node`; the runner
 path, `detail: null`). The turn's `presenceSeq` sits beside `failure`. An `invalid-output` detail holds `purpose`, `promptVersion`, `issues` and
 one `AttemptExcerpt` per attempt (`outputTokens`, `chars`, `issues`, `excerpt`). `excerptOf`
 (`pipeline/call.ts`; a capped attempt settles as `truncated`, not `invalid-json`, TASK-0192) bounds each excerpt: text up to 8,000 characters whole, else the first
-6,000, an elision marker, the last 2,000. A think-only reply fails with `not valid JSON: the reply held only a think block`; its excerpt keeps the raw think block (TASK-0181). The `dm.turn.failed` log line carries the detail
+6,000, an elision marker, the last 2,000. A think-only reply fails with `not valid JSON: the reply held only a think block`; its excerpt keeps the raw think block (TASK-0181). The parser also accepts one top-level JSON object inside prose, a fence or an unclosed think block, and every unparsable attempt logs a `dm.call.invalid-json` line with a 200-char head and tail (TASK-0203). The `dm.turn.failed` log line carries the detail
 without `attempts`, because they hold model text. `jobs.error` stays a fixed string
 ([[dm-turn-jobs]]).
 

@@ -47,7 +47,8 @@ type Collected =
       usage: UsageRecord | null;
     };
 
-type CallDeps = Pick<NodeDeps, "gateway" | "recordCall">;
+type CallDeps = Pick<NodeDeps, "gateway" | "recordCall"> &
+  Partial<Pick<NodeDeps, "log">>;
 
 /**
  * Ends one model attempt: builds its record from the gateway's usage record
@@ -115,6 +116,34 @@ function attemptOf(
     issues,
     excerpt: excerptOf(collected.text),
   };
+}
+
+const LOG_EDGE = 200;
+
+/**
+ * TASK-0203: the ledger holds no text, so a recovered first-attempt failure
+ * left no trace of the reply's shape. Log head and tail (200 chars each) of
+ * every unparsable reply, one line per attempt.
+ */
+function logInvalid(
+  deps: CallDeps,
+  req: CallRequest,
+  attempt: 1 | 2,
+  collected: { text: string; outputTokens: number | null },
+  issues: string,
+): void {
+  const t = collected.text;
+  deps.log?.({
+    event: "dm.call.invalid-json",
+    purpose: req.purpose,
+    promptVersion: req.promptVersion,
+    attempt,
+    outputTokens: collected.outputTokens,
+    chars: t.length,
+    issues: issues.slice(0, 300),
+    head: t.slice(0, LOG_EDGE),
+    tail: t.length > LOG_EDGE ? t.slice(-LOG_EDGE) : "",
+  });
 }
 
 async function collect(
@@ -208,6 +237,45 @@ export function stripThink(text: string): string {
   return text.replace(/^(?:\s*<think>[\s\S]*?<\/think>)+\s*/, "");
 }
 
+/**
+ * Finds the one top-level `{…}` object in prose-wrapped text (string-aware
+ * brace scan). Returns null when there is none, it is unbalanced, or a second
+ * top-level object follows (ambiguous output is not accepted).
+ */
+export function extractObject(text: string): string | null {
+  const start = text.indexOf("{");
+  if (start < 0) return null;
+  let depth = 0;
+  let inString = false;
+  for (let i = start; i < text.length; i++) {
+    const c = text[i];
+    if (inString) {
+      if (c === "\\") i++;
+      else if (c === '"') inString = false;
+    } else if (c === '"') inString = true;
+    else if (c === "{") depth++;
+    else if (c === "}" && --depth === 0) {
+      return text.indexOf("{", i + 1) < 0 ? text.slice(start, i + 1) : null;
+    }
+  }
+  return null;
+}
+
+/** Strict parse first; then the single object inside surrounding prose, fences or an unclosed think block. */
+function parseJsonLoose(body: string): unknown {
+  try {
+    return JSON.parse(stripFence(body));
+  } catch (error) {
+    const obj = extractObject(body);
+    if (obj === null) throw error;
+    try {
+      return JSON.parse(obj);
+    } catch {
+      throw error;
+    }
+  }
+}
+
 function parseAgainst<T>(
   text: string,
   schema: ZodType<T>,
@@ -222,7 +290,7 @@ function parseAgainst<T>(
     };
   }
   try {
-    json = JSON.parse(stripFence(body));
+    json = parseJsonLoose(body);
   } catch (error) {
     return { ok: false, issues: `not valid JSON: ${(error as Error).message}` };
   }
@@ -249,6 +317,7 @@ export async function callJson<T>(
     await settle(deps, req, 1, "ok", null, first.usage, calls);
     return { ok: true, value: parsedFirst.value, calls };
   }
+  logInvalid(deps, req, 1, first, parsedFirst.issues);
   await settle(
     deps,
     req,
@@ -274,6 +343,7 @@ export async function callJson<T>(
     await settle(deps, req, 2, "ok", null, second.usage, calls);
     return { ok: true, value: parsedSecond.value, calls };
   }
+  logInvalid(deps, req, 2, second, parsedSecond.issues);
   await settle(
     deps,
     req,
