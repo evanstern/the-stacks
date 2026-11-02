@@ -4,7 +4,7 @@ title: Companion reply misnames who spoke to it
 status: Done
 assignee: []
 created_date: '2026-11-02 04:03'
-updated_date: '2026-11-02 06:14'
+updated_date: '2026-11-02 20:30'
 labels:
   - dm
   - companion
@@ -43,6 +43,8 @@ Claimed 2026-11-02 by M3 runbook A (docs/design/m3-runbook-a-run3-fixes.md). Wor
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
 
 Orchestrator review 2026-11-02 (root session): kept the stopped dispatch's draft. Meets AC1 (companion-v6 'Post that triggered you' section names speaker and addressee) and AC2 (test/dm/companion-addressee.test.ts replays seq 31, asserts Tamsin/addressed you/no Wenna). Gates: server suite 1426 pass with REQUIRE_DATABASE=1 on the worktree stack; pnpm ci:check exit 0; wiki freshness OK; spec-bridge ok.
+
+Hosted evidence, runbook A playtest run 1 (2026-11-02, session 9296c653, seq 15-18): Tamsin 'Odo, are you here?'; Odo (dm.companion-v6, attempt 1): 'Here, Tamsin, same as my shadow...'. He answered the PC who spoke, with Wenna present.
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
