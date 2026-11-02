@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-10-26 20:08'
-updated_date: '2026-11-02 23:39'
+updated_date: '2026-11-02 23:41'
 labels:
   - dm
   - narration
@@ -52,6 +52,8 @@ Reserve an outcome-band field in NarrationFacts: TASK-0127 (stakes before dice) 
 WIDENED 2026-11-02 (operator ruling, relayed by the orchestrator for M3 runbook B, docs/design/m3-runbook-b-resolution-quality.md lane B1): scope covers the Director's goal notes and interpret, not only the narrator. Evidence: runbook A playtest run 1 (docs/playtests/2026-11-02-runbook-a-playtest.md) findings 4, 14, 19, where the Director prescribed Stealth and a reaction swing and interpret followed. ACs #4 and #5 added. This card sets the shared rule; TASK-0205 and TASK-0208 apply it.
 
 Claimed 2026-11-02 by M3 runbook B (docs/design/m3-runbook-b-resolution-quality.md). Worktree .worktrees/task-0113, branch task-0113-player-agency, cut from origin/main b756b68f. Spec number 074 claimed with a stub. Spine #3.
+
+Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5 (spec 074 authoring, C1)
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
