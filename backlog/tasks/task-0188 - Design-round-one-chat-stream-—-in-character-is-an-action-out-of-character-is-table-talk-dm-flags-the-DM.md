@@ -3,10 +3,10 @@ id: TASK-0188
 title: >-
   Design round: one chat stream — in character is an action, out of character is
   table talk, @dm flags the DM
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-11-02 04:03'
-updated_date: '2026-11-02 06:49'
+updated_date: '2026-11-02 14:50'
 labels:
   - design
   - web
@@ -62,6 +62,8 @@ Ruling (2026-11-02), operator, verbatim: "All (a), amend". decision-0028 is acce
 Spec 066 authored (commit bca3e238): specs/066-one-chat-stream (spec, plan, tasks; 6 phases, 61 tasks) and Amendment (TASK-0188) blocks appended to 18 contract files across 028/029/030/031/035/044/049. Three decision gaps are settled in spec.md, with no frozen change beyond §8. Implementation carded as TASK-0199 (Spec marker, 6 phase ACs, depends on TASK-0188). The spec-bridge cli.mjs could not run on this host (its plugin lib/ is empty), so the marker and phase ACs were set by hand with the CLI. Re-run spec-bridge:link once the plugin is fixed.
 Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=cc/claude-opus-5-5
 Run 3 evidence (2026-11-01, seq 47): every resolved action card reads 'Outcome: no-effect', even when the beat produced an NPC reply, a lead, or a held follow-up (TASK-0182 cut). Players cannot see what an action did or what is still pending. The redesign should state what a resolved post shows.
+
+CI green on PR #101 (check pass, 2026-11-02). The operator said "Merge on green".
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
@@ -72,6 +74,6 @@ Design rounds for one chat stream. Round 1 offered three directions; the operato
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
-- [ ] #1 All tests and checks run green
-- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
+- [x] #1 All tests and checks run green
+- [x] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
