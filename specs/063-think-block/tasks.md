@@ -73,20 +73,20 @@ without the block (contracts/think-strip.md).
 Runs beside Phase 1. Each vm-104 command needs the operator's go on its exact text. The probe
 makes two short subscription-backed calls; ask the operator to confirm that spend on the card.
 
-- [ ] T009 **[orchestrator]** Run probe P1 and P2 from `quickstart.md` §Probe on vm-104, each
-      on the operator's go. Never print the key.
-- [ ] T010 **[orchestrator]** Write `specs/063-think-block/evidence/probe.md`: for P1 and P2,
+- [X] T009 **[orchestrator]** Run probe P1 and P2 from `quickstart.md` §Probe on vm-104, each
+      on the operator's go. Never print the key. — superseded 2026-11-02: cause shown by run 3 ledger (interpret truncated at maxTokens 1200); operator raised vm-104 maxTokens to 4000; repo defaults in TASK-0192 PR #102; hosted check 2026-10-30 on the TASK-0181 card.
+- [X] T010 **[orchestrator]** Write `specs/063-think-block/evidence/probe.md`: for P1 and P2,
       where `<think>` arrives, the visible text, `usage.completion_tokens`, `finish_reason`,
       and the router version if shown. Update research.md R1's confidence column from the
-      result. Commit both.
-- [ ] T011 **[orchestrator]** Record the cause on the card with
-      `backlog task edit TASK-0181 --append-notes` from this worktree. Tick card AC #1.
-- [ ] T012 **[orchestrator]** With the operator, pick the source fix (research R7): (1) thinking
+      result. Commit both. — superseded 2026-11-02: cause shown by run 3 ledger (interpret truncated at maxTokens 1200); operator raised vm-104 maxTokens to 4000; repo defaults in TASK-0192 PR #102; hosted check 2026-10-30 on the TASK-0181 card.
+- [X] T011 **[orchestrator]** Record the cause on the card with
+      `backlog task edit TASK-0181 --append-notes` from this worktree. Tick card AC #1. — superseded 2026-11-02: cause shown by run 3 ledger (interpret truncated at maxTokens 1200); operator raised vm-104 maxTokens to 4000; repo defaults in TASK-0192 PR #102; hosted check 2026-10-30 on the TASK-0181 card.
+- [X] T012 **[orchestrator]** With the operator, pick the source fix (research R7): (1) thinking
       off on the 9router `cc/` routes on vm-103, (2) a thinking-off request field, or (3) higher
       `maxTokens` in `/home/stacks/dev/.env`. Options (1) and (3) are operator-run outside the
       repo; record the change and its time in `evidence/probe.md`. Option (2) is a gateway code
       change: card it as a follow-up task, ordered before TASK-0163 run 3. It does not ride this
-      branch.
+      branch. — superseded 2026-11-02: cause shown by run 3 ledger (interpret truncated at maxTokens 1200); operator raised vm-104 maxTokens to 4000; repo defaults in TASK-0192 PR #102; hosted check 2026-10-30 on the TASK-0181 card.
 
 ## Phase 4: Wiki **[orchestrator]** (re-ground)
 
@@ -111,15 +111,15 @@ makes two short subscription-backed calls; ask the operator to confirm that spen
 
 Runs after the PR merges and CI deploys `main` to vm-104.
 
-- [ ] T018 **[orchestrator]** Run `curl -s https://vm-104.tailb3c1b6.ts.net:8443/health`. Confirm
-      `commit` equals the merge commit on `main`. Record it.
-- [ ] T019 **[orchestrator]** With the operator, play one hosted-dev turn: commit one player
-      action at a table and wait for its turn job to finish.
-- [ ] T020 **[orchestrator]** In Brave, open `play/:sessionId/debug`, then the Ledger slide-out.
+- [X] T018 **[orchestrator]** Run `curl -s https://vm-104.tailb3c1b6.ts.net:8443/health`. Confirm
+      `commit` equals the merge commit on `main`. Record it. — superseded 2026-11-02: cause shown by run 3 ledger (interpret truncated at maxTokens 1200); operator raised vm-104 maxTokens to 4000; repo defaults in TASK-0192 PR #102; hosted check 2026-10-30 on the TASK-0181 card.
+- [X] T019 **[orchestrator]** With the operator, play one hosted-dev turn: commit one player
+      action at a table and wait for its turn job to finish. — superseded 2026-11-02: cause shown by run 3 ledger (interpret truncated at maxTokens 1200); operator raised vm-104 maxTokens to 4000; repo defaults in TASK-0192 PR #102; hosted check 2026-10-30 on the TASK-0181 card.
+- [X] T020 **[orchestrator]** In Brave, open `play/:sessionId/debug`, then the Ledger slide-out.
       Confirm every call row for that turn job has `callAttempt` 1 and `outcome` `ok`, and no
       row has `invalid-json`. Record the job id, the rows, the turn time and the cost in
       `specs/063-think-block/evidence/hosted-check.md`, commit it on `main` by the board track,
-      and tick card AC #4.
+      and tick card AC #4. — superseded 2026-11-02: cause shown by run 3 ledger (interpret truncated at maxTokens 1200); operator raised vm-104 maxTokens to 4000; repo defaults in TASK-0192 PR #102; hosted check 2026-10-30 on the TASK-0181 card.
 
 ## Dependencies
 
