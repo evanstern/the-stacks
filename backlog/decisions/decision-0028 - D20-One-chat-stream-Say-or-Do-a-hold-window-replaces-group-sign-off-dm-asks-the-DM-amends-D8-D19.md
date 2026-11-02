@@ -4,7 +4,7 @@ title: >-
   D20 One chat stream: players talk, the DM reads the table after a quiet ring
   and asks them to confirm each action (amends D8, D19)
 date: '2026-11-02 04:25'
-status: proposed
+status: accepted
 ---
 ## Context
 
@@ -30,8 +30,8 @@ Design rounds, `docs/design/one-chat-stream/`:
   behind a visible quiet ring.
 - **Round 2** mocked that UX in two variants. The operator picked A, "Just talk".
 
-**Status: proposed.** The operator rules the open questions below. The text is written against each
-OQ's recommendation (a). A different ruling changes the section that names that OQ.
+**Status: accepted** (2026-11-02). The operator ruled every open question (a) and approved the
+section 8 amendments.
 
 ## Decision
 
@@ -234,4 +234,6 @@ A VTT emits `talk` for chat, draws its own ring from the same post times, render
 - Feedback that started round 2, 2026-11-01: recorded verbatim in the TASK-0188 card notes, opening
   "I'm conflicted -- I feel like I'd rather have #1 be "after 8s the DM asks explicitly for a 👍".
 - Round 2 selection, 2026-11-01: "A, just talk".
-- Open questions and the section 8 amendments: pending.
+- Open questions and the section 8 amendments, 2026-11-02, the operator in the TASK-0188 design
+  session: "All (a), amend". This rules OQ-R1 to OQ-R5, OQ-7, OQ-10 and OQ-11 as (a), and approves
+  the section 8 frozen-contract amendments.
