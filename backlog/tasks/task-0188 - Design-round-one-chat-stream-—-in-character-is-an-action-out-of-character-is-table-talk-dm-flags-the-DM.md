@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-11-02 04:03'
-updated_date: '2026-11-02 04:26'
+updated_date: '2026-11-02 04:42'
 labels:
   - design
   - web
@@ -49,6 +49,8 @@ Round 1 (2026-11-01): docs/design/one-chat-stream/round-1/ (brief.md, index.html
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5
 
 Round 1 selection (2026-11-01), operator: "C, Say or Do". decision-0028 (D20) drafted as proposed, written against C. Open: OQ-1 to OQ-10 and the section 6 frozen-contract amendments (029 commit authority, 044 sign-off, 049 floor-jobs, 030 proposal-seam). No ws-protocol frame change.
+
+Operator feedback on decision-0028 OQ-1 (2026-11-01), verbatim: "I'm conflicted -- I feel like I'd rather have #1 be "after 8s the DM asks explicitly for a 👍 (approval) 'Tamsin is going to look ahead using Stealth, is this correct'" -- that could get annoying on every action, but it *would* help to ensure that the interpretation by the AI DM is accurate -- this may even imply that the action has had a moment to be understood though which may not have happened. What about this UX: 2 seconds after there has been no message, for an ADDITIONAL 8s after a message comes in (so that it's not showing up right away), a visual indicator (8 segmented circle with 8 filled in lines where one line disappears per second) is shown. After 8 seconds, the AI takes a shot at understanding the conversation and responding with "Do you want to do xyz?". At any time during that 2second + 8 second (10s total) window, before the AI does its thing, a player can just type something and the timer will restart. After the 10 second window, when the AI starts thinking, the indicator turns into a "Thinking" indicator. At that point, a person can still interrupt with extra "do"/action text but an "override" or "I'm sure" style button must be pressed so that it's clear to the player that they're interrupting the AI (discourage it, basically)." Round 2 develops this: the quiet window plus a DM confirm replaces the hold window. decision-0028 stays proposed until round 2 is ruled.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
