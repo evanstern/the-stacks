@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-11-02 04:21'
-updated_date: '2026-11-02 05:47'
+updated_date: '2026-11-02 05:50'
 labels:
   - web
   - ux
@@ -41,6 +41,8 @@ References: docs/playtests (run 3 log, lands at wrap).
 
 <!-- SECTION:NOTES:BEGIN -->
 Claimed 2026-11-02 by M3 runbook A (docs/design/m3-runbook-a-run3-fixes.md). Worktree .worktrees/task-0191, branch task-0191-sticky-table-header, cut from origin/main 7e252840. No spec dir: signed escape line covers this task. Lane A4. Escape E2: card ACs drive.
+
+Dispatch: tier=haiku pinned=cc/claude-haiku-5-5 served=claude-haiku-5-5
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
