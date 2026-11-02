@@ -22,6 +22,8 @@ ordinal: 103000
 Outcome: real-model narration does not move the human player's hero at scene start or on a foe's miss, and the playtest auditor treats AI companions according to a stated rule.
 
 Evidence: TASK-0106 rerun 20261026T192319Z (specs/034-narration-quality/evidence/verify-20261026T192319Z-greyhollow-ford-provider/ classification.md). F1: scene-start narration 'Tamsin Vale leads the way up from the bank'. F6: 'Tamsin twists just enough' on a recorded miss, a breach the narrate-v3 rule did not prevent. F7: the playtest auditor treats companion Brother Odo as a player's hero. Seq 130: an invented near-miss with no miss fact. Operator ruling 2026-10-26: card the residue in m-3.
+
+Spec: specs/074-player-agency
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
