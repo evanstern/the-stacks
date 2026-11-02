@@ -1,9 +1,10 @@
 ---
 id: TASK-0175
 title: The Table landing lists the tables you play at
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-10-29 01:52'
+updated_date: '2026-11-02 05:47'
 labels:
   - web
   - server
@@ -29,6 +30,12 @@ Why: two-browser alpha playtest 2026-10-28, item 8. After a system reboot the op
 - [ ] #2 /play lists those tables newest activity first, each linking to play/:sessionId, in light and dark mode
 - [ ] #3 A player never sees a table they have no seat at, with a test
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Claimed 2026-11-02 by M3 runbook A (docs/design/m3-runbook-a-run3-fixes.md). Worktree .worktrees/task-0175, branch task-0175-table-landing-list, cut from origin/main 7e252840. Spec number 069 claimed with a stub. Lane A5.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
