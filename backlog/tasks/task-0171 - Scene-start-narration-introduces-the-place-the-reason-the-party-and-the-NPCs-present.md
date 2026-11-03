@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-10-28 19:39'
-updated_date: '2026-11-02 23:41'
+updated_date: '2026-11-03 01:19'
 labels:
   - dm
   - narration
@@ -39,7 +39,10 @@ Spec: specs/076-scene-start-intros
 - [ ] #3 The scene-start narration names every party character and every present NPC before it asks what the party does, with a test over a captured run
 - [ ] #4 The audit flags a scene-start narration that omits a party character or a present NPC, with a test
 - [ ] #5 No DM-only seed text (secrets, knows) reaches the scene-start prompt, with a type-level or prompt test
+- [ ] #6 Spec phase: The opening premise (card AC #1; US1)
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
