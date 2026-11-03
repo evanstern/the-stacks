@@ -25,8 +25,8 @@ const base = {
 };
 
 describe("react prompt (specs/065 D4)", () => {
-  it("is versioned dm.react-v1", () => {
-    expect(PROMPT_VERSION).toBe("dm.react-v1");
+  it("is versioned dm.react-v2", () => {
+    expect(PROMPT_VERSION).toBe("dm.react-v2");
   });
 
   it("states the outcome, voice, digit, dice and player-view rules", () => {

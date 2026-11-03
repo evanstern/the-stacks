@@ -200,3 +200,21 @@ Node tests, in `audit.test.ts` with a scripted `dm.audit` reply:
   Odo issue.
 - A deterministic issue still blocks when the reply holds only an advisory `player-agency`
   issue.
+
+## Amendment 2026-11-02 (specs/074-player-agency, TASK-0113): agency checks and `dm.audit-v5`
+
+- `PROMPT_VERSION = "dm.audit-v5"`. Definition 1 is `agencyRule("audit")` (doctrine.ts) followed by:
+  "Showing a party member carry out their declared action is allowed. Words, moves and feelings of
+  every other character are the world's, never `player-agency`."
+- `deterministicChecks` adds two blocking `player-agency` checks. Both run on the prose with a
+  matched trailing clarify question removed (spec 073); the either-or clarify exemption is
+  unchanged.
+  1. **Miss defence.** For a recorded `miss` on a party member, the prose fails when an alias of
+     the member pairs with a `DEFENCE_VERBS` form, or with a `REFLEX_VERBS` form followed within
+     three words by an `INTENT_MARKERS` entry. A plain reflex verb ("flinches") passes. A member
+     whose own declared action holds such a verb is exempt. Detail: `The prose shows <name>
+     choosing a defence ("<match>") on a recorded miss.`
+  2. **Scene-start hero.** When `facts.trigger` is `scene-start`, the prose fails when a party
+     alias pairs with a `SCENE_START_VERBS` form. Detail: `The opening moves or voices <name>
+     ("<match>").`
+- The window is lexical (two words before the verb); a paraphrase can pass.

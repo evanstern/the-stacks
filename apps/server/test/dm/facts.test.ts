@@ -7,6 +7,7 @@ import {
   type BuildFactsInput,
   buildNarrationFacts,
   collectFacts,
+  deriveInvoluntary,
   type NarrationFacts,
   renderChangeLine,
   renderDiceLines,
@@ -748,5 +749,120 @@ describe("settled death saves (TASK-0112, plan D5)", () => {
     expect(entries.filter((e) => e.includes("change:")).join("")).not.toMatch(
       /\d/,
     );
+  });
+});
+
+describe("deriveInvoluntary (spec 074 D3)", () => {
+  const party = new Set(["ana"]);
+  const maxes: Record<string, number> = { ana: 20, goblin: 20 };
+  const derive = (rows: LedgerRow[]) =>
+    deriveInvoluntary(rows, party, (id) => maxes[id] ?? null, nameOf);
+  const attack = (
+    seq: number,
+    targetId: string,
+    outcome: "hit" | "miss" | "critical-hit",
+  ): LedgerRow =>
+    ({
+      kind: "outcome",
+      ...common(seq, "b", seq),
+      reason: "attack",
+      outcome: {
+        type: "attack.resolved",
+        v: 1,
+        reason: "attack",
+        attackerId: targetId === "ana" ? "goblin" : "ana",
+        targetId,
+        rollIndex: 0,
+        ac: 12,
+        acSource: "record",
+        total: 15,
+        natural: 15,
+        outcome,
+      },
+    }) as unknown as LedgerRow;
+  const hp = (seq: number, subject: string, lost: number): LedgerRow =>
+    ({
+      kind: "change",
+      ...common(seq, "b", seq),
+      reason: "damage",
+      type: "hp.changed",
+      subject,
+      before: { current: 20, temp: 0 },
+      after: { current: 20 - lost, temp: 0 },
+    }) as unknown as LedgerRow;
+  const save = (
+    seq: number,
+    combatantId: string,
+    outcome: "success" | "failure",
+    ability = "dex",
+  ): LedgerRow =>
+    ({
+      kind: "outcome",
+      ...common(seq, "b", seq),
+      reason: "save",
+      outcome: {
+        type: "check.resolved",
+        v: 1,
+        reason: "save",
+        combatantId,
+        kind: "saving-throw",
+        ability,
+        skill: null,
+        rollIndex: 0,
+        dc: 13,
+        total: 8,
+        natural: 8,
+        autoFail: null,
+        outcome,
+      },
+    }) as unknown as LedgerRow;
+
+  it("a critical hit on a party member gives stagger", () => {
+    expect(derive([attack(1, "ana", "critical-hit")])).toEqual([
+      { name: "Ana", trigger: "stagger", detail: "critical hit by Goblin" },
+    ]);
+  });
+  it("damage of exactly half max HP gives heavy-hit; one less gives none", () => {
+    expect(derive([hp(1, "ana", 10)]).map((i) => i.trigger)).toEqual([
+      "heavy-hit",
+    ]);
+    expect(derive([hp(1, "ana", 9)])).toEqual([]);
+  });
+  it("a failed DEX save gives flinch; a monster gives none; a success gives none", () => {
+    expect(derive([save(1, "ana", "failure")])).toEqual([
+      { name: "Ana", trigger: "flinch", detail: "failed dex save" },
+    ]);
+    expect(derive([save(1, "goblin", "failure")])).toEqual([]);
+    expect(derive([save(1, "ana", "success")])).toEqual([]);
+  });
+  it("a failed death save gives none (death-saves.changed only)", () => {
+    const row = {
+      kind: "change",
+      ...common(1, "b", 1),
+      reason: "death save",
+      type: "death-saves.changed",
+      subject: "ana",
+      before: { successes: 0, failures: 0 },
+      after: { successes: 0, failures: 1 },
+    } as unknown as LedgerRow;
+    expect(derive([row])).toEqual([]);
+  });
+  it("a crit with heavy damage gives both", () => {
+    expect(
+      derive([attack(1, "ana", "critical-hit"), hp(2, "ana", 12)]).map(
+        (i) => i.trigger,
+      ),
+    ).toEqual(["stagger", "heavy-hit"]);
+  });
+  it("max HP 0 gives no heavy-hit", () => {
+    maxes.ana = 0;
+    expect(derive([hp(1, "ana", 5)])).toEqual([]);
+    maxes.ana = 20;
+  });
+  it("a foe's miss on a party member gives avoid; on a monster gives none", () => {
+    expect(derive([attack(1, "ana", "miss")])).toEqual([
+      { name: "Ana", trigger: "avoid", detail: "missed by Goblin" },
+    ]);
+    expect(derive([attack(1, "goblin", "miss")])).toEqual([]);
   });
 });

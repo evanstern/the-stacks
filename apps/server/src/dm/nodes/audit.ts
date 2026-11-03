@@ -1,13 +1,19 @@
 import { createHash } from "node:crypto";
 import { z } from "zod";
 import {
+  DEFENCE_VERBS,
   DICE_LANGUAGE,
   EITHER_OR_END,
   LIST_LINE,
   MAX_WORDS,
   NEGATIVE_WORDS,
+  namePairMatch,
   namePairsWith,
+  namePairsWithIntentReflex,
   POSITIVE_WORDS,
+  REFLEX_VERBS,
+  SCENE_START_VERBS,
+  verbForms,
   wordCount,
 } from "../audit-words.js";
 import { type ClaimState, checkClaims } from "../claims.js";
@@ -196,6 +202,89 @@ export function deterministicChecks(
         "ledger-mismatch",
         `The prose pairs ${a.characterName} with the opposite of the recorded ${only}.`,
       );
+    }
+  }
+
+  // Agency checks (spec 074): run on the prose without a matched trailing
+  // clarify question; the question asks the player and decides nothing.
+  const normText = (t: string) =>
+    spellDigits(t)
+      .toLowerCase()
+      .replace(/["'\u2018\u2019\u201c\u201d]/g, "")
+      .replace(/\s+/g, " ")
+      .trim();
+  let agencyProse = prose;
+  const trimmed = prose.trimEnd();
+  for (const c of facts.clarify) {
+    const q = c.question.trim();
+    if (q && normText(trimmed).endsWith(normText(q))) {
+      // Cut at the last sentence break so the question leaves the tail.
+      const cut = Math.max(
+        trimmed.lastIndexOf(". ", trimmed.length - q.length),
+        trimmed.lastIndexOf("\n", trimmed.length - q.length),
+      );
+      agencyProse = cut >= 0 ? trimmed.slice(0, cut + 1) : "";
+      break;
+    }
+  }
+  const aliasesOf = (full: string): string[] => {
+    const parts = full.split(/\s+/);
+    return [...new Set([full, parts[0], parts[parts.length - 1]])].filter(
+      (n): n is string => !!n && n.length >= 3,
+    );
+  };
+  const forms = (lemmas: readonly string[]): string[] =>
+    lemmas.flatMap(verbForms);
+  const defence = forms(DEFENCE_VERBS);
+  const reflex = forms(REFLEX_VERBS);
+  const partyNames = new Set(facts.party.map((m) => m.name));
+  const missedParty = new Set<string>();
+  for (const r of [
+    ...facts.actions.flatMap((a) => a.rolls),
+    ...(facts.npcTurn?.rolls ?? []),
+  ]) {
+    if (r.outcome === "miss" && r.target && partyNames.has(r.target)) {
+      missedParty.add(r.target);
+    }
+  }
+  // ponytail: lexical window of two words before the verb and three before an
+  // intent marker; upgrade to the claim gate's clause parser (claims.ts) if the
+  // playtest shows paraphrases ("slips aside") passing.
+  for (const name of missedParty) {
+    const own = facts.actions.find((a) => a.characterName === name)?.text ?? "";
+    const ownChoice = [
+      ...DEFENCE_VERBS,
+      ...REFLEX_VERBS,
+      ...defence,
+      ...reflex,
+    ].some((v) => new RegExp(`\\b${v}\\b`, "i").test(own));
+    if (ownChoice) continue;
+    let hit: string | null = null;
+    for (const n of aliasesOf(name)) {
+      hit =
+        namePairMatch(agencyProse, n, defence) ??
+        namePairsWithIntentReflex(agencyProse, n, reflex);
+      if (hit) break;
+    }
+    if (hit) {
+      add(
+        "player-agency",
+        `The prose shows ${name} choosing a defence ("${hit.slice(0, 60)}") on a recorded miss.`,
+      );
+    }
+  }
+  if (facts.trigger === "scene-start") {
+    const sceneVerbs = forms(SCENE_START_VERBS);
+    for (const m of facts.party) {
+      const hit = aliasesOf(m.name)
+        .map((n) => namePairMatch(agencyProse, n, sceneVerbs))
+        .find((h) => h);
+      if (hit) {
+        add(
+          "player-agency",
+          `The opening moves or voices ${m.name} ("${hit.slice(0, 60)}").`,
+        );
+      }
     }
   }
 

@@ -3,10 +3,10 @@ id: TASK-0113
 title: >-
   Narration player-agency residue: scene-start hero moves, v3 dodge breach,
   companion scope
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-10-26 20:08'
-updated_date: '2026-11-02 23:32'
+updated_date: '2026-11-03 02:40'
 labels:
   - dm
   - narration
@@ -22,16 +22,23 @@ ordinal: 103000
 Outcome: real-model narration does not move the human player's hero at scene start or on a foe's miss, and the playtest auditor treats AI companions according to a stated rule.
 
 Evidence: TASK-0106 rerun 20261026T192319Z (specs/034-narration-quality/evidence/verify-20261026T192319Z-greyhollow-ford-provider/ classification.md). F1: scene-start narration 'Tamsin Vale leads the way up from the bank'. F6: 'Tamsin twists just enough' on a recorded miss, a breach the narrate-v3 rule did not prevent. F7: the playtest auditor treats companion Brother Odo as a player's hero. Seq 130: an invented near-miss with no miss fact. Operator ruling 2026-10-26: card the residue in m-3.
+
+Spec: specs/074-player-agency
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 A narrate rule or check covers the hero at scene start, with a test over the opening framing
-- [ ] #2 The v3 miss rule's adherence is measured on a captured run, and a fix with a test follows if it is below a stated rate
-- [ ] #3 The playtest auditor's hero-is-theirs check states whether companions count, with a test
-- [ ] #4 The Director's goal notes state no volitional act, method or skill for a PC that its player did not declare, with a prompt test
-- [ ] #5 Interpret steps carry no volitional act for a PC that its player did not declare, with a test
+- [x] #1 A narrate rule or check covers the hero at scene start, with a test over the opening framing
+- [x] #2 The v3 miss rule's adherence is measured on a captured run, and a fix with a test follows if it is below a stated rate
+- [x] #3 The playtest auditor's hero-is-theirs check states whether companions count, with a test
+- [x] #4 The Director's goal notes state no volitional act, method or skill for a PC that its player did not declare, with a prompt test
+- [x] #5 Interpret steps carry no volitional act for a PC that its player did not declare, with a test
+- [x] #6 Spec phase: Rule source, Director, interpret, playtest auditor (card AC #3, #4, #5; US1, US4)
+- [x] #7 Spec phase: Wiki (re-ground)
+- [x] #8 Spec phase: Facts, narrate, audit (card AC #1, #2; US2, US3; OQ-1 ruling)
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
@@ -48,10 +55,37 @@ RESEARCH FINDINGS 2026-10-26 (TASK-0115 branch Resolution-and-Outcome; decision-
 Reserve an outcome-band field in NarrationFacts: TASK-0127 (stakes before dice) extends this card's facts shape and depends on it. The flavour-intensity rule goes to TASK-0130.
 
 WIDENED 2026-11-02 (operator ruling, relayed by the orchestrator for M3 runbook B, docs/design/m3-runbook-b-resolution-quality.md lane B1): scope covers the Director's goal notes and interpret, not only the narrator. Evidence: runbook A playtest run 1 (docs/playtests/2026-11-02-runbook-a-playtest.md) findings 4, 14, 19, where the Director prescribed Stealth and a reaction swing and interpret followed. ACs #4 and #5 added. This card sets the shared rule; TASK-0205 and TASK-0208 apply it.
+
+Claimed 2026-11-02 by M3 runbook B (docs/design/m3-runbook-b-resolution-quality.md). Worktree .worktrees/task-0113, branch task-0113-player-agency, cut from origin/main b756b68f. Spec number 074 claimed with a stub. Spine #3.
+
+Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5 (spec 074 authoring, C1)
+
+spec-bridge sync: Rule source, Director, interpret, playtest auditor (card AC #3, #4, #5; US1, US4): 0/12 · Facts, narrate, audit (card AC #1, #2; US2, US3): 0/11 · Wiki (re-ground): 0/6
+
+Spec 074 (5f6dc7e7). OQ-2 default taken: no startle fact in this card (engine records no surprise); carded separately. OQ-3 default taken: AI companions count under hero-is-theirs. OQ-1 (is a foe's miss a reflex trigger) put to the operator before Phase 2; Phase 1 does not depend on it.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 074 phase 1)
+
+OPERATOR RULING 2026-11-02 on spec 074 OQ-1 (in chat, answering 'May the narration show a reflexive flinch when a foe misses a PC?'): "Yes, allow a flinch". OQ-1 takes option (b): a foe's miss is a fifth reflex trigger that allows a reflexive flinch; a chosen dodge or reposition stays blocked.
+
+Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5 (spec 074 amendment for OQ-1 ruling, C1)
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 074 phase 2)
+Spec 074 OQ-4 default taken (orchestrator, flagged to the operator): seq 82 'twists just enough' is a twist with intent (breach). If the operator rules it a flinch, drop 'just enough' from INTENT_MARKERS.
+
+Dispatch: tier=haiku pinned=cc/claude-haiku-5-5 served=claude-haiku-5-5 (spec 074 phase 3, wiki)
+
+spec-bridge sync: Rule source, Director, interpret, playtest auditor (card AC #3, #4, #5; US1, US4): 12/12 · Facts, narrate, audit (card AC #1, #2; US2, US3; OQ-1 ruling): 12/12 · Wiki (re-ground): 6/6 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Rule source, Director, interpret, playtest auditor (card AC #3, #4, #5; US1, US4): 12/12 · Facts, narrate, audit (card AC #1, #2; US2, US3; OQ-1 ruling): 12/12 · Wiki (re-ground): 6/6). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
-- [ ] #1 All tests and checks run green
-- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
+- [x] #1 All tests and checks run green
+- [x] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->

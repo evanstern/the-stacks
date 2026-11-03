@@ -1,5 +1,6 @@
 import { estimateTokens } from "@the-stacks/srd";
 import { describe, expect, it } from "vitest";
+import { agencyRule } from "../../src/dm/doctrine/doctrine.js";
 import type { TurnCheckpoint } from "../../src/dm/jobs.js";
 import { assemble } from "../../src/dm/nodes/assemble.js";
 import { CAPS } from "../../src/dm/prompts/common.js";
@@ -319,7 +320,11 @@ describe("prompt caps (SC-007)", () => {
       aiCompanions: [],
       runnableEncounterIds: [],
     });
-    expect(DIRECTOR_VERSION).toBe("dm.director-v4");
+    expect(DIRECTOR_VERSION).toBe("dm.director-v5");
+    expect(prompt.system).toContain(agencyRule("director"));
+    expect(prompt.system).toContain(
+      "names no party member's act, method, skill or reaction",
+    );
     expect(prompt.system).toContain(
       "a trigger that needs a roll this beat to succeed waits for the next beat.",
     );
