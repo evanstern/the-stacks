@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-11-02 23:11'
-updated_date: '2026-11-03 03:18'
+updated_date: '2026-11-03 03:38'
 labels:
   - dm
   - rules
@@ -56,6 +56,9 @@ spec-bridge sync: The engine owns reactions (card AC #1, engine part; US1 scenar
 Spec 079 (01ca6abd). Defaults (a) taken: OQ-1 interpret names the hostiles left (leavesReachOf), no engagement fact; OQ-2 code always takes an NPC's reaction; OQ-3 no reaction taken for a party member (carded); OQ-4 reuse spec 077's refusal path, else STEP_ACTOR_MISMATCH; OQ-5 no fallback change for open followUps, the playtest watches it; OQ-6 spell and trait reactions out of scope (carded).
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 079 phases 1-2)
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 079 phases 3-4)
+OQ-4 result: STEP_ACTOR_MISMATCH added (plan-gate only); spec 077 had no refusal to reuse.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
