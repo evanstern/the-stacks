@@ -144,7 +144,7 @@ Phases 1 to 3 run in order: each needs the previous phase's types.
 - [x] T037 Update `docs/wiki/CAPSULES.md` and `docs/wiki/INDEX.md`: the dnd5e-engine and
       dm-failure-and-gates one-liners, and the INDEX state paragraph.
 - [x] T038 Run the wiki freshness gate (prints `OK`) and the spec-bridge gate (exits 0).
-- [ ] T039 [orchestrator] Add the execution-log row to the runbook B file.
+- [x] T039 [orchestrator] Add the execution-log row to the runbook B file.
 
 ## Dependencies
 
