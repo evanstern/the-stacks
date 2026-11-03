@@ -115,3 +115,9 @@ prompt is `dm.director-v4`.
 - Field: `arrivals?: RefId[]` (max 4), the offstage seed NPC ids the transcript or the beat shows on screen. `legalizeDirector` always sets it; an omitted field reads `[]`.
 - Legality: an arrival is legal when it names a seed NPC whose logged presence is `absent` and the trigger is not `scene-start`. Otherwise the id is dropped, duplicates collapse to the first, and one `arrivals` override is recorded.
 - Proposal: resolve submits one public `scene-presence` `arrived` proposal per legal arrival, key `director:arrival:<npcId>`, as the first opening move after the scene-start block.
+
+## Amendment 2026-11-03 (specs/085-combat-audit-pass-rate, TASK-0214): the `goalNote` restriction
+
+The Director prompt is `dm.director-v7`. The `goalNote` shape text also says the note states no count of
+the fallen or the remaining, no morale condition and no encounter trigger. The narrate node backs the
+rule: `withholdRefusedInputs` blanks a note that states a count.

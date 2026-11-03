@@ -83,10 +83,10 @@ cases.
 
 **Independent test**: `combat-audit-replay.test.ts` passes.
 
-- [ ] T019 [US5] Write `apps/server/test/dm/combat-audit-replay.test.ts` per plan "Replay": one
+- [x] T019 [US5] Write `apps/server/test/dm/combat-audit-replay.test.ts` per plan "Replay": one
       `describe` per seq (103, 126, 131, 161, 196), every case in the table. Name the source and
       the rebuilt status in the header. Mark each rebuilt prose string with a `// rebuilt` comment.
-- [ ] T020 Amend the four contracts plan "Contracts" names, each with a dated
+- [x] T020 Amend the four contracts plan "Contracts" names, each with a dated
       `## Amendment (specs/085-combat-audit-pass-rate, TASK-0214)` section. Commit as
       `TASK-0214 phase 3: run 1 refusal replay and contract amendments`.
 

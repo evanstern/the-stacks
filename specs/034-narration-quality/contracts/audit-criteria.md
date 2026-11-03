@@ -232,3 +232,19 @@ At scene start only, `deterministicChecks` blocks (kind `other`) an opening that
 every party member and every present NPC, case-sensitive and whole-word (full or given name),
 before its closing question. It also blocks an opening that holds the word "player" or "AI
 companion". Audit prompt text is unchanged (`dm.audit-v10`).
+
+## Amendment 2026-11-03 (specs/085-combat-audit-pass-rate, TASK-0214): off-turn check, issue actor, stock ending, goal-note counts
+
+- Audit is `dm.audit-v12`. Rule 6 is built on `TURN_RULE`: showing the Next actor or an Off turn
+  character strike, shoot, cast, throw or charge is `invented-mechanics`; words, looks and flinches are
+  not. Rule 1 says an NPC's or monster's words, looks and feelings are never `player-agency`.
+- Deterministic check: when `facts.turn.offTurn` is non-empty, `offTurnActs` runs after the claim
+  check. Each hit blocks as `invented-mechanics` and skips the `dm.audit` call for that attempt.
+- Each model issue may carry an optional `actor` (1 to 80 characters). For `player-agency`, a set
+  `actor` decides blocking: it blocks only when it names a party member. Without `actor`, the detail
+  test of E2 applies.
+- `STOCK_ENDING` (in `audit-words.ts`) is the one literal-ending regex. `narrateAttempt` drops a trailing
+  stock sentence (`dropStockEnding`) when a sentence end precedes it and no clarify question is owed;
+  the deterministic check stays as the backstop.
+- `withholdRefusedInputs` also blanks a `goalNote` that states a count (`hasCountClaim`) and records a
+  non-blocking `doctrine` issue on attempt 1.
