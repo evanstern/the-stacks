@@ -36,7 +36,10 @@ Spec: specs/070-stakes-before-dice
 - [ ] #8 Spec phase: Engine bands, naturals and auto-success (card AC #2, #4, #7; US1, US2)
 - [ ] #9 Spec phase: Step contract, prompts, table rules, plan gate, fixtures (card AC #1, #3; US1, US2)
 - [ ] #10 Spec phase: Resolve by band and the free retry (card AC #2, #3, #5; US1, US2, US3)
+- [ ] #11 Spec phase: Facts, narration, audit, fallback, ledger view (card AC #2, #6; US1, US4)
 <!-- AC:END -->
+
+
 
 
 
