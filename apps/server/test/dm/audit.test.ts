@@ -359,10 +359,10 @@ describe("literal stock ending (TASK-0204)", () => {
     expect(literal(`What do you do? ${CLEAN}`)).toBe(false);
   });
 
-  it("exempts a clarify question that ends on the phrase", () => {
-    const q = "Tamsin's player decides what Tamsin does. What do you do?";
+  it("a clarify question never ends on the literal phrase", () => {
+    const q = "Kestrel's player decides what Kestrel does. What do you do?";
     const f = { ...facts(), clarify: [{ actionId: "a1", question: q }] };
-    expect(literal(`${CLEAN} ${q}`, f)).toBe(false);
+    expect(literal(`${CLEAN} ${q}`, f)).toBe(true);
   });
 
   it("covers the scene-start opening path", () => {

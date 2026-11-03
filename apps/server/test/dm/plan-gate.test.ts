@@ -1090,7 +1090,9 @@ describe("askUndeclared (spec 077)", () => {
 
   it("asks before rolling for another human's PC", () => {
     const r = ask(item(SNEAK), [stealth("kestrel")]);
-    expect(r.readings[0]?.clarify).toBe(otherPlayerQuestion("Kestrel"));
+    expect(r.readings[0]?.clarify).toBe(
+      otherPlayerQuestion("Kestrel", "Tamsin Vale"),
+    );
     expect(r.asked[0]?.rule).toBe("other-player");
   });
 
@@ -1143,7 +1145,9 @@ describe("askUndeclared (spec 077)", () => {
     const r = ask(item("I strike the goblin"), [
       attackStep("goblin-1", { attackerId: "kestrel" }),
     ]);
-    expect(r.readings[0]?.clarify).toBe(otherPlayerQuestion("Kestrel"));
+    expect(r.readings[0]?.clarify).toBe(
+      otherPlayerQuestion("Kestrel", "Tamsin Vale"),
+    );
   });
 
   it("skips the manner rule for a companion's action", () => {
@@ -1211,7 +1215,7 @@ describe("askUndeclared (spec 077)", () => {
   it("keeps every question speakable", () => {
     const qs = [
       ...MANNER_SKILLS.map((m) => m.question),
-      otherPlayerQuestion("Kestrel"),
+      otherPlayerQuestion("Kestrel", "Tamsin Vale"),
     ];
     for (const q of qs) {
       expect(q).not.toMatch(/\d/);

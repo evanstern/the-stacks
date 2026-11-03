@@ -380,13 +380,8 @@ export function deterministicChecks(
     );
   }
   // The literal stock ending is the doctrine's wrong example (end-on-demand).
-  // A clarify question may still end on it (plan-gate otherPlayerQuestion).
-  const literalEnd = /\bwhat do you(?: all| two)? do\?["'\u201d\u2019]*$/i.test(
-    prose.trim(),
-  );
   if (
-    literalEnd &&
-    !facts.clarify.some((c) => proseTail.endsWith(norm(c.question)))
+    /\bwhat do you(?: all| two)? do\?["'\u201d\u2019]*$/i.test(prose.trim())
   ) {
     add(
       "doctrine",
