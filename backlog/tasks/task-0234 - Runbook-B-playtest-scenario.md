@@ -4,7 +4,7 @@ title: Runbook B playtest scenario
 status: In Progress
 assignee: []
 created_date: '2026-11-03 10:47'
-updated_date: '2026-11-03 11:27'
+updated_date: '2026-11-03 11:29'
 labels:
   - playtest
   - dm
@@ -36,6 +36,8 @@ Rows (from the runbook): undeclared method (0205, 0113); clarify question (0209)
 
 <!-- SECTION:NOTES:BEGIN -->
 Claimed 2026-11-03 by M3 runbook B (docs/design/m3-runbook-b-resolution-quality.md). Worktree .worktrees/task-0234, branch task-0234-runbook-b-scenario, cut from origin/main 08cdf8eb. No spec dir: signed escape line covers this task. Runbook B Last step. Under the TASK-0195 convention (card ACs drive, as TASK-0195's E3 did).
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (scenario authoring and rehearsal)
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
