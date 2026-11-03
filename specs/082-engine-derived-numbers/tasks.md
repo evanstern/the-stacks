@@ -28,43 +28,43 @@ Phase 4 closes the full gate.
 
 ## Phase 1: Engine derivation (card AC #1, #2, #4, #5; US1, US2, US3, US4)
 
-- [ ] T002 [US1] In `packages/dnd5e-engine/src/schema/state.ts`, add `SKILL_ABILITY`,
+- [x] T002 [US1] In `packages/dnd5e-engine/src/schema/state.ts`, add `SKILL_ABILITY`,
       `AttackEntrySchema`, `CombatantStatsSchema` and optional `stats` on `CombatantSchema`. Move
       `Ability` and `Amount` here; import them in `commands.ts` and `events.ts` (plan D1).
-- [ ] T003 [US1] In `packages/dnd5e-engine/src/schema/commands.ts`, add optional `stats` to
+- [x] T003 [US1] In `packages/dnd5e-engine/src/schema/commands.ts`, add optional `stats` to
       `CombatantInit`. On `check.roll` make `expression` and `dc` optional and add `difficulty`. On
       `attack.roll` make `expression` optional and add `attack` (plan D3, R8: `.optional()`, plain
       `z.object`).
-- [ ] T004 [US1] In `packages/dnd5e-engine/src/schema/events.ts`, add optional `difficulty` to
+- [x] T004 [US1] In `packages/dnd5e-engine/src/schema/events.ts`, add optional `difficulty` to
       `check.resolved` and optional `attack` to `attack.resolved`. In `schema/refusals.ts`, add
       `STAT_UNDEFINED`.
-- [ ] T005 [US1] Create `packages/dnd5e-engine/src/derive.ts` with every function of plan D2. Cite
+- [x] T005 [US1] Create `packages/dnd5e-engine/src/derive.ts` with every function of plan D2. Cite
       the SRD record id in a comment beside each rule. Mark the OQ-6 proxies `ponytail:`.
-- [ ] T006 [US1] In `packages/dnd5e-engine/src/commands/combatants.ts`, copy `init.stats` onto the
+- [x] T006 [US1] In `packages/dnd5e-engine/src/commands/combatants.ts`, copy `init.stats` onto the
       new combatant when present.
-- [ ] T007 [US1] In `packages/dnd5e-engine/src/commands/attacks.ts`, apply plan D3's order to
+- [x] T007 [US1] In `packages/dnd5e-engine/src/commands/attacks.ts`, apply plan D3's order to
       `handleCheckRoll` and `handleAttackRoll`. Keep spec 070's band code and spec 079's reaction
       checks unchanged. Record `difficulty` and `attack` on the resolved events.
-- [ ] T008 Export `derive.ts`'s functions and types, `DifficultySchema`, `CombatantStatsSchema` and
+- [x] T008 Export `derive.ts`'s functions and types, `DifficultySchema`, `CombatantStatsSchema` and
       `AttackEntrySchema` from `packages/dnd5e-engine/src/index.ts`.
-- [ ] T009 [US4] Create `packages/dnd5e-engine/test/derive.test.ts`: a check modifier with and
+- [x] T009 [US4] Create `packages/dnd5e-engine/test/derive.test.ts`: a check modifier with and
       without proficiency; a skill paired with another ability; a save with and without a total;
       exhaustion −2 per level; each tier's DC; every condition rule of plan R5 once; prone by range;
       cancellation; `d20Expression` at 0, +5 and −1; `spellSaveDc` and `spellAttackBonus` for a
       Wis +3, PB +2 caster (13, +5) and null with no ability.
-- [ ] T010 [US1] In `packages/dnd5e-engine/test/commands/attacks.test.ts`, add scripted-dice tests:
+- [x] T010 [US1] In `packages/dnd5e-engine/test/commands/attacks.test.ts`, add scripted-dice tests:
       a derived check at tier `medium` rolls `1d20+5` vs DC 15; a scene check rolls flat `1d20`;
       `difficulty` with `dc` and neither are refused `INVALID_COMMAND`; a derived attack by name
       rolls the entry's to-hit vs the record AC; `attack` with `expression` refused; a poisoned
       attacker rolls with disadvantage; an explicit expression ignores conditions (old behaviour);
       `STAT_UNDEFINED` for no stats, a missing ability modifier and an unknown attack name, each
       before any draw (`expectRefusedBeforeDraw`); band and margin use the tier DC.
-- [ ] T011 In `packages/dnd5e-engine/test/commands/combatants.test.ts`, assert `stats` are copied
+- [x] T011 In `packages/dnd5e-engine/test/commands/combatants.test.ts`, assert `stats` are copied
       and a combatant without them parses.
-- [ ] T012 Update `packages/dnd5e-engine/README.md` with one paragraph on stats and derived rolls.
-- [ ] T013 Amend `specs/026-dnd5e-engine/contracts/commands.md`, `events.md`, `refusals.md` and
+- [x] T012 Update `packages/dnd5e-engine/README.md` with one paragraph on stats and derived rolls.
+- [x] T013 Amend `specs/026-dnd5e-engine/contracts/commands.md`, `events.md`, `refusals.md` and
       `engine-api.md`, each section marked "Amended by specs/082-engine-derived-numbers".
-- [ ] T014 Run `pnpm ci:check`.
+- [x] T014 Run `pnpm ci:check`.
 
 ## Phase 2: Stats on combatants and the reaction path (card AC #1, #3, #4; US2, US3)
 

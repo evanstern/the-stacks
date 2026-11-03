@@ -52,6 +52,7 @@ export const handleCombatantAdd: Handler<"combatant.add"> = (
     conModifier: init.conModifier,
     ac: init.ac,
     defenses: init.defenses,
+    ...(init.stats ? { stats: init.stats } : {}),
   };
   return {
     ok: true,

@@ -164,3 +164,8 @@ Amended by specs/070-stakes-before-dice. `OutcomeBand` is `success | success-at-
 severe-failure`. `check.resolved` gains optional `margin` and `band`; `v` stays 1 and old rows parse
 without them. `outcome` stays the two-value result: `success-at-cost` reads `success`, `severe-failure`
 reads `failure`. An auto-fail row carries band `failure`; an auto-success row carries band `success`.
+
+## Amended by specs/082-engine-derived-numbers (TASK-0104)
+
+`check.resolved` gains optional `difficulty`. `attack.resolved` gains optional `attack` (the entry
+name). `combatant.added`'s `after` carries optional `stats`. `v` stays 1; old rows parse.

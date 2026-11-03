@@ -58,3 +58,5 @@ export const RefusalSchema = z.object({
 | 28 | `REASON_CONTRADICTS_STATE` | A DM step reason contradicts actor state. Plan gate only (spec 058); `execute` never returns it. Amended by spec 058 / TASK-0161 (operator ruling OQ-2 (a)) | none (the DM plan gate) |
 | 30 | `STEP_ACTOR_MISMATCH` | A party action's `attack` or `move` step names a foreign actor. Plan gate only (spec 079); `execute` never returns it. Amended by spec 079 (TASK-0208) | none (the DM plan gate) |
 | 29 | `REACTION_SPENT` | An `attack.roll` with `reaction: true` whose attacker already spent its Reaction this round cycle. Raised before any die. Amended by spec 079 (TASK-0208) | `attack.roll` |
+
+| 31 | `STAT_UNDEFINED` | A derived `check.roll` or `attack.roll` whose combatant has no `stats`, no ability modifier, or no attack entry of that name. Raised before any die. Amended by specs/082-engine-derived-numbers (TASK-0104) | `attack.roll`, `check.roll` |

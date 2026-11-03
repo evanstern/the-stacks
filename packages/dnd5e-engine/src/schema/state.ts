@@ -163,6 +163,67 @@ export const SpellSlotsSchema = z.object({
     .nullable(),
 });
 
+export const AbilitySchema = z.enum(["str", "dex", "con", "int", "wis", "cha"]);
+
+/** A fixed or rolled amount (damage components, healing). Moved here from commands.ts. */
+export const AmountSchema = z.discriminatedUnion("kind", [
+  z.object({
+    kind: z.literal("fixed"),
+    value: z.number().int().min(0).max(10000),
+  }),
+  z.object({
+    kind: z.literal("roll"),
+    expression: z.string().min(1).max(200),
+  }),
+]);
+
+/**
+ * The ability each skill is paired with by default.
+ * SRD 5.2.1 playing-the-game.proficiency.skill-proficiencies (Skills table).
+ */
+export const SKILL_ABILITY: Record<
+  z.infer<typeof SkillSchema>,
+  z.infer<typeof AbilitySchema>
+> = {
+  acrobatics: "dex",
+  "animal-handling": "wis",
+  arcana: "int",
+  athletics: "str",
+  deception: "cha",
+  history: "int",
+  insight: "wis",
+  intimidation: "cha",
+  investigation: "int",
+  medicine: "wis",
+  nature: "int",
+  perception: "wis",
+  performance: "cha",
+  persuasion: "cha",
+  religion: "int",
+  "sleight-of-hand": "dex",
+  stealth: "dex",
+  survival: "wis",
+};
+
+export const AttackEntrySchema = z.object({
+  name: z.string().min(1).max(60),
+  range: z.enum(["melee", "ranged", "melee-or-ranged"]),
+  toHit: z.number().int().min(-5).max(30),
+  damage: z
+    .array(z.object({ amount: AmountSchema, damageType: DamageTypeSchema }))
+    .max(4),
+});
+
+/** Spec 082: the numbers the engine derives rolls from. Totals, not proficiency flags. */
+export const CombatantStatsSchema = z.object({
+  abilityMods: z.partialRecord(AbilitySchema, z.number().int().min(-5).max(10)),
+  proficiencyBonus: z.number().int().min(0).max(9),
+  saves: z.partialRecord(AbilitySchema, z.number().int().min(-5).max(20)),
+  skills: z.partialRecord(SkillSchema, z.number().int().min(-5).max(20)),
+  attacks: z.array(AttackEntrySchema).max(12),
+  spellcastingAbility: AbilitySchema.nullable(),
+});
+
 export const CombatantSchema = z
   .object({
     id: CombatantIdSchema,
@@ -186,6 +247,7 @@ export const CombatantSchema = z
     conModifier: z.number().int().min(-5).max(10),
     ac: z.number().int().min(1).max(40).nullable(),
     defenses: DefenseSetSchema,
+    stats: CombatantStatsSchema.optional(),
   })
   .superRefine((c, ctx) => {
     if (c.hp.current > c.hp.max) {
@@ -278,6 +340,10 @@ export const EngineStateSchema = z
 export type CombatantId = z.infer<typeof CombatantIdSchema>;
 export type LifeState = z.infer<typeof LifeStateSchema>;
 export type ConditionKey = z.infer<typeof ConditionKeySchema>;
+export type Ability = z.infer<typeof AbilitySchema>;
+export type Amount = z.infer<typeof AmountSchema>;
+export type AttackEntry = z.infer<typeof AttackEntrySchema>;
+export type CombatantStats = z.infer<typeof CombatantStatsSchema>;
 export type Skill = z.infer<typeof SkillSchema>;
 export type ExpiryPoint = z.infer<typeof ExpiryPointSchema>;
 export type ConditionInstance = z.infer<typeof ConditionInstanceSchema>;

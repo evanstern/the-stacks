@@ -1,5 +1,7 @@
 import { z } from "zod";
+import { DifficultySchema } from "../derive.js";
 import {
+  AbilitySchema,
   CombatantIdSchema,
   CombatantSchema,
   ConditionInstanceSchema,
@@ -49,7 +51,7 @@ export const DamageComponentResultSchema = z.object({
   rollIndex: Int.nullable(),
 });
 
-const Ability = z.enum(["str", "dex", "con", "int", "wis", "cha"]);
+const Ability = AbilitySchema;
 const Mode = z.enum(["normal", "advantage", "disadvantage"]);
 const SlotRef = z.object({
   pool: z.enum(["standard", "pact"]),
@@ -101,6 +103,7 @@ export const EngineEventSchema = z.discriminatedUnion("type", [
     natural: Int,
     outcome: z.enum(["hit", "miss", "critical-hit"]),
     reaction: z.boolean().optional(),
+    attack: z.string().optional(),
   }),
   z.object({
     type: z.literal("check.resolved"),
@@ -112,6 +115,7 @@ export const EngineEventSchema = z.discriminatedUnion("type", [
     skill: z.string().nullable(),
     rollIndex: Int.nullable(),
     dc: Int,
+    difficulty: DifficultySchema.optional(),
     total: Int.nullable(),
     natural: Int.nullable(),
     autoFail: z.object({ reason: Reason }).nullable(),
