@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-10-26 20:08'
-updated_date: '2026-11-03 02:12'
+updated_date: '2026-11-03 02:13'
 labels:
   - dm
   - narration
@@ -65,6 +65,8 @@ Spec 074 (5f6dc7e7). OQ-2 default taken: no startle fact in this card (engine re
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 074 phase 1)
 
 OPERATOR RULING 2026-11-02 on spec 074 OQ-1 (in chat, answering 'May the narration show a reflexive flinch when a foe misses a PC?'): "Yes, allow a flinch". OQ-1 takes option (b): a foe's miss is a fifth reflex trigger that allows a reflexive flinch; a chosen dodge or reposition stays blocked.
+
+Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5 (spec 074 amendment for OQ-1 ruling, C1)
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
