@@ -25,6 +25,8 @@ Outcome: most narrations pass the audit on the first attempt, so turns are faste
 Why: runbook A playtest run 1 (2026-11-02, session 9296c653, 23 narrations). The auditor reports 16 of 23 needed a regenerate (6) or shipped the fallback (10). The repeated issues are invented-mechanics (the narration shows the next actor or another NPC acting in this beat, or shows a followUp as done), player-agency (it decides a PC's, companion's or NPC's feelings or reactions), and doctrine (it ends on 'What do you do?', or offers an option menu). Combat turns took a median 40 s (max 73 s; 7 over 45 s), mostly regenerate loops. narrate-v7's Turn/Next rule (TASK-0193) is not holding.
 
 Related: TASK-0193, TASK-0204 (question ending), TASK-0113 (player agency), TASK-0207 (talk fallback), TASK-0212.
+
+Spec: specs/085-combat-audit-pass-rate
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
