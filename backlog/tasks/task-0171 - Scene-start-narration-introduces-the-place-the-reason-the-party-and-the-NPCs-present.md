@@ -42,7 +42,10 @@ Spec: specs/076-scene-start-intros
 - [ ] #6 Spec phase: The opening premise (card AC #1; US1)
 - [ ] #7 Spec phase: The opening prompt (card AC #2, #5; US1, US2, US4)
 - [ ] #8 Spec phase: The name check, the fallback and the scripts (card AC #3, #4; US2, US3)
+- [ ] #9 Spec phase: Wiki re-ground
 <!-- AC:END -->
+
+
 
 
 
