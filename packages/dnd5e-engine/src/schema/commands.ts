@@ -98,6 +98,7 @@ export const EngineCommandSchema = z.discriminatedUnion("type", [
     expression: z.string().min(1).max(200),
     mode: RollMode,
     targetAc: z.number().int().min(1).max(40).nullable().default(null),
+    reaction: z.boolean().optional(),
     reason: Reason,
   }),
   z.object({

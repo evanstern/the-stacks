@@ -196,6 +196,7 @@ export const EncounterSchema = z.object({
   round: z.number().int().min(1),
   turnIndex: z.number().int().min(0),       // refine: < order.length
   order: z.array(InitiativeEntrySchema).min(1),
+  reactionsSpent: z.array(CombatantIdSchema).optional(), // Amended by spec 079 (TASK-0208): Reaction spent until that combatant's next turn start; absent = none
 });
 
 export const EngineStateSchema = z.object({

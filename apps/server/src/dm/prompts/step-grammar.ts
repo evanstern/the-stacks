@@ -15,6 +15,7 @@ export const STEP_GRAMMAR = [
   '{"step":"attack","reason":str,"attackerId":id|null,"targetId":id,"expression":"1d20+5","mode":roll mode,"targetAc":int|null,"onHit":[effect]}',
   '{"step":"effect","reason":str,"effects":[effect]}',
   '{"step":"roll","reason":str,"expression":"1d6","mode":roll mode}',
+  '{"step":"move","reason":str,"combatantId":id,"leavesReachOf":[id]}  (the mover moves; list each hostile it stands next to and moves away from without Disengage)',
   "An effect is one of:",
   '{"effect":"damage","targetId":id,"components":[{"amount":Amount,"damageType":damage type}],"defenses":{"resistances":[],"vulnerabilities":[],"immunities":[]}|null}',
   '{"effect":"heal","targetId":id,"amount":Amount}',

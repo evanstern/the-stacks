@@ -93,6 +93,7 @@ export const EngineEventSchema = z.discriminatedUnion("type", [
     total: Int,
     natural: Int,
     outcome: z.enum(["hit", "miss", "critical-hit"]),
+    reaction: z.boolean().optional(),
   }),
   z.object({
     type: z.literal("check.resolved"),

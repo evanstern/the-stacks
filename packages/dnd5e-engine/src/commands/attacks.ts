@@ -1,5 +1,6 @@
 import { hasPlainD20, parseDiceExpression, rollExpression } from "../dice.js";
 import type { Handler } from "../handler.js";
+import type { EngineEvent } from "../schema/events.js";
 import { type RefusalResult, refuse } from "../schema/refusals.js";
 import type { Combatant, EngineState } from "../schema/state.js";
 
@@ -86,6 +87,27 @@ export const handleAttackRoll: Handler<"attack.roll"> = (
   if (named) return named;
   const unable = actorUnable(state, command.attackerId, "attacker");
   if (unable) return unable;
+  const enc = state.encounter;
+  if (command.reaction) {
+    if (!enc) return refuse("NO_ACTIVE_ENCOUNTER", "no encounter is active");
+    if (command.attackerId === null) {
+      return refuse("INVALID_COMMAND", "a reaction needs an attacker");
+    }
+    if (!enc.order.some((e) => e.combatantId === command.attackerId)) {
+      return refuse(
+        "UNKNOWN_COMBATANT",
+        `"${command.attackerId}" is not in the order`,
+        { combatantId: command.attackerId, reason: "not-in-order" },
+      );
+    }
+    if (enc.reactionsSpent?.includes(command.attackerId)) {
+      return refuse(
+        "REACTION_SPENT",
+        `"${command.attackerId}" has spent its Reaction`,
+        { combatantId: command.attackerId },
+      );
+    }
+  }
   const target = state.combatants[command.targetId];
   const ac = command.targetAc ?? target?.ac ?? null;
   if (ac === null) {
@@ -116,25 +138,37 @@ export const handleAttackRoll: Handler<"attack.roll"> = (
         : rolled.total >= ac
           ? "hit"
           : "miss";
-  return {
-    ok: true,
-    events: [
-      rolled.event,
-      {
-        type: "attack.resolved",
-        v: 1,
-        reason: command.reason,
-        attackerId: command.attackerId,
-        targetId: command.targetId,
-        rollIndex: 0,
-        ac,
-        acSource: command.targetAc !== null ? "command" : "record",
-        total: rolled.total,
-        natural,
-        outcome,
+  const events: EngineEvent[] = [
+    rolled.event,
+    {
+      type: "attack.resolved",
+      v: 1,
+      reason: command.reason,
+      attackerId: command.attackerId,
+      targetId: command.targetId,
+      rollIndex: 0,
+      ac,
+      acSource: command.targetAc !== null ? "command" : "record",
+      total: rolled.total,
+      natural,
+      outcome,
+      ...(command.reaction ? { reaction: true } : {}),
+    },
+  ];
+  if (command.reaction && enc && command.attackerId !== null) {
+    events.push({
+      type: "encounter.changed",
+      v: 1,
+      reason: command.reason,
+      combatantId: command.attackerId,
+      before: enc,
+      after: {
+        ...enc,
+        reactionsSpent: [...(enc.reactionsSpent ?? []), command.attackerId],
       },
-    ],
-  };
+    });
+  }
+  return { ok: true, events };
 };
 
 export const handleCheckRoll: Handler<"check.roll"> = (state, command, rng) => {

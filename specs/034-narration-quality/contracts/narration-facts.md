@@ -166,3 +166,19 @@ Amended by specs/064-plan-first-step.
   allows a flinch on a listed miss and bars a chosen defence. The scene-start prompt adds: "The
   opening shows the place and what the party finds. It never moves, leads or voices a party
   member." The v8 clarify lines are unchanged.
+
+## Amendment 2026-11-02 (specs/079-engine-opportunity-attack, TASK-0208): the reaction flag
+
+Amended by spec 079 (TASK-0208). `FactRoll.reaction?: boolean` is `true` when the linked
+`attack.resolved` outcome has `reaction === true`; otherwise it is absent. Narrate renders such a
+roll as `  reaction: <name> strikes at <target> as they pull away -> <outcome>`. Narrate is
+`dm.narrate-v10` and audit is `dm.audit-v6`. The deterministic opposite-outcome check reads the
+character's own rolls only.
+
+## Amendment 2026-11-02 (specs/079-engine-opportunity-attack, TASK-0208): open followUps
+
+Amended by spec 079 (TASK-0208). `NarrationFacts.openFollowUps?: { name: string; text: string }[]`
+holds a party member's followUps from the latest resolved action of an earlier turn, until that
+member declares again. Narrate renders each as `Earlier beat, not yet attempted: <name>: <text>`.
+The narrate rule reads: a not-yet-attempted step has not happened, in this beat or an earlier
+one; never show it start or done. `withholdRefusedInputs` filters them like this turn's followUps.

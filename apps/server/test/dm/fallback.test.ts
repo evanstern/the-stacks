@@ -502,6 +502,48 @@ describe("factualSummary: run-5 replays", () => {
   });
 });
 
+describe("factualSummary: the roller is the subject (spec 079)", () => {
+  it("run 1 seq 154-161: the goblin's reaction hit names the goblin", () => {
+    const hit = roll("hit", {
+      name: "Goblin with a pot-helm",
+      reason: "Goblin with a pot-helm strikes as Kestrel pulls away",
+      against: { kind: "AC", value: 14 },
+      target: "Kestrel",
+      reaction: true,
+    });
+    const out = sum(
+      facts({
+        actions: [
+          action({
+            characterName: "Kestrel",
+            rolls: [hit],
+            outcomes: ["hit"],
+            changes: [
+              {
+                kind: "hp",
+                target: "Kestrel",
+                direction: "damage",
+                amount: 4,
+                damageType: "slashing",
+                before: 9,
+                after: 5,
+              },
+            ],
+          }),
+        ],
+      }),
+    );
+    expect(out).toContain("Goblin with a pot-helm strikes home.");
+    expect(out).toContain("Kestrel is wounded.");
+    expect(out).not.toContain("Kestrel strikes home");
+  });
+
+  it("an own check still names the character", () => {
+    const out = sum(facts({ actions: [action({ rolls: [roll("success")] })] }));
+    expect(out).toContain("Ana pulls it off.");
+  });
+});
+
 describe("factualSummary: property", () => {
   it("holds no system word or digit, passes the checks, covers every fact", () => {
     let seed = 12345;

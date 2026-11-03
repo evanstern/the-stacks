@@ -15,7 +15,7 @@ sources:
   - apps/server/src/dm/snapshot/build.ts
   - packages/session-model/src/gate/proposals.ts
   - packages/session-model/src/gate/plan.ts
-verified_against: 022452c9327344e8ae67e69066acfe6450e134e3
+verified_against: c6a800dd72487bcec95a4d0d0f2e94bbb821b4c4
 ---
 
 # Seed NPC presence

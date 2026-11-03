@@ -88,3 +88,19 @@ test("toLedgerItems: turnModeCombat goblin hp before and after", () => {
     { path: "current", before: "7", after: "2" },
   );
 });
+
+test("toLedgerItems: a reaction attack outcome reads 'Reaction: '", () => {
+  const ledger = project(turnModeCombat.events, dm).ledger;
+  const row = ledger.find(
+    (r) => r.kind === "outcome" && r.outcome.type === "attack.resolved",
+  );
+  assert.ok(row, "fixture has an attack outcome");
+  const plain = toLedgerItems([row]).find((i) => i.kind === "outcome");
+  assert.doesNotMatch(plain.summary, /^Reaction: /);
+  const flagged = {
+    ...row,
+    outcome: { ...row.outcome, reaction: true },
+  };
+  const out = toLedgerItems([flagged]).find((i) => i.kind === "outcome");
+  assert.match(out.summary, /^Reaction: /);
+});
