@@ -40,9 +40,11 @@ Spec: specs/079-engine-opportunity-attack
 - [x] #5 Spec phase: The engine owns reactions (card AC #1, engine part; US1 scenarios 3 and 4)
 - [x] #6 Spec phase: A move away draws the engine's reaction (card AC #1 and #2, merge condition; US1, US2)
 - [x] #7 Spec phase: The reader sees whose attack it was (card AC #2 and #3; US2 scenario 4, US3)
-- [ ] #8 Spec phase: A followUp stays undone in later beats (card AC #4; US4)
+- [x] #8 Spec phase: A followUp stays undone in later beats (card AC #4; US4)
 - [ ] #9 Spec phase: Wiki upkeep
 <!-- AC:END -->
+
+
 
 
 
