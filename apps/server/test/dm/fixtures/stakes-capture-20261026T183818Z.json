@@ -1,0 +1,333 @@
+{
+  "source": "specs/034-narration-quality/evidence/verify-20261026T183818Z-greyhollow-ford-provider/transcript.jsonl",
+  "seqs": "168-175, 202-206",
+  "rows": [
+    {
+      "sessionId": "787ba795-b866-4e4d-9eb9-71176962863e",
+      "seq": 168,
+      "actor": "ai:companion:odo",
+      "type": "action.declared",
+      "payload": {
+        "text": "Odo tears the silver holy symbol from his neck and flings it to land at Snag's feet, declaring the toll paid in full if the goblins release Tamsin and end the fight now.",
+        "scope": "character",
+        "actionId": "act-odo-3",
+        "characterId": "odo"
+      },
+      "payloadVersion": 1,
+      "visibility": "public",
+      "ts": "2026-10-26T18:50:48.879Z"
+    },
+    {
+      "sessionId": "787ba795-b866-4e4d-9eb9-71176962863e",
+      "seq": 169,
+      "actor": "ai:companion:odo",
+      "type": "action.committed",
+      "payload": {
+        "actionId": "act-odo-3",
+        "authority": "active-player"
+      },
+      "payloadVersion": 1,
+      "visibility": "public",
+      "ts": "2026-10-26T18:50:48.888Z"
+    },
+    {
+      "sessionId": "787ba795-b866-4e4d-9eb9-71176962863e",
+      "seq": 170,
+      "actor": "ai:dm",
+      "type": "dice.rolled",
+      "payload": {
+        "count": 2,
+        "event": {
+          "v": 1,
+          "mode": "normal",
+          "type": "dice.rolled",
+          "terms": [
+            {
+              "keep": null,
+              "kept": [true],
+              "kind": "dice",
+              "sign": 1,
+              "count": 1,
+              "faces": [7],
+              "sides": 20,
+              "subtotal": 7
+            },
+            {
+              "kind": "modifier",
+              "value": 3
+            }
+          ],
+          "total": 10,
+          "reason": "Odo offers his silver holy symbol as toll to Snag in exchange for releasing Tamsin. [6eb2ad2e-f438-4921-ba55-05092416f09d#1]",
+          "natural": 7,
+          "purpose": "check",
+          "critical": false,
+          "expression": "1d20+3",
+          "combatantId": "odo"
+        },
+        "index": 0,
+        "batchId": "id-787ba795-148",
+        "actionId": "act-odo-3",
+        "proposalId": null
+      },
+      "payloadVersion": 1,
+      "visibility": "public",
+      "ts": "2026-10-26T18:51:05.012Z"
+    },
+    {
+      "sessionId": "787ba795-b866-4e4d-9eb9-71176962863e",
+      "seq": 171,
+      "actor": "ai:dm",
+      "type": "check.resolved",
+      "payload": {
+        "count": 2,
+        "event": {
+          "v": 1,
+          "dc": 15,
+          "kind": "ability-check",
+          "type": "check.resolved",
+          "skill": "persuasion",
+          "total": 10,
+          "reason": "Odo offers his silver holy symbol as toll to Snag in exchange for releasing Tamsin. [6eb2ad2e-f438-4921-ba55-05092416f09d#1]",
+          "ability": "cha",
+          "natural": 7,
+          "outcome": "failure",
+          "autoFail": null,
+          "rollIndex": 0,
+          "combatantId": "odo"
+        },
+        "index": 1,
+        "batchId": "id-787ba795-148",
+        "actionId": "act-odo-3",
+        "proposalId": null
+      },
+      "payloadVersion": 1,
+      "visibility": "public",
+      "ts": "2026-10-26T18:51:05.012Z"
+    },
+    {
+      "sessionId": "787ba795-b866-4e4d-9eb9-71176962863e",
+      "seq": 172,
+      "actor": "ai:dm",
+      "type": "action.resolved",
+      "payload": {
+        "outcome": "applied",
+        "actionId": "act-odo-3",
+        "batchIds": ["id-787ba795-148"],
+        "refusalCode": null
+      },
+      "payloadVersion": 1,
+      "visibility": "public",
+      "ts": "2026-10-26T18:51:05.025Z"
+    },
+    {
+      "sessionId": "787ba795-b866-4e4d-9eb9-71176962863e",
+      "seq": 173,
+      "actor": "ai:dm",
+      "type": "turn.advanced",
+      "payload": {
+        "count": 1,
+        "event": {
+          "v": 1,
+          "type": "turn.advanced",
+          "after": {
+            "round": 3,
+            "turnIndex": 3,
+            "combatantId": "tamsin"
+          },
+          "before": {
+            "round": 3,
+            "turnIndex": 2,
+            "combatantId": "odo"
+          },
+          "reason": "Advance the turn [6eb2ad2e-f438-4921-ba55-05092416f09d#3]",
+          "skipped": []
+        },
+        "index": 0,
+        "batchId": "id-787ba795-150",
+        "actionId": null,
+        "proposalId": null
+      },
+      "payloadVersion": 1,
+      "visibility": "public",
+      "ts": "2026-10-26T18:51:05.035Z"
+    },
+    {
+      "sessionId": "787ba795-b866-4e4d-9eb9-71176962863e",
+      "seq": 174,
+      "actor": "ai:dm",
+      "type": "table-mode.changed",
+      "payload": {
+        "after": {
+          "mode": "turn",
+          "activeActor": "00000000-0000-4000-8000-0000000000a1",
+          "activeCharacterId": "tamsin"
+        },
+        "before": {
+          "mode": "turn",
+          "activeActor": "ai:companion:odo",
+          "activeCharacterId": "odo"
+        },
+        "reason": "The turn advanced."
+      },
+      "payloadVersion": 1,
+      "visibility": "public",
+      "ts": "2026-10-26T18:51:05.049Z"
+    },
+    {
+      "sessionId": "787ba795-b866-4e4d-9eb9-71176962863e",
+      "seq": 175,
+      "actor": "ai:dm",
+      "type": "narration",
+      "payload": {
+        "text": "The silver symbol lands spinning, and Snag's clapper pole slaps down on it before it settles. His grin splits wider, teeth yellow in the firelight. \"Shiny! Shiny for Snag!\" He scoops it up, looping the chain around his wrist beside the clapper-strap, and does not call anything off. \"Big priest pays toll \u2014 toll don't buy girl! Toll buys *quiet*!\" He rattles the pole twice, delighted, and nods toward the fray, grin never fading. Pell strains against his bindings, watching Tamsin with wide eyes.\n\nWhat does Tamsin do?\n\nBrother Odo \u2014 Odo offers his silver holy symbol as toll to Snag in exchange for releasing Tamsin.: 1d20+3 \u2192 7 = 10 vs DC 15: failure",
+        "actionIds": ["act-odo-3"]
+      },
+      "payloadVersion": 1,
+      "visibility": "public",
+      "ts": "2026-10-26T18:51:18.334Z"
+    },
+    {
+      "sessionId": "787ba795-b866-4e4d-9eb9-71176962863e",
+      "seq": 202,
+      "actor": "ai:dm",
+      "type": "dice.rolled",
+      "payload": {
+        "count": 2,
+        "event": {
+          "v": 1,
+          "mode": "normal",
+          "type": "dice.rolled",
+          "terms": [
+            {
+              "keep": null,
+              "kept": [true],
+              "kind": "dice",
+              "sign": 1,
+              "count": 1,
+              "faces": [15],
+              "sides": 20,
+              "subtotal": 15
+            },
+            {
+              "kind": "modifier",
+              "value": -1
+            }
+          ],
+          "total": 14,
+          "reason": "Goblin-4 lunges again for Tamsin's sword arm, trying to drag her toward the post per Snag's no-bleeding order. [a16677b4-d7dc-48f6-82c9-0588bda3974d#1]",
+          "natural": 15,
+          "purpose": "check",
+          "critical": false,
+          "expression": "1d20-1",
+          "combatantId": "goblin-4"
+        },
+        "index": 0,
+        "batchId": "id-787ba795-175",
+        "actionId": null,
+        "proposalId": null
+      },
+      "payloadVersion": 1,
+      "visibility": "public",
+      "ts": "2026-10-26T18:53:50.662Z"
+    },
+    {
+      "sessionId": "787ba795-b866-4e4d-9eb9-71176962863e",
+      "seq": 203,
+      "actor": "ai:dm",
+      "type": "check.resolved",
+      "payload": {
+        "count": 2,
+        "event": {
+          "v": 1,
+          "dc": 15,
+          "kind": "ability-check",
+          "type": "check.resolved",
+          "skill": null,
+          "total": 14,
+          "reason": "Goblin-4 lunges again for Tamsin's sword arm, trying to drag her toward the post per Snag's no-bleeding order. [a16677b4-d7dc-48f6-82c9-0588bda3974d#1]",
+          "ability": "str",
+          "natural": 15,
+          "outcome": "failure",
+          "autoFail": null,
+          "rollIndex": 0,
+          "combatantId": "goblin-4"
+        },
+        "index": 1,
+        "batchId": "id-787ba795-175",
+        "actionId": null,
+        "proposalId": null
+      },
+      "payloadVersion": 1,
+      "visibility": "public",
+      "ts": "2026-10-26T18:53:50.662Z"
+    },
+    {
+      "sessionId": "787ba795-b866-4e4d-9eb9-71176962863e",
+      "seq": 204,
+      "actor": "ai:dm",
+      "type": "turn.advanced",
+      "payload": {
+        "count": 1,
+        "event": {
+          "v": 1,
+          "type": "turn.advanced",
+          "after": {
+            "round": 4,
+            "turnIndex": 0,
+            "combatantId": "snag"
+          },
+          "before": {
+            "round": 3,
+            "turnIndex": 6,
+            "combatantId": "goblin-4"
+          },
+          "reason": "Advance the turn [a16677b4-d7dc-48f6-82c9-0588bda3974d#2]",
+          "skipped": []
+        },
+        "index": 0,
+        "batchId": "id-787ba795-176",
+        "actionId": null,
+        "proposalId": null
+      },
+      "payloadVersion": 1,
+      "visibility": "public",
+      "ts": "2026-10-26T18:53:50.676Z"
+    },
+    {
+      "sessionId": "787ba795-b866-4e4d-9eb9-71176962863e",
+      "seq": 205,
+      "actor": "ai:dm",
+      "type": "table-mode.changed",
+      "payload": {
+        "after": {
+          "mode": "turn",
+          "activeActor": "ai:dm",
+          "activeCharacterId": null
+        },
+        "before": {
+          "mode": "turn",
+          "activeActor": "ai:dm",
+          "activeCharacterId": null
+        },
+        "reason": "The turn advanced."
+      },
+      "payloadVersion": 1,
+      "visibility": "public",
+      "ts": "2026-10-26T18:53:50.694Z"
+    },
+    {
+      "sessionId": "787ba795-b866-4e4d-9eb9-71176962863e",
+      "seq": 206,
+      "actor": "ai:dm",
+      "type": "narration",
+      "payload": {
+        "text": "The fourth goblin claws in again, Snag's order barked over the firelight, and its grip closes on leather and nothing else \u2014 Tamsin twists her arm free before it can set, boots skidding in the churned mud. Snag's pole rattles, the stolen silver chain flashing at his wrist. \"Hold! Hold, stupid dog!\" he shrills, grin curdling toward annoyance. The lookout still clamps her legs, blood soaking its fur dark, and the pot-helm goblin loads another stone. Pell strains forward against his bindings, spear-rag snapping in the smoke, eyes locked on his sister's face.\n\nWhat does Tamsin do?\n\nGoblin by the fire \u2014 Goblin-4 lunges again for Tamsin's sword arm, trying to drag her toward the post per Snag's no-bleeding order.: 1d20-1 \u2192 15 = 14 vs DC 15: failure",
+        "actionIds": []
+      },
+      "payloadVersion": 1,
+      "visibility": "public",
+      "ts": "2026-10-26T18:53:57.928Z"
+    }
+  ]
+}

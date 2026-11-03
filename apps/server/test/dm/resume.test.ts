@@ -135,6 +135,8 @@ function sub(
     batchId: null,
     proposalId,
     outcome: null,
+    band: null,
+    stakes: null,
     seqs: [],
     ...over,
   };
@@ -255,7 +257,11 @@ describe("refreshSubmission", () => {
     batchId: "batch-1",
     index: 1,
     actionId: "a1",
-    outcome: { type: "check.resolved", outcome: "success" },
+    outcome: {
+      type: "check.resolved",
+      outcome: "success",
+      band: "success-at-cost",
+    },
   } as unknown as LedgerRow;
 
   it("rewrites an approved pending submission as applied", () => {
@@ -265,6 +271,7 @@ describe("refreshSubmission", () => {
       result: "applied",
       batchId: "batch-1",
       outcome: "success",
+      band: "success-at-cost",
       seqs: [],
       stepRef: "job#3",
       key: "act:a1:s0",

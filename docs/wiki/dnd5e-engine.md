@@ -17,7 +17,7 @@ sources:
   - packages/dnd5e-engine/test/purity.test.ts
   - packages/dnd5e-engine/test/coverage.test.ts
   - specs/026-dnd5e-engine/spec.md
-verified_against: 28ac1698b24704bac7cdac300316e7f0e00e728c
+verified_against: 389d2e32895a3b2143ee05f72f8b421f236a8bf7
 ---
 
 # 5e engine
@@ -51,7 +51,8 @@ the turn to an all-dead order. When the active combatant leaves, the leave is th
 transition, as in `turn.advance`: the leaver's turn-end conditions expire, dead entries are
 skipped, the next live entry becomes active (wrapping to index 0 and a new round), and its
 turn-start conditions expire. A leaver before the active entry shifts `turnIndex` down by one.
-The command emits `encounter.changed` and draws no dice.
+The command emits `encounter.changed` and draws no dice. A leaver's id is removed from
+`reactionsSpent` (below) in the same event.
 
 ## RNG
 
@@ -81,14 +82,30 @@ each term's faces, which were kept, the modifier and the total, so a recorded ro
 audited without re-running the RNG. Attack and check events also record the AC or DC, its
 source and the outcome.
 
+Spec 070: `check.resolved` records optional `margin` and `band` (`success`, `success-at-cost`,
+`failure`, `severe-failure`). `bandOf` decides: with `naturals`, nat 20 succeeds and nat 1 fails; with
+`outcomeBands`, an ability check missing by 1-2 is `success-at-cost`, by 5+ `severe-failure`. `outcome` stays two-valued.
+
 ## Refuse before draw
 
 A handler runs every refusal check before it calls `rollDie`. A refused command consumes no
 dice, so the RNG stream is unchanged after a refusal. Refusals carry a code from
 `RefusalCodeSchema` (for example `TARGET_AC_UNKNOWN`, `D20_TERM_REQUIRED`, `NOT_DYING`,
-`NO_SLOT_AVAILABLE`), a message and optional detail (28 codes). `REASON_CONTRADICTS_STATE` is raised by the DM plan gate only (spec 058, TASK-0161); `execute` never returns it.
+`NO_SLOT_AVAILABLE`, `REACTION_SPENT`), a message and optional detail (29 codes). `REASON_CONTRADICTS_STATE` is raised by the DM plan gate only (spec 058, TASK-0161); `execute` never returns it.
 `attack.roll` and ability-check `check.roll` refuse an unable actor with `ACTOR_UNABLE` (`commands/attacks.ts`): lifeState `unconscious` or `stable`, or an `incapacitated`, `paralyzed`, `petrified`, `stunned` or `unconscious` condition. The detail names `combatantId`, `role`, `lifeState` and `conditions`. Saving throws and attack targets are never checked, so a dying actor can still roll its death save. A broken RNG contract (a face outside
 `1..sides`, or a die size outside `1..1000`) throws `RngContractError` rather than refusing. `encounter.end` keeps combatants in state; it is not what refused the actions in the TASK-0110 repro, whose cause was resolve order ([[dm-runtime]]), not an engine rule.
+
+## Reactions
+
+`EncounterSchema` carries an optional `reactionsSpent`: the ids whose Reaction is spent
+until the start of their next turn (SRD 5.2.1 p. 10). `attack.roll` with `reaction: true`
+is the only command that spends one. It refuses `NO_ACTIVE_ENCOUNTER` outside an encounter,
+`INVALID_COMMAND` with no attacker, `UNKNOWN_COMBATANT` for an attacker outside the order,
+and `REACTION_SPENT` when the attacker already spent its Reaction. On success it emits the
+`attack.resolved` event with `reaction: true` and an `encounter.changed` event that adds the
+attacker to `reactionsSpent`. `turn.advance` clears the incoming combatant's id from
+`reactionsSpent` with its own `encounter.changed`, and `initiative.leave` clears both the
+leaver and the incoming combatant. `encounter.end` drops the encounter, and with it `reactionsSpent`.
 
 ## Boundary rule
 
@@ -108,7 +125,7 @@ check resolution (natural 20 critical, natural 1 miss, total meets or beats AC/D
 resistance, immunity and vulnerability per damage component (halve rounding down, double),
 and critical damage (dice doubled, modifiers not). Adjudication - the DM runtime or an LLM
 node - supplies inputs as data: the expression, roll mode, target AC or DC, a per-command
-defense set, or an automatic-failure reason on `check.roll`. It never computes outcomes.
+defense set, or on `check.roll` an automatic-failure reason, an `autoSuccess` reason and `houseRules` (default false). It never computes outcomes.
 The engine does not derive automatic failure from conditions.
 
 ## Connections

@@ -88,3 +88,66 @@ test("toLedgerItems: turnModeCombat goblin hp before and after", () => {
     { path: "current", before: "7", after: "2" },
   );
 });
+
+test("toLedgerItems: a reaction attack outcome reads 'Reaction: '", () => {
+  const ledger = project(turnModeCombat.events, dm).ledger;
+  const row = ledger.find(
+    (r) => r.kind === "outcome" && r.outcome.type === "attack.resolved",
+  );
+  assert.ok(row, "fixture has an attack outcome");
+  const plain = toLedgerItems([row]).find((i) => i.kind === "outcome");
+  assert.doesNotMatch(plain.summary, /^Reaction: /);
+  const flagged = {
+    ...row,
+    outcome: { ...row.outcome, reaction: true },
+  };
+  const out = toLedgerItems([flagged]).find((i) => i.kind === "outcome");
+  assert.match(out.summary, /^Reaction: /);
+});
+
+test("toLedgerItems: check outcome labels by band, auto-success and old rows (spec 070)", () => {
+  const row = (event) => ({
+    kind: "outcome",
+    seq: 1,
+    actor: "ai:dm",
+    visibility: "public",
+    reason: "r",
+    batchId: "b",
+    index: 0,
+    actionId: null,
+    outcome: {
+      type: "check.resolved",
+      v: 1,
+      reason: "r",
+      combatantId: "ana",
+      kind: "ability-check",
+      ability: "str",
+      skill: null,
+      rollIndex: 0,
+      dc: 12,
+      total: 10,
+      natural: 10,
+      autoFail: null,
+      outcome: "success",
+      ...event,
+    },
+  });
+  const summary = (event) => toLedgerItems([row(event)])[0].summary;
+  assert.equal(
+    summary({ band: "success-at-cost" }),
+    "Success at a cost (10 vs DC 12)",
+  );
+  assert.equal(
+    summary({ band: "severe-failure", outcome: "failure", total: 6 }),
+    "Severe failure (6 vs DC 12)",
+  );
+  assert.equal(
+    summary({ band: "success", total: null, natural: null, rollIndex: null }),
+    "Success (no roll)",
+  );
+  assert.equal(summary({}), "Success (10 vs DC 12)");
+  assert.equal(
+    summary({ outcome: "failure", total: 8 }),
+    "Failure (8 vs DC 12)",
+  );
+});

@@ -432,6 +432,15 @@ describe("runTurn post-planning cut (specs/064)", () => {
     autoFail: null,
     onSuccess: [],
     onFailure: [],
+    stakes: {
+      success: null,
+      cost: "It works, at a small price.",
+      failure: "The attempt comes to nothing.",
+      severe: "It goes badly wrong.",
+    },
+    onCost: [],
+    onSevere: [],
+    newRisk: null,
   });
   const planReading = () =>
     ({

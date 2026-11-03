@@ -4,7 +4,12 @@ import { memorySink } from "../../src/ai/usage.js";
 import { assemble } from "../../src/dm/nodes/assemble.js";
 import type { DirectorNodeOutput } from "../../src/dm/nodes/director.js";
 import { interpret } from "../../src/dm/nodes/interpret.js";
-import { InterpretOutput, StepSchema } from "../../src/dm/nodes/schemas.js";
+import {
+  AdjudicateModelOutput,
+  InterpretOutput,
+  InterpretReadingSchema,
+  StepSchema,
+} from "../../src/dm/nodes/schemas.js";
 import type { ResumedPlan } from "../../src/dm/resume.js";
 import { createScriptedDm, loadDmScript } from "../../src/dm/script/load.js";
 import {
@@ -39,6 +44,15 @@ const checkStep = {
   autoFail: null,
   onSuccess: [],
   onFailure: [],
+  stakes: {
+    success: null,
+    cost: "It works, at a small price.",
+    failure: "The attempt comes to nothing.",
+    severe: "It goes badly wrong.",
+  },
+  onCost: [],
+  onSevere: [],
+  newRisk: null,
 };
 
 function reading(actionId: string | null, over: object = {}) {
@@ -221,5 +235,50 @@ describe("interpret: resumed plans (specs/057)", () => {
     );
     const result = await interpret(s.ctx);
     expect(result.ok).toBe(false);
+  });
+});
+
+describe("check stakes contract (spec 070)", () => {
+  const parse = (over: Record<string, unknown>, kind = "ability-check") =>
+    InterpretReadingSchema.safeParse(
+      reading("act-1", { steps: [{ ...checkStep, kind, ...over }] }),
+    );
+  const stakes = (over: object) => ({ ...checkStep.stakes, ...over });
+
+  it("rejects a check with no stakes.failure", () => {
+    const { failure: _f, ...rest } = checkStep.stakes;
+    expect(parse({ stakes: rest }).success).toBe(false);
+  });
+
+  it("rejects an ability check with a null cost or severe", () => {
+    expect(parse({ stakes: stakes({ cost: null }) }).success).toBe(false);
+    expect(parse({ stakes: stakes({ severe: null }) }).success).toBe(false);
+  });
+
+  it("parses a saving throw with null cost and severe", () => {
+    expect(
+      parse({ stakes: stakes({ cost: null, severe: null }) }, "saving-throw")
+        .success,
+    ).toBe(true);
+  });
+
+  it("defaults newRisk to null and the band effect lists to empty", () => {
+    const { newRisk: _n, onCost: _c, onSevere: _s, ...rest } = checkStep;
+    const parsed = StepSchema.parse(rest);
+    expect(parsed).toMatchObject({ newRisk: null, onCost: [], onSevere: [] });
+  });
+
+  it("applies the ability-check rule to an adjudicate ruling", () => {
+    const ruling = (st: object) => ({
+      ruling: "r",
+      citations: [],
+      steps: [{ ...checkStep, stakes: st }],
+    });
+    expect(
+      AdjudicateModelOutput.safeParse(ruling(stakes({ cost: null }))).success,
+    ).toBe(false);
+    expect(
+      AdjudicateModelOutput.safeParse(ruling(checkStep.stakes)).success,
+    ).toBe(true);
   });
 });

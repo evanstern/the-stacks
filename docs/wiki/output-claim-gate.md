@@ -7,7 +7,7 @@ sources:
   - apps/server/src/dm/audit-words.ts
   - apps/server/src/dm/gates/plan-gate.ts
   - specs/051-output-claim-gate/contracts/claim-gate.md
-verified_against: 022452c9327344e8ae67e69066acfe6450e134e3
+verified_against: 389d2e32895a3b2143ee05f72f8b421f236a8bf7
 ---
 
 # Output claim gate
@@ -15,10 +15,10 @@ verified_against: 022452c9327344e8ae67e69066acfe6450e134e3
 Part of narration quality ([[dm-narration-quality]]) and the DM runtime ([[dm-runtime]]). It reads
 the snapshot ([[actor-snapshot]]). Contract: `specs/051-output-claim-gate/contracts/claim-gate.md`.
 TASK-0144 (companion `say`, public chronicle entries) calls the same function. So does the plan
-gate (`checkPlan` in `dm/gates/plan-gate.ts`, TASK-0161, spec 058): it checks each step reason,
+gate (`checkPlan` in `dm/gates/plan-gate.ts`, TASK-0161, spec 058): it checks each step reason, each check's stakes texts and `newRisk` (spec 070),
 `autoFail.reason` and condition `source` of a non-resumed group against S0 and a presence-only
 `plannedDiff` before any step runs, and refuses the group with `REASON_CONTRADICTS_STATE`
-([[dm-failure-and-gates]]). Dice-line reasons therefore never reach the log unchecked.
+([[dm-failure-and-gates]]). Dice-line reasons therefore never reach the log unchecked. The plan gate also refuses a foreign actor (TASK-0208, spec 079): an `attack` or `move` step whose actor is not the action's own resolves `STEP_ACTOR_MISMATCH`, a refusal of its own that runs no claim check.
 
 `checkClaims` is pure and lexical: no model call, no log read, snapshot types only. It resolves
 a term to an actor by `aliases` (whole word, case-insensitive, possessive-aware; a term held by one

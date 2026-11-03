@@ -69,8 +69,8 @@ const NARRATIVE =
 
 describe("interpret and adjudicate prompts", () => {
   it("bumps the prompt versions", () => {
-    expect(INTERPRET_VERSION).toBe("dm.interpret-v6");
-    expect(ADJUDICATE_VERSION).toBe("dm.adjudicate-v4");
+    expect(INTERPRET_VERSION).toBe("dm.interpret-v8");
+    expect(ADJUDICATE_VERSION).toBe("dm.adjudicate-v6");
   });
 
   it("renders a frightened monster's condition and AC from S0 (G6)", async () => {
@@ -162,18 +162,33 @@ describe("interpret and adjudicate prompts", () => {
     expect(p.user).toContain("Approach beat: call Stealth");
   });
 
+  it("tells interpret to plan a move step and no reaction attack (spec 079 D6)", () => {
+    expect(OUTPUT_SHAPE).toContain(
+      "plan a move step for it that lists that hostile in leavesReachOf. Plan no attack for the hostile: the engine decides any reaction.",
+    );
+  });
+
   it("the example object parses under InterpretOutput", () => {
     expect(InterpretOutput.safeParse(EXAMPLE_OUTPUT).success).toBe(true);
+  });
+
+  it("carries the stakes rules and a stakes example (spec 070)", () => {
+    expect(OUTPUT_SHAPE).toContain("Write the stakes of every check");
+    expect(OUTPUT_SHAPE).toContain('"stakes":{"success"');
+    expect(STEP_GRAMMAR).toContain('"stakes":{"success"');
+    expect(STEP_GRAMMAR).toContain("newRisk");
   });
 
   it("matches the step grammar and output shape snapshot", () => {
     expect(`${STEP_GRAMMAR}\n\n${OUTPUT_SHAPE}`).toMatchInlineSnapshot(`
       "A step states mechanics INPUTS as data. Allowed steps:
       {"step":"none","reason":str}  (certain outcome; no roll)
-      {"step":"check","reason":str,"combatantId":id|null,"kind":"ability-check"|"saving-throw","ability":"str"|"dex"|"con"|"int"|"wis"|"cha","skill":skill key|null,"expression":"1d20+5","mode":"normal"|"advantage"|"disadvantage","dc":int,"autoFail":{"reason":str}|null,"onSuccess":[effect],"onFailure":[effect]}
+      {"step":"check","reason":str,"combatantId":id|null,"kind":"ability-check"|"saving-throw","ability":"str"|"dex"|"con"|"int"|"wis"|"cha","skill":skill key|null,"expression":"1d20+5","mode":"normal"|"advantage"|"disadvantage","dc":int,"autoFail":{"reason":str}|null,"onSuccess":[effect],"onFailure":[effect],"stakes":{"success":str|null,"cost":str|null,"failure":str,"severe":str|null},"onCost":[effect],"onSevere":[effect],"newRisk":str|null}
+      A check's stakes are declared before the dice. stakes.success: what the player gets (null if the success is plain). stakes.cost: what happens on success at a cost, a miss by 1 or 2 (the goal is met, with a price). stakes.failure: what a plain failure costs; always written. stakes.severe: what happens on a severe failure, a miss by 5 or more. An ability check needs cost and severe; a saving throw sets them null. onCost and onSevere hold the effects of those bands. newRisk is a new danger that makes a repeat attempt a fresh roll; null otherwise.
       {"step":"attack","reason":str,"attackerId":id|null,"targetId":id,"expression":"1d20+5","mode":roll mode,"targetAc":int|null,"onHit":[effect]}
       {"step":"effect","reason":str,"effects":[effect]}
       {"step":"roll","reason":str,"expression":"1d6","mode":roll mode}
+      {"step":"move","reason":str,"combatantId":id,"leavesReachOf":[id]}  (the mover moves; list each hostile it stands next to and moves away from without Disengage)
       An effect is one of:
       {"effect":"damage","targetId":id,"components":[{"amount":Amount,"damageType":damage type}],"defenses":{"resistances":[],"vulnerabilities":[],"immunities":[]}|null}
       {"effect":"heal","targetId":id,"amount":Amount}
@@ -190,10 +205,11 @@ describe("interpret and adjudicate prompts", () => {
 
       Reply with one JSON object, no prose, no code fence.
       {"readings":[{"actionId":id|null,"intent":"talk"|"move"|"check"|"save"|"attack"|"spell"|"help"|"rest"|"other","uncertain":bool,"needsAdjudication":bool,"rulesQuestion":str|null,"clarify":str|null,"followUps":[str],"steps":[step]}]}
-      Write exactly one reading per beat item, keyed by its actionId. Write one reading with actionId null for a monster turn. Roll only when the outcome is uncertain and failure is interesting; for a certain outcome use a none step. Set needsAdjudication true, with a rulesQuestion, when the rules are unclear or the action is inventive; then leave steps empty. When intent is unclear, set clarify to one short question and leave steps empty. Plan only the steps that are not already applied (see Already applied). When a post holds a plan, an approach and later steps, plan only the first stage: the move or approach, with a check for anyone moving hidden or over hard ground. List each later step that depends on it in followUps, one short sentence each, and plan no step for it.
+      Write exactly one reading per beat item, keyed by its actionId. Write one reading with actionId null for a monster turn. Roll only when the outcome is uncertain and failure is interesting; for a certain outcome use a none step. Set needsAdjudication true, with a rulesQuestion, when the rules are unclear or the action is inventive; then leave steps empty. When intent is unclear, set clarify to one short question and leave steps empty. Plan only the steps that are not already applied (see Already applied). When a post holds a plan, an approach and later steps, plan only the first stage: the move or approach, with a check for anyone moving hidden or over hard ground. List each later step that depends on it in followUps, one short sentence each, and plan no step for it. When a party member moves away from a hostile it stands next to, without Disengage, plan a move step for it that lists that hostile in leavesReachOf. Plan no attack for the hostile: the engine decides any reaction.
+      Write the stakes of every check before the dice: one short consequence per outcome band. Write failure as something that happens. When failure would cost nothing, use a none step instead of a check. Write cost as a price the player pays while still getting the goal, and severe as a worse turn, not only a missed goal. Write no stakes text that tells the player's character what they think or do. Set newRisk only when a failed attempt has changed the situation so that a repeat is dangerous.
       Keep every field short. Write one sentence per reason, at most 500 characters. Write rulesQuestion at most 500 characters. Write clarify as one short question, at most 200 characters. Write at most 6 steps per reading and at most 4 effects per list. Write source at most 100 characters and expression at most 200 characters.
       Example of one complete reading:
-      {"readings":[{"actionId":"act-1","intent":"check","uncertain":true,"needsAdjudication":false,"rulesQuestion":null,"clarify":null,"followUps":[],"steps":[{"step":"check","reason":"Ana searches the ford for tracks.","combatantId":"pc-ana","kind":"ability-check","ability":"wis","skill":"survival","expression":"1d20+3","mode":"normal","dc":12,"autoFail":null,"onSuccess":[],"onFailure":[]}]}]}"
+      {"readings":[{"actionId":"act-1","intent":"check","uncertain":true,"needsAdjudication":false,"rulesQuestion":null,"clarify":null,"followUps":[],"steps":[{"step":"check","reason":"Ana searches the ford for tracks.","combatantId":"pc-ana","kind":"ability-check","ability":"wis","skill":"survival","expression":"1d20+3","mode":"normal","dc":12,"autoFail":null,"onSuccess":[],"onFailure":[],"stakes":{"success":"She finds fresh tracks leading north.","cost":"She finds the tracks, but the cold ford soaks her boots.","failure":"The trail goes cold and the light fades.","severe":"She loses the trail and wanders into the reeds, noisily."},"onCost":[],"onSevere":[],"newRisk":null}]}]}"
     `);
   });
 

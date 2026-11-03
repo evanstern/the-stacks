@@ -8,7 +8,11 @@ import type { AdjudicateOutput } from "./nodes/adjudicate.js";
 import type { BeatItem } from "./nodes/assemble.js";
 import type { DirectorNodeOutput } from "./nodes/director.js";
 import type { ResolveOutput } from "./nodes/resolve.js";
+import type { Stakes } from "./nodes/schemas.js";
 import type { PlayerSeedView } from "./seed/views.js";
+import { consequenceFor } from "./stakes.js";
+
+type FactStakes = Stakes;
 
 /**
  * Narration facts (contracts/nodes.md "narrate"): built by code from the
@@ -25,7 +29,7 @@ export type FactOutcome =
   | "success"
   | "failure";
 
-/** Reserved for TASK-0127 (spec 070 R10); this card never sets it. */
+/** The outcome band (spec 070); null on a row written before it. */
 export type FactBand =
   | "success"
   | "success-at-cost"
@@ -45,6 +49,14 @@ export interface FactRoll {
   /** Attack target name, from attack.resolved.targetId. */
   target: string | null;
   band?: FactBand | null;
+  /** Spec 070: total minus DC on a rolled check; null otherwise. */
+  margin?: number | null;
+  /** Spec 070: the declared text for a success-at-cost, failure or severe-failure band. */
+  consequence?: string | null;
+  /** Spec 070: a free retry resolved without a roll. */
+  autoSuccess?: boolean;
+  /** True for an opportunity attack (the attacker spent its reaction). */
+  reaction?: boolean;
 }
 
 /** A reflex the dice allow the narrator to show (spec 074 D3). Never a choice. */
@@ -145,6 +157,8 @@ export interface NarrationFacts {
   turn?: { actor: string; next: string | null };
   /** Settled death-save turns (TASK-0112); omitted when settling rolled nothing. */
   settled?: FactSettled[];
+  /** A party member's followUps from an earlier beat, still not attempted (spec 079). */
+  openFollowUps?: { name: string; text: string }[];
   /** Reflexes derived from this turn's rows (spec 074); always set by `buildNarrationFacts`. */
   involuntary?: FactInvoluntary[];
   director: {
@@ -205,6 +219,7 @@ export function collectFacts(
   rows: readonly LedgerRow[],
   nameOf: NameOf,
   damageTypeBySeq: ReadonlyMap<number, string> = new Map(),
+  stakesByBatch: ReadonlyMap<string, FactStakes> = new Map(),
 ): Collected {
   const out: Collected = { rolls: [], outcomes: [], changes: [] };
   const ordered = [...rows].sort((a, b) => a.seq - b.seq);
@@ -225,15 +240,23 @@ export function collectFacts(
       let against: FactRoll["against"] = null;
       let outcome: FactOutcome | null = null;
       let target: string | null = null;
+      let reaction = false;
+      let band: FactBand | null = null;
+      let margin: number | null = null;
+      let consequence: string | null = null;
       if (link) {
         const o = link.outcome;
         if (o.type === "attack.resolved") {
           against = { kind: "AC", value: o.ac };
           outcome = o.outcome;
           target = nameOf(o.targetId);
+          reaction = o.reaction === true;
         } else if (o.type === "check.resolved") {
           against = { kind: "DC", value: o.dc };
           outcome = o.outcome;
+          band = o.band ?? null;
+          margin = o.margin ?? null;
+          consequence = consequenceFor(stakesByBatch.get(link.batchId), band);
         }
       }
       const name = nameOf(row.roll.combatantId);
@@ -248,26 +271,37 @@ export function collectFacts(
         outcome,
         autoFail: false,
         target,
+        ...(band ? { band, margin, consequence } : {}),
+        ...(reaction ? { reaction: true } : {}),
       });
     }
   }
-  // Check outcomes with no roll (auto-fail).
+  // Check outcomes with no roll (auto-fail or a free retry).
   for (const o of outcomeRows) {
     if (claimed.has(o.seq)) continue;
     if (o.outcome.type !== "check.resolved") continue;
     const e = o.outcome;
     if (e.rollIndex !== null) continue;
     out.outcomes.push(e.outcome);
+    const autoSuccess = e.autoFail === null && e.outcome === "success";
     out.rolls.push({
       name: nameOf(e.combatantId),
       reason: stripMarker(e.autoFail?.reason ?? e.reason),
-      expression: "auto-fail",
+      expression: autoSuccess ? "auto-success" : "auto-fail",
       shown: "-",
       total: null,
       against: { kind: "DC", value: e.dc },
       outcome: e.outcome,
-      autoFail: true,
+      autoFail: !autoSuccess,
       target: null,
+      ...(autoSuccess ? { autoSuccess: true } : {}),
+      ...(e.band
+        ? {
+            band: e.band,
+            margin: null,
+            consequence: consequenceFor(stakesByBatch.get(o.batchId), e.band),
+          }
+        : {}),
     });
   }
 
@@ -334,12 +368,29 @@ const OUTCOME_WORD: Record<FactOutcome, string> = {
   failure: "failure",
 };
 
+const BAND_WORD: Record<FactBand, string> = {
+  success: "success",
+  "success-at-cost": "success at a cost",
+  failure: "failure",
+  "severe-failure": "severe failure",
+};
+
+/** The word a roll's outcome reads as: the band word when a band is set, else the outcome. */
+export function outcomeWord(roll: FactRoll): string | null {
+  if (roll.band) return BAND_WORD[roll.band];
+  return roll.outcome ? OUTCOME_WORD[roll.outcome] : null;
+}
+
 /** `<name> — <reason>: <expression> → <natural or faces> = <total> vs <AC|DC n>: <outcome>`. */
 export function renderRollLine(roll: FactRoll): string {
   const vs = roll.against
     ? ` vs ${roll.against.kind} ${roll.against.value}`
     : "";
-  const outcome = roll.outcome ? `: ${OUTCOME_WORD[roll.outcome]}` : "";
+  const word = outcomeWord(roll);
+  const outcome = word ? `: ${word}` : "";
+  if (roll.autoSuccess) {
+    return `${roll.name} — ${roll.reason}: no roll needed${outcome}`;
+  }
   if (roll.autoFail) {
     return `${roll.name} — ${roll.reason}: auto-fail${vs}${outcome}`;
   }
@@ -483,6 +534,8 @@ export interface BuildFactsInput {
   clarify: { actionId: string; question: string }[];
   /** Follow-ups per action id, from the ruling when one exists, else the reading. */
   followUps?: Record<string, string[]>;
+  /** Open followUps from earlier beats, by character id (spec 079). */
+  openFollowUps?: { characterId: string; text: string }[];
   /** The monster's reading (ruling steps replace the reading's); null when none. */
   npcPlan?: { intent: string; steps: { reason: string }[] } | null;
   /** The combatant active at the start of the beat; set only when the table was in turn mode. */
@@ -574,6 +627,11 @@ export function buildNarrationFacts(input: BuildFactsInput): NarrationFacts {
     );
   };
   const types = damageTypesBySeq(input.appendedRows);
+  // Spec 070 R6: the stakes each check submission declared, by the batch it landed in.
+  const stakesByBatch = new Map<string, FactStakes>();
+  for (const s of input.resolve.submissions) {
+    if (s.batchId && s.stakes) stakesByBatch.set(s.batchId, s.stakes);
+  }
   const actions: FactAction[] = [];
   for (const item of input.beat) {
     const result = input.resolve.actionResults.find(
@@ -591,7 +649,7 @@ export function buildNarrationFacts(input: BuildFactsInput): NarrationFacts {
       refusalCode = view.resolved.refusalCode;
     } else continue;
     const rows = p.ledger.filter((r) => r.actionId === item.actionId);
-    const c = collectFacts(rows, nameOf, types);
+    const c = collectFacts(rows, nameOf, types, stakesByBatch);
     actions.push({
       actionId: item.actionId,
       characterName:
@@ -625,7 +683,7 @@ export function buildNarrationFacts(input: BuildFactsInput): NarrationFacts {
           .map((s) => stripMarker(s.reason).slice(0, PLAN_MAX_CHARS)),
         held: refused || steps.length === 0,
       },
-      ...collectFacts(rows, nameOf, types),
+      ...collectFacts(rows, nameOf, types, stakesByBatch),
     };
   }
 
@@ -656,7 +714,7 @@ export function buildNarrationFacts(input: BuildFactsInput): NarrationFacts {
       first && first.kind === "roll" ? first.roll.combatantId : null;
     settled.push({
       name: nameOf(subject),
-      ...collectFacts(rows, nameOf, types),
+      ...collectFacts(rows, nameOf, types, stakesByBatch),
     });
   }
 
@@ -681,6 +739,11 @@ export function buildNarrationFacts(input: BuildFactsInput): NarrationFacts {
     nameOf,
   );
 
+  const openFollowUps = (input.openFollowUps ?? []).flatMap((f) => {
+    const name = p.party.find((m) => m.characterId === f.characterId)?.name;
+    return name ? [{ name, text: f.text }] : [];
+  });
+
   const beatNpcs = input.beatNpcIds;
   const presentNpcs = beatNpcs.flatMap((id) => {
     const n = seed.npcs.find((x) => x.id === id);
@@ -704,6 +767,7 @@ export function buildNarrationFacts(input: BuildFactsInput): NarrationFacts {
     npcTurn,
     ...(turn ? { turn } : {}),
     ...(settled.length > 0 ? { settled } : {}),
+    ...(openFollowUps.length > 0 ? { openFollowUps } : {}),
     involuntary,
     director: {
       pacing: input.director.pacing,

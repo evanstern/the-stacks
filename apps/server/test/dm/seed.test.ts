@@ -464,3 +464,31 @@ describe("seed NPC presence, identity and aliases (spec 050)", () => {
       expect(n.identity.aliases).toEqual([]);
   });
 });
+
+describe("seed tableRules (spec 070)", () => {
+  it("defaults to bands and naturals on, group checks off", () => {
+    const seed = raw();
+    delete seed.tableRules;
+    expect(parseSeed(seed).tableRules).toEqual({
+      outcomeBands: true,
+      naturals: true,
+      groupChecks: false,
+    });
+  });
+
+  it.each([
+    ["outcomeBands", false],
+    ["naturals", false],
+    ["groupChecks", true],
+  ])("overrides %s alone", (flag, value) => {
+    const seed = raw();
+    seed.tableRules = { [flag]: value };
+    const rules = parseSeed(seed).tableRules as Record<string, boolean>;
+    expect(rules[flag]).toBe(value);
+    expect(Object.keys(rules).sort()).toEqual([
+      "groupChecks",
+      "naturals",
+      "outcomeBands",
+    ]);
+  });
+});

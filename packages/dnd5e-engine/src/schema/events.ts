@@ -12,6 +12,13 @@ const Reason = z.string().min(1).max(500);
 const Id = CombatantIdSchema;
 const V = z.literal(1);
 const Int = z.number().int();
+export const OutcomeBand = z.enum([
+  "success",
+  "success-at-cost",
+  "failure",
+  "severe-failure",
+]);
+export type OutcomeBand = z.infer<typeof OutcomeBand>;
 const HpPair = z.object({ current: Int, temp: Int });
 
 export const DiceTermResultSchema = z.discriminatedUnion("kind", [
@@ -93,6 +100,7 @@ export const EngineEventSchema = z.discriminatedUnion("type", [
     total: Int,
     natural: Int,
     outcome: z.enum(["hit", "miss", "critical-hit"]),
+    reaction: z.boolean().optional(),
   }),
   z.object({
     type: z.literal("check.resolved"),
@@ -108,6 +116,9 @@ export const EngineEventSchema = z.discriminatedUnion("type", [
     natural: Int.nullable(),
     autoFail: z.object({ reason: Reason }).nullable(),
     outcome: z.enum(["success", "failure"]),
+    // Spec 070: optional so v1 rows written before it still parse.
+    margin: Int.nullable().optional(),
+    band: OutcomeBand.optional(),
   }),
   z.object({
     type: z.literal("rest.completed"),

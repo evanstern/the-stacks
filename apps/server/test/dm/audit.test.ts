@@ -130,6 +130,33 @@ describe("deterministicChecks", () => {
     expect(check(CLEAN)).toEqual({ pass: true, issues: [] });
   });
 
+  it("does not pair the character with a reaction attack's outcome (spec 079)", () => {
+    const hit = {
+      ...roll("hit"),
+      name: "Goblin with a pot-helm",
+      reaction: true,
+      target: "Ana",
+    };
+    const f = facts([action({ rolls: [hit], outcomes: ["hit"] })]);
+    expect(check("Ana misses her footing in the mud.", f).pass).toBe(true);
+    const own = facts([action({ rolls: [roll("hit")], outcomes: ["hit"] })]);
+    expect(check("Ana misses her footing in the mud.", own).pass).toBe(false);
+  });
+
+  it("refuses a success-at-cost actor paired with a failure word (spec 070 US4 #3)", () => {
+    const cost = {
+      ...roll("success"),
+      band: "success-at-cost" as const,
+      margin: -2,
+      consequence: "It works, at a small price.",
+    };
+    const f = facts([action({ rolls: [cost], outcomes: ["success"] })]);
+    expect(check("Ana fails to move the stuck lock.", f).pass).toBe(false);
+    expect(check("Ana forces the lock, wincing at the cost.", f).pass).toBe(
+      true,
+    );
+  });
+
   it("fails on digits", () => {
     const r = check("Ana opens 3 locks. The door groans.");
     expect(r.pass).toBe(false);
@@ -208,13 +235,18 @@ describe("deterministicChecks", () => {
   it("fails when the actor's name pairs with the opposite outcome word", () => {
     const r = check("Ana fails to move the lock at all.");
     expect(r.issues[0]?.kind).toBe("ledger-mismatch");
-    const miss = facts([action({ outcomes: ["miss"] })]);
+    const miss = facts([action({ rolls: [roll("miss")], outcomes: ["miss"] })]);
     expect(check("Ana hits the door with her sword.", miss).pass).toBe(false);
     expect(check("Ana swings and the blade bites air.", miss).pass).toBe(true);
   });
 
   it("matches a full name by its first or last word", () => {
-    const f = facts([action({ characterName: "Brother Odo" })]);
+    const f = facts([
+      action({
+        characterName: "Brother Odo",
+        rolls: [{ ...roll(), name: "Brother Odo" }],
+      }),
+    ]);
     expect(check("Odo fails to move the lock.", f).pass).toBe(false);
     expect(check("Brother fails to move the lock.", f).pass).toBe(false);
   });

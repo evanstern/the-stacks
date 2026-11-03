@@ -26,7 +26,8 @@ import type {
 export type PlanFailureReason =
   | "not-a-combatant"
   | "not-in-snapshot"
-  | "absent";
+  | "absent"
+  | "not-the-actor";
 
 export interface PlanFailure {
   stepIndex: number;
@@ -43,6 +44,14 @@ export interface PlanFailure {
 export const REASON_REFUSAL_CODE =
   "REASON_CONTRADICTS_STATE" as const satisfies RefusalCode;
 export type ReasonRefusalCode = typeof REASON_REFUSAL_CODE;
+
+/**
+ * The refusal code of a group whose step names a foreign actor (spec 079, OQ-4).
+ * Spec 077's `askUndeclared` clarifies another human's PC only; no refusal code
+ * covers a non-party attacker, so this is new. Plan-gate only.
+ */
+export const ACTOR_REFUSAL_CODE =
+  "STEP_ACTOR_MISMATCH" as const satisfies RefusalCode;
 
 /** A model text (step reason or condition source) the claim gate refused. */
 export interface ReasonFailure {
@@ -67,6 +76,12 @@ export type PlanVerdict =
       ok: false;
       code: ReasonRefusalCode;
       failure: ReasonFailure;
+    }
+  | {
+      actionId: string | null;
+      ok: false;
+      code: typeof ACTOR_REFUSAL_CODE;
+      failure: PlanFailure;
     };
 
 export interface PlanInput {
@@ -80,6 +95,12 @@ export interface PlanInput {
   arriving: readonly string[];
   /** Action ids with a resumed plan (spec 057): they skip the reason check. */
   resumed: readonly string[];
+  /**
+   * Action id -> the acting character's combatant id, `null` for a party-scope
+   * action. An action id absent from the map (a character with no combatant)
+   * is not actor-checked (spec 079 D5).
+   */
+  actors?: ReadonlyMap<string, string | null>;
 }
 
 type EncounterSeed = SceneSeed["encounters"][number];
@@ -156,6 +177,14 @@ function stepIds(step: Step): NamedId[] {
     case "none":
     case "roll":
       return [];
+    case "move":
+      return [
+        { field: "combatantId", id: step.combatantId },
+        ...step.leavesReachOf.map((id, i) => ({
+          field: `leavesReachOf[${i}]`,
+          id,
+        })),
+      ];
     case "effect":
       return effectIds(step.effects, "effects");
     case "check":
@@ -165,6 +194,8 @@ function stepIds(step: Step): NamedId[] {
           : []),
         ...effectIds(step.onSuccess, "onSuccess"),
         ...effectIds(step.onFailure, "onFailure"),
+        ...effectIds(step.onCost, "onCost"),
+        ...effectIds(step.onSevere, "onSevere"),
       ];
     case "attack":
       return [
@@ -192,11 +223,23 @@ function effectSources(effects: readonly Effect[], list: string): NamedText[] {
   return out;
 }
 
+/** Spec 070 D5: the declared consequences and the new risk are model-written claims. */
+function stakeTexts(step: Extract<Step, { step: "check" }>): NamedText[] {
+  const out: NamedText[] = [];
+  for (const key of ["success", "cost", "failure", "severe"] as const) {
+    const text = step.stakes[key];
+    if (text !== null) out.push({ field: `stakes.${key}`, text });
+  }
+  if (step.newRisk !== null) out.push({ field: "newRisk", text: step.newRisk });
+  return out;
+}
+
 /** Every model-written text a step carries, in the order checked. */
 function stepTexts(step: Step): NamedText[] {
   switch (step.step) {
     case "none":
     case "roll":
+    case "move":
       return [{ field: "reason", text: step.reason }];
     case "effect":
       return [
@@ -211,6 +254,9 @@ function stepTexts(step: Step): NamedText[] {
           : []),
         ...effectSources(step.onSuccess, "onSuccess"),
         ...effectSources(step.onFailure, "onFailure"),
+        ...effectSources(step.onCost, "onCost"),
+        ...effectSources(step.onSevere, "onSevere"),
+        ...stakeTexts(step),
       ];
     case "attack":
       return [
@@ -246,6 +292,8 @@ function plannedDiff(
         case "check":
           addEffects(step.onSuccess);
           addEffects(step.onFailure);
+          addEffects(step.onCost);
+          addEffects(step.onSevere);
           break;
         case "attack":
           addEffects(step.onHit);
@@ -277,6 +325,27 @@ function plannedDiff(
   };
 }
 
+/** The first `attack` attacker or `move` mover that is not the action's actor. */
+function foreignActor(
+  steps: readonly Step[],
+  actor: string | null,
+  party: ReadonlySet<string>,
+): PlanFailure | null {
+  for (const [stepIndex, step] of steps.entries()) {
+    const named =
+      step.step === "attack" && step.attackerId
+        ? { field: "attackerId", id: step.attackerId }
+        : step.step === "move"
+          ? { field: "combatantId", id: step.combatantId }
+          : null;
+    if (!named) continue;
+    if (actor === null ? !party.has(named.id) : named.id !== actor) {
+      return { stepIndex, ...named, reason: "not-the-actor" };
+    }
+  }
+  return null;
+}
+
 export function checkPlan(input: PlanInput): PlanVerdict[] {
   const { snapshot } = input;
   const valid = new Set<string>(input.joining);
@@ -302,6 +371,12 @@ export function checkPlan(input: PlanInput): PlanVerdict[] {
     }
   }
 
+  const partyCombatants = new Set<string>(
+    snapshot.actors.flatMap((a) =>
+      a.kind === "party" && a.combatantId ? [a.combatantId] : [],
+    ),
+  );
+
   const groups = new Map<string | null, readonly Step[]>();
   for (const r of input.readings) {
     // A clarify reading runs no step: nothing to gate.
@@ -317,6 +392,24 @@ export function checkPlan(input: PlanInput): PlanVerdict[] {
   for (const [actionId, steps] of groups) {
     let failure: PlanFailure | null = null;
     const pull = new Set<string>();
+    // Spec 079 D5: no foreign actor in a party action. The monster turn is not checked.
+    const actorFailure =
+      actionId !== null && input.actors?.has(actionId)
+        ? foreignActor(
+            steps,
+            input.actors.get(actionId) ?? null,
+            partyCombatants,
+          )
+        : null;
+    if (actorFailure) {
+      verdicts.push({
+        actionId,
+        ok: false,
+        code: ACTOR_REFUSAL_CODE,
+        failure: actorFailure,
+      });
+      continue;
+    }
     for (const [stepIndex, step] of steps.entries()) {
       for (const { field, id, presenceReason } of stepIds(step)) {
         if (presenceReason !== undefined) {
