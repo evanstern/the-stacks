@@ -41,7 +41,10 @@ Spec: specs/082-engine-derived-numbers
 - [ ] #8 Spec phase: Stats on combatants and the reaction path (card AC #1, #3, #4; US2, US3)
 - [ ] #9 Spec phase: Step contract, prompts, resolve and plan gate (card AC #1–#4; US1, US2, US3)
 - [ ] #10 Spec phase: Scripts, fixtures and integration tests (card AC #5; US5)
+- [ ] #11 Spec phase: Re-ground (wiki)
 <!-- AC:END -->
+
+
 
 
 
