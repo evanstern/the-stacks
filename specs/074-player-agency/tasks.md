@@ -52,41 +52,41 @@ report if another file is needed. No paid model run; tests use the fake gateway.
       with the amended text (plan D1, OQ-1 ruling). In `apps/server/test/dm/doctrine.test.ts`, assert
       it holds "a flinch on a foe's miss" and "a twist that times the blow". Change no version: Phase 1
       bumps already cover director, interpret and the playtest auditor (plan R7).
-- [ ] T013 [US2] In `apps/server/src/dm/facts.ts`, add `FactBand`, optional `FactRoll.band`,
+- [x] T013 [US2] In `apps/server/src/dm/facts.ts`, add `FactBand`, optional `FactRoll.band`,
       `FactInvoluntary`, optional `NarrationFacts.involuntary` and the pure `deriveInvoluntary`
       (plan D3), with the `avoid` trigger for a foe's miss on a party member. Set `involuntary` in
       `buildNarrationFacts` from this turn's action, NPC-turn and settle rows. Import no engine value.
-- [ ] T014 [US2] In `apps/server/src/dm/audit-words.ts`, add `DEFENCE_VERBS`, `REFLEX_VERBS`,
+- [x] T014 [US2] In `apps/server/src/dm/audit-words.ts`, add `DEFENCE_VERBS`, `REFLEX_VERBS`,
       `INTENT_MARKERS` and `SCENE_START_VERBS` (plan R5). Leave `ACT_VERBS` and `INVOLUNTARY_VERBS`
       unchanged.
-- [ ] T015 [US2] In `apps/server/src/dm/prompts/narrate.ts`, render `Reflex:` lines in
+- [x] T015 [US2] In `apps/server/src/dm/prompts/narrate.ts`, render `Reflex:` lines in
       `factEntries`. Replace the party line with `agencyRule("narrate")`. Rewrite the miss line and
       add the scene-start line (plan D4). Keep TASK-0209's unclear-intent and either-or lines verbatim
       (plan R9). Bump to `dm.narrate-v9`.
-- [ ] T016 [US2] In `apps/server/src/dm/prompts/audit.ts`, rewrite definition 1 with
+- [x] T016 [US2] In `apps/server/src/dm/prompts/audit.ts`, rewrite definition 1 with
       `agencyRule("audit")` (plan D4). Bump to `dm.audit-v5`.
-- [ ] T017 [US2] [US3] In `apps/server/src/dm/nodes/audit.ts` `deterministicChecks`, add the miss-
+- [x] T017 [US2] [US3] In `apps/server/src/dm/nodes/audit.ts` `deterministicChecks`, add the miss-
       defence and scene-start-hero checks (plan D4): a defence verb fails, a reflex verb with an
       intent marker fails, a plain reflex verb passes. Run both on the prose with a matched clarify
       question stripped (plan R9); leave the either-or clarify exemption unchanged. Mark the lexical
       window with a `ponytail:` comment (plan Risks).
-- [ ] T018 [US2] In `apps/server/test/dm/facts.test.ts`, test `deriveInvoluntary`: a critical hit
+- [x] T018 [US2] In `apps/server/test/dm/facts.test.ts`, test `deriveInvoluntary`: a critical hit
       on a party member gives `stagger`; damage of exactly half max HP gives `heavy-hit`, one less
       gives none; a failed DEX save gives `flinch` "failed dex save"; the same rows on a monster give
       none; a failed death save gives none; a crit with heavy damage gives both; max HP 0 gives no
       heavy-hit; a foe's miss on a party member gives `avoid` "missed by <attacker>"; a foe's miss on
       a monster gives none; a successful save gives none.
-- [ ] T019 [US2] [US3] Create `apps/server/test/dm/fixtures/player-agency-captures.json` with the
+- [x] T019 [US2] [US3] Create `apps/server/test/dm/fixtures/player-agency-captures.json` with the
       prose of verify 20261026T192319Z seq 10, 82, 87 and 126 (copied from the evidence
       `transcript.jsonl`, prose paragraph only) and the minimal facts each needs.
-- [ ] T020 [US2] [US3] Create `apps/server/test/dm/player-agency.test.ts`: seq 82 fails with one
+- [x] T020 [US2] [US3] Create `apps/server/test/dm/player-agency.test.ts`: seq 82 fails with one
       blocking `player-agency` issue naming Tamsin ("twists just enough"); seq 87 and seq 126 pass
       the agency checks (card AC #2, SC-001); on the seq 82 miss, "Tamsin flinches as the dagger
       hisses past her ribs" passes, and "Tamsin ducks under the dagger" and "Tamsin jerks aside just
       in time" fail (OQ-1 ruling); seq 10 at scene start fails on "Tamsin Vale leads"; each
       `apps/server/seeds/*.json` `opening.framing` at scene start passes (card AC #1, SC-002); a
       member whose own declared action says "I duck behind the post" is exempt on that beat.
-- [ ] T021 [US2] In `apps/server/test/dm/narrate.test.ts`, pin `dm.narrate-v9` and `dm.audit-v5`.
+- [x] T021 [US2] In `apps/server/test/dm/narrate.test.ts`, pin `dm.narrate-v9` and `dm.audit-v5`.
       Assert narrate and audit system prompts hold their `agencyRule` text, the narrate system holds
       the new miss line, a scene-start narrate user prompt holds the opening line, and facts with a
       `stagger` or an `avoid` render a `Reflex:` line in both user prompts. Replace the assertion on

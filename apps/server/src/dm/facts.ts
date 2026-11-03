@@ -25,6 +25,13 @@ export type FactOutcome =
   | "success"
   | "failure";
 
+/** Reserved for TASK-0127 (spec 070 R10); this card never sets it. */
+export type FactBand =
+  | "success"
+  | "success-at-cost"
+  | "failure"
+  | "severe-failure";
+
 export interface FactRoll {
   name: string;
   reason: string;
@@ -37,6 +44,15 @@ export interface FactRoll {
   autoFail: boolean;
   /** Attack target name, from attack.resolved.targetId. */
   target: string | null;
+  band?: FactBand | null;
+}
+
+/** A reflex the dice allow the narrator to show (spec 074 D3). Never a choice. */
+export interface FactInvoluntary {
+  /** The party member. */
+  name: string;
+  trigger: "stagger" | "heavy-hit" | "flinch" | "avoid";
+  detail: string;
 }
 
 export type FactEvent =
@@ -129,6 +145,8 @@ export interface NarrationFacts {
   turn?: { actor: string; next: string | null };
   /** Settled death-save turns (TASK-0112); omitted when settling rolled nothing. */
   settled?: FactSettled[];
+  /** Reflexes derived from this turn's rows (spec 074); always set by `buildNarrationFacts`. */
+  involuntary?: FactInvoluntary[];
   director: {
     pacing: DirectorNodeOutput["pacing"];
     goalNote: string;
@@ -471,6 +489,77 @@ export interface BuildFactsInput {
   turnActorId?: string | null;
 }
 
+/**
+ * Pure. Reflex triggers from ledger rows, in seq order, deduped by
+ * `name|trigger` (spec 074 D3). Party targets only; death saves emit no
+ * `check.resolved`, so they never yield a flinch.
+ */
+export function deriveInvoluntary(
+  rows: readonly LedgerRow[],
+  party: ReadonlySet<string>,
+  maxHpOf: (combatantId: string) => number | null,
+  nameOf: NameOf,
+): FactInvoluntary[] {
+  const out: FactInvoluntary[] = [];
+  const seen = new Set<string>();
+  const add = (i: FactInvoluntary): void => {
+    const key = `${i.name}|${i.trigger}`;
+    if (seen.has(key)) return;
+    seen.add(key);
+    out.push(i);
+  };
+  for (const row of [...rows].sort((a, b) => a.seq - b.seq)) {
+    if (row.kind === "outcome") {
+      const o = row.outcome;
+      if (o.type === "attack.resolved" && party.has(o.targetId)) {
+        if (o.outcome === "critical-hit") {
+          add({
+            name: nameOf(o.targetId),
+            trigger: "stagger",
+            detail: `critical hit by ${nameOf(o.attackerId)}`,
+          });
+        } else if (o.outcome === "miss") {
+          add({
+            name: nameOf(o.targetId),
+            trigger: "avoid",
+            detail: `missed by ${nameOf(o.attackerId)}`,
+          });
+        }
+      } else if (
+        o.type === "check.resolved" &&
+        o.kind === "saving-throw" &&
+        o.outcome === "failure" &&
+        o.combatantId &&
+        party.has(o.combatantId)
+      ) {
+        add({
+          name: nameOf(o.combatantId),
+          trigger: "flinch",
+          detail: `failed ${o.ability} save`,
+        });
+      }
+    } else if (
+      row.kind === "change" &&
+      row.type === "hp.changed" &&
+      row.subject &&
+      party.has(row.subject)
+    ) {
+      const b = row.before as { current: number; temp: number };
+      const a = row.after as { current: number; temp: number };
+      const lost = b.current + b.temp - (a.current + a.temp);
+      const max = maxHpOf(row.subject);
+      if (lost > 0 && max && lost * 2 >= max) {
+        add({
+          name: nameOf(row.subject),
+          trigger: "heavy-hit",
+          detail: "heavy damage",
+        });
+      }
+    }
+  }
+  return out;
+}
+
 const PLAN_MAX_REASONS = 4;
 const PLAN_MAX_CHARS = 200;
 
@@ -571,6 +660,27 @@ export function buildNarrationFacts(input: BuildFactsInput): NarrationFacts {
     });
   }
 
+  const partyIds = new Set(
+    p.party.flatMap((m) => (m.combatantId ? [m.combatantId] : [])),
+  );
+  const involuntary = deriveInvoluntary(
+    [
+      ...actions.flatMap((a) =>
+        p.ledger.filter((r) => r.actionId === a.actionId),
+      ),
+      ...(input.resolve.npcTurn && !input.resolve.npcTurn.awaitingDm
+        ? p.ledger.filter(
+            (r) =>
+              r.batchId && input.resolve.npcTurn?.batchIds.includes(r.batchId),
+          )
+        : []),
+      ...p.ledger.filter((r) => r.batchId && settleBatches.has(r.batchId)),
+    ],
+    partyIds,
+    (id) => p.engine.combatants[id]?.hp.max ?? null,
+    nameOf,
+  );
+
   const beatNpcs = input.beatNpcIds;
   const presentNpcs = beatNpcs.flatMap((id) => {
     const n = seed.npcs.find((x) => x.id === id);
@@ -594,6 +704,7 @@ export function buildNarrationFacts(input: BuildFactsInput): NarrationFacts {
     npcTurn,
     ...(turn ? { turn } : {}),
     ...(settled.length > 0 ? { settled } : {}),
+    involuntary,
     director: {
       pacing: input.director.pacing,
       goalNote: input.director.goalNote,
