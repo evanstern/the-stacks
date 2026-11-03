@@ -128,22 +128,22 @@ Phases 1 to 3 run in order: each needs the previous phase's types.
 
 ## Phase 4: Re-ground (wiki)
 
-- [ ] T033 Review and update `docs/wiki/dnd5e-engine.md` (spell attacks take attack assists;
+- [x] T033 Review and update `docs/wiki/dnd5e-engine.md` (spell attacks take attack assists;
       extend its `size_budget_exempt` reason to name TASK-0128 and the split card TASK-0231) (opposition rules, `abilityScores`,
       assists, `help.grant`, the two events, `NOT_PROFICIENT`, assist expiry beside condition
       expiry) (NEEDS-REVIEW).
-- [ ] T034 Review and update `docs/wiki/dm-runtime.md` (the opposition `difficulty`, the help step,
+- [x] T034 Review and update `docs/wiki/dm-runtime.md` (the opposition `difficulty`, the help step,
       resolve's two submissions, prompt versions) and `docs/wiki/dm-failure-and-gates.md` (the help
       step in the plan gate, `askUndeclared` and `STAT_UNDEFINED`; extend its `size_budget_exempt`
       reason as in T033) (NEEDS-REVIEW).
-- [ ] T035 Review `docs/wiki/dm-narration-quality.md` for the assist fact, the narrate version and
+- [x] T035 Review `docs/wiki/dm-narration-quality.md` for the assist fact, the narrate version and
       the fallback sentence (NEEDS-REVIEW).
-- [ ] T036 Re-pin every other note that lists a touched source, verifying each against the diff:
+- [x] T036 Re-pin every other note that lists a touched source, verifying each against the diff:
       expected `srd-data`, `seed-npc-presence`, `dm-turn-jobs`, `party-panel`, `proposal-gate`,
       `turn-floor`, `output-claim-gate`, `dm-talk-triggers`.
-- [ ] T037 Update `docs/wiki/CAPSULES.md` and `docs/wiki/INDEX.md`: the dnd5e-engine and
+- [x] T037 Update `docs/wiki/CAPSULES.md` and `docs/wiki/INDEX.md`: the dnd5e-engine and
       dm-failure-and-gates one-liners, and the INDEX state paragraph.
-- [ ] T038 Run the wiki freshness gate (prints `OK`) and the spec-bridge gate (exits 0).
+- [x] T038 Run the wiki freshness gate (prints `OK`) and the spec-bridge gate (exits 0).
 - [ ] T039 [orchestrator] Add the execution-log row to the runbook B file.
 
 ## Dependencies

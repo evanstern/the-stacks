@@ -18,8 +18,8 @@ sources:
   - packages/dnd5e-engine/test/purity.test.ts
   - packages/dnd5e-engine/test/coverage.test.ts
   - specs/026-dnd5e-engine/spec.md
-verified_against: 7440e7041ff0ca7ca70b9e7ea72d8b63b46e3bcb
-size_budget_exempt: TASK-0105 adds the spell.cast paragraph to the one engine-command note; the note sat within 40 chars of the 8000 budget before it, and the engine commands do not split without a TASK of its own
+verified_against: 3a617d4a10e572a061aa5be87b3f9711fd7910ae
+size_budget_exempt: TASK-0105 adds the spell.cast paragraph and TASK-0128 the Opposition and Help paragraph (split card TASK-0231) to the one engine-command note; the note sat within 40 chars of the 8000 budget before it, and the engine commands do not split without a TASK of its own
 ---
 
 # 5e engine
@@ -41,7 +41,7 @@ against `EngineCommandSchema` (`INVALID_COMMAND`), then dispatches by `command.t
 handler map (`roll`, `combatant.add/remove`, `damage.apply`, `healing.apply`, `temp-hp.grant`,
 `death-save.roll`, `stabilize`, `attack.roll`, `check.roll`, `condition.apply/remove`,
 `exhaustion.adjust`, `initiative.roll/join/leave`, `turn.advance`, `encounter.end`,
-`rest.short/long`, `spell-slot.expend/restore`, `spell.cast`). Each handler lives in `src/commands/`.
+`rest.short/long`, `spell-slot.expend/restore`, `spell.cast`, `help.grant`). Each handler lives in `src/commands/`.
 `evolve` applies one event; `replay(events, state)`
 folds many. Replaying all events from `emptyState()` reproduces state.
 
@@ -93,7 +93,7 @@ Spec 070: `check.resolved` records optional `margin` and `band` (`success`, `suc
 A handler runs every refusal check before it calls `rollDie`. A refused command consumes no
 dice, so the RNG stream is unchanged after a refusal. Refusals carry a code from
 `RefusalCodeSchema` (for example `TARGET_AC_UNKNOWN`, `D20_TERM_REQUIRED`, `NOT_DYING`,
-`NO_SLOT_AVAILABLE`, `REACTION_SPENT`, `STAT_UNDEFINED`), a message and optional detail (30 codes). The DM plan gate alone raises `REASON_CONTRADICTS_STATE` (spec 058).
+`NO_SLOT_AVAILABLE`, `REACTION_SPENT`, `STAT_UNDEFINED`, `NOT_PROFICIENT`), a message and optional detail (35 codes). The DM plan gate alone raises `REASON_CONTRADICTS_STATE` (spec 058).
 `attack.roll` and ability-check `check.roll` refuse an unable actor with `ACTOR_UNABLE` (`commands/attacks.ts`): lifeState `unconscious` or `stable`, or an `incapacitated`, `paralyzed`, `petrified`, `stunned` or `unconscious` condition. The detail names `combatantId`, `role`, `lifeState` and `conditions`. Saving throws and attack targets are never checked, so a dying actor can still roll its death save. A broken RNG contract (a face outside
 `1..sides`, or a die size outside `1..1000`) throws `RngContractError` rather than refusing. `encounter.end` keeps combatants in state; it is not what refused the actions in the TASK-0110 repro, whose cause was resolve order ([[dm-runtime]]), not an engine rule.
 
@@ -111,9 +111,11 @@ leaver and the incoming combatant. `encounter.end` drops the encounter, and with
 
 ## Stats and derived rolls
 
-Spec 082. A `Combatant` may carry `stats`; `src/derive.ts` derives rolls from them. `check.roll` takes `dc` or a `difficulty` tier; `attack.roll` takes `expression` or an `attack` entry name. A missing stat refuses `STAT_UNDEFINED`.
+Spec 082. A `Combatant` may carry `stats`; `src/derive.ts` derives rolls from them. `check.roll` takes `dc` or a `difficulty` tier; `attack.roll` takes `expression` or an `attack` entry name. A missing stat refuses `STAT_UNDEFINED`. `Combatant.stats.abilityScores` (optional, scores not modifiers) feeds the `influence` rule.
 
-**Spells** (spec 083, TASK-0105). `spell.cast` (`src/commands/spells.ts`) resolves six SRD spells (`fire-bolt`, `sacred-flame`, `inflict-wounds`, `ray-of-sickness`, `cure-wounds`, `healing-word`) from the engine-held `SPELLS` table (`src/spells.ts`; no SRD import, a server test checks it against the records, [[srd-data]]). It rolls the attack or save (`spellcastingModifier`, `spellSaveDc`), damage (half on a save, rounded down before defenses), healing and conditions, and spends the slot (`slotExpendEvent`; `NO_SLOT_AVAILABLE`). An unknown spell or bad slot level refuses `SPELL_UNRESOLVED`.
+**Spells** (spec 083, TASK-0105). `spell.cast` (`src/commands/spells.ts`) resolves six SRD spells (`fire-bolt`, `sacred-flame`, `inflict-wounds`, `ray-of-sickness`, `cure-wounds`, `healing-word`) from the engine-held `SPELLS` table (`src/spells.ts`; no SRD import, a server test checks it against the records, [[srd-data]]). It rolls the attack or save (`spellcastingModifier`, `spellSaveDc`), damage (half on a save, rounded down before defenses), healing and conditions, and spends the slot (`slotExpendEvent`; `NO_SLOT_AVAILABLE`). An unknown spell or bad slot level refuses `SPELL_UNRESOLVED`. A spell attack roll is an attack roll, so it takes attack assists (below).
+
+**Opposition and Help** (spec 084, TASK-0128). `check.roll` takes a third DC source, `opposition: { opponentId, rule }`; exactly one of `dc`, `difficulty`, `opposition` (else `INVALID_COMMAND`). `oppositionCovers` limits each rule to the checks the SRD names; the opponent cannot be the checker. `unarmed-strike` derives 8 + the opponent's Strength modifier + proficiency bonus (DC 9 for Snag); `influence` derives the higher of 15 and its Intelligence score. A missing stat refuses `STAT_UNDEFINED`. `check.resolved` records `opposition`. `help.grant` (`src/commands/help.ts`) writes `assist.granted` on the holder (`Combatant.assists`, at most one per helper): the ally for an ability-check assist (the helper needs the skill in `stats.skills`, else `NOT_PROFICIENT`), or the distracted enemy for an attack assist. The holder's next derived `check.roll` with that skill, or `attack.roll` / spell attack against that enemy by anyone but the helper, gains advantage and emits `assist.ended` (`used`). A new grant by the same helper ends the old one (`replaced`). `encounter.end` ends all (`encounter-ended`). An assist expires at the start of its helper's next turn (`helperExpiry`; `expired`), checked beside condition expiry in the turn-advance path; outside an encounter it lasts until used.
 
 ## Boundary rule
 
