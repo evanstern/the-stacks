@@ -379,6 +379,20 @@ export function deterministicChecks(
       `The prose offers an option menu: ${quoted}. Ask one open question instead.`,
     );
   }
+  // The literal stock ending is the doctrine's wrong example (end-on-demand).
+  // A clarify question may still end on it (plan-gate otherPlayerQuestion).
+  const literalEnd = /\bwhat do you(?: all| two)? do\?["'\u201d\u2019]*$/i.test(
+    prose.trim(),
+  );
+  if (
+    literalEnd &&
+    !facts.clarify.some((c) => proseTail.endsWith(norm(c.question)))
+  ) {
+    add(
+      "doctrine",
+      'The prose ends on "What do you do?". End on a moment that demands a response.',
+    );
+  }
   if (facts.clarify.length > 0 && !prose.trim().endsWith("?")) {
     add(
       "doctrine",

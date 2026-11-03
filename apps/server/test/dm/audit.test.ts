@@ -342,6 +342,36 @@ const SEED_PARTY: NarrationFacts["party"] = [
   { characterId: "kestrel", name: "Kestrel", controller: "ai-companion" },
 ];
 
+describe("literal stock ending (TASK-0204)", () => {
+  const literal = (prose: string, f = facts()) =>
+    check(prose, f).issues.some((i) =>
+      i.detail.startsWith('The prose ends on "What do you do?".'),
+    );
+
+  it("fails narration that ends on the literal question", () => {
+    expect(literal(`${CLEAN} What do you do?`)).toBe(true);
+    expect(literal(`${CLEAN} "What do you all do?"`)).toBe(true);
+    expect(literal(`${CLEAN} What do you two do?`)).toBe(true);
+  });
+
+  it("passes a named-character question and the phrase mid-prose", () => {
+    expect(literal(`${CLEAN} What does Tamsin do?`)).toBe(false);
+    expect(literal(`What do you do? ${CLEAN}`)).toBe(false);
+  });
+
+  it("exempts a clarify question that ends on the phrase", () => {
+    const q = "Tamsin's player decides what Tamsin does. What do you do?";
+    const f = { ...facts(), clarify: [{ actionId: "a1", question: q }] };
+    expect(literal(`${CLEAN} ${q}`, f)).toBe(false);
+  });
+
+  it("covers the scene-start opening path", () => {
+    const f = { ...facts(), trigger: "scene-start" as const };
+    expect(literal(`${CLEAN} What do you do?`, f)).toBe(true);
+    expect(literal(`${CLEAN} What does Tamsin do?`, f)).toBe(false);
+  });
+});
+
 describe("detailNamesPartyMember (party-name filter, E2)", () => {
   const cases: [string, string, boolean][] = [
     [
