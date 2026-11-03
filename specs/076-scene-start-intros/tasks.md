@@ -48,16 +48,16 @@ controller.
 **Independent test**: `scene-start-intros.test.ts` prompt and leak cases and the `narrate.test.ts`
 cases pass; every non-scene-start narrate test passes unchanged.
 
-- [ ] T006 [US1] [US2] In `apps/server/src/dm/prompts/narrate.ts`, apply plan D4: export
+- [x] T006 [US1] [US2] In `apps/server/src/dm/prompts/narrate.ts`, apply plan D4: export
       `openingSection`, use it in `buildNarratePrompt` in place of the `scene` array, move
       TASK-0113's opening rule into it verbatim, bump `PROMPT_VERSION` to `dm.narrate-v10`.
-- [ ] T007 [US2] In `apps/server/src/dm/nodes/narrate.ts`, apply plan D5: the scene-start
+- [x] T007 [US2] In `apps/server/src/dm/nodes/narrate.ts`, apply plan D5: the scene-start
       `beatNpcIds`.
-- [ ] T008 [P] [US1] [US2] [US4] Create `apps/server/test/dm/scene-start-intros.test.ts` with the
+- [x] T008 [P] [US1] [US2] [US4] Create `apps/server/test/dm/scene-start-intros.test.ts` with the
       plan "Tests" `openingSection`, no-player, non-scene-start, leak and `@ts-expect-error` cases.
-- [ ] T009 [P] [US2] Extend `apps/server/test/dm/narrate.test.ts`: the version pin and the
+- [x] T009 [P] [US2] Extend `apps/server/test/dm/narrate.test.ts`: the version pin and the
       scene-start present-NPC cases of plan "Tests".
-- [ ] T010 Run the unit suite and `player-facing-prompts.test.ts`, `duo-views.test.ts`,
+- [x] T010 Run the unit suite and `player-facing-prompts.test.ts`, `duo-views.test.ts`,
       `trio-views.test.ts`. Commit as `TASK-0171 phase 2: opening prompt`.
 
 ## Phase 3: The name check, the fallback and the scripts (card AC #3, #4; US2, US3)

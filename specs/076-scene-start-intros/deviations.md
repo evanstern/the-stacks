@@ -9,3 +9,4 @@ Seam check at HEAD (merged with main through TASK-0213/0211), 2026-11-03.
 - `prompts/narrate.ts`: the `scene` array is unchanged from the plan's R1 (three lines). Rule text
   lines in `RULES` grew (TASK-0127, 0208, 0170); the opening section does not touch them.
 - `nodes/narrate.ts`: `beatNpcIds` still the Director-beat expression at HEAD. D5 applies.
+- Phase 2: `PROMPT_VERSION` is `dm.narrate-v16` (plan said v10).
