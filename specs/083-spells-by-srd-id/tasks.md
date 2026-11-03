@@ -122,17 +122,17 @@ Phases run in order: Phase 2 needs Phase 1's engine command and exports.
 
 ## Phase 3: Re-ground (wiki)
 
-- [ ] T032 Review and update `docs/wiki/dnd5e-engine.md` (`spell.cast`, the spell table,
+- [x] T032 Review and update `docs/wiki/dnd5e-engine.md` (`spell.cast`, the spell table,
       `spellcastingModifier`, half damage, the new codes, the extracted builders) and
       `docs/wiki/srd-data.md` (the server table test reads spell records; the engine holds no SRD
       import) (NEEDS-REVIEW).
-- [ ] T033 Review and update `docs/wiki/dm-runtime.md` (the spell step, `case "spell"`, prompt
+- [x] T033 Review and update `docs/wiki/dm-runtime.md` (the spell step, `case "spell"`, prompt
       versions, Odo's spell list) and `docs/wiki/dm-failure-and-gates.md` (drop "spells not yet
       gated"; the spell refusal codes and the intent rule) (NEEDS-REVIEW).
-- [ ] T034 Re-pin every other note that lists a touched source, verifying each against the diff:
+- [x] T034 Re-pin every other note that lists a touched source, verifying each against the diff:
       expected `actor-snapshot`, `dm-narration-quality`, `seed-npc-presence`, `playtest-harness`,
       `output-claim-gate`.
-- [ ] T035 Update `docs/wiki/CAPSULES.md` and `docs/wiki/INDEX.md`: the dnd5e-engine and
+- [x] T035 Update `docs/wiki/CAPSULES.md` and `docs/wiki/INDEX.md`: the dnd5e-engine and
       dm-failure-and-gates one-liners, and the INDEX state paragraph.
 - [ ] T036 Run the wiki freshness gate (prints `OK`) and the spec-bridge gate (exits 0).
 - [ ] T037 [orchestrator] Add the execution-log row to the runbook B file.

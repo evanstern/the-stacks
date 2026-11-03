@@ -15,7 +15,7 @@ sources:
   - apps/server/src/dm/snapshot/build.ts
   - packages/session-model/src/gate/proposals.ts
   - packages/session-model/src/gate/plan.ts
-verified_against: ed3949ce7a0aa83c9dd732137ab346ad1df8b7e0
+verified_against: 7440e7041ff0ca7ca70b9e7ea72d8b63b46e3bcb
 ---
 
 # Seed NPC presence
@@ -31,7 +31,7 @@ the DM pipeline is in [[dm-runtime]].
 `SceneSeedSchema` (`seed/schema.ts`) gives the scene `tableRules` (`outcomeBands`, `naturals` default true; `groupChecks` default false, spec 070) and every beat a required `presence`: a record from NPC
 id to `ScenePresenceSchema` (`present`, `yielded`, `absent`). There is no default, so a seed
 without it fails to load. `SeedNpc.identity` gains `aliases` (up to 6 strings of up to 60
-characters, default empty). `SeedCharacter.identity` gains required `class` (up to 40 characters) and `level` (1 to 20); the three seeds set them. Scene start copies both onto each `director:party:<id>` row's `after` (TASK-0164; `PartyMemberSchema` holds them as optional fields). `greyhollow-ford.json` declares all three NPCs in all three beats
+characters, default empty). Spec 083: the plan gate reads each character's `identity.spells` as the prepared list, and `resolve` reads `identity.level` as the spell `casterLevel`; Odo's list adds `cure-wounds`. `SeedCharacter.identity` gains required `class` (up to 40 characters) and `level` (1 to 20); the three seeds set them. Scene start copies both onto each `director:party:<id>` row's `after` (TASK-0164; `PartyMemberSchema` holds them as optional fields). `greyhollow-ford.json` declares all three NPCs in all three beats
 and aliases "the keeper" (`wenna`), "the boy" (`pell`) and "the goblin leader" (`snag`).
 Since spec 080, beat clue text is also the learned fact: a check step's `reveals` (`<beatId>#<n>`) names one clue, and resolve copies its text (`clueFor`) onto the submission. The ferry-house footprint clue names goblin feet.
 `greyhollow-ford-duo.json` (TASK-0163, `specs/054-two-player-alpha-kit/`) is the same scene with

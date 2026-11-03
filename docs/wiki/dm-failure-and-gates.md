@@ -14,7 +14,8 @@ sources:
   - apps/server/src/dm/prompts/step-grammar.ts
   - apps/server/src/dm/seed/schema.ts
   - specs/033-director-robustness/contracts/rules-terms.md
-verified_against: ed3949ce7a0aa83c9dd732137ab346ad1df8b7e0
+verified_against: 7440e7041ff0ca7ca70b9e7ea72d8b63b46e3bcb
+size_budget_exempt: TASK-0105 adds the spell rule to the one plan-gate note; the note sat within 40 chars of the 8000 budget before it, and the gate rules do not split without a TASK of its own
 ---
 
 # DM failure record and rules-term gates
@@ -49,10 +50,11 @@ interpret and adjudicate schemas accept only closed lists derived from engine en
 `ConditionKeySchema`, `SkillSchema` (`nodes/schemas.ts`, derived from the engine's
 `condition.apply` and `check.roll` commands, thrown at load if not an enum), `AbilitySchema`
 and `DamageTypeSchema` ([[dnd5e-engine]]). The `presence` effect (`{effect, targetId, reason}`, strict, no `after` field) adds `PresenceReasonSchema` (`arrived`, `left`, `fled`, `removed`, `surrendered`, `conceded`; [[session-model]]) as a closed term; `step-grammar.ts` renders it too. The seed schema adds a required per-beat `presence` map and NPC `aliases` ([[seed-npc-presence]]). `prompts/step-grammar.ts` renders the same lists
-into the interpret and adjudicate prompts (`dm.interpret-v11`, `dm.adjudicate-v8`; v5 adds `followUps`, TASK-0182; v6 adds the agency rule, TASK-0113; v7 adds the `move` step, TASK-0208;v10 say), so no list is
+into the interpret and adjudicate prompts (`dm.interpret-v12`, `dm.adjudicate-v9`; v5 adds `followUps`, TASK-0182; v6 adds the agency rule, TASK-0113; v7 adds the `move` step, TASK-0208;v10 say), so no list is
 hand-typed; it is split from `prompts/common.ts` because narrate must import no engine value.
 The scene seed's character `skills` keys and clue `check.skill` use the same `SkillSchema`.
 A gate never maps, coerces or drops a term to pass output. The audit
-(`specs/033-director-robustness/contracts/rules-terms.md`) records two terms **not gated yet**:
-spells (TASK-0105). Since TASK-0104 schemas refuse `expression`, `dc`, `targetAc` and `onHit` damage; the plan gate adds `STAT_UNDEFINED`.
+(`specs/033-director-robustness/contracts/rules-terms.md`) records spells as the term **not gated yet**; since spec 083 (TASK-0105) they are gated. Since TASK-0104 schemas refuse `expression`, `dc`, `targetAc` and `onHit` damage; the plan gate adds `STAT_UNDEFINED`.
+
+**Spell rule** (spec 083, `spellGap`). A `spell` step is strict (SRD id, slot level, no numbers). The gate refuses `SPELL_UNKNOWN` (no SRD record), `SPELL_NOT_PREPARED` (not on the caster's seed list), `SPELL_UNRESOLVED` (not in the engine table, or wrong slot level), `STAT_UNDEFINED` (no spellcasting modifier or target save), and an intent `spell` reading with no spell step. Another member's spell is `STEP_ACTOR_MISMATCH`.
 

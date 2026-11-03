@@ -7,7 +7,7 @@ sources:
   - apps/server/src/dm/audit-words.ts
   - apps/server/src/dm/gates/plan-gate.ts
   - specs/051-output-claim-gate/contracts/claim-gate.md
-verified_against: ed3949ce7a0aa83c9dd732137ab346ad1df8b7e0
+verified_against: 7440e7041ff0ca7ca70b9e7ea72d8b63b46e3bcb
 ---
 
 # Output claim gate
@@ -18,7 +18,7 @@ TASK-0144 (companion `say`, public chronicle entries) calls the same function. S
 gate (`checkPlan` in `dm/gates/plan-gate.ts`, TASK-0161, spec 058): it checks each step reason, each check's stakes texts and `newRisk` (spec 070),
 `autoFail.reason`, a check or attack `circumstance.reason` (spec 082) and condition `source` of a non-resumed group against S0 and a presence-only
 `plannedDiff` before any step runs, and refuses the group with `REASON_CONTRADICTS_STATE`
-([[dm-failure-and-gates]]). Dice-line reasons therefore never reach the log unchecked. The plan gate also refuses a foreign actor (TASK-0208, spec 079): an `attack` or `move` step whose actor is not the action's own resolves `STEP_ACTOR_MISMATCH`, a refusal of its own that runs no claim check.
+([[dm-failure-and-gates]]). Dice-line reasons therefore never reach the log unchecked. The plan gate also refuses a foreign actor (TASK-0208, spec 079): an `attack`, `spell` (caster) or `move` step whose actor is not the action's own resolves `STEP_ACTOR_MISMATCH`, a refusal of its own that runs no claim check.
 
 `checkClaims` is pure and lexical: no model call, no log read, snapshot types only. It resolves
 a term to an actor by `aliases` (whole word, case-insensitive, possessive-aware; a term held by one
