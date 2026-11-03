@@ -1,9 +1,10 @@
 ---
 id: TASK-0234
 title: Runbook B playtest scenario
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-11-03 10:47'
+updated_date: '2026-11-03 11:27'
 labels:
   - playtest
   - dm
@@ -30,6 +31,12 @@ Rows (from the runbook): undeclared method (0205, 0113); clarify question (0209)
 - [ ] #2 A DM_FAKE_SCRIPT rehearsal of the scenario runs end to end on a worktree stack, with its log under docs/playtests/
 - [ ] #3 The scenario's hosted-only rows (0203 AC #2, 0204 AC #2, 0214 AC #1) are named so the playtest can tick those cards
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Claimed 2026-11-03 by M3 runbook B (docs/design/m3-runbook-b-resolution-quality.md). Worktree .worktrees/task-0234, branch task-0234-runbook-b-scenario, cut from origin/main 08cdf8eb. No spec dir: signed escape line covers this task. Runbook B Last step. Under the TASK-0195 convention (card ACs drive, as TASK-0195's E3 did).
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
