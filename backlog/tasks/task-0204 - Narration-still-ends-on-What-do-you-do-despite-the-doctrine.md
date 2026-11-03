@@ -4,7 +4,7 @@ title: Narration still ends on "What do you do?" despite the doctrine
 status: In Progress
 assignee: []
 created_date: '2026-11-02 20:30'
-updated_date: '2026-11-03 09:23'
+updated_date: '2026-11-03 09:24'
 labels:
   - dm
   - narration
@@ -36,6 +36,8 @@ Where: dm/prompts/narrate.ts (v7) and the audit's blocking rule for the ending; 
 
 <!-- SECTION:NOTES:BEGIN -->
 Claimed 2026-11-03 by M3 runbook B (docs/design/m3-runbook-b-resolution-quality.md). Worktree .worktrees/task-0204, branch task-0204-no-what-do-you-do, cut from origin/main 40a0783d. No spec dir: signed escape line covers this task. Spine #18. Escape line E4 (card ACs drive).
+
+Dispatch: tier=haiku pinned=cc/claude-haiku-5-5 served=claude-haiku-5-5 (E4 implementation)
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
