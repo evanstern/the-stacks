@@ -25,7 +25,7 @@ import {
   transcriptEntries,
 } from "./common.js";
 
-export const PROMPT_VERSION = "dm.narrate-v13";
+export const PROMPT_VERSION = "dm.narrate-v14";
 
 const RULES = [
   "You narrate the result of one beat of a tabletop role-playing session. The facts below are TRUE and already decided by the rules engine. Retell them as story.",
