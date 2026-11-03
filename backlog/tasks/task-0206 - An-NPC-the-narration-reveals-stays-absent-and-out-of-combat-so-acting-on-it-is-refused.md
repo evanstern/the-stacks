@@ -51,6 +51,8 @@ Claimed 2026-11-02 by M3 runbook B (docs/design/m3-runbook-b-resolution-quality.
 Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5 (spec 078 authoring, C1)
 
 spec-bridge sync: The Director's arrivals, resolve and the plan gate (card AC #1, #2): 0/9 · The chronicle and the run 1 seq 40–45 replay (card AC #1, #2, #3; merge condition): 0/7 · Wiki re-ground: 0/6
+
+Spec 078 (4acaf437). Defaults (a) taken: OQ-1 reveal detected by a structured Director field (arrivals); OQ-2 code never starts an encounter on an attack (Director may, and that path now resolves); OQ-3 talk-turn reveals out of scope; OQ-4 narrate still lists offstage NPCs as gone. OQ-3 (b) and OQ-4 (b) are maybes: no card unless the playtest shows them. Implementation waits for TASK-0113 to merge (shared prompts/director.ts hunk; director-v6).
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
