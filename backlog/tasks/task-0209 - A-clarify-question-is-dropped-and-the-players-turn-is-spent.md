@@ -4,7 +4,7 @@ title: A clarify question is dropped and the player's turn is spent
 status: Done
 assignee: []
 created_date: '2026-11-02 23:13'
-updated_date: '2026-11-03 01:03'
+updated_date: '2026-11-03 01:04'
 labels:
   - dm
   - playtest
@@ -69,6 +69,6 @@ All spec tasks complete (A clarify holds the turn (card AC #1, merge condition; 
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
-- [ ] #1 All tests and checks run green
-- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
+- [x] #1 All tests and checks run green
+- [x] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
