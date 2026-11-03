@@ -1,4 +1,8 @@
-import { DamageTypeSchema, DIFFICULTY_DC } from "@the-stacks/dnd5e-engine";
+import {
+  DamageTypeSchema,
+  DIFFICULTY_DC,
+  OppositionRuleSchema,
+} from "@the-stacks/dnd5e-engine";
 import { PresenceReasonSchema } from "@the-stacks/session-model";
 import { CONDITION_KEYS, SKILL_KEYS } from "../nodes/schemas.js";
 
@@ -11,16 +15,18 @@ import { CONDITION_KEYS, SKILL_KEYS } from "../nodes/schemas.js";
 export const STEP_GRAMMAR = [
   "A step states mechanics INPUTS as data. Allowed steps:",
   '{"step":"none","reason":str}  (certain outcome; no roll)',
-  '{"step":"check","reason":str,"combatantId":id|null,"kind":"ability-check"|"saving-throw","ability":"str"|"dex"|"con"|"int"|"wis"|"cha","skill":skill key|null,"difficulty":difficulty tier,"circumstance":{"mode":"advantage"|"disadvantage","reason":str}|null,"autoFail":{"reason":str}|null,"onSuccess":[effect],"onFailure":[effect],"stakes":{"success":str,"cost":str|null,"failure":str,"severe":str|null},"onCost":[effect],"onSevere":[effect],"newRisk":str|null,"reveals":clue ref|null}',
+  '{"step":"check","reason":str,"combatantId":id|null,"kind":"ability-check"|"saving-throw","ability":"str"|"dex"|"con"|"int"|"wis"|"cha","skill":skill key|null,"difficulty":difficulty tier|{"opposedBy":id,"rule":opposition rule},"circumstance":{"mode":"advantage"|"disadvantage","reason":str}|null,"autoFail":{"reason":str}|null,"onSuccess":[effect],"onFailure":[effect],"stakes":{"success":str,"cost":str|null,"failure":str,"severe":str|null},"onCost":[effect],"onSevere":[effect],"newRisk":str|null,"reveals":clue ref|null}',
   "A check's stakes are declared before the dice. stakes.success: what happens when the attempt succeeds, written as the concrete outcome of this attempt; always written. reveals: the reference of one listed discoverable clue that a success shows, else null. stakes.cost: what happens on success at a cost, a miss by 1 or 2 (the goal is met, with a price). stakes.failure: what a plain failure costs; always written. stakes.severe: what happens on a severe failure, a miss by 5 or more. An ability check needs cost and severe; a saving throw sets them null. onCost and onSevere hold the effects of those bands. newRisk is a new danger that makes a repeat attempt a fresh roll; null otherwise.",
   '{"step":"attack","reason":str,"attackerId":id,"targetId":id,"attack":attack name,"circumstance":{"mode":"advantage"|"disadvantage","reason":str}|null,"onHit":[effect]}  (onHit holds conditions, healing or presence, never damage: the engine applies the attack\'s own damage on a hit)',
   '{"step":"spell","reason":str,"casterId":id,"spellId":SRD spell id,"slotLevel":int 1-9|null,"targetId":id}  (slotLevel null for a cantrip)',
   "Name the caster, the SRD spell id from the caster's spell list, the slot level (null for a cantrip) and one target. The engine resolves the spell's attack or save, DC, damage, healing and conditions from the SRD record and the caster's stats. Spell numbers come from the engine. A spell the engine cannot resolve is refused; never rebuild it from check, attack or effect steps.",
+  '{"step":"help","reason":str,"helperId":id,"assist":{"kind":"ability-check","allyId":id,"skill":skill key}|{"kind":"attack","targetId":id}}  (the helper takes the Help action: the ally gets advantage on its next check with that skill, or the next attack against that target gets advantage; the engine applies and ends it. The helper is the declaring character)',
   `Difficulty tiers (the only allowed values of "difficulty"): ${Object.entries(
     DIFFICULTY_DC,
   )
     .map(([t, dc]) => `${t} (DC ${dc})`)
     .join(", ")}`,
+  `Opposition rules (the only allowed values of "rule" in a difficulty): ${OppositionRuleSchema.options.join(", ")}. unarmed-strike covers a Strength (Athletics) or Dexterity (Acrobatics) check, or a Strength or Dexterity saving throw, against a creature's grapple or shove. influence covers a Charisma check (Deception, Intimidation, Performance or Persuasion) or a Wisdom (Animal Handling) check to urge a monster. When the check is against a creature's own effort (escaping or resisting a grapple or shove, urging a monster), name the creature in opposedBy instead of a tier. The engine derives the DC from that creature's stats.`,
   '{"step":"effect","reason":str,"effects":[effect]}',
   '{"step":"roll","reason":str,"expression":"1d6","mode":roll mode}',
   '{"step":"move","reason":str,"combatantId":id,"leavesReachOf":[id]}  (the mover moves; list each hostile it stands next to and moves away from without Disengage)',

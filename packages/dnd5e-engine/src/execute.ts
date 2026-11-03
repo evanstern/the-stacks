@@ -15,6 +15,7 @@ import {
   handleInitiativeRoll,
   handleTurnAdvance,
 } from "./commands/encounter.js";
+import { handleHelpGrant } from "./commands/help.js";
 import {
   handleDamageApply,
   handleHealingApply,
@@ -60,6 +61,7 @@ const handlers: HandlerMap = {
   "encounter.end": handleEncounterEnd,
   "rest.short": handleRestShort,
   "rest.long": handleRestLong,
+  "help.grant": handleHelpGrant,
   "spell.cast": handleSpellCast,
   "spell-slot.expend": handleSpellSlotExpend,
   "spell-slot.restore": handleSpellSlotRestore,

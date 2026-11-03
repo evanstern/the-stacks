@@ -39,6 +39,8 @@ export function statsFromSrd(monster: Monster): CombatantStats {
     const key = SkillSchema.safeParse(name.toLowerCase().replace(/\s+/g, "-"));
     if (key.success) skills[key.data] = total;
   }
+  const abilityScores: NonNullable<CombatantStats["abilityScores"]> = {};
+  for (const a of ABILITIES) abilityScores[a] = monster.abilities[a].score;
   const attacks: AttackEntry[] = [];
   for (const action of monster.actions) {
     const atk = action.attack;
@@ -71,6 +73,7 @@ export function statsFromSrd(monster: Monster): CombatantStats {
     attacks: attacks.slice(0, 12),
     // ponytail: monster spellcasting is per-feature (OQ-7, TASK-0224); null until carded work lands.
     spellcastingAbility: null,
+    abilityScores,
   };
 }
 

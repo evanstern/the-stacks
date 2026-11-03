@@ -1,7 +1,15 @@
 export { bandOf } from "./commands/attacks.js";
-export type { Derived, Difficulty, ModeSource, RollMode } from "./derive.js";
+export type {
+  Derived,
+  Difficulty,
+  ModeSource,
+  OppositionRule,
+  RollMode,
+} from "./derive.js";
 export {
+  attackAssists,
   attackModeSources,
+  checkAssists,
   checkModeSources,
   checkModifier,
   DIFFICULTY_DC,
@@ -10,6 +18,10 @@ export {
   findAttack,
   firstMeleeAttack,
   foldMode,
+  helperExpiry,
+  OppositionRuleSchema,
+  oppositionCovers,
+  oppositionDc,
   spellAttackBonus,
   spellcastingModifier,
   spellSaveDc,
@@ -37,6 +49,7 @@ export {
 export type {
   Ability,
   Amount,
+  Assist,
   AttackEntry,
   Combatant,
   CombatantStats,
@@ -50,6 +63,7 @@ export type {
 export {
   AbilitySchema,
   AmountSchema,
+  AssistSchema,
   AttackEntrySchema,
   CombatantSchema,
   CombatantStatsSchema,

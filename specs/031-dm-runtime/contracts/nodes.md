@@ -358,3 +358,11 @@ expression, damage, effect or amount: the engine derives every spell number. The
 a rule sentence ("spell numbers come from the engine; never rebuild a spell from check, attack or
 effect steps") enter `STEP_GRAMMAR`. Prompts: `dm.interpret-v12`, `dm.adjudicate-v9`. The actor
 sheet line lists the caster's spell ids. No node signature changes.
+
+## Amended by specs/084-opposition-and-help (TASK-0128)
+
+The `check` step's `difficulty` is a tier string or `{ opposedBy: id, rule: "unarmed-strike" | "influence" }`
+(strict). `opposedBy` equal to the check's `combatantId` fails at `difficulty.opposedBy`; a rule that does not
+cover the check's kind, ability and skill fails at `difficulty.rule`. A new strict `help` step:
+`{ step: "help", reason, helperId, assist: { kind: "ability-check", allyId, skill } | { kind: "attack", targetId } }`.
+An ally or target equal to `helperId` fails at `assist`. Prompt versions: `dm.interpret-v13`, `dm.adjudicate-v10`.

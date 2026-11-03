@@ -1,7 +1,8 @@
 import { z } from "zod";
-import { DifficultySchema } from "../derive.js";
+import { DifficultySchema, OppositionRuleSchema } from "../derive.js";
 import {
   AbilitySchema,
+  AssistSchema,
   CombatantIdSchema,
   CombatantSchema,
   ConditionInstanceSchema,
@@ -118,6 +119,10 @@ export const EngineEventSchema = z.discriminatedUnion("type", [
     rollIndex: Int.nullable(),
     dc: Int,
     difficulty: DifficultySchema.optional(),
+    // Spec 084: set when the DC derived from an opponent's stats.
+    opposition: z
+      .object({ opponentId: Id, rule: OppositionRuleSchema })
+      .optional(),
     total: Int.nullable(),
     natural: Int.nullable(),
     autoFail: z.object({ reason: Reason }).nullable(),
@@ -210,6 +215,23 @@ export const EngineEventSchema = z.discriminatedUnion("type", [
     combatantId: Id,
     cause: z.enum(["command", "expired", "healed", "encounter-ended", "rest"]),
     before: ConditionInstanceSchema,
+    after: z.null(),
+  }),
+  z.object({
+    type: z.literal("assist.granted"),
+    v: V,
+    reason: Reason,
+    combatantId: Id,
+    before: z.null(),
+    after: AssistSchema,
+  }),
+  z.object({
+    type: z.literal("assist.ended"),
+    v: V,
+    reason: Reason,
+    combatantId: Id,
+    cause: z.enum(["used", "expired", "replaced", "encounter-ended"]),
+    before: AssistSchema,
     after: z.null(),
   }),
   z.object({

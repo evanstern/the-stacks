@@ -82,6 +82,21 @@ describe("statsFromSrd", () => {
       ],
     });
   });
+  it("fills ability scores from the SRD record", () => {
+    const rec = monster("goblin-warrior");
+    const s = statsFromSrd(rec);
+    expect(s.abilityScores).toEqual({
+      str: rec.abilities.str.score,
+      dex: rec.abilities.dex.score,
+      con: rec.abilities.con.score,
+      int: rec.abilities.int.score,
+      wis: rec.abilities.wis.score,
+      cha: rec.abilities.cha.score,
+    });
+  });
+  it("gives a seed PC no ability scores", () => {
+    expect(pc("tamsin").abilityScores).toBeUndefined();
+  });
   it("returns no melee attack for a record with only ranged actions", () => {
     const rec = structuredClone(monster("goblin-warrior"));
     for (const a of rec.actions) if (a.attack) a.attack.type = "ranged";

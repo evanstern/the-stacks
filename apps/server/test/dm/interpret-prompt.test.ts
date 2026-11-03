@@ -70,8 +70,8 @@ const NARRATIVE =
 
 describe("interpret and adjudicate prompts", () => {
   it("bumps the prompt versions", () => {
-    expect(INTERPRET_VERSION).toBe("dm.interpret-v12");
-    expect(ADJUDICATE_VERSION).toBe("dm.adjudicate-v9");
+    expect(INTERPRET_VERSION).toBe("dm.interpret-v13");
+    expect(ADJUDICATE_VERSION).toBe("dm.adjudicate-v10");
   });
 
   it("renders a frightened monster's condition and AC from S0 (G6)", async () => {
@@ -227,6 +227,21 @@ describe("interpret and adjudicate prompts", () => {
     expect(OUTPUT_SHAPE).toContain("set reveals to that clue");
   });
 
+  it("renders the opposition rules and the help step (spec 084 D10)", () => {
+    expect(STEP_GRAMMAR).toContain(
+      '"difficulty":difficulty tier|{"opposedBy":id,"rule":opposition rule}',
+    );
+    expect(STEP_GRAMMAR).toContain(
+      'Opposition rules (the only allowed values of "rule" in a difficulty): unarmed-strike, influence.',
+    );
+    expect(STEP_GRAMMAR).toContain(
+      "name the creature in opposedBy instead of a tier",
+    );
+    expect(STEP_GRAMMAR).toContain('{"step":"help","reason":str,"helperId":id');
+    expect(OUTPUT_SHAPE).toContain(
+      "plan one help step for the helper and no check for the ally",
+    );
+  });
   it("renders the spell step and the engine-owns-spell-numbers rule (spec 083 D7)", () => {
     expect(STEP_GRAMMAR).toContain('{"step":"spell"');
     expect(STEP_GRAMMAR).toContain("Spell numbers come from the engine");
@@ -255,12 +270,14 @@ describe("interpret and adjudicate prompts", () => {
     expect(`${STEP_GRAMMAR}\n\n${OUTPUT_SHAPE}`).toMatchInlineSnapshot(`
       "A step states mechanics INPUTS as data. Allowed steps:
       {"step":"none","reason":str}  (certain outcome; no roll)
-      {"step":"check","reason":str,"combatantId":id|null,"kind":"ability-check"|"saving-throw","ability":"str"|"dex"|"con"|"int"|"wis"|"cha","skill":skill key|null,"difficulty":difficulty tier,"circumstance":{"mode":"advantage"|"disadvantage","reason":str}|null,"autoFail":{"reason":str}|null,"onSuccess":[effect],"onFailure":[effect],"stakes":{"success":str,"cost":str|null,"failure":str,"severe":str|null},"onCost":[effect],"onSevere":[effect],"newRisk":str|null,"reveals":clue ref|null}
+      {"step":"check","reason":str,"combatantId":id|null,"kind":"ability-check"|"saving-throw","ability":"str"|"dex"|"con"|"int"|"wis"|"cha","skill":skill key|null,"difficulty":difficulty tier|{"opposedBy":id,"rule":opposition rule},"circumstance":{"mode":"advantage"|"disadvantage","reason":str}|null,"autoFail":{"reason":str}|null,"onSuccess":[effect],"onFailure":[effect],"stakes":{"success":str,"cost":str|null,"failure":str,"severe":str|null},"onCost":[effect],"onSevere":[effect],"newRisk":str|null,"reveals":clue ref|null}
       A check's stakes are declared before the dice. stakes.success: what happens when the attempt succeeds, written as the concrete outcome of this attempt; always written. reveals: the reference of one listed discoverable clue that a success shows, else null. stakes.cost: what happens on success at a cost, a miss by 1 or 2 (the goal is met, with a price). stakes.failure: what a plain failure costs; always written. stakes.severe: what happens on a severe failure, a miss by 5 or more. An ability check needs cost and severe; a saving throw sets them null. onCost and onSevere hold the effects of those bands. newRisk is a new danger that makes a repeat attempt a fresh roll; null otherwise.
       {"step":"attack","reason":str,"attackerId":id,"targetId":id,"attack":attack name,"circumstance":{"mode":"advantage"|"disadvantage","reason":str}|null,"onHit":[effect]}  (onHit holds conditions, healing or presence, never damage: the engine applies the attack's own damage on a hit)
       {"step":"spell","reason":str,"casterId":id,"spellId":SRD spell id,"slotLevel":int 1-9|null,"targetId":id}  (slotLevel null for a cantrip)
       Name the caster, the SRD spell id from the caster's spell list, the slot level (null for a cantrip) and one target. The engine resolves the spell's attack or save, DC, damage, healing and conditions from the SRD record and the caster's stats. Spell numbers come from the engine. A spell the engine cannot resolve is refused; never rebuild it from check, attack or effect steps.
+      {"step":"help","reason":str,"helperId":id,"assist":{"kind":"ability-check","allyId":id,"skill":skill key}|{"kind":"attack","targetId":id}}  (the helper takes the Help action: the ally gets advantage on its next check with that skill, or the next attack against that target gets advantage; the engine applies and ends it. The helper is the declaring character)
       Difficulty tiers (the only allowed values of "difficulty"): very-easy (DC 5), easy (DC 10), medium (DC 15), hard (DC 20), very-hard (DC 25), nearly-impossible (DC 30)
+      Opposition rules (the only allowed values of "rule" in a difficulty): unarmed-strike, influence. unarmed-strike covers a Strength (Athletics) or Dexterity (Acrobatics) check, or a Strength or Dexterity saving throw, against a creature's grapple or shove. influence covers a Charisma check (Deception, Intimidation, Performance or Persuasion) or a Wisdom (Animal Handling) check to urge a monster. When the check is against a creature's own effort (escaping or resisting a grapple or shove, urging a monster), name the creature in opposedBy instead of a tier. The engine derives the DC from that creature's stats.
       {"step":"effect","reason":str,"effects":[effect]}
       {"step":"roll","reason":str,"expression":"1d6","mode":roll mode}
       {"step":"move","reason":str,"combatantId":id,"leavesReachOf":[id]}  (the mover moves; list each hostile it stands next to and moves away from without Disengage)
@@ -280,7 +297,7 @@ describe("interpret and adjudicate prompts", () => {
 
       Reply with one JSON object, no prose, no code fence.
       {"readings":[{"actionId":id|null,"intent":"talk"|"move"|"check"|"save"|"attack"|"spell"|"help"|"rest"|"other","uncertain":bool,"needsAdjudication":bool,"rulesQuestion":str|null,"clarify":str|null,"followUps":[str],"say":str|null,"steps":[step]}]}
-      Write exactly one reading per beat item, keyed by its actionId. Write one reading with actionId null for a monster turn. Roll only when the outcome is uncertain and failure is interesting; for a certain outcome use a none step. Set needsAdjudication true, with a rulesQuestion, when the rules are unclear or the action is inventive; then leave steps empty. When intent is unclear, set clarify to one short question and leave steps empty. Plan only the steps that are not already applied (see Already applied). When a post holds a plan, an approach and later steps, plan only the first stage: the move or approach, with a check for anyone moving hidden or over hard ground. List each later step that depends on it in followUps, one short sentence each, and plan no step for it. When a party member moves away from a hostile it stands next to, without Disengage, plan a move step for it that lists that hostile in leavesReachOf. Plan no attack for the hostile: the engine decides any reaction.
+      Write exactly one reading per beat item, keyed by its actionId. Write one reading with actionId null for a monster turn. Roll only when the outcome is uncertain and failure is interesting; for a certain outcome use a none step. Set needsAdjudication true, with a rulesQuestion, when the rules are unclear or the action is inventive; then leave steps empty. When intent is unclear, set clarify to one short question and leave steps empty. Plan only the steps that are not already applied (see Already applied). When a post holds a plan, an approach and later steps, plan only the first stage: the move or approach, with a check for anyone moving hidden or over hard ground. List each later step that depends on it in followUps, one short sentence each, and plan no step for it. When a party member moves away from a hostile it stands next to, without Disengage, plan a move step for it that lists that hostile in leavesReachOf. Plan no attack for the hostile: the engine decides any reaction. When a character helps another, plan one help step for the helper and no check for the ally.
       On a monster turn, put the words the monster speaks this beat in say: one short line, at most 200 characters, no quote marks. Otherwise set say null. Never put speech in followUps. Write each reason as what the actor does, with no rules note such as whether a roll is needed.
       Write the stakes of every check before the dice: one short consequence per outcome band. Write failure as something that happens. When failure would cost nothing, use a none step instead of a check. Write cost as a price the player pays while still getting the goal, and severe as a worse turn, not only a missed goal. Write no stakes text that tells the player's character what they think or do. Write stakes.success as the concrete outcome of this attempt: what happens to the task and the world when the roll succeeds, so a success always delivers what the player declared. When a success would show one listed discoverable clue, name the thing found in stakes.success and set reveals to that clue's reference, such as ford-crossing#1; otherwise set reveals null. Set newRisk only when a failed attempt has changed the situation so that a repeat is dangerous.
       Keep every field short. Write one sentence per reason, at most 500 characters. Write rulesQuestion at most 500 characters. Write clarify as one short question, at most 200 characters. Write at most 6 steps per reading and at most 4 effects per list. Write source at most 100 characters and expression at most 200 characters.

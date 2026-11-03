@@ -392,3 +392,32 @@ describe("spell table", () => {
     expect(spellDice(cw, 3, 1).healing).toBe("6d8");
   });
 });
+
+describe("spell.cast and attack assists (spec 084 D5a)", () => {
+  const atk = { kind: "attack", helperId: "pc-kes", expiresAt: null };
+  it("a spell attack against an assisted target rolls advantage and ends it", () => {
+    const s = world(caster(), foe({ assists: [atk] }));
+    const out = run(s, cast("fire-bolt"), [3, 15, 2]);
+    const events = expectOk(out.result);
+    expect(events.find((e) => e.type === "dice.rolled")).toMatchObject({
+      mode: "advantage",
+    });
+    const ended = events.findIndex((e) => e.type === "assist.ended");
+    expect(events[ended]).toMatchObject({
+      cause: "used",
+      combatantId: "m-goblin",
+    });
+    expect(events[ended - 1]?.type).toBe("attack.resolved");
+    expect(settle(s, out.result).combatants["m-goblin"]?.assists).toEqual([]);
+  });
+  it("a save spell leaves the assist", () => {
+    const events = expectOk(
+      run(
+        world(caster(), foe({ assists: [atk] })),
+        cast("sacred-flame"),
+        [10, 3],
+      ).result,
+    );
+    expect(events.some((e) => e.type === "assist.ended")).toBe(false);
+  });
+});

@@ -306,3 +306,19 @@ then apply damage (half on a save when the table says so), healing (dice plus th
 modifier) or a condition. Every refusal comes before any die. Refusals: `SPELL_UNRESOLVED`,
 `UNKNOWN_COMBATANT`, `TARGET_DEAD`, `ACTOR_UNABLE`, `STAT_UNDEFINED`, `SLOT_LEVEL_UNAVAILABLE`,
 `NO_SLOT_AVAILABLE`, `TARGET_AC_UNKNOWN`.
+
+## Amended by specs/084-opposition-and-help (TASK-0128)
+
+`check.roll` gains optional `opposition: { opponentId, rule: "unarmed-strike" | "influence" }`, a third DC
+source: exactly one of `dc`, `difficulty` and `opposition`. The engine derives the DC from the opponent's
+stats (`unarmed-strike`: 8 + Strength modifier + proficiency bonus; `influence`: the higher of 15 and the
+opponent's Intelligence score).
+
+New command `help.grant`: `helperId`, `assist: { kind: "ability-check", allyId, skill } | { kind: "attack", targetId }`,
+`reason`. Emits `assist.ended` (`replaced`) for the helper's open assist, then `assist.granted`. Refusals:
+`UNKNOWN_COMBATANT`, `TARGET_DEAD`, `ACTOR_UNABLE`, `INVALID_COMMAND`, `STAT_UNDEFINED`, `NOT_PROFICIENT`.
+
+A derived `check.roll` with a matching assist, and a derived `attack.roll` or `spell.cast` attack against a
+target holding an attack assist (helper not the attacker), roll with advantage and emit `assist.ended`
+(`used`) after the resolving event. `CombatantStats` gains optional `abilityScores`; `Combatant` gains
+optional `assists`.

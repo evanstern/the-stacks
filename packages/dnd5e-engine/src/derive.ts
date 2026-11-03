@@ -1,9 +1,12 @@
 import { z } from "zod";
 import type {
   Ability,
+  Assist,
   AttackEntry,
   Combatant,
   CombatantStats,
+  Encounter,
+  ExpiryPoint,
   Skill,
 } from "./schema/state.js";
 import { SKILL_ABILITY } from "./schema/state.js";
@@ -189,4 +192,108 @@ export function spellSaveDc(stats: CombatantStats): number | null {
 export function spellAttackBonus(stats: CombatantStats): number | null {
   const mod = spellcastingModifier(stats);
   return mod === null ? null : mod + stats.proficiencyBonus;
+}
+
+/** Spec 084: SRD rules that derive a check's DC from an opponent's stats. */
+export const OppositionRuleSchema = z.enum(["unarmed-strike", "influence"]);
+export type OppositionRule = z.infer<typeof OppositionRuleSchema>;
+
+const INFLUENCE_SKILLS: readonly Skill[] = [
+  "deception",
+  "intimidation",
+  "performance",
+  "persuasion",
+];
+
+/**
+ * Which checks a rule covers. unarmed-strike (SRD 5.2.1 p. 190, Grapple and Shove): the target's
+ * Strength (Athletics) or Dexterity (Acrobatics) check, or a Strength or Dexterity save.
+ * influence (rules-glossary.influence-action): Charisma (Deception, Intimidation, Performance,
+ * Persuasion) or Wisdom (Animal Handling).
+ */
+export function oppositionCovers(
+  rule: OppositionRule,
+  kind: "ability-check" | "saving-throw",
+  ability: Ability,
+  skill: Skill | null,
+): boolean {
+  if (rule === "unarmed-strike") {
+    if (kind === "saving-throw") return ability === "str" || ability === "dex";
+    if (skill === null) return ability === "str" || ability === "dex";
+    return (
+      (ability === "str" && skill === "athletics") ||
+      (ability === "dex" && skill === "acrobatics")
+    );
+  }
+  if (kind !== "ability-check") return false;
+  if (ability === "cha")
+    return skill !== null && INFLUENCE_SKILLS.includes(skill);
+  return ability === "wis" && skill === "animal-handling";
+}
+
+/**
+ * unarmed-strike: 8 + Strength modifier + proficiency bonus (Unarmed Strike, SRD 5.2.1 p. 190).
+ * influence: the higher of 15 and the opponent's Intelligence score (rules-glossary.influence-action).
+ * ponytail: the unarmed-strike DC uses the Strength modifier only; a creature using its stat-block
+ * DC is TASK-0224. Add when monsters carry feature DCs.
+ */
+export function oppositionDc(
+  opponent: Combatant,
+  rule: OppositionRule,
+): Derived<number> {
+  const stats = opponent.stats;
+  if (!stats) return { ok: false, missing: "stats" };
+  if (rule === "unarmed-strike") {
+    const str = stats.abilityMods.str;
+    return str === undefined
+      ? { ok: false, missing: "str modifier" }
+      : { ok: true, value: 8 + str + stats.proficiencyBonus };
+  }
+  const int = stats.abilityScores?.int;
+  return int === undefined
+    ? { ok: false, missing: "int score" }
+    : { ok: true, value: Math.max(15, int) };
+}
+
+/** The holder's open ability-check assists for this skill (rules-glossary.help-action). */
+export function checkAssists(
+  c: Combatant,
+  kind: "ability-check" | "saving-throw",
+  skill: Skill | null,
+): Assist[] {
+  if (kind !== "ability-check" || skill === null) return [];
+  return (c.assists ?? []).filter(
+    (a) => a.kind === "ability-check" && a.skill === skill,
+  );
+}
+
+/**
+ * The target's open attack assists that serve this attacker: any helper but the attacker.
+ * ponytail: no factions; "one of your allies" is any attacker but the helper. Add with factions.
+ */
+export function attackAssists(
+  target: Combatant | undefined,
+  attackerId: string | null,
+): Assist[] {
+  return (target?.assists ?? []).filter(
+    (a) => a.kind === "attack" && a.helperId !== attackerId,
+  );
+}
+
+/**
+ * The start of the helper's next turn (rules-glossary.help-action: "expires ... before the start of
+ * your next turn"). Round R if the helper sits after the active index, else R + 1.
+ */
+export function helperExpiry(
+  enc: Encounter | null,
+  helperId: string,
+): ExpiryPoint | null {
+  if (!enc) return null;
+  const idx = enc.order.findIndex((e) => e.combatantId === helperId);
+  if (idx < 0) return null;
+  return {
+    round: idx > enc.turnIndex ? enc.round : enc.round + 1,
+    combatantId: helperId,
+    boundary: "turn-start",
+  };
 }

@@ -3,6 +3,8 @@ import {
   DefenseSetSchema,
   DifficultySchema,
   EngineCommandSchema,
+  OppositionRuleSchema,
+  oppositionCovers,
   type Skill,
 } from "@the-stacks/dnd5e-engine";
 import {
@@ -150,6 +152,12 @@ const CircumstanceSchema = z
   .nullable()
   .default(null);
 
+/** Spec 084 D9: the DC derives from this creature's stats; the model names it, never a number. */
+const OppositionSchema = z.strictObject({
+  opposedBy: CombatantIdSchema,
+  rule: OppositionRuleSchema,
+});
+
 export const StepSchema = z.discriminatedUnion("step", [
   z.object({ step: z.literal("none"), reason: Reason }),
   z.strictObject({
@@ -159,7 +167,7 @@ export const StepSchema = z.discriminatedUnion("step", [
     kind: z.enum(["ability-check", "saving-throw"]),
     ability: AbilitySchema,
     skill: SkillSchema.nullable(),
-    difficulty: DifficultySchema,
+    difficulty: z.union([DifficultySchema, OppositionSchema]),
     circumstance: CircumstanceSchema,
     autoFail: z.object({ reason: Reason }).nullable(),
     onSuccess: z.array(EffectSchema).max(4),
@@ -187,6 +195,23 @@ export const StepSchema = z.discriminatedUnion("step", [
     spellId: z.string().regex(/^[a-z0-9]+(-[a-z0-9]+)*$/),
     slotLevel: z.number().int().min(1).max(9).nullable(),
     targetId: CombatantIdSchema,
+  }),
+  // Spec 084 D9: the helper takes the Help action; the engine applies and ends the assist.
+  z.strictObject({
+    step: z.literal("help"),
+    reason: Reason,
+    helperId: CombatantIdSchema,
+    assist: z.discriminatedUnion("kind", [
+      z.strictObject({
+        kind: z.literal("ability-check"),
+        allyId: CombatantIdSchema,
+        skill: SkillSchema,
+      }),
+      z.strictObject({
+        kind: z.literal("attack"),
+        targetId: CombatantIdSchema,
+      }),
+    ]),
   }),
   z.object({
     step: z.literal("effect"),
@@ -229,6 +254,36 @@ function refineSteps(
           });
         }
       });
+    }
+    if (step.step === "help") {
+      const other =
+        step.assist.kind === "ability-check"
+          ? step.assist.allyId
+          : step.assist.targetId;
+      if (other === step.helperId) {
+        ctx.addIssue({
+          code: "custom",
+          message: "a helper cannot help itself",
+          path: [...base, i, "assist"],
+        });
+      }
+    }
+    if (step.step === "check" && typeof step.difficulty !== "string") {
+      const { opposedBy, rule } = step.difficulty;
+      if (opposedBy === step.combatantId) {
+        ctx.addIssue({
+          code: "custom",
+          message: "a check cannot be opposed by its own checker",
+          path: [...base, i, "difficulty", "opposedBy"],
+        });
+      }
+      if (!oppositionCovers(rule, step.kind, step.ability, step.skill)) {
+        ctx.addIssue({
+          code: "custom",
+          message: `rule ${rule} does not cover this check`,
+          path: [...base, i, "difficulty", "rule"],
+        });
+      }
     }
     if (step.step !== "check" || step.kind !== "ability-check") return;
     for (const key of ["cost", "severe"] as const) {

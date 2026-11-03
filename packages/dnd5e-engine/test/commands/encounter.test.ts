@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import type { Encounter, EngineState } from "../../src/index.js";
 import { activeCombatant, conditionsOf } from "../../src/index.js";
 import {
   expectOk,
@@ -372,5 +373,88 @@ describe("encounter.end", () => {
       run(stateWith(pc("a")), end),
       "NO_ACTIVE_ENCOUNTER",
     );
+  });
+});
+
+describe("assist expiry (spec 084)", () => {
+  const assistOn = () => ({
+    kind: "attack" as const,
+    helperId: "b",
+    expiresAt: null as null | {
+      round: number;
+      combatantId: string;
+      boundary: "turn-start";
+    },
+  });
+  function withAssist(): { s: EngineState; enc: Encounter } {
+    const s0 = started();
+    const enc = s0.encounter;
+    if (!enc) throw new Error("no encounter");
+    const helperIdx = enc.order.findIndex((e) => e.combatantId === "b");
+    const round = helperIdx > enc.turnIndex ? enc.round : enc.round + 1;
+    const assist = {
+      ...assistOn(),
+      expiresAt: { round, combatantId: "b", boundary: "turn-start" as const },
+    };
+    const holder = s0.combatants.c;
+    if (!holder) throw new Error("no c");
+    return {
+      s: {
+        ...s0,
+        combatants: { ...s0.combatants, c: { ...holder, assists: [assist] } },
+      },
+      enc,
+    };
+  }
+  it("ends expired at the start of the helper's turn, not earlier", () => {
+    let { s, enc } = withAssist();
+    for (let guard = 0; guard < 6; guard++) {
+      const out = run(s, advance, [10, 10, 10]);
+      const events = expectOk(out.result);
+      s = settle(s, out.result);
+      const next = s.encounter?.order[s.encounter.turnIndex]?.combatantId;
+      const ended = events.some(
+        (e) => e.type === "assist.ended" && e.cause === "expired",
+      );
+      expect(ended).toBe(next === "b");
+      if (ended) {
+        expect(s.combatants.c?.assists).toEqual([]);
+        return;
+      }
+    }
+    throw new Error(`never expired (round ${enc.round})`);
+  });
+  it("ends encounter-ended at encounter.end", () => {
+    const { s } = withAssist();
+    const out = run(s, end);
+    const events = expectOk(out.result);
+    expect(events.find((e) => e.type === "assist.ended")).toMatchObject({
+      cause: "encounter-ended",
+      combatantId: "c",
+    });
+    expect(settle(s, out.result).combatants.c?.assists).toEqual([]);
+  });
+  it("ends when a dead helper's turn is skipped", () => {
+    const { s } = withAssist();
+    const b = s.combatants.b;
+    if (!b) throw new Error("no b");
+    const dead2 = {
+      ...s,
+      combatants: {
+        ...s.combatants,
+        b: { ...b, lifeState: "dead" as const, hp: { ...b.hp, current: 0 } },
+      },
+    };
+    let cur: EngineState = dead2;
+    let sawExpired = false;
+    for (let i = 0; i < 6 && !sawExpired; i++) {
+      const out = run(cur, advance, [10]);
+      const events = expectOk(out.result);
+      sawExpired = events.some(
+        (e) => e.type === "assist.ended" && e.cause === "expired",
+      );
+      cur = settle(cur, out.result);
+    }
+    expect(sawExpired).toBe(true);
   });
 });

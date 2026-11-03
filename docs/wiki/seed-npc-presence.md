@@ -15,7 +15,7 @@ sources:
   - apps/server/src/dm/snapshot/build.ts
   - packages/session-model/src/gate/proposals.ts
   - packages/session-model/src/gate/plan.ts
-verified_against: 9d2c6fae
+verified_against: 3a617d4a10e572a061aa5be87b3f9711fd7910ae
 ---
 
 # Seed NPC presence
@@ -28,7 +28,7 @@ the DM pipeline is in [[dm-runtime]].
 
 ## The seed declaration
 
-`SceneSeedSchema` (`seed/schema.ts`) gives the scene `tableRules` (`outcomeBands`, `naturals` default true; `groupChecks` default false, spec 070) and every beat a required `presence`: a record from NPC
+`SceneSeedSchema` (`seed/schema.ts`) gives the scene `tableRules` (`outcomeBands`, `naturals` default true; `groupChecks` default false, spec 070; it has no behaviour: SRD 5.2.1 has no group-check rule, TASK-0232) and every beat a required `presence`: a record from NPC
 id to `ScenePresenceSchema` (`present`, `yielded`, `absent`). There is no default, so a seed
 without it fails to load. `SeedNpc.identity` gains `aliases` (up to 6 strings of up to 60
 characters, default empty). Spec 083: the plan gate reads each character's `identity.spells` as the prepared list, and `resolve` reads `identity.level` as the spell `casterLevel`; Odo's list adds `cure-wounds`. `SeedCharacter.identity` gains required `class` (up to 40 characters) and `level` (1 to 20); the three seeds set them. Scene start copies both onto each `director:party:<id>` row's `after` (TASK-0164; `PartyMemberSchema` holds them as optional fields). `greyhollow-ford.json` declares all three NPCs in all three beats

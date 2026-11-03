@@ -175,3 +175,16 @@ name). `combatant.added`'s `after` carries optional `stats`. `v` stays 1; old ro
 `attack.resolved` and `check.resolved` gain optional `spellId` (the SRD spell id of a `spell.cast`).
 `hp.changed` gains optional `half: true` (the damage was halved, rounded down, before defenses).
 `v` stays 1; old rows parse. `spell.cast` emits only existing event types.
+
+## Amended by specs/084-opposition-and-help (TASK-0128)
+
+`check.resolved` gains optional `opposition: { opponentId, rule }`. Two state-change events join the
+catalog; `combatantId` is the holder:
+
+| Event | Changes | `before` | `after` | Extra |
+|---|---|---|---|---|
+| `assist.granted` | one entry of `assists` | `null` | `Assist` | — |
+| `assist.ended` | one entry of `assists` | `Assist` | `null` | `cause: "used" \| "expired" \| "replaced" \| "encounter-ended"` |
+
+`Assist` is `{ kind: "ability-check", helperId, skill, expiresAt } | { kind: "attack", helperId, expiresAt }`.
+`combatant.added`'s `after` carries optional `assists` and `stats.abilityScores`. `v` stays 1; old rows parse.

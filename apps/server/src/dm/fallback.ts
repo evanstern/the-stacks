@@ -183,6 +183,10 @@ function changeSentence(c: FactChange): string | null {
       return null;
     case "spell-slot":
       return null;
+    case "assist":
+      return c.assist === "attack"
+        ? `${c.helper} distracts ${target}.`
+        : `${c.helper} lends ${target} a hand.`;
     case "death-saves":
       return c.failed
         ? `${target} slips closer to death.`

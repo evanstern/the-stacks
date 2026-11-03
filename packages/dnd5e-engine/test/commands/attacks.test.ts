@@ -903,3 +903,201 @@ describe("derived rolls (spec 082)", () => {
     expect(e).toMatchObject({ dc: 15, margin: -1 });
   });
 });
+
+describe("opposition and assists (spec 084)", () => {
+  const mkStats = (over = {}) => ({
+    abilityMods: { str: 3, dex: 2, wis: 0 },
+    proficiencyBonus: 2,
+    saves: {},
+    skills: { athletics: 5, acrobatics: 4 },
+    attacks: [
+      {
+        name: "Fist",
+        range: "melee" as const,
+        toHit: 5,
+        damage: [],
+      },
+    ],
+    spellcastingAbility: null,
+    ...over,
+  });
+  const snag = (over = {}) =>
+    goblin({
+      stats: mkStats({ abilityMods: { str: -1 }, skills: {} }),
+      ...over,
+    });
+  const opp = (over: Record<string, unknown> = {}) => ({
+    type: "check.roll",
+    combatantId: "pc-ana",
+    kind: "ability-check",
+    ability: "str",
+    skill: "athletics",
+    opposition: { opponentId: "gob-1", rule: "unarmed-strike" },
+    reason: "break the grapple",
+    ...over,
+  });
+  const st = (h = {}, g = {}) =>
+    stateWith(hero({ stats: mkStats(), ...h }), snag(g));
+
+  it("records the derived DC and opposition", () => {
+    const events = expectOk(run(st(), opp(), [10]).result);
+    expect(checkOf(events)).toMatchObject({
+      dc: 9,
+      opposition: { opponentId: "gob-1", rule: "unarmed-strike" },
+    });
+  });
+  it("applies spec 070's band on a derived opposition DC", () => {
+    const events = expectOk(
+      run(
+        st(),
+        opp({ houseRules: { outcomeBands: true, naturals: false } }),
+        [2],
+      ).result,
+    );
+    // total 2 + 5 = 7 vs DC 9: margin -2, success at a cost
+    expect(checkOf(events)).toMatchObject({
+      margin: -2,
+      band: "success-at-cost",
+    });
+  });
+  it("refuses bad opposition before any draw", () => {
+    const s = st();
+    expectRefusedBeforeDraw(run(s, opp({ dc: 10 }), [10]), "INVALID_COMMAND");
+    expectRefusedBeforeDraw(
+      run(
+        s,
+        opp({ opposition: { opponentId: "pc-ana", rule: "unarmed-strike" } }),
+        [10],
+      ),
+      "INVALID_COMMAND",
+    );
+    expectRefusedBeforeDraw(
+      run(s, opp({ skill: "stealth", ability: "dex" }), [10]),
+      "INVALID_COMMAND",
+    );
+    expectRefusedBeforeDraw(
+      run(
+        s,
+        opp({ opposition: { opponentId: "nobody", rule: "unarmed-strike" } }),
+        [10],
+      ),
+      "UNKNOWN_COMBATANT",
+    );
+    expectRefusedBeforeDraw(
+      run(
+        st({}, { lifeState: "dead", hp: { current: 0, max: 7, temp: 0 } }),
+        opp(),
+        [10],
+      ),
+      "TARGET_DEAD",
+    );
+    expectRefusedBeforeDraw(
+      run(stateWith(hero({ stats: mkStats() }), goblin()), opp(), [10]),
+      "STAT_UNDEFINED",
+    );
+  });
+
+  const ath = {
+    kind: "ability-check",
+    helperId: "h",
+    skill: "athletics",
+    expiresAt: null,
+  };
+  const dcheck = (over: Record<string, unknown> = {}) => ({
+    type: "check.roll",
+    combatantId: "pc-ana",
+    kind: "ability-check",
+    ability: "str",
+    skill: "athletics",
+    difficulty: "medium",
+    reason: "shove",
+    ...over,
+  });
+  const assisted = (assists: unknown[] = [ath], over = {}) =>
+    stateWith(
+      hero({ stats: mkStats(), assists: assists as never, ...over }),
+      snag(),
+    );
+
+  it("an ability-check assist rolls advantage and ends used", () => {
+    const out = run(assisted(), dcheck(), [3, 15]);
+    const events = expectOk(out.result);
+    expect(events[0]).toMatchObject({
+      type: "dice.rolled",
+      mode: "advantage",
+      total: 20,
+    });
+    expect(events.at(-1)).toMatchObject({
+      type: "assist.ended",
+      cause: "used",
+      combatantId: "pc-ana",
+    });
+    expect(
+      settle(assisted(), out.result).combatants["pc-ana"]?.assists,
+    ).toEqual([]);
+  });
+  it("a different skill and a saving throw leave the assist", () => {
+    const other = expectOk(
+      run(assisted(), dcheck({ skill: "acrobatics", ability: "dex" }), [10])
+        .result,
+    );
+    expect(other.some((e) => e.type === "assist.ended")).toBe(false);
+    const save = expectOk(
+      run(assisted(), dcheck({ kind: "saving-throw", skill: null }), [10])
+        .result,
+    );
+    expect(save.some((e) => e.type === "assist.ended")).toBe(false);
+  });
+  it("an assist plus disadvantage rolls normal and is still used", () => {
+    const events = expectOk(
+      run(assisted([ath], { conditions: [cond("poisoned")] }), dcheck(), [10])
+        .result,
+    );
+    expect(events[0]).toMatchObject({ mode: "normal" });
+    expect(events.at(-1)).toMatchObject({
+      type: "assist.ended",
+      cause: "used",
+    });
+  });
+  it("two assists give advantage once and both end", () => {
+    const two = [ath, { ...ath, helperId: "h2" }];
+    const events = expectOk(run(assisted(two), dcheck(), [3, 15]).result);
+    expect(events[0]).toMatchObject({ mode: "advantage" });
+    expect(events.filter((e) => e.type === "assist.ended")).toHaveLength(2);
+  });
+  it("auto-fail, auto-success and explicit expression leave the assist", () => {
+    for (const over of [
+      { autoFail: { reason: "stuck" } },
+      { autoSuccess: { reason: "retry" } },
+      { expression: "1d20+1" },
+    ]) {
+      const events = expectOk(run(assisted(), dcheck(over), [10]).result);
+      expect(events.some((e) => e.type === "assist.ended")).toBe(false);
+    }
+  });
+  it("an attack assist applies to another attacker, not the helper", () => {
+    const atk = { kind: "attack", helperId: "h", expiresAt: null };
+    const s = stateWith(hero({ stats: mkStats() }), snag({ assists: [atk] }));
+    const dattack = (attackerId: string) => ({
+      type: "attack.roll",
+      attackerId,
+      targetId: "gob-1",
+      attack: "Fist",
+      reason: "swing",
+    });
+    const events = expectOk(run(s, dattack("pc-ana"), [3, 15]).result);
+    expect(events[0]).toMatchObject({ mode: "advantage" });
+    expect(events.at(-1)).toMatchObject({
+      type: "assist.ended",
+      cause: "used",
+      combatantId: "gob-1",
+    });
+    const helper = stateWith(
+      makeCombatant({ id: "h", name: "H", stats: mkStats() }),
+      snag({ assists: [atk] }),
+    );
+    const own = expectOk(run(helper, dattack("h"), [10]).result);
+    expect(own[0]).toMatchObject({ mode: "normal" });
+    expect(own.some((e) => e.type === "assist.ended")).toBe(false);
+  });
+});

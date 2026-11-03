@@ -59,6 +59,8 @@ describe("ledger (AC #6)", () => {
       "condition.removed",
       "hit-dice.changed",
       "spell-slots.changed",
+      "assist.granted",
+      "assist.ended",
       "encounter.started",
       "encounter.changed",
       "turn.advanced",

@@ -164,3 +164,56 @@ describe("replay scene", () => {
     expect(rng.remaining()).toBe(0);
   });
 });
+
+describe("assist replay (spec 084)", () => {
+  it("an assist survives replay and its end removes it", () => {
+    const rng = scriptedRng([]);
+    const mk = (id: string) => ({
+      id,
+      name: id,
+      hp: { max: 10 },
+      zeroHpRule: "death-saves",
+      stats: {
+        abilityMods: {},
+        proficiencyBonus: 2,
+        saves: {},
+        skills: { athletics: 5 },
+        attacks: [],
+        spellcastingAbility: null,
+      },
+    });
+    let state: EngineState = emptyState();
+    const all: EngineEvent[] = [];
+    for (const c of ["h", "a"]) {
+      const events = expectOk(execute(state, add(mk(c)), rng));
+      all.push(...events);
+      state = replay(events, state);
+    }
+    const granted = expectOk(
+      execute(
+        state,
+        {
+          type: "help.grant",
+          helperId: "h",
+          assist: { kind: "ability-check", allyId: "a", skill: "athletics" },
+          reason: "helps",
+        },
+        rng,
+      ),
+    );
+    all.push(...granted);
+    expect(replay(all).combatants.a?.assists).toHaveLength(1);
+    const before = granted[0];
+    if (before?.type !== "assist.granted") throw new Error("no grant");
+    all.push({
+      type: "assist.ended",
+      v: 1,
+      reason: "used",
+      combatantId: "a",
+      cause: "used",
+      before: before.after,
+      after: null,
+    });
+    expect(replay(all).combatants.a?.assists).toEqual([]);
+  });
+});

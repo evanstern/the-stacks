@@ -36,6 +36,7 @@ export const RefusalCodeSchema = z.enum([
   "SPELL_UNRESOLVED",
   "SPELL_UNKNOWN",
   "SPELL_NOT_PREPARED",
+  "NOT_PROFICIENT",
 ]);
 
 export const RefusalSchema = z.object({

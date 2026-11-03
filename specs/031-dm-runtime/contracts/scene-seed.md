@@ -211,3 +211,9 @@ a `condition` are skipped; `spellcastingAbility` is null). The seed gains no fie
 
 **Amended by spec 076 (TASK-0171).** `opening.premise` (1..500 chars) is required: why the party is
 here. A seed without it fails `parseSeed` with an issue at `opening.premise`.
+
+## Amended by specs/084-opposition-and-help (TASK-0128)
+
+`statsFromSrd` also fills `stats.abilityScores` (all six, from the SRD monster record). `statsFromCharacter`
+sets none: a seed sheet carries no scores, so an `influence` opposition against a PC refuses `STAT_UNDEFINED`.
+`tableRules.groupChecks` has no behaviour yet: SRD 5.2.1 has no group-check rule (TASK-0232).

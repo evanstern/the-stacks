@@ -13,7 +13,7 @@ sources:
   - apps/server/src/dm/pipeline/context.ts
   - apps/server/src/dm/nodes/schemas.ts
   - apps/server/dm-scripts/greyhollow-talk.json
-verified_against: a64dcee87d062d661ddd1f6262a3f6596dee2ba1
+verified_against: 3a617d4a10e572a061aa5be87b3f9711fd7910ae
 ---
 
 # DM talk triggers
