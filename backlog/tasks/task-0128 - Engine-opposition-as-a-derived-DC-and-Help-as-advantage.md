@@ -4,7 +4,7 @@ title: 'Engine: opposition as a derived DC, and Help as advantage'
 status: In Progress
 assignee: []
 created_date: '2026-10-27 02:32'
-updated_date: '2026-11-03 07:19'
+updated_date: '2026-11-03 09:53'
 labels:
   - dm
   - engine
@@ -29,7 +29,10 @@ Spec: specs/084-opposition-and-help
 - [ ] #1 The engine derives an opposition DC from the opponent's stats for each SRD-defined case, with tests
 - [ ] #2 A Help action grants advantage on the ally's next matching check and expires per SRD 5.2.1, with a test
 - [ ] #3 Interpret emits opposition and help as step kinds, and a schema test covers both
+- [ ] #4 Spec phase: Seam check [orchestrator]
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
