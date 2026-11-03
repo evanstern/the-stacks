@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-11-02 23:11'
-updated_date: '2026-11-03 03:38'
+updated_date: '2026-11-03 03:51'
 labels:
   - dm
   - rules
@@ -59,6 +59,9 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 079 phases 3-4)
 OQ-4 result: STEP_ACTOR_MISMATCH added (plan-gate only); spec 077 had no refusal to reuse.
+
+Dispatch: tier=haiku pinned=cc/claude-haiku-5-5 served=claude-haiku-5-5 (spec 079 phase 5, wiki)
+AC #4 coverage note: the open-followUp line is unit-tested at the facts and narrate-prompt seam (follow-ups.test.ts, facts, narrate). No DB turn-level test. Runbook B's playtest scenario adds a row for a followUp left open across beats (spec 079 OQ-5 watch item).
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
