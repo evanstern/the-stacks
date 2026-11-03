@@ -37,9 +37,11 @@ Spec: specs/078-revealed-npc-present
 - [ ] #2 An attack on a present hostile NPC that belongs to a seed encounter starts that encounter (or joins it to initiative) and resolves, with a test replaying seq 45
 - [ ] #3 The chronicle never calls a revealed, present NPC departed
 - [x] #4 Spec phase: The Director's arrivals, resolve and the plan gate (card AC #1, #2)
-- [ ] #5 Spec phase: The chronicle and the run 1 seq 40–45 replay (card AC #1, #2, #3; merge condition)
+- [x] #5 Spec phase: The chronicle and the run 1 seq 40–45 replay (card AC #1, #2, #3; merge condition)
 - [ ] #6 Spec phase: Wiki re-ground
 <!-- AC:END -->
+
+
 
 
 
