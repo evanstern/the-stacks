@@ -4,7 +4,7 @@ title: A talk NPC turn that falls back says '<name> speaks up' instead of the li
 status: In Progress
 assignee: []
 created_date: '2026-11-02 23:04'
-updated_date: '2026-11-03 03:20'
+updated_date: '2026-11-03 03:51'
 labels:
   - dm
   - narration
@@ -34,7 +34,10 @@ Spec: specs/081-talk-fallback-line
 <!-- AC:BEGIN -->
 - [ ] #1 A talk NPC turn whose narration falls back ships the NPC's planned words in fiction, with a test replaying seq 124-126
 - [ ] #2 The plan carries the NPC's line in a field the fallback can voice (not mixed with rules notes like 'no roll needed')
+- [ ] #3 Spec phase: The plan carries the line (card AC #2; US2)
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
