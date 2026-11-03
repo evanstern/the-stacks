@@ -36,8 +36,10 @@ Spec: specs/085-combat-audit-pass-rate
 - [x] #3 Spec phase: Only the on-turn actor acts (US1; FR-001 to FR-004)
 - [x] #4 Spec phase: Feelings, endings and the goal note (US2–US4; FR-005 to FR-010)
 - [x] #5 Spec phase: Replay run 1 (US5; card AC #2, FR-011, FR-013)
-- [ ] #6 Spec phase: Wiki re-ground
+- [x] #6 Spec phase: Wiki re-ground
 <!-- AC:END -->
+
+
 
 
 
