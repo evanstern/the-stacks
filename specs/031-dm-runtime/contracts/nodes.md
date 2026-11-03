@@ -349,3 +349,12 @@ Amended by specs/081-talk-fallback-line. An interpret reading gains `say: str|nu
 spoken words in `say`, no quote marks; otherwise null; never put speech in `followUps`; write each
 reason as what the actor does, with no rules note. `say` is not a step: the engine never sees it.
 Prompt: `dm.interpret-v10`. No node signature changes.
+
+## Amended by specs/083-spells-by-srd-id (TASK-0105)
+
+A strict `spell` step joins the step union: `{ step: "spell", reason, casterId, spellId, slotLevel:
+1..9|null, targetId }`. `spellId` follows the SRD id grammar. The step has no field for a DC,
+expression, damage, effect or amount: the engine derives every spell number. The grammar line and
+a rule sentence ("spell numbers come from the engine; never rebuild a spell from check, attack or
+effect steps") enter `STEP_GRAMMAR`. Prompts: `dm.interpret-v12`, `dm.adjudicate-v9`. The actor
+sheet line lists the caster's spell ids. No node signature changes.

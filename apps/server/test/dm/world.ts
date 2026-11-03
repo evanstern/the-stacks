@@ -267,6 +267,19 @@ export const attackStep = (
   ...over,
 });
 
+export const spellStep = (
+  targetId: string,
+  over: Record<string, unknown> = {},
+) => ({
+  step: "spell",
+  reason: "Odo calls down sacred flame",
+  casterId: "odo",
+  spellId: "sacred-flame",
+  slotLevel: null,
+  targetId,
+  ...over,
+});
+
 export const reading = (
   actionId: string | null,
   steps: unknown[],

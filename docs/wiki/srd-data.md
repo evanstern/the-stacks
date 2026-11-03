@@ -22,7 +22,7 @@ sources:
   - apps/server/src/dm/nodes/schemas.ts
   - apps/web/app/routes/about.tsx
   - biome.json
-verified_against: ed3949ce7a0aa83c9dd732137ab346ad1df8b7e0
+verified_against: 7440e7041ff0ca7ca70b9e7ea72d8b63b46e3bcb
 ---
 
 # SRD data package
@@ -122,3 +122,5 @@ fires against `fixtures/boundary-violations/packages/srd/src/bad.ts` ([[ci-pipel
 [[monorepo-and-toolchain]]).
 
 Spec 082 (TASK-0104) adds no SRD field; the server reads three existing ones to build engine stats ([[dnd5e-engine]]). `statsFromSrd` (`dm/seed/combatants.ts`) maps a monster's ability mods and saves, skill totals, `pb` and `actions[].attack` (skipping a damage part with a `condition`). `statsFromCharacter` takes a seed PC's weapon `rangeType` from the equipment record of the same name and `spellcastingAbility` from the class record. The seed loader rejects a PC attack that names no SRD weapon.
+
+Spec 083 (TASK-0105) adds no SRD field either. The engine's `SPELLS` table holds no SRD import; a server test reads the SRD spell records and checks the table clause by clause. The plan gate reads a spell record's `level` through `getById("spell", id)` ([[dm-failure-and-gates]]).

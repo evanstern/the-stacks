@@ -4,6 +4,8 @@ import {
   findAttack,
   type RefusalCode,
   type Skill,
+  SPELLS,
+  spellcastingModifier,
 } from "@the-stacks/dnd5e-engine";
 import {
   REASON_TO_PRESENCE,
@@ -34,7 +36,10 @@ export type PlanFailureReason =
   | "not-in-snapshot"
   | "absent"
   | "not-the-actor"
-  | "stat-undefined";
+  | "stat-undefined"
+  | "spell-unknown"
+  | "spell-not-prepared"
+  | "spell-unresolved";
 
 export interface PlanFailure {
   stepIndex: number;
@@ -66,6 +71,16 @@ export const ACTOR_REFUSAL_CODE =
  */
 export const STAT_REFUSAL_CODE =
   "STAT_UNDEFINED" as const satisfies RefusalCode;
+
+/**
+ * The refusal codes of a group whose spell step the table or the seed cannot
+ * resolve (spec 083 D6). `SPELL_UNKNOWN` and `SPELL_NOT_PREPARED` are plan-gate
+ * only; `SPELL_UNRESOLVED` is also an engine code.
+ */
+export type SpellRefusalCode = Extract<
+  RefusalCode,
+  "SPELL_UNRESOLVED" | "SPELL_UNKNOWN" | "SPELL_NOT_PREPARED"
+>;
 
 /** A model text (step reason or condition source) the claim gate refused. */
 export interface ReasonFailure {
@@ -100,7 +115,7 @@ export type PlanVerdict =
   | {
       actionId: string | null;
       ok: false;
-      code: typeof STAT_REFUSAL_CODE;
+      code: typeof STAT_REFUSAL_CODE | SpellRefusalCode;
       failure: PlanFailure;
     };
 
@@ -123,6 +138,10 @@ export interface PlanInput {
   actors?: ReadonlyMap<string, string | null>;
   /** The engine combatants (spec 082 D8). A joining or absent id is not stat-checked. */
   combatants: Readonly<Record<string, Combatant>>;
+  /** Spec 083 D6: combatant id -> the seed character's spell ids. A caster with no entry has no list. */
+  spellLists?: ReadonlyMap<string, readonly string[]>;
+  /** Spec 083 D6: the SRD spell record's level, or undefined when there is none. */
+  srdSpell?: (id: string) => { level: number } | undefined;
 }
 
 type EncounterSeed = SceneSeed["encounters"][number];
@@ -225,6 +244,11 @@ function stepIds(step: Step): NamedId[] {
         { field: "targetId", id: step.targetId },
         ...effectIds(step.onHit, "onHit"),
       ];
+    case "spell":
+      return [
+        { field: "casterId", id: step.casterId },
+        { field: "targetId", id: step.targetId },
+      ];
   }
 }
 
@@ -294,6 +318,8 @@ function stepTexts(step: Step): NamedText[] {
         ...circumstanceTexts(step),
         ...effectSources(step.onHit, "onHit"),
       ];
+    case "spell":
+      return [{ field: "reason", text: step.reason }];
   }
 }
 
@@ -356,7 +382,7 @@ function plannedDiff(
   };
 }
 
-/** The first `attack` attacker or `move` mover that is not the action's actor. */
+/** The first `attack` attacker, `spell` caster or `move` mover that is not the action's actor. */
 function foreignActor(
   steps: readonly Step[],
   actor: string | null,
@@ -366,9 +392,11 @@ function foreignActor(
     const named =
       step.step === "attack"
         ? { field: "attackerId", id: step.attackerId }
-        : step.step === "move"
-          ? { field: "combatantId", id: step.combatantId }
-          : null;
+        : step.step === "spell"
+          ? { field: "casterId", id: step.casterId }
+          : step.step === "move"
+            ? { field: "combatantId", id: step.combatantId }
+            : null;
     if (!named) continue;
     if (actor === null ? !party.has(named.id) : named.id !== actor) {
       return { stepIndex, ...named, reason: "not-the-actor" };
@@ -413,6 +441,104 @@ function statGap(
   return null;
 }
 
+export type SpellGap = {
+  code: SpellRefusalCode | typeof STAT_REFUSAL_CODE;
+  failure: PlanFailure;
+};
+
+/**
+ * Spec 083 D6: the first spell step the SRD, the seed list, the engine table or
+ * the stats cannot resolve; and a non-clarify `spell` reading with no spell step.
+ */
+function spellGap(
+  steps: readonly Step[],
+  intent: InterpretReading["intent"] | null,
+  input: PlanInput,
+): SpellGap | null {
+  const fail = (
+    code: SpellGap["code"],
+    stepIndex: number,
+    field: string,
+    id: string,
+    reason: PlanFailureReason,
+  ): SpellGap => ({ code, failure: { stepIndex, field, id, reason } });
+  for (const [stepIndex, step] of steps.entries()) {
+    if (step.step !== "spell") continue;
+    const { casterId, spellId, slotLevel, targetId } = step;
+    const srd = input.srdSpell?.(spellId);
+    if (!srd) {
+      return fail(
+        "SPELL_UNKNOWN",
+        stepIndex,
+        "spellId",
+        spellId,
+        "spell-unknown",
+      );
+    }
+    if (input.joining.includes(casterId)) continue;
+    const list = input.spellLists?.get(casterId);
+    if (!list?.includes(spellId)) {
+      return fail(
+        "SPELL_NOT_PREPARED",
+        stepIndex,
+        "spellId",
+        `${casterId}: ${spellId}`,
+        "spell-not-prepared",
+      );
+    }
+    const mech = SPELLS[spellId];
+    const badLevel =
+      srd.level === 0
+        ? slotLevel !== null
+        : slotLevel === null || slotLevel < srd.level;
+    if (!mech || badLevel) {
+      return fail(
+        "SPELL_UNRESOLVED",
+        stepIndex,
+        mech ? "slotLevel" : "spellId",
+        spellId,
+        "spell-unresolved",
+      );
+    }
+    const caster = input.combatants[casterId];
+    if (!caster?.stats || spellcastingModifier(caster.stats) === null) {
+      return fail(
+        "STAT_UNDEFINED",
+        stepIndex,
+        "casterId",
+        `${casterId}: spellcasting ability`,
+        "stat-undefined",
+      );
+    }
+    const target = input.combatants[targetId];
+    if (
+      mech.delivery.kind === "save" &&
+      target &&
+      !input.joining.includes(targetId)
+    ) {
+      const d = checkModifier(
+        target,
+        "saving-throw",
+        mech.delivery.ability,
+        null,
+      );
+      if (!d.ok) {
+        return fail(
+          "STAT_UNDEFINED",
+          stepIndex,
+          "targetId",
+          `${targetId}: ${d.missing}`,
+          "stat-undefined",
+        );
+      }
+    }
+  }
+  if (intent === "spell" && !steps.some((s) => s.step === "spell")) {
+    return fail("SPELL_UNRESOLVED", 0, "intent", "spell", "spell-unresolved");
+  }
+  return null;
+}
+
 export function checkPlan(input: PlanInput): PlanVerdict[] {
   const { snapshot } = input;
   const valid = new Set<string>(input.joining);
@@ -445,9 +571,12 @@ export function checkPlan(input: PlanInput): PlanVerdict[] {
   );
 
   const groups = new Map<string | null, readonly Step[]>();
+  /** The intent of a non-clarify reading, for the spell-intent rule (spec 083 D6). */
+  const intents = new Map<string | null, InterpretReading["intent"]>();
   for (const r of input.readings) {
     // A clarify reading runs no step: nothing to gate.
     groups.set(r.actionId, r.clarify !== null ? [] : r.steps);
+    if (r.clarify === null) intents.set(r.actionId, r.intent);
   }
   for (const r of input.rulings) groups.set(r.actionId, r.steps);
 
@@ -538,6 +667,17 @@ export function checkPlan(input: PlanInput): PlanVerdict[] {
         ok: false,
         code: STAT_REFUSAL_CODE,
         failure: gap,
+      });
+      continue;
+    }
+    // Spec 083 D6: a spell step must resolve; a spell reading needs a spell step.
+    const sGap = spellGap(steps, intents.get(actionId) ?? null, input);
+    if (sGap) {
+      verdicts.push({
+        actionId,
+        ok: false,
+        code: sGap.code,
+        failure: sGap.failure,
       });
       continue;
     }
@@ -650,9 +790,11 @@ export function askUndeclared(input: {
         const id =
           step.step === "attack"
             ? step.attackerId
-            : step.step === "check" && step.kind === "ability-check"
-              ? step.combatantId
-              : null;
+            : step.step === "spell"
+              ? step.casterId
+              : step.step === "check" && step.kind === "ability-check"
+                ? step.combatantId
+                : null;
         const other = id
           ? snapshot.actors.find(
               (a) =>

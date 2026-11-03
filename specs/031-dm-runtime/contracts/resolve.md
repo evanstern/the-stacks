@@ -246,3 +246,12 @@ the `success` band and falls back from a null `severe` to `failure`. No effect o
   follow.
 - `checkPlan` receives the engine combatants. A step the stats cannot derive refuses its group with
   `STAT_UNDEFINED` before any step runs.
+
+## Amended by specs/083-spells-by-srd-id (TASK-0105)
+
+- `spell` submits one `spell.cast` with `casterId`, `spellId`, `targetId`, `slotLevel`,
+  `casterLevel` (the seed character's `identity.level`, 1 for a caster with no seed character) and
+  `houseRules`. No effect runs after it: the engine applied the damage, healing and condition.
+- `checkPlan` receives `spellLists` (combatant id to seed spell ids) and `srdSpell` (the SRD spell
+  record's level). A spell step the SRD, the seed list, the engine table or the stats cannot
+  resolve refuses its group before any step runs.

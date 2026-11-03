@@ -171,18 +171,22 @@ export function d20Expression(modifier: number): string {
   return modifier > 0 ? `1d20+${modifier}` : `1d20${modifier}`;
 }
 
-/** classes.*.spellcasting: save DC = 8 + spellcasting ability modifier + proficiency bonus. */
-export function spellSaveDc(stats: CombatantStats): number | null {
+/** The spellcasting ability modifier, or null when the stats name no ability or lack its modifier. */
+export function spellcastingModifier(stats: CombatantStats): number | null {
   const mod = stats.spellcastingAbility
     ? stats.abilityMods[stats.spellcastingAbility]
     : undefined;
-  return mod === undefined ? null : 8 + mod + stats.proficiencyBonus;
+  return mod === undefined ? null : mod;
+}
+
+/** classes.*.spellcasting: save DC = 8 + spellcasting ability modifier + proficiency bonus. */
+export function spellSaveDc(stats: CombatantStats): number | null {
+  const mod = spellcastingModifier(stats);
+  return mod === null ? null : 8 + mod + stats.proficiencyBonus;
 }
 
 /** Spell attack bonus = spellcasting ability modifier + proficiency bonus. */
 export function spellAttackBonus(stats: CombatantStats): number | null {
-  const mod = stats.spellcastingAbility
-    ? stats.abilityMods[stats.spellcastingAbility]
-    : undefined;
-  return mod === undefined ? null : mod + stats.proficiencyBonus;
+  const mod = spellcastingModifier(stats);
+  return mod === null ? null : mod + stats.proficiencyBonus;
 }

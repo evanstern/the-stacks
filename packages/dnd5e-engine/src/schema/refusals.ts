@@ -33,6 +33,9 @@ export const RefusalCodeSchema = z.enum([
   "ACTOR_UNABLE",
   "REASON_CONTRADICTS_STATE",
   "STAT_UNDEFINED",
+  "SPELL_UNRESOLVED",
+  "SPELL_UNKNOWN",
+  "SPELL_NOT_PREPARED",
 ]);
 
 export const RefusalSchema = z.object({

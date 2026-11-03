@@ -32,7 +32,7 @@ import {
   greyhollowFight,
   PLAYER_USER,
 } from "./snapshot-fixtures.js";
-import { attackStep, checkStep, reading } from "./world.js";
+import { attackStep, checkStep, reading, spellStep } from "./world.js";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const { projections, seed } = greyhollowFight();
@@ -149,6 +149,148 @@ describe("checkPlan: STAT_UNDEFINED (spec 082 D8)", () => {
       ok: false,
       code: "REASON_CONTRADICTS_STATE",
       failure: { field: "circumstance.reason" },
+    });
+  });
+});
+
+describe("checkPlan: spells (spec 083 D6)", () => {
+  const base = projections.engine.combatants;
+  const mkStats = (spellcastingAbility: "wis" | null) => ({
+    abilityMods: { wis: 3, dex: 1 },
+    proficiencyBonus: 2,
+    saves: {},
+    skills: {},
+    attacks: [],
+    spellcastingAbility,
+  });
+  const caster = {
+    ...base,
+    odo: { ...base.odo, stats: mkStats("wis") },
+    "goblin-2": { ...base["goblin-2"], stats: mkStats(null) },
+  } as typeof base;
+  const LEVELS: Record<string, number> = {
+    "sacred-flame": 0,
+    "cure-wounds": 1,
+    bless: 1,
+    "fire-bolt": 0,
+  };
+  const spellLists = new Map([
+    ["odo", ["sacred-flame", "cure-wounds", "bless"]],
+  ]);
+  const gate = (
+    readings: InterpretReading[],
+    extra: Partial<Parameters<typeof checkPlan>[0]> = {},
+  ) =>
+    plan(readings, {
+      combatants: caster,
+      spellLists,
+      srdSpell: (id) => (id in LEVELS ? { level: LEVELS[id] ?? 0 } : undefined),
+      ...extra,
+    });
+  const spellRead = (s: unknown[], over = {}) =>
+    read("a1", s, { intent: "spell", ...over });
+
+  it("passes a prepared, resolvable spell", () => {
+    expect(gate([spellRead([spellStep("goblin-2")])])).toEqual([
+      { actionId: "a1", ok: true },
+    ]);
+    expect(
+      gate([
+        spellRead([
+          spellStep("kestrel", { spellId: "cure-wounds", slotLevel: 1 }),
+        ]),
+      ]),
+    ).toEqual([{ actionId: "a1", ok: true }]);
+  });
+  it("refuses an id with no SRD record", () => {
+    const v = gate([
+      spellRead([spellStep("goblin-2", { spellId: "no-such" })]),
+    ]);
+    expect(v[0]).toMatchObject({
+      ok: false,
+      code: "SPELL_UNKNOWN",
+      failure: { reason: "spell-unknown" },
+    });
+  });
+  it("refuses a spell not on the caster's list", () => {
+    const v = gate([
+      spellRead([spellStep("goblin-2", { spellId: "fire-bolt" })]),
+    ]);
+    expect(v[0]).toMatchObject({ ok: false, code: "SPELL_NOT_PREPARED" });
+  });
+  it("refuses a monster caster, which has no list", () => {
+    const v = gate(
+      [spellRead([spellStep("odo", { casterId: "goblin-2" })], {})],
+      { actors: undefined },
+    );
+    expect(v[0]).toMatchObject({ ok: false, code: "SPELL_NOT_PREPARED" });
+  });
+  it("refuses a spell with no table entry", () => {
+    const v = gate([
+      spellRead([spellStep("goblin-2", { spellId: "bless", slotLevel: 1 })]),
+    ]);
+    expect(v[0]).toMatchObject({ ok: false, code: "SPELL_UNRESOLVED" });
+  });
+  it("refuses a cantrip with a slot level and a leveled spell below its level", () => {
+    const a = gate([spellRead([spellStep("goblin-2", { slotLevel: 1 })])]);
+    expect(a[0]).toMatchObject({ ok: false, code: "SPELL_UNRESOLVED" });
+    const b = gate([
+      spellRead([
+        spellStep("kestrel", { spellId: "cure-wounds", slotLevel: null }),
+      ]),
+    ]);
+    expect(b[0]).toMatchObject({ ok: false, code: "SPELL_UNRESOLVED" });
+  });
+  it("refuses intent spell with only check and effect steps", () => {
+    const v = gate([
+      spellRead([
+        checkStep({ combatantId: null }),
+        {
+          step: "effect",
+          reason: "Odo's flame burns",
+          effects: [damageOn("goblin-2")],
+        },
+      ]),
+    ]);
+    expect(v[0]).toMatchObject({
+      ok: false,
+      code: "SPELL_UNRESOLVED",
+      failure: { field: "intent" },
+    });
+  });
+  it("passes a clarify reading with intent spell", () => {
+    const v = gate([spellRead([], { clarify: "Which spell?" })]);
+    expect(v[0]).toMatchObject({ ok: true });
+  });
+  it("refuses a caster with no spellcasting ability", () => {
+    const c = {
+      ...caster,
+      odo: { ...caster.odo, stats: mkStats(null) },
+    } as typeof base;
+    const v = gate([spellRead([spellStep("goblin-2")])], { combatants: c });
+    expect(v[0]).toMatchObject({ ok: false, code: "STAT_UNDEFINED" });
+  });
+  it("skips a joining caster", () => {
+    const v = gate(
+      [spellRead([spellStep("goblin-2", { casterId: "goblin-9" })])],
+      { joining: ["goblin-9"] },
+    );
+    expect(v[0]).toMatchObject({ ok: true });
+  });
+  it("refuses another party member's spell in a character action", () => {
+    const v = gate([spellRead([spellStep("goblin-2", { casterId: "odo" })])], {
+      actors: new Map([["a1", "tamsin"]]),
+    });
+    expect(v[0]).toMatchObject({ ok: false, code: "STEP_ACTOR_MISMATCH" });
+  });
+  it("refuses a spell reason that contradicts state", () => {
+    const v = gate([
+      spellRead([spellStep("goblin-2", { reason: M2_SEQ221_REASON })]),
+    ]);
+    expect(v[0]).toMatchObject({
+      ok: false,
+      code: "REASON_CONTRADICTS_STATE",
+      failure: { field: "reason" },
     });
   });
 });
