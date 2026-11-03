@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-10-26 20:08'
-updated_date: '2026-11-03 02:23'
+updated_date: '2026-11-03 02:34'
 labels:
   - dm
   - narration
@@ -70,6 +70,8 @@ Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5 (spec 0
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 074 phase 2)
 Spec 074 OQ-4 default taken (orchestrator, flagged to the operator): seq 82 'twists just enough' is a twist with intent (breach). If the operator rules it a flinch, drop 'just enough' from INTENT_MARKERS.
+
+Dispatch: tier=haiku pinned=cc/claude-haiku-5-5 served=claude-haiku-5-5 (spec 074 phase 3, wiki)
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
