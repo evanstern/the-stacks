@@ -15,7 +15,7 @@ sources:
   - apps/server/src/dm/snapshot/build.ts
   - packages/session-model/src/gate/proposals.ts
   - packages/session-model/src/gate/plan.ts
-verified_against: 8bb7bfe871c232b0305beea5f1dfd3eaeb26af34
+verified_against: f4726f9060fe3cdf0068926f26aec5ef734fee79
 ---
 
 # Seed NPC presence
@@ -88,7 +88,7 @@ Resolve builds these proposals, as it does every `scene-presence` proposal. Seed
   snapshot actor does not read `absent`. It no longer collects `beats[].npcIds`.
 - `narrate` filters the beat's NPC ids, or `presentNpcIds` when no seed beat matches,
   against the S1 snapshot and drops each actor that reads `absent`. It then withholds refused
-  rulings and `goalNote` text ([[output-claim-gate]]); this does not touch the NPC list.
+  rulings, `goalNote` text and a monster `say` line ([[output-claim-gate]]; spec 081); this does not touch the NPC list.
 - `buildSnapshot` adds `identity.aliases` to the NPC actor's `aliases`
   ([[actor-snapshot]]).
 

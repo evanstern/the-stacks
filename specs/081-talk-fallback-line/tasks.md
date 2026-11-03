@@ -70,13 +70,13 @@ ships Pell's words.
 **Independent test**: `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/1.0.1/gates/cli.mjs
 freshness . docs/wiki` prints `OK`.
 
-- [ ] T014 Run `/grounding-wiki:wiki-update`. Review `dm-narration-quality.md` (NEEDS-REVIEW):
+- [x] T014 Run `/grounding-wiki:wiki-update`. Review `dm-narration-quality.md` (NEEDS-REVIEW):
       add the new narrate, audit and interpret versions to the prompt-version list with one
       sentence each. Describe the `says:` line and the fallback's quoted line before the reasons.
-- [ ] T015 Review `dm-runtime.md` (NEEDS-REVIEW): the interpret reading's `say` field.
-- [ ] T016 Re-pin `dm-talk-triggers.md`, `dm-failure-and-gates.md`, `srd-data.md` and
+- [x] T015 Review `dm-runtime.md` (NEEDS-REVIEW): the interpret reading's `say` field.
+- [x] T016 Re-pin `dm-talk-triggers.md`, `dm-failure-and-gates.md`, `srd-data.md` and
       `seed-npc-presence.md` after checking their claims against the diff.
-- [ ] T017 Update `docs/wiki/CAPSULES.md` and `docs/wiki/INDEX.md` for any changed note summary.
+- [x] T017 Update `docs/wiki/CAPSULES.md` and `docs/wiki/INDEX.md` for any changed note summary.
 - [ ] T018 Run the freshness gate, the spec-bridge check and `pnpm ci:check`. Commit as
       `TASK-0207 phase 3: wiki re-ground`.
 
