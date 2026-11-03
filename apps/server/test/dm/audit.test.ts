@@ -143,6 +143,20 @@ describe("deterministicChecks", () => {
     expect(check("Ana misses her footing in the mud.", own).pass).toBe(false);
   });
 
+  it("refuses a success-at-cost actor paired with a failure word (spec 070 US4 #3)", () => {
+    const cost = {
+      ...roll("success"),
+      band: "success-at-cost" as const,
+      margin: -2,
+      consequence: "It works, at a small price.",
+    };
+    const f = facts([action({ rolls: [cost], outcomes: ["success"] })]);
+    expect(check("Ana fails to move the stuck lock.", f).pass).toBe(false);
+    expect(check("Ana forces the lock, wincing at the cost.", f).pass).toBe(
+      true,
+    );
+  });
+
   it("fails on digits", () => {
     const r = check("Ana opens 3 locks. The door groans.");
     expect(r.pass).toBe(false);

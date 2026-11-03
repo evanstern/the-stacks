@@ -20,7 +20,7 @@ sources:
   - apps/server/src/dm/companion.ts
   - apps/server/src/dm/chronicle.ts
 size_budget_exempt: both notes sat within 30 chars of the 8000 budget before TASK-0180; the talk path got its own note (dm-talk-triggers) and only a pointer line lands here; the rest is one pipeline each, not splittable without a TASK of its own
-verified_against: c6a800dd72487bcec95a4d0d0f2e94bbb821b4c4
+verified_against: 8bb7bfe871c232b0305beea5f1dfd3eaeb26af34
 ---
 
 # DM turn jobs
@@ -84,7 +84,7 @@ Opening moves (the Director's `arrivals` rows log first; then encounter start, w
 
 ## Reclaim idempotence
 
-Every submission is checkpointed (`saveCheckpoint`, fenced) in `jobs.result.checkpoint`, which claim never clears. A reclaimed job replays recorded submissions and looks
+A check `Submission` also carries `band` (read from `check.resolved`, also by `findLanded` and `refreshSubmission`) and the step's `stakes` (spec 070), `reveals` and `revealedText` (spec 080; absent on an older checkpoint). Every submission is checkpointed (`saveCheckpoint`, fenced) in `jobs.result.checkpoint`, which claim never clears. A reclaimed job replays recorded submissions and looks
 for the one in flight: proposals carry a marker `[<jobId>#<n>]` in their reason text, and the
 checkpoint's `lastSeq` bounds the search. Narration rows carry no marker: `findLandedNarration` finds an `ai:dm` narration row after the job's
 last seq, and the runner then skips narrate and audit. A deploy that shifts step numbers could mismatch a marker (accepted). `TurnCheckpoint.cut` (TASK-0182) marks the cut done. An `advance` submission in the checkpoint ends the turn; a reclaim still settles and sets the mode. A claim past `MAX_ATTEMPTS` marks the job `failed` with a failure notice.

@@ -65,7 +65,7 @@ Expected footprints, from the cards' "Where" lines and a grep of the current tre
 | 0104 | engine, `nodes/schemas.ts`, `prompts/{interpret,adjudicate,step-grammar}.ts`, `nodes/resolve.ts`, `gates/plan-gate.ts`, `seed/schema.ts` |
 | 0105 | engine, `packages/srd`, `nodes/schemas.ts`, `prompts/{interpret,adjudicate}.ts`, `nodes/resolve.ts` |
 | 0128 | engine, `nodes/schemas.ts`, `prompts/interpret.ts`, `nodes/resolve.ts` |
-| 0171 | `seed/schema.ts`, `seed/views.ts`, `apps/server/seeds/*.json`, `prompts/narrate.ts` (scene start), `scene-start.ts`, `prompts/audit.ts` |
+| 0171 | `seed/schema.ts`, `seed/views.ts`, `apps/server/seeds/*.json`, `prompts/narrate.ts` (scene start), `nodes/narrate.ts`, `nodes/audit.ts`, `fallback.ts`, eight DM scripts (amended 2026-11-02 from spec 076's plan) |
 | 0209 | `nodes/resolve.ts` (turn advance after a clarify group), `fallback.ts` (clarify sentence) |
 | 0203 | `dm/pipeline/call.ts` (callJson, stripThink) |
 | 0207 | `nodes/schemas.ts` (a say field), `prompts/interpret.ts`, `fallback.ts` |
@@ -236,9 +236,11 @@ Rows the scenario must exercise:
 - **Spell slot** (0211, 0105): Odo casts Cure Wounds until his slots run out; the next cast is refused.
 - **Stakes and outcome** (0127, 0170): a check's band and declared outcome show in the ledger and the prose.
 - **Engine numbers** (0104): a check's modifier and DC come from stats and a difficulty tier.
-- **Scene start** (0171): the opening names the party, their players and Wenna.
+- **Scene start** (0171): the opening names the party characters and Wenna, and no player (operator ruling 2026-11-02: "The opening should name the characters, not the players").
 - **Narration** (0204, 0214, 0207, 0212, 0213): no "What do you do?" ending; at least 15 combat
   turns for the audit pass rate; any fallback voices NPC lines and dice lines.
+- **Open followUp** (0208 AC #4): an action parked as a followUp stays shown as not yet attempted in a later beat.
+- **Revisit rows** (TASK-0216): record whether a talk-turn reveal stays absent, or narration calls an offstage NPC gone.
 - **Parse** (0203): no first-attempt invalid-json on dm.audit or dm.chronicle over 10+ turns.
 
 Then **stop for the operator to play it** (checkpoint C7).
@@ -266,6 +268,20 @@ Then **stop for the operator to play it** (checkpoint C7).
 
 | Date | Task | PR | Merge | Dispatches | Notes |
 |---|---|---|---|---|---|
+| 2026-11-02 | TASK-0203 | #111 | e92a2e8d | sonnet | E1. Parse tolerates prose around one JSON object; unparsable replies logged. AC #2 ticks at the playtest. |
+| 2026-11-02 | TASK-0210 | #112 | af1e581b | opus (spec 075), sonnet, haiku | Contract reversal (058 amended), operator's ruling quoted. |
+| 2026-11-02 | TASK-0209 | #113 | fbf4d1df | opus (spec 073), sonnet, haiku | Clarify holds the turn. Footprint widened to narrate.ts and nodes/audit.ts; 0113 phase 2 held behind it. |
+| 2026-11-02 | (ruling) | — | — | — | Spec 074 OQ-1, operator: "Yes, allow a flinch" (a foe's miss is a reflex trigger). |
+| 2026-11-02 | TASK-0113 | #114 | d9aade52 | opus (spec 074 + amendment), sonnet x2, haiku | Widened (AC #4, #5). Cards TASK-0215 (surprise). |
+| 2026-11-02 | TASK-0205 | #115 | 1a560446 | opus (spec 077), sonnet, haiku | Built beside 0206 (separate plan-gate functions). Card TASK-0217 (hidden state). |
+| 2026-11-02 | TASK-0206 | #116 | 8349b07f | opus (spec 078), sonnet, haiku | Director `arrivals`. Card TASK-0216 (revisit after playtest). |
+| 2026-11-02 | (incident) | — | — | — | A brief's `export $(grep ... .env)` ran bare `export` with no .env and printed a secret into an implementer transcript. Nothing committed. Operator: "No need" (no rotation). Briefs now use `VAR="$(sed ...)"`. 2026-11-02 update, relayed by the orchestrator: the operator is rotating it ("Rotating it now"). |
+| 2026-11-02 | (ruling) | — | — | — | Spec 076 OQ-1, operator: "The opening should name the characters, not the players". |
+| 2026-11-02 | TASK-0208 | #117 | 38b8e737 | opus (spec 079), sonnet x3, haiku (stopped) | Engine reactions, `STEP_ACTOR_MISMATCH`. Cards TASK-0218, 0219. Spec 081 (0207) carded TASK-0220. |
+| 2026-11-02 | TASK-0127 | #118 | bbba03a0 | sonnet x3 (spec 070 by opus in runbook A) | Built the merged spec 070. Seam check: no seam changed meaning; deviations in `specs/070-stakes-before-dice/deviations.md`. Nat 20/nat 1 on by default. interpret-v8, adjudicate-v6, narrate-v11, audit-v7. |
+| 2026-11-03 | TASK-0170 | #119 | 88589234 | opus (spec 080), sonnet x3 | Delta on spec 070. A check declares its success outcome and may reveal one beat clue; the seed now names goblin feet. Claw-marks fixture reconstructed. Card TASK-0221 (revisit). interpret-v9, adjudicate-v7, narrate-v12, audit-v8. |
+| 2026-11-03 | TASK-0212 | #120 | d334e998 | haiku | E2. One 'falls unconscious'. Orchestrator ran the DB gate and fixed one stale wiki clause before merge. |
+| 2026-11-03 | TASK-0207 | (this PR) | (at merge) | opus (spec 081), sonnet x2 | `say` field; the fallback voices an NPC's planned line. interpret-v10, narrate-v13, audit-v9. Card TASK-0220. |
 
 ## Later runbooks (order on record; each gets its own runbook and sign-off)
 

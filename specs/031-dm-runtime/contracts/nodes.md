@@ -128,7 +128,9 @@ export const StepSchema = z.discriminatedUnion("step", [
     skill: z.string().max(40).nullable(), expression: z.string().min(1).max(200),
     mode: RollModeSchema, dc: z.number().int().min(1).max(40),
     autoFail: z.object({ reason: Reason }).nullable(),
-    onSuccess: z.array(Effect).max(4), onFailure: z.array(Effect).max(4) }),
+    onSuccess: z.array(Effect).max(4), onFailure: z.array(Effect).max(4),
+    stakes: StakesSchema, onCost: z.array(Effect).max(4).default([]),     // Amended by specs/070-stakes-before-dice
+    onSevere: z.array(Effect).max(4).default([]), newRisk: z.string().min(1).max(200).nullable().default(null) }),
   z.object({ step: z.literal("attack"), reason: Reason,
     attackerId: CombatantIdSchema.nullable(), targetId: CombatantIdSchema,
     expression: z.string().min(1).max(200), mode: RollModeSchema,
@@ -316,3 +318,32 @@ Amended by spec 077 (TASK-0205).
 - On a failure the reading becomes `{ ...reading, steps: [], followUps: [], clarify: question }`
   and the ruling for that action id is removed. Any other reading or ruling is returned unchanged.
 - No prompt version changes.
+
+## Amendment 2026-11-02 (specs/070-stakes-before-dice, TASK-0127): stakes before dice
+
+Amended by specs/070-stakes-before-dice. A `check` step declares `stakes` before the roll:
+`{ success: str|null, cost: str|null, failure: str, severe: str|null }`, each at most 200 characters.
+An ability check needs `cost` and `severe` (the schema refines both in interpret and adjudicate output);
+a saving throw sets them null. `onCost` and `onSevere` hold the effects of those bands. `newRisk` is a
+new danger; null means a repeat is a free retry. The plan gate runs `checkClaims` on every stake text,
+`newRisk`, and the `onCost`/`onSevere` effect texts, and counts those effects in the planned diff.
+`SceneSeed.tableRules` is `{ outcomeBands: true, naturals: true, groupChecks: false }` by default.
+Prompts: `dm.interpret-v8`, `dm.adjudicate-v6`, `dm.narrate-v11`, `dm.audit-v7`. `Submission` gains
+`band` and `stakes` (checkpointed, never in a public row).
+
+## Amendment 2026-11-03 (specs/080-declared-outcome, TASK-0170): the declared outcome
+
+Amended by specs/080-declared-outcome. `stakes.success` is now required on every `check` step
+(`str`, at most 200 characters, never null): the concrete outcome of the attempt on a success. A
+`check` step gains `reveals: "<beatId>#<n>" | null` (default null; `n` is 1 to 8): the one listed
+clue of the current beat that a success shows. Interpret's prompt gains a `Discoverable clues`
+section (`clueEntries`, no DC). Prompts: `dm.interpret-v9`, `dm.adjudicate-v7`. No node signature
+changes.
+
+## Amendment 2026-11-03 (specs/081-talk-fallback-line, TASK-0207): the monster's spoken line
+
+Amended by specs/081-talk-fallback-line. An interpret reading gains `say: str|null` (optional, 1 to
+200 characters): the words a monster speaks this beat. The prompt rule: on a monster turn put the
+spoken words in `say`, no quote marks; otherwise null; never put speech in `followUps`; write each
+reason as what the actor does, with no rules note. `say` is not a step: the engine never sees it.
+Prompt: `dm.interpret-v10`. No node signature changes.

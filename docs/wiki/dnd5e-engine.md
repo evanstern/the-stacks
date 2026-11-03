@@ -17,7 +17,7 @@ sources:
   - packages/dnd5e-engine/test/purity.test.ts
   - packages/dnd5e-engine/test/coverage.test.ts
   - specs/026-dnd5e-engine/spec.md
-verified_against: c6a800dd72487bcec95a4d0d0f2e94bbb821b4c4
+verified_against: 389d2e32895a3b2143ee05f72f8b421f236a8bf7
 ---
 
 # 5e engine
@@ -82,6 +82,10 @@ each term's faces, which were kept, the modifier and the total, so a recorded ro
 audited without re-running the RNG. Attack and check events also record the AC or DC, its
 source and the outcome.
 
+Spec 070: `check.resolved` records optional `margin` and `band` (`success`, `success-at-cost`,
+`failure`, `severe-failure`). `bandOf` decides: with `naturals`, nat 20 succeeds and nat 1 fails; with
+`outcomeBands`, an ability check missing by 1-2 is `success-at-cost`, by 5+ `severe-failure`. `outcome` stays two-valued.
+
 ## Refuse before draw
 
 A handler runs every refusal check before it calls `rollDie`. A refused command consumes no
@@ -121,7 +125,7 @@ check resolution (natural 20 critical, natural 1 miss, total meets or beats AC/D
 resistance, immunity and vulnerability per damage component (halve rounding down, double),
 and critical damage (dice doubled, modifiers not). Adjudication - the DM runtime or an LLM
 node - supplies inputs as data: the expression, roll mode, target AC or DC, a per-command
-defense set, or an automatic-failure reason on `check.roll`. It never computes outcomes.
+defense set, or on `check.roll` an automatic-failure reason, an `autoSuccess` reason and `houseRules` (default false). It never computes outcomes.
 The engine does not derive automatic failure from conditions.
 
 ## Connections

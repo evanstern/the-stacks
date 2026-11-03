@@ -33,10 +33,11 @@ import {
   diffSnapshots,
   type SnapshotDiff,
 } from "../snapshot/index.js";
+import { clueFor, effectsForBand, isFreeRetry } from "../stakes.js";
 import type { AssembleOutput, BeatItem } from "./assemble.js";
 import type { AuditOutput } from "./audit.js";
 import type { DirectorNodeOutput } from "./director.js";
-import type { Effect, InterpretReading, Step } from "./schemas.js";
+import type { Effect, InterpretReading, Stakes, Step } from "./schemas.js";
 import { settleTurn } from "./settle.js";
 
 /**
@@ -67,6 +68,14 @@ export interface Submission {
   proposalId: string | null;
   /** The engine outcome (`hit`, `success`, ...) read from the appended events. */
   outcome: string | null;
+  /** Spec 070: the outcome band (`success-at-cost`, ...) read from the same row; null on an old row. */
+  band: string | null;
+  /** Spec 070: the stakes the check step declared; checkpointed, never in a public row. */
+  stakes: Stakes | null;
+  /** Spec 080: the clue reference the check step named, else null. Absent on an older checkpoint. */
+  reveals?: string | null;
+  /** Spec 080: the seed text of `reveals`; null when none or unknown. Never in a public row. */
+  revealedText?: string | null;
   /** The seqs the gate returned for this submission, ascending; `[]` on a refusal or an unrecoverable replay. */
   seqs: number[];
 }
@@ -142,6 +151,7 @@ interface SubmitResult {
   refusal: GateRefusal | null;
   batchId: string | null;
   outcome: string | null;
+  band?: string | null;
 }
 
 /** The engine outcome carried by `check.resolved` / `attack.resolved` rows. */
@@ -156,6 +166,16 @@ function outcomeOf(events: readonly StoredEvent[]): string | null {
   return null;
 }
 
+/** The outcome band carried by a `check.resolved` row; null elsewhere and on old rows. */
+function bandOf(events: readonly StoredEvent[]): string | null {
+  for (const e of events) {
+    const ev = (e.payload as { event?: { type?: string; band?: string } })
+      .event;
+    if (ev?.type === "check.resolved") return ev.band ?? null;
+  }
+  return null;
+}
+
 /** Looks for a submission that landed after the last checkpoint save. */
 function findLanded(
   p: SessionProjections,
@@ -165,17 +185,20 @@ function findLanded(
   const done = (
     batchId: string | null,
     outcome: string | null = null,
+    band: string | null = null,
   ): SubmitResult => ({
     result: "applied",
     refusal: null,
     batchId,
     outcome,
+    band,
   });
   if (proposal.kind === "mechanics") {
     const suffix = ` [${stepRef}]`;
     const rows = p.ledger.filter((r) => r.reason.endsWith(suffix));
     if (rows.length === 0) return null;
     let outcome: string | null = null;
+    let band: string | null = null;
     for (const r of rows) {
       if (
         r.kind === "outcome" &&
@@ -184,9 +207,10 @@ function findLanded(
           r.outcome.type === "attack.resolved")
       ) {
         outcome = r.outcome.outcome;
+        band = "band" in r.outcome ? (r.outcome.band ?? null) : null;
       }
     }
-    return done(rows[0]?.batchId ?? null, outcome);
+    return done(rows[0]?.batchId ?? null, outcome, band);
   }
   switch (proposal.kind) {
     case "action.resolve":
@@ -263,6 +287,7 @@ class Run {
     key: string,
     kind: ProposalKind,
     build: (stepRef: string) => Proposal,
+    stakes: Stakes | null = null,
   ): Promise<Submission> {
     const recorded = this.submissions.find((s) => s.key === key);
     if (recorded) return recorded;
@@ -325,6 +350,7 @@ class Run {
             refusal: null,
             batchId: res.batchId,
             outcome: outcomeOf(res.events),
+            band: bandOf(res.events),
           };
         } else if (res.outcome === "pending" || res.outcome === "suggested") {
           proposalId = res.proposalId;
@@ -355,6 +381,8 @@ class Run {
       batchId: outcome.batchId,
       proposalId,
       outcome: outcome.outcome,
+      band: outcome.band ?? null,
+      stakes,
       seqs: events.map((e) => e.seq).sort((a, b) => a - b),
     };
     this.submissions.push(sub);
@@ -378,16 +406,21 @@ class Run {
     command: Record<string, unknown>,
     reason: string,
     actionId: string | null,
+    stakes: Stakes | null = null,
   ): Promise<Submission> {
-    return this.submit(key, "mechanics", (ref) =>
-      mechanicsProposal(
-        { ...command, reason: withMarker(reason, ref) } as EngineCommand,
-        {
-          actionId,
-          summary: reason.slice(0, 200),
-          rationale: `Resolve ${key}`,
-        },
-      ),
+    return this.submit(
+      key,
+      "mechanics",
+      (ref) =>
+        mechanicsProposal(
+          { ...command, reason: withMarker(reason, ref) } as EngineCommand,
+          {
+            actionId,
+            summary: reason.slice(0, 200),
+            rationale: `Resolve ${key}`,
+          },
+        ),
+      stakes,
     );
   }
 }
@@ -537,6 +570,8 @@ async function runSteps(
         await runEffects(key, step.effects, step.reason, false);
         break;
       case "check": {
+        const fresh = await run.ctx.deps.loadProjections(run.ctx.job.sessionId);
+        const { outcomeBands, naturals } = run.ctx.seed.tableRules;
         const sub = await run.mech(
           key,
           {
@@ -549,14 +584,29 @@ async function runSteps(
             mode: step.mode,
             dc: step.dc,
             autoFail: step.autoFail,
+            houseRules: { outcomeBands, naturals },
+            autoSuccess: isFreeRetry(step, fresh.ledger)
+              ? { reason: step.reason }
+              : null,
           },
           step.reason,
           actionId,
+          step.stakes,
         );
+        // Spec 080 D3: the next checkpoint save carries both fields; a replay re-sets them.
+        sub.reveals = step.reveals ?? null;
+        sub.revealedText = clueFor(run.ctx.seed, sub.reveals);
+        if (sub.reveals && sub.revealedText === null) {
+          run.ctx.deps.log({
+            event: "dm.reveals.unknown",
+            jobId: run.ctx.job.id,
+            reveals: sub.reveals,
+          });
+        }
         if (take(sub)) {
           await runEffects(
             key,
-            sub.outcome === "success" ? step.onSuccess : step.onFailure,
+            effectsForBand(step, sub.band ?? sub.outcome),
             step.reason,
             false,
           );
@@ -695,6 +745,8 @@ function presenceTargets(
       else if (step.step === "check") {
         effects(step.onSuccess);
         effects(step.onFailure);
+        effects(step.onCost);
+        effects(step.onSevere);
       } else if (step.step === "attack") effects(step.onHit);
       // A move step carries no presence effect (spec 079).
     }
@@ -723,7 +775,7 @@ function activeLeaverFromLog(
         r.subject === id &&
         r.seq > presence.seq,
     );
-    if (!row || row.kind !== "change") continue;
+    if (row?.kind !== "change") continue;
     const before = row.before as {
       turnIndex: number;
       order: { combatantId: string }[];

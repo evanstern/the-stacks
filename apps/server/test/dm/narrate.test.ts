@@ -8,7 +8,7 @@ import { memorySink } from "../../src/ai/usage.js";
 import { agencyRule } from "../../src/dm/doctrine/doctrine.js";
 import { assemble } from "../../src/dm/nodes/assemble.js";
 import type { DirectorNodeOutput } from "../../src/dm/nodes/director.js";
-import { narrate } from "../../src/dm/nodes/narrate.js";
+import { narrate, withholdRefusedInputs } from "../../src/dm/nodes/narrate.js";
 import type { ResolveOutput } from "../../src/dm/nodes/resolve.js";
 import {
   PROMPT_VERSION as AUDIT_VERSION,
@@ -314,7 +314,45 @@ describe("narrate", () => {
       facts,
       prior: null,
     });
-    expect(NARRATE_VERSION).toBe("dm.narrate-v10");
+    expect(NARRATE_VERSION).toBe("dm.narrate-v13");
+    expect(prompt.system).toContain(
+      "A roll's band and outcome are settled. A success means the attempted task happens. Deliver the outcome and any learned fact plainly in the prose; invent no other.",
+    );
+    const banded = factEntries({
+      ...facts,
+      actions: [
+        {
+          actionId: "a1",
+          characterName: "Odo",
+          text: "offers the toll",
+          outcome: "applied",
+          refusalCode: null,
+          rolls: [
+            {
+              name: "Odo",
+              reason: "Odo offers the toll",
+              expression: "1d20+3",
+              shown: "7",
+              total: 10,
+              against: { kind: "DC" as const, value: 15 },
+              outcome: "failure" as const,
+              autoFail: false,
+              target: null,
+              band: "severe-failure" as const,
+              margin: -5,
+              consequence: "Snag spurns the toll.",
+              revealed: "The toll was a ruse.",
+            },
+          ],
+          outcomes: ["failure" as const],
+          changes: [],
+          followUps: [],
+        },
+      ],
+    });
+    expect(banded.join("\n")).toContain(
+      "roll: Odo offers the toll -> severe failure; outcome (settled): Snag spurns the toll.\n  learned (settled): The toll was a ruse.",
+    );
     expect(prompt.system).toContain(
       "A not-yet-attempted step has not happened, in this beat or an earlier one. Stop before it; never show it start or done.",
     );
@@ -560,6 +598,43 @@ describe("narrate", () => {
       );
     });
 
+    it("drops a monster line the state refutes and keeps a clean one (specs/081)", async () => {
+      const base = await setup(["x"]);
+      const fight = greyhollowFight();
+      const snapshot = buildSnapshot(fight.projections, fight.seed);
+      for (const a of snapshot.actors) {
+        if (a.id === "goblin-3") a.lifeState = "dead";
+      }
+      const state = {
+        snapshot,
+        diff: { fromSeq: 0, toSeq: 1, stage: [], actors: [] },
+      };
+      const out = await narrate(base.ctx);
+      if (!out.ok) throw new Error("narrate failed");
+      const withSay = (say: string) => ({
+        ...out.output.facts,
+        npcTurn: {
+          name: "Snag",
+          rolls: [],
+          outcomes: [],
+          changes: [],
+          plan: { intent: "talk", reasons: [], say, held: false },
+        },
+      });
+      const bad = withholdRefusedInputs(
+        withSay("The goblin lookout rallies the others."),
+        state,
+      );
+      expect(bad.facts.npcTurn?.plan?.say).toBeNull();
+      expect(bad.withheld[0]?.detail).toMatch(/withheld monster line: /);
+      const ok = withholdRefusedInputs(
+        withSay("Hold your fire, friends!"),
+        state,
+      );
+      expect(ok.facts.npcTurn?.plan?.say).toBe("Hold your fire, friends!");
+      expect(ok.withheld).toEqual([]);
+    });
+
     it("blanks a refused goalNote", async () => {
       const { n, prompt } = await withheldRun(
         "The lock yields to patient work.",
@@ -623,8 +698,12 @@ describe("narrate", () => {
       snapshot,
       prose: "Prose.",
     });
-    expect(AUDIT_VERSION).toBe("dm.audit-v6");
+    expect(AUDIT_VERSION).toBe("dm.audit-v9");
     expect(p.system).toContain("6. The actor on the Turn line acts");
+    expect(p.system).toContain("7. A roll's band and consequence are decided.");
+    expect(p.system).toContain(
+      "does not deliver a roll's settled outcome or learned fact",
+    );
     const turnFacts = {
       ...out.output.facts,
       turn: { actor: "Snag", next: "Kestrel" },

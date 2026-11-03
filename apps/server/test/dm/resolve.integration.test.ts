@@ -1,6 +1,7 @@
 import { mechanicsProposal } from "@the-stacks/session-model";
 import { afterAll, describe, expect, it } from "vitest";
 import type { ResolveOutput } from "../../src/dm/nodes/resolve.js";
+import { loadSeed } from "../../src/dm/seed/load.js";
 import { diffSnapshots } from "../../src/dm/snapshot/index.js";
 import {
   attackStep,
@@ -1915,6 +1916,142 @@ describe.skipIf(!reachable)("resolve turn-moved guard (spec 049)", () => {
     expect((await w.projections()).tableMode).toMatchObject({
       activeActor: HUMAN_DM,
       activeCharacterId: null,
+    });
+  });
+
+  describe("outcome bands and the free retry (spec 070)", () => {
+    const prone = (targetId: string) => ({
+      effect: "condition",
+      op: "apply",
+      targetId,
+      condition: "prone",
+      source: "stakes test",
+    });
+    const stepWith = (over: Record<string, unknown> = {}) =>
+      checkStep({
+        onSuccess: [prone("tamsin")],
+        onCost: [prone("odo")],
+        onFailure: [prone("kestrel")],
+        onSevere: [prone("tamsin")],
+        ...over,
+      });
+    const proneIds = async (w: World) =>
+      (await w.projections()).party
+        .filter((m) => m.combatant?.conditions.length)
+        .map((m) => m.characterId)
+        .sort();
+    const withRules = (r: { outcomeBands: boolean; naturals: boolean }) => ({
+      ...loadSeed("greyhollow-ford"),
+      tableRules: { ...r, groupChecks: false },
+    });
+
+    it("margin -2 applies onSuccess then onCost", async () => {
+      const w = await createWorld({ dice: [6] });
+      await startScene(w);
+      const id = await commitAction(w, "Tamsin forces the shutter.");
+      await run(w, [reading(id, [stepWith()])]);
+      const rows = await readRows(w);
+      const checks = rows.filter((r) => r.type === "check.resolved");
+      expect(payloadOf<{ event: unknown }>(checks[0]).event).toMatchObject({
+        band: "success-at-cost",
+        outcome: "success",
+        margin: -2,
+      });
+      expect(await proneIds(w)).toEqual(["odo", "tamsin"]);
+    });
+
+    it("margin -6 applies onFailure then onSevere", async () => {
+      const w = await createWorld({ dice: [2] });
+      await startScene(w);
+      const id = await commitAction(w, "Tamsin forces the shutter.");
+      await run(w, [reading(id, [stepWith({ onSevere: [prone("odo")] })])]);
+      expect(await proneIds(w)).toEqual(["kestrel", "odo"]);
+    });
+
+    it("bands off applies only onFailure", async () => {
+      const w = await createWorld({
+        dice: [2],
+        seed: withRules({ outcomeBands: false, naturals: true }),
+      });
+      await startScene(w);
+      const id = await commitAction(w, "Tamsin forces the shutter.");
+      await run(w, [reading(id, [stepWith({ onSevere: [prone("odo")] })])]);
+      expect(await proneIds(w)).toEqual(["kestrel"]);
+    });
+
+    it("naturals off resolves a natural 20 by total (card AC #3)", async () => {
+      const w = await createWorld({
+        dice: [20],
+        seed: withRules({ outcomeBands: true, naturals: false }),
+      });
+      await startScene(w);
+      const id = await commitAction(w, "Tamsin forces the shutter.");
+      await run(w, [reading(id, [stepWith({ dc: 30 })])]);
+      const checks = (await readRows(w)).filter(
+        (r) => r.type === "check.resolved",
+      );
+      expect(payloadOf<{ event: unknown }>(checks[0]).event).toMatchObject({
+        outcome: "failure",
+      });
+    });
+
+    it("a failed check, then the same check with no new risk, succeeds without a roll (card AC #5)", async () => {
+      const w = await createWorld({ dice: [2] });
+      await startScene(w);
+      const first = await commitAction(w, "Tamsin forces the shutter.");
+      await run(w, [reading(first, [stepWith()])]);
+      const second = await commitAction(w, "Tamsin tries the shutter again.");
+      await run(w, [
+        reading(second, [stepWith({ onSuccess: [prone("odo")] })]),
+      ]);
+      const rows = await readRows(w);
+      expect(rows.filter((r) => r.type === "dice.rolled")).toHaveLength(1);
+      const checks = rows.filter((r) => r.type === "check.resolved");
+      expect(checks).toHaveLength(2);
+      expect(payloadOf<{ event: unknown }>(checks[1]).event).toMatchObject({
+        band: "success",
+        outcome: "success",
+      });
+      expect(await proneIds(w)).toContain("odo");
+      expect(w.scripted.remaining().dice).toBe(0);
+    });
+
+    it("records the revealed clue text on the submission (spec 080)", async () => {
+      const w = await createWorld({ dice: [15] });
+      await startScene(w);
+      const id = await commitAction(w, "Tamsin looks for the claw marks.");
+      const out = await run(w, [
+        reading(id, [stepWith({ reveals: "ferry-house#1" })]),
+      ]);
+      const sub = out.submissions.find((s) => s.stepRef && s.stakes);
+      expect(sub?.reveals).toBe("ferry-house#1");
+      expect(sub?.revealedText).toContain("goblin feet");
+    });
+
+    it("an unknown reveals reference records null and still applies the band (spec 080)", async () => {
+      const w = await createWorld({ dice: [15] });
+      await startScene(w);
+      const id = await commitAction(w, "Tamsin looks for the claw marks.");
+      const out = await run(w, [
+        reading(id, [stepWith({ reveals: "nowhere#1" })]),
+      ]);
+      const sub = out.submissions.find((s) => s.stepRef && s.stakes);
+      expect(sub?.reveals).toBe("nowhere#1");
+      expect(sub?.revealedText).toBeNull();
+      expect(await proneIds(w)).toEqual(["tamsin"]);
+    });
+
+    it("a retry that names a new risk rolls", async () => {
+      const w = await createWorld({ dice: [2, 15] });
+      await startScene(w);
+      const first = await commitAction(w, "Tamsin forces the shutter.");
+      await run(w, [reading(first, [stepWith()])]);
+      const second = await commitAction(w, "Tamsin tries harder.");
+      await run(w, [
+        reading(second, [stepWith({ newRisk: "The shutter may fall." })]),
+      ]);
+      const rows = await readRows(w);
+      expect(rows.filter((r) => r.type === "dice.rolled")).toHaveLength(2);
     });
   });
 });

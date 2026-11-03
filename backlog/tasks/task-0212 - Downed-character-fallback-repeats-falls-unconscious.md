@@ -1,9 +1,10 @@
 ---
 id: TASK-0212
 title: Downed-character fallback repeats 'falls unconscious'
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-11-02 23:19'
+updated_date: '2026-11-03 05:29'
 labels:
   - dm
   - narration
@@ -28,11 +29,28 @@ Where: apps/server/src/dm/fallback.ts — collapse a life-state change and its h
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 A drop to zero renders 'falls unconscious' once, with a test replaying seq 189-196
+- [x] #1 A drop to zero renders 'falls unconscious' once, with a test replaying seq 189-196
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Claimed 2026-11-03 by M3 runbook B (docs/design/m3-runbook-b-resolution-quality.md). Worktree .worktrees/task-0212, branch task-0212-one-falls-unconscious, cut from origin/main 88589234. No spec dir: signed escape line covers this task. Spine #11. Escape line E2 (card ACs drive).
+
+Dispatch: tier=haiku pinned=cc/claude-haiku-5-5 served=claude-haiku-5-5 (E2 implementation)
+Builds beside TASK-0207: separate fallback.ts functions (life-state sentence vs plannedSentence).
+
+Gates on the final tree (orchestrator): pnpm ci:check green with the DB suite; freshness OK; spec-bridge ok. Replay built from the engine's fact shape for seq 189-196 (run 1 raw rows are not in the repo).
+<!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+A drop to 0 HP now says 'falls unconscious' once: the fallback skips the hp-zero unconscious condition when the same target has a life-state change to unconscious (changeSentences in fallback.ts). Escape line E2.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
-- [ ] #1 All tests and checks run green
-- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
+- [x] #1 All tests and checks run green
+- [x] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->

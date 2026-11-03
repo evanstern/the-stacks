@@ -15,6 +15,7 @@ import {
   loadDmScript,
   type ScriptedDm,
 } from "../../src/dm/script/load.js";
+import type { SceneSeed } from "../../src/dm/seed/schema.js";
 import { readFrom } from "../../src/events/log.js";
 import { createGate, type Gate } from "../../src/gate/index.js";
 import type { PresenceReader } from "../../src/presence/index.js";
@@ -107,6 +108,8 @@ export async function createWorld(
     gate?: (g: Gate) => Gate;
     /** Who is at the table for `recordPresence`. Default: no humans. */
     presence?: PresenceReader;
+    /** Overrides the context seed (table-rule overrides). */
+    seed?: SceneSeed;
   } = {},
 ): Promise<World> {
   const sessionId = randomUUID();
@@ -144,6 +147,7 @@ export async function createWorld(
 
   const ctx: World["ctx"] = (over = {}) =>
     makeCtx({
+      seed: opts.seed,
       job: { sessionId, ...over.job },
       checkpoint: over.checkpoint ?? checkpoint.current,
       deps: {
@@ -238,6 +242,15 @@ export const checkStep = (over: Record<string, unknown> = {}) => ({
   autoFail: null,
   onSuccess: [],
   onFailure: [],
+  stakes: {
+    success: "The attempt works as intended.",
+    cost: "It works, at a small price.",
+    failure: "The attempt comes to nothing.",
+    severe: "It goes badly wrong.",
+  },
+  onCost: [],
+  onSevere: [],
+  newRisk: null,
   ...over,
 });
 

@@ -55,7 +55,13 @@ function joinNames(names: readonly string[]): string {
   return `${names.slice(0, -1).join(", ")} and ${names[names.length - 1]}`;
 }
 
-function outcomeSentence(name: string, outcome: FactOutcome): string {
+function outcomeSentence(
+  name: string,
+  outcome: FactOutcome,
+  band?: FactRoll["band"],
+): string {
+  if (band === "success-at-cost") return `${name} pulls it off, at a cost.`;
+  if (band === "severe-failure") return `${name} fails badly.`;
   switch (outcome) {
     case "success":
       return `${name} pulls it off.`;
@@ -118,7 +124,17 @@ function rollSentences(
       r.name && r.name !== "The scene" ? spellDigits(r.name) : subject;
     const spoken = spellDigits(r.reason).replace(/[.!]+$/, "");
     if (reasonUsable(spoken, who, r.outcome, state)) out.push(`${spoken}.`);
-    out.push(outcomeSentence(who, r.outcome));
+    out.push(outcomeSentence(who, r.outcome, r.band));
+    // Spec 070: the declared consequence is voiced only when it passes the claim check.
+    if (r.consequence) {
+      const said = spellDigits(r.consequence).replace(/[.!]+$/, "");
+      if (reasonSpeakable(said, state)) out.push(`${said}.`);
+    }
+    // Spec 080: the learned fact ships too, under the same claim check.
+    if (r.revealed) {
+      const learned = spellDigits(r.revealed).replace(/[.!]+$/, "");
+      if (reasonSpeakable(learned, state)) out.push(`${learned}.`);
+    }
   }
   return out;
 }
@@ -127,6 +143,27 @@ const NUMBERED_NAME = new RegExp(
   `\\b(${DIGIT_WORDS.slice(1).join("|")})\\b`,
   "i",
 );
+
+// A drop to unconscious emits life-state and an hp-zero condition on the same
+// target; the condition is the same fact, so it is voiced once (via life-state).
+function changeSentences(changes: FactChange[]): string[] {
+  const fell = new Set(
+    changes
+      .filter((c) => c.kind === "life-state" && c.after === "unconscious")
+      .map((c) => c.target),
+  );
+  return changes.flatMap((c) => {
+    if (
+      c.kind === "condition" &&
+      c.op === "applied" &&
+      c.condition === "unconscious" &&
+      fell.has(c.target)
+    )
+      return [];
+    const s = changeSentence(c);
+    return s ? [s] : [];
+  });
+}
 
 function changeSentence(c: FactChange): string | null {
   const target = spellDigits(c.target);
@@ -207,6 +244,16 @@ function plannedSentence(
 ): string {
   const plan = npc.plan;
   if (plan && !plan.held) {
+    const said = spellDigits((plan.say ?? "").replace(/["\u201c\u201d]/g, ""))
+      .replace(/[.!]+$/, "")
+      .trim();
+    const line = `${name} calls out, "${said}."`;
+    if (
+      said &&
+      reasonSpeakable(said, state) &&
+      (!state || checkClaims(state, line).pass)
+    )
+      return line;
     for (const r of plan.reasons) {
       const spoken = spellDigits(r).replace(/[.!]+$/, "");
       if (reasonSpeakable(spoken, state)) return `${spoken}.`;
@@ -241,10 +288,7 @@ export function factualSummary(
       if (sentences.length > 0) out.push(...sentences);
       else out.push(`${name} goes ahead with it.`);
     }
-    for (const c of a.changes) {
-      const s = changeSentence(c);
-      if (s) out.push(s);
-    }
+    out.push(...changeSentences(a.changes));
   }
 
   if (facts.npcTurn) {
@@ -252,10 +296,7 @@ export function factualSummary(
     const sentences = rollSentences(facts.npcTurn.rolls, name, state);
     if (sentences.length > 0) out.push(...sentences);
     else out.push(plannedSentence(facts.npcTurn, name, state));
-    for (const c of facts.npcTurn.changes) {
-      const s = changeSentence(c);
-      if (s) out.push(s);
-    }
+    out.push(...changeSentences(facts.npcTurn.changes));
   }
 
   let stopped = false;

@@ -460,6 +460,43 @@ describe("checkPlan: reason state", () => {
     );
   });
 
+  it("refuses a stakes text that contradicts state (spec 070)", () => {
+    const v = run([
+      read("a1", [
+        checkStep({
+          reason: "Ana studies the reeds",
+          stakes: {
+            success: "The attempt works as intended.",
+            cost: "It works, at a small price.",
+            failure: PELL_REASON,
+            severe: "It goes badly wrong.",
+          },
+        }),
+      ]),
+    ]);
+    expect(v[0]).toMatchObject({
+      ok: false,
+      code: "REASON_CONTRADICTS_STATE",
+      failure: { stepIndex: 0, field: "stakes.failure", text: PELL_REASON },
+    });
+  });
+
+  it("refuses an absent id in onSevere (spec 070)", () => {
+    const v = run([
+      read("a1", [
+        checkStep({
+          reason: "Ana studies the reeds",
+          onSevere: [damageOn("pell")],
+        }),
+      ]),
+    ]);
+    expect(v[0]).toMatchObject({
+      ok: false,
+      code: "UNKNOWN_COMBATANT",
+      failure: { field: "onSevere[0].targetId", id: "pell" },
+    });
+  });
+
   it("exempts an arriving NPC from the act rule", () => {
     const v = run([read("a1", [pellStep()])], { arriving: ["pell"] });
     expect(v).toEqual([{ actionId: "a1", ok: true }]);

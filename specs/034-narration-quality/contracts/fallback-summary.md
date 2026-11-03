@@ -33,7 +33,7 @@ research.md R2, R4 (F23). Card AC #2.
 | Change life state dead / unconscious | `<Target> is dead.` / `<Target> falls unconscious.` |
 | Change condition applied / removed | `<Target> is <condition>.` / `<Target> is no longer <condition>.` |
 | NPC turn, per roll | as an applied action's roll |
-| NPC turn, no roll | Amended by spec 071 (TASK-0193): the first speakable planned reason as a sentence; else `<Name> speaks up.` (talk), `<Name> shifts ground.` (move), `<Name> lends a hand.` (help); else, or when the plan was held, `<Name> holds back, watching.` Never `makes a move`. |
+| NPC turn, no roll | Amended by spec 081 (TASK-0207): a speakable `say` line first, as `<Name> calls out, "<line>."` (quote marks stripped, digits spelled; refused for a digit, system word, dice word, death word, `?` or refuted claim). Amended by spec 071 (TASK-0193): otherwise the first speakable planned reason as a sentence; else `<Name> speaks up.` (talk), `<Name> shifts ground.` (move), `<Name> lends a hand.` (help); else, or when the plan was held, `<Name> holds back, watching.` Never `makes a move`. |
 | Event `encounter-started` | `A fight breaks out.` then `<A>, <B> and <C> join the fight.` then `<first> moves first.` |
 | Event `turn-advanced` | `<next> moves next.` |
 | Event `combatant-joined` / `combatant-left` | `<Name> joins them.` / `<Name> is gone.` |

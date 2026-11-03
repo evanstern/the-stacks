@@ -1,6 +1,6 @@
 import { hasPlainD20, parseDiceExpression, rollExpression } from "../dice.js";
 import type { Handler } from "../handler.js";
-import type { EngineEvent } from "../schema/events.js";
+import type { EngineEvent, OutcomeBand } from "../schema/events.js";
 import { type RefusalResult, refuse } from "../schema/refusals.js";
 import type { Combatant, EngineState } from "../schema/state.js";
 
@@ -171,6 +171,34 @@ export const handleAttackRoll: Handler<"attack.roll"> = (
   return { ok: true, events };
 };
 
+/**
+ * Spec 070 D2: the outcome and band of a rolled check. Natural 20 succeeds and
+ * natural 1 fails when `naturals`; the bands (-1..-2 success at a cost, <= -5
+ * severe) apply to ability checks only, when `outcomeBands`.
+ */
+export function bandOf(input: {
+  total: number;
+  dc: number;
+  natural: number | null;
+  kind: "ability-check" | "saving-throw";
+  houseRules: { outcomeBands: boolean; naturals: boolean };
+}): { margin: number; band: OutcomeBand; outcome: "success" | "failure" } {
+  const { total, dc, natural, kind, houseRules } = input;
+  const margin = total - dc;
+  const bands = houseRules.outcomeBands && kind === "ability-check";
+  const fail = (): OutcomeBand =>
+    bands && margin <= -5 ? "severe-failure" : "failure";
+  let band: OutcomeBand;
+  if (houseRules.naturals && natural === 20) band = "success";
+  else if (houseRules.naturals && natural === 1) band = fail();
+  else if (margin >= 0) band = "success";
+  else if (bands && margin >= -2) band = "success-at-cost";
+  else band = fail();
+  const outcome =
+    band === "success" || band === "success-at-cost" ? "success" : "failure";
+  return { margin, band, outcome };
+}
+
 export const handleCheckRoll: Handler<"check.roll"> = (state, command, rng) => {
   const parsed = parseDiceExpression(command.expression);
   if (!parsed.ok) return refuse(parsed.code, parsed.message);
@@ -191,6 +219,29 @@ export const handleCheckRoll: Handler<"check.roll"> = (state, command, rng) => {
     skill: command.skill,
     dc: command.dc,
   };
+  if (command.autoFail && command.autoSuccess) {
+    return refuse(
+      "INVALID_COMMAND",
+      "a check cannot be both autoFail and autoSuccess",
+    );
+  }
+  if (command.autoSuccess) {
+    return {
+      ok: true,
+      events: [
+        {
+          ...base,
+          rollIndex: null,
+          total: null,
+          natural: null,
+          autoFail: null,
+          outcome: "success",
+          margin: null,
+          band: "success",
+        },
+      ],
+    };
+  }
   if (command.autoFail) {
     return {
       ok: true,
@@ -202,6 +253,8 @@ export const handleCheckRoll: Handler<"check.roll"> = (state, command, rng) => {
           natural: null,
           autoFail: command.autoFail,
           outcome: "failure",
+          margin: null,
+          band: "failure",
         },
       ],
     };
@@ -218,6 +271,13 @@ export const handleCheckRoll: Handler<"check.roll"> = (state, command, rng) => {
     rng,
   );
   if (!rolled.ok) return refuse(rolled.code, rolled.message);
+  const result = bandOf({
+    total: rolled.total,
+    dc: command.dc,
+    natural: rolled.event.natural,
+    kind: command.kind,
+    houseRules: command.houseRules ?? { outcomeBands: false, naturals: false },
+  });
   return {
     ok: true,
     events: [
@@ -228,7 +288,9 @@ export const handleCheckRoll: Handler<"check.roll"> = (state, command, rng) => {
         total: rolled.total,
         natural: rolled.event.natural,
         autoFail: null,
-        outcome: rolled.total >= command.dc ? "success" : "failure",
+        outcome: result.outcome,
+        margin: result.margin,
+        band: result.band,
       },
     ],
   };

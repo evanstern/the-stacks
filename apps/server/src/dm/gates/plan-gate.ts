@@ -194,6 +194,8 @@ function stepIds(step: Step): NamedId[] {
           : []),
         ...effectIds(step.onSuccess, "onSuccess"),
         ...effectIds(step.onFailure, "onFailure"),
+        ...effectIds(step.onCost, "onCost"),
+        ...effectIds(step.onSevere, "onSevere"),
       ];
     case "attack":
       return [
@@ -221,6 +223,17 @@ function effectSources(effects: readonly Effect[], list: string): NamedText[] {
   return out;
 }
 
+/** Spec 070 D5: the declared consequences and the new risk are model-written claims. */
+function stakeTexts(step: Extract<Step, { step: "check" }>): NamedText[] {
+  const out: NamedText[] = [];
+  for (const key of ["success", "cost", "failure", "severe"] as const) {
+    const text = step.stakes[key];
+    if (text !== null) out.push({ field: `stakes.${key}`, text });
+  }
+  if (step.newRisk !== null) out.push({ field: "newRisk", text: step.newRisk });
+  return out;
+}
+
 /** Every model-written text a step carries, in the order checked. */
 function stepTexts(step: Step): NamedText[] {
   switch (step.step) {
@@ -241,6 +254,9 @@ function stepTexts(step: Step): NamedText[] {
           : []),
         ...effectSources(step.onSuccess, "onSuccess"),
         ...effectSources(step.onFailure, "onFailure"),
+        ...effectSources(step.onCost, "onCost"),
+        ...effectSources(step.onSevere, "onSevere"),
+        ...stakeTexts(step),
       ];
     case "attack":
       return [
@@ -276,6 +292,8 @@ function plannedDiff(
         case "check":
           addEffects(step.onSuccess);
           addEffects(step.onFailure);
+          addEffects(step.onCost);
+          addEffects(step.onSevere);
           break;
         case "attack":
           addEffects(step.onHit);

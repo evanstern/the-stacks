@@ -29,6 +29,15 @@ function check(
     autoFail: null,
     onSuccess: [],
     onFailure: [],
+    stakes: {
+      success: "The attempt works as intended.",
+      cost: "It works, at a small price.",
+      failure: "The attempt comes to nothing.",
+      severe: "It goes badly wrong.",
+    },
+    onCost: [],
+    onSevere: [],
+    newRisk: null,
   } as unknown as Step;
 }
 const attack = (reason: string): Step =>
