@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-11-02 22:42'
-updated_date: '2026-11-03 02:47'
+updated_date: '2026-11-03 02:58'
 labels:
   - dm
   - playtest
@@ -56,6 +56,8 @@ Spec 078 (4acaf437). Defaults (a) taken: OQ-1 reveal detected by a structured Di
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 078 phases 1-2)
 Spine amendment: 0206 builds in parallel with 0205 (both touch plan-gate.ts in separate functions; runner.ts only 0205). 0205 merges first.
+
+Dispatch: tier=haiku pinned=cc/claude-haiku-5-5 served=claude-haiku-5-5 (spec 078 phase 3, wiki)
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
