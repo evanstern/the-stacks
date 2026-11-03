@@ -26,19 +26,21 @@ Spec: specs/070-stakes-before-dice
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 A check step carries a consequence for each outcome band before the roll, and a schema test rejects a check step with no failure consequence
-- [ ] #2 Code computes margin and band from the engine's total and DC, and NarrationFacts carries the band
-- [ ] #3 A table-rules setting holds each house-rule flag with its default, and a test covers each flag on and off
-- [ ] #4 A natural 20 on a d20 test succeeds when its flag is on, with an engine test
-- [ ] #5 A retry with no new risk resolves without a roll, with a test
-- [ ] #6 The auditor checks that prose delivers the declared band, with a test over a captured run
-- [ ] #7 A natural 1 on a d20 test fails when its flag is on, with an engine test
+- [x] #1 A check step carries a consequence for each outcome band before the roll, and a schema test rejects a check step with no failure consequence
+- [x] #2 Code computes margin and band from the engine's total and DC, and NarrationFacts carries the band
+- [x] #3 A table-rules setting holds each house-rule flag with its default, and a test covers each flag on and off
+- [x] #4 A natural 20 on a d20 test succeeds when its flag is on, with an engine test
+- [x] #5 A retry with no new risk resolves without a roll, with a test
+- [x] #6 The auditor checks that prose delivers the declared band, with a test over a captured run
+- [x] #7 A natural 1 on a d20 test fails when its flag is on, with an engine test
 - [x] #8 Spec phase: Engine bands, naturals and auto-success (card AC #2, #4, #7; US1, US2)
 - [x] #9 Spec phase: Step contract, prompts, table rules, plan gate, fixtures (card AC #1, #3; US1, US2)
 - [x] #10 Spec phase: Resolve by band and the free retry (card AC #2, #3, #5; US1, US2, US3)
 - [x] #11 Spec phase: Facts, narration, audit, fallback, ledger view (card AC #2, #6; US1, US4)
 - [x] #12 Spec phase: Contracts and wiki re-ground
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
@@ -76,6 +78,6 @@ All spec tasks complete (Engine bands, naturals and auto-success (card AC #2, #4
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
-- [ ] #1 All tests and checks run green
-- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
+- [x] #1 All tests and checks run green
+- [x] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
