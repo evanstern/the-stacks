@@ -41,12 +41,6 @@ Spec: specs/083-spells-by-srd-id
 - [x] #9 Spec phase: Re-ground (wiki)
 <!-- AC:END -->
 
-
-
-
-
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -63,6 +57,8 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 083 phase 2)
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 083 phase 3, wiki)
+
+spec-bridge sync: Seam check [orchestrator]: 1/1 · Engine spell resolution (card AC #2, #3, #5; US1, US2, US3, US4): 16/16 · Spell step, plan gate, resolve, prompts, snapshot and seeds (card AC #1–#5; US1–US5): 14/14 · Re-ground (wiki): 6/6 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
