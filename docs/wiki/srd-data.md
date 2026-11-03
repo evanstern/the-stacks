@@ -22,7 +22,7 @@ sources:
   - apps/server/src/dm/nodes/schemas.ts
   - apps/web/app/routes/about.tsx
   - biome.json
-verified_against: f4726f9060fe3cdf0068926f26aec5ef734fee79
+verified_against: ed3949ce7a0aa83c9dd732137ab346ad1df8b7e0
 ---
 
 # SRD data package
@@ -120,3 +120,5 @@ A Biome `noRestrictedImports` override on `packages/srd/**` forbids importing
 `dnd5e-engine/**` paths. The reverse direction is allowed. `apps/server` is now a consumer too (TASK-0046): its `package.json` depends on `@the-stacks/srd` and its tsconfig references it, and the DM runtime ([[dm-runtime]]) calls `getById`, `getByName`, `compact` and `estimateTokens`. `SrdKind` widened to include `rule`, which flows into the adjudicate citation schema (`apps/server/src/dm/nodes/schemas.ts`) and the pipeline types. `pnpm check:boundaries` proves the rule
 fires against `fixtures/boundary-violations/packages/srd/src/bad.ts` ([[ci-pipeline]],
 [[monorepo-and-toolchain]]).
+
+Spec 082 (TASK-0104) adds no SRD field; the server reads three existing ones to build engine stats ([[dnd5e-engine]]). `statsFromSrd` (`dm/seed/combatants.ts`) maps a monster's ability mods and saves, skill totals, `pb` and `actions[].attack` (skipping a damage part with a `condition`). `statsFromCharacter` takes a seed PC's weapon `rangeType` from the equipment record of the same name and `spellcastingAbility` from the class record. The seed loader rejects a PC attack that names no SRD weapon.

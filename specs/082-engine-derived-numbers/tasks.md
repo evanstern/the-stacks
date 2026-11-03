@@ -152,16 +152,16 @@ Phase 4 closes the full gate.
 
 ## Phase 5: Re-ground (wiki)
 
-- [ ] T045 Review and update `docs/wiki/dnd5e-engine.md` (stats, `derive.ts`, tiers, condition
+- [x] T045 Review and update `docs/wiki/dnd5e-engine.md` (stats, `derive.ts`, tiers, condition
       modes, `STAT_UNDEFINED`, the R8 ruling's new inputs), `dm-runtime.md` (step shapes, stats at
       `combatant.add`, hit damage, the reaction path) and `dm-failure-and-gates.md` (drop "modifiers
       and DCs not yet gated"; the `STAT_UNDEFINED` plan-gate rule) (NEEDS-REVIEW).
-- [ ] T046 Review `docs/wiki/srd-data.md` for the new SRD readers (`statsFromSrd`, class
+- [x] T046 Review `docs/wiki/srd-data.md` for the new SRD readers (`statsFromSrd`, class
       `spellcastingAbility`, weapon `rangeType`) (NEEDS-REVIEW).
-- [ ] T047 Re-pin every other note that lists a touched source, verifying each against the diff:
+- [x] T047 Re-pin every other note that lists a touched source, verifying each against the diff:
       expected `seed-npc-presence`, `dm-turn-jobs`, `party-panel`, `turn-floor`,
       `output-claim-gate`, `dm-talk-triggers`.
-- [ ] T048 Update `docs/wiki/CAPSULES.md` and `docs/wiki/INDEX.md`: the dnd5e-engine and
+- [x] T048 Update `docs/wiki/CAPSULES.md` and `docs/wiki/INDEX.md`: the dnd5e-engine and
       dm-failure-and-gates one-liners, and the INDEX state paragraph.
-- [ ] T049 Run the wiki freshness gate (prints `OK`) and the spec-bridge gate (exits 0).
+- [x] T049 Run the wiki freshness gate (prints `OK`) and the spec-bridge gate (exits 0).
 - [ ] T050 [orchestrator] Add the execution-log row to the runbook B file.

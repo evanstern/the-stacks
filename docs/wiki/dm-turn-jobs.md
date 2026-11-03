@@ -20,7 +20,7 @@ sources:
   - apps/server/src/dm/companion.ts
   - apps/server/src/dm/chronicle.ts
 size_budget_exempt: both notes sat within 30 chars of the 8000 budget before TASK-0180; the talk path got its own note (dm-talk-triggers) and only a pointer line lands here; the rest is one pipeline each, not splittable without a TASK of its own
-verified_against: f660e9ba1d4b2d220b6b0aaf8ee94650002cb2ad
+verified_against: ed3949ce7a0aa83c9dd732137ab346ad1df8b7e0
 ---
 
 # DM turn jobs
@@ -68,7 +68,7 @@ worker aborts an in-flight `chat()` on a lost lease. Resolve heartbeats before e
 
 ## Resume after approval
 
-After a human DM approves an `ai:dm` proposal, the `approval` turn does not interpret that action again (TASK-0168, specs/057). The worker passes `loadPriorTurns` (`loadPriorTurnCheckpoints`: the session's earlier checkpointed turn jobs, newest first) to assemble, which reads it only when an `ai:dm` proposal names a beat action. `TurnCheckpoint.resumed` freezes the plans (absent on older rows). A rejected proposal yields no plan; that action interprets again.
+After a human DM approves an `ai:dm` proposal, the `approval` turn does not interpret that action again (TASK-0168, specs/057). The worker passes `loadPriorTurns` (`loadPriorTurnCheckpoints`: the session's earlier checkpointed turn jobs, newest first) to assemble, which reads it only when an `ai:dm` proposal names a beat action. `TurnCheckpoint.resumed` freezes the plans (absent on older rows). A rejected proposal yields no plan; that action interprets again. Since spec 082 `findResumedPlans` re-parses each frozen plan with the current reading and step schemas and skips one that no longer parses (a v10 plan with model-written numbers), so that action interprets again. A resolved attack also submits `damage.apply` from the attack entry (key `<key>:dmg`) before its `onHit` effects.
 
 ## Beats
 

@@ -15,7 +15,7 @@ sources:
   - apps/server/src/dm/snapshot/build.ts
   - packages/session-model/src/gate/proposals.ts
   - packages/session-model/src/gate/plan.ts
-verified_against: f660e9ba1d4b2d220b6b0aaf8ee94650002cb2ad
+verified_against: ed3949ce7a0aa83c9dd732137ab346ad1df8b7e0
 ---
 
 # Seed NPC presence
@@ -41,6 +41,7 @@ the same three NPCs and presence maps and three party characters: `tamsin` and `
 
 `crossCheckSeed` (`seed/load.ts`) reports an issue for each of these:
 
+- a character whose `identity.combatant` carries `stats` (the loader builds them from the sheet), or whose attack expression is not `1d20` plus or minus a number, or whose attack names no SRD weapon (spec 082);
 - an NPC whose `identity.combatant` differs from its id, or names no encounter monster;
 - a beat that lists an NPC in `npcIds` and declares no presence for it;
 - a beat whose `presence` names an unknown NPC;

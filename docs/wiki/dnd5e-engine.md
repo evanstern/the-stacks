@@ -10,6 +10,7 @@ sources:
   - packages/dnd5e-engine/src/evolve.ts
   - packages/dnd5e-engine/src/rng.ts
   - packages/dnd5e-engine/src/dice.ts
+  - packages/dnd5e-engine/src/derive.ts
   - packages/dnd5e-engine/src/schema/events.ts
   - packages/dnd5e-engine/src/schema/state.ts
   - packages/dnd5e-engine/src/schema/commands.ts
@@ -17,7 +18,7 @@ sources:
   - packages/dnd5e-engine/test/purity.test.ts
   - packages/dnd5e-engine/test/coverage.test.ts
   - specs/026-dnd5e-engine/spec.md
-verified_against: 389d2e32895a3b2143ee05f72f8b421f236a8bf7
+verified_against: ed3949ce7a0aa83c9dd732137ab346ad1df8b7e0
 ---
 
 # 5e engine
@@ -40,8 +41,8 @@ handler map (`roll`, `combatant.add/remove`, `damage.apply`, `healing.apply`, `t
 `death-save.roll`, `stabilize`, `attack.roll`, `check.roll`, `condition.apply/remove`,
 `exhaustion.adjust`, `initiative.roll/join/leave`, `turn.advance`, `encounter.end`,
 `rest.short/long`, `spell-slot.expend/restore`). Each handler lives in `src/commands/`.
-`execute` never mutates its inputs. `evolve` applies one event; `replay(events, state)`
-folds many. Replaying every event from `emptyState()` reproduces live state.
+`evolve` applies one event; `replay(events, state)`
+folds many. Replaying all events from `emptyState()` reproduces state.
 
 `initiative.leave` (`handleInitiativeLeave`, `src/commands/encounter.ts`) removes a combatant from the
 encounter order and keeps its state. It refuses `NO_ACTIVE_ENCOUNTER` without an encounter,
@@ -59,7 +60,7 @@ The command emits `encounter.changed` and draws no dice. A leaver's id is remove
 `Rng` is one method, `rollDie(sides)`, returning an integer in `1..sides`. `seededRng(seed)`
 is mulberry32 over a 32-bit seed with rejection sampling, so every face is equally likely
 (play uses it). It rejects a die size that is not an integer in `1..1000`
-(`MAX_SIDES`, matching the dice parser's sides limit) with `RngContractError`. `scriptedRng(faces)` returns a fixed face list and exposes `remaining()` and
+(`MAX_SIDES`) with `RngContractError`. `scriptedRng(faces)` returns a fixed face list and exposes `remaining()` and
 `calls()` (tests use it); it throws `ScriptedDiceError` when exhausted or out of range. Dice
 parsing (`parseDiceExpression`) supports `NdS`, keep-highest/lowest (`kh`/`kl`), and modifiers,
 with hard limits (count 100, sides 1000, 20 terms, 200 characters, modifier +/-1000) that
@@ -91,7 +92,7 @@ Spec 070: `check.resolved` records optional `margin` and `band` (`success`, `suc
 A handler runs every refusal check before it calls `rollDie`. A refused command consumes no
 dice, so the RNG stream is unchanged after a refusal. Refusals carry a code from
 `RefusalCodeSchema` (for example `TARGET_AC_UNKNOWN`, `D20_TERM_REQUIRED`, `NOT_DYING`,
-`NO_SLOT_AVAILABLE`, `REACTION_SPENT`), a message and optional detail (29 codes). `REASON_CONTRADICTS_STATE` is raised by the DM plan gate only (spec 058, TASK-0161); `execute` never returns it.
+`NO_SLOT_AVAILABLE`, `REACTION_SPENT`, `STAT_UNDEFINED`), a message and optional detail (30 codes). The DM plan gate alone raises `REASON_CONTRADICTS_STATE` (spec 058).
 `attack.roll` and ability-check `check.roll` refuse an unable actor with `ACTOR_UNABLE` (`commands/attacks.ts`): lifeState `unconscious` or `stable`, or an `incapacitated`, `paralyzed`, `petrified`, `stunned` or `unconscious` condition. The detail names `combatantId`, `role`, `lifeState` and `conditions`. Saving throws and attack targets are never checked, so a dying actor can still roll its death save. A broken RNG contract (a face outside
 `1..sides`, or a die size outside `1..1000`) throws `RngContractError` rather than refusing. `encounter.end` keeps combatants in state; it is not what refused the actions in the TASK-0110 repro, whose cause was resolve order ([[dm-runtime]]), not an engine rule.
 
@@ -106,6 +107,10 @@ and `REACTION_SPENT` when the attacker already spent its Reaction. On success it
 attacker to `reactionsSpent`. `turn.advance` clears the incoming combatant's id from
 `reactionsSpent` with its own `encounter.changed`, and `initiative.leave` clears both the
 leaver and the incoming combatant. `encounter.end` drops the encounter, and with it `reactionsSpent`.
+
+## Stats and derived rolls
+
+Spec 082. A `Combatant` may carry `stats`; `src/derive.ts` derives rolls from them. `check.roll` takes `dc` or a `difficulty` tier; `attack.roll` takes `expression` or an `attack` entry name. A missing stat refuses `STAT_UNDEFINED`.
 
 ## Boundary rule
 
@@ -124,7 +129,7 @@ Research R8 (spec FR-018 to FR-023): the engine owns the arithmetic for attack, 
 check resolution (natural 20 critical, natural 1 miss, total meets or beats AC/DC),
 resistance, immunity and vulnerability per damage component (halve rounding down, double),
 and critical damage (dice doubled, modifiers not). Adjudication - the DM runtime or an LLM
-node - supplies inputs as data: the expression, roll mode, target AC or DC, a per-command
+node - supplies inputs as data: steps name a tier or entry (below); code may send an expression, roll mode, target AC or DC, a per-command
 defense set, or on `check.roll` an automatic-failure reason, an `autoSuccess` reason and `houseRules` (default false). It never computes outcomes.
 The engine does not derive automatic failure from conditions.
 
