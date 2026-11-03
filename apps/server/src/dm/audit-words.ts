@@ -274,6 +274,23 @@ export const NUMBER_WORDS: Readonly<Record<string, number>> = {
   both: 2,
 };
 
+/** Turn-action verb lemmas an off-turn actor may not be shown doing (TASK-0214). */
+export const TURN_ACT_VERBS: readonly string[] = [
+  "attack",
+  "swing",
+  "strike",
+  "slash",
+  "stab",
+  "lunge",
+  "charge",
+  "fire",
+  "shoot",
+  "loose",
+  "throw",
+  "hurl",
+  "cast",
+];
+
 /** "<term> acts next" and "<term> moves next" (turn order, FR-004a). */
 export const TURN_ORDER_PHRASE = /^\s*(?:acts|moves)\s+next\b/i;
 

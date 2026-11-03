@@ -16,7 +16,7 @@ import {
   verbForms,
   wordCount,
 } from "../audit-words.js";
-import { type ClaimState, checkClaims } from "../claims.js";
+import { type ClaimState, checkClaims, offTurnActs } from "../claims.js";
 import { type NarrationFacts, renderDiceLines } from "../facts.js";
 import { factualSummary, spellDigits } from "../fallback.js";
 import { callJson } from "../pipeline/call.js";
@@ -210,6 +210,13 @@ export function deterministicChecks(
 
   for (const c of checkClaims(state, prose).issues) {
     add("ledger-mismatch", `Actor state: ${c.detail}`);
+  }
+
+  // TASK-0214: an off-turn actor takes no turn action; code blocks it before dm.audit.
+  if (facts.turn?.offTurn?.length) {
+    for (const c of offTurnActs(state, prose, facts.turn.offTurn)) {
+      add("invented-mechanics", c.detail);
+    }
   }
 
   for (const a of facts.actions) {

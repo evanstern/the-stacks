@@ -654,6 +654,52 @@ describe("facts v2: party, events, target, setting (run-5 rows)", () => {
       expect(lines[0]).toMatch(/^Turn: .+ acts in this beat\.$/);
     });
 
+    it("offTurn lists present standing combatants, not the on-turn actor (TASK-0214)", () => {
+      const f = build(
+        58,
+        56,
+        "turn",
+        { npcTurn: npc },
+        { npcPlan: plan, turnActorId: "goblin-3" },
+      );
+      const off = f.turn?.offTurn ?? [];
+      expect(off.length).toBeGreaterThan(0);
+      expect(off).not.toContain(f.turn?.actor);
+      expect(new Set(off).size).toBe(off.length);
+      expect(factEntries(f)).toContain(
+        `Off turn: ${off.join(", ")} (may speak, look or flinch; no strike, shot, cast, throw or charge).`,
+      );
+      // An absent S1 actor leaves the list.
+      const gone = off[0] as string;
+      const order = projectDm(
+        fixture.transcript.filter((r) => r.seq <= 58),
+      ).encounter?.order.find((o) => o.name === gone);
+      const g = build(
+        58,
+        56,
+        "turn",
+        {
+          npcTurn: npc,
+          snapshot: {
+            ...EMPTY_RESOLVE_SNAPSHOT.snapshot,
+            actors: [
+              {
+                id: "x",
+                combatantId: order?.combatantId ?? null,
+                presence: "absent",
+              } as never,
+            ],
+          },
+        },
+        { npcPlan: plan, turnActorId: "goblin-3" },
+      );
+      expect(g.turn?.offTurn ?? []).not.toContain(gone);
+    });
+
+    it("offTurn is absent in free mode", () => {
+      expect(build(58, 39, "free").turn).toBeUndefined();
+    });
+
     it("a refused null verdict sets held", () => {
       const f = build(
         58,

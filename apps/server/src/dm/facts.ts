@@ -171,7 +171,7 @@ export interface NarrationFacts {
   actions: FactAction[];
   npcTurn: FactNpcTurn | null;
   /** Whose beat this is and who acts after it; set only in turn mode (spec 071). */
-  turn?: { actor: string; next: string | null };
+  turn?: { actor: string; next: string | null; offTurn?: string[] };
   /** Rolls from NPCs an action pulled into the scene (TASK-0213); omitted when none. */
   pulled?: FactSettled[];
   /** Settled death-save turns (TASK-0112); omitted when settling rolled nothing. */
@@ -766,6 +766,25 @@ export function buildNarrationFacts(input: BuildFactsInput): NarrationFacts {
       actor: npcTurn?.name ?? nameOf(input.turnActorId ?? null),
       next: next?.kind === "turn-advanced" ? next.next : null,
     };
+    // TASK-0214: standing combatants who do not act in this beat.
+    const onTurn = new Set<string>([
+      turn.actor,
+      ...actions.flatMap((a) => [
+        ...(a.characterName ? [a.characterName] : []),
+        ...a.rolls.map((r) => r.name),
+      ]),
+      ...(npcTurn?.rolls.map((r) => r.name) ?? []),
+    ]);
+    const offTurn = (p.encounter?.order ?? [])
+      .filter((o) => {
+        if (o.lifeState !== "conscious" || onTurn.has(o.name)) return false;
+        const s1 = input.resolve.snapshot.actors.find(
+          (x) => x.combatantId === o.combatantId,
+        );
+        return s1?.presence !== "absent";
+      })
+      .map((o) => o.name);
+    if (offTurn.length > 0) turn.offTurn = offTurn;
   }
 
   // TASK-0213: the initiative a PC action's pull rolled. Its rows carry no actionId.

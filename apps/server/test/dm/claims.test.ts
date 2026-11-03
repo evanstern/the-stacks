@@ -8,6 +8,7 @@ import {
   type ClaimIssue,
   type ClaimState,
   checkClaims,
+  offTurnActs,
 } from "../../src/dm/claims.js";
 import { buildSnapshot } from "../../src/dm/snapshot/index.js";
 import type {
@@ -513,5 +514,33 @@ describe("lexicons (FR-014)", () => {
     expect(overlap(ACT_VERBS, SPEECH_VERBS)).toEqual([]);
     expect(overlap(ACT_VERBS, INVOLUNTARY_VERBS)).toEqual([]);
     expect(overlap(SPEECH_VERBS, INVOLUNTARY_VERBS)).toEqual([]);
+  });
+});
+
+describe("offTurnActs (TASK-0214)", () => {
+  const off = ["Brother Odo", "Kestrel"];
+  const acts = (text: string, s = state()) =>
+    offTurnActs(s, text, off).map((i) => i.actorIds[0]);
+
+  it("blocks an off-turn actor shown striking or shooting", () => {
+    expect(acts("Brother Odo looses an arrow at Snag.")).toEqual(["odo"]);
+    expect(acts("Kestrel lunges at the goblin.")).toEqual(["kestrel"]);
+  });
+
+  it("passes words, looks and flinches", () => {
+    expect(acts("Brother Odo winces and mutters a prayer.")).toEqual([]);
+    expect(acts("Kestrel flinches as the blow goes wide.")).toEqual([]);
+  });
+
+  it("skips quoted speech, a negated act and an on-turn actor", () => {
+    expect(acts('Snag grins. "Charge!" Odo cries.')).toEqual([]);
+    expect(acts("Kestrel does not shoot.")).toEqual([]);
+    expect(acts("Snag charges the ford.")).toEqual([]);
+  });
+
+  it("skips a shared group noun and a barred actor", () => {
+    expect(acts("The goblin hurls a spear.")).toEqual([]);
+    const s = state({ life: { odo: "dead" } });
+    expect(acts("Brother Odo looses an arrow at Snag.", s)).toEqual([]);
   });
 });

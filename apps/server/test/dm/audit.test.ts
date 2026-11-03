@@ -372,6 +372,22 @@ describe("literal stock ending (TASK-0204)", () => {
   });
 });
 
+describe("off-turn actors (TASK-0214)", () => {
+  const f = (offTurn?: string[]) => ({
+    ...facts(),
+    turn: { actor: "Ana", next: null, ...(offTurn ? { offTurn } : {}) },
+  });
+  it("blocks an off-turn turn action as invented-mechanics", () => {
+    const r = check(`${CLEAN} Guard hurls a spear.`, f(["Guard"]));
+    expect(r.issues.map((i) => i.kind)).toContain("invented-mechanics");
+    expect(r.issues.some((i) => i.detail.includes("off turn"))).toBe(true);
+  });
+  it("runs no check without an offTurn list", () => {
+    expect(check(`${CLEAN} Guard hurls a spear.`, f()).pass).toBe(true);
+    expect(check(`${CLEAN} Guard hurls a spear.`).pass).toBe(true);
+  });
+});
+
 describe("detailNamesPartyMember (party-name filter, E2)", () => {
   const cases: [string, string, boolean][] = [
     [

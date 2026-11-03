@@ -25,28 +25,28 @@ off-turn turn action before the `dm.audit` call.
 **Independent test**: `facts.test.ts`, `claims.test.ts`, `audit.test.ts`, `narrate.test.ts` and
 `npc-turn-narration.test.ts` pass with the new cases.
 
-- [ ] T001 [US1] In `apps/server/src/dm/facts.ts`, apply plan D1: the optional `offTurn` field on
+- [x] T001 [US1] In `apps/server/src/dm/facts.ts`, apply plan D1: the optional `offTurn` field on
       `NarrationFacts.turn` and its computation in the `turn` block of `buildNarrationFacts`.
-- [ ] T002 [US1] In `apps/server/src/dm/audit-words.ts`, add `TURN_ACT_VERBS` (plan D4) beside the
+- [x] T002 [US1] In `apps/server/src/dm/audit-words.ts`, add `TURN_ACT_VERBS` (plan D4) beside the
       claim-gate lexicons.
-- [ ] T003 [US1] In `apps/server/src/dm/claims.ts`, add and export `offTurnActs` (plan D5), reusing
+- [x] T003 [US1] In `apps/server/src/dm/claims.ts`, add and export `offTurnActs` (plan D5), reusing
       `Context`, `maskQuotes`, `clausesOf`, `tokenize`, `isSubject` and `NEGATION_RE`. Add the
       `ponytail:` comment.
-- [ ] T004 [US1] In `apps/server/src/dm/nodes/audit.ts`, call `offTurnActs` in
+- [x] T004 [US1] In `apps/server/src/dm/nodes/audit.ts`, call `offTurnActs` in
       `deterministicChecks` after the `checkClaims` loop (plan D6, first bullet three).
-- [ ] T005 [US1] In `apps/server/src/dm/prompts/narrate.ts`, apply plan D2: export `TURN_RULE`,
+- [x] T005 [US1] In `apps/server/src/dm/prompts/narrate.ts`, apply plan D2: export `TURN_RULE`,
       replace RULES lines 36, 42 and 47, push the `Off turn:` fact line, bump `PROMPT_VERSION`.
-- [ ] T006 [US1] In `apps/server/src/dm/prompts/audit.ts`, replace rule 6 with the plan D3 text
+- [x] T006 [US1] In `apps/server/src/dm/prompts/audit.ts`, replace rule 6 with the plan D3 text
       built on `TURN_RULE`. Bump `PROMPT_VERSION`.
-- [ ] T007 [P] [US1] Extend `apps/server/test/dm/facts.test.ts`: `offTurn` lists present standing
+- [x] T007 [P] [US1] Extend `apps/server/test/dm/facts.test.ts`: `offTurn` lists present standing
       combatants in order; excludes the Turn actor, Action characters and roll names (a reaction
       roller included); excludes dead, unconscious and absent actors; includes Next unless on
       turn; absent in free mode.
-- [ ] T008 [P] [US1] Extend `apps/server/test/dm/claims.test.ts`: spec US1 scenarios 3–6, plus a
+- [x] T008 [P] [US1] Extend `apps/server/test/dm/claims.test.ts`: spec US1 scenarios 3–6, plus a
       quoted "Charge!", a negated act, a shared group noun (skipped) and a barred actor (skipped).
-- [ ] T009 [P] [US1] Extend `apps/server/test/dm/audit.test.ts`: an off-turn act blocks as
+- [x] T009 [P] [US1] Extend `apps/server/test/dm/audit.test.ts`: an off-turn act blocks as
       `invented-mechanics` and skips the `dm.audit` call; no `turn` means no check.
-- [ ] T010 [US1] Update `apps/server/test/dm/narrate.test.ts` (narrate and audit version pins, the
+- [x] T010 [US1] Update `apps/server/test/dm/narrate.test.ts` (narrate and audit version pins, the
       rule-6 string, the `Off turn:` line) and `apps/server/test/dm/npc-turn-narration.test.ts`
       (the pinned Turn rule and rule-6 strings). Commit as
       `TASK-0214 phase 1: off-turn actors take no turn action`.

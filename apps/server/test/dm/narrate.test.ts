@@ -356,7 +356,7 @@ describe("narrate", () => {
       facts,
       prior: null,
     });
-    expect(NARRATE_VERSION).toBe("dm.narrate-v17");
+    expect(NARRATE_VERSION).toBe("dm.narrate-v18");
     expect(prompt.system).toContain(
       "A roll's band and outcome are settled. A success means the attempted task happens. Deliver the outcome and any learned fact plainly in the prose; invent no other.",
     );
@@ -495,7 +495,7 @@ describe("narrate", () => {
       "end with the Unclear intent question exactly as written",
     );
     expect(prompt.system).toContain(
-      "Do not end with an either-or question, except the Unclear intent question.",
+      'Never end on "What do you do?" or an either-or question, except the Unclear intent question.',
     );
     expect(prompt.system).toContain("Cover every Event line.");
     expect(prompt.system).toContain("AI companions included");
@@ -740,8 +740,10 @@ describe("narrate", () => {
       snapshot,
       prose: "Prose.",
     });
-    expect(AUDIT_VERSION).toBe("dm.audit-v11");
-    expect(p.system).toContain("6. The actor on the Turn line acts");
+    expect(AUDIT_VERSION).toBe("dm.audit-v12");
+    expect(p.system).toContain(
+      "6. Turn mode. Only the actors on the Turn line",
+    );
     expect(p.system).toContain("7. A roll's band and consequence are decided.");
     expect(p.system).toContain(
       "does not deliver a roll's settled outcome or learned fact",
