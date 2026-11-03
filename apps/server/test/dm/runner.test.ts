@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { CLARIFY_HELD } from "../../src/dm/first-stage.js";
 import { interpret } from "../../src/dm/nodes/interpret.js";
 import {
   depsFor,
@@ -17,11 +18,13 @@ import {
   projectDm,
   testSeed,
 } from "./helpers.js";
-import { greyhollowFight } from "./snapshot-fixtures.js";
+import { greyhollowDuo, greyhollowFight } from "./snapshot-fixtures.js";
 
+const duo = greyhollowDuo();
 const assembled = (over: Partial<NodeOutputs["assemble"]> = {}) =>
   ({
     projections: {},
+    snapshot: buildSnapshot(duo.projections, duo.seed),
     throughSeq: 5,
     beat: [{ actionId: "a1" }],
     npcTurn: null,
@@ -483,6 +486,48 @@ describe("runTurn post-planning cut (specs/064)", () => {
     expect(d.trackers).toEqual([]);
     expect(saved.at(-1)?.cut).toBe(true);
     expect(saved.at(-1)?.interpret?.readings[0]?.steps).toHaveLength(1);
+  });
+
+  it("asks before an undeclared method and holds the turn (spec 077)", async () => {
+    const stealthRead = {
+      ...reading(false),
+      steps: [{ ...chk("stealth"), combatantId: "tamsin" }],
+    } as unknown as NodeOutputs["interpret"]["readings"][number];
+    const spy = stubNodes({
+      assemble: assembled({
+        beat: [
+          {
+            actionId: "a1",
+            committedSeq: 11,
+            actor: "00000000-0000-4000-8000-000000000001",
+            characterId: "tamsin",
+            scope: "character",
+            text: "We move toward the reed camp.",
+            status: "committed",
+          },
+        ],
+        projections: { tableMode: { mode: "free" } },
+      } as never),
+      director: turnDirector,
+      interpret: { readings: [stealthRead] },
+    });
+    const seen = spyResolve(spy);
+    const saved: ReturnType<typeof emptyCheckpoint>[] = [];
+    const ctx = makeCtx({
+      deps: {
+        saveCheckpoint: async (c) => {
+          saved.push(c);
+          return true;
+        },
+      },
+    });
+    await runTurn(ctx, spy.nodes);
+    const i = seen[0]?.interpret as NodeOutputs["interpret"];
+    expect(i.readings[0]?.steps).toEqual([]);
+    expect(i.readings[0]?.clarify).toMatch(/unseen/);
+    const d = seen[0]?.director as NodeOutputs["director"];
+    expect(d.overrides.some((o) => o.reason === CLARIFY_HELD)).toBe(true);
+    expect(saved.at(-1)?.interpret?.readings[0]?.clarify).toMatch(/unseen/);
   });
 
   it("does not cut or hold again on a reclaim with cut: true", async () => {

@@ -36,21 +36,21 @@ and report.
 **Independent test**: `no-undeclared-method.integration.test.ts`, `runner.test.ts` and
 `plan-first-step.integration.test.ts` pass with `REQUIRE_DATABASE=1`.
 
-- [ ] T006 [US1] In `apps/server/src/dm/pipeline/runner.ts`, apply plan D2. Call `askUndeclared`
+- [x] T006 [US1] In `apps/server/src/dm/pipeline/runner.ts`, apply plan D2. Call `askUndeclared`
       after `cutPlans`. Feed its output to `cutBeat`, `clarifyHolds`, the checkpoint and
       `ctx.results`. Add `asked` to the `dm.plan.cut` log line.
-- [ ] T007 [P] [US1] Extend `apps/server/test/dm/runner.test.ts` as plan "Tests" states. Give the
+- [x] T007 [P] [US1] Extend `apps/server/test/dm/runner.test.ts` as plan "Tests" states. Give the
       `assembled()` stub a default `snapshot`.
-- [ ] T008 [P] [US1] Create `apps/server/test/dm/scripts/approach-reed-camp.json` as plan "Tests"
+- [x] T008 [P] [US1] Create `apps/server/test/dm/scripts/approach-reed-camp.json` as plan "Tests"
       states. Use run 1's goal note and reading verbatim.
-- [ ] T009 [US1] [US2] Create `apps/server/test/dm/no-undeclared-method.integration.test.ts` with
+- [x] T009 [US1] [US2] Create `apps/server/test/dm/no-undeclared-method.integration.test.ts` with
       plan "Tests" cases 1 to 3. Follow `noncombatant-targets.integration.test.ts`. Name the run 1
       source in the file header.
-- [ ] T010 [US2] In `apps/server/test/dm/plan-first-step.integration.test.ts`, change the seed to
+- [x] T010 [US2] In `apps/server/test/dm/plan-first-step.integration.test.ts`, change the seed to
       `greyhollow-ford` and the seats to `{ tamsin: TAMSIN_USER }` (plan R8). Keep every assertion.
-- [ ] T011 Amend `specs/031-dm-runtime/contracts/nodes.md` as plan D3 states. Mark the change
+- [x] T011 Amend `specs/031-dm-runtime/contracts/nodes.md` as plan D3 states. Mark the change
       "Amended by spec 077 (TASK-0205)".
-- [ ] T012 Run `pnpm ci:check` and the DB suite. Commit as
+- [x] T012 Run `pnpm ci:check` and the DB suite. Commit as
       `TASK-0205 phase 2: the runner asks before an undeclared method`.
 
 ## Phase 3: Wiki (re-ground)
