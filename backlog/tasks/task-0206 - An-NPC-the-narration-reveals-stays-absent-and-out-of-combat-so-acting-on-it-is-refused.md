@@ -41,12 +41,6 @@ Spec: specs/078-revealed-npc-present
 - [ ] #6 Spec phase: Wiki re-ground
 <!-- AC:END -->
 
-
-
-
-
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -55,6 +49,8 @@ Run 1 seq 63-89: once the reed-camp encounter started (seq 76, after Odo's parle
 Claimed 2026-11-02 by M3 runbook B (docs/design/m3-runbook-b-resolution-quality.md). Worktree .worktrees/task-0206, branch task-0206-revealed-npc-present, cut from origin/main fbf4d1df. Spec number 078 claimed with a stub. Spine #6.
 
 Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5 (spec 078 authoring, C1)
+
+spec-bridge sync: The Director's arrivals, resolve and the plan gate (card AC #1, #2): 0/9 · The chronicle and the run 1 seq 40–45 replay (card AC #1, #2, #3; merge condition): 0/7 · Wiki re-ground: 0/6
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
