@@ -39,12 +39,6 @@ Spec: specs/077-no-undeclared-method
 - [ ] #6 Spec phase: Wiki (re-ground)
 <!-- AC:END -->
 
-
-
-
-
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -53,6 +47,8 @@ Run 1 again, seq 114-122. Tamsin: 'I move towards Pell' became an Athletics chec
 Claimed 2026-11-02 by M3 runbook B (docs/design/m3-runbook-b-resolution-quality.md). Worktree .worktrees/task-0205, branch task-0205-no-undeclared-method, cut from origin/main fbf4d1df. Spec number 077 claimed with a stub. Spine #5.
 
 Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5 (spec 077 authoring, C1)
+
+spec-bridge sync: The rule (card AC #1, #2; US1, US2): 0/5 · Wiring and the run 1 replay (merge condition; US1, US2): 0/7 · Wiki (re-ground): 0/7
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
