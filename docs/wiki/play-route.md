@@ -32,7 +32,7 @@ sources:
   - apps/web/app/play/components/commit-control.tsx
   - apps/web/app/play/components/table-mode-panel.tsx
   - apps/web/app/play/components/dm-seat-panel.tsx
-verified_against: 0c5c064c0f43566445e806a0cc21452015752504
+verified_against: 389d2e32895a3b2143ee05f72f8b421f236a8bf7
 ---
 
 # Play route
@@ -105,7 +105,7 @@ With a human DM, a check's roll approval re-proposes the same roll instead of na
 - `proposals.ts` - `selectPendingProposals` lists pending `proposal.*` rows for a DM viewer,
   oldest first; a player always gets `[]`. Each `PendingProposalView` carries `policy` (`ask` or
   `suggest`) from the `proposal.created` row.
-- `ledger-format.ts` formats roll, outcome and change rows; `labels.ts` resolves display names.
+- `ledger-format.ts` formats roll, outcome and change rows (`Reaction: `); `labels.ts` names.
 
 ## DM seat
 

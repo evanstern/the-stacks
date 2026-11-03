@@ -17,12 +17,18 @@ import {
 import { rosterOf } from "../../src/dm/prompts/common.js";
 import {
   buildNarratePrompt,
+  factEntries,
   PROMPT_VERSION as NARRATE_VERSION,
 } from "../../src/dm/prompts/narrate.js";
 import { createScriptedDm, loadDmScript } from "../../src/dm/script/load.js";
 import { playerFacingSeed } from "../../src/dm/seed/views.js";
 import { buildSnapshot } from "../../src/dm/snapshot/index.js";
-import { freeEventsThrough, makeCtx, projectDm } from "./helpers.js";
+import {
+  emptyCheckpoint,
+  freeEventsThrough,
+  makeCtx,
+  projectDm,
+} from "./helpers.js";
 import {
   combatant,
   EMPTY_RESOLVE_SNAPSHOT,
@@ -308,7 +314,47 @@ describe("narrate", () => {
       facts,
       prior: null,
     });
-    expect(NARRATE_VERSION).toBe("dm.narrate-v9");
+    expect(NARRATE_VERSION).toBe("dm.narrate-v11");
+    expect(prompt.system).toContain(
+      "A roll's band and consequence are decided. Tell that consequence; invent no other.",
+    );
+    const banded = factEntries({
+      ...facts,
+      actions: [
+        {
+          actionId: "a1",
+          characterName: "Odo",
+          text: "offers the toll",
+          outcome: "applied",
+          refusalCode: null,
+          rolls: [
+            {
+              name: "Odo",
+              reason: "Odo offers the toll",
+              expression: "1d20+3",
+              shown: "7",
+              total: 10,
+              against: { kind: "DC" as const, value: 15 },
+              outcome: "failure" as const,
+              autoFail: false,
+              target: null,
+              band: "severe-failure" as const,
+              margin: -5,
+              consequence: "Snag spurns the toll.",
+            },
+          ],
+          outcomes: ["failure" as const],
+          changes: [],
+          followUps: [],
+        },
+      ],
+    });
+    expect(banded.join("\n")).toContain(
+      "roll: Odo offers the toll -> severe failure; consequence: Snag spurns the toll.",
+    );
+    expect(prompt.system).toContain(
+      "A not-yet-attempted step has not happened, in this beat or an earlier one. Stop before it; never show it start or done.",
+    );
     expect(prompt.system).toContain(agencyRule("narrate"));
     expect(prompt.system).toContain(
       "Never show the party member choosing a defence: no dodge, no duck, no twist that times the blow, no step aside.",
@@ -412,6 +458,62 @@ describe("narrate", () => {
     expect(prompt.system).toContain("AI companions included");
   });
 
+  describe("open followUps from earlier beats (spec 079, US4)", () => {
+    async function laterBeat(followUps: string[]) {
+      const base = await setup(["x"]);
+      const reading = { actionId: "act-lockpick", followUps };
+      const out = await narrate({
+        ...base.ctx,
+        deps: {
+          ...base.ctx.deps,
+          loadPriorTurns: async () => [
+            {
+              jobId: "earlier",
+              checkpoint: {
+                ...emptyCheckpoint(),
+                interpret: { readings: [reading] } as never,
+              },
+            },
+          ],
+        },
+        results: {
+          ...base.ctx.results,
+          assemble: { ...base.assembled, beat: [] },
+          resolve: {
+            ...resolved,
+            snapshot: base.snapshot,
+            diff: { fromSeq: 0, toSeq: 1, stage: [], actors: [] },
+          },
+        },
+      });
+      if (!out.ok) throw new Error("narrate failed");
+      return out.output;
+    }
+
+    it("carries a member's earlier followUp into a later beat's facts", async () => {
+      const n = await laterBeat(["Search the door."]);
+      expect(n.facts.openFollowUps?.map((f) => f.text)).toEqual([
+        "Search the door.",
+      ]);
+      expect(factEntries(n.facts).join("\n")).toContain(
+        "Earlier beat, not yet attempted: ",
+      );
+    });
+
+    it("carries nothing without prior turns", async () => {
+      const base = await setup(["x"]);
+      const out = await narrate({
+        ...base.ctx,
+        results: {
+          ...base.ctx.results,
+          assemble: { ...base.assembled, beat: [] },
+        },
+      });
+      if (!out.ok) throw new Error("narrate failed");
+      expect(out.output.facts.openFollowUps).toBeUndefined();
+    });
+  });
+
   describe("input check on rulings and goalNote (spec 051, OQ-2)", () => {
     async function withheldRun(
       ruling: string,
@@ -491,7 +593,7 @@ describe("narrate", () => {
         /^Actor state: withheld follow-up for act-lockpick: /,
       );
       expect(prompt.system).toContain(
-        "A not-yet-attempted step has not happened.",
+        "A not-yet-attempted step has not happened, in this beat or an earlier one.",
       );
     });
 
@@ -558,8 +660,9 @@ describe("narrate", () => {
       snapshot,
       prose: "Prose.",
     });
-    expect(AUDIT_VERSION).toBe("dm.audit-v5");
+    expect(AUDIT_VERSION).toBe("dm.audit-v7");
     expect(p.system).toContain("6. The actor on the Turn line acts");
+    expect(p.system).toContain("7. A roll's band and consequence are decided.");
     const turnFacts = {
       ...out.output.facts,
       turn: { actor: "Snag", next: "Kestrel" },

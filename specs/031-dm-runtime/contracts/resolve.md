@@ -39,6 +39,13 @@ Resolve runs these groups in order. Each group is a list of submissions. The ord
    `UNKNOWN_COMBATANT` and runs no step. A refused NPC group runs no step; the turn still
    advances. The verdicts go to `TurnCheckpoint.planGate`.
 
+   *Amended by spec 079 (TASK-0208):* a party action group whose `attack` step names a foreign
+   `attackerId`, or whose `move` step names a foreign `combatantId`, is refused whole with
+   `STEP_ACTOR_MISMATCH` (failure reason `not-the-actor`) before any step runs. The actor is the
+   action's character combatant; a party-scope action may name any party combatant. The NPC
+   group and the monster turn are not checked. Spec 077's `askUndeclared` covers only another
+   human's PC roll (a clarify), so it supplies no refusal code to reuse.
+
    *Amended by spec 068 (TASK-0194):* when an `ok` verdict carries `pull`, resolve pulls each
    id into the scene before that group's steps run: `combatant.add` from the NPC's SRD block
    (`identity.srdMonsterId`, default `commoner`), then `initiative.join` when an encounter is
@@ -127,6 +134,7 @@ For one beat item with its reading (or ruling, which replaces the reading's step
    - `check` → `mechanics` `check.roll` with `actionId`. When the batch applies, read the
      `check.resolved` event. Run `onSuccess` or `onFailure` effects, each as one `mechanics`
      command (`damage.apply`, `healing.apply`, `condition.apply`, `condition.remove`).
+     Amended by specs/070-stakes-before-dice: the effects follow the band (see the amendment below).
    - `attack` → `mechanics` `attack.roll`. On `hit` or `critical-hit`, run `onHit` effects;
      a damage effect sets `critical: true` exactly when the outcome is `critical-hit`. On
      `miss`, run nothing.
@@ -139,6 +147,12 @@ For one beat item with its reading (or ruling, which replaces the reading's step
    effect. The gate's policy for the kind is `ask`. The plan gate refuses an `absent` actor id with
    `UNKNOWN_COMBATANT` (reason `absent`), except an `arrived` presence effect.
    - `roll` → `mechanics` `roll`.
+   - `move` → Amended by spec 079 (TASK-0208). The step submits nothing itself. For each
+     `leavesReachOf` id that is an unspent, able encounter monster, resolve submits a
+     `mechanics` `attack.roll` with `reaction: true` (attacker the hostile, target the mover,
+     expression from the hostile's SRD melee attack), then `damage.apply` on a hit with the SRD
+     damage dice (critical on `critical-hit`). The reaction batches join the action's `batchIds`.
+     A refusal of a reaction does not stop the mover's chain; a pending proposal pauses it.
 4. Then submit `action.resolve`:
    - `applied` with every applied `batchId`, when at least one batch applied;
    - `refused` with the engine's code, when the first mechanics step was refused by the
@@ -200,3 +214,15 @@ Every proposal uses the `ai:dm` proposer, `summary` (one line for a human DM's p
 shipped narration's seqs. A replayed checkpoint submission keeps its stored seqs. A submission
 recovered by `findLanded` after a reclaim carries `seqs: []`: the rows exist, but the replay
 cannot name them. Rows stored before TASK-0116 lack the field.
+
+## Amendment 2026-11-02 (specs/070-stakes-before-dice, TASK-0127): resolve by band
+
+Amended by specs/070-stakes-before-dice. A `check` step sends `houseRules` from the seed's
+`tableRules` and the stakes ride the `Submission`. Resolve reads `band` from the `check.resolved`
+row (`findLanded` and `refreshSubmission` read it too) and runs `effectsForBand` (`stakes.ts`):
+`success` runs `onSuccess`; `success-at-cost` runs `onSuccess` then `onCost`; `severe-failure` runs
+`onFailure` then `onSevere`; any other or missing band runs `onFailure`. A free retry sends
+`autoSuccess`: an ability check with a combatant, no `newRisk`, no `autoFail`, and an earlier failed
+ability check in the current scene's ledger with the same combatant, ability and skill (`isFreeRetry`).
+A saving throw is never a free retry. A presence effect in `onCost` or `onSevere` counts as a
+presence target.

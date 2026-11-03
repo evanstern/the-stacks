@@ -218,6 +218,53 @@ describe("dice-line renderer", () => {
     expect(c.outcomes).toEqual(["critical-hit"]);
   });
 
+  it("sets reaction from the linked attack.resolved (spec 079)", () => {
+    const rows = attackRows("hit", 14);
+    (
+      rows[1] as unknown as { outcome: { reaction?: boolean } }
+    ).outcome.reaction = true;
+    expect(collectFacts(rows, nameOf).rolls[0]?.reaction).toBe(true);
+    expect(
+      collectFacts(attackRows("hit", 14), nameOf).rolls[0]?.reaction,
+    ).toBeUndefined();
+  });
+
+  it("renders a reaction roll as its own line (spec 079)", () => {
+    const rows = attackRows("hit", 14);
+    (
+      rows[1] as unknown as { outcome: { reaction?: boolean } }
+    ).outcome.reaction = true;
+    const c = collectFacts(rows, nameOf);
+    const line = factEntries({
+      actions: [{ rolls: c.rolls, changes: [], followUps: [] }],
+      clarify: [],
+      events: [],
+      modeChange: null,
+      party: [],
+      presentNpcs: [],
+      rulings: [],
+      director: { pacing: {}, goalNote: "", sceneEnded: false },
+    } as never).find((l) => l.includes("reaction:"));
+    expect(line).toBe(
+      "  reaction: Ana strikes at Goblin as they pull away -> hit",
+    );
+  });
+
+  it("renders an open followUp from an earlier beat (spec 079)", () => {
+    const f = {
+      actions: [],
+      clarify: [],
+      events: [],
+      modeChange: null,
+      rulings: [],
+      director: { sceneEnded: false },
+      openFollowUps: [{ name: "Kestrel", text: "cut Pell's bonds" }],
+    };
+    expect(factEntries(f as never)).toContain(
+      "Earlier beat, not yet attempted: Kestrel: cut Pell's bonds",
+    );
+  });
+
   it("renders a miss with no damage line", () => {
     const c = collectFacts(attackRows("miss", 3), nameOf);
     expect(c.rolls.map(renderRollLine)).toEqual([
@@ -267,6 +314,109 @@ describe("dice-line renderer", () => {
     expect(c.rolls.map(renderRollLine)).toEqual([
       "Ana — Ana is paralyzed: auto-fail vs DC 20: failure",
     ]);
+  });
+
+  describe("bands (spec 070)", () => {
+    const checkRows = (event: object, withRoll = true): LedgerRow[] => [
+      ...(withRoll
+        ? [
+            roll(1, "b1", 0, {
+              reason: "Ana picks the lock [0a#1]",
+              expression: "1d20+5",
+              purpose: "check",
+              combatantId: "ana",
+              faces: [5],
+              mod: 5,
+              natural: 5,
+            }),
+          ]
+        : []),
+      outcomeRow(2, "b1", 1, {
+        type: "check.resolved",
+        v: 1,
+        reason: "Ana picks the lock [0a#1]",
+        combatantId: "ana",
+        kind: "ability-check",
+        ability: "dex",
+        skill: null,
+        rollIndex: withRoll ? 0 : null,
+        dc: 12,
+        total: withRoll ? 10 : null,
+        natural: withRoll ? 5 : null,
+        autoFail: null,
+        outcome: "success",
+        ...event,
+      }),
+    ];
+    const stakes = new Map([
+      [
+        "b1",
+        {
+          success: null,
+          cost: "The pick bites her palm.",
+          failure: "The lock holds.",
+          severe: "The pick snaps off in the lock.",
+        },
+      ],
+    ]);
+
+    it.each([
+      ["success", null, 1, "success"],
+      ["success-at-cost", "The pick bites her palm.", -2, "success at a cost"],
+      ["failure", "The lock holds.", -3, "failure"],
+      [
+        "severe-failure",
+        "The pick snaps off in the lock.",
+        -7,
+        "severe failure",
+      ],
+    ])(
+      "carries band %s, margin and consequence",
+      (band, consequence, margin, word) => {
+        const outcome =
+          band === "success" || band === "success-at-cost"
+            ? "success"
+            : "failure";
+        const c = collectFacts(
+          checkRows({ band, margin, outcome }),
+          nameOf,
+          new Map(),
+          stakes,
+        );
+        expect(c.rolls[0]).toMatchObject({ band, margin, consequence });
+        expect(renderRollLine(c.rolls[0] as never)).toContain(`: ${word}`);
+      },
+    );
+
+    it("leaves band null-free on an old row with no band", () => {
+      const c = collectFacts(checkRows({}), nameOf, new Map(), stakes);
+      expect(c.rolls[0]?.band).toBeUndefined();
+      expect(c.rolls[0]?.consequence).toBeUndefined();
+      expect(renderRollLine(c.rolls[0] as never)).toBe(
+        "Ana — Ana picks the lock: 1d20+5 → 5 = 10 vs DC 12: success",
+      );
+    });
+
+    it("renders a free retry as auto-success", () => {
+      const c = collectFacts(
+        checkRows({ band: "success", margin: null }, false),
+        nameOf,
+        new Map(),
+        stakes,
+      );
+      expect(c.rolls[0]).toMatchObject({
+        autoSuccess: true,
+        autoFail: false,
+        band: "success",
+        consequence: null,
+      });
+      expect(renderRollLine(c.rolls[0] as never)).toBe(
+        "Ana — Ana picks the lock: no roll needed: success vs DC 12".replace(
+          ": success vs DC 12",
+          ": success",
+        ),
+      );
+    });
   });
 
   it("renders healing and records life-state and condition changes", () => {

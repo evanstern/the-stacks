@@ -23,6 +23,7 @@ import {
 } from "../gates/plan-gate.js";
 import type { TurnCheckpoint } from "../jobs.js";
 import type { Node, NodeError, TurnContext } from "../pipeline/context.js";
+import { meleeAttackOf, reactors } from "../reactions.js";
 import { refreshSubmission } from "../resume.js";
 import { combatantFromSrd } from "../seed/combatants.js";
 import type { SceneSeed } from "../seed/schema.js";
@@ -32,10 +33,11 @@ import {
   diffSnapshots,
   type SnapshotDiff,
 } from "../snapshot/index.js";
+import { effectsForBand, isFreeRetry } from "../stakes.js";
 import type { AssembleOutput, BeatItem } from "./assemble.js";
 import type { AuditOutput } from "./audit.js";
 import type { DirectorNodeOutput } from "./director.js";
-import type { Effect, InterpretReading, Step } from "./schemas.js";
+import type { Effect, InterpretReading, Stakes, Step } from "./schemas.js";
 import { settleTurn } from "./settle.js";
 
 /**
@@ -66,6 +68,10 @@ export interface Submission {
   proposalId: string | null;
   /** The engine outcome (`hit`, `success`, ...) read from the appended events. */
   outcome: string | null;
+  /** Spec 070: the outcome band (`success-at-cost`, ...) read from the same row; null on an old row. */
+  band: string | null;
+  /** Spec 070: the stakes the check step declared; checkpointed, never in a public row. */
+  stakes: Stakes | null;
   /** The seqs the gate returned for this submission, ascending; `[]` on a refusal or an unrecoverable replay. */
   seqs: number[];
 }
@@ -141,6 +147,7 @@ interface SubmitResult {
   refusal: GateRefusal | null;
   batchId: string | null;
   outcome: string | null;
+  band?: string | null;
 }
 
 /** The engine outcome carried by `check.resolved` / `attack.resolved` rows. */
@@ -155,6 +162,16 @@ function outcomeOf(events: readonly StoredEvent[]): string | null {
   return null;
 }
 
+/** The outcome band carried by a `check.resolved` row; null elsewhere and on old rows. */
+function bandOf(events: readonly StoredEvent[]): string | null {
+  for (const e of events) {
+    const ev = (e.payload as { event?: { type?: string; band?: string } })
+      .event;
+    if (ev?.type === "check.resolved") return ev.band ?? null;
+  }
+  return null;
+}
+
 /** Looks for a submission that landed after the last checkpoint save. */
 function findLanded(
   p: SessionProjections,
@@ -164,17 +181,20 @@ function findLanded(
   const done = (
     batchId: string | null,
     outcome: string | null = null,
+    band: string | null = null,
   ): SubmitResult => ({
     result: "applied",
     refusal: null,
     batchId,
     outcome,
+    band,
   });
   if (proposal.kind === "mechanics") {
     const suffix = ` [${stepRef}]`;
     const rows = p.ledger.filter((r) => r.reason.endsWith(suffix));
     if (rows.length === 0) return null;
     let outcome: string | null = null;
+    let band: string | null = null;
     for (const r of rows) {
       if (
         r.kind === "outcome" &&
@@ -183,9 +203,10 @@ function findLanded(
           r.outcome.type === "attack.resolved")
       ) {
         outcome = r.outcome.outcome;
+        band = "band" in r.outcome ? (r.outcome.band ?? null) : null;
       }
     }
-    return done(rows[0]?.batchId ?? null, outcome);
+    return done(rows[0]?.batchId ?? null, outcome, band);
   }
   switch (proposal.kind) {
     case "action.resolve":
@@ -262,6 +283,7 @@ class Run {
     key: string,
     kind: ProposalKind,
     build: (stepRef: string) => Proposal,
+    stakes: Stakes | null = null,
   ): Promise<Submission> {
     const recorded = this.submissions.find((s) => s.key === key);
     if (recorded) return recorded;
@@ -324,6 +346,7 @@ class Run {
             refusal: null,
             batchId: res.batchId,
             outcome: outcomeOf(res.events),
+            band: bandOf(res.events),
           };
         } else if (res.outcome === "pending" || res.outcome === "suggested") {
           proposalId = res.proposalId;
@@ -354,6 +377,8 @@ class Run {
       batchId: outcome.batchId,
       proposalId,
       outcome: outcome.outcome,
+      band: outcome.band ?? null,
+      stakes,
       seqs: events.map((e) => e.seq).sort((a, b) => a - b),
     };
     this.submissions.push(sub);
@@ -377,16 +402,21 @@ class Run {
     command: Record<string, unknown>,
     reason: string,
     actionId: string | null,
+    stakes: Stakes | null = null,
   ): Promise<Submission> {
-    return this.submit(key, "mechanics", (ref) =>
-      mechanicsProposal(
-        { ...command, reason: withMarker(reason, ref) } as EngineCommand,
-        {
-          actionId,
-          summary: reason.slice(0, 200),
-          rationale: `Resolve ${key}`,
-        },
-      ),
+    return this.submit(
+      key,
+      "mechanics",
+      (ref) =>
+        mechanicsProposal(
+          { ...command, reason: withMarker(reason, ref) } as EngineCommand,
+          {
+            actionId,
+            summary: reason.slice(0, 200),
+            rationale: `Resolve ${key}`,
+          },
+        ),
+      stakes,
     );
   }
 }
@@ -536,6 +566,8 @@ async function runSteps(
         await runEffects(key, step.effects, step.reason, false);
         break;
       case "check": {
+        const fresh = await run.ctx.deps.loadProjections(run.ctx.job.sessionId);
+        const { outcomeBands, naturals } = run.ctx.seed.tableRules;
         const sub = await run.mech(
           key,
           {
@@ -548,17 +580,105 @@ async function runSteps(
             mode: step.mode,
             dc: step.dc,
             autoFail: step.autoFail,
+            houseRules: { outcomeBands, naturals },
+            autoSuccess: isFreeRetry(step, fresh.ledger)
+              ? { reason: step.reason }
+              : null,
           },
           step.reason,
           actionId,
+          step.stakes,
         );
         if (take(sub)) {
           await runEffects(
             key,
-            sub.outcome === "success" ? step.onSuccess : step.onFailure,
+            effectsForBand(step, sub.band ?? sub.outcome),
             step.reason,
             false,
           );
+        }
+        break;
+      }
+      case "move": {
+        // Spec 079 D4: the engine, not interpret, decides the reactions.
+        const fresh = await run.ctx.deps.loadProjections(run.ctx.job.sessionId);
+        const seedMonsters = new Map(
+          run.ctx.seed.encounters.flatMap((e) =>
+            e.monsters.map((m) => [m.combatantId, m.srdMonsterId] as const),
+          ),
+        );
+        const ids = reactors({
+          moverId: step.combatantId,
+          leavesReachOf: step.leavesReachOf,
+          engine: fresh.engine,
+          partyCombatantIds: new Set(
+            fresh.party.flatMap((m) => (m.combatantId ? [m.combatantId] : [])),
+          ),
+          encounterMonsters: seedMonsters,
+        });
+        const moverName =
+          fresh.engine.combatants[step.combatantId]?.name ?? step.combatantId;
+        for (const [n, id] of ids.entries()) {
+          if (stopped) break;
+          const rec = run.ctx.deps.srd.getById(
+            "monster",
+            seedMonsters.get(id) as string,
+          );
+          const atk = rec ? meleeAttackOf(rec) : null;
+          if (!atk) {
+            run.ctx.deps.log({
+              event: "dm.reaction.skipped",
+              jobId: run.ctx.job.id,
+              reactorId: id,
+              reason: "no-melee-attack",
+            });
+            continue;
+          }
+          const reactorName = fresh.engine.combatants[id]?.name ?? id;
+          const rkey = `${key}:r${n}`;
+          const sub = await run.mech(
+            rkey,
+            {
+              type: "attack.roll",
+              attackerId: id,
+              targetId: step.combatantId,
+              expression: atk.expression,
+              mode: "normal",
+              targetAc: null,
+              reaction: true,
+            },
+            `${reactorName} strikes as ${moverName} pulls away`,
+            actionId,
+          );
+          // A reaction is not the mover's step: only a pause stops the chain.
+          if (sub.result === "pending" || sub.result === "suggested") {
+            chain.awaiting = true;
+            stopped = true;
+            break;
+          }
+          if (sub.result !== "applied") continue;
+          if (sub.batchId) chain.batchIds.push(sub.batchId);
+          if (sub.outcome === "hit" || sub.outcome === "critical-hit") {
+            const dmg = await run.mech(
+              `${rkey}:e0`,
+              {
+                type: "damage.apply",
+                targetId: step.combatantId,
+                components: atk.components,
+                critical: sub.outcome === "critical-hit",
+                defenses: null,
+              },
+              `${reactorName} strikes as ${moverName} pulls away: damage`,
+              actionId,
+            );
+            if (dmg.result === "applied") {
+              if (dmg.batchId) chain.batchIds.push(dmg.batchId);
+            } else if (dmg.result !== "refused") {
+              chain.awaiting = true;
+              stopped = true;
+              break;
+            }
+          }
         }
         break;
       }
@@ -611,7 +731,10 @@ function presenceTargets(
       else if (step.step === "check") {
         effects(step.onSuccess);
         effects(step.onFailure);
+        effects(step.onCost);
+        effects(step.onSevere);
       } else if (step.step === "attack") effects(step.onHit);
+      // A move step carries no presence effect (spec 079).
     }
   }
   return out;
@@ -638,7 +761,7 @@ function activeLeaverFromLog(
         r.subject === id &&
         r.seq > presence.seq,
     );
-    if (!row || row.kind !== "change") continue;
+    if (row?.kind !== "change") continue;
     const before = row.before as {
       turnIndex: number;
       order: { combatantId: string }[];
@@ -1046,6 +1169,22 @@ async function pullIn(
   }
 }
 
+/** Action id -> the acting character's combatant id; `null` for a party-scope action. */
+function actionActors(assembled: AssembleOutput): Map<string, string | null> {
+  const out = new Map<string, string | null>();
+  for (const item of assembled.beat) {
+    if (item.scope === "party") {
+      out.set(item.actionId, null);
+      continue;
+    }
+    const member = assembled.projections.party.find(
+      (m) => m.characterId === item.characterId,
+    );
+    if (member?.combatantId) out.set(item.actionId, member.combatantId);
+  }
+  return out;
+}
+
 async function resolveAction(
   run: Run,
   ctx: TurnContext,
@@ -1205,6 +1344,7 @@ export const resolve: Node<"resolve"> = async (ctx) => {
         ]),
       ],
       resumed: (assembled.resumed ?? []).map((plan) => plan.actionId),
+      actors: actionActors(assembled),
     });
     const verdictFor = (actionId: string | null) =>
       run.planGate.find((v) => v.actionId === actionId);

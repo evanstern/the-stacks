@@ -126,6 +126,16 @@ export const EffectSchema = z.discriminatedUnion("effect", [
 ]);
 export type Effect = z.infer<typeof EffectSchema>;
 
+/** Spec 070 D1: one consequence text per outcome band, declared before the dice. */
+const StakeText = z.string().min(1).max(200);
+export const StakesSchema = z.object({
+  success: StakeText.nullable(), // TASK-0170 makes this required
+  cost: StakeText.nullable(), // required on an ability check
+  failure: StakeText, // always required
+  severe: StakeText.nullable(), // required on an ability check
+});
+export type Stakes = z.infer<typeof StakesSchema>;
+
 export const StepSchema = z.discriminatedUnion("step", [
   z.object({ step: z.literal("none"), reason: Reason }),
   z.object({
@@ -141,6 +151,10 @@ export const StepSchema = z.discriminatedUnion("step", [
     autoFail: z.object({ reason: Reason }).nullable(),
     onSuccess: z.array(EffectSchema).max(4),
     onFailure: z.array(EffectSchema).max(4),
+    stakes: StakesSchema,
+    onCost: z.array(EffectSchema).max(4).default([]),
+    onSevere: z.array(EffectSchema).max(4).default([]),
+    newRisk: z.string().min(1).max(200).nullable().default(null),
   }),
   z.object({
     step: z.literal("attack"),
@@ -163,8 +177,34 @@ export const StepSchema = z.discriminatedUnion("step", [
     expression: z.string().min(1).max(200),
     mode: RollModeSchema,
   }),
+  z.object({
+    step: z.literal("move"),
+    reason: Reason,
+    combatantId: CombatantIdSchema,
+    leavesReachOf: z.array(CombatantIdSchema).max(6),
+  }),
 ]);
 export type Step = z.infer<typeof StepSchema>;
+
+/** An ability check names a cost and a severe consequence; a saving throw may not. */
+function requireAbilityStakes(
+  steps: readonly Step[],
+  ctx: z.RefinementCtx,
+  base: (string | number)[],
+): void {
+  steps.forEach((step, i) => {
+    if (step.step !== "check" || step.kind !== "ability-check") return;
+    for (const key of ["cost", "severe"] as const) {
+      if (step.stakes[key] === null) {
+        ctx.addIssue({
+          code: "custom",
+          message: `an ability check needs stakes.${key}`,
+          path: [...base, i, "stakes", key],
+        });
+      }
+    }
+  });
+}
 
 export const InterpretReadingSchema = z
   .object({
@@ -195,6 +235,7 @@ export const InterpretReadingSchema = z
         path: ["rulesQuestion"],
       });
     }
+    requireAbilityStakes(r.steps, ctx, ["steps"]);
   });
 export type InterpretReading = z.infer<typeof InterpretReadingSchema>;
 
@@ -306,24 +347,26 @@ export const ReactOutput = z
   });
 export type ReactOutput = z.infer<typeof ReactOutput>;
 
-export const AdjudicateModelOutput = z.object({
-  ruling: z.string().min(1).max(600),
-  citations: z
-    .array(
-      z.discriminatedUnion("source", [
-        z.object({
-          source: z.literal("library"),
-          p: z.number().int().min(1),
-          quote: z.string().min(1).max(500),
-        }),
-        z.object({
-          source: z.literal("srd"),
-          kind: SrdKind,
-          id: z.string().min(1),
-        }),
-      ]),
-    )
-    .max(6),
-  steps: z.array(StepSchema).min(1).max(6),
-});
+export const AdjudicateModelOutput = z
+  .object({
+    ruling: z.string().min(1).max(600),
+    citations: z
+      .array(
+        z.discriminatedUnion("source", [
+          z.object({
+            source: z.literal("library"),
+            p: z.number().int().min(1),
+            quote: z.string().min(1).max(500),
+          }),
+          z.object({
+            source: z.literal("srd"),
+            kind: SrdKind,
+            id: z.string().min(1),
+          }),
+        ]),
+      )
+      .max(6),
+    steps: z.array(StepSchema).min(1).max(6),
+  })
+  .superRefine((o, ctx) => requireAbilityStakes(o.steps, ctx, ["steps"]));
 export type AdjudicateModelOutput = z.infer<typeof AdjudicateModelOutput>;

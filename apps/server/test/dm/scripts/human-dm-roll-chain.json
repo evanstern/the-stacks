@@ -64,7 +64,16 @@
                       "source": "the slick ferry planks"
                     }
                   ],
-                  "onFailure": []
+                  "onFailure": [],
+                  "stakes": {
+                    "success": null,
+                    "cost": "It works, but at a small price.",
+                    "failure": "The attempt comes to nothing.",
+                    "severe": "It goes badly wrong."
+                  },
+                  "onCost": [],
+                  "onSevere": [],
+                  "newRisk": null
                 }
               ]
             }

@@ -84,12 +84,25 @@ export function changedFields(before: unknown, after: unknown): ChangedField[] {
 function outcomeSummary(row: Extract<LedgerRow, { kind: "outcome" }>): string {
   const o = row.outcome;
   switch (o.type) {
-    case "attack.resolved":
+    case "attack.resolved": {
+      const prefix = o.reaction === true ? "Reaction: " : "";
       return o.outcome === "critical-hit"
-        ? `Critical hit (${o.total} vs AC ${o.ac})`
-        : `${o.outcome === "hit" ? "Hit" : "Miss"} (${o.total} vs AC ${o.ac})`;
+        ? `${prefix}Critical hit (${o.total} vs AC ${o.ac})`
+        : `${prefix}${o.outcome === "hit" ? "Hit" : "Miss"} (${o.total} vs AC ${o.ac})`;
+    }
     case "check.resolved": {
-      const result = o.outcome === "success" ? "Success" : "Failure";
+      // Spec 070: a band label when the row carries one; old rows read by outcome.
+      const result =
+        o.band === "success-at-cost"
+          ? "Success at a cost"
+          : o.band === "severe-failure"
+            ? "Severe failure"
+            : o.outcome === "success"
+              ? "Success"
+              : "Failure";
+      if (o.total === null && o.autoFail === null && o.outcome === "success") {
+        return `${result} (no roll)`;
+      }
       return o.total === null
         ? `${result} (DC ${o.dc})`
         : `${result} (${o.total} vs DC ${o.dc})`;

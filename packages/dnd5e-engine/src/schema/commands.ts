@@ -98,6 +98,7 @@ export const EngineCommandSchema = z.discriminatedUnion("type", [
     expression: z.string().min(1).max(200),
     mode: RollMode,
     targetAc: z.number().int().min(1).max(40).nullable().default(null),
+    reaction: z.boolean().optional(),
     reason: Reason,
   }),
   z.object({
@@ -110,6 +111,14 @@ export const EngineCommandSchema = z.discriminatedUnion("type", [
     mode: RollMode,
     dc: z.number().int().min(1).max(40),
     autoFail: z.object({ reason: Reason }).nullable().default(null),
+    // Spec 070: auto-success (a free retry) and the table's house rules.
+    // The engine defaults stay SRD-pure; the DM runtime sends the seed's values.
+    // Optional, not defaulted: a Zod default would make the field required on the
+    // output type and break every existing literal command (session-model recipes).
+    autoSuccess: z.object({ reason: Reason }).nullable().optional(),
+    houseRules: z
+      .object({ outcomeBands: z.boolean(), naturals: z.boolean() })
+      .optional(),
     reason: Reason,
   }),
   z.object({

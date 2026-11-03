@@ -270,6 +270,8 @@ export const dmApprovals: SessionFixture = {
           natural: 13,
           autoFail: null,
           outcome: "success",
+          margin: 3,
+          band: "success",
         },
       ],
     ),

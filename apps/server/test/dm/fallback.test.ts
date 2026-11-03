@@ -172,6 +172,45 @@ describe("factualSummary: one sentence per fact", () => {
     );
   });
 
+  it("names the band, and drops a consequence that fails the claim check (spec 070)", () => {
+    const at = (
+      band: FactRoll["band"],
+      outcome: FactOutcome,
+      consequence: string | null,
+    ) =>
+      action({
+        rolls: [roll(outcome, { band, consequence })],
+        outcomes: [outcome],
+      });
+    expect(
+      sum(
+        facts({
+          actions: [
+            at("success-at-cost", "success", "The lock bites her hand."),
+          ],
+        }),
+      ),
+    ).toBe(
+      "Ana picks the lock. Ana pulls it off, at a cost. The lock bites her hand.",
+    );
+    expect(
+      sum(
+        facts({
+          actions: [at("severe-failure", "failure", "The pick snaps.")],
+        }),
+      ),
+    ).toBe("Ana picks the lock. Ana fails badly. The pick snaps.");
+    expect(sum(facts({ actions: [at("failure", "failure", null)] }))).toBe(
+      "Ana picks the lock. Ana comes up short.",
+    );
+    // A system word or a death claim is not spoken.
+    for (const bad of ["The dice mock her.", "Ana is dead."]) {
+      expect(
+        sum(facts({ actions: [at("severe-failure", "failure", bad)] })),
+      ).toBe("Ana picks the lock. Ana fails badly.");
+    }
+  });
+
   it("hit, critical hit and miss outcome sentences", () => {
     for (const [o, line] of [
       ["hit", "Ana strikes home."],
@@ -499,6 +538,48 @@ describe("factualSummary: run-5 replays", () => {
     expect(out.endsWith("Which way do you press on?")).toBe(true);
     expect(out).not.toMatch(/[0-9]/);
     expect(out).not.toMatch(/clearer|The party enters/);
+  });
+});
+
+describe("factualSummary: the roller is the subject (spec 079)", () => {
+  it("run 1 seq 154-161: the goblin's reaction hit names the goblin", () => {
+    const hit = roll("hit", {
+      name: "Goblin with a pot-helm",
+      reason: "Goblin with a pot-helm strikes as Kestrel pulls away",
+      against: { kind: "AC", value: 14 },
+      target: "Kestrel",
+      reaction: true,
+    });
+    const out = sum(
+      facts({
+        actions: [
+          action({
+            characterName: "Kestrel",
+            rolls: [hit],
+            outcomes: ["hit"],
+            changes: [
+              {
+                kind: "hp",
+                target: "Kestrel",
+                direction: "damage",
+                amount: 4,
+                damageType: "slashing",
+                before: 9,
+                after: 5,
+              },
+            ],
+          }),
+        ],
+      }),
+    );
+    expect(out).toContain("Goblin with a pot-helm strikes home.");
+    expect(out).toContain("Kestrel is wounded.");
+    expect(out).not.toContain("Kestrel strikes home");
+  });
+
+  it("an own check still names the character", () => {
+    const out = sum(facts({ actions: [action({ rolls: [roll("success")] })] }));
+    expect(out).toContain("Ana pulls it off.");
   });
 });
 
