@@ -4,7 +4,7 @@ title: 'Rules gate: spells resolve by SRD id through the engine'
 status: In Progress
 assignee: []
 created_date: '2026-10-26 15:42'
-updated_date: '2026-11-03 06:10'
+updated_date: '2026-11-03 06:12'
 labels:
   - engine
   - dm
@@ -41,6 +41,8 @@ Spec: specs/083-spells-by-srd-id
 
 <!-- SECTION:NOTES:BEGIN -->
 Claimed 2026-11-03 by M3 runbook B (docs/design/m3-runbook-b-resolution-quality.md). Worktree .worktrees/task-0105, branch task-0105-spells-by-srd-id, cut from origin/main 05ef251e. Spec number 083 claimed with a stub. Spine #14; spec authored while 0104 builds.
+
+Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5 (spec 083 authoring, C1)
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
