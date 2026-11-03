@@ -1,10 +1,10 @@
 ---
 id: TASK-0210
 title: 'Attacks and damage may target anyone present, combatant or not'
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-11-02 23:15'
-updated_date: '2026-11-03 00:17'
+updated_date: '2026-11-03 00:21'
 labels:
   - dm
   - rules
@@ -54,6 +54,12 @@ Spec 075 (2b385eec) open questions, defaults taken (a): OQ-1 a pull starts no en
 
 Dispatch: tier=haiku pinned=cc/claude-haiku-5-5 served=claude-haiku-5-5 (spec 075 phase 3, wiki)
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (The gate, its unit tests and the contract (card AC #1, #2, #3): 7/7 · The DB tests and the run 1 seq 45 replay (card AC #1, #2; merge condition): 6/6 · Wiki re-ground (card AC #3): 6/6). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
