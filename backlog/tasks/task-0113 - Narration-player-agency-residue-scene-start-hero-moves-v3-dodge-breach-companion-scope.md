@@ -28,15 +28,17 @@ Spec: specs/074-player-agency
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 A narrate rule or check covers the hero at scene start, with a test over the opening framing
-- [ ] #2 The v3 miss rule's adherence is measured on a captured run, and a fix with a test follows if it is below a stated rate
-- [ ] #3 The playtest auditor's hero-is-theirs check states whether companions count, with a test
-- [ ] #4 The Director's goal notes state no volitional act, method or skill for a PC that its player did not declare, with a prompt test
-- [ ] #5 Interpret steps carry no volitional act for a PC that its player did not declare, with a test
+- [x] #1 A narrate rule or check covers the hero at scene start, with a test over the opening framing
+- [x] #2 The v3 miss rule's adherence is measured on a captured run, and a fix with a test follows if it is below a stated rate
+- [x] #3 The playtest auditor's hero-is-theirs check states whether companions count, with a test
+- [x] #4 The Director's goal notes state no volitional act, method or skill for a PC that its player did not declare, with a prompt test
+- [x] #5 Interpret steps carry no volitional act for a PC that its player did not declare, with a test
 - [x] #6 Spec phase: Rule source, Director, interpret, playtest auditor (card AC #3, #4, #5; US1, US4)
 - [x] #7 Spec phase: Wiki (re-ground)
 - [x] #8 Spec phase: Facts, narrate, audit (card AC #1, #2; US2, US3; OQ-1 ruling)
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
@@ -84,6 +86,6 @@ All spec tasks complete (Rule source, Director, interpret, playtest auditor (car
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
-- [ ] #1 All tests and checks run green
-- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
+- [x] #1 All tests and checks run green
+- [x] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
