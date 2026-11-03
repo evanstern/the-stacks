@@ -232,6 +232,7 @@ export const InterpretReadingSchema = z
     clarify: z.string().min(1).max(200).nullable(),
     steps: z.array(StepSchema).max(6),
     followUps: z.array(z.string().min(1).max(200)).max(6).default([]),
+    say: z.string().min(1).max(200).nullable().optional(), // a monster's spoken line (specs/081)
   })
   .superRefine((r, ctx) => {
     if (r.needsAdjudication && r.rulesQuestion === null) {

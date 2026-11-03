@@ -244,6 +244,16 @@ function plannedSentence(
 ): string {
   const plan = npc.plan;
   if (plan && !plan.held) {
+    const said = spellDigits((plan.say ?? "").replace(/["\u201c\u201d]/g, ""))
+      .replace(/[.!]+$/, "")
+      .trim();
+    const line = `${name} calls out, "${said}."`;
+    if (
+      said &&
+      reasonSpeakable(said, state) &&
+      (!state || checkClaims(state, line).pass)
+    )
+      return line;
     for (const r of plan.reasons) {
       const spoken = spellDigits(r).replace(/[.!]+$/, "");
       if (reasonSpeakable(spoken, state)) return `${spoken}.`;

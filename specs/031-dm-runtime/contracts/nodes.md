@@ -339,3 +339,11 @@ Amended by specs/080-declared-outcome. `stakes.success` is now required on every
 clue of the current beat that a success shows. Interpret's prompt gains a `Discoverable clues`
 section (`clueEntries`, no DC). Prompts: `dm.interpret-v9`, `dm.adjudicate-v7`. No node signature
 changes.
+
+## Amendment 2026-11-03 (specs/081-talk-fallback-line, TASK-0207): the monster's spoken line
+
+Amended by specs/081-talk-fallback-line. An interpret reading gains `say: str|null` (optional, 1 to
+200 characters): the words a monster speaks this beat. The prompt rule: on a monster turn put the
+spoken words in `say`, no quote marks; otherwise null; never put speech in `followUps`; write each
+reason as what the actor does, with no rules note. `say` is not a step: the engine never sees it.
+Prompt: `dm.interpret-v10`. No node signature changes.

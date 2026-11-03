@@ -70,7 +70,7 @@ const NARRATIVE =
 
 describe("interpret and adjudicate prompts", () => {
   it("bumps the prompt versions", () => {
-    expect(INTERPRET_VERSION).toBe("dm.interpret-v9");
+    expect(INTERPRET_VERSION).toBe("dm.interpret-v10");
     expect(ADJUDICATE_VERSION).toBe("dm.adjudicate-v7");
   });
 
@@ -131,6 +131,21 @@ describe("interpret and adjudicate prompts", () => {
       expect(adjudicate.system).toContain(key);
     }
     expect(adjudicate.system).toContain(NARRATIVE);
+  });
+
+  it("InterpretOutput parses a reading with and without say (specs/081)", () => {
+    const base = EXAMPLE_OUTPUT.readings[0];
+    const withSay = InterpretOutput.parse({
+      readings: [{ ...base, say: "Two more hide left of the fire!" }],
+    });
+    expect(withSay.readings[0]?.say).toBe("Two more hide left of the fire!");
+    const { say: _say, ...bare } = base;
+    expect(
+      InterpretOutput.parse({ readings: [bare] }).readings[0]?.say,
+    ).toBeUndefined();
+    expect(
+      InterpretOutput.safeParse({ readings: [{ ...base, say: "" }] }).success,
+    ).toBe(false);
   });
 
   it("the interpret system prompt holds the first-stage rule", async () => {
@@ -237,12 +252,13 @@ describe("interpret and adjudicate prompts", () => {
       A condition effect may use only a listed condition. A narrative outcome such as spotting, learning or noticing something is narration, not an effect: leave onSuccess empty; write what is learned in stakes.success and name the clue in reveals.
 
       Reply with one JSON object, no prose, no code fence.
-      {"readings":[{"actionId":id|null,"intent":"talk"|"move"|"check"|"save"|"attack"|"spell"|"help"|"rest"|"other","uncertain":bool,"needsAdjudication":bool,"rulesQuestion":str|null,"clarify":str|null,"followUps":[str],"steps":[step]}]}
+      {"readings":[{"actionId":id|null,"intent":"talk"|"move"|"check"|"save"|"attack"|"spell"|"help"|"rest"|"other","uncertain":bool,"needsAdjudication":bool,"rulesQuestion":str|null,"clarify":str|null,"followUps":[str],"say":str|null,"steps":[step]}]}
       Write exactly one reading per beat item, keyed by its actionId. Write one reading with actionId null for a monster turn. Roll only when the outcome is uncertain and failure is interesting; for a certain outcome use a none step. Set needsAdjudication true, with a rulesQuestion, when the rules are unclear or the action is inventive; then leave steps empty. When intent is unclear, set clarify to one short question and leave steps empty. Plan only the steps that are not already applied (see Already applied). When a post holds a plan, an approach and later steps, plan only the first stage: the move or approach, with a check for anyone moving hidden or over hard ground. List each later step that depends on it in followUps, one short sentence each, and plan no step for it. When a party member moves away from a hostile it stands next to, without Disengage, plan a move step for it that lists that hostile in leavesReachOf. Plan no attack for the hostile: the engine decides any reaction.
+      On a monster turn, put the words the monster speaks this beat in say: one short line, at most 200 characters, no quote marks. Otherwise set say null. Never put speech in followUps. Write each reason as what the actor does, with no rules note such as whether a roll is needed.
       Write the stakes of every check before the dice: one short consequence per outcome band. Write failure as something that happens. When failure would cost nothing, use a none step instead of a check. Write cost as a price the player pays while still getting the goal, and severe as a worse turn, not only a missed goal. Write no stakes text that tells the player's character what they think or do. Write stakes.success as the concrete outcome of this attempt: what happens to the task and the world when the roll succeeds, so a success always delivers what the player declared. When a success would show one listed discoverable clue, name the thing found in stakes.success and set reveals to that clue's reference, such as ford-crossing#1; otherwise set reveals null. Set newRisk only when a failed attempt has changed the situation so that a repeat is dangerous.
       Keep every field short. Write one sentence per reason, at most 500 characters. Write rulesQuestion at most 500 characters. Write clarify as one short question, at most 200 characters. Write at most 6 steps per reading and at most 4 effects per list. Write source at most 100 characters and expression at most 200 characters.
       Example of one complete reading:
-      {"readings":[{"actionId":"act-1","intent":"check","uncertain":true,"needsAdjudication":false,"rulesQuestion":null,"clarify":null,"followUps":[],"steps":[{"step":"check","reason":"Ana searches the ford for tracks.","combatantId":"pc-ana","kind":"ability-check","ability":"wis","skill":"survival","expression":"1d20+3","mode":"normal","dc":12,"autoFail":null,"onSuccess":[],"onFailure":[],"stakes":{"success":"She finds fresh tracks leading north: three goblins passed here.","cost":"She finds the tracks, but the cold ford soaks her boots.","failure":"The trail goes cold and the light fades.","severe":"She loses the trail and wanders into the reeds, noisily."},"onCost":[],"onSevere":[],"newRisk":null,"reveals":"ford-crossing#1"}]}]}"
+      {"readings":[{"actionId":"act-1","intent":"check","uncertain":true,"needsAdjudication":false,"rulesQuestion":null,"clarify":null,"followUps":[],"say":null,"steps":[{"step":"check","reason":"Ana searches the ford for tracks.","combatantId":"pc-ana","kind":"ability-check","ability":"wis","skill":"survival","expression":"1d20+3","mode":"normal","dc":12,"autoFail":null,"onSuccess":[],"onFailure":[],"stakes":{"success":"She finds fresh tracks leading north: three goblins passed here.","cost":"She finds the tracks, but the cold ford soaks her boots.","failure":"The trail goes cold and the light fades.","severe":"She loses the trail and wanders into the reeds, noisily."},"onCost":[],"onSevere":[],"newRisk":null,"reveals":"ford-crossing#1"}]}]}"
     `);
   });
 

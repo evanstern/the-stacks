@@ -385,6 +385,37 @@ describe("factualSummary: one sentence per fact", () => {
       "Snag offers a parley.",
     );
     expect(sum(npc("talk", []))).toBe("Snag speaks up.");
+    // specs/081: a speakable say line is voiced as quoted speech, before the reasons
+    const say = (line: string, reasons = ["Snag offers a parley."]) =>
+      facts({
+        npcTurn: {
+          name: "Snag",
+          rolls: [],
+          outcomes: [],
+          changes: [],
+          plan: { intent: "talk", reasons, say: line, held: false },
+        },
+      });
+    expect(sum(say("Hold your fire, friends!"))).toBe(
+      'Snag calls out, "Hold your fire, friends."',
+    );
+    expect(sum(say('"Hold your fire," he says.'))).toBe(
+      'Snag calls out, "Hold your fire, he says."',
+    );
+    expect(sum(say("Two more hide left of the fire!"))).toBe(
+      'Snag calls out, "Two more hide left of the fire."',
+    );
+    expect(sum(say("Three of us wait by the ford."))).toBe(
+      'Snag calls out, "Three of us wait by the ford."',
+    );
+    // refused lines fall back to the spec 071 sentence
+    for (const bad of [
+      "Roll a d20 for it!",
+      "He is dead already.",
+      "Will you parley?",
+    ]) {
+      expect(sum(say(bad))).toBe("Snag offers a parley.");
+    }
     expect(sum(npc("move", []))).toBe("Snag shifts ground.");
     expect(sum(npc("help", []))).toBe("Snag lends a hand.");
     expect(sum(npc("attack", []))).toBe("Snag holds back, watching.");
@@ -717,6 +748,7 @@ describe("factualSummary: property", () => {
           plan: {
             intent: pick(["talk", "move", "help", "attack", "other"]),
             reasons: rnd(2) ? [pick(reasons)] : [],
+            say: rnd(2) ? pick(reasons) : null,
             held: rnd(3) === 0,
           },
         };

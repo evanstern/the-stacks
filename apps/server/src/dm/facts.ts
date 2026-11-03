@@ -131,6 +131,8 @@ export interface FactAction {
 export interface FactNpcPlan {
   intent: string;
   reasons: string[];
+  /** The monster's spoken line (specs/081); null when none. */
+  say?: string | null;
   held: boolean;
 }
 
@@ -554,7 +556,11 @@ export interface BuildFactsInput {
   /** Open followUps from earlier beats, by character id (spec 079). */
   openFollowUps?: { characterId: string; text: string }[];
   /** The monster's reading (ruling steps replace the reading's); null when none. */
-  npcPlan?: { intent: string; steps: { reason: string }[] } | null;
+  npcPlan?: {
+    intent: string;
+    steps: { reason: string }[];
+    say?: string | null;
+  } | null;
   /** The combatant active at the start of the beat; set only when the table was in turn mode. */
   turnActorId?: string | null;
 }
@@ -694,6 +700,9 @@ export function buildNarrationFacts(input: BuildFactsInput): NarrationFacts {
     const refused = (input.resolve.planGate ?? []).some(
       (v) => v.actionId === null && !v.ok,
     );
+    const say = refused
+      ? null
+      : (input.npcPlan?.say?.slice(0, PLAN_MAX_CHARS) ?? null);
     npcTurn = {
       name: nameOf(npc.combatantId),
       plan: {
@@ -701,7 +710,8 @@ export function buildNarrationFacts(input: BuildFactsInput): NarrationFacts {
         reasons: steps
           .slice(0, PLAN_MAX_REASONS)
           .map((s) => stripMarker(s.reason).slice(0, PLAN_MAX_CHARS)),
-        held: refused || steps.length === 0,
+        say,
+        held: refused || (steps.length === 0 && !say),
       },
       ...collectFacts(rows, nameOf, types, stakesByBatch, revealedByBatch),
     };

@@ -645,6 +645,7 @@ describe("facts v2: party, events, target, setting (run-5 rows)", () => {
       expect(f.npcTurn?.plan).toEqual({
         intent: "talk",
         reasons: ["Snag offers a parley."],
+        say: null,
         held: false,
       });
       expect(f.turn?.actor).toBe(f.npcTurn?.name);
@@ -675,11 +676,48 @@ describe("facts v2: party, events, target, setting (run-5 rows)", () => {
       expect(factEntries(f)).toContain("  held: the plan did not go ahead");
     });
 
+    it("carries the monster's say line; a refused plan drops it; a line alone is not held (specs/081)", () => {
+      const said = { ...plan, say: "Two more hide left of the fire!" };
+      const f = build(58, 56, "turn", { npcTurn: npc }, { npcPlan: said });
+      expect(f.npcTurn?.plan?.say).toBe("Two more hide left of the fire!");
+      expect(factEntries(f)).toContain(
+        "  says: Two more hide left of the fire!",
+      );
+      const refused = build(
+        58,
+        56,
+        "turn",
+        {
+          npcTurn: npc,
+          planGate: [
+            {
+              actionId: null,
+              ok: false,
+              code: "UNKNOWN_COMBATANT",
+              failure: {} as never,
+            },
+          ],
+        },
+        { npcPlan: said },
+      );
+      expect(refused.npcTurn?.plan?.say).toBeNull();
+      expect(factEntries(refused).join("\n")).not.toContain("says:");
+      const lineOnly = build(
+        58,
+        56,
+        "turn",
+        { npcTurn: npc },
+        { npcPlan: { intent: "talk", steps: [], say: "Hold!" } },
+      );
+      expect(lineOnly.npcTurn?.plan?.held).toBe(false);
+    });
+
     it("absent inputs give the empty plan and no turn", () => {
       const f = build(58, 56, "turn", { npcTurn: npc });
       expect(f.npcTurn?.plan).toEqual({
         intent: "other",
         reasons: [],
+        say: null,
         held: true,
       });
       expect(build(58, 39, "free").turn).toBeUndefined();
