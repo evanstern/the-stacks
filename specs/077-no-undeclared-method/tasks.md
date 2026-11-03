@@ -20,14 +20,14 @@ and report.
 
 **Independent test**: `apps/server/test/dm/plan-gate.test.ts` passes with the new describe.
 
-- [ ] T001 [US1] In `apps/server/src/dm/gates/plan-gate.ts`, add `MANNER_SKILLS` as plan D1 states.
+- [x] T001 [US1] In `apps/server/src/dm/gates/plan-gate.ts`, add `MANNER_SKILLS` as plan D1 states.
       Put the R6 `ponytail:` note on it.
-- [ ] T002 [US2] In the same file, add `otherPlayerQuestion` and the `Asked` type.
-- [ ] T003 [US1] [US2] In the same file, add `askUndeclared` with plan D1 rules 1 to 6. Use
+- [x] T002 [US2] In the same file, add `otherPlayerQuestion` and the `Asked` type.
+- [x] T003 [US1] [US2] In the same file, add `askUndeclared` with plan D1 rules 1 to 6. Use
       `import type` for `BeatItem` and `Ruling`. Leave `checkPlan` unchanged.
-- [ ] T004 [P] [US1] [US2] Extend `apps/server/test/dm/plan-gate.test.ts` with plan "Tests" cases
+- [x] T004 [P] [US1] [US2] Extend `apps/server/test/dm/plan-gate.test.ts` with plan "Tests" cases
       1 to 15. Build the snapshot from `greyhollowDuo()`.
-- [ ] T005 Run `pnpm ci:check`. Commit as `TASK-0205 phase 1: askUndeclared rule`.
+- [x] T005 Run `pnpm ci:check`. Commit as `TASK-0205 phase 1: askUndeclared rule`.
 
 ## Phase 2: Wiring and the run 1 replay (merge condition; US1, US2)
 
