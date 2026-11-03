@@ -144,6 +144,27 @@ const NUMBERED_NAME = new RegExp(
   "i",
 );
 
+// A drop to unconscious emits life-state and an hp-zero condition on the same
+// target; the condition is the same fact, so it is voiced once (via life-state).
+function changeSentences(changes: FactChange[]): string[] {
+  const fell = new Set(
+    changes
+      .filter((c) => c.kind === "life-state" && c.after === "unconscious")
+      .map((c) => c.target),
+  );
+  return changes.flatMap((c) => {
+    if (
+      c.kind === "condition" &&
+      c.op === "applied" &&
+      c.condition === "unconscious" &&
+      fell.has(c.target)
+    )
+      return [];
+    const s = changeSentence(c);
+    return s ? [s] : [];
+  });
+}
+
 function changeSentence(c: FactChange): string | null {
   const target = spellDigits(c.target);
   switch (c.kind) {
@@ -267,10 +288,7 @@ export function factualSummary(
       if (sentences.length > 0) out.push(...sentences);
       else out.push(`${name} goes ahead with it.`);
     }
-    for (const c of a.changes) {
-      const s = changeSentence(c);
-      if (s) out.push(s);
-    }
+    out.push(...changeSentences(a.changes));
   }
 
   if (facts.npcTurn) {
@@ -278,10 +296,7 @@ export function factualSummary(
     const sentences = rollSentences(facts.npcTurn.rolls, name, state);
     if (sentences.length > 0) out.push(...sentences);
     else out.push(plannedSentence(facts.npcTurn, name, state));
-    for (const c of facts.npcTurn.changes) {
-      const s = changeSentence(c);
-      if (s) out.push(s);
-    }
+    out.push(...changeSentences(facts.npcTurn.changes));
   }
 
   let stopped = false;
