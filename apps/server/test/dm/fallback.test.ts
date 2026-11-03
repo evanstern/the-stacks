@@ -791,3 +791,68 @@ describe("factualSummary: property", () => {
     }
   });
 });
+
+describe("factualSummary: a drop to zero names the fall once (TASK-0212)", () => {
+  // Run 1 seq 189-196: the goblin's hit took Kestrel 5 -> 0. The engine emits
+  // hp, life-state (conscious -> unconscious) and condition.applied (hp-zero).
+  const drop: FactChange[] = [
+    {
+      kind: "hp",
+      target: "Kestrel",
+      direction: "damage",
+      amount: 5,
+      damageType: null,
+      before: 5,
+      after: 0,
+    },
+    {
+      kind: "life-state",
+      target: "Kestrel",
+      before: "conscious",
+      after: "unconscious",
+    },
+    {
+      kind: "condition",
+      target: "Kestrel",
+      op: "applied",
+      condition: "unconscious",
+    },
+  ];
+
+  it("seq 189-196: 'falls unconscious' appears exactly once", () => {
+    const out = sum(facts({ actions: [action({ changes: drop })] }));
+    expect(out).toBe(
+      "Ana goes ahead with it. Kestrel is wounded. Kestrel falls unconscious.",
+    );
+    expect(out.match(/falls unconscious/g)).toHaveLength(1);
+  });
+
+  it("a heal back to conscious renders the wake once", () => {
+    const heal: FactChange[] = [
+      {
+        kind: "hp",
+        target: "Kestrel",
+        direction: "heal",
+        amount: 2,
+        damageType: null,
+        before: 0,
+        after: 2,
+      },
+      {
+        kind: "life-state",
+        target: "Kestrel",
+        before: "unconscious",
+        after: "conscious",
+      },
+      {
+        kind: "condition",
+        target: "Kestrel",
+        op: "removed",
+        condition: "unconscious",
+      },
+    ];
+    const out = sum(facts({ actions: [action({ changes: heal })] }));
+    expect(out.match(/wakes/g)).toHaveLength(1);
+    expect(out.match(/falls unconscious/g)).toBeNull();
+  });
+});
