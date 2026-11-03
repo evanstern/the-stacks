@@ -33,16 +33,18 @@ Spec: specs/080-declared-outcome
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Interpret declares a concrete outcome for every band, success included, on each check step from a player action, and a schema test rejects a check step with no success outcome
-- [ ] #2 NarrationFacts carries the applied outcome text beside the roll, with a test
-- [ ] #3 The narrate prompt presents the applied outcome as settled fact that the prose must deliver
-- [ ] #4 The auditor fails narration that does not deliver the applied outcome, with a test over a captured run that replays the claw-marks case
-- [ ] #5 A success on an information-seeking check names seed information in its declared outcome, with a test
+- [x] #1 Interpret declares a concrete outcome for every band, success included, on each check step from a player action, and a schema test rejects a check step with no success outcome
+- [x] #2 NarrationFacts carries the applied outcome text beside the roll, with a test
+- [x] #3 The narrate prompt presents the applied outcome as settled fact that the prose must deliver
+- [x] #4 The auditor fails narration that does not deliver the applied outcome, with a test over a captured run that replays the claw-marks case
+- [x] #5 A success on an information-seeking check names seed information in its declared outcome, with a test
 - [x] #6 Spec phase: Step contract, discoverable clues, seeds, fixtures (card AC #1, #5; US1, US2)
 - [x] #7 Spec phase: Resolve and facts carry the applied outcome (card AC #2, #5; US1, US2)
 - [x] #8 Spec phase: Narration, audit, fallback and the claw-marks replay (card AC #3, #4; US1, US3)
 - [x] #9 Spec phase: Contracts and wiki re-ground
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
@@ -73,6 +75,6 @@ All spec tasks complete (Step contract, discoverable clues, seeds, fixtures (car
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
-- [ ] #1 All tests and checks run green
-- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
+- [x] #1 All tests and checks run green
+- [x] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
