@@ -4,7 +4,7 @@ title: DM assumes a stealth approach the player never declared and rolls for it
 status: In Progress
 assignee: []
 created_date: '2026-11-02 22:21'
-updated_date: '2026-11-03 01:21'
+updated_date: '2026-11-03 02:46'
 labels:
   - dm
   - playtest
@@ -34,7 +34,10 @@ Spec: specs/077-no-undeclared-method
 - [ ] #1 Interpret does not add a check whose method the declaration does not state or clearly imply; it asks (clarify) instead, with a test replaying this action
 - [ ] #2 A check from one player's action rolls for that player's character, never another human's, with a test
 - [ ] #3 The Director's goal note cannot prescribe a skill the player did not choose (prompt rule plus test)
+- [ ] #4 Spec phase: The rule (card AC #1, #2; US1, US2)
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
