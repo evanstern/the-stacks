@@ -36,16 +36,6 @@ Spec: specs/084-opposition-and-help
 - [x] #8 Spec phase: Re-ground (wiki)
 <!-- AC:END -->
 
-
-
-
-
-
-
-
-
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -63,6 +53,8 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (
 Phase 0: S1 (spell attacks bypass handleAttackRoll) resolved as D5a per SRD 5.2.1 Help text ('the next attack roll'); a spell attack takes the assist.
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 084 phases 3-4)
+
+spec-bridge sync: Seam check [orchestrator]: 1/1 · Engine (card AC #1, #2; US1, US2): 15/15 · Step contract, prompts, plan gate and resolve (card AC #1, #3; US1, US3): 11/11 · Narration facts and end-to-end test (card AC #1–#3; US1, US2, US4): 5/5 · Re-ground (wiki): 7/7 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
