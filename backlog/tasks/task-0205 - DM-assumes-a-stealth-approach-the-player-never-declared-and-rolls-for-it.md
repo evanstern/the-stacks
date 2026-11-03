@@ -4,7 +4,7 @@ title: DM assumes a stealth approach the player never declared and rolls for it
 status: In Progress
 assignee: []
 created_date: '2026-11-02 22:21'
-updated_date: '2026-11-03 02:46'
+updated_date: '2026-11-03 02:47'
 labels:
   - dm
   - playtest
@@ -51,6 +51,8 @@ Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5 (spec 0
 spec-bridge sync: The rule (card AC #1, #2; US1, US2): 0/5 · Wiring and the run 1 replay (merge condition; US1, US2): 0/7 · Wiki (re-ground): 0/7
 
 Spec 077 (4b023442). Defaults taken: OQ-1 a roll on another human's PC becomes a clarify, not a refusal; OQ-2 AI companion actions skip the manner rule; OQ-3 manner skills are Stealth, Deception, Intimidation; OQ-4 hidden-state tracking carded separately. AC #3 is delivered by TASK-0113 (merged #114, d9aade52): the director-v5 goal-note rule and its prompt test.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 077 phases 1-2)
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
