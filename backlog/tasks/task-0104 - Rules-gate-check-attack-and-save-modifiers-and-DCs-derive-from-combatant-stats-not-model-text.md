@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-10-26 15:42'
-updated_date: '2026-11-03 06:10'
+updated_date: '2026-11-03 06:25'
 labels:
   - engine
   - dm
@@ -67,6 +67,8 @@ spec-bridge sync: Seam check [orchestrator]: 1/1 · Engine derivation (card AC #
 Phase 0 seam check (eeb91c61): 15 seams moved, none changed meaning; see specs/082-engine-derived-numbers/deviations.md. interpret bumps to v11, adjudicate to v8; narrate and audit untouched (main narrate-v14 after #122).
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 082 phases 1-2)
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 082 phases 3-4)
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
