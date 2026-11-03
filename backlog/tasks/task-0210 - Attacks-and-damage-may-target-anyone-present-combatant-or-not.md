@@ -4,7 +4,7 @@ title: 'Attacks and damage may target anyone present, combatant or not'
 status: In Progress
 assignee: []
 created_date: '2026-11-02 23:15'
-updated_date: '2026-11-03 00:03'
+updated_date: '2026-11-03 00:17'
 labels:
   - dm
   - rules
@@ -51,6 +51,8 @@ spec-bridge sync: The gate, its unit tests and the contract (card AC #1, #2, #3)
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 075 phases 1-2)
 Spec 075 (2b385eec) open questions, defaults taken (a): OQ-1 a pull starts no encounter and records no hostility; OQ-2 a present non-combatant may attack and is pulled in; OQ-3 seq 45 replay makes Snag present first, absent state is the AC #2 control. Footprint: plan-gate.ts only (resolve.ts untouched; pullIn already pulls every verdict id).
+
+Dispatch: tier=haiku pinned=cc/claude-haiku-5-5 served=claude-haiku-5-5 (spec 075 phase 3, wiki)
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
