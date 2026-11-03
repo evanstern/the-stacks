@@ -100,17 +100,17 @@ report if another file is needed. No paid model run; tests use the fake gateway.
 
 ## Phase 3: Wiki (re-ground)
 
-- [ ] T024 Run `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/1.0.1/gates/cli.mjs
+- [x] T024 Run `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/1.0.1/gates/cli.mjs
       freshness . docs/wiki` and list every stale note.
-- [ ] T025 Review `docs/wiki/dm-narration-quality.md` (NEEDS-REVIEW): the agency rule, involuntary
+- [x] T025 Review `docs/wiki/dm-narration-quality.md` (NEEDS-REVIEW): the agency rule, involuntary
       facts, the reserved band, the two deterministic checks, the prompt-version paragraph
       (`dm.narrate-v9`, `dm.audit-v5`, `dm.director-v5`, `dm.companion-v7`, `dm.react-v2`).
-- [ ] T026 Review `docs/wiki/dm-runtime.md` (NEEDS-REVIEW): the doctrine section (`AGENCY_RULE`,
+- [x] T026 Review `docs/wiki/dm-runtime.md` (NEEDS-REVIEW): the doctrine section (`AGENCY_RULE`,
       revised pair), the Director goal-note rule, `dm.interpret-v6`.
-- [ ] T027 Re-pin or review `output-claim-gate`, `dm-talk-triggers`, `dm-failure-and-gates`
+- [x] T027 Re-pin or review `output-claim-gate`, `dm-talk-triggers`, `dm-failure-and-gates`
       (`dm.interpret-v6`) and `playtest-harness` (the Party section, `playtest.audit-v2`). Re-pin a
       note with a computed re-pin only when its text still holds.
-- [ ] T028 Update `docs/wiki/CAPSULES.md` and `docs/wiki/INDEX.md` for every note whose description
+- [x] T028 Update `docs/wiki/CAPSULES.md` and `docs/wiki/INDEX.md` for every note whose description
       changed. Add one sentence on TASK-0113 to the INDEX overview.
 - [ ] T029 Run the freshness gate (prints `OK`), the spec-bridge gate (exits 0) and
       `pnpm ci:check`.
