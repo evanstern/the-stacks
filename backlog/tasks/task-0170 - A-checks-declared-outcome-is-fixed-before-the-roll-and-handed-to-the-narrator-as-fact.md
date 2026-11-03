@@ -44,20 +44,14 @@ Spec: specs/080-declared-outcome
 - [ ] #9 Spec phase: Contracts and wiki re-ground
 <!-- AC:END -->
 
-
-
-
-
-
-
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
 Claimed 2026-11-02 by M3 runbook B (docs/design/m3-runbook-b-resolution-quality.md). Worktree .worktrees/task-0170, branch task-0170-declared-outcome, cut from origin/main b79489e2. Spec number 080 claimed with a stub. Spine #9; spec authored early against spec 070.
 
 Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5 (spec 080 authoring, C1)
+
+spec-bridge sync: Step contract, discoverable clues, seeds, fixtures (card AC #1, #5; US1, US2): 0/10 · Resolve and facts carry the applied outcome (card AC #2, #5; US1, US2): 0/7 · Narration, audit, fallback and the claw-marks replay (card AC #3, #4; US1, US3): 0/9 · Contracts and wiki re-ground: 0/5
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
