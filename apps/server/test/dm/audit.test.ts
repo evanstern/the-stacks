@@ -10,9 +10,11 @@ import {
 } from "../../src/dm/facts.js";
 import { assemble } from "../../src/dm/nodes/assemble.js";
 import {
+  AuditModelOutput,
   audit,
   detailNamesPartyMember,
   deterministicChecks,
+  llmIssueBlocksFor,
   MAX_NARRATION_ATTEMPTS,
 } from "../../src/dm/nodes/audit.js";
 import type { DirectorNodeOutput } from "../../src/dm/nodes/director.js";
@@ -385,6 +387,36 @@ describe("off-turn actors (TASK-0214)", () => {
   it("runs no check without an offTurn list", () => {
     expect(check(`${CLEAN} Guard hurls a spear.`, f()).pass).toBe(true);
     expect(check(`${CLEAN} Guard hurls a spear.`).pass).toBe(true);
+  });
+});
+
+describe("issue actor blocking rule (TASK-0214)", () => {
+  const issue = (actor?: string) => ({
+    kind: "player-agency" as const,
+    detail: "Narration decides what Kestrel feels about Snag's sneer.",
+    ...(actor ? { actor } : {}),
+  });
+  it("an NPC actor is advisory even when the detail names a party member", () => {
+    expect(llmIssueBlocksFor(issue("Snag"), SEED_PARTY)).toBe(false);
+  });
+  it("a party actor blocks", () => {
+    expect(llmIssueBlocksFor(issue("Brother Odo"), SEED_PARTY)).toBe(true);
+  });
+  it("no actor falls back to the detail test", () => {
+    expect(llmIssueBlocksFor(issue(), SEED_PARTY)).toBe(true);
+  });
+  it("parses a reply with and without actor", () => {
+    const base = {
+      verdict: "fail",
+      issues: [{ kind: "doctrine", detail: "x" }],
+    };
+    expect(AuditModelOutput.safeParse(base).success).toBe(true);
+    expect(
+      AuditModelOutput.safeParse({
+        ...base,
+        issues: [{ kind: "doctrine", detail: "x", actor: "Snag" }],
+      }).success,
+    ).toBe(true);
   });
 });
 

@@ -11,7 +11,7 @@ export const PROMPT_VERSION = "dm.audit-v12";
 
 const OUTPUT_SHAPE = [
   "Reply with ONE JSON object and nothing else:",
-  '{"verdict":"pass"|"fail","issues":[{"kind":"ledger-mismatch"|"invented-mechanics"|"player-agency"|"doctrine"|"other","detail":str (300 characters at most)}]}',
+  '{"verdict":"pass"|"fail","issues":[{"kind":"ledger-mismatch"|"invented-mechanics"|"player-agency"|"doctrine"|"other","detail":str (300 characters at most),"actor":str (optional; the character the issue is about)}]}',
   "Use verdict fail only with at least one issue. At most eight issues.",
 ].join("\n");
 
@@ -29,7 +29,7 @@ export function buildAuditPrompt(input: {
   const system = [
     "You audit a narration against the facts of one beat of a tabletop role-playing session. The facts are TRUE. The narration is on trial.",
     "Report an issue when the narration contradicts a fact, invents a roll or a mechanic, decides what a player character says, feels or does, or breaks the doctrine. Use these definitions:",
-    `1. \`player-agency\`: ${agencyRule("audit")} Showing a party member carry out their declared action is allowed. Words, moves and feelings of every other character are the world's, never \`player-agency\`.`,
+    `1. \`player-agency\`: ${agencyRule("audit")} Showing a party member carry out their declared action is allowed. Words, moves and feelings of every other character are the world's, never \`player-agency\`. Set \`actor\` to the character each issue is about.`,
     "2. `invented-mechanics` or `ledger-mismatch`: the prose grants a rules result no fact records — a hit, a wound, a condition, a death, a success at an uncertain task, or a hidden discovery — or contradicts a fact, or does not deliver a roll's settled outcome or learned fact (a success whose prose leaves the task undone or the learned fact unnamed). No rules effect means nothing was rolled; the attempt still happens and the world may respond. That is not a mismatch.",
     "3. When the facts ask a question, ending on that open question is correct.",
     "4. Code checks length; do not report length.",

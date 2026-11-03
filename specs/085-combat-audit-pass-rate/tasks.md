@@ -59,21 +59,21 @@ leaks no count.
 **Independent test**: `audit.test.ts`, `narrate.test.ts` and `assemble.test.ts` pass with the new
 cases.
 
-- [ ] T011 [US2] In `apps/server/src/dm/nodes/audit.ts`, apply plan D6: `AuditIssue.actor`, the
+- [x] T011 [US2] In `apps/server/src/dm/nodes/audit.ts`, apply plan D6: `AuditIssue.actor`, the
       schema field, and the `llmIssueBlocksFor` rule.
-- [ ] T012 [US2] In `apps/server/src/dm/prompts/audit.ts`, apply plan D3 rule 1 and the
+- [x] T012 [US2] In `apps/server/src/dm/prompts/audit.ts`, apply plan D3 rule 1 and the
       `OUTPUT_SHAPE` `actor` field. Keep the Phase 1 version: one bump per task.
-- [ ] T013 [US3] In `apps/server/src/dm/audit-words.ts`, add `STOCK_ENDING` and `hasCountClaim`
+- [x] T013 [US3] In `apps/server/src/dm/audit-words.ts`, add `STOCK_ENDING` and `hasCountClaim`
       (plan D4). In `nodes/audit.ts`, replace the inline stock-ending regex with `STOCK_ENDING`.
-- [ ] T014 [US3] [US4] In `apps/server/src/dm/nodes/narrate.ts`, apply plan D7:
+- [x] T014 [US3] [US4] In `apps/server/src/dm/nodes/narrate.ts`, apply plan D7:
       `dropStockEnding` in `narrateAttempt`, and the count rule in `withholdRefusedInputs`.
-- [ ] T015 [US4] In `apps/server/src/dm/prompts/director.ts`, apply plan D8. Bump
+- [x] T015 [US4] In `apps/server/src/dm/prompts/director.ts`, apply plan D8. Bump
       `PROMPT_VERSION`.
-- [ ] T016 [P] [US2] Extend `apps/server/test/dm/audit.test.ts`: spec US2 scenarios 1–3; a reply
+- [x] T016 [P] [US2] Extend `apps/server/test/dm/audit.test.ts`: spec US2 scenarios 1–3; a reply
       with `actor` parses and one without still parses.
-- [ ] T017 [P] [US3] [US4] Extend `apps/server/test/dm/narrate.test.ts`: spec US3 scenarios 1–3
+- [x] T017 [P] [US3] [US4] Extend `apps/server/test/dm/narrate.test.ts`: spec US3 scenarios 1–3
       and US4 scenarios 1–2; the existing refuted-goalNote case still passes.
-- [ ] T018 [P] [US4] Extend `apps/server/test/dm/assemble.test.ts`: the director version pin and
+- [x] T018 [P] [US4] Extend `apps/server/test/dm/assemble.test.ts`: the director version pin and
       the `goalNote` restriction text (spec US4 scenario 3). Commit as
       `TASK-0214 phase 2: NPC feelings, stock ending, goal-note counts`.
 

@@ -8,7 +8,11 @@ import { memorySink } from "../../src/ai/usage.js";
 import { agencyRule } from "../../src/dm/doctrine/doctrine.js";
 import { assemble } from "../../src/dm/nodes/assemble.js";
 import type { DirectorNodeOutput } from "../../src/dm/nodes/director.js";
-import { narrate, withholdRefusedInputs } from "../../src/dm/nodes/narrate.js";
+import {
+  dropStockEnding,
+  narrate,
+  withholdRefusedInputs,
+} from "../../src/dm/nodes/narrate.js";
 import type { ResolveOutput } from "../../src/dm/nodes/resolve.js";
 import {
   PROMPT_VERSION as AUDIT_VERSION,
@@ -692,6 +696,32 @@ describe("narrate", () => {
       expect(n.facts.rulings).toHaveLength(1);
     });
 
+    it("withholds a goalNote that states a true count (TASK-0214)", async () => {
+      const base = await setup(["x"]);
+      const out = await narrate(base.ctx);
+      if (!out.ok) throw new Error("narrate failed");
+      const fight = greyhollowFight();
+      const snapshot = buildSnapshot(fight.projections, fight.seed);
+      for (const a of snapshot.actors) {
+        if (a.id === "goblin-2" || a.id === "goblin-3") a.lifeState = "dead";
+      }
+      const state = { snapshot, diff: null };
+      const note = "Two goblins down; Snag eyes a bargain.";
+      const r = withholdRefusedInputs(
+        {
+          ...out.output.facts,
+          director: { ...out.output.facts.director, goalNote: note },
+        },
+        state,
+      );
+      expect(r.facts.director.goalNote).toBe("");
+      expect(r.withheld).toHaveLength(1);
+      expect(r.withheld[0]?.kind).toBe("doctrine");
+      expect(r.withheld[0]?.detail).toMatch(
+        /^Withheld goalNote: it states a count/,
+      );
+    });
+
     it("passes a clean ruling and note unchanged", async () => {
       const { n } = await withheldRun(
         "The lock yields to patient work.",
@@ -785,5 +815,25 @@ describe("narrate", () => {
     expect(p.system).toContain("ending on that open question is correct");
     expect(p.system).toContain("Code checks length; do not report length.");
     expect(p.system).toContain("Report craft concerns as `doctrine`");
+  });
+});
+
+describe("dropStockEnding (TASK-0214)", () => {
+  it("drops a trailing What do you do? after a sentence end", () => {
+    expect(dropStockEnding("The door groans open. What do you do?")).toBe(
+      "The door groans open.",
+    );
+    expect(dropStockEnding('The door groans open. "What do you all do?"')).toBe(
+      "The door groans open.",
+    );
+  });
+  it("leaves prose with no earlier sentence, other endings and mid-prose phrases", () => {
+    expect(dropStockEnding("What do you do?")).toBe("What do you do?");
+    expect(dropStockEnding("The door opens. What does Tamsin do?")).toBe(
+      "The door opens. What does Tamsin do?",
+    );
+    expect(dropStockEnding("What do you do? The door opens.")).toBe(
+      "What do you do? The door opens.",
+    );
   });
 });

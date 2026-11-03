@@ -291,6 +291,10 @@ export const TURN_ACT_VERBS: readonly string[] = [
   "cast",
 ];
 
+/** The literal stock ending "What do you do?" at the end of prose (TASK-0204, TASK-0214). */
+export const STOCK_ENDING =
+  /\bwhat do you(?: all| two)? do\?["'\u201d\u2019]*$/i;
+
 /** "<term> acts next" and "<term> moves next" (turn order, FR-004a). */
 export const TURN_ORDER_PHRASE = /^\s*(?:acts|moves)\s+next\b/i;
 
@@ -513,4 +517,13 @@ export function namePairMatch(
     "i",
   );
   return re.exec(prose)?.[0] ?? null;
+}
+
+/** True when `text` states a count of the fallen or the remaining (TASK-0214). */
+export function hasCountClaim(text: string): boolean {
+  return [
+    COUNT_PATTERNS.numberDown,
+    COUNT_PATTERNS.noneLeft,
+    COUNT_PATTERNS.allDown,
+  ].some((src) => new RegExp(src, "iu").test(text));
 }

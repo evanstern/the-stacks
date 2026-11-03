@@ -16,7 +16,7 @@ import {
   transcriptEntries,
 } from "./common.js";
 
-export const PROMPT_VERSION = "dm.director-v6";
+export const PROMPT_VERSION = "dm.director-v7";
 
 const OUTPUT_SHAPE = [
   "Reply with ONE JSON object and nothing else:",
@@ -25,7 +25,7 @@ const OUTPUT_SHAPE = [
   ' "trackers":[{"trackerId":id,"advance":int -3..3 not 0,"reason":str}],',
   ' "scene":{"status":"continue"}|{"status":"end","outcome":"goal-met"|"retreat"|"failed","reason":str},',
   ' "pacing":{"tension":"low"|"rising"|"high","spotlight":characterId|null,"beatId":seed beat id|null},',
-  ' "goalNote":str (a private pacing note for the narrator, 300 characters at most; it names no party member\'s act, method, skill or reaction its player did not declare),',
+  ' "goalNote":str (a private pacing note for the narrator, 300 characters at most; it names no party member\'s act, method, skill or reaction its player did not declare; it states no count of the fallen or the remaining, no morale condition and no encounter trigger),',
   ' "companionPrompts":[characterId],',
   ' "arrivals":[seed NPC id of an offstage NPC now on screen]}',
 ].join("\n");
