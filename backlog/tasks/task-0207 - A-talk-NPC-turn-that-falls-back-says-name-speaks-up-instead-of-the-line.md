@@ -35,9 +35,11 @@ Spec: specs/081-talk-fallback-line
 - [ ] #1 A talk NPC turn whose narration falls back ships the NPC's planned words in fiction, with a test replaying seq 124-126
 - [ ] #2 The plan carries the NPC's line in a field the fallback can voice (not mixed with rules notes like 'no roll needed')
 - [x] #3 Spec phase: The plan carries the line (card AC #2; US2)
-- [ ] #4 Spec phase: The fallback voices the line (card AC #1; US1, US3)
+- [x] #4 Spec phase: The fallback voices the line (card AC #1; US1, US3)
 - [ ] #5 Spec phase: Wiki re-ground
 <!-- AC:END -->
+
+
 
 
 
