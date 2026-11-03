@@ -40,12 +40,6 @@ Spec: specs/075-attack-anyone
 - [x] #6 Spec phase: Wiki re-ground (card AC #3)
 <!-- AC:END -->
 
-
-
-
-
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -59,6 +53,8 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (
 Spec 075 (2b385eec) open questions, defaults taken (a): OQ-1 a pull starts no encounter and records no hostility; OQ-2 a present non-combatant may attack and is pulled in; OQ-3 seq 45 replay makes Snag present first, absent state is the AC #2 control. Footprint: plan-gate.ts only (resolve.ts untouched; pullIn already pulls every verdict id).
 
 Dispatch: tier=haiku pinned=cc/claude-haiku-5-5 served=claude-haiku-5-5 (spec 075 phase 3, wiki)
+
+spec-bridge sync: The gate, its unit tests and the contract (card AC #1, #2, #3): 7/7 · The DB tests and the run 1 seq 45 replay (card AC #1, #2; merge condition): 6/6 · Wiki re-ground (card AC #3): 6/6 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
