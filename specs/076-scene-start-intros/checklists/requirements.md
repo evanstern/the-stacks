@@ -33,4 +33,7 @@
 
 - The spec names seed fields, the audit and the fallback where the card ACs are about them. That
   is the contract under test, not a leaked implementation choice.
-- Three open questions carry recommended defaults (OQ-1 to OQ-3) for the orchestrator to rule.
+- OQ-1 is resolved by operator ruling (2026-11-02): "The opening should name the characters, not
+  the players". OQ-2 and OQ-3 stand at their defaults (a).
+- Re-validated 2026-11-02 after the ruling and the merge of `origin/main` (TASK-0113, 0209, 0205,
+  0206): every item still holds.

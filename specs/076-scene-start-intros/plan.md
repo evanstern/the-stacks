@@ -4,7 +4,9 @@
 
 **Input**: `specs/076-scene-start-intros/spec.md`, runbook B lane B4, spine #17
 (`docs/design/m3-runbook-b-resolution-quality.md`). This plan assumes OQ-1 (a), OQ-2 (a) and
-OQ-3 (a). Research, data model and contracts are small, so they live in this file; there is no
+OQ-3 (a). OQ-1 is resolved by operator ruling (2026-11-02): "The opening should name the
+characters, not the players". Amended 2026-11-02 after merging `origin/main` (TASK-0113, 0209,
+0205, 0206 merged). Research, data model and contracts are small, so they live in this file; there is no
 separate research.md, data-model.md or quickstart.md.
 
 ## Summary
@@ -12,11 +14,12 @@ separate research.md, data-model.md or quickstart.md.
 The seed's `opening` gains a required `premise`. The player-facing seed view carries it. At scene
 start only, the narrate prompt replaces its two scene lines with an opening section: location
 (name, features, mood, senses), premise, goal statement, framing, each party character (class,
-look, controller kind) and each NPC present at the first beat (role, look), plus the rule to name
-them all before one open closing question. The narrate node derives the scene-start NPC list from
+look) and each NPC present at the first beat (role, look), plus the rule to name them all, and no
+player, before one open closing question. TASK-0113's scene-start agency rule moves into the
+section verbatim. The narrate node derives the scene-start NPC list from
 the first beat's declaration and the logged presence, not from the Director's beat. A new
-deterministic audit check blocks a scene-start narration that leaves a name out, and the
-scene-start fallback names everyone. Every other trigger is unchanged. No migration, no route, no
+deterministic audit check blocks a scene-start narration that leaves a name out or names a player
+or controller, and the scene-start fallback names everyone. Every other trigger is unchanged. No migration, no route, no
 new dependency.
 
 ## Technical Context
@@ -31,7 +34,8 @@ stack) on the fake gateway.
 **Constraints**: player-facing prompts take `PlayerSeedView` only (spec 034). Non-scene-start
 narration is byte-identical in prompt and checks (FR-015). Frozen contracts untouched.
 **Scale/Scope**: 6 source files, 5 seed data files, 9 DM script files (1 new), 4 contract
-amendments, 2 new test files, 3 extended test files.
+amendments, 2 new test files, 3 extended test files. Unchanged by the OQ-1 ruling: the ruling
+removes the controller from the opening and adds no file.
 
 ## Constitution Check
 
@@ -55,15 +59,23 @@ Against `.specify/memory/constitution.md` 2.0.0. Re-checked after design: unchan
 
 ## Research
 
-- **R1 — Today's opening input.** `buildNarratePrompt` (`prompts/narrate.ts`) adds, for
-  `facts.trigger === "scene-start"`, `Open the scene. Framing: <seed.openingFraming>` and
-  `Location: <name>. Mood: <mood>`. The party is in the prompt only as snapshot lines
+- **R1 — Today's opening input.** `buildNarratePrompt` (`prompts/narrate.ts`, `dm.narrate-v9`)
+  adds, for `facts.trigger === "scene-start"`, three lines: `Open the scene. Framing:
+  <seed.openingFraming>`, TASK-0113's "The opening shows the place and what the party finds. It
+  never moves, leads or voices a party member." (asserted in `narrate.test.ts`), and `Location:
+  <name>. Mood: <mood>`. The party is in the prompt only as snapshot lines
   ("Tamsin Vale (party, human player): conscious"). The "Present characters" section lists
   `facts.presentNpcs` (voice, want, detail).
 - **R2 — Why Wenna is missing.** `nodes/narrate.ts` passes `beatNpcIds` = the Director's chosen
   beat's `npcIds`, filtered against S1. The scene-start scripts and the real Director pick
   `ferry-house`, whose `npcIds` is `[]`, yet `beats[0].presence.wenna` is `present`. So
-  `facts.presentNpcs` is empty at the opening.
+  `facts.presentNpcs` is empty at the opening. Spec 078 (merged) leaves this cause in place:
+  `applyLegality` sets `arrivals = []` at scene start, and `offstageNpcIds` lists only logged
+  `absent` NPCs.
+- **R2b — Reuse of 078's helper.** `offstageNpcIds` (`nodes/director.ts`) is not imported into
+  `nodes/narrate.ts`: `director.ts` value-imports `./schemas.js`, and the narrate import-closure
+  test forbids `dm/nodes/schemas.ts`. S1's `presence` is built from the same `scenePresence`
+  projection (`snapshot/build.ts` `presenceOf`), so the S1 filter in D5 is the same predicate.
 - **R3 — Present at the first beat.** At scene start resolve logs a `removed`/`conceded` `dm` row
   for each NPC `beats[0]` declares `absent`/`yielded` (`seedPresence`). Under an AI DM, S1 then
   reads those NPCs absent or yielded. Under a human DM the rows stay pending, so S1 reads every
@@ -72,8 +84,9 @@ Against `.specify/memory/constitution.md` 2.0.0. Re-checked after design: unchan
 - **R4 — Player-safe fields.** Every field the opening section reads is player-facing in
   `specs/034-narration-quality/contracts/player-facing-context.md`: location name, features,
   mood, senses; goal statement; opening framing; NPC name, role, appearance; character name,
-  class (`identity.class`), appearance. The premise is classed player-facing here. The
-  controller kind comes from `facts.party` (the logged party), never a user id.
+  class (`identity.class`), appearance. The premise is classed player-facing here. Per the OQ-1
+  ruling, the opening section reads no controller kind and no user id. The shared snapshot lines
+  ("Tamsin Vale (party, human player)") are unchanged (FR-015).
 - **R5 — Name matching.** `nameTerms(name)` (`snapshot/aliases.ts`) gives the full name and the
   given name after title words ("Brother Odo" gives "Odo"). The audit's party-name filter already
   matches whole words with `(?<![\p{L}\p{N}_-])…(?![\p{L}\p{N}_-])`. The name check reuses both,
@@ -81,12 +94,19 @@ Against `.specify/memory/constitution.md` 2.0.0. Re-checked after design: unchan
 - **R6 — Captured openings.** `specs/034-narration-quality/evidence/verify-20261026T192319Z-greyhollow-ford-provider/transcript.jsonl`
   seq 10 names Tamsin Vale, Brother Odo and Kestrel and omits Wenna Marsh. `…/run5-20261026T171359Z-greyhollow-ford-provider/transcript.jsonl`
   seq 10 names nobody. Both used seed `greyhollow-ford` (Wenna present at `beats[0]`).
+- **R7b — TASK-0113's scene-start agency check.** `deterministicChecks` blocks a scene-start
+  prose where a party name is followed within two words by a `SCENE_START_VERBS` form
+  (`audit-words.ts`: act and speech verbs plus lead, follow, head, enter, approach, study, listen and
+  others). Every D8 text and the D7 fallback must pass it. "Kestrel have followed" fails it, so
+  the reed-camp text below avoids it.
 - **R7 — Scripted openings name nobody.** Eight DM scripts carry a scene-start `dm.narrate` reply
   that names no one. Once the check lands, each would fail the audit, regenerate, and drain the
   strict fake provider. All eight change in the same phase as the check. The composite scripts
   must stay call-for-call equal to their parts (`dm-scripts.test.ts`, `scene.integration.test.ts`),
   and `script-env.integration.test.ts` expects the text to contain "The party reaches Greyhollow
-  Ford".
+  Ford". The scripts merged with spec 077 and 078 (`approach-reed-camp.json`, `reveal-snag.json`,
+  `shoot-snag.json`) hold no scene-start narrate call; their tests compose `scene-start.json`, so
+  they pick up the D8 text unchanged.
 - **R8 — Isolation.** `RULES` is the system text for every trigger, so no rule is added there.
   All new instructions live in the scene-start user section. `factEntries`, `characterSections`
   and `buildAuditPrompt` are unchanged. The name check returns early unless
@@ -138,29 +158,29 @@ Why the party is here: <openingPremise>
 Goal: <goalStatement>
 Framing: <openingFraming>
 Party:
-- <name>, <class>, played by <a human player | an AI companion>. Looks: <appearance>
+- <name>, <class>. Looks: <appearance>
 Present at the start:
 - <name>, <role>. Looks: <appearance>
 Introduce the place, why the party is here and what they are there to do. Name every party member and every character present listed above before you ask anything. A present character may be heard, glimpsed or expected rather than seen.
-Show each party member only as present: no movement, speech or choice.
+Name the characters only. Never say who plays a character or how it is played.
+The opening shows the place and what the party finds. It never moves, leads or voices a party member.
 This opening may run to about one hundred sixty words, never more than one hundred eighty.
 End on one short open question to the party, in your own words. Never end with "What do you do?".
 ```
 
-- The party list joins `facts.party` (order and controller) to `seed.characters` by
-  `characterId` for `identity.class` and `portrayal.appearance`. A member with no seed entry gets
-  its name and controller only. `controller === "human"` renders "a human player"; else "an AI
-  companion".
+- The party list joins `facts.party` (order) to `seed.characters` by `characterId` for
+  `identity.class` and `portrayal.appearance`. A member with no seed entry gets its name only. The
+  controller is not rendered (OQ-1 ruling). No line of the section holds "player" or "companion".
 - The present list joins `facts.presentNpcs` to `seed.npcs` by `id` for `role` and
   `appearance`. It is omitted when empty, with its "Present at the start:" line.
 - The "Party:" block is omitted when `facts.party` is empty.
 - In `buildNarratePrompt`, replace the `scene` array with `openingSection(seed, facts)`. Leave
   every other section as it is.
-- If TASK-0113 (spec 074) has landed a scene-start rule in that `scene` array, keep it inside
-  `openingSection`, worded as merged. The "Show each party member only as present" line covers it
-  if 074 placed nothing there.
-- Bump `PROMPT_VERSION` to the next free narrate version at implementation time (`dm.narrate-v8`
-  if no other card bumped it first). Update the pin in `narrate.test.ts`.
+- TASK-0113's rule moves from the `scene` array into `openingSection` verbatim, as shown. The
+  `narrate.test.ts` assertion on it stays green unchanged.
+- Bump `PROMPT_VERSION` from `dm.narrate-v9` (main after TASK-0113) to `dm.narrate-v10`. If 0127,
+  0170 or 0208 bumps it first, take the next free version. Update the pin in `narrate.test.ts`.
+  `dm.audit-v5` is unchanged: `prompts/audit.ts` is not touched.
 
 The parameter type is `PlayerSeedView`, so passing a `SceneSeed` is a compile error (FR-011).
 
@@ -179,7 +199,8 @@ const beatNpcIds =
     : /* today's expression, unchanged */;
 ```
 
-Seed order is kept. The full seed is read here, as today; only ids leave this function.
+Seed order is kept. The full seed is read here, as today; only ids leave this function. The S1
+filter is `offstageNpcIds`'s predicate (R2b); do not import that helper.
 `buildNarrationFacts` (`facts.ts`) is unchanged.
 
 ### D6 — Name check (`apps/server/src/dm/nodes/audit.ts`; FR-012, FR-013)
@@ -198,10 +219,14 @@ export function namesCharacter(text: string, name: string): boolean;
   last `.`, `!` or `?` followed by whitespace before the final `?`; with none, return `""`.
 - `namesCharacter`: `nameTerms(name)` (no ids); a term matches with the party-name filter's
   whole-word pattern, without the `i` flag.
-- In `deterministicChecks`: when `facts.trigger === "scene-start"`, for each `facts.party` name
-  then each `facts.presentNpcs` name not named in `beforeClosingQuestion(prose)`, add
-  `("other", "The opening does not name <Name> before its closing question. Name every party
-  member and every present character.")`. Every deterministic issue already blocks.
+- Put the block inside TASK-0113's existing `if (facts.trigger === "scene-start")` block, after
+  its agency loop.
+- For each `facts.party` name then each `facts.presentNpcs` name not named in
+  `beforeClosingQuestion(prose)`, add `("other", "The opening does not name <Name> before its
+  closing question. Name every party member and every present character.")`.
+- When `/\b(players?|AI companions?)\b/i` matches the prose, add `("other", "The opening names a
+  player or a controller. Name the characters, not the players.")` (FR-016, OQ-1 ruling). Every
+  deterministic issue already blocks.
 
 The regenerate loop passes the issue detail back to narrate, as it does today.
 
@@ -215,7 +240,9 @@ In `factualSummary`'s scene-start branch, after the framing, push:
 
 With both lists empty, the output stays the framing verbatim (the existing test holds). The
 property test in `fallback.test.ts` must stay green: no system word, no digit, and
-`deterministicChecks` passes over the summary, including the new name check.
+`deterministicChecks` passes over the summary, including the new name check and TASK-0113's
+scene-start agency check ("are here" pairs no name with a scene-start verb). The fallback names
+no controller.
 
 ### D8 — Scripted openings (R7)
 
@@ -235,12 +262,13 @@ Replace the scene-start `dm.narrate` reply text in each file below. Keep every o
 
 - Reed-camp text, for `apps/server/dm-scripts/runbook-a-reed-camp.json`:
 
-  > The party reaches the end of the causeway as the light goes amber. Tamsin Vale, Brother Odo
-  > and Kestrel have followed the silenced bell this far, and mean to have the ferry crossing again
-  > before full dark. Wenna Marsh keeps close with her boathook, and smoke from the goblins'
+  > The party reaches the end of the causeway as the light goes amber, on the trail of whoever
+  > silenced the ferry bell. Tamsin Vale, Brother Odo and Kestrel mean to have the ferry crossing
+  > again before full dark. Wenna Marsh keeps close with her boathook, and smoke from the goblins'
   > reed-camp curls up from the reeds ahead. Where do you start?
 
-- If TASK-0113 changed these texts first, keep its wording and add the missing names only.
+- TASK-0113 left these texts unchanged on main. Both texts pass its scene-start agency check
+  (R7b) and the new name check; the Phase 3 test asserts it.
 - New `apps/server/test/dm/scripts/scene-start-intro-regenerate.json`: the `scene-start.json`
   director call; a `dm.narrate` reply holding the captured R6 `verify-20261026T192319Z` seq 10
   text verbatim; a second `dm.narrate` reply holding the base text; one `dm.audit` pass. Attempt
@@ -265,15 +293,17 @@ Replace the scene-start `dm.narrate` reply text in each file below. Keep every o
 - `apps/server/test/dm/seed.test.ts`: a seed without `opening.premise` fails with an issue naming
   `opening.premise`; every `listSeeds()` seed has a non-empty premise; the premise holds no
   DM-only string of its seed (`dmOnlySeedText`).
-- `apps/server/test/dm/narrate.test.ts`: the version pin; a scene-start narrate-node case on the
+- `apps/server/test/dm/narrate.test.ts`: the version pin (`dm.narrate-v10`); the TASK-0113 opening
+  rule assertion stays green unchanged; a scene-start narrate-node case on the
   base seed: Director beat `ferry-house` and beat `reed-camp` both give
   `facts.presentNpcs` ids `["wenna"]`; with S1 reading `wenna` absent, `[]`. A `commit` case keeps
   today's beat-derived list. The existing spec-050 case passes unchanged.
 - `apps/server/test/dm/scene-start-intros.test.ts` (new, pure):
   - `openingSection` over the duo seed holds the location features, mood and senses, the premise,
-    the goal, the framing, "Tamsin Vale, Fighter, played by a human player", "Brother Odo,
-    Cleric, played by an AI companion", "Kestrel, Rogue, played by a human player", "Wenna Marsh,
-    ferry keeper", the name rule and `"What do you do?"` only inside the "Never end with" line.
+    the goal, the framing, "Tamsin Vale, Fighter.", "Brother Odo, Cleric.", "Kestrel, Rogue.",
+    "Wenna Marsh, ferry keeper", the name rule, TASK-0113's opening rule and `"What do you do?"`
+    only inside the "Never end with" line. The section holds no "player", no "companion", no
+    user id (OQ-1 ruling).
   - `openingSection` returns `""` for `commit`, `npc-turn` and `talk` facts; the full
     `buildNarratePrompt` text for a `commit` facts object equals today's (snapshot the string
     before the change, or assert no "## Opening" and the old two lines absent only for scene start).
@@ -286,8 +316,11 @@ Replace the scene-start `dm.narrate` reply text in each file below. Keep every o
   - Captured replay (AC #4, SC-003): `deterministicChecks` over the R6 `verify` text with
     Greyhollow facts (party Tamsin Vale, Brother Odo, Kestrel; present Wenna Marsh; trigger
     `scene-start`) reports exactly one name issue, naming Wenna Marsh. The `run5` text reports
-    four. The D8 base text reports none. The texts are pasted as constants citing their source
-    paths.
+    four. The D8 base and reed-camp texts report no deterministic issue of any kind (name, agency,
+    digits, word cap). The texts are pasted as constants citing their source paths.
+  - Controller check (FR-016): the D8 base text plus "Kestrel, the AI companion, waits." at scene
+    start reports one controller issue; "the players arrive" reports one; the same texts on
+    `commit` report none.
   - The same captured text with trigger `commit` reports no name issue (FR-013).
 - `apps/server/test/dm/fallback.test.ts`: scene-start facts with a party of two and one present
   NPC give the framing, then "Ana and Bram are here.", then "<Npc> is here too."; the summary
@@ -299,9 +332,9 @@ Replace the scene-start `dm.narrate` reply text in each file below. Keep every o
   scripted provider has no `dm.narrate` or `dm.audit` call left.
 - Unchanged and green: `dm-scripts.test.ts`, `scene.integration.test.ts`,
   `script-env.integration.test.ts`, `duo`/`trio`/`talk-turn`/`plan-first-step`/
-  `noncombatant-targets` integration tests, `harness.integration.test.ts`,
-  `player-facing-prompts.test.ts`, `duo-views.test.ts`, `audit.test.ts`,
-  `narration-quality-repro.test.ts`.
+  `noncombatant-targets`/`attack-anyone`/`revealed-npc`/`no-undeclared-method` integration tests,
+  `harness.integration.test.ts`, `player-facing-prompts.test.ts`, `duo-views.test.ts`,
+  `audit.test.ts`, `player-agency.test.ts`, `narration-quality-repro.test.ts`.
 
 ## Files
 
@@ -337,7 +370,13 @@ Replace the scene-start `dm.narrate` reply text in each file below. Keep every o
 
 **Not touched**: `apps/server/src/dm/scene-start.ts` (the start-state predicate; the runbook's
 overlap row lists it, but nothing here needs it), `prompts/audit.ts`, `facts.ts`, `talk-turn.ts`,
-`prompts/common.ts`, `dm/snapshot/`.
+`prompts/common.ts`, `dm/snapshot/`, `nodes/director.ts`, `audit-words.ts`, `doctrine/doctrine.ts`,
+`pipeline/context.ts`, `worker.ts` (no users lookup: OQ-1 ruling).
+
+**Corrected footprint (2026-11-02, after merging `origin/main` at TASK-0206)**: unchanged from the
+table above. The OQ-1 ruling adds no file and removes no file; it removes the controller from the
+opening section and adds one regex to D6. Prompt versions on main: narrate-v9, audit-v5,
+director-v6, chronicle-v4; this task bumps narrate only, to v10.
 
 **Migrations**: none. **New runtime dependencies**: none.
 
@@ -349,10 +388,18 @@ The runbook's overlap row for 0171 names `seed/schema.ts`, `seed/views.ts`, the 
 `scene-start.ts` and `prompts/audit.ts`. **The orchestrator amends the runbook row** (rule:
 "Any spine amendment from a plan.md overlap: tell the operator, amend this file").
 
-- **TASK-0113 (spine #3, spec 074)**: shares `prompts/narrate.ts`, `nodes/audit.ts` and likely the
-  scripted openings. 0113 merges first. D4 and D8 keep 074's scene-start rule and wording.
+- **TASK-0113 (spine #3, spec 074)**: merged. It edited `prompts/narrate.ts` (scene-start rule,
+  narrate-v9) and `nodes/audit.ts` (scene-start agency check), not the scripted openings. D4 keeps
+  its rule verbatim; D6 nests inside its scene-start block; D8 texts pass its check (R7b).
+- **TASK-0209 (#2), TASK-0205 (#5), TASK-0206 (#6)**: merged. 0209 edited `fallback.ts` (clarify
+  sentence, disjoint from the scene-start branch). 0206 edited `nodes/director.ts`, `resolve.ts`,
+  `prompts/chronicle.ts` and added three scripts this task does not edit (R2, R7).
+- **TASK-0208 (#7)**: shares `prompts/narrate.ts` and `fallback.ts`; merges first.
 - **TASK-0127 (#8, spec 070)**: shares `seed/schema.ts` (disjoint keys), `prompts/narrate.ts`
-  (`rollEntry`, a rule line in `RULES`) and `fallback.ts`. 070 merges first.
+  (`rollEntry`, a rule line in `RULES`), `fallback.ts` and three DM scripts
+  (`greyhollow-human-dm.json`, `greyhollow-live.json`, `greyhollow-plan-approach.json`). 070 merges
+  first; D8 edits only the scene-start narrate reply in each.
+- **TASK-0104 (#13)**: shares `seed/schema.ts`; merges first.
 - **TASK-0170 (#9)**, **TASK-0214 (#19)**: share `prompts/narrate.ts`; 0214 also `fallback.ts`.
   0171 merges before 0214, so 0214's audit replay sees this fallback.
 - **Fallback order**: the runbook's `fallback.ts` sequence (0209 → 0208 → 0127 → 0207 → 0212 →
@@ -362,13 +409,13 @@ The runbook's overlap row for 0171 names `seed/schema.ts`, `seed/views.ts`, the 
   every trigger.
 - **Prompt version**: each card on `prompts/narrate.ts` claims the next version; the later merge
   re-bumps and reconciles `docs/wiki/dm-narration-quality.md`.
-- Per the runbook rule, 0171 develops ahead from #9 on only on disjoint files. Phase 1 (seed
-  files) is disjoint from every spine task except 0127 (`seed/schema.ts`) and may run once 0127
-  merges. Phases 2 and 3 share files with 0113, 0127, 0170 and 0214 and are draft-held until the
-  tasks ahead of them on those files merge.
+- Per the runbook rule, 0171 develops ahead from #9 on only on disjoint files. Phase 1 shares
+  `seed/schema.ts` with 0127 and 0104 and runs once both merge. Phase 2 shares
+  `prompts/narrate.ts` with 0208, 0127 and 0170 and runs once they merge. Phase 3 shares
+  `fallback.ts` with 0208, 0127, 0207, 0212 and 0213, and three DM scripts with 0127; it runs once
+  they merge. 0214 and 0204 follow 0171.
 
 ## Open questions
 
-OQ-1 to OQ-3 are in spec.md with recommended defaults (a). This plan implements the defaults.
-OQ-1 (b) would add `apps/server/src/dm/pipeline/context.ts`, `apps/server/src/dm/worker.ts` and a
-users lookup; OQ-2 (b) would drop D7 and `fallback.ts`.
+OQ-1 is resolved by operator ruling: the opening names the characters, not the players. OQ-2 and
+OQ-3 stand at (a), and this plan implements them. OQ-2 (b) would drop D7 and `fallback.ts`.

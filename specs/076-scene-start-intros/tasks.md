@@ -1,7 +1,8 @@
 # Tasks: Scene-start intros
 
 **Input**: `specs/076-scene-start-intros/` (spec.md, plan.md). Plan research R1 to R9 and design
-D1 to D8 settle every choice; read them before starting a phase.
+D1 to D8 settle every choice; read them before starting a phase. OQ-1 is resolved by operator
+ruling (2026-11-02): "The opening should name the characters, not the players".
 
 **Dispatch**: each phase is one sonnet implementer dispatch. Phases run in order.
 
@@ -10,11 +11,12 @@ D1 to D8 settle every choice; read them before starting a phase.
 worktree's own stack, exporting only `TEST_DATABASE_URL` from the worktree `.env`. No paid model
 run: tests use the fake gateway.
 
-**Overlap rule**: this task is spine #17. Before Phase 2, merge `origin/main` into the branch and
-confirm TASK-0113, 0127 and 0170 have merged (plan "Overlap"). Keep TASK-0113's scene-start rule
-and scripted wording where it landed (D4, D8). Do not edit `prompts/audit.ts`, `facts.ts`,
-`talk-turn.ts`, `prompts/common.ts`, `dm/snapshot/` or `dm/scene-start.ts`. If a task seems to
-need one, stop and report.
+**Overlap rule**: this task is spine #17. Before each phase, merge `origin/main` into the branch
+and confirm the tasks that phase waits on have merged (see Dependencies). TASK-0113 has merged:
+keep its scene-start rule verbatim (D4) and its scene-start agency check (R7b). Do not edit
+`prompts/audit.ts`, `facts.ts`, `talk-turn.ts`, `prompts/common.ts`, `dm/snapshot/`,
+`dm/scene-start.ts`, `nodes/director.ts`, `audit-words.ts`, `doctrine/doctrine.ts`,
+`pipeline/context.ts` or `worker.ts`. If a task seems to need one, stop and report.
 
 ## Phase 1: The opening premise (card AC #1; US1)
 
@@ -39,19 +41,20 @@ carries it.
 
 ## Phase 2: The opening prompt (card AC #2, #5; US1, US2, US4)
 
-**Goal**: the scene-start prompt carries the place, premise, goal, party with controllers and the
-NPCs present at the first beat, from the player view only.
+**Goal**: the scene-start prompt carries the place, premise, goal, each party character and the
+NPCs present at the first beat, from the player view only. It renders no player and no
+controller.
 
 **Independent test**: `scene-start-intros.test.ts` prompt and leak cases and the `narrate.test.ts`
 cases pass; every non-scene-start narrate test passes unchanged.
 
 - [ ] T006 [US1] [US2] In `apps/server/src/dm/prompts/narrate.ts`, apply plan D4: export
-      `openingSection`, use it in `buildNarratePrompt` in place of the `scene` array, bump
-      `PROMPT_VERSION`.
+      `openingSection`, use it in `buildNarratePrompt` in place of the `scene` array, move
+      TASK-0113's opening rule into it verbatim, bump `PROMPT_VERSION` to `dm.narrate-v10`.
 - [ ] T007 [US2] In `apps/server/src/dm/nodes/narrate.ts`, apply plan D5: the scene-start
       `beatNpcIds`.
 - [ ] T008 [P] [US1] [US2] [US4] Create `apps/server/test/dm/scene-start-intros.test.ts` with the
-      plan "Tests" `openingSection`, non-scene-start, leak and `@ts-expect-error` cases.
+      plan "Tests" `openingSection`, no-player, non-scene-start, leak and `@ts-expect-error` cases.
 - [ ] T009 [P] [US2] Extend `apps/server/test/dm/narrate.test.ts`: the version pin and the
       scene-start present-NPC cases of plan "Tests".
 - [ ] T010 Run the unit suite and `player-facing-prompts.test.ts`, `duo-views.test.ts`,
@@ -66,7 +69,8 @@ everyone; every scripted opening passes.
 pass; every scripted scene and playtest integration test stays green.
 
 - [ ] T011 [US3] In `apps/server/src/dm/nodes/audit.ts`, apply plan D6: `beforeClosingQuestion`,
-      `namesCharacter`, and the scene-start block in `deterministicChecks`.
+      `namesCharacter`, the name check and the controller check (FR-016), inside TASK-0113's
+      scene-start block in `deterministicChecks`.
 - [ ] T012 [US3] In `apps/server/src/dm/fallback.ts`, apply plan D7: the scene-start party and
       present-NPC sentences.
 - [ ] T013 [US2] Apply plan D8 to the eight scripted openings:
@@ -77,15 +81,17 @@ pass; every scripted scene and playtest integration test stays green.
       `greyhollow-plan-approach.json`, `greyhollow-talk.json`, `runbook-a-reed-camp.json`.
 - [ ] T014 [US2] Create `apps/server/test/dm/scripts/scene-start-intro-regenerate.json` per plan
       D8.
-- [ ] T015 [P] [US3] Add to `apps/server/test/dm/scene-start-intros.test.ts` the helper cases and
-      the captured replay of plan "Tests" (R6 texts as constants with their source paths).
+- [ ] T015 [P] [US3] Add to `apps/server/test/dm/scene-start-intros.test.ts` the helper cases, the
+      captured replay, the D8 texts passing every deterministic check, and the controller-check
+      cases of plan "Tests" (R6 texts as constants with their source paths).
 - [ ] T016 [P] [US3] Extend `apps/server/test/dm/fallback.test.ts` with the scene-start names
       case; the property test stays green.
 - [ ] T017 [US2] Create `apps/server/test/dm/scene-start-intros.integration.test.ts` per plan
       "Tests" and run it with `REQUIRE_DATABASE=1`.
 - [ ] T018 Run the full server suite with `REQUIRE_DATABASE=1`, including
-      `dm-scripts.test.ts`, `scene.integration.test.ts`, `script-env.integration.test.ts` and
-      `test/playtest/harness.integration.test.ts`. Amend
+      `dm-scripts.test.ts`, `scene.integration.test.ts`, `script-env.integration.test.ts`,
+      `player-agency.test.ts`, the `attack-anyone`, `revealed-npc` and `no-undeclared-method`
+      integration tests and `test/playtest/harness.integration.test.ts`. Amend
       `specs/034-narration-quality/contracts/audit-criteria.md` and
       `specs/034-narration-quality/contracts/fallback-summary.md` as plan "Contracts" says.
       Commit as `TASK-0171 phase 3: name check, fallback, scripts`.
@@ -102,8 +108,8 @@ freshness . docs/wiki` prints `OK`.
       and S1, not the Director's beat). Add `greyhollow-ford-reed-camp.json` to its sources if it
       states the premise.
 - [ ] T020 Update `docs/wiki/dm-narration-quality.md` (NEEDS-REVIEW): `openingPremise` in the
-      player view; the opening section; the scene-start name check under "Audit"; the scene-start
-      fallback sentences; the new narrate prompt version.
+      player view; the opening section (no player, no controller); the scene-start name and
+      controller checks under "Audit"; the scene-start fallback sentences; `dm.narrate-v10`.
 - [ ] T021 Re-verify and re-pin every other note citing a changed file: `dm-runtime.md` (seed
       schema, seeds, `nodes/narrate.ts`, `greyhollow-live.json`), `dm-failure-and-gates.md` (seed
       schema), `debug-view.md` (`seed/views.ts`), `playtest-harness.md` (reed-camp seed and script),
@@ -117,7 +123,12 @@ freshness . docs/wiki` prints `OK`.
 
 ## Dependencies
 
-Phase 1 → Phase 2 → Phase 3 → Phase 4. Phase 1 waits on TASK-0127 (shared `seed/schema.ts`).
-Phases 2 and 3 wait on TASK-0113, 0127 and 0170 (shared `prompts/narrate.ts`, `nodes/audit.ts`,
-`fallback.ts`). Phase 3 must land the D8 script edits in the same commit as the D6 check, or the
-scripted scenes drain their fake provider.
+Phase 1 → Phase 2 → Phase 3 → Phase 4. TASK-0113, 0209, 0205 and 0206 have merged; no phase waits
+on them.
+
+- Phase 1 waits on TASK-0127 and 0104 (shared `seed/schema.ts`).
+- Phase 2 waits on TASK-0208, 0127 and 0170 (shared `prompts/narrate.ts`).
+- Phase 3 waits on TASK-0208, 0127, 0207, 0212 and 0213 (shared `fallback.ts`), and on 0127 (three
+  shared DM scripts).
+- Phase 3 must land the D8 script edits in the same commit as the D6 check, or the scripted
+  scenes drain their fake provider.

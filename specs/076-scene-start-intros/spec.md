@@ -4,23 +4,27 @@
 
 **Created**: 2026-11-02
 
-**Status**: Draft
+**Status**: Draft. Amended 2026-11-02: OQ-1 resolved by operator ruling; rebased on `origin/main`
+after TASK-0113, 0209, 0205 and 0206 merged.
 
 **Input**: TASK-0171. "The first narration of a scene grounds the players. It covers where the
 party is, why they came, who each party character is and who plays them, which NPCs are present,
-and what the party is there to do. Then it asks what they do." Evidence: the 2026-10-28
+and what the party is there to do. Then it asks what they do." Operator ruling on OQ-1
+(2026-11-02): "The opening should name the characters, not the players". Evidence: the 2026-10-28
 two-browser alpha playtest (`docs/playtests/2026-10-28-two-browser-alpha.md`), items 4 and 6.
 
 `speckit-specify` ran as authoring guidance only: the spec dir was already claimed with a stub, so
 its branch and directory steps were skipped. `speckit-clarify` was skipped: the card, runbook B
 (`docs/design/m3-runbook-b-resolution-quality.md`, lane B4, spine #17) and the code settle every
-choice below except the open questions at the end, which carry a recommended default.
+choice below except the open questions at the end. OQ-1 is resolved by operator ruling; OQ-2 and
+OQ-3 stand at their defaults (a).
 
 ## Background: what happens today
 
-1. The scene-start narrate prompt receives two scene lines: `Open the scene. Framing:
-   <opening.framing>` and `Location: <name>. Mood: <mood>`. The framing is one sentence. It names
-   no party character and no NPC.
+1. The scene-start narrate prompt receives three scene lines: `Open the scene. Framing:
+   <opening.framing>`, TASK-0113's rule "The opening shows the place and what the party finds. It
+   never moves, leads or voices a party member.", and `Location: <name>. Mood: <mood>`. The framing
+   is one sentence. It names no party character and no NPC.
 2. The seed has no field that says why the party is here.
 3. The location features and senses, the goal statement, each party character's class and look,
    and each NPC's role and look all exist in the player-facing seed view. None reaches the
@@ -28,9 +32,12 @@ choice below except the open questions at the end, which carry a recommended def
 4. The prompt's "Present characters" list at scene start comes from the Director's chosen beat's
    `npcIds`. In the duo seed the first beat lists no NPC ids, yet it declares Wenna Marsh
    `present`. So Wenna is missing from the list, and she first appears mid-narration on the next
-   beat (playtest item 6).
-5. The audit checks the opening like any other narration. Nothing checks that it introduces
-   anyone. The fallback for a scene start ships the framing sentence alone.
+   beat (playtest item 6). Spec 078 (TASK-0206, merged) does not change this: the Director's
+   `arrivals` are overridden to empty at scene start, and `offstageNpcIds` lists only logged
+   `absent` NPCs, so the Director's beat still narrows the opening's list.
+5. The audit checks the opening like any other narration, plus TASK-0113's scene-start
+   player-agency check (a party name paired with an act or speech verb). Nothing checks that it
+   introduces anyone. The fallback for a scene start ships the framing sentence alone.
 
 Captured evidence: in run `verify-20261026T192319Z` (`specs/034-narration-quality/evidence/`) the
 opening names Tamsin Vale, Brother Odo and Kestrel and never names Wenna Marsh, who is present.
@@ -75,13 +82,16 @@ its closing question.
 **Acceptance Scenarios**:
 
 1. **Given** a scene start, **When** the narrate prompt is built, **Then** it lists each party
-   character with its class, look and controller (a human player or an AI companion).
+   character with its class and look, and its opening section names no player and no controller
+   (OQ-1 ruling).
 2. **Given** a seed whose first beat declares an NPC `present` but lists no NPC ids, **When** the
    scene starts, **Then** that NPC is in the prompt's list of present characters.
 3. **Given** an NPC the first beat declares `absent`, **When** the scene starts, **Then** that NPC
    is not in the list.
 4. **Given** a scene start, **When** a narration ships, **Then** it names every party character and
    every present NPC before its closing question.
+5. **Given** a scene start, **When** a narration ships, **Then** it names no player and no controller
+   ("player", "AI companion").
 
 ---
 
@@ -107,6 +117,8 @@ opening with the Greyhollow Ford facts. They report one blocking issue that name
    run.
 5. **Given** three openings that each omit someone, **When** the audit loop ends, **Then** the
    fallback ships, and the fallback names every party character and every present NPC.
+6. **Given** a scene-start narration that says "player" or "AI companion", **When** the audit runs,
+   **Then** it reports a blocking issue (OQ-1 ruling).
 
 ---
 
@@ -150,15 +162,18 @@ seed's DM-only strings.
 - **FR-004**: The player-facing seed view MUST carry the premise.
 - **FR-005**: The scene-start narrate prompt MUST carry the location name, features, mood and
   senses; the premise; the goal statement; and the framing.
-- **FR-006**: The scene-start narrate prompt MUST list each party character with its class, look
-  and controller kind ("a human player" or "an AI companion").
+- **FR-006**: The scene-start narrate prompt MUST list each party character with its class and
+  look. Its opening section MUST carry no controller kind, no player display name and no user id
+  (OQ-1 ruling: "The opening should name the characters, not the players").
 - **FR-007**: At scene start, the present NPCs MUST be every seed NPC that the first beat declares
   `present` or `yielded` and whose logged presence after the scene-start rows is not `absent`. The
-  Director's beat choice and the beat's NPC ids MUST NOT narrow this list.
+  Director's beat choice, the beat's NPC ids and the Director's `arrivals` (spec 078) MUST NOT
+  narrow or widen this list.
 - **FR-008**: The scene-start narrate prompt MUST list each present NPC with its name, role and
   look.
 - **FR-009**: The scene-start narrate prompt MUST tell the narrator to name every listed party
-  character and present NPC before the closing question.
+  character and present NPC before the closing question, and never to say who plays a character.
+  It MUST keep TASK-0113's scene-start agency rule.
 - **FR-010**: The scene-start narrate prompt MUST tell the narrator to end on one open question in
   its own words, and never on the literal "What do you do?".
 - **FR-011**: The scene-start prompt MUST be built from the player-facing seed view only.
@@ -167,6 +182,9 @@ seed's DM-only strings.
 - **FR-013**: The check in FR-012 MUST run only on the scene-start trigger.
 - **FR-014**: The scene-start fallback MUST name every party character and every present NPC.
 - **FR-015**: Narrations on every other trigger MUST be unchanged by this feature.
+- **FR-016**: The audit's code checks MUST report a blocking issue when a scene-start narration
+  says "player", "players" or "AI companion" (OQ-1 ruling). The check runs on the scene-start
+  trigger only.
 
 ### Key Entities
 
@@ -174,7 +192,7 @@ seed's DM-only strings.
 - **Opening section**: the scene-start part of the narrate prompt. It replaces today's two scene
   lines.
 - **Name check**: a code check in the audit, scene start only, that each party character and
-  present NPC is named.
+  present NPC is named, and that no player or controller is.
 
 ### Card acceptance criteria map
 
@@ -185,6 +203,13 @@ seed's DM-only strings.
 | #3 narration names every party character and present NPC before it asks, with a test over a captured run | FR-009, FR-010, FR-012, FR-014 | US2 |
 | #4 audit flags an opening that omits one, with a test | FR-012, FR-013 | US3 |
 | #5 no DM-only seed text reaches the prompt, with a type-level or prompt test | FR-011 | US4 |
+
+AC #2's "each party character with its controller" is met by passing each party character
+(`facts.party`, which carries the controller) to the prompt. Per the OQ-1 ruling the opening
+section renders no controller. The controller kind still reaches the model on the shared snapshot
+lines ("Tamsin Vale (party, human player)"), unchanged on every trigger (FR-015); TASK-0113's
+agency rule already treats AI companions as player characters, so the opening needs no
+controller of its own.
 
 AC #3 is met by construction: the name check blocks every opening that omits someone, and the
 fallback names everyone. Its test is a scene start through the real queue on the fake gateway. The
@@ -203,11 +228,13 @@ Runbook B's playtest row "Scene start (0171)" checks a hosted real-model run.
   `verify-20261026T192319Z` (Wenna Marsh) and four in `run5-20261026T171359Z`.
 - **SC-004**: 0 DM-only seed strings appear in the scene-start prompt for any shipped seed.
 - **SC-005**: Every existing narration test on a non-scene-start trigger passes unchanged.
+- **SC-006**: 0 scripted or fallback openings say "player" or "AI companion".
 
 ## Assumptions
 
-- "Who plays them" means the controller kind, a human player or an AI companion. The Party
-  slide-out (TASK-0164) already shows each human's display name. See OQ-1.
+- "Who plays them" is settled by the OQ-1 ruling: the opening names the characters, not the
+  players. The Party slide-out (TASK-0164) already shows each human's display name. No user lookup
+  and no new worker dependency.
 - The opening may run longer than a beat narration. The prompt allows about one hundred sixty
   words, never more than one hundred eighty, for the opening only. That stays under the narrate
   node's 1,200-character clip. The audit's hard cap of 220 words is
@@ -215,8 +242,13 @@ Runbook B's playtest row "Scene start (0171)" checks a hosted real-model run.
 - Under a human DM, scene start leaves the party and presence rows pending. The opening then sees
   no party, and the first beat's declaration still limits the NPCs (FR-007). That path ships no
   scene until the human DM acts, and this feature does not change it.
-- Spec 074 (TASK-0113, spine #3) lands first and adds a rule that the opening never moves a party
-  character. This feature keeps that rule and shows each party character only as present.
+- Spec 074 (TASK-0113, merged) added the scene-start rule "The opening shows the place and what the
+  party finds. It never moves, leads or voices a party member." and the scene-start
+  player-agency code check (`SCENE_START_VERBS`). This feature keeps both. Every new scripted
+  opening and the fallback must pass that check.
+- Spec 078 (TASK-0206, merged) overrides the Director's `arrivals` to empty at scene start. The
+  opening's NPC list is the seed's first-beat declaration bounded by logged presence, so 078's
+  offstage handling agrees with it.
 - TASK-0204 (spine #18) later adds a code check against the literal "What do you do?". This
   feature only tells the narrator not to write it.
 - The knowledge ledger (TASK-0172) later tells known NPCs from strangers. This feature introduces
@@ -224,13 +256,12 @@ Runbook B's playtest row "Scene start (0171)" checks a hosted real-model run.
 
 ## Open questions (orchestrator rules; default in bold)
 
-- **OQ-1: what "who plays them" puts in the prompt.** **(a) The controller kind only: "a human
-  player" or "an AI companion". No display name reaches the model.** (b) Each human's display name
-  too, through a new users lookup on the node deps (`pipeline/context.ts`, `worker.ts`), so the
-  opening can say who plays whom. (c) A code-rendered table line after the prose, like the dice
-  lines, naming each character's player. Note: runbook B's playtest row says the opening "names
-  the party, their players and Wenna". Default (a) reads "their players" as the controller kind.
-  (b) and (c) send or render user display names and widen the file list.
+- **OQ-1: what "who plays them" puts in the prompt. RESOLVED 2026-11-02 by operator ruling:
+  "The opening should name the characters, not the players".** The opening names every party character and every present NPC. It names
+  no player and no controller. The opening section carries no controller kind and no display name;
+  no users lookup is added. FR-006, FR-009 and FR-016 encode the ruling. Runbook B's playtest row
+  ("names the party, their players and Wenna") predates the ruling; the orchestrator amends it to
+  "names the party and Wenna, and no player".
 - **OQ-2: the fallback names everyone.** **(a) Edit the scene-start branch of
   `dm/fallback.ts`, so the fallback names every party character and present NPC (FR-014).** This
   adds `fallback.ts` to TASK-0171's footprint in the runbook's overlap table. It merges at #17,
