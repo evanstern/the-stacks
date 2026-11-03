@@ -38,12 +38,6 @@ Spec: specs/074-player-agency
 - [ ] #8 Spec phase: Wiki (re-ground)
 <!-- AC:END -->
 
-
-
-
-
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -63,6 +57,8 @@ WIDENED 2026-11-02 (operator ruling, relayed by the orchestrator for M3 runbook 
 Claimed 2026-11-02 by M3 runbook B (docs/design/m3-runbook-b-resolution-quality.md). Worktree .worktrees/task-0113, branch task-0113-player-agency, cut from origin/main b756b68f. Spec number 074 claimed with a stub. Spine #3.
 
 Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5 (spec 074 authoring, C1)
+
+spec-bridge sync: Rule source, Director, interpret, playtest auditor (card AC #3, #4, #5; US1, US4): 0/12 · Facts, narrate, audit (card AC #1, #2; US2, US3): 0/11 · Wiki (re-ground): 0/6
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
