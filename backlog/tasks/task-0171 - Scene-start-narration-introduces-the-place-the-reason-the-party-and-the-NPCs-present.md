@@ -39,11 +39,13 @@ Spec: specs/076-scene-start-intros
 - [ ] #3 The scene-start narration names every party character and every present NPC before it asks what the party does, with a test over a captured run
 - [ ] #4 The audit flags a scene-start narration that omits a party character or a present NPC, with a test
 - [ ] #5 No DM-only seed text (secrets, knows) reaches the scene-start prompt, with a type-level or prompt test
-- [ ] #6 Spec phase: The opening premise (card AC #1; US1)
+- [x] #6 Spec phase: The opening premise (card AC #1; US1)
 - [ ] #7 Spec phase: The opening prompt (card AC #2, #5; US1, US2, US4)
 - [ ] #8 Spec phase: The name check, the fallback and the scripts (card AC #3, #4; US2, US3)
 - [ ] #9 Spec phase: Wiki re-ground
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
