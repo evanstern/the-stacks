@@ -275,7 +275,7 @@ Then **stop for the operator to play it** (checkpoint C7).
 | 2026-11-02 | TASK-0113 | #114 | d9aade52 | opus (spec 074 + amendment), sonnet x2, haiku | Widened (AC #4, #5). Cards TASK-0215 (surprise). |
 | 2026-11-02 | TASK-0205 | #115 | 1a560446 | opus (spec 077), sonnet, haiku | Built beside 0206 (separate plan-gate functions). Card TASK-0217 (hidden state). |
 | 2026-11-02 | TASK-0206 | #116 | 8349b07f | opus (spec 078), sonnet, haiku | Director `arrivals`. Card TASK-0216 (revisit after playtest). |
-| 2026-11-02 | (incident) | — | — | — | A brief's `export $(grep ... .env)` ran bare `export` with no .env and printed a secret into an implementer transcript. Nothing committed. Operator: "No need" (no rotation). Briefs now use `VAR="$(sed ...)"`. |
+| 2026-11-02 | (incident) | — | — | — | A brief's `export $(grep ... .env)` ran bare `export` with no .env and printed a secret into an implementer transcript. Nothing committed. Operator: "No need" (no rotation). Briefs now use `VAR="$(sed ...)"`. 2026-11-02 update, relayed by the orchestrator: the operator is rotating it ("Rotating it now"). |
 | 2026-11-02 | (ruling) | — | — | — | Spec 076 OQ-1, operator: "The opening should name the characters, not the players". |
 | 2026-11-02 | TASK-0208 | #117 | 38b8e737 | opus (spec 079), sonnet x3, haiku (stopped) | Engine reactions, `STEP_ACTOR_MISMATCH`. Cards TASK-0218, 0219. Spec 081 (0207) carded TASK-0220. |
 | 2026-11-02 | TASK-0127 | (this PR) | (at merge) | sonnet x3 (spec 070 by opus in runbook A) | Built the merged spec 070. Seam check: no seam changed meaning; deviations in `specs/070-stakes-before-dice/deviations.md`. Nat 20/nat 1 on by default. interpret-v8, adjudicate-v6, narrate-v11, audit-v7. |
