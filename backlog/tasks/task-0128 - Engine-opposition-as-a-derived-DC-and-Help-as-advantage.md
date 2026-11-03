@@ -4,7 +4,7 @@ title: 'Engine: opposition as a derived DC, and Help as advantage'
 status: In Progress
 assignee: []
 created_date: '2026-10-27 02:32'
-updated_date: '2026-11-03 07:18'
+updated_date: '2026-11-03 07:19'
 labels:
   - dm
   - engine
@@ -35,6 +35,8 @@ Spec: specs/084-opposition-and-help
 
 <!-- SECTION:NOTES:BEGIN -->
 Claimed 2026-11-03 by M3 runbook B (docs/design/m3-runbook-b-resolution-quality.md). Worktree .worktrees/task-0128, branch task-0128-opposition-and-help, cut from origin/main 4cea63d8. Spec number 084 claimed with a stub. Spine #15; beside 0105 if disjoint.
+
+Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5 (spec 084 authoring, C1)
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
