@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-11-02 23:11'
-updated_date: '2026-11-03 03:17'
+updated_date: '2026-11-03 03:18'
 labels:
   - dm
   - rules
@@ -54,6 +54,8 @@ Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5 (spec 0
 spec-bridge sync: The engine owns reactions (card AC #1, engine part; US1 scenarios 3 and 4): 0/8 · A move away draws the engine's reaction (card AC #1 and #2, merge condition; US1, US2): 0/12 · The reader sees whose attack it was (card AC #2 and #3; US2 scenario 4, US3): 0/11 · A followUp stays undone in later beats (card AC #4; US4): 0/8 · Wiki upkeep: 0/5
 
 Spec 079 (01ca6abd). Defaults (a) taken: OQ-1 interpret names the hostiles left (leavesReachOf), no engagement fact; OQ-2 code always takes an NPC's reaction; OQ-3 no reaction taken for a party member (carded); OQ-4 reuse spec 077's refusal path, else STEP_ACTOR_MISMATCH; OQ-5 no fallback change for open followUps, the playtest watches it; OQ-6 spell and trait reactions out of scope (carded).
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 079 phases 1-2)
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
