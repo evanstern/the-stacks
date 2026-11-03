@@ -5,7 +5,7 @@ verified against. Load this index first and route; load notes just-in-time rathe
 bulk-loading the corpus. `CAPSULES.md` carries the same one-liners for whole-corpus
 orientation.
 
-**State of the codebase at this pin:** M0, the walking skeleton, plus the first `library` DB scene and playtest integration tests carry load-sized timeouts (TASK-0154, specs/056) and pass three consecutive full runs.
+**State of the codebase at this pin:** M0, the walking skeleton, plus the first `library` DB scene and playtest integration tests carry load-sized timeouts (TASK-0154, specs/056) and pass three consecutive full runs. TASK-0209 (specs/073) makes a human's clarify hold the turn and voices the clarify question in the fallback.
 plane work. Every M0 seam exists and is demonstrated end to end — monorepo, compose stack,
 Postgres event log, session auth, a WebSocket gateway, and a React Router 8 SSR app
 (doc-0003 / decision-0008, superseding the earlier SPA). The `library` plane

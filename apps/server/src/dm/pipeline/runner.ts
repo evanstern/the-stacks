@@ -1,5 +1,10 @@
 import { createHash } from "node:crypto";
-import { cutPlans, holdDirector } from "../first-stage.js";
+import {
+  CLARIFY_HELD,
+  clarifyHolds,
+  cutPlans,
+  holdDirector,
+} from "../first-stage.js";
 import type { TurnCheckpoint } from "../jobs.js";
 import { findLandedNarration, submitNarration } from "../nodes/resolve.js";
 import { SnapshotOverflowError } from "../snapshot/index.js";
@@ -219,7 +224,16 @@ export async function runTurn(
         const cutBeat =
           cut.readings.some((r) => r.followUps.length > 0) ||
           cut.rulings.some((r) => r.followUps.length > 0);
-        const held = holdDirector(director, cutBeat);
+        const clarified = clarifyHolds(
+          (ctx.results.assemble as NodeOutputs["assemble"]).beat,
+          cut.readings,
+          cut.rulings,
+        );
+        const held = holdDirector(
+          holdDirector(director, cutBeat),
+          clarified.size > 0,
+          CLARIFY_HELD,
+        );
         ctx = {
           ...ctx,
           results: {
@@ -242,6 +256,7 @@ export async function runTurn(
           jobId: ctx.job.id,
           readings: cut.readings.filter((r) => r.followUps.length > 0).length,
           rulings: cut.rulings.filter((r) => r.followUps.length > 0).length,
+          clarified: clarified.size,
         });
       }
     }

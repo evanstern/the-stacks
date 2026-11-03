@@ -245,6 +245,20 @@ describe("deterministicChecks", () => {
     expect(check(CLEAN).pass).toBe(true);
   });
 
+  it("exempts the clarify question from the option-menu check", () => {
+    const q = "Longsword in melee, or the light crossbow at range?";
+    const f = { ...facts(), clarify: [{ actionId: "a1", question: q }] };
+    expect(check(`${CLEAN} ${q}`, f).pass).toBe(true);
+    const other = check(`${CLEAN} Do you fight or flee?`, f);
+    expect(other.issues.some((i) => i.detail.includes("option menu"))).toBe(
+      true,
+    );
+    const list = check(`- one\n- two\n${q}`, f);
+    expect(list.issues.some((i) => i.detail.includes("option menu"))).toBe(
+      true,
+    );
+  });
+
   it("quotes the matched words, the closing question and the word count", () => {
     const death = check("The guard dies where he stands.").issues[0];
     expect(death?.detail).toMatch(/^Actor state: .*dies/);

@@ -19,7 +19,7 @@ sources:
   - apps/web/app/play/local-log.ts
   - apps/web/app/play/components/floor-controls.tsx
   - apps/web/app/play/components/turn-order.tsx
-verified_against: 5702c95fc4959a9283a2c356043476c3d34d2c9e
+verified_against: 02f7965a7e86e0a2233c756a7bd9cbc70730bc6c
 ---
 
 # Turn floor
@@ -40,7 +40,7 @@ Shape: `{ op: "end" | "take" | "return", turn: { round, combatantId }, reason }`
 
 ## Resolve's "turn moved" guard
 
-Before the closing `turn.advance`, resolve skips the advance, the settle and the mode row when the engine's turn differs from the turn at assemble (a floor batch moved it and wrote its own mode row) or the seated human DM holds the floor. A reclaim whose checkpoint holds `advance` still replays the group ([[dm-runtime]]).
+Before the closing `turn.advance`, resolve skips the advance, the settle and the mode row when the engine's turn differs from the turn at assemble (a floor batch moved it and wrote its own mode row) or the seated human DM holds the floor. A human's clarify also skips the advance while its question awaits an answer, so the floor stays with the active actor (specs/073; an AI actor's clarify still advances). A reclaim whose checkpoint holds `advance` still replays the group ([[dm-runtime]]).
 
 ## The `floor` job
 

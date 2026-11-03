@@ -12,7 +12,7 @@ import {
 } from "../audit-words.js";
 import { type ClaimState, checkClaims } from "../claims.js";
 import { type NarrationFacts, renderDiceLines } from "../facts.js";
-import { factualSummary } from "../fallback.js";
+import { factualSummary, spellDigits } from "../fallback.js";
 import { callJson } from "../pipeline/call.js";
 import type {
   ModelCallRecord,
@@ -204,7 +204,20 @@ export function deterministicChecks(
     add("doctrine", `The prose is ${words} words; the limit is ${MAX_WORDS}.`);
   }
   const listLine = LIST_LINE.exec(prose);
-  const eitherOr = EITHER_OR_END.exec(prose.trim());
+  const eitherOrHit = EITHER_OR_END.exec(prose.trim());
+  // The clarify question is the one either-or ending allowed (specs/073).
+  const norm = (t: string) =>
+    spellDigits(t)
+      .toLowerCase()
+      .replace(/["'\u2018\u2019\u201c\u201d]/g, "")
+      .replace(/\s+/g, " ")
+      .trim();
+  const proseTail = norm(prose);
+  const eitherOr =
+    eitherOrHit &&
+    facts.clarify.some((c) => proseTail.endsWith(norm(c.question)))
+      ? null
+      : eitherOrHit;
   if (listLine || eitherOr) {
     const quoted = eitherOr
       ? `the closing question "${eitherOr[0].trim().slice(0, 120)}"`
