@@ -174,3 +174,11 @@ Amended by spec 079 (TASK-0208). `FactRoll.reaction?: boolean` is `true` when th
 roll as `  reaction: <name> strikes at <target> as they pull away -> <outcome>`. Narrate is
 `dm.narrate-v10` and audit is `dm.audit-v6`. The deterministic opposite-outcome check reads the
 character's own rolls only.
+
+## Amendment 2026-11-02 (specs/079-engine-opportunity-attack, TASK-0208): open followUps
+
+Amended by spec 079 (TASK-0208). `NarrationFacts.openFollowUps?: { name: string; text: string }[]`
+holds a party member's followUps from the latest resolved action of an earlier turn, until that
+member declares again. Narrate renders each as `Earlier beat, not yet attempted: <name>: <text>`.
+The narrate rule reads: a not-yet-attempted step has not happened, in this beat or an earlier
+one; never show it start or done. `withholdRefusedInputs` filters them like this turn's followUps.

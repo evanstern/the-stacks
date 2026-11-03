@@ -36,7 +36,7 @@ const RULES = [
   "Only the actor named on the Turn line acts in this beat. The actor on the Next line has not acted: never show them move, speak or strike.",
   "Name a character as dead or unconscious only when a fact or the state sections say so; when a fact says so, say so.",
   "A dead, unconscious, stable or absent character does not act or speak. Count only what the state sections show.",
-  "A not-yet-attempted step has not happened. Stop before it; never show it start.",
+  "A not-yet-attempted step has not happened, in this beat or an earlier one. Stop before it; never show it start or done.",
   "End on something that demands a response. Do not end with an either-or question, except the Unclear intent question.",
 ].join("\n");
 
@@ -105,6 +105,9 @@ export function factEntries(facts: NarrationFacts): string[] {
     for (const r of a.rolls) out.push(rollEntry(r));
     for (const c of a.changes) out.push(`  change: ${describeChange(c)}`);
     for (const f of a.followUps) out.push(`  not yet attempted: ${f}`);
+  }
+  for (const f of facts.openFollowUps ?? []) {
+    out.push(`Earlier beat, not yet attempted: ${f.name}: ${f.text}`);
   }
   if (facts.npcTurn) {
     out.push(`Monster turn: ${facts.npcTurn.name}`);

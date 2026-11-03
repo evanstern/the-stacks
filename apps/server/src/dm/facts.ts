@@ -147,6 +147,8 @@ export interface NarrationFacts {
   turn?: { actor: string; next: string | null };
   /** Settled death-save turns (TASK-0112); omitted when settling rolled nothing. */
   settled?: FactSettled[];
+  /** A party member's followUps from an earlier beat, still not attempted (spec 079). */
+  openFollowUps?: { name: string; text: string }[];
   /** Reflexes derived from this turn's rows (spec 074); always set by `buildNarrationFacts`. */
   involuntary?: FactInvoluntary[];
   director: {
@@ -488,6 +490,8 @@ export interface BuildFactsInput {
   clarify: { actionId: string; question: string }[];
   /** Follow-ups per action id, from the ruling when one exists, else the reading. */
   followUps?: Record<string, string[]>;
+  /** Open followUps from earlier beats, by character id (spec 079). */
+  openFollowUps?: { characterId: string; text: string }[];
   /** The monster's reading (ruling steps replace the reading's); null when none. */
   npcPlan?: { intent: string; steps: { reason: string }[] } | null;
   /** The combatant active at the start of the beat; set only when the table was in turn mode. */
@@ -686,6 +690,11 @@ export function buildNarrationFacts(input: BuildFactsInput): NarrationFacts {
     nameOf,
   );
 
+  const openFollowUps = (input.openFollowUps ?? []).flatMap((f) => {
+    const name = p.party.find((m) => m.characterId === f.characterId)?.name;
+    return name ? [{ name, text: f.text }] : [];
+  });
+
   const beatNpcs = input.beatNpcIds;
   const presentNpcs = beatNpcs.flatMap((id) => {
     const n = seed.npcs.find((x) => x.id === id);
@@ -709,6 +718,7 @@ export function buildNarrationFacts(input: BuildFactsInput): NarrationFacts {
     npcTurn,
     ...(turn ? { turn } : {}),
     ...(settled.length > 0 ? { settled } : {}),
+    ...(openFollowUps.length > 0 ? { openFollowUps } : {}),
     involuntary,
     director: {
       pacing: input.director.pacing,

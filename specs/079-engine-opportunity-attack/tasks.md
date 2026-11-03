@@ -109,19 +109,19 @@ declares again.
 
 **Independent test**: `follow-ups.test.ts` and `narrate.test.ts` pass with the new cases.
 
-- [ ] T032 [US4] Create `apps/server/src/dm/follow-ups.ts` with `openFollowUps` (plan D8).
-- [ ] T033 [US4] In `facts.ts`, add `NarrationFacts.openFollowUps` and the `BuildFactsInput` field
+- [x] T032 [US4] Create `apps/server/src/dm/follow-ups.ts` with `openFollowUps` (plan D8).
+- [x] T033 [US4] In `facts.ts`, add `NarrationFacts.openFollowUps` and the `BuildFactsInput` field
       (plan D7).
-- [ ] T034 [US4] In `nodes/narrate.ts`, load prior turns, call `openFollowUps`, pass the result,
+- [x] T034 [US4] In `nodes/narrate.ts`, load prior turns, call `openFollowUps`, pass the result,
       and filter it in `withholdRefusedInputs` (plan D7, D8). Add the `ponytail:` comment.
-- [ ] T035 [US4] In `prompts/narrate.ts`, render each open followUp and replace the
+- [x] T035 [US4] In `prompts/narrate.ts`, render each open followUp and replace the
       not-yet-attempted rule text (plan D7). Keep the Phase 3 version bump; bump again only if
       `main` moved past it.
-- [ ] T036 [P] [US4] Create `apps/server/test/dm/follow-ups.test.ts` (plan "Tests").
-- [ ] T037 [P] [US4] Extend `narrate.test.ts` with US4 scenarios 2 and 4.
-- [ ] T038 Amend `specs/034-narration-quality/contracts/narration-facts.md` (`openFollowUps`).
+- [x] T036 [P] [US4] Create `apps/server/test/dm/follow-ups.test.ts` (plan "Tests").
+- [x] T037 [P] [US4] Extend `narrate.test.ts` with US4 scenarios 2 and 4.
+- [x] T038 Amend `specs/034-narration-quality/contracts/narration-facts.md` (`openFollowUps`).
       Mark the change "Amended by spec 079 (TASK-0208)".
-- [ ] T039 Run `pnpm ci:check`. Commit as `TASK-0208 phase 4: a followUp stays undone in later beats`.
+- [x] T039 Run `pnpm ci:check`. Commit as `TASK-0208 phase 4: a followUp stays undone in later beats`.
 
 ## Phase 5: Wiki upkeep
 

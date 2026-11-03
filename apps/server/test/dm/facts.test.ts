@@ -250,6 +250,21 @@ describe("dice-line renderer", () => {
     );
   });
 
+  it("renders an open followUp from an earlier beat (spec 079)", () => {
+    const f = {
+      actions: [],
+      clarify: [],
+      events: [],
+      modeChange: null,
+      rulings: [],
+      director: { sceneEnded: false },
+      openFollowUps: [{ name: "Kestrel", text: "cut Pell's bonds" }],
+    };
+    expect(factEntries(f as never)).toContain(
+      "Earlier beat, not yet attempted: Kestrel: cut Pell's bonds",
+    );
+  });
+
   it("renders a miss with no damage line", () => {
     const c = collectFacts(attackRows("miss", 3), nameOf);
     expect(c.rolls.map(renderRollLine)).toEqual([
