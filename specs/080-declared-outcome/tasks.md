@@ -96,10 +96,10 @@ lists for the phase. Stop and report if another file is needed.
       re-pin only when its claims did not change.
 - [x] T029 Update `docs/wiki/CAPSULES.md` and the `docs/wiki/INDEX.md` state paragraph with one
       sentence for TASK-0170 (specs/080).
-- [ ] T030 **[orchestrator]** Add the TASK-0170 execution-log row to
+- [x] T030 **[orchestrator]** Add the TASK-0170 execution-log row to
       `docs/design/m3-runbook-b-resolution-quality.md`: dispatches, test counts, prompt versions, no
       migration, no frozen contract change.
-- [ ] T031 Run the wiki freshness gate (`OK`), the spec-bridge check (exit 0) and `pnpm ci:check`.
+- [x] T031 Run the wiki freshness gate (`OK`), the spec-bridge check (exit 0) and `pnpm ci:check`.
 
 ## Dependencies
 
