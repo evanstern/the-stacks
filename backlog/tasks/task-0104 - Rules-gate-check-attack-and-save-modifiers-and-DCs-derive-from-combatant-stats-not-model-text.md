@@ -54,6 +54,8 @@ Claimed 2026-11-02 by M3 runbook B (docs/design/m3-runbook-b-resolution-quality.
 Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5 (spec 082 authoring, C1)
 
 spec-bridge sync: Seam check [orchestrator]: 0/1 · Engine derivation (card AC #1, #2, #4, #5; US1, US2, US3, US4): 0/13 · Stats on combatants and the reaction path (card AC #1, #3, #4; US2, US3): 0/9 · Step contract, prompts, resolve and plan gate (card AC #1–#4; US1, US2, US3): 0/14 · Scripts, fixtures and integration tests (card AC #5; US5): 0/7 · Re-ground (wiki): 0/6
+
+Spec 082 (557399ed). Defaults (a) taken: OQ-2 condition-driven auto save failures and auto crits out of scope (carded); OQ-3 the roll step and effect Amounts stay model-written (carded); OQ-4 sessions started before this card get STAT_UNDEFINED, start a new scene; OQ-5 paused plans failing the new schema are dropped and re-interpreted; OQ-6 position proxies for frightened/prone with ponytail comments, grappled not derived; OQ-7 monster-feature DCs stay a model-picked tier (carded). OQ-1 (attack damage; Kestrel's Sneak Attack stops applying under default a) put to the operator.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
