@@ -4,7 +4,7 @@ title: A talk NPC turn that falls back says '<name> speaks up' instead of the li
 status: In Progress
 assignee: []
 created_date: '2026-11-02 23:04'
-updated_date: '2026-11-03 03:51'
+updated_date: '2026-11-03 05:22'
 labels:
   - dm
   - narration
@@ -49,6 +49,8 @@ Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5 (spec 0
 spec-bridge sync: The plan carries the line (card AC #2; US2): 0/4 · The fallback voices the line (card AC #1; US1, US3): 0/9 · Wiki re-ground: 0/5
 
 Spec 081 (a46141ba). Defaults taken: OQ-1 narrator and audit see the line as a says: fact (narrate and audit bump); OQ-2 a line with ? is refused; OQ-4 voice the line alone. OQ-3 carded separately (NPC followUps count toward cutBeat). Spine amendment: 0207 footprint adds facts.ts, nodes/narrate.ts, prompts/narrate.ts, prompts/audit.ts; still builds after 0170 per the spine.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 081 phases 1-2, with seam check)
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
