@@ -100,7 +100,7 @@ audit stops pairing the mover with the reactor's outcome.
 - [x] T029 [P] [US2] Extend `apps/web/test/play/ledger-format.test.mjs`.
 - [x] T030 Amend `specs/034-narration-quality/contracts/fallback-summary.md` and
       `narration-facts.md` (the `reaction` field). Mark each change "Amended by spec 079 (TASK-0208)".
-- [ ] T031 Run `pnpm ci:check`. Commit as `TASK-0208 phase 3: the reader sees whose attack it was`.
+- [x] T031 Run `pnpm ci:check`. Commit as `TASK-0208 phase 3: the reader sees whose attack it was`.
 
 ## Phase 4: A followUp stays undone in later beats (card AC #4; US4)
 
@@ -144,5 +144,5 @@ freshness . docs/wiki` prints `OK`.
       when a claim changed.
 - [x] T043 Update the `CAPSULES.md` lines for every note edited in T041. Add one sentence to
       `INDEX.md`'s state paragraph naming TASK-0208 and specs/079.
-- [ ] T044 Run the freshness gate and the spec-bridge gate. Run `pnpm ci:check`. Commit as
+- [x] T044 Run the freshness gate and the spec-bridge gate. Run `pnpm ci:check`. Commit as
       `TASK-0208 phase 5: re-ground the wiki`.
