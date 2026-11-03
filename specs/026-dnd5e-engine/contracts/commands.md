@@ -47,7 +47,7 @@ no keep and a positive sign (a "plain d20 term"); the engine rolls it twice and 
 | Command | Fields | Events | Refusals |
 |---|---|---|---|
 | `attack.roll` | `attackerId: Id \| null`, `targetId`, `expression` (e.g. `"1d20+5"`), `mode: RollMode`, `targetAc: int 1..40 \| null = null`, `reaction?: boolean` (Amended by spec 079 (TASK-0208): spends the attacker's Reaction), `reason` | `dice.rolled` (purpose `attack`), `attack.resolved` | `INVALID_DICE_EXPRESSION`, `DICE_LIMIT_EXCEEDED`, `D20_TERM_REQUIRED`, `UNKNOWN_COMBATANT`, `TARGET_DEAD`, `TARGET_AC_UNKNOWN`, and with `reaction: true`: `NO_ACTIVE_ENCOUNTER`, `INVALID_COMMAND` (null attacker), `UNKNOWN_COMBATANT` (`details.reason: "not-in-order"`), `REACTION_SPENT`; emits `encounter.changed` after `attack.resolved` |
-| `check.roll` | `combatantId: Id \| null`, `kind: "ability-check" \| "saving-throw"`, `ability: "str" \| "dex" \| "con" \| "int" \| "wis" \| "cha"`, `skill: string \| null = null`, `expression` (e.g. `"1d20+3"`), `mode: RollMode`, `dc: int 1..40`, `autoFail: { reason } \| null = null`, `reason` | `dice.rolled` (purpose `check` or `save`), `check.resolved`; with `autoFail`, `check.resolved` only | `INVALID_DICE_EXPRESSION`, `DICE_LIMIT_EXCEEDED`, `D20_TERM_REQUIRED`, `UNKNOWN_COMBATANT`, `TARGET_DEAD` |
+| `check.roll` | `combatantId: Id \| null`, `kind: "ability-check" \| "saving-throw"`, `ability: "str" \| "dex" \| "con" \| "int" \| "wis" \| "cha"`, `skill: string \| null = null`, `expression` (e.g. `"1d20+3"`), `mode: RollMode`, `dc: int 1..40`, `autoFail: { reason } \| null = null`, `autoSuccess?: { reason } \| null` (Amended by specs/070-stakes-before-dice), `houseRules?: { outcomeBands, naturals }` (Amended by specs/070-stakes-before-dice), `reason` | `dice.rolled` (purpose `check` or `save`), `check.resolved`; with `autoFail` or `autoSuccess`, `check.resolved` only | `INVALID_DICE_EXPRESSION`, `DICE_LIMIT_EXCEEDED`, `D20_TERM_REQUIRED`, `UNKNOWN_COMBATANT`, `TARGET_DEAD` |
 
 - Both commands require a plain d20 term in `expression`, else `D20_TERM_REQUIRED`. The
   rest of the expression carries the bonus adjudication chose (proficiency, ability
@@ -77,6 +77,14 @@ no keep and a positive sign (a "plain d20 term"); the engine rolls it twice and 
   `attack.resolved` outcome is `critical-hit`.
 
 Amended by specs/033-director-robustness/contracts/rules-terms.md.
+
+Amended by specs/070-stakes-before-dice (TASK-0127): `check.roll` bands its result.
+`autoSuccess` draws no die and emits `check.resolved` with outcome `success`, band `success`, and null roll
+fields; `autoFail` with `autoSuccess` refuses `INVALID_COMMAND`. `houseRules` defaults to both flags false
+(SRD-pure); the DM runtime sends the seed's `tableRules`. With `naturals`, a natural 20 is a success and a
+natural 1 a failure. With `outcomeBands`, an ability check missing its DC by 1 or 2 is `success-at-cost`
+(outcome `success`) and by 5 or more is `severe-failure` (outcome `failure`). A saving throw never gets
+those bands. The engine exports `bandOf` for this rule.
 
 ## Combatants
 

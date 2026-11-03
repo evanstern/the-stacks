@@ -122,16 +122,16 @@ ends with `pnpm ci:check` green and one commit led by `TASK-0127:`. DB suites ru
 
 ## Phase 5: Contracts and wiki re-ground
 
-- [ ] T041 Amend `specs/026-dnd5e-engine/contracts/commands.md` and `events.md`,
+- [x] T041 Amend `specs/026-dnd5e-engine/contracts/commands.md` and `events.md`,
       `specs/031-dm-runtime/contracts/nodes.md` and `resolve.md`, and
       `specs/034-narration-quality/contracts/narration-facts.md`. Mark each "Amended by
       specs/070-stakes-before-dice".
-- [ ] T042 Re-ground the NEEDS-REVIEW notes against the diff: `docs/wiki/dnd5e-engine.md`,
+- [x] T042 Re-ground the NEEDS-REVIEW notes against the diff: `docs/wiki/dnd5e-engine.md`,
       `dm-runtime.md`, `dm-narration-quality.md`, `dm-failure-and-gates.md`, `dm-turn-jobs.md`,
       `play-route.md`, `output-claim-gate.md`, `seed-npc-presence.md`, `srd-data.md`,
       `dm-talk-triggers.md`, `turn-floor.md`, `ai-gateway.md`. Re-pin each honestly; a note whose
       claims did not change gets a computed re-pin only.
-- [ ] T043 Update `docs/wiki/CAPSULES.md` and the `docs/wiki/INDEX.md` state paragraph with one
+- [x] T043 Update `docs/wiki/CAPSULES.md` and the `docs/wiki/INDEX.md` state paragraph with one
       sentence for TASK-0127 (specs/070).
 - [ ] T044 **[orchestrator]** Add the TASK-0127 execution-log row to the runbook B file: dispatches,
       test counts, prompt versions, no migration, no frozen contract change.

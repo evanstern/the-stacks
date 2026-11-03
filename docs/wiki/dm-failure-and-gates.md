@@ -14,7 +14,7 @@ sources:
   - apps/server/src/dm/prompts/step-grammar.ts
   - apps/server/src/dm/seed/schema.ts
   - specs/033-director-robustness/contracts/rules-terms.md
-verified_against: c6a800dd72487bcec95a4d0d0f2e94bbb821b4c4
+verified_against: 389d2e32895a3b2143ee05f72f8b421f236a8bf7
 ---
 
 # DM failure record and rules-term gates
@@ -49,7 +49,7 @@ interpret and adjudicate schemas accept only closed lists derived from engine en
 `ConditionKeySchema`, `SkillSchema` (`nodes/schemas.ts`, derived from the engine's
 `condition.apply` and `check.roll` commands, thrown at load if not an enum), `AbilitySchema`
 and `DamageTypeSchema` ([[dnd5e-engine]]). The `presence` effect (`{effect, targetId, reason}`, strict, no `after` field) adds `PresenceReasonSchema` (`arrived`, `left`, `fled`, `removed`, `surrendered`, `conceded`; [[session-model]]) as a closed term; `step-grammar.ts` renders it too. The seed schema adds a required per-beat `presence` map and NPC `aliases` ([[seed-npc-presence]]). `prompts/step-grammar.ts` renders the same lists
-into the interpret and adjudicate prompts (`dm.interpret-v7`, `dm.adjudicate-v5`; v5 adds `followUps`, TASK-0182; v6 adds the agency rule, TASK-0113; v7 adds the `move` step, TASK-0208), so no list is
+into the interpret and adjudicate prompts (`dm.interpret-v8`, `dm.adjudicate-v6`; v5 adds `followUps`, TASK-0182; v6 adds the agency rule, TASK-0113; v7 adds the `move` step, TASK-0208), so no list is
 hand-typed; it is split from `prompts/common.ts` because narrate must import no engine value.
 The scene seed's character `skills` keys and clue `check.skill` use the same `SkillSchema`.
 A gate never maps, coerces or drops a term to pass output. The audit

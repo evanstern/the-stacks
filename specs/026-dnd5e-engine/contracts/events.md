@@ -67,6 +67,8 @@ z.object({
   natural: z.number().int().nullable(),        // null when autoFail
   autoFail: z.object({ reason: Reason }).nullable(),
   outcome: z.enum(["success", "failure"]),     // always "failure" when autoFail
+  margin: z.number().int().nullable().optional(), // Amended by specs/070-stakes-before-dice: total minus dc; null with no roll
+  band: OutcomeBand.optional(),                  // Amended by specs/070-stakes-before-dice: absent on rows written before it
 });
 
 z.object({
@@ -155,3 +157,10 @@ expression: "2d6+2" }, damageType: "slashing" }], critical: false, defenses: nul
 ```
 
 (Remaining damage after 0 HP is 2, below max 12, so no massive-damage death.)
+
+## Amendment 2026-11-02 (specs/070-stakes-before-dice, TASK-0127): outcome bands
+
+Amended by specs/070-stakes-before-dice. `OutcomeBand` is `success | success-at-cost | failure |
+severe-failure`. `check.resolved` gains optional `margin` and `band`; `v` stays 1 and old rows parse
+without them. `outcome` stays the two-value result: `success-at-cost` reads `success`, `severe-failure`
+reads `failure`. An auto-fail row carries band `failure`; an auto-success row carries band `success`.
