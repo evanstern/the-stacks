@@ -64,24 +64,24 @@ lists for the phase. Stop and report if another file is needed.
 
 ## Phase 3: Narration, audit, fallback and the claw-marks replay (card AC #3, #4; US1, US3)
 
-- [ ] T018 [US1] In `apps/server/src/dm/prompts/narrate.ts`, render `outcome (settled)` and
+- [x] T018 [US1] In `apps/server/src/dm/prompts/narrate.ts`, render `outcome (settled)` and
       `learned (settled)` in `rollEntry` and replace 070's rule line (plan D5). Bump `PROMPT_VERSION`.
-- [ ] T019 [US3] In `apps/server/src/dm/prompts/audit.ts`, extend criterion 2 with the delivery rule
+- [x] T019 [US3] In `apps/server/src/dm/prompts/audit.ts`, extend criterion 2 with the delivery rule
       (plan D5). Bump `PROMPT_VERSION`.
-- [ ] T020 [US3] In `apps/server/src/dm/fallback.ts`, append the success outcome text and the revealed
+- [x] T020 [US3] In `apps/server/src/dm/fallback.ts`, append the success outcome text and the revealed
       fact, each only when `checkClaims` passes it.
-- [ ] T021 [US1] In `apps/server/test/dm/narrate.test.ts` and `apps/server/test/dm/audit.test.ts`,
+- [x] T021 [US1] In `apps/server/test/dm/narrate.test.ts` and `apps/server/test/dm/audit.test.ts`,
       assert the new versions, the rule lines, and the `outcome (settled)` and `learned (settled)`
       entries (card AC #3).
-- [ ] T022 [US3] In `apps/server/test/dm/fallback.test.ts`, assert the success text and the revealed
+- [x] T022 [US3] In `apps/server/test/dm/fallback.test.ts`, assert the success text and the revealed
       sentence ship, and that a text failing the claim check is dropped.
-- [ ] T023 [US2] In `apps/server/test/dm/player-facing-prompts.test.ts`, add one case: a narrate
+- [x] T023 [US2] In `apps/server/test/dm/player-facing-prompts.test.ts`, add one case: a narrate
       prompt carries the named clue on a success, and no other DM-only seed text.
-- [ ] T024 [US3] Create `apps/server/test/dm/fixtures/claw-marks-20261028-reconstructed.json` (plan
+- [x] T024 [US3] Create `apps/server/test/dm/fixtures/claw-marks-20261028-reconstructed.json` (plan
       D7, OQ-3 (a)). Copy row shapes from run 5 seq 199–204 in
       `specs/034-narration-quality/evidence/run5-20261026T171359Z-greyhollow-ford-provider/transcript.jsonl`.
       State "reconstructed" and both sources in the header.
-- [ ] T025 [US3] Create `apps/server/test/dm/declared-outcome-audit.test.ts` with the five steps of
+- [x] T025 [US3] Create `apps/server/test/dm/declared-outcome-audit.test.ts` with the five steps of
       plan D7 (card AC #4; runbook merge condition "names the creature on success").
 - [ ] T026 Run `pnpm ci:check`.
 

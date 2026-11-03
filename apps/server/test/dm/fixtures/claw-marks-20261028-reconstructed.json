@@ -1,0 +1,98 @@
+{
+  "_header": "RECONSTRUCTED fixture, not a capture. The 2026-10-28 alpha run 1 (item 2, claw marks) was lost (spec 080 OQ-3 a). Row shapes are copied from run 5 seq 199-204 (specs/034-narration-quality/evidence/run5-20261026T171359Z-greyhollow-ford-provider/transcript.jsonl); the action text and the marks-only prose follow the alpha item 2 report.",
+  "reconstructed": true,
+  "sources": [
+    "alpha item 2, 2026-10-28 (run 1 lost)",
+    "specs/034-narration-quality/evidence/run5-20261026T171359Z-greyhollow-ford-provider/transcript.jsonl seq 199-204"
+  ],
+  "rows": [
+    {
+      "seq": 1,
+      "actor": "ai:companion:tamsin",
+      "type": "action.declared",
+      "payload": {
+        "text": "Tamsin looks for what may have made these claw marks.",
+        "scope": "character",
+        "actionId": "act-tamsin-1",
+        "characterId": "tamsin"
+      },
+      "visibility": "public"
+    },
+    {
+      "seq": 2,
+      "actor": "ai:dm",
+      "type": "dice.rolled",
+      "payload": {
+        "count": 2,
+        "index": 0,
+        "batchId": "batch-claw-1",
+        "actionId": "act-tamsin-1",
+        "proposalId": null,
+        "event": {
+          "v": 1,
+          "mode": "normal",
+          "type": "dice.rolled",
+          "terms": [
+            {
+              "keep": null,
+              "kept": [true],
+              "kind": "dice",
+              "sign": 1,
+              "count": 1,
+              "faces": [20],
+              "sides": 20,
+              "subtotal": 20
+            },
+            { "kind": "modifier", "value": 3 }
+          ],
+          "total": 23,
+          "reason": "Tamsin looks for what may have made these claw marks.",
+          "natural": 20,
+          "purpose": "check",
+          "critical": false,
+          "expression": "1d20+3",
+          "combatantId": "tamsin"
+        }
+      },
+      "visibility": "public"
+    },
+    {
+      "seq": 3,
+      "actor": "ai:dm",
+      "type": "check.resolved",
+      "payload": {
+        "count": 2,
+        "index": 1,
+        "batchId": "batch-claw-1",
+        "actionId": "act-tamsin-1",
+        "proposalId": null,
+        "event": {
+          "v": 1,
+          "dc": 12,
+          "kind": "ability-check",
+          "type": "check.resolved",
+          "skill": "perception",
+          "total": 23,
+          "reason": "Tamsin looks for what may have made these claw marks.",
+          "ability": "wis",
+          "natural": 20,
+          "outcome": "success",
+          "autoFail": null,
+          "rollIndex": 0,
+          "combatantId": "tamsin"
+        }
+      },
+      "visibility": "public"
+    },
+    {
+      "seq": 4,
+      "actor": "ai:dm",
+      "type": "narration",
+      "payload": {
+        "text": "Tamsin crouches over the mud by the ferry-house door. Small clawed marks cross the silt, deep at the toe and dragged at the heel. She follows them with her eyes down toward the causeway, where the reeds close over them.",
+        "actionIds": ["act-tamsin-1"]
+      },
+      "visibility": "public"
+    }
+  ]
+}

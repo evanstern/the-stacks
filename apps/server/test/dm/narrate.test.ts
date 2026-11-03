@@ -314,9 +314,9 @@ describe("narrate", () => {
       facts,
       prior: null,
     });
-    expect(NARRATE_VERSION).toBe("dm.narrate-v11");
+    expect(NARRATE_VERSION).toBe("dm.narrate-v12");
     expect(prompt.system).toContain(
-      "A roll's band and consequence are decided. Tell that consequence; invent no other.",
+      "A roll's band and outcome are settled. A success means the attempted task happens. Deliver the outcome and any learned fact plainly in the prose; invent no other.",
     );
     const banded = factEntries({
       ...facts,
@@ -341,6 +341,7 @@ describe("narrate", () => {
               band: "severe-failure" as const,
               margin: -5,
               consequence: "Snag spurns the toll.",
+              revealed: "The toll was a ruse.",
             },
           ],
           outcomes: ["failure" as const],
@@ -350,7 +351,7 @@ describe("narrate", () => {
       ],
     });
     expect(banded.join("\n")).toContain(
-      "roll: Odo offers the toll -> severe failure; consequence: Snag spurns the toll.",
+      "roll: Odo offers the toll -> severe failure; outcome (settled): Snag spurns the toll.\n  learned (settled): The toll was a ruse.",
     );
     expect(prompt.system).toContain(
       "A not-yet-attempted step has not happened, in this beat or an earlier one. Stop before it; never show it start or done.",
@@ -660,9 +661,12 @@ describe("narrate", () => {
       snapshot,
       prose: "Prose.",
     });
-    expect(AUDIT_VERSION).toBe("dm.audit-v7");
+    expect(AUDIT_VERSION).toBe("dm.audit-v8");
     expect(p.system).toContain("6. The actor on the Turn line acts");
     expect(p.system).toContain("7. A roll's band and consequence are decided.");
+    expect(p.system).toContain(
+      "does not deliver a roll's settled outcome or learned fact",
+    );
     const turnFacts = {
       ...out.output.facts,
       turn: { actor: "Snag", next: "Kestrel" },

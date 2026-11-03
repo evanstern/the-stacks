@@ -219,7 +219,7 @@ describe("stakes audit over the captured run (card AC #6)", () => {
       prose: proseOf(175),
     });
     expect(p.user).toContain("severe failure");
-    expect(p.user).toContain(`consequence: ${SEVERE}`);
+    expect(p.user).toContain(`outcome (settled): ${SEVERE}`);
     expect(p.system).toContain("band and consequence are decided");
   });
 
@@ -236,7 +236,9 @@ describe("stakes audit over the captured run (card AC #6)", () => {
     });
     expect(out.shipped?.prose).toBe(second);
     expect(scripted.remaining().calls["dm.narrate"]).toBe(0);
-    expect(seen.some((s) => s.includes(`consequence: ${SEVERE}`))).toBe(true);
+    expect(seen.some((s) => s.includes(`outcome (settled): ${SEVERE}`))).toBe(
+      true,
+    );
   });
 
   it("seq 203: the F6 dodge on a plain failure regenerates the same way", async () => {
