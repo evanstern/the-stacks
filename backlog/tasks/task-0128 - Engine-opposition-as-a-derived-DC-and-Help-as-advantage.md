@@ -33,8 +33,10 @@ Spec: specs/084-opposition-and-help
 - [x] #5 Spec phase: Engine (card AC #1, #2; US1, US2)
 - [x] #6 Spec phase: Step contract, prompts, plan gate and resolve (card AC #1, #3; US1, US3)
 - [x] #7 Spec phase: Narration facts and end-to-end test (card AC #1–#3; US1, US2, US4)
-- [ ] #8 Spec phase: Re-ground (wiki)
+- [x] #8 Spec phase: Re-ground (wiki)
 <!-- AC:END -->
+
+
 
 
 
