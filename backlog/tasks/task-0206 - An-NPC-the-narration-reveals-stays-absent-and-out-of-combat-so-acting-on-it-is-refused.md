@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-11-02 22:42'
-updated_date: '2026-11-03 02:36'
+updated_date: '2026-11-03 02:47'
 labels:
   - dm
   - playtest
@@ -53,6 +53,9 @@ Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5 (spec 0
 spec-bridge sync: The Director's arrivals, resolve and the plan gate (card AC #1, #2): 0/9 · The chronicle and the run 1 seq 40–45 replay (card AC #1, #2, #3; merge condition): 0/7 · Wiki re-ground: 0/6
 
 Spec 078 (4acaf437). Defaults (a) taken: OQ-1 reveal detected by a structured Director field (arrivals); OQ-2 code never starts an encounter on an attack (Director may, and that path now resolves); OQ-3 talk-turn reveals out of scope; OQ-4 narrate still lists offstage NPCs as gone. OQ-3 (b) and OQ-4 (b) are maybes: no card unless the playtest shows them. Implementation waits for TASK-0113 to merge (shared prompts/director.ts hunk; director-v6).
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 078 phases 1-2)
+Spine amendment: 0206 builds in parallel with 0205 (both touch plan-gate.ts in separate functions; runner.ts only 0205). 0205 merges first.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
