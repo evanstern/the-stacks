@@ -130,6 +130,11 @@ function rollSentences(
       const said = spellDigits(r.consequence).replace(/[.!]+$/, "");
       if (reasonSpeakable(said, state)) out.push(`${said}.`);
     }
+    // Spec 080: the learned fact ships too, under the same claim check.
+    if (r.revealed) {
+      const learned = spellDigits(r.revealed).replace(/[.!]+$/, "");
+      if (reasonSpeakable(learned, state)) out.push(`${learned}.`);
+    }
   }
   return out;
 }

@@ -2016,6 +2016,31 @@ describe.skipIf(!reachable)("resolve turn-moved guard (spec 049)", () => {
       expect(w.scripted.remaining().dice).toBe(0);
     });
 
+    it("records the revealed clue text on the submission (spec 080)", async () => {
+      const w = await createWorld({ dice: [15] });
+      await startScene(w);
+      const id = await commitAction(w, "Tamsin looks for the claw marks.");
+      const out = await run(w, [
+        reading(id, [stepWith({ reveals: "ferry-house#1" })]),
+      ]);
+      const sub = out.submissions.find((s) => s.stepRef && s.stakes);
+      expect(sub?.reveals).toBe("ferry-house#1");
+      expect(sub?.revealedText).toContain("goblin feet");
+    });
+
+    it("an unknown reveals reference records null and still applies the band (spec 080)", async () => {
+      const w = await createWorld({ dice: [15] });
+      await startScene(w);
+      const id = await commitAction(w, "Tamsin looks for the claw marks.");
+      const out = await run(w, [
+        reading(id, [stepWith({ reveals: "nowhere#1" })]),
+      ]);
+      const sub = out.submissions.find((s) => s.stepRef && s.stakes);
+      expect(sub?.reveals).toBe("nowhere#1");
+      expect(sub?.revealedText).toBeNull();
+      expect(await proneIds(w)).toEqual(["tamsin"]);
+    });
+
     it("a retry that names a new risk rolls", async () => {
       const w = await createWorld({ dice: [2, 15] });
       await startScene(w);

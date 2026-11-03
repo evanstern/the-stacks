@@ -15,7 +15,7 @@ sources:
   - apps/server/src/dm/snapshot/build.ts
   - packages/session-model/src/gate/proposals.ts
   - packages/session-model/src/gate/plan.ts
-verified_against: 389d2e32895a3b2143ee05f72f8b421f236a8bf7
+verified_against: 8bb7bfe871c232b0305beea5f1dfd3eaeb26af34
 ---
 
 # Seed NPC presence
@@ -33,6 +33,7 @@ id to `ScenePresenceSchema` (`present`, `yielded`, `absent`). There is no defaul
 without it fails to load. `SeedNpc.identity` gains `aliases` (up to 6 strings of up to 60
 characters, default empty). `SeedCharacter.identity` gains required `class` (up to 40 characters) and `level` (1 to 20); the three seeds set them. Scene start copies both onto each `director:party:<id>` row's `after` (TASK-0164; `PartyMemberSchema` holds them as optional fields). `greyhollow-ford.json` declares all three NPCs in all three beats
 and aliases "the keeper" (`wenna`), "the boy" (`pell`) and "the goblin leader" (`snag`).
+Since spec 080, beat clue text is also the learned fact: a check step's `reveals` (`<beatId>#<n>`) names one clue, and resolve copies its text (`clueFor`) onto the submission. The ferry-house footprint clue names goblin feet.
 `greyhollow-ford-duo.json` (TASK-0163, `specs/054-two-player-alpha-kit/`) is the same scene with
 the same three NPCs and presence maps and three party characters: `tamsin` and `kestrel` seat
 `human`, `odo` seat `companion`.

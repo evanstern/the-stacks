@@ -53,6 +53,8 @@ export interface FactRoll {
   margin?: number | null;
   /** Spec 070: the declared text for a success-at-cost, failure or severe-failure band. */
   consequence?: string | null;
+  /** Spec 080: the clue text a success band reveals; null on any other band. */
+  revealed?: string | null;
   /** Spec 070: a free retry resolved without a roll. */
   autoSuccess?: boolean;
   /** True for an opportunity attack (the attacker spent its reaction). */
@@ -214,12 +216,24 @@ interface Collected {
   changes: FactChange[];
 }
 
+/** Spec 080 D4: the clue text, only on a success band. */
+function revealedFor(
+  byBatch: ReadonlyMap<string, string>,
+  batchId: string,
+  band: string | null,
+): string | null {
+  return band === "success" || band === "success-at-cost"
+    ? (byBatch.get(batchId) ?? null)
+    : null;
+}
+
 /** Rolls, outcomes and state changes from one action's (or turn's) ledger rows. */
 export function collectFacts(
   rows: readonly LedgerRow[],
   nameOf: NameOf,
   damageTypeBySeq: ReadonlyMap<number, string> = new Map(),
   stakesByBatch: ReadonlyMap<string, FactStakes> = new Map(),
+  revealedByBatch: ReadonlyMap<string, string> = new Map(),
 ): Collected {
   const out: Collected = { rolls: [], outcomes: [], changes: [] };
   const ordered = [...rows].sort((a, b) => a.seq - b.seq);
@@ -244,6 +258,7 @@ export function collectFacts(
       let band: FactBand | null = null;
       let margin: number | null = null;
       let consequence: string | null = null;
+      let revealed: string | null = null;
       if (link) {
         const o = link.outcome;
         if (o.type === "attack.resolved") {
@@ -257,6 +272,7 @@ export function collectFacts(
           band = o.band ?? null;
           margin = o.margin ?? null;
           consequence = consequenceFor(stakesByBatch.get(link.batchId), band);
+          revealed = revealedFor(revealedByBatch, link.batchId, band);
         }
       }
       const name = nameOf(row.roll.combatantId);
@@ -271,7 +287,7 @@ export function collectFacts(
         outcome,
         autoFail: false,
         target,
-        ...(band ? { band, margin, consequence } : {}),
+        ...(band ? { band, margin, consequence, revealed } : {}),
         ...(reaction ? { reaction: true } : {}),
       });
     }
@@ -300,6 +316,7 @@ export function collectFacts(
             band: e.band,
             margin: null,
             consequence: consequenceFor(stakesByBatch.get(o.batchId), e.band),
+            revealed: revealedFor(revealedByBatch, o.batchId, e.band),
           }
         : {}),
     });
@@ -629,8 +646,11 @@ export function buildNarrationFacts(input: BuildFactsInput): NarrationFacts {
   const types = damageTypesBySeq(input.appendedRows);
   // Spec 070 R6: the stakes each check submission declared, by the batch it landed in.
   const stakesByBatch = new Map<string, FactStakes>();
+  const revealedByBatch = new Map<string, string>();
   for (const s of input.resolve.submissions) {
     if (s.batchId && s.stakes) stakesByBatch.set(s.batchId, s.stakes);
+    if (s.batchId && s.revealedText)
+      revealedByBatch.set(s.batchId, s.revealedText);
   }
   const actions: FactAction[] = [];
   for (const item of input.beat) {
@@ -649,7 +669,7 @@ export function buildNarrationFacts(input: BuildFactsInput): NarrationFacts {
       refusalCode = view.resolved.refusalCode;
     } else continue;
     const rows = p.ledger.filter((r) => r.actionId === item.actionId);
-    const c = collectFacts(rows, nameOf, types, stakesByBatch);
+    const c = collectFacts(rows, nameOf, types, stakesByBatch, revealedByBatch);
     actions.push({
       actionId: item.actionId,
       characterName:
@@ -683,7 +703,7 @@ export function buildNarrationFacts(input: BuildFactsInput): NarrationFacts {
           .map((s) => stripMarker(s.reason).slice(0, PLAN_MAX_CHARS)),
         held: refused || steps.length === 0,
       },
-      ...collectFacts(rows, nameOf, types, stakesByBatch),
+      ...collectFacts(rows, nameOf, types, stakesByBatch, revealedByBatch),
     };
   }
 
@@ -714,7 +734,7 @@ export function buildNarrationFacts(input: BuildFactsInput): NarrationFacts {
       first && first.kind === "roll" ? first.roll.combatantId : null;
     settled.push({
       name: nameOf(subject),
-      ...collectFacts(rows, nameOf, types, stakesByBatch),
+      ...collectFacts(rows, nameOf, types, stakesByBatch, revealedByBatch),
     });
   }
 

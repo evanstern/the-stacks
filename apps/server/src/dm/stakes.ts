@@ -1,6 +1,7 @@
 import type { OutcomeBand } from "@the-stacks/dnd5e-engine";
 import type { LedgerRow } from "@the-stacks/session-model";
 import type { Effect, Stakes, Step } from "./nodes/schemas.js";
+import type { SceneSeed } from "./seed/schema.js";
 
 type CheckStep = Extract<Step, { step: "check" }>;
 
@@ -59,20 +60,30 @@ export function isFreeRetry(
   });
 }
 
-/** The declared text for a non-success band, else null. */
+/** Spec 080 D3: the declared text for the applied band, success included; null when none. */
 export function consequenceFor(
   stakes: Stakes | null | undefined,
   band: OutcomeBand | string | null,
 ): string | null {
   if (!stakes) return null;
   switch (band) {
+    case "success":
+      return stakes.success ?? null; // null on a checkpoint saved under spec 070
     case "success-at-cost":
       return stakes.cost;
     case "failure":
       return stakes.failure;
     case "severe-failure":
-      return stakes.severe;
+      return stakes.severe ?? stakes.failure;
     default:
       return null;
   }
+}
+
+/** Spec 080 D3: the text of clue `<beatId>#<n>`, or null for a null, malformed or unknown reference. */
+export function clueFor(seed: SceneSeed, ref: string | null): string | null {
+  const m = ref ? /^(.+)#([1-8])$/.exec(ref) : null;
+  if (!m) return null;
+  const beat = seed.beats.find((b) => b.id === m[1]);
+  return beat?.clues[Number(m[2]) - 1]?.text ?? null;
 }
