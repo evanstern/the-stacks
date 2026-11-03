@@ -41,7 +41,7 @@ sources:
   - apps/server/seeds/greyhollow-ford-trio.json
   - biome.json
 size_budget_exempt: both notes sat within 30 chars of the 8000 budget before TASK-0180; the talk path got its own note (dm-talk-triggers) and only a pointer line lands here; the rest is one pipeline each, not splittable without a TASK of its own
-verified_against: 2f9b45c48816a6f97a9ede5c07c269c0e921b397
+verified_against: 1f092d687d2b94e1ebf7836fba4c122cb46ef4ae
 ---
 
 # DM runtime
@@ -92,7 +92,7 @@ view). An over-cap snapshot fails the turn with `state-overflow` ([[dm-failure-a
 (`companion.ts` and `chronicle.ts` also call it). It picks each next step from **engine events alone**: a `check.roll` or `attack.roll`
 `mechanics` proposal goes in, the appended `check.resolved`/hit outcome comes out, and only then
 do effects (`damage.apply`, `healing.apply`, `condition.*`) follow. A `presence` effect (`arrived`, `left`, `fled`, `removed`, `surrendered`, `conceded`) is not an engine command: resolve submits a `scene-presence` proposal, and `findLanded` recognises a landed one from the `scenePresence` projection. Resolve alone builds that kind ([[proposal-gate]]) and logs seed presence ([[seed-npc-presence]]). No model is read inside
-resolve; the engine ([[dnd5e-engine]]) owns every number. Since TASK-0194 (spec 068) resolve first pulls each plan-gate `pull` id into the scene (`pullIn`: `combatant.add` from the NPC's SRD block, default `commoner`, then `initiative.join` in an encounter when it can act), as `actionId: null` rows. A gate refusal is recorded, never retried. Each submission is checkpointed (`Submission`, keyed `<jobId>#<n>`).
+resolve; the engine ([[dnd5e-engine]]) owns every number. Since TASK-0194 (spec 068) resolve first pulls each plan-gate `pull` id into the scene (`pullIn`: `combatant.add` from the NPC's SRD block, default `commoner`, then `initiative.join` in an encounter when it can act), as `actionId: null` rows. Since spec 075 (TASK-0210) the same `pullIn` also pulls attack targets, attackers and damage targets. The operator ruled: "I actually think that the rule itself is incorrect -- we should be able to attack anyone regardless of combatant state." A gate refusal is recorded, never retried. Each submission is checkpointed (`Submission`, keyed `<jobId>#<n>`).
 
 Resolve's six groups and settling: [[dm-turn-jobs]]; floor guard: [[turn-floor]].
 
