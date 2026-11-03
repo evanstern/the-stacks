@@ -41,22 +41,14 @@ Spec: specs/083-spells-by-srd-id
 - [ ] #9 Spec phase: Re-ground (wiki)
 <!-- AC:END -->
 
-
-
-
-
-
-
-
-
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
 Claimed 2026-11-03 by M3 runbook B (docs/design/m3-runbook-b-resolution-quality.md). Worktree .worktrees/task-0105, branch task-0105-spells-by-srd-id, cut from origin/main 05ef251e. Spec number 083 claimed with a stub. Spine #14; spec authored while 0104 builds.
 
 Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5 (spec 083 authoring, C1)
+
+spec-bridge sync: Seam check [orchestrator]: 1/1 · Engine spell resolution (card AC #2, #3, #5; US1, US2, US3, US4): 0/16 · Spell step, plan gate, resolve, prompts, snapshot and seeds (card AC #1–#5; US1–US5): 0/14 · Re-ground (wiki): 0/6
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
