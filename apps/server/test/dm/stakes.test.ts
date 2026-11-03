@@ -1,6 +1,8 @@
 import type { LedgerRow } from "@the-stacks/session-model";
 import { describe, expect, it } from "vitest";
+import { loadSeed } from "../../src/dm/seed/load.js";
 import {
+  clueFor,
   consequenceFor,
   effectsForBand,
   isFreeRetry,
@@ -92,11 +94,34 @@ describe("consequenceFor", () => {
     severe: "V",
   };
   it("returns the declared text per band", () => {
-    expect(consequenceFor(stakes, "success")).toBeNull();
+    expect(consequenceFor(stakes, "success")).toBe(
+      "The attempt works as intended.",
+    );
     expect(consequenceFor(stakes, "success-at-cost")).toBe("C");
     expect(consequenceFor(stakes, "failure")).toBe("F");
     expect(consequenceFor(stakes, "severe-failure")).toBe("V");
     expect(consequenceFor(null, "failure")).toBeNull();
     expect(consequenceFor(stakes, null)).toBeNull();
+  });
+  it("falls back to failure for a null severe and reads an old null success as none", () => {
+    expect(consequenceFor({ ...stakes, severe: null }, "severe-failure")).toBe(
+      "F",
+    );
+    expect(
+      consequenceFor({ ...stakes, success: null } as never, "success"),
+    ).toBeNull();
+  });
+});
+
+describe("clueFor", () => {
+  const seed = loadSeed("greyhollow-ford-duo");
+  it("returns the clue text for a valid reference", () => {
+    expect(clueFor(seed, "ferry-house#1")).toContain("goblin feet");
+  });
+  it("returns null for out-of-range, unknown-beat, malformed and null refs", () => {
+    expect(clueFor(seed, "ferry-house#8")).toBeNull();
+    expect(clueFor(seed, "nowhere#1")).toBeNull();
+    expect(clueFor(seed, "ferry-house")).toBeNull();
+    expect(clueFor(seed, null)).toBeNull();
   });
 });

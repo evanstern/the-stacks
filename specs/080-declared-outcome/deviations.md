@@ -12,3 +12,12 @@ adjudicate-v6, narrate-v11, audit-v7; bumps are v9, v7, v12, v8.
   also held `success: null`; each gains a concrete success text. `stakes.test.ts` and `facts.test.ts`
   null assertions on `success` are rewritten in Phase 2.
 - **Clue reference example** in the prompt uses `ford-crossing#1` (a generic example, not a seed id).
+
+## Phase 2
+
+- **`Submission.reveals` / `revealedText` are optional** (`?:`), not required: an older checkpoint holds
+  neither field, and the optional type keeps hand-built `Submission` literals compiling unchanged.
+- **`collectFacts` gains a fifth parameter** `revealedByBatch` (batch id to clue text) beside 070's
+  `stakesByBatch`, instead of widening `stakesByBatch`'s value type. Both are filled from submissions
+  in `collectBeatFacts`.
+- **`consequenceFor` reads a null `success` as null** (a checkpoint saved under 070 may hold it).

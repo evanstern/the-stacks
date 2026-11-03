@@ -361,7 +361,7 @@ describe("dice-line renderer", () => {
     ]);
 
     it.each([
-      ["success", null, 1, "success"],
+      ["success", "The attempt works as intended.", 1, "success"],
       ["success-at-cost", "The pick bites her palm.", -2, "success at a cost"],
       ["failure", "The lock holds.", -3, "failure"],
       [
@@ -388,6 +388,35 @@ describe("dice-line renderer", () => {
       },
     );
 
+    it("sets revealed on both success bands and null on both failure bands (spec 080)", () => {
+      const revealed = new Map([["b1", "Goblin prints."]]);
+      const got = (band: string, outcome: string) =>
+        collectFacts(
+          checkRows({ band, margin: 0, outcome }),
+          nameOf,
+          new Map(),
+          stakes,
+          revealed,
+        ).rolls[0]?.revealed;
+      expect(got("success", "success")).toBe("Goblin prints.");
+      expect(got("success-at-cost", "success")).toBe("Goblin prints.");
+      expect(got("failure", "failure")).toBeNull();
+      expect(got("severe-failure", "failure")).toBeNull();
+    });
+
+    it("gives a null consequence for an old submission with success null", () => {
+      const old = new Map([
+        ["b1", { ...stakes.get("b1"), success: null } as never],
+      ]);
+      const c = collectFacts(
+        checkRows({ band: "success", margin: 1, outcome: "success" }),
+        nameOf,
+        new Map(),
+        old,
+      );
+      expect(c.rolls[0]?.consequence).toBeNull();
+    });
+
     it("leaves band null-free on an old row with no band", () => {
       const c = collectFacts(checkRows({}), nameOf, new Map(), stakes);
       expect(c.rolls[0]?.band).toBeUndefined();
@@ -408,7 +437,7 @@ describe("dice-line renderer", () => {
         autoSuccess: true,
         autoFail: false,
         band: "success",
-        consequence: null,
+        consequence: "The attempt works as intended.",
       });
       expect(renderRollLine(c.rolls[0] as never)).toBe(
         "Ana — Ana picks the lock: no roll needed: success vs DC 12".replace(

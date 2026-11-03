@@ -43,24 +43,24 @@ lists for the phase. Stop and report if another file is needed.
 
 ## Phase 2: Resolve and facts carry the applied outcome (card AC #2, #5; US1, US2)
 
-- [ ] T011 [US1] In `apps/server/src/dm/stakes.ts`, widen `consequenceFor` to every band and add
+- [x] T011 [US1] In `apps/server/src/dm/stakes.ts`, widen `consequenceFor` to every band and add
       `clueFor(seed, ref)` (plan D3).
-- [ ] T012 [US2] In `apps/server/src/dm/nodes/resolve.ts` `case "check"`, record `reveals` and
+- [x] T012 [US2] In `apps/server/src/dm/nodes/resolve.ts` `case "check"`, record `reveals` and
       `revealedText` on the submission and log `dm.reveals.unknown` for an unknown reference. Add both
       fields to `Submission` (plan D3).
-- [ ] T013 [US1] In `apps/server/src/dm/facts.ts`, add `FactRoll.revealed` and fill `consequence` for
+- [x] T013 [US1] In `apps/server/src/dm/facts.ts`, add `FactRoll.revealed` and fill `consequence` for
       every band and `revealed` on a success band (plan D4). Import no engine value.
-- [ ] T014 [US1] In `apps/server/test/dm/stakes.test.ts`, assert `consequenceFor` per band, success
+- [x] T014 [US1] In `apps/server/test/dm/stakes.test.ts`, assert `consequenceFor` per band, success
       included, a null `severe` falling back to `failure`, and `clueFor` for a valid, an out-of-range
       and an unknown-beat reference.
-- [ ] T015 [US2] In `apps/server/test/dm/resolve.integration.test.ts`, add: a check with
+- [x] T015 [US2] In `apps/server/test/dm/resolve.integration.test.ts`, add: a check with
       `reveals: "ferry-house#1"` records the clue text on its submission; an unknown reference records
       null, logs `dm.reveals.unknown` and still applies the band's effects.
-- [ ] T016 [US1] In `apps/server/test/dm/facts.test.ts`, assert `consequence` is the success text on
+- [x] T016 [US1] In `apps/server/test/dm/facts.test.ts`, assert `consequence` is the success text on
       band `success` (card AC #2), the cost text on `success-at-cost`, `revealed` set on both success
       bands and null on both failure bands (card AC #5), and null `consequence` for an old submission
       with `success: null`.
-- [ ] T017 Run `pnpm ci:check` and the DB suites with `REQUIRE_DATABASE=1`.
+- [x] T017 Run `pnpm ci:check` and the DB suites with `REQUIRE_DATABASE=1`.
 
 ## Phase 3: Narration, audit, fallback and the claw-marks replay (card AC #3, #4; US1, US3)
 

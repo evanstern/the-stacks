@@ -33,7 +33,7 @@ import {
   diffSnapshots,
   type SnapshotDiff,
 } from "../snapshot/index.js";
-import { effectsForBand, isFreeRetry } from "../stakes.js";
+import { clueFor, effectsForBand, isFreeRetry } from "../stakes.js";
 import type { AssembleOutput, BeatItem } from "./assemble.js";
 import type { AuditOutput } from "./audit.js";
 import type { DirectorNodeOutput } from "./director.js";
@@ -72,6 +72,10 @@ export interface Submission {
   band: string | null;
   /** Spec 070: the stakes the check step declared; checkpointed, never in a public row. */
   stakes: Stakes | null;
+  /** Spec 080: the clue reference the check step named, else null. Absent on an older checkpoint. */
+  reveals?: string | null;
+  /** Spec 080: the seed text of `reveals`; null when none or unknown. Never in a public row. */
+  revealedText?: string | null;
   /** The seqs the gate returned for this submission, ascending; `[]` on a refusal or an unrecoverable replay. */
   seqs: number[];
 }
@@ -589,6 +593,16 @@ async function runSteps(
           actionId,
           step.stakes,
         );
+        // Spec 080 D3: the next checkpoint save carries both fields; a replay re-sets them.
+        sub.reveals = step.reveals ?? null;
+        sub.revealedText = clueFor(run.ctx.seed, sub.reveals);
+        if (sub.reveals && sub.revealedText === null) {
+          run.ctx.deps.log({
+            event: "dm.reveals.unknown",
+            jobId: run.ctx.job.id,
+            reveals: sub.reveals,
+          });
+        }
         if (take(sub)) {
           await runEffects(
             key,
