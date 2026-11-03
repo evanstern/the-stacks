@@ -11,21 +11,21 @@ one commit led by `TASK-0210:`. No phase edits `dm/nodes/resolve.ts` or any `dm/
 
 ## Phase 1: The gate, its unit tests and the contract (card AC #1, #2, #3)
 
-- [ ] T001 In `apps/server/src/dm/gates/plan-gate.ts`, delete `pullable` from `NamedId`,
+- [x] T001 In `apps/server/src/dm/gates/plan-gate.ts`, delete `pullable` from `NamedId`,
       `effectIds` and `stepIds` (plan D1).
-- [ ] T002 In `checkPlan`, change the id check to `!valid.has(id) && !npcIds.has(id)`. Keep the
+- [x] T002 In `checkPlan`, change the id check to `!valid.has(id) && !npcIds.has(id)`. Keep the
       failure reasons, the absent check and the pull-id block unchanged. Update the spec 068
       comments to cite spec 075.
-- [ ] T003 In `apps/server/test/dm/plan-gate.test.ts`, apply every row of the plan D3
+- [x] T003 In `apps/server/test/dm/plan-gate.test.ts`, apply every row of the plan D3
       `plan-gate.test.ts` table: two flips, three id swaps, two new cases.
-- [ ] T004 Apply `contracts/plan-reason-gate-amendment.md` to
+- [x] T004 Apply `contracts/plan-reason-gate-amendment.md` to
       `specs/058-roll-reason-plan-gate/contracts/plan-reason-gate.md`. Copy the text block
       verbatim, including the ruling quote.
-- [ ] T005 In `specs/068-noncombatant-targets/spec.md`, append the plan D2 reversal line under
+- [x] T005 In `specs/068-noncombatant-targets/spec.md`, append the plan D2 reversal line under
       OQ-4 and under FR-002. Change nothing else in spec 068.
-- [ ] T006 Run the plan D5 mutation guard on the unit tests: restore `pullable: false` on the
+- [x] T006 Run the plan D5 mutation guard on the unit tests: restore `pullable: false` on the
       attack `targetId`, see the flipped case fail, restore.
-- [ ] T007 Run `pnpm ci:check`.
+- [x] T007 Run `pnpm ci:check`.
 
 ## Phase 2: The DB tests and the run 1 seq 45 replay (card AC #1, #2; merge condition)
 

@@ -136,8 +136,6 @@ interface NamedId {
   id: string;
   /** Set on a presence effect's target: the effect's reason. */
   presenceReason?: string;
-  /** True when a non-combatant NPC may be named here (spec 068): not an attack or damage. */
-  pullable: boolean;
 }
 
 function effectIds(effects: readonly Effect[], list: string): NamedId[] {
@@ -145,7 +143,6 @@ function effectIds(effects: readonly Effect[], list: string): NamedId[] {
     return {
       field: `${list}[${j}].targetId`,
       id: e.targetId,
-      pullable: e.effect === "condition" || e.effect === "heal",
       ...(e.effect === "presence" ? { presenceReason: e.reason } : {}),
     };
   });
@@ -162,7 +159,7 @@ function stepIds(step: Step): NamedId[] {
     case "check":
       return [
         ...(step.combatantId
-          ? [{ field: "combatantId", id: step.combatantId, pullable: true }]
+          ? [{ field: "combatantId", id: step.combatantId }]
           : []),
         ...effectIds(step.onSuccess, "onSuccess"),
         ...effectIds(step.onFailure, "onFailure"),
@@ -170,9 +167,9 @@ function stepIds(step: Step): NamedId[] {
     case "attack":
       return [
         ...(step.attackerId
-          ? [{ field: "attackerId", id: step.attackerId, pullable: false }]
+          ? [{ field: "attackerId", id: step.attackerId }]
           : []),
-        { field: "targetId", id: step.targetId, pullable: false },
+        { field: "targetId", id: step.targetId },
         ...effectIds(step.onHit, "onHit"),
       ];
   }
@@ -282,7 +279,8 @@ export function checkPlan(input: PlanInput): PlanVerdict[] {
   const { snapshot } = input;
   const valid = new Set<string>(input.joining);
   const noCombatant = new Set<string>();
-  // Spec 068: exact ids of S0 npc actors with no combatant (never aliases).
+  // Specs 068 and 075: exact ids of S0 npc actors with no combatant (never aliases).
+  // Any non-presence field may name one, attacks and damage included.
   const npcIds = new Set<string>();
   const inOrder = new Set<string>(snapshot.stage.encounter?.order ?? []);
   const actorIds = new Set<string>(input.joining);
@@ -317,7 +315,7 @@ export function checkPlan(input: PlanInput): PlanVerdict[] {
     let failure: PlanFailure | null = null;
     const pull = new Set<string>();
     for (const [stepIndex, step] of steps.entries()) {
-      for (const { field, id, presenceReason, pullable } of stepIds(step)) {
+      for (const { field, id, presenceReason } of stepIds(step)) {
         if (presenceReason !== undefined) {
           // A presence effect targets any S0 actor, combatant or not.
           const reason: PlanFailureReason | null = !actorIds.has(id)
@@ -329,7 +327,7 @@ export function checkPlan(input: PlanInput): PlanVerdict[] {
           failure = { stepIndex, field, id, reason };
           break;
         }
-        if (!valid.has(id) && !(pullable && npcIds.has(id))) {
+        if (!valid.has(id) && !npcIds.has(id)) {
           failure = {
             stepIndex,
             field,
@@ -342,7 +340,7 @@ export function checkPlan(input: PlanInput): PlanVerdict[] {
           failure = { stepIndex, field, id, reason: "absent" };
           break;
         }
-        // Spec 068: a named actor outside the order is pulled in. Free mode
+        // Specs 068, 075: a named actor outside the order is pulled in. Free mode
         // pulls only an actor with no combatant (nothing else to do).
         const actor = snapshot.actors.find(
           (a) =>
