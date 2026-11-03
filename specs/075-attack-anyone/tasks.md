@@ -43,18 +43,18 @@ one commit led by `TASK-0210:`. No phase edits `dm/nodes/resolve.ts` or any `dm/
 
 ## Phase 3: Wiki re-ground (card AC #3)
 
-- [ ] T014 `docs/wiki/dm-failure-and-gates.md` (NEEDS-REVIEW): rewrite the spec 068 sentence in the
+- [x] T014 `docs/wiki/dm-failure-and-gates.md` (NEEDS-REVIEW): rewrite the spec 068 sentence in the
       plan-gate paragraph. Every field accepts an exact non-combatant NPC id; only an alias fails
       `not-a-combatant`. Cite spec 075, TASK-0210 and the ruling verbatim.
-- [ ] T015 `docs/wiki/dm-runtime.md` (NEEDS-REVIEW): state that `pullIn` now also pulls attack
+- [x] T015 `docs/wiki/dm-runtime.md` (NEEDS-REVIEW): state that `pullIn` now also pulls attack
       targets, attackers and damage targets (spec 075). Cite the ruling.
-- [ ] T016 `docs/wiki/turn-floor.md` (NEEDS-REVIEW): check whether any line describes who may join
+- [x] T016 `docs/wiki/turn-floor.md` (NEEDS-REVIEW): check whether any line describes who may join
       the order. Add one line if a pulled attack target can join mid-encounter and the note is
       silent. Re-pin honestly whether or not the text changes.
-- [ ] T017 `docs/wiki/output-claim-gate.md` and `docs/wiki/seed-npc-presence.md`: they list
+- [x] T017 `docs/wiki/output-claim-gate.md` and `docs/wiki/seed-npc-presence.md`: they list
       `plan-gate.ts` as a source. Review against the diff and re-pin.
-- [ ] T018 `docs/wiki/CAPSULES.md` and `docs/wiki/INDEX.md`: amend the spec 068 sentence in INDEX
+- [x] T018 `docs/wiki/CAPSULES.md` and `docs/wiki/INDEX.md`: amend the spec 068 sentence in INDEX
       to say attacks and damage pull too since spec 075. Update the `dm-failure-and-gates` capsule
       if its wording names the attack exception.
-- [ ] T019 Re-pin the reviewed notes to the branch head. Run the wiki freshness gate and the
+- [x] T019 Re-pin the reviewed notes to the branch head. Run the wiki freshness gate and the
       spec-bridge gate (dispatch rules); both pass.
