@@ -4,7 +4,7 @@ title: A talk NPC turn that falls back says '<name> speaks up' instead of the li
 status: In Progress
 assignee: []
 created_date: '2026-11-02 23:04'
-updated_date: '2026-11-03 03:18'
+updated_date: '2026-11-03 03:19'
 labels:
   - dm
   - narration
@@ -26,6 +26,8 @@ Outcome: when an NPC's turn is talk and the narration falls back, the player sti
 Why: runbook A playtest run 1 (2026-11-02, session 9296c653, seq 124-127). Pell's NPC turn: the Director planned a useful shout (the clapper is tied with a wet slip-knot; four goblins, two hidden left of the fire), and interpret recorded the lines as followUps with step 'none' and reason 'Pell is grappled and can't act physically, but can shout a clue to the party with no roll needed.' The audit refused three narrations (Snag acting in Pell's beat, Pell's feelings decided, the next actor acting, length). The TASK-0193 fallback could not voice the reason (it holds rules language: 'no roll needed'), so it shipped 'Pell Marsh speaks up. Goblin with a pot-helm moves next.' The players never heard the clue. The operator: 'narrated simply as "Pell Marsh speaks up" instead of actually speaking for Pell'.
 
 Where: apps/server/src/dm/fallback.ts plannedSentence (spec 071): for intent talk, voice the planned speech (followUps or a dedicated say field) before the generic line. Interpret could also keep a speakable reason separate from the rules note.
+
+Spec: specs/081-talk-fallback-line
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
