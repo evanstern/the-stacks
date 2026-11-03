@@ -289,7 +289,9 @@ Then **stop for the operator to play it** (checkpoint C7).
 | 2026-11-03 | TASK-0105 | #124 | ff1eb0ed | opus (spec 083), sonnet x3 | Engine `spell.cast`, six spells, slot spend (delivers TASK-0211 AC #2). Unresolvable families carded TASK-0226..0229; monster casting TASK-0230; standing S-spells-refused playtest row. 0128 rebased behind it (shared files). Two wiki notes took size exemptions (split carded). interpret-v12, adjudicate-v9. |
 | 2026-11-03 | (amendment) | — | — | — | TASK-0211 moves from 'spec set' to escape line E5 (card ACs drive): TASK-0105 (#124) delivered its AC #2 and the slot spend, leaving AC #1's seq 204-210 replay and AC #3 (narration states no unspent slot). Operator told; runs sonnet. |
 | 2026-11-03 | TASK-0211 | #125 | 38834068 | sonnet | E5. Deterministic check: no spent slot claimed without a spend fact. narrate-v15, audit-v10. |
-| 2026-11-03 | TASK-0171 | (this PR) | (at merge) | opus (spec 076 + amendment), sonnet x3 | Opening names every party character (never a player, operator ruling) and every NPC present at the first beat (the Wenna root cause). Seed `opening.premise`. narrate-v16. Flake seen once: jobs.integration concurrency case. |
+| 2026-11-03 | TASK-0171 | #126 | 40a0783d | opus (spec 076 + amendment), sonnet x3 | Opening names every party character (never a player, operator ruling) and every NPC present at the first beat (the Wenna root cause). Seed `opening.premise`. narrate-v16. Flake seen once: jobs.integration concurrency case. |
+| 2026-11-03 | TASK-0204 | #127 | d59c369a | haiku (two passes) | E4. Literal-ending check; review reworded TASK-0205's clarify question, which ended on the banned phrase. AC #2 ticks at the playtest. |
+| 2026-11-03 | TASK-0128 | (this PR) | (at merge) | opus (spec 084 + seam check), sonnet x2 | Opposition as a check difficulty variant; `help.grant` assists (a spell attack takes one, D5a per SRD text). narrate-v17, audit-v11, interpret-v13, adjudicate-v10. Cards TASK-0232; TASK-0224 scope added. |
 
 ## Later runbooks (order on record; each gets its own runbook and sign-off)
 

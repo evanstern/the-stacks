@@ -255,3 +255,9 @@ the `success` band and falls back from a null `severe` to `failure`. No effect o
 - `checkPlan` receives `spellLists` (combatant id to seed spell ids) and `srdSpell` (the SRD spell
   record's level). A spell step the SRD, the seed list, the engine table or the stats cannot
   resolve refuses its group before any step runs.
+
+## Amended by specs/084-opposition-and-help (TASK-0128)
+
+- A `check` step with an opposition `difficulty` submits `check.roll` with `opposition: { opponentId, rule }`
+  and no `difficulty`. A tier string submits `difficulty` as before.
+- `help` submits one `help.grant` with `helperId` and `assist`, with the step's `reason`. No effects follow.

@@ -1,9 +1,11 @@
 import {
+  attackAssists,
   attackModeSources,
   checkModeSources,
   checkModifier,
   d20Expression,
   foldMode,
+  type ModeSource,
   spellAttackBonus,
   spellcastingModifier,
   spellSaveDc,
@@ -19,7 +21,7 @@ import type {
   ExpiryPoint,
 } from "../schema/state.js";
 import { SPELLS, spellDice } from "../spells.js";
-import { actorUnable, bandOf, checkNamed } from "./attacks.js";
+import { actorUnable, bandOf, checkNamed, usedAssists } from "./attacks.js";
 import { appliedEvent } from "./conditions.js";
 import { damageEvents, healingEvents, preflight } from "./hit-points.js";
 import { slotExpendEvent } from "./spell-slots.js";
@@ -123,10 +125,12 @@ export const handleSpellCast: Handler<"spell.cast"> = (state, command, rng) => {
     const exhaustion =
       caster.conditions.find((i) => i.condition === "exhaustion")?.level ?? 0;
     const bonus = (spellAttackBonus(caster.stats) as number) - 2 * exhaustion;
-    const mode = foldMode(
-      "normal",
-      attackModeSources(caster, target, { range: d.range } as AttackEntry),
-    );
+    // Spec 084 D5a: a spell attack roll is an attack roll (rules-glossary.help-action).
+    const applied = attackAssists(target, caster.id);
+    const mode = foldMode("normal", [
+      ...attackModeSources(caster, target, { range: d.range } as AttackEntry),
+      ...(applied.length ? (["advantage"] as ModeSource[]) : []),
+    ]);
     const ac = target.ac;
     if (ac === null) {
       return refuse("TARGET_AC_UNKNOWN", `target "${target.id}" has no AC`, {
@@ -169,6 +173,7 @@ export const handleSpellCast: Handler<"spell.cast"> = (state, command, rng) => {
       outcome,
       spellId: spell.id,
     });
+    events.push(...usedAssists(target.id, applied, reason));
     if (outcome === "miss") return { ok: true, events };
     const refusal = fail(
       damageEvents(

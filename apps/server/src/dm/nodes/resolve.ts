@@ -605,7 +605,15 @@ async function runSteps(
             kind: step.kind,
             ability: step.ability,
             skill: step.skill,
-            difficulty: step.difficulty,
+            // Spec 084 D11: a tier string is a difficulty; an object is an opposition.
+            ...(typeof step.difficulty === "string"
+              ? { difficulty: step.difficulty }
+              : {
+                  opposition: {
+                    opponentId: step.difficulty.opposedBy,
+                    rule: step.difficulty.rule,
+                  },
+                }),
             mode: step.circumstance?.mode ?? "normal",
             autoFail: step.autoFail,
             houseRules: { outcomeBands, naturals },
@@ -727,6 +735,21 @@ async function runSteps(
             slotLevel: step.slotLevel,
             casterLevel: caster?.identity.level ?? 1,
             houseRules: { outcomeBands, naturals },
+          },
+          step.reason,
+          actionId,
+        );
+        take(sub);
+        break;
+      }
+      case "help": {
+        // Spec 084 D11: the engine records the assist; no effects follow.
+        const sub = await run.mech(
+          key,
+          {
+            type: "help.grant",
+            helperId: step.helperId,
+            assist: step.assist,
           },
           step.reason,
           actionId,

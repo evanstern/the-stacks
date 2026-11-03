@@ -174,6 +174,26 @@ function expiring(
         });
       }
     }
+    // Spec 084 D7: an assist ends at the start of its helper's next turn.
+    for (const assist of c.assists ?? []) {
+      const at = assist.expiresAt;
+      if (
+        at &&
+        at.round === point.round &&
+        at.combatantId === point.combatantId &&
+        at.boundary === point.boundary
+      ) {
+        events.push({
+          type: "assist.ended",
+          v: 1,
+          reason,
+          combatantId: c.id,
+          cause: "expired",
+          before: assist,
+          after: null,
+        });
+      }
+    }
   }
   return events;
 }
@@ -388,6 +408,17 @@ export const handleEncounterEnd: Handler<"encounter.end"> = (
           after: null,
         });
       }
+    }
+    for (const assist of c.assists ?? []) {
+      events.push({
+        type: "assist.ended",
+        v: 1,
+        reason: command.reason,
+        combatantId: c.id,
+        cause: "encounter-ended",
+        before: assist,
+        after: null,
+      });
     }
   }
   events.push({

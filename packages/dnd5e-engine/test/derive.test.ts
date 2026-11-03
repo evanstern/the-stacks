@@ -1,13 +1,18 @@
 import { describe, expect, it } from "vitest";
 import {
   type AttackEntry,
+  attackAssists,
   attackModeSources,
   type CombatantStats,
+  checkAssists,
   checkModeSources,
   checkModifier,
   DIFFICULTY_DC,
   d20Expression,
   foldMode,
+  helperExpiry,
+  oppositionCovers,
+  oppositionDc,
   spellAttackBonus,
   spellSaveDc,
 } from "../src/index.js";
@@ -166,5 +171,115 @@ describe("spell numbers", () => {
   it("returns null with no ability", () => {
     expect(spellSaveDc(stats())).toBeNull();
     expect(spellAttackBonus(stats())).toBeNull();
+  });
+});
+
+describe("oppositionDc (spec 084)", () => {
+  const snag = makeCombatant({
+    stats: stats({ abilityMods: { str: -1 }, abilityScores: { int: 10 } }),
+  });
+  const tamsin = makeCombatant({ stats: stats({ abilityMods: { str: 3 } }) });
+  it("unarmed-strike is 8 + Str + PB", () => {
+    expect(oppositionDc(snag, "unarmed-strike")).toEqual({
+      ok: true,
+      value: 9,
+    });
+    expect(oppositionDc(tamsin, "unarmed-strike")).toEqual({
+      ok: true,
+      value: 13,
+    });
+  });
+  it("influence is the higher of 15 and Intelligence", () => {
+    expect(oppositionDc(snag, "influence")).toEqual({ ok: true, value: 15 });
+    const smart = makeCombatant({
+      stats: stats({ abilityScores: { int: 18 } }),
+    });
+    expect(oppositionDc(smart, "influence")).toEqual({ ok: true, value: 18 });
+  });
+  it("reports the missing stat", () => {
+    expect(oppositionDc(makeCombatant(), "unarmed-strike")).toEqual({
+      ok: false,
+      missing: "stats",
+    });
+    expect(
+      oppositionDc(
+        makeCombatant({ stats: stats({ abilityMods: {} }) }),
+        "unarmed-strike",
+      ),
+    ).toMatchObject({ ok: false });
+    expect(oppositionDc(tamsin, "influence")).toMatchObject({ ok: false });
+  });
+});
+
+describe("oppositionCovers (spec 084)", () => {
+  it("covers the SRD checks only", () => {
+    expect(
+      oppositionCovers("unarmed-strike", "ability-check", "str", "athletics"),
+    ).toBe(true);
+    expect(
+      oppositionCovers("unarmed-strike", "ability-check", "dex", "acrobatics"),
+    ).toBe(true);
+    expect(
+      oppositionCovers("unarmed-strike", "saving-throw", "dex", null),
+    ).toBe(true);
+    expect(
+      oppositionCovers("unarmed-strike", "saving-throw", "wis", null),
+    ).toBe(false);
+    expect(
+      oppositionCovers("unarmed-strike", "ability-check", "str", "stealth"),
+    ).toBe(false);
+    expect(
+      oppositionCovers("influence", "ability-check", "cha", "persuasion"),
+    ).toBe(true);
+    expect(
+      oppositionCovers("influence", "ability-check", "wis", "animal-handling"),
+    ).toBe(true);
+    expect(oppositionCovers("influence", "ability-check", "cha", null)).toBe(
+      false,
+    );
+    expect(
+      oppositionCovers("influence", "ability-check", "str", "athletics"),
+    ).toBe(false);
+    expect(oppositionCovers("influence", "saving-throw", "cha", null)).toBe(
+      false,
+    );
+  });
+});
+
+describe("assists (spec 084)", () => {
+  const a = { expiresAt: null };
+  const holder = makeCombatant({
+    assists: [
+      { kind: "ability-check", helperId: "h1", skill: "athletics", ...a },
+      { kind: "attack", helperId: "h2", ...a },
+    ],
+  });
+  it("checkAssists matches the skill on ability checks only", () => {
+    expect(checkAssists(holder, "ability-check", "athletics")).toHaveLength(1);
+    expect(checkAssists(holder, "ability-check", "stealth")).toHaveLength(0);
+    expect(checkAssists(holder, "ability-check", null)).toHaveLength(0);
+    expect(checkAssists(holder, "saving-throw", "athletics")).toHaveLength(0);
+  });
+  it("attackAssists excludes the helper", () => {
+    expect(attackAssists(holder, "pc-x")).toHaveLength(1);
+    expect(attackAssists(holder, "h2")).toHaveLength(0);
+    expect(attackAssists(undefined, "pc-x")).toHaveLength(0);
+  });
+  it("helperExpiry is this round after the active index, else next", () => {
+    const order = ["a", "b", "c"].map((combatantId) => ({
+      combatantId,
+      total: 10,
+      bonus: 0,
+    }));
+    const enc = (turnIndex: number) => ({ round: 2, turnIndex, order });
+    expect(helperExpiry(enc(0), "b")).toEqual({
+      round: 2,
+      combatantId: "b",
+      boundary: "turn-start",
+    });
+    expect(helperExpiry(enc(1), "b")?.round).toBe(3);
+    expect(helperExpiry(enc(2), "b")?.round).toBe(3);
+    expect(helperExpiry(null, "b")).toBeNull();
+    expect(helperExpiry(enc(0), "zz")).toBeNull();
   });
 });

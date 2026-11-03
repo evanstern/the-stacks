@@ -1,17 +1,39 @@
 import {
+  attackAssists,
   attackModeSources,
+  checkAssists,
   checkModeSources,
   checkModifier,
   DIFFICULTY_DC,
   d20Expression,
   findAttack,
   foldMode,
+  type ModeSource,
+  oppositionCovers,
+  oppositionDc,
 } from "../derive.js";
 import { hasPlainD20, parseDiceExpression, rollExpression } from "../dice.js";
 import type { Handler } from "../handler.js";
 import type { EngineEvent, OutcomeBand } from "../schema/events.js";
 import { type RefusalResult, refuse } from "../schema/refusals.js";
-import type { Combatant, EngineState } from "../schema/state.js";
+import type { Assist, Combatant, EngineState } from "../schema/state.js";
+
+/** Spec 084: one `assist.ended` (used) per applied assist, held by `holderId`. */
+export function usedAssists(
+  holderId: string,
+  assists: readonly Assist[],
+  reason: string,
+): EngineEvent[] {
+  return assists.map((before) => ({
+    type: "assist.ended" as const,
+    v: 1 as const,
+    reason,
+    combatantId: holderId,
+    cause: "used" as const,
+    before,
+    after: null,
+  }));
+}
 
 function d20Required(expression: string): RefusalResult {
   return refuse(
@@ -71,7 +93,7 @@ function isUnable(c: Combatant): boolean {
 export function actorUnable(
   state: EngineState,
   id: string | null,
-  role: "attacker" | "checker",
+  role: "attacker" | "checker" | "helper",
 ): RefusalResult | null {
   if (id === null) return null;
   const c = state.combatants[id];
@@ -138,6 +160,7 @@ export const handleAttackRoll: Handler<"attack.roll"> = (
   }
   let expression = command.expression ?? "";
   let mode = command.mode;
+  let applied: Assist[] = [];
   if (command.attack !== undefined) {
     const attacker = state.combatants[command.attackerId as string];
     const entry = attacker ? findAttack(attacker, command.attack) : null;
@@ -154,10 +177,12 @@ export const handleAttackRoll: Handler<"attack.roll"> = (
     const exhaustion =
       attacker.conditions.find((i) => i.condition === "exhaustion")?.level ?? 0;
     expression = d20Expression(entry.value.toHit - 2 * exhaustion);
-    mode = foldMode(
-      command.mode,
-      attackModeSources(attacker, target, entry.value),
-    );
+    // Spec 084 D5: an open Help against the target gives advantage (rules-glossary.help-action).
+    applied = attackAssists(target, command.attackerId);
+    mode = foldMode(command.mode, [
+      ...attackModeSources(attacker, target, entry.value),
+      ...(applied.length ? (["advantage"] as ModeSource[]) : []),
+    ]);
   }
   const rolled = rollExpression(
     expression,
@@ -197,6 +222,7 @@ export const handleAttackRoll: Handler<"attack.roll"> = (
       ...(command.attack !== undefined ? { attack: command.attack } : {}),
       ...(command.reaction ? { reaction: true } : {}),
     },
+    ...usedAssists(command.targetId, applied, command.reason),
   ];
   if (command.reaction && enc && command.attackerId !== null) {
     events.push({
@@ -243,28 +269,66 @@ export function bandOf(input: {
 }
 
 export const handleCheckRoll: Handler<"check.roll"> = (state, command, rng) => {
-  if ((command.dc === undefined) === (command.difficulty === undefined)) {
+  const sources = [command.dc, command.difficulty, command.opposition].filter(
+    (v) => v !== undefined,
+  ).length;
+  if (sources !== 1) {
     return refuse(
       "INVALID_COMMAND",
-      "check.roll needs exactly one of dc and difficulty",
+      "check.roll needs exactly one of dc, difficulty and opposition",
     );
   }
-  const dc =
+  const opposition = command.opposition;
+  if (
+    opposition &&
+    (opposition.opponentId === command.combatantId ||
+      !oppositionCovers(
+        opposition.rule,
+        command.kind,
+        command.ability,
+        command.skill,
+      ))
+  ) {
+    return refuse(
+      "INVALID_COMMAND",
+      "the opposition is the checker or its rule does not cover this check",
+      { rule: opposition.rule },
+    );
+  }
+  let dc =
     command.dc ??
-    DIFFICULTY_DC[command.difficulty as keyof typeof DIFFICULTY_DC];
+    (command.difficulty !== undefined ? DIFFICULTY_DC[command.difficulty] : 0);
   if (command.expression !== undefined) {
     const parsed = parseDiceExpression(command.expression);
     if (!parsed.ok) return refuse(parsed.code, parsed.message);
     if (!hasPlainD20(parsed.terms)) return d20Required(command.expression);
   }
-  const named = checkNamed(state, [command.combatantId]);
+  const named = checkNamed(state, [
+    command.combatantId,
+    opposition?.opponentId ?? null,
+  ]);
   if (named) return named;
+  if (opposition) {
+    const derived = oppositionDc(
+      state.combatants[opposition.opponentId] as Combatant,
+      opposition.rule,
+    );
+    if (!derived.ok) {
+      return refuse(
+        "STAT_UNDEFINED",
+        `cannot derive the DC of opponent "${opposition.opponentId}"`,
+        { combatantId: opposition.opponentId, missing: derived.missing },
+      );
+    }
+    dc = derived.value;
+  }
   if (command.kind === "ability-check") {
     const unable = actorUnable(state, command.combatantId, "checker");
     if (unable) return unable;
   }
   let expression = command.expression ?? "1d20";
   let mode = command.mode;
+  let applied: Assist[] = [];
   if (command.expression === undefined && command.combatantId !== null) {
     const checker = state.combatants[command.combatantId] as Combatant;
     const mod = checkModifier(
@@ -281,10 +345,11 @@ export const handleCheckRoll: Handler<"check.roll"> = (state, command, rng) => {
       );
     }
     expression = d20Expression(mod.value);
-    mode = foldMode(
-      command.mode,
-      checkModeSources(checker, command.kind, command.ability),
-    );
+    applied = checkAssists(checker, command.kind, command.skill);
+    mode = foldMode(command.mode, [
+      ...checkModeSources(checker, command.kind, command.ability),
+      ...(applied.length ? (["advantage"] as ModeSource[]) : []),
+    ]);
   }
   const base = {
     type: "check.resolved" as const,
@@ -298,6 +363,7 @@ export const handleCheckRoll: Handler<"check.roll"> = (state, command, rng) => {
     ...(command.difficulty !== undefined
       ? { difficulty: command.difficulty }
       : {}),
+    ...(opposition ? { opposition } : {}),
   };
   if (command.autoFail && command.autoSuccess) {
     return refuse(
@@ -372,6 +438,7 @@ export const handleCheckRoll: Handler<"check.roll"> = (state, command, rng) => {
         margin: result.margin,
         band: result.band,
       },
+      ...usedAssists(command.combatantId as string, applied, command.reason),
     ],
   };
 };

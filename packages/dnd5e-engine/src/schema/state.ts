@@ -222,7 +222,29 @@ export const CombatantStatsSchema = z.object({
   skills: z.partialRecord(SkillSchema, z.number().int().min(-5).max(20)),
   attacks: z.array(AttackEntrySchema).max(12),
   spellcastingAbility: AbilitySchema.nullable(),
+  // Spec 084: ability scores (not modifiers); needed by the `influence` opposition DC.
+  abilityScores: z
+    .partialRecord(AbilitySchema, z.number().int().min(1).max(30))
+    .optional(),
 });
+
+/**
+ * Spec 084: an open Help action, held on the combatant who benefits.
+ * SRD 5.2.1 rules-glossary.help-action.
+ */
+export const AssistSchema = z.discriminatedUnion("kind", [
+  z.object({
+    kind: z.literal("ability-check"),
+    helperId: CombatantIdSchema,
+    skill: SkillSchema,
+    expiresAt: ExpiryPointSchema.nullable(),
+  }),
+  z.object({
+    kind: z.literal("attack"),
+    helperId: CombatantIdSchema,
+    expiresAt: ExpiryPointSchema.nullable(),
+  }),
+]);
 
 export const CombatantSchema = z
   .object({
@@ -248,8 +270,17 @@ export const CombatantSchema = z
     ac: z.number().int().min(1).max(40).nullable(),
     defenses: DefenseSetSchema,
     stats: CombatantStatsSchema.optional(),
+    assists: z.array(AssistSchema).max(8).optional(),
   })
   .superRefine((c, ctx) => {
+    const helpers = (c.assists ?? []).map((a) => a.helperId);
+    if (new Set(helpers).size !== helpers.length) {
+      ctx.addIssue({
+        code: "custom",
+        message: "assist helper ids must be unique",
+        path: ["assists"],
+      });
+    }
     if (c.hp.current > c.hp.max) {
       ctx.addIssue({
         code: "custom",
@@ -346,6 +377,7 @@ export type AttackEntry = z.infer<typeof AttackEntrySchema>;
 export type CombatantStats = z.infer<typeof CombatantStatsSchema>;
 export type Skill = z.infer<typeof SkillSchema>;
 export type ExpiryPoint = z.infer<typeof ExpiryPointSchema>;
+export type Assist = z.infer<typeof AssistSchema>;
 export type ConditionInstance = z.infer<typeof ConditionInstanceSchema>;
 export type DamageType = z.infer<typeof DamageTypeSchema>;
 export type DefenseSet = z.infer<typeof DefenseSetSchema>;

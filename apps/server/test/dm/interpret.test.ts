@@ -357,6 +357,104 @@ describe("check stakes contract (spec 070)", () => {
     ).toBe(true);
   });
 
+  describe("opposition and help (spec 084 D9)", () => {
+    const opposed = (difficulty: unknown, over = {}) => ({
+      ...checkStep,
+      combatantId: "ana",
+      ability: "str",
+      skill: "athletics",
+      difficulty,
+      ...over,
+    });
+    const help = {
+      step: "help",
+      reason: "Kestrel steadies Tamsin",
+      helperId: "kestrel",
+      assist: { kind: "ability-check", allyId: "tamsin", skill: "acrobatics" },
+    };
+    const reading = (steps: unknown[]) => ({
+      actionId: "a1",
+      intent: "check",
+      uncertain: true,
+      needsAdjudication: false,
+      rulesQuestion: null,
+      clarify: null,
+      steps,
+    });
+    const issuePaths = (steps: unknown[]) => {
+      const r = InterpretReadingSchema.safeParse(reading(steps));
+      return r.success
+        ? []
+        : r.error.issues.map((i) => i.path.slice(2).join("."));
+    };
+    it("parses an opposition difficulty and a tier string", () => {
+      const ok = { opposedBy: "snag", rule: "unarmed-strike" };
+      expect(StepSchema.safeParse(opposed(ok)).success).toBe(true);
+      expect(StepSchema.safeParse(opposed("hard")).success).toBe(true);
+      expect(
+        InterpretReadingSchema.safeParse(reading([opposed(ok)])).success,
+      ).toBe(true);
+    });
+    it("fails opposedBy equal to the checker at difficulty.opposedBy", () => {
+      expect(
+        issuePaths([opposed({ opposedBy: "ana", rule: "unarmed-strike" })]),
+      ).toContain("difficulty.opposedBy");
+    });
+    it("fails an uncovered rule at difficulty.rule", () => {
+      expect(
+        issuePaths([opposed({ opposedBy: "snag", rule: "influence" })]),
+      ).toContain("difficulty.rule");
+    });
+    it("refuses an unknown rule and extra fields on an opposition", () => {
+      expect(
+        StepSchema.safeParse(opposed({ opposedBy: "snag", rule: "shove" }))
+          .success,
+      ).toBe(false);
+      expect(
+        StepSchema.safeParse(
+          opposed({ opposedBy: "snag", rule: "unarmed-strike", dc: 9 }),
+        ).success,
+      ).toBe(false);
+    });
+    it("parses both help assist kinds", () => {
+      expect(StepSchema.safeParse(help).success).toBe(true);
+      expect(
+        StepSchema.safeParse({
+          ...help,
+          assist: { kind: "attack", targetId: "goblin-1" },
+        }).success,
+      ).toBe(true);
+    });
+    it("fails an ally or target equal to the helper at assist", () => {
+      expect(
+        issuePaths([
+          {
+            ...help,
+            assist: {
+              kind: "ability-check",
+              allyId: "kestrel",
+              skill: "acrobatics",
+            },
+          },
+        ]),
+      ).toContain("assist");
+      expect(
+        issuePaths([
+          { ...help, assist: { kind: "attack", targetId: "kestrel" } },
+        ]),
+      ).toContain("assist");
+    });
+    it("refuses an unknown assist kind and an extra field", () => {
+      expect(
+        StepSchema.safeParse({
+          ...help,
+          assist: { kind: "save", allyId: "tamsin" },
+        }).success,
+      ).toBe(false);
+      expect(StepSchema.safeParse({ ...help, dc: 12 }).success).toBe(false);
+    });
+  });
+
   describe("spell step (spec 083 D4)", () => {
     const spell = {
       step: "spell",

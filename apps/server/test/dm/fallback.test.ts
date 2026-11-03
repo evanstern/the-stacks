@@ -958,3 +958,24 @@ describe("factualSummary: a drop to zero names the fall once (TASK-0212)", () =>
     expect(out.match(/falls unconscious/g)).toBeNull();
   });
 });
+
+describe("factualSummary: assists (spec 084 D13)", () => {
+  const assist = (kind: "ability-check" | "attack") =>
+    sum(
+      facts({
+        actions: [
+          action({
+            changes: [
+              { kind: "assist", target: "Ana", helper: "Bram", assist: kind },
+            ],
+          }),
+        ],
+      }),
+    );
+  it("voices a check assist as a hand", () => {
+    expect(assist("ability-check")).toContain("Bram lends Ana a hand.");
+  });
+  it("voices an attack assist as a distraction", () => {
+    expect(assist("attack")).toContain("Bram distracts Ana.");
+  });
+});
