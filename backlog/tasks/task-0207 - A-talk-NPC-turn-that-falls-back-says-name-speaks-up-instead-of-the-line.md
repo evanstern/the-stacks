@@ -1,10 +1,10 @@
 ---
 id: TASK-0207
 title: A talk NPC turn that falls back says '<name> speaks up' instead of the line
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-11-02 23:04'
-updated_date: '2026-11-03 05:36'
+updated_date: '2026-11-03 05:39'
 labels:
   - dm
   - narration
@@ -55,6 +55,12 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 081 phase 3, wiki)
 Seam check (phases 1-2): seams moved, none changed meaning; see specs/081-talk-fallback-line/deviations.md.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (The plan carries the line (card AC #2; US2): 4/4 · The fallback voices the line (card AC #1; US1, US3): 9/9 · Wiki re-ground: 5/5). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
