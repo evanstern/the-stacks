@@ -41,7 +41,7 @@ sources:
   - apps/server/seeds/greyhollow-ford-trio.json
   - biome.json
 size_budget_exempt: both notes sat within 30 chars of the 8000 budget before TASK-0180; the talk path got its own note (dm-talk-triggers) and only a pointer line lands here; the rest is one pipeline each, not splittable without a TASK of its own
-verified_against: 6f0ae5134da76dfa68dca0b6855be847ba05739a
+verified_against: 9782af9dd01a8cb7cd5781c2c0c5e7df57b1c61b
 ---
 
 # DM runtime
@@ -66,7 +66,7 @@ async function `(TurnContext) => NodeResult`.
    flags `needsAdjudication`. Resumed actions are not read again; their stored readings rejoin in beat order.
 4. **adjudicate** - `dm.adjudicate`, only when an interpret reading asks. May call `retrieve`
    ([[retrieval]]) for rules text and returns a ruling. Resumed readings keep their stored ruling.
-   A code-only **first-stage cut** (`first-stage.ts`, TASK-0182) runs between adjudicate and resolve: in `free` mode steps after the first run of like checks become `followUps`, and `holdDirector` holds that beat's turn, tracker and scene-end moves. `checkpoint.cut` makes a reclaim skip it. A human's clarify also holds (specs/073): `clarifyHolds` marks each committed human action whose reading asks a question and has no ruling; the cut holds that beat's turn, tracker and scene-end moves with reason `held: an action awaits an answer`. An AI actor's clarify does not hold.
+   A code-only **first-stage cut** (`first-stage.ts`, TASK-0182) runs between adjudicate and resolve: in `free` mode steps after the first run of like checks become `followUps`, and `holdDirector` holds that beat's turn, tracker and scene-end moves. `checkpoint.cut` makes a reclaim skip it. A human's clarify also holds (specs/073): `clarifyHolds` marks each committed human action whose reading asks a question and has no ruling; the cut holds that beat's turn, tracker and scene-end moves with reason `held: an action awaits an answer`. An AI actor's clarify does not hold. After the cut, `askUndeclared` (spec 077, [[dm-failure-and-gates]]) turns an undeclared manner check or another human's roll into a clarify, so the same hold applies; the `dm.plan.cut` log line reports the count as `asked`.
 5. **resolve** - code only; the one node that writes. It first seeds the run with each resumed plan's submissions (an approved `pending` one becomes `applied`), so the chain continues without a second roll. After its last gate write it builds **S1** and returns
    `ResolveOutput.snapshot` and `ResolveOutput.diff` (S0 to S1). See below.
 6. **narrate** - `dm.narrate`. Writes prose from code-built facts (including the monster reading's plan and the turn holder, TASK-0193), the player-facing seed view and S1 ([[dm-narration-quality]]).
