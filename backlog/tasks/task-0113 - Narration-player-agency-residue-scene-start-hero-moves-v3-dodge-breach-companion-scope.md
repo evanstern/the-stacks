@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-10-26 20:08'
-updated_date: '2026-11-03 00:34'
+updated_date: '2026-11-03 02:12'
 labels:
   - dm
   - narration
@@ -63,6 +63,8 @@ spec-bridge sync: Rule source, Director, interpret, playtest auditor (card AC #3
 Spec 074 (5f6dc7e7). OQ-2 default taken: no startle fact in this card (engine records no surprise); carded separately. OQ-3 default taken: AI companions count under hero-is-theirs. OQ-1 (is a foe's miss a reflex trigger) put to the operator before Phase 2; Phase 1 does not depend on it.
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 074 phase 1)
+
+OPERATOR RULING 2026-11-02 on spec 074 OQ-1 (in chat, answering 'May the narration show a reflexive flinch when a foe misses a PC?'): "Yes, allow a flinch". OQ-1 takes option (b): a foe's miss is a fifth reflex trigger that allows a reflexive flinch; a chosen dodge or reposition stays blocked.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
