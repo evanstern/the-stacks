@@ -4,7 +4,7 @@ title: 'Rules gate: spells resolve by SRD id through the engine'
 status: In Progress
 assignee: []
 created_date: '2026-10-26 15:42'
-updated_date: '2026-11-03 06:12'
+updated_date: '2026-11-03 08:00'
 labels:
   - engine
   - dm
@@ -35,7 +35,10 @@ Spec: specs/083-spells-by-srd-id
 - [ ] #3 A spell the engine cannot resolve mechanically yet is refused with a refusal code, not improvised into free steps, with a test
 - [ ] #4 The interpret and adjudicate prompts render the spell-step shape and state that spell numbers come from the engine
 - [ ] #5 Scripted-dice engine tests cover at least one attack spell, one save spell and one condition spell from the SRD; existing dm tests and the scripted CI playtest stay green
+- [ ] #6 Spec phase: Seam check [orchestrator]
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
