@@ -20,6 +20,8 @@ ordinal: 115000
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
 Outcome: opposed efforts and assistance resolve by SRD 5.2.1 rules in the engine, not by model-chosen numbers. SRD 5.2.1 states opposition as a check against a DC derived from the opponent (for example the grapple escape DC, 8 + Strength modifier + proficiency bonus) and defines the Help action as advantage on an ally's next check. It has no group-check rule; group checks stay behind the table-rules flag from the stakes-before-dice card. Grounding: decision-0022 (D14) and docs/research/Resolution-and-Outcome/Analysis-Dice-Versus-Player.md (TASK-0115, lands with TASK-0115's PR).
+
+Spec: specs/084-opposition-and-help
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
