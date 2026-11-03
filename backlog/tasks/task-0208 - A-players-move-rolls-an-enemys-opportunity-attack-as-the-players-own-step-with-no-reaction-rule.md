@@ -33,16 +33,18 @@ Spec: specs/079-engine-opportunity-attack
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Opportunity attacks come from an engine reaction rule (leaving reach, reaction unspent), never from an interpret step on the mover's own action, with a test
-- [ ] #2 A player's action resolves its own declared step (here, the free attempt); an enemy reaction is a separate event
-- [ ] #3 The fallback names the attacker as the subject of an attack's outcome ('The pot-helm goblin strikes home'), with a test replaying seq 154-161
-- [ ] #4 Narration never shows a followUp ('not yet attempted') as done, in a later beat either
+- [x] #1 Opportunity attacks come from an engine reaction rule (leaving reach, reaction unspent), never from an interpret step on the mover's own action, with a test
+- [x] #2 A player's action resolves its own declared step (here, the free attempt); an enemy reaction is a separate event
+- [x] #3 The fallback names the attacker as the subject of an attack's outcome ('The pot-helm goblin strikes home'), with a test replaying seq 154-161
+- [x] #4 Narration never shows a followUp ('not yet attempted') as done, in a later beat either
 - [x] #5 Spec phase: The engine owns reactions (card AC #1, engine part; US1 scenarios 3 and 4)
 - [x] #6 Spec phase: A move away draws the engine's reaction (card AC #1 and #2, merge condition; US1, US2)
 - [x] #7 Spec phase: The reader sees whose attack it was (card AC #2 and #3; US2 scenario 4, US3)
 - [x] #8 Spec phase: A followUp stays undone in later beats (card AC #4; US4)
 - [x] #9 Spec phase: Wiki upkeep
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
@@ -77,6 +79,6 @@ All spec tasks complete (The engine owns reactions (card AC #1, engine part; US1
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
-- [ ] #1 All tests and checks run green
-- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
+- [x] #1 All tests and checks run green
+- [x] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
