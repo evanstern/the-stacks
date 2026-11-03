@@ -4,7 +4,8 @@
 
 **Input**: `specs/084-opposition-and-help/spec.md`, TASK-0128, runbook B
 (`docs/design/m3-runbook-b-resolution-quality.md`, lane B3, spine #15). Builds on merged TASK-0104
-(spec 082, #123). Written against every open-question default (a). Research, design and contracts
+(spec 082, #123) and TASK-0105 (spec 083, #124). Written against every open-question default (a).
+Amended after the Phase 0 seam check: see [deviations.md](deviations.md). Research, design and contracts
 live in this file, as in specs 070 and 082. No separate research.md, data-model.md or
 quickstart.md.
 
@@ -33,7 +34,7 @@ fake gateway. No paid run.
 `specs/029-proposal-gate/contracts/`, `specs/030-play-route/contracts/proposal-seam.md`). A
 `mechanics` proposal carries any `EngineCommand`, so `help.grant` rides it unchanged. The engine
 keeps importing only `zod` (purity test). `facts.ts` keeps importing no engine value.
-**Scale/Scope**: 11 engine files (1 new) and 5 engine tests (1 new); 1 session-model test; 10
+**Scale/Scope**: 12 engine files (1 new) and 7 engine tests (1 new); 1 session-model test; 11
 server source files; about 9 server tests (1 new); 7 contract files; the wiki.
 
 ## Constitution Check
@@ -101,9 +102,13 @@ Against `.specify/memory/constitution.md` 2.0.0. Re-checked after design: unchan
   mechanics, 37 total) and moves to 20 and 39. The play ledger renders any state-change row
   generically (`apps/web/app/play/ledger-format.ts`), so `apps/web` needs no change. `facts.ts`
   skips unknown change types until D9 adds the assist.
-- **R11 — Prompt versions on `main` at authoring**: interpret-v11, adjudicate-v8, narrate-v14.
-  This card bumps each to the next version. TASK-0105 also bumps interpret and adjudicate; the
-  later merge re-bumps (runbook B "Prompt versions").
+- **R11 — Prompt versions on `main` at the seam check**: interpret-v12, adjudicate-v9,
+  narrate-v16, audit-v10. This card bumps them to interpret-v13, adjudicate-v10, narrate-v17 and
+  audit-v11. Audit renders facts through narrate's `factEntries`, so the assist fact changes it too
+  (deviations M4, M5).
+- **R12 — Spell attacks (spec 083).** `handleSpellCast` rolls its own d20 attack with
+  `attackModeSources`. A spell attack roll is an attack roll under `rules-glossary.help-action`, so
+  an attack assist applies to it (deviations S1).
 
 ## Design
 
@@ -180,11 +185,20 @@ On the derived path (`attack` set): `assists = attackAssists(target, attackerId)
 `encounter.changed`), one `assist.ended` (`used`) per applied assist on the target. The
 explicit-expression path is unchanged.
 
+### D5a — Spell attacks (`packages/dnd5e-engine/src/commands/spells.ts`)
+
+In the attack delivery of `handleSpellCast`: `assists = attackAssists(target, casterId)`; one more
+`"advantage"` source in its `foldMode` when non-empty; after `attack.resolved`, one `assist.ended`
+(`used`) per applied assist, before any damage event. The save and healing deliveries are
+unchanged.
+
 ### D6 — `handleHelpGrant` (new `packages/dnd5e-engine/src/commands/help.ts`)
 
 1. Named ids: helper, then ally or target (`UNKNOWN_COMBATANT`, `TARGET_DEAD`).
 2. Ally or target equals the helper → `INVALID_COMMAND`.
-3. Helper unable (`isUnable` from `attacks.ts`, exported) → `ACTOR_UNABLE` role `helper`.
+3. Helper unable → `actorUnable(state, helperId, "helper")` (exported from `attacks.ts` by spec 083;
+   widen its `role` type to add `"helper"`) → `ACTOR_UNABLE` role `helper`. Step 1 uses the
+   exported `checkNamed`.
 4. Ability-check assist: helper without stats → `STAT_UNDEFINED`; `stats.skills[skill]` undefined
    → `NOT_PROFICIENT` `{ combatantId: helperId, skill }`.
    `// ponytail: tool proficiencies are not modelled; add when sheets carry them (TASK-0058).`
@@ -237,9 +251,11 @@ z.strictObject({
   key}|{"kind":"attack","targetId":id}}  (the helper takes the Help action: the ally gets advantage on its
   next check with that skill, or on the next attack against that target; the engine applies and ends it.
   The helper is the declaring character)`.
-- `prompts/interpret.ts`: version to the next version. `OUTPUT_SHAPE`'s step rules gain: "When a
+- `prompts/interpret.ts`: version to `dm.interpret-v13`. `OUTPUT_SHAPE`'s step rules gain: "When a
   character helps another, plan one help step for the helper and no check for the ally."
-- `prompts/adjudicate.ts`: version to the next version (it renders the grammar).
+- `prompts/adjudicate.ts`: version to `dm.adjudicate-v10` (it renders the grammar).
+- Placement (deviations M3): the opposition-rules line goes right after the difficulty-tier line.
+  The help line goes after the two spell lines.
 
 ### D11 — Resolve (`apps/server/src/dm/nodes/resolve.ts`)
 
@@ -260,8 +276,11 @@ z.strictObject({
 - `statGap`: an opposition runs `oppositionDc` on the opponent (joining ids skipped);
   `{ok:false}` → `field: "difficulty.opposedBy"`. An ability-check help whose helper has no
   stats → `field: "helperId"`. Proficiency is left to the engine's `NOT_PROFICIENT` refusal.
-- `askUndeclared`: the other-player id is `step.helperId` for a help step, beside the attack and
-  check cases. The manner rule is unchanged.
+- `askUndeclared`: the other-player id is `step.helperId` for a help step, beside the attack,
+  spell and check cases. It calls `otherPlayerQuestion(name, declarerName)` as merged by TASK-0204.
+  The manner rule is unchanged.
+- `foreignActor` order (deviations M8): `attackerId`, `casterId`, `helperId`, then a move's
+  `combatantId`. `spellGap` is unchanged.
 
 ### D13 — Facts, narrate and fallback (OQ-4 (a))
 
@@ -269,7 +288,9 @@ z.strictObject({
   string; assist: "ability-check" | "attack" }`, built from an `assist.granted` change row
   (`target` is the holder's name; `helper` from `after.helperId`). `assist.ended` builds no fact.
 - `apps/server/src/dm/prompts/narrate.ts`: `describeChange` renders "`<helper>` helps `<target>`"
-  or "`<helper>` distracts `<target>`". Version to the next version.
+  or "`<helper>` distracts `<target>`". Version to `dm.narrate-v17`.
+- `apps/server/src/dm/prompts/audit.ts`: version to `dm.audit-v11` (it renders facts through
+  `factEntries`; deviations M5).
 - `apps/server/src/dm/fallback.ts`: `changeSentence` renders "`<helper>` lends `<target>` a hand."
   or "`<helper>` distracts `<target>`." `renderChangeLine` (`facts.ts`) returns null for it, so no
   dice line is added.
@@ -277,8 +298,8 @@ z.strictObject({
 ### D14 — Group checks (OQ-5 (a))
 
 `apps/server/src/dm/seed/schema.ts`: the comment "groupChecks is read by nothing until
-TASK-0128." becomes "groupChecks has no behaviour yet: SRD 5.2.1 has no group-check rule (spec 084
-OQ-5)." The orchestrator replaces the OQ reference with the follow-up card id when it cards it.
+TASK-0128." becomes "groupChecks has no behaviour yet: SRD 5.2.1 has no group-check rule
+(TASK-0232)."
 
 ## Files the build touches
 
@@ -290,7 +311,8 @@ Every path below is the full list. A build that needs another file stops and ame
 - `packages/dnd5e-engine/src/schema/events.ts` (D3)
 - `packages/dnd5e-engine/src/schema/refusals.ts` (D3)
 - `packages/dnd5e-engine/src/derive.ts` (D2)
-- `packages/dnd5e-engine/src/commands/attacks.ts` (D4, D5; export `isUnable`)
+- `packages/dnd5e-engine/src/commands/attacks.ts` (D4, D5; widen `actorUnable`'s `role`)
+- `packages/dnd5e-engine/src/commands/spells.ts` (D5a)
 - `packages/dnd5e-engine/src/commands/help.ts` (new, D6)
 - `packages/dnd5e-engine/src/commands/encounter.ts` (D7)
 - `packages/dnd5e-engine/src/evolve.ts` (D7)
@@ -299,7 +321,9 @@ Every path below is the full list. A build that needs another file stops and ame
 - `packages/dnd5e-engine/README.md`
 - `packages/dnd5e-engine/test/derive.test.ts`
 - `packages/dnd5e-engine/test/commands/attacks.test.ts`
+- `packages/dnd5e-engine/test/commands/spells.test.ts` (D5a)
 - `packages/dnd5e-engine/test/commands/help.test.ts` (new)
+- `packages/dnd5e-engine/test/execute.test.ts` (counts 23/18/34 → 24/20/35)
 - `packages/dnd5e-engine/test/commands/encounter.test.ts`
 - `packages/dnd5e-engine/test/replay.test.ts` (an assist survives replay)
 - `packages/session-model/test/catalog.test.ts` (counts 18 → 20, 37 → 39)
@@ -326,10 +350,11 @@ Every path below is the full list. A build that needs another file stops and ame
 **Phase 3 — Narration facts and end-to-end test**
 - `apps/server/src/dm/facts.ts` (D13)
 - `apps/server/src/dm/prompts/narrate.ts` (D13)
+- `apps/server/src/dm/prompts/audit.ts` (D13, version only)
 - `apps/server/src/dm/fallback.ts` (D13)
 - `apps/server/test/dm/facts.test.ts`
 - `apps/server/test/dm/fallback.test.ts`
-- `apps/server/test/dm/narrate.test.ts` (version)
+- `apps/server/test/dm/narrate.test.ts` (narrate and audit versions)
 - `apps/server/test/dm/opposition-and-help.integration.test.ts` (new; US1–US3 end to end)
 
 **Phase 4 — Re-ground**
@@ -344,12 +369,15 @@ Every path below is the full list. A build that needs another file stops and ame
 **Not touched**: `apps/web/` (R10), `packages/srd/` (read only), `packages/session-model/src/`
 (the catalog derives the new types), `first-stage.ts`, `stakes.ts`, `resume.ts` (R9; resume
 re-parses with the widened `StepSchema`), `apps/server/seeds/`, every DM script and fixture (a
-tier string still parses, SC-004), `prompts/audit.ts` (it renders facts through `narrate.ts`),
+tier string still parses, SC-004), 
 every frozen contract.
 
 **Migrations**: none. **New runtime dependencies**: none.
 
-## Overlap with TASK-0105 (spec 083, spells by SRD id, authored in parallel)
+## Overlap with TASK-0105 (spec 083, spells by SRD id)
+
+**Superseded by the seam check.** TASK-0105 merged as #124. The table below is the authoring-time
+forecast. [deviations.md](deviations.md) records the hunks as merged.
 
 Spec 083 adds a spell step. Its expected footprint (runbook overlap table): engine,
 `packages/srd`, `nodes/schemas.ts`, `prompts/{interpret,adjudicate}.ts`, `nodes/resolve.ts`. The
@@ -384,4 +412,4 @@ catalog counts.
 - **Assist lifetime out of combat (OQ-3 (a)).** An assist granted out of combat lasts until used.
   A forgotten Help can surface many beats later. The next matching check names it in the ledger.
 - **Catalog counts.** Any card adding an engine event in parallel collides on the two counts in
-  `catalog.test.ts`. Mechanical.
+  `catalog.test.ts` and the three in `execute.test.ts`. Mechanical.

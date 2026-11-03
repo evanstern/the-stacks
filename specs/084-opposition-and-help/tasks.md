@@ -14,11 +14,12 @@ Phases 1 to 3 run in order: each needs the previous phase's types.
 
 ## Phase 0: Seam check [orchestrator]
 
-- [ ] T001 [orchestrator] Merge `origin/main` into the branch. Compare plan.md's file list with
+- [x] T001 [orchestrator] Merge `origin/main` into the branch. Compare plan.md's file list with
       TASK-0105's merged or in-flight plan (spec 083). Record each moved seam, the prompt versions
       on `main`, and the engine event count in a new `specs/084-opposition-and-help/deviations.md`.
       Amend plan.md D3, D9 to D11 if a seam moved. Decide develop-ahead or draft-hold per runbook B
-      "Rule at dispatch" and log it.
+      "Rule at dispatch" and log it. Done 2026-11-03: develop ahead; one changed-meaning seam (S1,
+      spell attacks take attack assists) and 23 moved seams, all in deviations.md.
 
 ## Phase 1: Engine (card AC #1, #2; US1, US2)
 
@@ -33,7 +34,8 @@ Phases 1 to 3 run in order: each needs the previous phase's types.
       `checkAssists`, `attackAssists` and `helperExpiry`, each citing its SRD record (plan D2).
       Mark the two `ponytail:` proxies.
 - [ ] T005 [US1] In `commands/attacks.ts`, apply plan D4 to `handleCheckRoll` and D5 to
-      `handleAttackRoll`. Export `isUnable`.
+      `handleAttackRoll`. Widen `actorUnable`'s `role` to add `"helper"`. In `commands/spells.ts`,
+      apply plan D5a to the attack delivery of `handleSpellCast`.
 - [ ] T006 [US2] Create `commands/help.ts` with `handleHelpGrant` (plan D6). Register it in
       `execute.ts`.
 - [ ] T007 [US2] In `commands/encounter.ts`, make `expiring` end assists and `handleEncounterEnd`
@@ -54,7 +56,8 @@ Phases 1 to 3 run in order: each needs the previous phase's types.
       throw leave it; an assist plus a disadvantage `circumstance` rolls normal and is still used;
       two assists give advantage once and both end; an auto-fail and a free retry leave it; an
       explicit-expression check leaves it; an attack assist applies to another attacker and not
-      to the helper.
+      to the helper. In `test/commands/spells.test.ts`, add: a spell attack against a target holding
+      an attack assist rolls advantage and ends it `used`; a save spell leaves it.
 - [ ] T012 [US2] Create `test/commands/help.test.ts`: `help.grant` (`type: "help.grant"`, for the
       coverage meta-test) records the assist with the R4 expiry; `expectRefusal` for
       `NOT_PROFICIENT`, `STAT_UNDEFINED`, `ACTOR_UNABLE`, `INVALID_COMMAND` (self-help),
@@ -64,7 +67,8 @@ Phases 1 to 3 run in order: each needs the previous phase's types.
       `encounter-ended` at `encounter.end`. In `test/replay.test.ts`, add: an assist survives
       replay and its end removes it.
 - [ ] T014 In `packages/session-model/test/catalog.test.ts`, move the mechanics count from 18 to
-      20 and the catalog count from 37 to 39.
+      20 and the catalog count from 37 to 39. In `packages/dnd5e-engine/test/execute.test.ts`, move
+      the counts from 23 commands, 18 events and 34 refusal codes to 24, 20 and 35.
 - [ ] T015 Amend `specs/026-dnd5e-engine/contracts/commands.md`, `events.md`, `refusals.md` and
       `engine-api.md`, each marked "Amended by specs/084-opposition-and-help".
 - [ ] T016 Run `pnpm ci:check`.
@@ -72,12 +76,12 @@ Phases 1 to 3 run in order: each needs the previous phase's types.
 ## Phase 2: Step contract, prompts, plan gate and resolve (card AC #1, #3; US1, US3)
 
 - [ ] T017 [US1] In `apps/server/src/dm/seed/combatants.ts`, fill `abilityScores` in
-      `statsFromSrd` (plan D8). In `seed/schema.ts`, replace the `groupChecks` comment (plan D14).
+      `statsFromSrd` (plan D8). In `seed/schema.ts`, replace the `groupChecks` comment with the TASK-0232 text (plan D14).
 - [ ] T018 [US3] In `apps/server/src/dm/nodes/schemas.ts`, widen the check step's `difficulty`,
       add the `help` step, and add the three `refineSteps` branches (plan D9).
 - [ ] T019 [US3] In `prompts/step-grammar.ts`, add the D10 lines. In `prompts/interpret.ts`, add
-      the help sentence to `OUTPUT_SHAPE` and bump `PROMPT_VERSION` to the next version. Bump
-      `prompts/adjudicate.ts` to the next version.
+      the help sentence to `OUTPUT_SHAPE` and bump `PROMPT_VERSION` to `dm.interpret-v13`. Bump
+      `prompts/adjudicate.ts` to `dm.adjudicate-v10`.
 - [ ] T020 [US3] In `gates/plan-gate.ts`, apply plan D12 to `stepIds`, `stepTexts`,
       `foreignActor`, `statGap` and `askUndeclared`.
 - [ ] T021 [US1] In `nodes/resolve.ts`, apply plan D11 to `case "check"` and add `case "help"`.
@@ -92,8 +96,9 @@ Phases 1 to 3 run in order: each needs the previous phase's types.
       unknown id is refused; a help step whose helper is not the actor is refused
       `STEP_ACTOR_MISMATCH`; an opposition whose opponent lacks stats is refused `STAT_UNDEFINED`
       and a joining opponent is skipped; a contradicting help `reason` is refused
-      `REASON_CONTRADICTS_STATE`; `askUndeclared` asks when the helper is another human's PC and
-      passes when only the ally is.
+      `REASON_CONTRADICTS_STATE`; `askUndeclared` asks when the helper is another human's PC, with
+      the question "<Helper>'s player decides what <Helper> does. What does <Declarer> do
+      instead?", and passes when only the ally is.
 - [ ] T025 In `apps/server/test/dm/interpret-prompt.test.ts`, assert the new version strings, the
       opposition-rules line and the help line. Regenerate the inline snapshot.
 - [ ] T026 Amend `specs/031-dm-runtime/contracts/nodes.md` (step shapes), `resolve.md` (the two
@@ -108,10 +113,10 @@ Phases 1 to 3 run in order: each needs the previous phase's types.
 - [ ] T028 [US4] In `apps/server/src/dm/facts.ts`, add the `assist` `FactChange` from
       `assist.granted` rows (plan D13); `renderChangeLine` returns null for it.
 - [ ] T029 [US4] In `prompts/narrate.ts`, render the assist in `describeChange` and bump
-      `PROMPT_VERSION` to the next version. In `fallback.ts`, add the assist sentence to
+      `PROMPT_VERSION` to `dm.narrate-v17`. Bump `prompts/audit.ts` to `dm.audit-v11`. In `fallback.ts`, add the assist sentence to
       `changeSentence`.
 - [ ] T030 [US4] In `apps/server/test/dm/facts.test.ts` and `fallback.test.ts`, add one case per
-      assist kind. In `narrate.test.ts`, assert the new version.
+      assist kind. In `narrate.test.ts`, assert `dm.narrate-v17` and `dm.audit-v11`.
 - [ ] T031 [US1, US2] Create `apps/server/test/dm/opposition-and-help.integration.test.ts` over
       the reed-camp seed with scripted dice: (1) Tamsin's Athletics check opposed by Snag rolls
       against DC 9 and the `check.resolved` row carries `opposition`; (2) a party-scope beat where
@@ -123,12 +128,14 @@ Phases 1 to 3 run in order: each needs the previous phase's types.
 
 ## Phase 4: Re-ground (wiki)
 
-- [ ] T033 Review and update `docs/wiki/dnd5e-engine.md` (opposition rules, `abilityScores`,
+- [ ] T033 Review and update `docs/wiki/dnd5e-engine.md` (spell attacks take attack assists;
+      extend its `size_budget_exempt` reason to name TASK-0128 and the split card TASK-0231) (opposition rules, `abilityScores`,
       assists, `help.grant`, the two events, `NOT_PROFICIENT`, assist expiry beside condition
       expiry) (NEEDS-REVIEW).
 - [ ] T034 Review and update `docs/wiki/dm-runtime.md` (the opposition `difficulty`, the help step,
       resolve's two submissions, prompt versions) and `docs/wiki/dm-failure-and-gates.md` (the help
-      step in the plan gate, `askUndeclared` and `STAT_UNDEFINED`) (NEEDS-REVIEW).
+      step in the plan gate, `askUndeclared` and `STAT_UNDEFINED`; extend its `size_budget_exempt`
+      reason as in T033) (NEEDS-REVIEW).
 - [ ] T035 Review `docs/wiki/dm-narration-quality.md` for the assist fact, the narrate version and
       the fallback sentence (NEEDS-REVIEW).
 - [ ] T036 Re-pin every other note that lists a touched source, verifying each against the diff:

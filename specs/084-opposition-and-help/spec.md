@@ -241,8 +241,9 @@ says "goes ahead with it". The facts gain an assist change, so narrate and the f
   cause `replaced`.
 - **FR-011**: A derived ability check MUST roll with an advantage source when its checker holds an
   ability-check assist for its skill. A derived attack MUST roll with an advantage source when its
-  target holds an attack assist from a helper other than the attacker. Each source folds with the
-  others by the SRD no-stack rule.
+  target holds an attack assist from a helper other than the attacker. A spell attack roll
+  (`spell.cast`, spec 083) is an attack roll and follows the same rule. Each source folds with the
+  others by the SRD no-stack rule. (Amended at the seam check: deviations S1.)
 - **FR-012**: A roll that applied an assist MUST end it with cause `used`. A check or attack with
   no draw MUST NOT end it.
 - **FR-013**: An assist MUST end with cause `expired` at its expiry boundary, through the same
@@ -267,19 +268,20 @@ says "goes ahead with it". The facts gain an assist change, so narrate and the f
   ability-check helper lacks stats. It MUST add a Help step's `reason` to the reason check.
 - **FR-019**: `askUndeclared`'s other-player rule MUST treat a Help step's `helperId` as it treats
   an attack's `attackerId`. It MUST NOT test the ally or the target.
-- **FR-020**: The step grammar MUST show both shapes and state when to use them. The interpret and
-  adjudicate prompt versions MUST each bump to the next version.
+- **FR-020**: The step grammar MUST show both shapes and state when to use them. The prompt
+  versions MUST move from interpret-v12 to interpret-v13 and from adjudicate-v9 to adjudicate-v10.
 
 **Narration facts (OQ-4 default (a))**
 
 - **FR-021**: Facts MUST turn an `assist.granted` row into an `assist` change. Narrate MUST list
   it in the facts it shows, and the fallback MUST voice it in one digit-free sentence. The narrate
-  prompt version MUST bump to the next version: the rendered prompt changes.
+  prompt version MUST move from narrate-v16 to narrate-v17 and audit from audit-v10 to audit-v11:
+  both rendered prompts change.
 
 **Group checks (OQ-5 default (a))**
 
 - **FR-022**: This card MUST NOT read `tableRules.groupChecks`. Its schema comment MUST say the
-  flag has no behaviour and point to spec 084 OQ-5, which names the follow-up card.
+  flag has no behaviour and name the follow-up card TASK-0232.
 
 ### Constitution-Driven Requirements *(mandatory)*
 
@@ -356,10 +358,12 @@ OQ-1 (b) makes opposition its own step kind instead.
 ## Assumptions
 
 - TASK-0104 (spec 082) is merged: combatant `stats`, `derive.ts`, `difficulty`, `circumstance`,
-  `STAT_UNDEFINED`, `dm.interpret-v11`, `dm.adjudicate-v8`, `dm.narrate-v14`.
-- TASK-0105 (spec 083) is authored in parallel and edits the same step union, prompts, resolve
-  switch and engine schemas. plan.md names this card's hunks. The orchestrator decides
-  develop-ahead or draft-hold from both file lists.
+  `STAT_UNDEFINED`.
+- TASK-0105 (spec 083), TASK-0211, TASK-0171 and TASK-0204 are merged. The seam check recorded
+  every moved seam in [deviations.md](deviations.md). Versions on `main`: `dm.interpret-v12`,
+  `dm.adjudicate-v9`, `dm.narrate-v16`, `dm.audit-v10`.
+- The operator accepted defaults (a) for OQ-1 to OQ-6. OQ-2 is noted on TASK-0224. OQ-5 is
+  carded as TASK-0232.
 - "Proficient in a skill" is "the stats list a total for that skill". Seed sheets and SRD stat
   blocks list only proficient skills.
 - The engine has no factions and no positions. "One of your allies" is any attacker other than
