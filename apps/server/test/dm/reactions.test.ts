@@ -1,42 +1,6 @@
 import { type EngineState, emptyState } from "@the-stacks/dnd5e-engine";
-import { getById } from "@the-stacks/srd";
 import { describe, expect, it } from "vitest";
-import { meleeAttackOf, reactors } from "../../src/dm/reactions.js";
-
-const monster = (id: string) => {
-  const rec = getById("monster", id);
-  if (!rec) throw new Error(`no SRD monster ${id}`);
-  return rec;
-};
-
-describe("meleeAttackOf", () => {
-  it("reads goblin-warrior's Scimitar and skips the advantage part", () => {
-    expect(meleeAttackOf(monster("goblin-warrior"))).toEqual({
-      name: "Scimitar",
-      expression: "1d20+4",
-      components: [
-        {
-          amount: { kind: "roll", expression: "1d6+2" },
-          damageType: "slashing",
-        },
-      ],
-    });
-  });
-
-  it("reads a melee-or-ranged attack", () => {
-    const atk = meleeAttackOf(monster("goblin-minion"));
-    expect(atk?.expression).toMatch(/^1d20[+-]\d+$/);
-    expect(atk?.components.length).toBeGreaterThan(0);
-  });
-
-  it("returns null for a record with no melee attack", () => {
-    const rec = structuredClone(monster("goblin-warrior"));
-    for (const a of rec.actions) {
-      if (a.attack) a.attack.type = "ranged";
-    }
-    expect(meleeAttackOf(rec)).toBeNull();
-  });
-});
+import { reactors } from "../../src/dm/reactions.js";
 
 describe("reactors", () => {
   const combatant = (id: string, over = {}) =>

@@ -68,25 +68,25 @@ Phase 4 closes the full gate.
 
 ## Phase 2: Stats on combatants and the reaction path (card AC #1, #3, #4; US2, US3)
 
-- [ ] T015 [US2] In `apps/server/src/dm/seed/combatants.ts`, add `statsFromSrd` and
+- [x] T015 [US2] In `apps/server/src/dm/seed/combatants.ts`, add `statsFromSrd` and
       `statsFromCharacter`, and set `stats` in `combatantFromSrd` (plan D4).
-- [ ] T016 [US3] In `apps/server/src/dm/seed/load.ts`, add the three FR-011 issues.
-- [ ] T017 [US2] In `apps/server/src/dm/nodes/resolve.ts`, send `statsFromCharacter` on the scene
+- [x] T016 [US3] In `apps/server/src/dm/seed/load.ts`, add the three FR-011 issues.
+- [x] T017 [US2] In `apps/server/src/dm/nodes/resolve.ts`, send `statsFromCharacter` on the scene
       start's PC `combatant.add`. Add the `hitDamage` helper. Switch `case "move"` to
       `firstMeleeAttack` over the reactor's engine stats with `attack: entry.name` (plan D5).
-- [ ] T018 [US2] In `apps/server/src/dm/reactions.ts`, delete `meleeAttackOf` and its imports.
-- [ ] T019 [US2] Create `apps/server/test/dm/seed-stats.test.ts`: every shipped seed PC's stats
+- [x] T018 [US2] In `apps/server/src/dm/reactions.ts`, delete `meleeAttackOf` and its imports.
+- [x] T019 [US2] Create `apps/server/test/dm/seed-stats.test.ts`: every shipped seed PC's stats
       (Tamsin Longsword +5 melee 1d8+3, Light Crossbow ranged; Odo `spellcastingAbility` `wis`;
       Kestrel Shortbow ranged, Shortsword melee); goblin-warrior and goblin-minion stats from SRD
       (Scimitar +4 1d6+2 with the Advantage rider skipped; Dagger `melee-or-ranged` +4 1d4+2;
       Stealth skill key). Move `meleeAttackOf`'s cases from `reactions.test.ts` here as
       `firstMeleeAttack(statsFromSrd(...))` with the same numbers.
-- [ ] T020 [US3] In `apps/server/test/dm/seed.test.ts`, add one refusing case per FR-011 issue.
-- [ ] T021 [US2] Update `apps/server/test/dm/reactions.test.ts` and
+- [x] T020 [US3] In `apps/server/test/dm/seed.test.ts`, add one refusing case per FR-011 issue.
+- [x] T021 [US2] Update `apps/server/test/dm/reactions.test.ts` and
       `opportunity-attack.integration.test.ts` for the shared path. Each run 1 replay keeps its
       dice and outcome.
-- [ ] T022 Amend `specs/031-dm-runtime/contracts/scene-seed.md` (stats sources, loader checks).
-- [ ] T023 Run `pnpm ci:check` and the DB suites.
+- [x] T022 Amend `specs/031-dm-runtime/contracts/scene-seed.md` (stats sources, loader checks).
+- [x] T023 Run `pnpm ci:check` and the DB suites.
 
 ## Phase 3: Step contract, prompts, resolve and plan gate (card AC #1–#4; US1, US2, US3)
 

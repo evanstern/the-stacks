@@ -1,4 +1,8 @@
-import type { EngineCommand } from "@the-stacks/dnd5e-engine";
+import {
+  type AttackEntry,
+  type EngineCommand,
+  firstMeleeAttack,
+} from "@the-stacks/dnd5e-engine";
 import {
   activeActorFor,
   canAct,
@@ -23,9 +27,9 @@ import {
 } from "../gates/plan-gate.js";
 import type { TurnCheckpoint } from "../jobs.js";
 import type { Node, NodeError, TurnContext } from "../pipeline/context.js";
-import { meleeAttackOf, reactors } from "../reactions.js";
+import { reactors } from "../reactions.js";
 import { refreshSubmission } from "../resume.js";
-import { combatantFromSrd } from "../seed/combatants.js";
+import { combatantFromSrd, statsFromCharacter } from "../seed/combatants.js";
 import type { SceneSeed } from "../seed/schema.js";
 import {
   type ActorSnapshot,
@@ -432,6 +436,21 @@ class Run {
 
 // ---------------------------------------------------------------- effects
 
+/** Spec 082 D7: the damage.apply for an attack entry's hit (the stats are the only damage source). */
+function hitDamage(
+  entry: AttackEntry,
+  targetId: string,
+  critical: boolean,
+): EngineCommand {
+  return {
+    type: "damage.apply",
+    targetId,
+    components: entry.damage,
+    critical,
+    defenses: null,
+  } as EngineCommand;
+}
+
 function effectCommand(
   effect: Exclude<Effect, { effect: "presence" }>,
   critical: boolean,
@@ -639,11 +658,8 @@ async function runSteps(
           fresh.engine.combatants[step.combatantId]?.name ?? step.combatantId;
         for (const [n, id] of ids.entries()) {
           if (stopped) break;
-          const rec = run.ctx.deps.srd.getById(
-            "monster",
-            seedMonsters.get(id) as string,
-          );
-          const atk = rec ? meleeAttackOf(rec) : null;
+          const reactorStats = fresh.engine.combatants[id]?.stats;
+          const atk = reactorStats ? firstMeleeAttack(reactorStats) : null;
           if (!atk) {
             run.ctx.deps.log({
               event: "dm.reaction.skipped",
@@ -661,7 +677,7 @@ async function runSteps(
               type: "attack.roll",
               attackerId: id,
               targetId: step.combatantId,
-              expression: atk.expression,
+              attack: atk.name,
               mode: "normal",
               targetAc: null,
               reaction: true,
@@ -680,13 +696,7 @@ async function runSteps(
           if (sub.outcome === "hit" || sub.outcome === "critical-hit") {
             const dmg = await run.mech(
               `${rkey}:e0`,
-              {
-                type: "damage.apply",
-                targetId: step.combatantId,
-                components: atk.components,
-                critical: sub.outcome === "critical-hit",
-                defenses: null,
-              },
+              hitDamage(atk, step.combatantId, sub.outcome === "critical-hit"),
               `${reactorName} strikes as ${moverName} pulls away: damage`,
               actionId,
             );
@@ -936,7 +946,10 @@ async function directorOpening(
       const init = c.identity.combatant;
       await run.mech(
         `director:combatant:${init.id}`,
-        { type: "combatant.add", combatant: init },
+        {
+          type: "combatant.add",
+          combatant: { ...init, stats: statsFromCharacter(c, deps.srd) },
+        },
         `${c.name} joins the scene`,
         null,
       );

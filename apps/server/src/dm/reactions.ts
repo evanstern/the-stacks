@@ -1,49 +1,9 @@
-import { DamageTypeSchema, type EngineState } from "@the-stacks/dnd5e-engine";
-import type { SrdRecord } from "@the-stacks/srd";
-
-type DamageType = (typeof DamageTypeSchema.options)[number];
-type Amount =
-  | { kind: "roll"; expression: string }
-  | { kind: "fixed"; value: number };
+import type { EngineState } from "@the-stacks/dnd5e-engine";
 
 /**
  * Opportunity attacks (spec 079, SRD 5.2.1 `playing-the-game.combat.melee-attacks.opportunity-attacks`).
- * Pure: resolve reads the reactor's numbers from the SRD record, never a model.
+ * Pure: resolve reads the reactor's numbers from its engine stats (spec 082), never a model.
  */
-
-/** The reactor's SRD melee attack as engine inputs, else null. */
-export function meleeAttackOf(monster: SrdRecord<"monster">): {
-  name: string;
-  expression: string;
-  components: { amount: Amount; damageType: DamageType }[];
-} | null {
-  for (const action of monster.actions) {
-    const atk = action.attack;
-    if (!atk || (atk.type !== "melee" && atk.type !== "melee-or-ranged")) {
-      continue;
-    }
-    const components: { amount: Amount; damageType: DamageType }[] = [];
-    for (const part of atk.hit) {
-      if (part.condition) continue; // e.g. "if the attack roll had Advantage"
-      const type = DamageTypeSchema.safeParse(part.type.toLowerCase());
-      if (!type.success) continue;
-      components.push({
-        amount: part.dice
-          ? { kind: "roll", expression: part.dice.replace(/\s+/g, "") }
-          : { kind: "fixed", value: part.average },
-        damageType: type.data,
-      });
-    }
-    if (components.length === 0) continue;
-    const sign = atk.bonus < 0 ? "-" : "+";
-    return {
-      name: action.name,
-      expression: `1d20${sign}${Math.abs(atk.bonus)}`,
-      components,
-    };
-  }
-  return null;
-}
 
 const INCAPACITATING = [
   "incapacitated",

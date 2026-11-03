@@ -1,6 +1,12 @@
-import { DamageTypeSchema } from "@the-stacks/dnd5e-engine";
+import {
+  type AttackEntry,
+  type CombatantStats,
+  DamageTypeSchema,
+  SkillSchema,
+} from "@the-stacks/dnd5e-engine";
 import type { SrdRecord } from "@the-stacks/srd";
-import type { CombatantInit } from "./schema.js";
+import type { SrdLookup } from "../pipeline/context.js";
+import type { CombatantInit, SceneSeed } from "./schema.js";
 
 type Monster = SrdRecord<"monster">;
 type DamageType = (typeof DamageTypeSchema.options)[number];
@@ -12,6 +18,97 @@ function engineTypes(list: readonly string[]): DamageType[] {
     if (parsed.success && !out.includes(parsed.data)) out.push(parsed.data);
   }
   return out;
+}
+
+const ABILITIES = ["str", "dex", "con", "int", "wis", "cha"] as const;
+
+/**
+ * SRD monster to engine stats (spec 082 D4, plan R2/R6). Skill and save totals are stored as
+ * totals. An attack with no usable damage part is skipped; a part with a `condition` (for example
+ * "if the attack roll had Advantage") is skipped, as spec 079's reaction rule did.
+ */
+export function statsFromSrd(monster: Monster): CombatantStats {
+  const abilityMods: CombatantStats["abilityMods"] = {};
+  const saves: CombatantStats["saves"] = {};
+  for (const a of ABILITIES) {
+    abilityMods[a] = monster.abilities[a].mod;
+    saves[a] = monster.abilities[a].save;
+  }
+  const skills: CombatantStats["skills"] = {};
+  for (const [name, total] of Object.entries(monster.skills)) {
+    const key = SkillSchema.safeParse(name.toLowerCase().replace(/\s+/g, "-"));
+    if (key.success) skills[key.data] = total;
+  }
+  const attacks: AttackEntry[] = [];
+  for (const action of monster.actions) {
+    const atk = action.attack;
+    if (!atk) continue;
+    const damage: AttackEntry["damage"] = [];
+    for (const part of atk.hit) {
+      if (part.condition) continue;
+      const type = DamageTypeSchema.safeParse(part.type.toLowerCase());
+      if (!type.success) continue;
+      damage.push({
+        amount: part.dice
+          ? { kind: "roll", expression: part.dice.replace(/\s+/g, "") }
+          : { kind: "fixed", value: part.average },
+        damageType: type.data,
+      });
+    }
+    if (damage.length === 0) continue;
+    attacks.push({
+      name: action.name,
+      range: atk.type,
+      toHit: atk.bonus,
+      damage: damage.slice(0, 4),
+    });
+  }
+  return {
+    abilityMods,
+    proficiencyBonus: monster.pb,
+    saves,
+    skills,
+    attacks: attacks.slice(0, 12),
+    // ponytail: monster spellcasting is per-feature (OQ-7, TASK-0224); null until carded work lands.
+    spellcastingAbility: null,
+  };
+}
+
+type SeedCharacter = SceneSeed["characters"][number];
+
+/** A seed PC's stats from its sheet; weapon range comes from the SRD weapon of the same name. */
+export function statsFromCharacter(
+  character: SeedCharacter,
+  srd: Pick<SrdLookup, "getByName">,
+): CombatantStats {
+  const id = character.identity;
+  const attacks: AttackEntry[] = id.attacks.map((a) => {
+    const weapon = srd.getByName("equipment", a.name);
+    const range =
+      weapon && weapon.category === "weapon" ? weapon.rangeType : "melee";
+    const m = /^1d20([+-]\d+)?$/.exec(a.expression.replace(/\s+/g, ""));
+    return {
+      name: a.name,
+      range,
+      toHit: m?.[1] ? Number(m[1]) : 0,
+      damage: a.damage.map((d) => ({
+        amount: {
+          kind: "roll" as const,
+          expression: d.dice.replace(/\s+/g, ""),
+        },
+        damageType: d.damageType,
+      })),
+    };
+  });
+  const cls = srd.getByName("class", id.class);
+  return {
+    abilityMods: id.abilityMods,
+    proficiencyBonus: id.proficiencyBonus,
+    saves: id.saves,
+    skills: id.skills,
+    attacks,
+    spellcastingAbility: cls?.spellcastingAbility ?? null,
+  };
 }
 
 /** SRD monster to an engine combatant — code, no model (scene-seed.md). */
@@ -33,5 +130,6 @@ export function combatantFromSrd(
       vulnerabilities: engineTypes(monster.damageVulnerabilities),
       immunities: engineTypes(monster.damageImmunities),
     },
+    stats: statsFromSrd(monster),
   } as CombatantInit;
 }
