@@ -17,6 +17,7 @@ export interface PlayerSeedView {
     senses: string[];
   };
   openingFraming: string;
+  openingPremise: string;
   npcs: {
     id: string;
     name: string;
@@ -49,6 +50,7 @@ export function playerFacingSeed(seed: SceneSeed): PlayerSeedView {
       senses: [...seed.location.portrayal.senses],
     },
     openingFraming: seed.opening.framing,
+    openingPremise: seed.opening.premise,
     npcs: seed.npcs.map((n) => ({
       id: n.id,
       name: n.name,

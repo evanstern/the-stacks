@@ -161,6 +161,29 @@ describe("factualSummary: one sentence per fact", () => {
     );
   });
 
+  it("scene-start names the party and the present NPCs after the framing", () => {
+    const f = facts({
+      trigger: "scene-start",
+      party: [
+        { characterId: "a", name: "Ana", controller: "human" },
+        { characterId: "b", name: "Bram", controller: "ai-companion" },
+      ],
+      presentNpcs: [
+        { id: "w", name: "Wenna Marsh", voice: "", want: "", detail: "" },
+      ],
+    });
+    expect(sum(f)).toBe(
+      "Cold air drifts from the vault door. Ana and Bram are here. Wenna Marsh is here too.",
+    );
+    expect(
+      deterministicChecks(
+        f,
+        { prose: sum(f), diceLines: [] },
+        claimStateFor(f, ["Ana", "Bram"]),
+      ).issues,
+    ).toEqual([]);
+  });
+
   it("an applied action with a roll gives the reason and the outcome", () => {
     const a = action({ rolls: [roll("success")], outcomes: ["success"] });
     expect(sum(facts({ actions: [a] }))).toBe(

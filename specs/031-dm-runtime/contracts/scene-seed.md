@@ -208,3 +208,6 @@ a `condition` are skipped; `spellcastingAbility` is null). The seed gains no fie
 **Loader checks (FR-011).** `crossCheckSeed` also refuses: a character attack expression that is not
 `1d20` plus or minus a number; a character attack whose name is no SRD weapon; a character
 `identity.combatant` that already carries `stats`.
+
+**Amended by spec 076 (TASK-0171).** `opening.premise` (1..500 chars) is required: why the party is
+here. A seed without it fails `parseSeed` with an issue at `opening.premise`.

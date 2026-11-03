@@ -109,6 +109,27 @@ export function detailNamesPartyMember(
   });
 }
 
+/** The prose before its closing question: the text up to the last sentence end before a final "?". */
+export function beforeClosingQuestion(prose: string): string {
+  const t = prose.trim();
+  if (!t.endsWith("?")) return t;
+  const head = t.slice(0, -1);
+  const ends = [...head.matchAll(/[.!?](?=\s)/g)];
+  const last = ends[ends.length - 1];
+  return last?.index === undefined ? "" : head.slice(0, last.index + 1);
+}
+
+/** True when `text` holds `name`'s full or given name as a whole, case-sensitive word. */
+export function namesCharacter(text: string, name: string): boolean {
+  return nameTerms(name).some((term) => {
+    const body = term.split(/\s+/).map(escapeRe).join("\\s+");
+    return new RegExp(
+      `(?<![\\p{L}\\p{N}_-])${body}(?![\\p{L}\\p{N}_-])`,
+      "u",
+    ).test(text);
+  });
+}
+
 /** Whether one `dm.audit` issue blocks, given the party (the E2 filter). */
 export function llmIssueBlocksFor(
   issue: AuditIssue,
@@ -294,6 +315,23 @@ export function deterministicChecks(
           `The opening moves or voices ${m.name} ("${hit.slice(0, 60)}").`,
         );
       }
+    }
+    // spec 076 FR-012: every party member and present NPC is named before the closing question.
+    const before = beforeClosingQuestion(prose);
+    for (const who of [...facts.party, ...facts.presentNpcs]) {
+      if (!namesCharacter(before, who.name)) {
+        add(
+          "other",
+          `The opening does not name ${who.name} before its closing question. Name every party member and every present character.`,
+        );
+      }
+    }
+    // FR-016: the opening names characters, not the players or their controllers.
+    if (/\b(players?|AI companions?)\b/i.test(prose)) {
+      add(
+        "other",
+        "The opening names a player or a controller. Name the characters, not the players.",
+      );
     }
   }
 

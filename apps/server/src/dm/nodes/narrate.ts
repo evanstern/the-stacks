@@ -210,9 +210,13 @@ export const narrate: Node<"narrate"> = async (ctx) => {
   const built = buildNarrationFacts({
     trigger: ctx.job.trigger,
     seed: playerFacingSeed(ctx.seed),
-    beatNpcIds: (
-      ctx.seed.beats.find((b) => b.id === director.pacing.beatId)?.npcIds ??
-      assembled.presentNpcIds
+    beatNpcIds: (ctx.job.trigger === "scene-start"
+      ? // Scene start (spec 076): the first beat's declaration, not the Director's beat.
+        ctx.seed.npcs
+          .map((n) => n.id)
+          .filter((id) => ctx.seed.beats[0]?.presence[id] !== "absent")
+      : (ctx.seed.beats.find((b) => b.id === director.pacing.beatId)?.npcIds ??
+        assembled.presentNpcIds)
     ).filter(
       (id) =>
         resolve.snapshot.actors.find((a) => a.id === id)?.presence !== "absent",
