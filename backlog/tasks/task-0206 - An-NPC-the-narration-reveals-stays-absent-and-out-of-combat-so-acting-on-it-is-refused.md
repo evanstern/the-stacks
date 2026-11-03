@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-11-02 22:42'
-updated_date: '2026-11-03 01:20'
+updated_date: '2026-11-03 01:21'
 labels:
   - dm
   - playtest
@@ -44,6 +44,8 @@ Spec: specs/078-revealed-npc-present
 Run 1 seq 63-89: once the reed-camp encounter started (seq 76, after Odo's parley), Snag became a combatant and 'I shoot at Snag' resolved (miss 7 vs AC 15). The gap is the reveal before the encounter starts.
 
 Claimed 2026-11-02 by M3 runbook B (docs/design/m3-runbook-b-resolution-quality.md). Worktree .worktrees/task-0206, branch task-0206-revealed-npc-present, cut from origin/main fbf4d1df. Spec number 078 claimed with a stub. Spine #6.
+
+Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5 (spec 078 authoring, C1)
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
