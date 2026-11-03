@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-10-26 15:42'
-updated_date: '2026-11-03 03:20'
+updated_date: '2026-11-03 05:40'
 labels:
   - engine
   - dm
@@ -36,7 +36,10 @@ Spec: specs/082-engine-derived-numbers
 - [ ] #3 Attack rolls use the target's AC from its stats; targetAc is not model-written
 - [ ] #4 A step naming a combatant, ability or skill the stats do not define is rejected at the schema or engine gate, with a test
 - [ ] #5 Scripted-dice engine tests cover each derivation; existing dm tests and the scripted CI playtest stay green
+- [ ] #6 Spec phase: Seam check [orchestrator]
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
