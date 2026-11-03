@@ -4,7 +4,7 @@ title: A clarify question is dropped and the player's turn is spent
 status: In Progress
 assignee: []
 created_date: '2026-11-02 23:13'
-updated_date: '2026-11-02 23:41'
+updated_date: '2026-11-03 00:38'
 labels:
   - dm
   - playtest
@@ -34,7 +34,10 @@ Spec: specs/073-clarify-keeps-turn
 <!-- AC:BEGIN -->
 - [ ] #1 A clarify reading holds the turn (no turn.advance) until the player answers, with a test replaying seq 172-176
 - [ ] #2 The narration or fallback shows the clarify question itself, with a test
+- [ ] #3 Spec phase: A clarify holds the turn (card AC #1, merge condition; US1)
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
