@@ -23,15 +23,15 @@ scripted fake gateway or pure functions.
 
 **Independent test**: `interpret-prompt.test.ts` passes with the new shape, rule and parse cases.
 
-- [ ] T001 [US2] In `apps/server/src/dm/nodes/schemas.ts`, apply plan D1. Add the optional `say`
+- [x] T001 [US2] In `apps/server/src/dm/nodes/schemas.ts`, apply plan D1. Add the optional `say`
       field after `followUps` in `InterpretReadingSchema`. Change nothing else in the file.
-- [ ] T002 [US2] In `apps/server/src/dm/prompts/interpret.ts`, apply plan D2. Bump
+- [x] T002 [US2] In `apps/server/src/dm/prompts/interpret.ts`, apply plan D2. Bump
       `PROMPT_VERSION` to the next version. Add `say: null` to `EXAMPLE_OUTPUT`. Add
       `"say":str|null` to the shape line. Add the rule as a new `OUTPUT_SHAPE` element after the
       rule paragraph.
-- [ ] T003 [US2] Extend `apps/server/test/dm/interpret-prompt.test.ts`: the version pin, the
+- [x] T003 [US2] Extend `apps/server/test/dm/interpret-prompt.test.ts`: the version pin, the
       updated inline snapshot, and `InterpretOutput` parsing a reading with `say` and one without.
-- [ ] T004 Amend `specs/031-dm-runtime/contracts/nodes.md` with the plan's "Amendment
+- [x] T004 Amend `specs/031-dm-runtime/contracts/nodes.md` with the plan's "Amendment
       (specs/081-talk-fallback-line)" section. Commit as `TASK-0207 phase 1: interpret say field`.
 
 ## Phase 2: The fallback voices the line (card AC #1; US1, US3)
