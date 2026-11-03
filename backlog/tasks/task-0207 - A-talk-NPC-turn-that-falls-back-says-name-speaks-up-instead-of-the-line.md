@@ -47,6 +47,8 @@ Claimed 2026-11-02 by M3 runbook B (docs/design/m3-runbook-b-resolution-quality.
 Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5 (spec 081 authoring, C1)
 
 spec-bridge sync: The plan carries the line (card AC #2; US2): 0/4 · The fallback voices the line (card AC #1; US1, US3): 0/9 · Wiki re-ground: 0/5
+
+Spec 081 (a46141ba). Defaults taken: OQ-1 narrator and audit see the line as a says: fact (narrate and audit bump); OQ-2 a line with ? is refused; OQ-4 voice the line alone. OQ-3 carded separately (NPC followUps count toward cutBeat). Spine amendment: 0207 footprint adds facts.ts, nodes/narrate.ts, prompts/narrate.ts, prompts/audit.ts; still builds after 0170 per the spine.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
