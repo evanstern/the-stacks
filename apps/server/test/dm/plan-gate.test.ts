@@ -1,10 +1,16 @@
 import { describe, expect, it } from "vitest";
+import { SYSTEM_WORDS } from "../../src/dm/fallback.js";
 import {
   arrivingNpcs,
+  askUndeclared,
   checkPlan,
   encounterToStart,
   joiningCombatants,
+  MANNER_SKILLS,
+  otherPlayerQuestion,
 } from "../../src/dm/gates/plan-gate.js";
+import type { Ruling } from "../../src/dm/nodes/adjudicate.js";
+import type { BeatItem } from "../../src/dm/nodes/assemble.js";
 import type { InterpretReading, Step } from "../../src/dm/nodes/schemas.js";
 import { buildSnapshot } from "../../src/dm/snapshot/index.js";
 import {
@@ -13,7 +19,11 @@ import {
   M2_SEQ221_S0,
   m2Seq221Reading,
 } from "./plan-reason-fixtures.js";
-import { greyhollowFight } from "./snapshot-fixtures.js";
+import {
+  greyhollowDuo,
+  greyhollowFight,
+  PLAYER_USER,
+} from "./snapshot-fixtures.js";
 import { attackStep, checkStep, reading } from "./world.js";
 
 const { projections, seed } = greyhollowFight();
@@ -720,5 +730,197 @@ describe("checkPlan: non-combatant NPC pull (specs 068, 075)", () => {
       ]),
     ]);
     expect(d).toEqual([{ actionId: "a1", ok: true, pull: ["pell"] }]);
+  });
+});
+
+describe("askUndeclared (spec 077)", () => {
+  const duo = greyhollowDuo();
+  const s0 = buildSnapshot(duo.projections, duo.seed);
+  const item = (text: string, over: Partial<BeatItem> = {}): BeatItem => ({
+    actionId: "a1",
+    committedSeq: 11,
+    actor: PLAYER_USER,
+    characterId: "tamsin",
+    scope: "character",
+    text,
+    status: "committed",
+    ...over,
+  });
+  const ask = (
+    b: BeatItem,
+    steps: unknown[],
+    extra: {
+      snapshot?: typeof s0;
+      rulings?: Ruling[];
+      resumed?: string[];
+      readings?: InterpretReading[];
+    } = {},
+  ) => {
+    const readings = extra.readings ?? [
+      read("a1", steps),
+      read(null, [checkStep({ combatantId: "kestrel", skill: "stealth" })]),
+    ];
+    const out = askUndeclared({
+      snapshot: extra.snapshot ?? s0,
+      beat: [b],
+      readings,
+      rulings: extra.rulings ?? [],
+      resumed: extra.resumed ?? [],
+    });
+    return out;
+  };
+  const stealth = (who: string) =>
+    checkStep({ combatantId: who, skill: "stealth", ability: "dex" });
+  const REED =
+    "We move toward the reed camp until we see Goblins or they see us.";
+  const SNEAK = "We sneak toward the reed camp.";
+
+  it("asks the manner question first for run 1 seq 24 (Kestrel's Stealth)", () => {
+    const r = ask(item(REED), [stealth("kestrel")]);
+    expect(r.readings[0]).toMatchObject({
+      steps: [],
+      clarify: MANNER_SKILLS[0].question,
+    });
+    expect(r.asked).toEqual([
+      { actionId: "a1", stepIndex: 0, rule: "manner", detail: "stealth" },
+    ]);
+  });
+
+  it("asks the manner question for the declarer's own Stealth", () => {
+    const r = ask(item(REED), [stealth("tamsin")]);
+    expect(r.readings[0]?.clarify).toBe(MANNER_SKILLS[0].question);
+  });
+
+  it("asks before rolling for another human's PC", () => {
+    const r = ask(item(SNEAK), [stealth("kestrel")]);
+    expect(r.readings[0]?.clarify).toBe(otherPlayerQuestion("Kestrel"));
+    expect(r.asked[0]?.rule).toBe("other-player");
+  });
+
+  it("passes a stated manner for the declarer and a companion", () => {
+    const r = ask(item(SNEAK), [stealth("tamsin"), stealth("odo")]);
+    expect(r.readings[0]?.clarify).toBeNull();
+    expect(r.asked).toEqual([]);
+    expect(r.readings[0]?.clarify).toBeNull();
+  });
+
+  it("run 1 seq 114: Athletics passes, Stealth asks", () => {
+    const text = "I move towards Pell";
+    const ok = ask(item(text), [checkStep({ skill: "athletics" })]);
+    expect(ok.asked).toEqual([]);
+    const bad = ask(item(text), [stealth("tamsin")]);
+    expect(bad.readings[0]?.clarify).toBe(MANNER_SKILLS[0].question);
+  });
+
+  it("skips the rule for a party-scope action", () => {
+    const r = ask(item(SNEAK, { scope: "party" }), [stealth("kestrel")]);
+    expect(r.asked).toEqual([]);
+  });
+
+  it("passes a saving throw for another PC", () => {
+    const r = ask(item(REED), [
+      checkStep({ combatantId: "kestrel", kind: "saving-throw", skill: null }),
+    ]);
+    expect(r.asked).toEqual([]);
+  });
+
+  it("passes heal and damage effects on another PC", () => {
+    const r = ask(item(REED), [
+      {
+        step: "effect",
+        reason: "Tamsin helps",
+        effects: [
+          {
+            effect: "heal",
+            targetId: "kestrel",
+            amount: { kind: "fixed", value: 2 },
+          },
+          damageOn("kestrel"),
+        ],
+      },
+    ]);
+    expect(r.asked).toEqual([]);
+  });
+
+  it("asks when an attack rolls for another PC", () => {
+    const r = ask(item("I strike the goblin"), [
+      attackStep("goblin-1", { attackerId: "kestrel" }),
+    ]);
+    expect(r.readings[0]?.clarify).toBe(otherPlayerQuestion("Kestrel"));
+  });
+
+  it("skips the manner rule for a companion's action", () => {
+    const r = ask(
+      item(REED, { actor: "ai:companion:odo", characterId: "odo" }),
+      [stealth("odo")],
+    );
+    expect(r.asked).toEqual([]);
+  });
+
+  it("asks on a ruling's steps and removes the ruling", () => {
+    const ruling = {
+      actionId: "a1",
+      ruling: "x",
+      improvised: true,
+      citations: [],
+      dropped: 0,
+      steps: [stealth("tamsin")],
+      followUps: [],
+    } as unknown as Ruling;
+    const r = ask(item(REED), [], { rulings: [ruling] });
+    expect(r.rulings).toEqual([]);
+    expect(r.readings[0]?.clarify).toBe(MANNER_SKILLS[0].question);
+  });
+
+  it("leaves resumed, clarify and NPC readings alone", () => {
+    const resumed = ask(item(REED), [stealth("tamsin")], { resumed: ["a1"] });
+    expect(resumed.asked).toEqual([]);
+    const cl = [read("a1", [stealth("tamsin")], { clarify: "Which?" })];
+    const c = ask(item(REED), [], { readings: cl });
+    expect(c.readings[0]).toBe(cl[0]);
+    expect(c.asked).toEqual([]);
+    expect(c.readings).toHaveLength(1);
+  });
+
+  it("passes a second PC held by the same user", () => {
+    const twin = {
+      ...s0,
+      actors: s0.actors.map((a) =>
+        a.id === "kestrel"
+          ? {
+              ...a,
+              controller: { kind: "player" as const, userId: PLAYER_USER },
+            }
+          : a,
+      ),
+    } as typeof s0;
+    const r = ask(item(SNEAK), [stealth("kestrel")], { snapshot: twin });
+    expect(r.asked).toEqual([]);
+  });
+
+  it("covers Deception and Intimidation cues", () => {
+    const dec = checkStep({ skill: "deception", ability: "cha" });
+    const int = checkStep({ skill: "intimidation", ability: "cha" });
+    expect(ask(item("I bluff the guard"), [dec]).asked).toEqual([]);
+    expect(ask(item("I talk to the guard"), [dec]).readings[0]?.clarify).toBe(
+      MANNER_SKILLS[1].question,
+    );
+    expect(ask(item("I threaten the guard"), [int]).asked).toEqual([]);
+    expect(ask(item("I talk to the guard"), [int]).readings[0]?.clarify).toBe(
+      MANNER_SKILLS[2].question,
+    );
+  });
+
+  it("keeps every question speakable", () => {
+    const qs = [
+      ...MANNER_SKILLS.map((m) => m.question),
+      otherPlayerQuestion("Kestrel"),
+    ];
+    for (const q of qs) {
+      expect(q).not.toMatch(/\d/);
+      expect(q).not.toMatch(SYSTEM_WORDS);
+      expect(q.match(/\?/g)).toHaveLength(1);
+      expect(q.length).toBeLessThanOrEqual(200);
+    }
   });
 });

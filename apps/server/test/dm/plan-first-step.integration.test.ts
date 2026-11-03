@@ -35,7 +35,6 @@ afterAll(async () => {
 });
 clearDmJobsBeforeEach();
 
-const KESTREL_USER = "00000000-0000-4000-8000-0000000000a2";
 const retrieve = async () => ({
   mode: "fts" as const,
   embeddingModel: null,
@@ -59,8 +58,8 @@ async function runTurn(turnScript: string, actionId: string) {
   const { worker } = workerFor(w, { retrieve });
   await enqueueTurn(requireDb(), w.sessionId, "scene-start", null, {
     start: {
-      seedId: "greyhollow-ford-duo",
-      seats: { tamsin: TAMSIN_USER, kestrel: KESTREL_USER },
+      seedId: "greyhollow-ford",
+      seats: { tamsin: TAMSIN_USER },
     },
   });
   await drainAll(worker);

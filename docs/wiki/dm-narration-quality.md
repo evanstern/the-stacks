@@ -16,7 +16,7 @@ sources:
   - apps/server/src/dm/audit-words.ts
   - specs/034-narration-quality/contracts/audit-criteria.md
 size_budget_exempt: TASK-0113 adds the agency checks and reflex facts to the one narration-and-audit pipeline; it does not split without a TASK of its own (sibling notes dm-runtime and playtest-harness carry the same exemption)
-verified_against: 6f0ae5134da76dfa68dca0b6855be847ba05739a
+verified_against: 9782af9dd01a8cb7cd5781c2c0c5e7df57b1c61b
 ---
 
 # DM narration quality
@@ -83,7 +83,7 @@ the audit records the withheld texts as non-blocking issues on attempt 1 only. D
 
 `factualSummary(facts)` (`fallback.ts`) is deterministic in-fiction prose: opening framing on
 scene start, one sentence per refusal, roll outcome, public change and event, "What does X do?"
-for each clarify (the question voiced when speakable, else "What does X do?"), and a scene-end line. It holds no digit, system word or tracker name, passes
+for each clarify (the question voiced when speakable, else "What does X do?"), and a scene-end line. Spec 077 asks reach this path as clarify facts, so their questions are voiced the same way (specs/073). It holds no digit, system word or tracker name, passes
 `deterministicChecks` by construction and is never sent to `dm.audit`. `factualSummary(facts, state?)` passes
 each roll reason through `checkClaims` in `reasonUsable` (a refused reason is not voiced), and
 says "<name> dies" instead of "is dead" for a numbered name ("Goblin three"), which the checker
