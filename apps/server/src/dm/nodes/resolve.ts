@@ -89,6 +89,11 @@ export interface ResolveOutput {
     outcome: ActionOutcome;
     batchIds: string[];
     refusalCode: string | null;
+    /**
+     * Batches `pullIn` wrote for this action (a joiner's initiative roll). Kept apart
+     * from `batchIds`, which decide the outcome: a pull never makes an action "applied".
+     */
+    pullBatchIds?: string[];
   }[];
   appendedRows: StoredEvent[];
   nextJob:
@@ -1146,7 +1151,8 @@ async function pullIn(
   ctx: TurnContext,
   prefix: string,
   ids: readonly string[],
-): Promise<void> {
+): Promise<string[]> {
+  const batchIds: string[] = [];
   for (const id of ids) {
     let fresh = await ctx.deps.loadProjections(ctx.job.sessionId);
     const npc = ctx.seed.npcs.find((n) => n.id === id);
@@ -1155,7 +1161,7 @@ async function pullIn(
       const srdId = npc.identity.srdMonsterId ?? "commoner";
       const rec = ctx.deps.srd.getById("monster", srdId);
       if (!rec) throw stop("internal", `no SRD monster ${srdId}`);
-      await run.mech(
+      const added = await run.mech(
         `${prefix}:pull:${id}`,
         {
           type: "combatant.add",
@@ -1164,6 +1170,7 @@ async function pullIn(
         `${npc.name} joins the scene`,
         null,
       );
+      if (added.batchId) batchIds.push(added.batchId);
       fresh = await ctx.deps.loadProjections(ctx.job.sessionId);
     }
     const enc = fresh.encounter;
@@ -1173,14 +1180,16 @@ async function pullIn(
       canAct(fresh.engine, id) &&
       (fresh.scenePresence[id]?.presence ?? "present") === "present"
     ) {
-      await run.mech(
+      const joined = await run.mech(
         `${prefix}:pull:${id}:join`,
         { type: "initiative.join", combatantId: id, mode: "normal" },
         `${npc?.name ?? id} joins the fight`,
         null,
       );
+      if (joined.batchId) batchIds.push(joined.batchId);
     }
   }
+  return batchIds;
 }
 
 /** Action id -> the acting character's combatant id; `null` for a party-scope action. */
@@ -1209,9 +1218,10 @@ async function resolveAction(
 ): Promise<ResolveOutput["actionResults"][number]> {
   const { steps, clarify } = actionGroupSteps(reading, ruling);
   const planRefused = verdict !== undefined && !verdict.ok;
-  if (verdict?.ok && !clarify) {
-    await pullIn(run, ctx, `act:${item.actionId}`, verdict.pull ?? []);
-  }
+  const pullBatchIds =
+    verdict?.ok && !clarify
+      ? await pullIn(run, ctx, `act:${item.actionId}`, verdict.pull ?? [])
+      : [];
   const chain: ChainResult =
     planRefused || clarify
       ? { batchIds: [], awaiting: false, firstRefusal: null }
@@ -1264,7 +1274,13 @@ async function resolveAction(
       refusalCode: null,
     };
   }
-  return { actionId: item.actionId, outcome, batchIds, refusalCode };
+  return {
+    actionId: item.actionId,
+    outcome,
+    batchIds,
+    refusalCode,
+    ...(pullBatchIds.length > 0 ? { pullBatchIds } : {}),
+  };
 }
 
 export const resolve: Node<"resolve"> = async (ctx) => {
@@ -1423,15 +1439,18 @@ export const resolve: Node<"resolve"> = async (ctx) => {
         const ruling = rulings.find((r) => r.actionId === null);
         const { steps } = actionGroupSteps(reading, ruling);
         const npcVerdict = verdictFor(null);
-        if (npcVerdict?.ok)
-          await pullIn(run, ctx, "npc", npcVerdict.pull ?? []);
+        // The pull's batches (the joiner's initiative roll) belong to the NPC
+        // turn's facts, or the shipped dice lines miss the roll (TASK-0213).
+        const pulled = npcVerdict?.ok
+          ? await pullIn(run, ctx, "npc", npcVerdict.pull ?? [])
+          : [];
         const chain =
           npcVerdict && !npcVerdict.ok
             ? { batchIds: [] as string[], awaiting: false }
             : await runSteps(run, "npc", steps, null);
         npcTurn = {
           combatantId: assembled.npcTurn.combatantId,
-          batchIds: [...new Set(chain.batchIds)],
+          batchIds: [...new Set([...pulled, ...chain.batchIds])],
           awaitingDm: chain.awaiting,
         };
       }
