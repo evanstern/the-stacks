@@ -15,7 +15,7 @@ sources:
   - apps/server/src/dm/snapshot/build.ts
   - packages/session-model/src/gate/proposals.ts
   - packages/session-model/src/gate/plan.ts
-verified_against: c6a800dd72487bcec95a4d0d0f2e94bbb821b4c4
+verified_against: 389d2e32895a3b2143ee05f72f8b421f236a8bf7
 ---
 
 # Seed NPC presence
@@ -28,7 +28,7 @@ the DM pipeline is in [[dm-runtime]].
 
 ## The seed declaration
 
-`SceneSeedSchema` (`seed/schema.ts`) gives every beat a required `presence`: a record from NPC
+`SceneSeedSchema` (`seed/schema.ts`) gives the scene `tableRules` (`outcomeBands`, `naturals` default true; `groupChecks` default false, spec 070) and every beat a required `presence`: a record from NPC
 id to `ScenePresenceSchema` (`present`, `yielded`, `absent`). There is no default, so a seed
 without it fails to load. `SeedNpc.identity` gains `aliases` (up to 6 strings of up to 60
 characters, default empty). `SeedCharacter.identity` gains required `class` (up to 40 characters) and `level` (1 to 20); the three seeds set them. Scene start copies both onto each `director:party:<id>` row's `after` (TASK-0164; `PartyMemberSchema` holds them as optional fields). `greyhollow-ford.json` declares all three NPCs in all three beats

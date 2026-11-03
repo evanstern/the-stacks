@@ -7,7 +7,7 @@ import type { ActorSnapshot } from "../snapshot/index.js";
 import { CAPS, capEntries, joinSections, section } from "./common.js";
 import { characterSections, factEntries } from "./narrate.js";
 
-export const PROMPT_VERSION = "dm.audit-v6";
+export const PROMPT_VERSION = "dm.audit-v7";
 
 const OUTPUT_SHAPE = [
   "Reply with ONE JSON object and nothing else:",
@@ -35,6 +35,7 @@ export function buildAuditPrompt(input: {
     "4. Code checks length; do not report length.",
     "5. Report craft concerns as `doctrine`. They are advice and do not fail the narration.",
     "6. The actor on the Turn line acts in this beat, with or without a roll; showing it act is not a mismatch. Showing the actor on the Next line act is `invented-mechanics`.",
+    "7. A roll's band and consequence are decided. Report `ledger-mismatch` when the prose tells a different band (a plain success for a success at a cost, a plain failure for a severe failure, a win for a failure) or a consequence other than the one listed.",
     "Doctrine:",
     doctrine,
     OUTPUT_SHAPE,

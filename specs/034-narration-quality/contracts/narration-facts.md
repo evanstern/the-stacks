@@ -182,3 +182,15 @@ holds a party member's followUps from the latest resolved action of an earlier t
 member declares again. Narrate renders each as `Earlier beat, not yet attempted: <name>: <text>`.
 The narrate rule reads: a not-yet-attempted step has not happened, in this beat or an earlier
 one; never show it start or done. `withholdRefusedInputs` filters them like this turn's followUps.
+
+## Amendment 2026-11-02 (specs/070-stakes-before-dice, TASK-0127): band, margin, consequence
+
+Amended by specs/070-stakes-before-dice. `FactRoll` gains optional `band`, `margin`, `consequence`
+and `autoSuccess`; they are set only when the linked `check.resolved` row carries a band, so an old
+row renders as before. `consequence` is the declared stakes text for `success-at-cost`, `failure` or
+`severe-failure`, read from the submission's stakes by batch; `success` has none. `outcomeWord` gives
+the band word ("success at a cost", "severe failure"). A rollless success with no `autoFail` is an
+auto-success: its line reads `<name> — <reason>: no roll needed: success`. Narrate is `dm.narrate-v11`
+(tell the declared consequence, invent no other) and audit is `dm.audit-v7` (report `ledger-mismatch`
+when the prose tells another band or consequence). The fallback `outcomeSentence` voices the band and
+the consequence, the latter only when `reasonSpeakable` passes it.

@@ -1,10 +1,10 @@
 ---
 id: TASK-0127
 title: 'Stakes before dice: outcome bands and pre-declared consequences'
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-10-27 02:32'
-updated_date: '2026-11-02 07:54'
+updated_date: '2026-11-03 04:43'
 labels:
   - dm
   - doctrine
@@ -26,14 +26,21 @@ Spec: specs/070-stakes-before-dice
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 A check step carries a consequence for each outcome band before the roll, and a schema test rejects a check step with no failure consequence
-- [ ] #2 Code computes margin and band from the engine's total and DC, and NarrationFacts carries the band
-- [ ] #3 A table-rules setting holds each house-rule flag with its default, and a test covers each flag on and off
-- [ ] #4 A natural 20 on a d20 test succeeds when its flag is on, with an engine test
-- [ ] #5 A retry with no new risk resolves without a roll, with a test
-- [ ] #6 The auditor checks that prose delivers the declared band, with a test over a captured run
-- [ ] #7 A natural 1 on a d20 test fails when its flag is on, with an engine test
+- [x] #1 A check step carries a consequence for each outcome band before the roll, and a schema test rejects a check step with no failure consequence
+- [x] #2 Code computes margin and band from the engine's total and DC, and NarrationFacts carries the band
+- [x] #3 A table-rules setting holds each house-rule flag with its default, and a test covers each flag on and off
+- [x] #4 A natural 20 on a d20 test succeeds when its flag is on, with an engine test
+- [x] #5 A retry with no new risk resolves without a roll, with a test
+- [x] #6 The auditor checks that prose delivers the declared band, with a test over a captured run
+- [x] #7 A natural 1 on a d20 test fails when its flag is on, with an engine test
+- [x] #8 Spec phase: Engine bands, naturals and auto-success (card AC #2, #4, #7; US1, US2)
+- [x] #9 Spec phase: Step contract, prompts, table rules, plan gate, fixtures (card AC #1, #3; US1, US2)
+- [x] #10 Spec phase: Resolve by band and the free retry (card AC #2, #3, #5; US1, US2, US3)
+- [x] #11 Spec phase: Facts, narration, audit, fallback, ledger view (card AC #2, #6; US1, US4)
+- [x] #12 Spec phase: Contracts and wiki re-ground
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
@@ -48,10 +55,29 @@ Operator ruling 2026-11-02 (in chat, answering 'How should the remaining lanes g
 
 Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5 (spec 070 authoring, C1)
 Spec 070 committed (94d555be). Card back to To Do per runbook A side lane: spec-only PR; runbook B builds it. Open for runbook B sign-off (spec written against default (a)): OQ-1 house-rule flags as an optional tableRules object on the scene seed vs a session event; OQ-2 retry detected by code vs flagged by the model. Build order: after TASK-0113, TASK-0193 and TASK-0194 merge (shared facts.ts, narrate.ts, resolve.ts, plan-gate.ts).
+
+Claimed 2026-11-02 by M3 runbook B (docs/design/m3-runbook-b-resolution-quality.md). Worktree .worktrees/task-0127, branch task-0127-stakes-before-dice, cut from origin/main 38b8e737. No spec dir: signed escape line covers this task. Spine #8. Builds the merged spec 070 (no new spec number).
+
+Correction to the claim note above: TASK-0127 is not under an escape line. It builds the merged spec 070 (specs/070-stakes-before-dice, PR #103); no new spec number. OQ-1 (a) and OQ-2 (a) stand (runbook B C0).
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 070 phases 1-2, with seam check)
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 070 phases 3-4)
+Seam check (phases 1-2): no seam changed meaning; adjustments in specs/070-stakes-before-dice/deviations.md.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 070 phase 5, contracts and wiki)
+
+spec-bridge sync: Engine bands, naturals and auto-success (card AC #2, #4, #7; US1, US2): 7/7 · Step contract, prompts, table rules, plan gate, fixtures (card AC #1, #3; US1, US2): 14/14 · Resolve by band and the free retry (card AC #2, #3, #5; US1, US2, US3): 8/8 · Facts, narration, audit, fallback, ledger view (card AC #2, #6; US1, US4): 11/11 · Contracts and wiki re-ground: 5/5 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Engine bands, naturals and auto-success (card AC #2, #4, #7; US1, US2): 7/7 · Step contract, prompts, table rules, plan gate, fixtures (card AC #1, #3; US1, US2): 14/14 · Resolve by band and the free retry (card AC #2, #3, #5; US1, US2, US3): 8/8 · Facts, narration, audit, fallback, ledger view (card AC #2, #6; US1, US4): 11/11 · Contracts and wiki re-ground: 5/5). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
-- [ ] #1 All tests and checks run green
-- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
+- [x] #1 All tests and checks run green
+- [x] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->

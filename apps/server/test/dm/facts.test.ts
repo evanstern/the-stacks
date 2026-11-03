@@ -316,6 +316,109 @@ describe("dice-line renderer", () => {
     ]);
   });
 
+  describe("bands (spec 070)", () => {
+    const checkRows = (event: object, withRoll = true): LedgerRow[] => [
+      ...(withRoll
+        ? [
+            roll(1, "b1", 0, {
+              reason: "Ana picks the lock [0a#1]",
+              expression: "1d20+5",
+              purpose: "check",
+              combatantId: "ana",
+              faces: [5],
+              mod: 5,
+              natural: 5,
+            }),
+          ]
+        : []),
+      outcomeRow(2, "b1", 1, {
+        type: "check.resolved",
+        v: 1,
+        reason: "Ana picks the lock [0a#1]",
+        combatantId: "ana",
+        kind: "ability-check",
+        ability: "dex",
+        skill: null,
+        rollIndex: withRoll ? 0 : null,
+        dc: 12,
+        total: withRoll ? 10 : null,
+        natural: withRoll ? 5 : null,
+        autoFail: null,
+        outcome: "success",
+        ...event,
+      }),
+    ];
+    const stakes = new Map([
+      [
+        "b1",
+        {
+          success: null,
+          cost: "The pick bites her palm.",
+          failure: "The lock holds.",
+          severe: "The pick snaps off in the lock.",
+        },
+      ],
+    ]);
+
+    it.each([
+      ["success", null, 1, "success"],
+      ["success-at-cost", "The pick bites her palm.", -2, "success at a cost"],
+      ["failure", "The lock holds.", -3, "failure"],
+      [
+        "severe-failure",
+        "The pick snaps off in the lock.",
+        -7,
+        "severe failure",
+      ],
+    ])(
+      "carries band %s, margin and consequence",
+      (band, consequence, margin, word) => {
+        const outcome =
+          band === "success" || band === "success-at-cost"
+            ? "success"
+            : "failure";
+        const c = collectFacts(
+          checkRows({ band, margin, outcome }),
+          nameOf,
+          new Map(),
+          stakes,
+        );
+        expect(c.rolls[0]).toMatchObject({ band, margin, consequence });
+        expect(renderRollLine(c.rolls[0] as never)).toContain(`: ${word}`);
+      },
+    );
+
+    it("leaves band null-free on an old row with no band", () => {
+      const c = collectFacts(checkRows({}), nameOf, new Map(), stakes);
+      expect(c.rolls[0]?.band).toBeUndefined();
+      expect(c.rolls[0]?.consequence).toBeUndefined();
+      expect(renderRollLine(c.rolls[0] as never)).toBe(
+        "Ana — Ana picks the lock: 1d20+5 → 5 = 10 vs DC 12: success",
+      );
+    });
+
+    it("renders a free retry as auto-success", () => {
+      const c = collectFacts(
+        checkRows({ band: "success", margin: null }, false),
+        nameOf,
+        new Map(),
+        stakes,
+      );
+      expect(c.rolls[0]).toMatchObject({
+        autoSuccess: true,
+        autoFail: false,
+        band: "success",
+        consequence: null,
+      });
+      expect(renderRollLine(c.rolls[0] as never)).toBe(
+        "Ana — Ana picks the lock: no roll needed: success vs DC 12".replace(
+          ": success vs DC 12",
+          ": success",
+        ),
+      );
+    });
+  });
+
   it("renders healing and records life-state and condition changes", () => {
     const rows = [
       hpRow(1, "b1", 0, "ana", 3, 9),

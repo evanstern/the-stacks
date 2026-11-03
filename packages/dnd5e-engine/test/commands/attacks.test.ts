@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { SkillSchema } from "../../src/index.js";
+import { bandOf, SkillSchema } from "../../src/index.js";
 import {
   expectOk,
   expectRefusal,
@@ -604,5 +604,142 @@ describe("attack to damage flow", () => {
     });
     expect(dmg.rng.remaining()).toBe(0);
     expect(settle(s1, dmg.result).combatants["gob-1"]?.hp.current).toBe(23);
+  });
+});
+
+describe("check.roll outcome bands (spec 070)", () => {
+  const on = { outcomeBands: true, naturals: true };
+  const bandsOnly = { outcomeBands: true, naturals: false };
+  // Ability check, 1d20+0 against DC 12: the face is the total.
+  const ability = (over: Record<string, unknown> = {}) =>
+    check({
+      kind: "ability-check",
+      ability: "cha",
+      combatantId: "pc-ana",
+      expression: "1d20+0",
+      dc: 12,
+      ...over,
+    });
+  const bandFor = (face: number, houseRules: object, over = {}) =>
+    checkOf(
+      expectOk(run(state(), ability({ houseRules, ...over }), [face]).result),
+    );
+
+  it.each([
+    [12, 0, "success", "success"],
+    [11, -1, "success-at-cost", "success"],
+    [10, -2, "success-at-cost", "success"],
+    [9, -3, "failure", "failure"],
+    [8, -4, "failure", "failure"],
+    [7, -5, "severe-failure", "failure"],
+  ])(
+    "face %i (margin %i) with bands on is %s",
+    (face, margin, band, outcome) => {
+      expect(bandFor(face, bandsOnly)).toMatchObject({ margin, band, outcome });
+    },
+  );
+
+  it("bands off: a miss is a plain failure at any margin", () => {
+    expect(bandFor(11, { outcomeBands: false, naturals: false })).toMatchObject(
+      { margin: -1, band: "failure", outcome: "failure" },
+    );
+    expect(bandFor(2, { outcomeBands: false, naturals: false })).toMatchObject({
+      band: "failure",
+    });
+  });
+
+  it("a saving throw never gets a cost or severe band", () => {
+    const save = (face: number) =>
+      checkOf(
+        expectOk(run(state(), check({ houseRules: bandsOnly }), [face]).result),
+      );
+    expect(save(9)).toMatchObject({ margin: -2, band: "failure" });
+    expect(save(5)).toMatchObject({ margin: -6, band: "failure" });
+  });
+
+  it("natural 20 below the DC succeeds and natural 1 above it fails (naturals on)", () => {
+    expect(bandFor(20, on, { dc: 30 })).toMatchObject({
+      band: "success",
+      outcome: "success",
+    });
+    expect(bandFor(1, on, { expression: "1d20+20", dc: 12 })).toMatchObject({
+      band: "failure",
+      outcome: "failure",
+    });
+  });
+
+  it("naturals off: the total decides", () => {
+    expect(
+      bandFor(20, { outcomeBands: false, naturals: false }, { dc: 30 }),
+    ).toMatchObject({ outcome: "failure" });
+  });
+
+  it("natural 1 at margin -6 with bands on is a severe failure", () => {
+    expect(bandFor(1, on, { dc: 7 })).toMatchObject({
+      margin: -6,
+      band: "severe-failure",
+    });
+  });
+
+  it("autoSuccess resolves success with no dice and no draw", () => {
+    const { result, rng } = run(
+      state(),
+      ability({ autoSuccess: { reason: "free retry" } }),
+      [],
+    );
+    const events = expectOk(result);
+    expect(events.map((e) => e.type)).toEqual(["check.resolved"]);
+    expect(checkOf(events)).toMatchObject({
+      outcome: "success",
+      band: "success",
+      margin: null,
+      total: null,
+      natural: null,
+    });
+    expect(rng.remaining()).toBe(0);
+  });
+
+  it("refuses autoSuccess beside autoFail", () => {
+    expectRefusedBeforeDraw(
+      run(
+        state(),
+        ability({
+          autoSuccess: { reason: "a" },
+          autoFail: { reason: "b" },
+        }),
+        [10],
+      ),
+      "INVALID_COMMAND",
+    );
+  });
+
+  it("autoFail records band failure and a null margin", () => {
+    const { result } = run(
+      state(),
+      ability({ autoFail: { reason: "locked" } }),
+      [],
+    );
+    expect(checkOf(expectOk(result))).toMatchObject({
+      band: "failure",
+      margin: null,
+    });
+  });
+
+  it("sending no houseRules gives SRD behaviour", () => {
+    expect(
+      checkOf(expectOk(run(state(), ability(), [11]).result)),
+    ).toMatchObject({ band: "failure", outcome: "failure", margin: -1 });
+  });
+
+  it("bandOf is pure", () => {
+    expect(
+      bandOf({
+        total: 10,
+        dc: 12,
+        natural: 10,
+        kind: "ability-check",
+        houseRules: bandsOnly,
+      }).band,
+    ).toBe("success-at-cost");
   });
 });

@@ -172,6 +172,45 @@ describe("factualSummary: one sentence per fact", () => {
     );
   });
 
+  it("names the band, and drops a consequence that fails the claim check (spec 070)", () => {
+    const at = (
+      band: FactRoll["band"],
+      outcome: FactOutcome,
+      consequence: string | null,
+    ) =>
+      action({
+        rolls: [roll(outcome, { band, consequence })],
+        outcomes: [outcome],
+      });
+    expect(
+      sum(
+        facts({
+          actions: [
+            at("success-at-cost", "success", "The lock bites her hand."),
+          ],
+        }),
+      ),
+    ).toBe(
+      "Ana picks the lock. Ana pulls it off, at a cost. The lock bites her hand.",
+    );
+    expect(
+      sum(
+        facts({
+          actions: [at("severe-failure", "failure", "The pick snaps.")],
+        }),
+      ),
+    ).toBe("Ana picks the lock. Ana fails badly. The pick snaps.");
+    expect(sum(facts({ actions: [at("failure", "failure", null)] }))).toBe(
+      "Ana picks the lock. Ana comes up short.",
+    );
+    // A system word or a death claim is not spoken.
+    for (const bad of ["The dice mock her.", "Ana is dead."]) {
+      expect(
+        sum(facts({ actions: [at("severe-failure", "failure", bad)] })),
+      ).toBe("Ana picks the lock. Ana fails badly.");
+    }
+  });
+
   it("hit, critical hit and miss outcome sentences", () => {
     for (const [o, line] of [
       ["hit", "Ana strikes home."],
