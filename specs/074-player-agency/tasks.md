@@ -13,38 +13,38 @@ report if another file is needed. No paid model run; tests use the fake gateway.
 
 ## Phase 1: Rule source, Director, interpret, playtest auditor (card AC #3, #4, #5; US1, US4)
 
-- [ ] T001 [US1] In `apps/server/src/dm/doctrine/doctrine.ts`, add `AGENCY_RULE`, `AgencyNode` and
+- [x] T001 [US1] In `apps/server/src/dm/doctrine/doctrine.ts`, add `AGENCY_RULE`, `AgencyNode` and
       `agencyRule(node)` (plan D1). Revise the `hero-is-theirs` rule and right text (plan D1).
-- [ ] T002 [US1] In `apps/server/src/dm/prompts/director.ts`, add `agencyRule("director")` to SYSTEM
+- [x] T002 [US1] In `apps/server/src/dm/prompts/director.ts`, add `agencyRule("director")` to SYSTEM
       outside the doctrine cap. Rewrite the `goalNote` shape line (plan D2). Bump to
       `dm.director-v5`.
-- [ ] T003 [US1] In `apps/server/src/dm/prompts/interpret.ts`, add `agencyRule("interpret")` to the
+- [x] T003 [US1] In `apps/server/src/dm/prompts/interpret.ts`, add `agencyRule("interpret")` to the
       system prompt outside the doctrine cap. Relabel the goal note in the user prompt (plan D2).
       Bump to `dm.interpret-v6`. Leave `OUTPUT_SHAPE` and `STEP_GRAMMAR` unchanged.
-- [ ] T004 Bump `apps/server/src/dm/prompts/companion.ts` to `dm.companion-v7` and
+- [x] T004 Bump `apps/server/src/dm/prompts/companion.ts` to `dm.companion-v7` and
       `apps/server/src/dm/prompts/react.ts` to `dm.react-v2` (plan R7). Change no other text.
-- [ ] T005 [US4] In `apps/server/src/playtest/auditor/prompt.ts`, add the `## Party` section and
+- [x] T005 [US4] In `apps/server/src/playtest/auditor/prompt.ts`, add the `## Party` section and
       `agencyRule("auditor")` (plan D5). Bump to `playtest.audit-v2`.
-- [ ] T006 [US1] In `apps/server/test/dm/doctrine.test.ts`, assert `agencyRule(node)` holds every
+- [x] T006 [US1] In `apps/server/test/dm/doctrine.test.ts`, assert `agencyRule(node)` holds every
       `AGENCY_RULE` line and the node line for all five nodes, and the revised pair text.
-- [ ] T007 [US1] In `apps/server/test/dm/assemble.test.ts`, pin `dm.director-v5`. Assert the
+- [x] T007 [US1] In `apps/server/test/dm/assemble.test.ts`, pin `dm.director-v5`. Assert the
       director system prompt holds `agencyRule("director")` and the goal-note shape line holds
       "names no party member's act, method, skill or reaction" (card AC #4).
-- [ ] T008 [US1] In `apps/server/test/dm/interpret-prompt.test.ts`, pin `dm.interpret-v6`. Assert
+- [x] T008 [US1] In `apps/server/test/dm/interpret-prompt.test.ts`, pin `dm.interpret-v6`. Assert
       the system prompt holds `agencyRule("interpret")`. Build the prompt with goal note
       "Approach beat: call Stealth (Kestrel leads, +5)" and assert the user prompt labels it
       "pacing advice only; it never adds a step, a method or a skill" (card AC #5).
-- [ ] T009 Re-pin versions in `apps/server/test/dm/companion-addressee.test.ts`,
+- [x] T009 Re-pin versions in `apps/server/test/dm/companion-addressee.test.ts`,
       `apps/server/test/dm/react-prompt.test.ts` and
       `apps/server/test/dm/talk-turn.integration.test.ts` (run the last with
       `REQUIRE_DATABASE=1` on the worktree stack).
-- [ ] T010 [US4] Create `apps/server/test/playtest/auditor-prompt.test.ts`: a seed with Tamsin
+- [x] T010 [US4] Create `apps/server/test/playtest/auditor-prompt.test.ts`: a seed with Tamsin
       (`human`) and Brother Odo (`companion`) lists "Tamsin Vale (human player)" and "Brother Odo
       (AI companion)"; the prompt holds `agencyRule("auditor")`; a null seed renders
       "(party unknown)" and still holds the rule (card AC #3).
-- [ ] T011 Amend `specs/031-dm-runtime/contracts/doctrine.md` (the `hero-is-theirs` row) and
+- [x] T011 Amend `specs/031-dm-runtime/contracts/doctrine.md` (the `hero-is-theirs` row) and
       `specs/032-playtest-harness/contracts/auditor.md` (the Party section, `playtest.audit-v2`).
-- [ ] T012 Run `pnpm ci:check`.
+- [x] T012 Run `pnpm ci:check`.
 
 ## Phase 2: Facts, narrate, audit (card AC #1, #2; US2, US3; OQ-1 ruling)
 
@@ -112,7 +112,7 @@ report if another file is needed. No paid model run; tests use the fake gateway.
       note with a computed re-pin only when its text still holds.
 - [x] T028 Update `docs/wiki/CAPSULES.md` and `docs/wiki/INDEX.md` for every note whose description
       changed. Add one sentence on TASK-0113 to the INDEX overview.
-- [ ] T029 Run the freshness gate (prints `OK`), the spec-bridge gate (exits 0) and
+- [x] T029 Run the freshness gate (prints `OK`), the spec-bridge gate (exits 0) and
       `pnpm ci:check`.
 
 ## Dependencies
