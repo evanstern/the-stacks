@@ -4,7 +4,7 @@ title: Combat narration fails the audit on most turns
 status: In Progress
 assignee: []
 created_date: '2026-11-02 23:22'
-updated_date: '2026-11-03 09:44'
+updated_date: '2026-11-03 10:46'
 labels:
   - dm
   - narration
@@ -33,7 +33,10 @@ Spec: specs/085-combat-audit-pass-rate
 <!-- AC:BEGIN -->
 - [ ] #1 On a hosted run of 15+ combat turns, at least 70% of narrations pass the audit on attempt 1
 - [ ] #2 The narrate prompt or facts change is replay-tested against the run 1 refusals (seq 103, 126, 131, 161, 196)
+- [ ] #3 Spec phase: Only the on-turn actor acts (US1; FR-001 to FR-004)
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
