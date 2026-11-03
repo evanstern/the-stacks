@@ -39,12 +39,6 @@ Spec: specs/081-talk-fallback-line
 - [x] #5 Spec phase: Wiki re-ground
 <!-- AC:END -->
 
-
-
-
-
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -60,6 +54,8 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 081 phase 3, wiki)
 Seam check (phases 1-2): seams moved, none changed meaning; see specs/081-talk-fallback-line/deviations.md.
+
+spec-bridge sync: The plan carries the line (card AC #2; US2): 4/4 · The fallback voices the line (card AC #1; US1, US3): 9/9 · Wiki re-ground: 5/5 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
