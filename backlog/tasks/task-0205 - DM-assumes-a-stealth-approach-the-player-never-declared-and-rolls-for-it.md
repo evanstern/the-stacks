@@ -49,6 +49,8 @@ Claimed 2026-11-02 by M3 runbook B (docs/design/m3-runbook-b-resolution-quality.
 Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5 (spec 077 authoring, C1)
 
 spec-bridge sync: The rule (card AC #1, #2; US1, US2): 0/5 · Wiring and the run 1 replay (merge condition; US1, US2): 0/7 · Wiki (re-ground): 0/7
+
+Spec 077 (4b023442). Defaults taken: OQ-1 a roll on another human's PC becomes a clarify, not a refusal; OQ-2 AI companion actions skip the manner rule; OQ-3 manner skills are Stealth, Deception, Intimidation; OQ-4 hidden-state tracking carded separately. AC #3 is delivered by TASK-0113 (merged #114, d9aade52): the director-v5 goal-note rule and its prompt test.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
