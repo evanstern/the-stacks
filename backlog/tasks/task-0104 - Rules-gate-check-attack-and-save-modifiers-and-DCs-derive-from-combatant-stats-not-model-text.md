@@ -37,7 +37,10 @@ Spec: specs/082-engine-derived-numbers
 - [ ] #4 A step naming a combatant, ability or skill the stats do not define is rejected at the schema or engine gate, with a test
 - [ ] #5 Scripted-dice engine tests cover each derivation; existing dm tests and the scripted CI playtest stay green
 - [ ] #6 Spec phase: Seam check [orchestrator]
+- [ ] #7 Spec phase: Engine derivation (card AC #1, #2, #4, #5; US1, US2, US3, US4)
 <!-- AC:END -->
+
+
 
 
 
