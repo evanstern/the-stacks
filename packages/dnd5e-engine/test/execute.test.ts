@@ -155,10 +155,10 @@ describe("execute", () => {
 });
 
 describe("contract surface", () => {
-  it("has 22 commands, 18 events and 28 refusal codes", () => {
-    expect(EngineCommandSchema.options).toHaveLength(22);
+  it("has 23 commands, 18 events and 34 refusal codes", () => {
+    expect(EngineCommandSchema.options).toHaveLength(23);
     expect(EngineEventSchema.options).toHaveLength(18);
-    expect(RefusalCodeSchema.options).toHaveLength(28);
+    expect(RefusalCodeSchema.options).toHaveLength(34);
   });
 });
 

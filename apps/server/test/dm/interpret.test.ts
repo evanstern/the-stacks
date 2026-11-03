@@ -4,7 +4,12 @@ import { memorySink } from "../../src/ai/usage.js";
 import { assemble } from "../../src/dm/nodes/assemble.js";
 import type { DirectorNodeOutput } from "../../src/dm/nodes/director.js";
 import { interpret } from "../../src/dm/nodes/interpret.js";
-import { InterpretOutput, StepSchema } from "../../src/dm/nodes/schemas.js";
+import {
+  AdjudicateModelOutput,
+  InterpretOutput,
+  InterpretReadingSchema,
+  StepSchema,
+} from "../../src/dm/nodes/schemas.js";
 import type { ResumedPlan } from "../../src/dm/resume.js";
 import { createScriptedDm, loadDmScript } from "../../src/dm/script/load.js";
 import {
@@ -33,12 +38,20 @@ const checkStep = {
   kind: "ability-check",
   ability: "dex",
   skill: "sleight-of-hand",
-  expression: "1d20+5",
-  mode: "normal",
-  dc: 15,
+  difficulty: "medium",
+  circumstance: null,
   autoFail: null,
   onSuccess: [],
   onFailure: [],
+  stakes: {
+    success: "The attempt works as intended.",
+    cost: "It works, at a small price.",
+    failure: "The attempt comes to nothing.",
+    severe: "It goes badly wrong.",
+  },
+  onCost: [],
+  onSevere: [],
+  newRisk: null,
 };
 
 function reading(actionId: string | null, over: object = {}) {
@@ -137,15 +150,77 @@ describe("interpret", () => {
 
 describe("step schema (AC #5)", () => {
   it("has no field for a total, an applied amount or a verdict", () => {
-    const parsed = StepSchema.parse({
-      ...checkStep,
-      total: 99,
-      outcome: "success",
-      applied: 7,
+    for (const extra of [
+      { total: 99 },
+      { outcome: "success" },
+      { applied: 7 },
+    ]) {
+      expect(StepSchema.safeParse({ ...checkStep, ...extra }).success).toBe(
+        false,
+      );
+    }
+  });
+
+  it("refuses a model-written number on a check step (spec 082)", () => {
+    for (const extra of [
+      { dc: 12 },
+      { expression: "1d20+5" },
+      { mode: "normal" },
+    ]) {
+      expect(StepSchema.safeParse({ ...checkStep, ...extra }).success).toBe(
+        false,
+      );
+    }
+    expect(
+      StepSchema.safeParse({ ...checkStep, difficulty: "trivial" }).success,
+    ).toBe(false);
+  });
+
+  it("defaults circumstance to null", () => {
+    const { circumstance: _, ...rest } = checkStep;
+    expect(StepSchema.parse(rest)).toMatchObject({ circumstance: null });
+  });
+
+  describe("attack step (spec 082)", () => {
+    const atk = {
+      step: "attack",
+      reason: "Tamsin swings",
+      attackerId: "tamsin",
+      targetId: "goblin-1",
+      attack: "Longsword",
+      circumstance: null,
+      onHit: [],
+    };
+    const damage = {
+      effect: "damage",
+      targetId: "goblin-1",
+      components: [
+        { amount: { kind: "roll", expression: "1d8" }, damageType: "slashing" },
+      ],
+      defenses: null,
+    };
+    it("parses with an empty onHit", () => {
+      expect(StepSchema.safeParse(atk).success).toBe(true);
     });
-    expect(parsed).not.toHaveProperty("total");
-    expect(parsed).not.toHaveProperty("outcome");
-    expect(parsed).not.toHaveProperty("applied");
+    it("refuses targetAc, expression, mode and a null attackerId", () => {
+      for (const extra of [
+        { targetAc: 12 },
+        { expression: "1d20+5" },
+        { mode: "normal" },
+        { attackerId: null },
+      ]) {
+        expect(StepSchema.safeParse({ ...atk, ...extra }).success).toBe(false);
+      }
+    });
+    it("refuses a damage effect in onHit", () => {
+      const r = InterpretReadingSchema.safeParse(
+        reading("act-lockpick", {
+          intent: "attack",
+          steps: [{ ...atk, onHit: [damage] }],
+        }),
+      );
+      expect(r.success).toBe(false);
+    });
   });
 });
 
@@ -221,5 +296,110 @@ describe("interpret: resumed plans (specs/057)", () => {
     );
     const result = await interpret(s.ctx);
     expect(result.ok).toBe(false);
+  });
+});
+
+describe("check stakes contract (spec 070)", () => {
+  const parse = (over: Record<string, unknown>, kind = "ability-check") =>
+    InterpretReadingSchema.safeParse(
+      reading("act-1", { steps: [{ ...checkStep, kind, ...over }] }),
+    );
+  const stakes = (over: object) => ({ ...checkStep.stakes, ...over });
+
+  it("rejects a check with no stakes.failure", () => {
+    const { failure: _f, ...rest } = checkStep.stakes;
+    expect(parse({ stakes: rest }).success).toBe(false);
+  });
+
+  it("requires stakes.success (spec 080)", () => {
+    expect(parse({ stakes: stakes({ success: null }) }).success).toBe(false);
+    const { success: _s, ...rest } = checkStep.stakes;
+    expect(parse({ stakes: rest }).success).toBe(false);
+  });
+
+  it("defaults reveals to null and rejects a malformed reference (spec 080)", () => {
+    const { reveals: _r, ...rest } = checkStep as Record<string, unknown>;
+    expect(StepSchema.parse(rest)).toMatchObject({ reveals: null });
+    expect(parse({ reveals: "ferry-house#1" }).success).toBe(true);
+    expect(parse({ reveals: "ferry-house" }).success).toBe(false);
+    expect(parse({ reveals: "ferry-house#9" }).success).toBe(false);
+  });
+
+  it("rejects an ability check with a null cost or severe", () => {
+    expect(parse({ stakes: stakes({ cost: null }) }).success).toBe(false);
+    expect(parse({ stakes: stakes({ severe: null }) }).success).toBe(false);
+  });
+
+  it("parses a saving throw with null cost and severe", () => {
+    expect(
+      parse({ stakes: stakes({ cost: null, severe: null }) }, "saving-throw")
+        .success,
+    ).toBe(true);
+  });
+
+  it("defaults newRisk to null and the band effect lists to empty", () => {
+    const { newRisk: _n, onCost: _c, onSevere: _s, ...rest } = checkStep;
+    const parsed = StepSchema.parse(rest);
+    expect(parsed).toMatchObject({ newRisk: null, onCost: [], onSevere: [] });
+  });
+
+  it("applies the ability-check rule to an adjudicate ruling", () => {
+    const ruling = (st: object) => ({
+      ruling: "r",
+      citations: [],
+      steps: [{ ...checkStep, stakes: st }],
+    });
+    expect(
+      AdjudicateModelOutput.safeParse(ruling(stakes({ cost: null }))).success,
+    ).toBe(false);
+    expect(
+      AdjudicateModelOutput.safeParse(ruling(checkStep.stakes)).success,
+    ).toBe(true);
+  });
+
+  describe("spell step (spec 083 D4)", () => {
+    const spell = {
+      step: "spell",
+      reason: "Odo calls down sacred flame",
+      casterId: "odo",
+      spellId: "sacred-flame",
+      slotLevel: null,
+      targetId: "goblin-1",
+    };
+    it("parses a cantrip and a leveled cast", () => {
+      expect(StepSchema.safeParse(spell).success).toBe(true);
+      expect(
+        StepSchema.safeParse({
+          ...spell,
+          spellId: "cure-wounds",
+          slotLevel: 2,
+        }).success,
+      ).toBe(true);
+    });
+    it("refuses a model-written number or effect", () => {
+      for (const extra of [
+        { dc: 13 },
+        { expression: "1d8" },
+        { damage: [] },
+        { effects: [] },
+        { amount: 5 },
+      ]) {
+        expect(StepSchema.safeParse({ ...spell, ...extra }).success).toBe(
+          false,
+        );
+      }
+    });
+    it("refuses slotLevel 0 and 10 and a bad id grammar", () => {
+      for (const extra of [
+        { slotLevel: 0 },
+        { slotLevel: 10 },
+        { spellId: "Sacred Flame" },
+        { spellId: "" },
+      ]) {
+        expect(StepSchema.safeParse({ ...spell, ...extra }).success).toBe(
+          false,
+        );
+      }
+    });
   });
 });

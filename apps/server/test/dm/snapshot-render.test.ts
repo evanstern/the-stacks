@@ -321,6 +321,18 @@ describe("renderSnapshot: views", () => {
     expect(odo).toContain("mods ");
   });
 
+  it("lists a caster's spell ids on the sheet (spec 083 D7)", () => {
+    const r = renderSnapshot(snap, { view: "dm", cap: CAPS.snapshotDm });
+    if (!r.ok) throw new Error("overflow");
+    const odo = r.lines.find((l) => l.startsWith('odo "'));
+    expect(odo).toContain(" spells ");
+    for (const id of snap.actors.find((a) => a.id === "odo")?.sheet?.spells ?? [
+      "__none__",
+    ]) {
+      expect(odo).toContain(id);
+    }
+  });
+
   it("trackers render only in the dm view, only when asked", () => {
     const advance = new Map([["dusk", "the sun sets"]]);
     const dmOn = renderSnapshot(snap, {

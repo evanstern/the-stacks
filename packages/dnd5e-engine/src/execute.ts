@@ -27,6 +27,7 @@ import {
   handleSpellSlotExpend,
   handleSpellSlotRestore,
 } from "./commands/spell-slots.js";
+import { handleSpellCast } from "./commands/spells.js";
 import type { Handler } from "./handler.js";
 import type { Rng } from "./rng.js";
 import { type EngineCommand, EngineCommandSchema } from "./schema/commands.js";
@@ -59,6 +60,7 @@ const handlers: HandlerMap = {
   "encounter.end": handleEncounterEnd,
   "rest.short": handleRestShort,
   "rest.long": handleRestLong,
+  "spell.cast": handleSpellCast,
   "spell-slot.expend": handleSpellSlotExpend,
   "spell-slot.restore": handleSpellSlotRestore,
 };

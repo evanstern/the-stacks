@@ -97,7 +97,7 @@ function sheetText(a: SnapshotActor): string {
         ` attack ${x.name}: ${x.expression} dmg ${x.damage.map((d) => `${d.dice} ${d.damageType}`).join("+")}`,
     )
     .join(";");
-  return ` mods ${JSON.stringify(s.abilityMods)} prof +${s.proficiencyBonus} saves ${JSON.stringify(s.saves)} skills ${JSON.stringify(s.skills)}${attacks}`;
+  return ` mods ${JSON.stringify(s.abilityMods)} prof +${s.proficiencyBonus} saves ${JSON.stringify(s.saves)} skills ${JSON.stringify(s.skills)}${attacks}${s.spells.length > 0 ? ` spells ${s.spells.join(",")}` : ""}`;
 }
 
 function resourcesText(a: SnapshotActor): string {

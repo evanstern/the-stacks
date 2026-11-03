@@ -20,7 +20,7 @@ sources:
   - apps/server/src/dm/companion.ts
   - apps/server/src/dm/chronicle.ts
 size_budget_exempt: both notes sat within 30 chars of the 8000 budget before TASK-0180; the talk path got its own note (dm-talk-triggers) and only a pointer line lands here; the rest is one pipeline each, not splittable without a TASK of its own
-verified_against: 022452c9327344e8ae67e69066acfe6450e134e3
+verified_against: 7440e7041ff0ca7ca70b9e7ea72d8b63b46e3bcb
 ---
 
 # DM turn jobs
@@ -68,7 +68,7 @@ worker aborts an in-flight `chat()` on a lost lease. Resolve heartbeats before e
 
 ## Resume after approval
 
-After a human DM approves an `ai:dm` proposal, the `approval` turn does not interpret that action again (TASK-0168, specs/057). The worker passes `loadPriorTurns` (`loadPriorTurnCheckpoints`: the session's earlier checkpointed turn jobs, newest first) to assemble, which reads it only when an `ai:dm` proposal names a beat action. `TurnCheckpoint.resumed` freezes the plans (absent on older rows). A rejected proposal yields no plan; that action interprets again.
+After a human DM approves an `ai:dm` proposal, the `approval` turn does not interpret that action again (TASK-0168, specs/057). The worker passes `loadPriorTurns` (`loadPriorTurnCheckpoints`: the session's earlier checkpointed turn jobs, newest first) to assemble, which reads it only when an `ai:dm` proposal names a beat action. `TurnCheckpoint.resumed` freezes the plans (absent on older rows). A rejected proposal yields no plan; that action interprets again. Since spec 082 `findResumedPlans` re-parses each frozen plan with the current reading and step schemas and skips one that no longer parses (a v10 plan with model-written numbers), so that action interprets again. A resolved attack also submits `damage.apply` from the attack entry (key `<key>:dmg`) before its `onHit` effects.
 
 ## Beats
 
@@ -84,7 +84,7 @@ Opening moves (the Director's `arrivals` rows log first; then encounter start, w
 
 ## Reclaim idempotence
 
-Every submission is checkpointed (`saveCheckpoint`, fenced) in `jobs.result.checkpoint`, which claim never clears. A reclaimed job replays recorded submissions and looks
+A check `Submission` also carries `band` (read from `check.resolved`, also by `findLanded` and `refreshSubmission`) and the step's `stakes` (spec 070), `reveals` and `revealedText` (spec 080; absent on an older checkpoint). Every submission is checkpointed (`saveCheckpoint`, fenced) in `jobs.result.checkpoint`, which claim never clears. A reclaimed job replays recorded submissions and looks
 for the one in flight: proposals carry a marker `[<jobId>#<n>]` in their reason text, and the
 checkpoint's `lastSeq` bounds the search. Narration rows carry no marker: `findLandedNarration` finds an `ai:dm` narration row after the job's
 last seq, and the runner then skips narrate and audit. A deploy that shifts step numbers could mismatch a marker (accepted). `TurnCheckpoint.cut` (TASK-0182) marks the cut done. An `advance` submission in the checkpoint ends the turn; a reclaim still settles and sets the mode. A claim past `MAX_ATTEMPTS` marks the job `failed` with a failure notice.

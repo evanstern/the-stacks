@@ -5,6 +5,7 @@ import {
   nothingToNarrate,
   renderDiceLines,
 } from "../facts.js";
+import { openFollowUps, priorActionIds } from "../follow-ups.js";
 import { callText } from "../pipeline/call.js";
 import type {
   ModelCallRecord,
@@ -82,6 +83,11 @@ export function withholdRefusedInputs(
       (f) => !refuse(`follow-up for ${a.actionId}`, f),
     ),
   }));
+  const openFollowUps = facts.openFollowUps?.filter(
+    (f) => !refuse(`open follow-up for ${f.name}`, f.text),
+  );
+  const npcSay = facts.npcTurn?.plan?.say;
+  const dropSay = Boolean(npcSay) && refuse("monster line", npcSay as string);
   const goalNote = refuse("goalNote", facts.director.goalNote)
     ? ""
     : facts.director.goalNote;
@@ -89,7 +95,16 @@ export function withholdRefusedInputs(
     facts: {
       ...facts,
       actions,
+      ...(openFollowUps?.length ? { openFollowUps } : {}),
       rulings,
+      ...(dropSay && facts.npcTurn?.plan
+        ? {
+            npcTurn: {
+              ...facts.npcTurn,
+              plan: { ...facts.npcTurn.plan, say: null },
+            },
+          }
+        : {}),
       director: { ...facts.director, goalNote },
     },
     withheld,
@@ -177,8 +192,21 @@ export const narrate: Node<"narrate"> = async (ctx) => {
     (r) => r.actionId === null,
   );
   const npcPlan = reading
-    ? { intent: reading.intent, steps: npcRuling?.steps ?? reading.steps }
+    ? {
+        intent: reading.intent,
+        steps: npcRuling?.steps ?? reading.steps,
+        say: reading.say ?? null,
+      }
     : null;
+  // ponytail: reads every prior turn checkpoint of the session (one job-table read per narrate
+  // when a member has an open action). Ceiling: a session with many turn jobs; upgrade is a
+  // `limit` on `loadPriorTurnCheckpoints`.
+  const beatIds = assembled.beat.map((b) => b.actionId);
+  const prior =
+    ctx.deps.loadPriorTurns && priorActionIds(projections, beatIds).size > 0
+      ? await ctx.deps.loadPriorTurns(ctx.job.sessionId, ctx.job.id)
+      : [];
+  const open = openFollowUps(projections, prior, beatIds);
   const built = buildNarrationFacts({
     trigger: ctx.job.trigger,
     seed: playerFacingSeed(ctx.seed),
@@ -199,6 +227,7 @@ export const narrate: Node<"narrate"> = async (ctx) => {
     appendedRows: resolve.appendedRows,
     clarify,
     followUps,
+    openFollowUps: open,
     npcPlan,
     turnActorId:
       assembled.projections.tableMode.mode === "turn"

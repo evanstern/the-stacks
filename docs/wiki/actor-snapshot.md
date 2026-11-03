@@ -10,7 +10,7 @@ sources:
   - apps/server/src/dm/snapshot/render.ts
   - apps/server/src/dm/snapshot/index.ts
   - specs/040-actor-snapshot/contracts/actor-snapshot.md
-verified_against: e8854f9086d7aef95cb2d32051600e647e6cb381
+verified_against: 7440e7041ff0ca7ca70b9e7ea72d8b63b46e3bcb
 ---
 
 # Actor snapshot
@@ -27,7 +27,7 @@ never fork a second state view. Runtime wiring is in [[dm-runtime]].
 `actors` and `stage`. A `SnapshotActor` has `id`, `combatantId`, `characterId`, `name`, `aliases`,
 `kind` (`party`, `monster`, `npc`), `controller` (`player`, `ai-companion`, `dm`), `hp`,
 `lifeState`, `conditions` (with the engine instance id), `ac`, `initiative`, `resources` (death
-saves, hit dice, spell slots), `sheet` (party only) and `presence` (read from the log, see Build rules). The
+saves, hit dice, spell slots), `sheet` (party only; since spec 083 the rendered sheet lists the character's spell ids) and `presence` (read from the log, see Build rules). The
 stage holds the table mode with the active actor, the encounter order as actor ids, the scene and
 the DM-only trackers. The snapshot carries no seed text except names, so a player-facing prompt
 cannot leak a DM-only string ([[dm-narration-quality]]). The module imports engine and

@@ -1,4 +1,12 @@
-import type { RefusalCode, Skill } from "@the-stacks/dnd5e-engine";
+import {
+  type Combatant,
+  checkModifier,
+  findAttack,
+  type RefusalCode,
+  type Skill,
+  SPELLS,
+  spellcastingModifier,
+} from "@the-stacks/dnd5e-engine";
 import {
   REASON_TO_PRESENCE,
   type ScenePresence,
@@ -26,7 +34,12 @@ import type {
 export type PlanFailureReason =
   | "not-a-combatant"
   | "not-in-snapshot"
-  | "absent";
+  | "absent"
+  | "not-the-actor"
+  | "stat-undefined"
+  | "spell-unknown"
+  | "spell-not-prepared"
+  | "spell-unresolved";
 
 export interface PlanFailure {
   stepIndex: number;
@@ -43,6 +56,31 @@ export interface PlanFailure {
 export const REASON_REFUSAL_CODE =
   "REASON_CONTRADICTS_STATE" as const satisfies RefusalCode;
 export type ReasonRefusalCode = typeof REASON_REFUSAL_CODE;
+
+/**
+ * The refusal code of a group whose step names a foreign actor (spec 079, OQ-4).
+ * Spec 077's `askUndeclared` clarifies another human's PC only; no refusal code
+ * covers a non-party attacker, so this is new. Plan-gate only.
+ */
+export const ACTOR_REFUSAL_CODE =
+  "STEP_ACTOR_MISMATCH" as const satisfies RefusalCode;
+
+/**
+ * The refusal code of a group whose step the stats cannot derive (spec 082 D8):
+ * no stats, a missing ability modifier or an unknown attack name. An engine code.
+ */
+export const STAT_REFUSAL_CODE =
+  "STAT_UNDEFINED" as const satisfies RefusalCode;
+
+/**
+ * The refusal codes of a group whose spell step the table or the seed cannot
+ * resolve (spec 083 D6). `SPELL_UNKNOWN` and `SPELL_NOT_PREPARED` are plan-gate
+ * only; `SPELL_UNRESOLVED` is also an engine code.
+ */
+export type SpellRefusalCode = Extract<
+  RefusalCode,
+  "SPELL_UNRESOLVED" | "SPELL_UNKNOWN" | "SPELL_NOT_PREPARED"
+>;
 
 /** A model text (step reason or condition source) the claim gate refused. */
 export interface ReasonFailure {
@@ -67,6 +105,18 @@ export type PlanVerdict =
       ok: false;
       code: ReasonRefusalCode;
       failure: ReasonFailure;
+    }
+  | {
+      actionId: string | null;
+      ok: false;
+      code: typeof ACTOR_REFUSAL_CODE;
+      failure: PlanFailure;
+    }
+  | {
+      actionId: string | null;
+      ok: false;
+      code: typeof STAT_REFUSAL_CODE | SpellRefusalCode;
+      failure: PlanFailure;
     };
 
 export interface PlanInput {
@@ -80,6 +130,18 @@ export interface PlanInput {
   arriving: readonly string[];
   /** Action ids with a resumed plan (spec 057): they skip the reason check. */
   resumed: readonly string[];
+  /**
+   * Action id -> the acting character's combatant id, `null` for a party-scope
+   * action. An action id absent from the map (a character with no combatant)
+   * is not actor-checked (spec 079 D5).
+   */
+  actors?: ReadonlyMap<string, string | null>;
+  /** The engine combatants (spec 082 D8). A joining or absent id is not stat-checked. */
+  combatants: Readonly<Record<string, Combatant>>;
+  /** Spec 083 D6: combatant id -> the seed character's spell ids. A caster with no entry has no list. */
+  spellLists?: ReadonlyMap<string, readonly string[]>;
+  /** Spec 083 D6: the SRD spell record's level, or undefined when there is none. */
+  srdSpell?: (id: string) => { level: number } | undefined;
 }
 
 type EncounterSeed = SceneSeed["encounters"][number];
@@ -156,6 +218,14 @@ function stepIds(step: Step): NamedId[] {
     case "none":
     case "roll":
       return [];
+    case "move":
+      return [
+        { field: "combatantId", id: step.combatantId },
+        ...step.leavesReachOf.map((id, i) => ({
+          field: `leavesReachOf[${i}]`,
+          id,
+        })),
+      ];
     case "effect":
       return effectIds(step.effects, "effects");
     case "check":
@@ -165,14 +235,19 @@ function stepIds(step: Step): NamedId[] {
           : []),
         ...effectIds(step.onSuccess, "onSuccess"),
         ...effectIds(step.onFailure, "onFailure"),
+        ...effectIds(step.onCost, "onCost"),
+        ...effectIds(step.onSevere, "onSevere"),
       ];
     case "attack":
       return [
-        ...(step.attackerId
-          ? [{ field: "attackerId", id: step.attackerId }]
-          : []),
+        { field: "attackerId", id: step.attackerId },
         { field: "targetId", id: step.targetId },
         ...effectIds(step.onHit, "onHit"),
+      ];
+    case "spell":
+      return [
+        { field: "casterId", id: step.casterId },
+        { field: "targetId", id: step.targetId },
       ];
   }
 }
@@ -192,11 +267,32 @@ function effectSources(effects: readonly Effect[], list: string): NamedText[] {
   return out;
 }
 
+/** Spec 070 D5: the declared consequences and the new risk are model-written claims. */
+function stakeTexts(step: Extract<Step, { step: "check" }>): NamedText[] {
+  const out: NamedText[] = [];
+  for (const key of ["success", "cost", "failure", "severe"] as const) {
+    const text = step.stakes[key];
+    if (text !== null) out.push({ field: `stakes.${key}`, text });
+  }
+  if (step.newRisk !== null) out.push({ field: "newRisk", text: step.newRisk });
+  return out;
+}
+
+/** Spec 082 D8: a circumstance's reason is a model-written claim. */
+function circumstanceTexts(
+  step: Extract<Step, { step: "check" | "attack" }>,
+): NamedText[] {
+  return step.circumstance
+    ? [{ field: "circumstance.reason", text: step.circumstance.reason }]
+    : [];
+}
+
 /** Every model-written text a step carries, in the order checked. */
 function stepTexts(step: Step): NamedText[] {
   switch (step.step) {
     case "none":
     case "roll":
+    case "move":
       return [{ field: "reason", text: step.reason }];
     case "effect":
       return [
@@ -211,12 +307,19 @@ function stepTexts(step: Step): NamedText[] {
           : []),
         ...effectSources(step.onSuccess, "onSuccess"),
         ...effectSources(step.onFailure, "onFailure"),
+        ...effectSources(step.onCost, "onCost"),
+        ...effectSources(step.onSevere, "onSevere"),
+        ...circumstanceTexts(step),
+        ...stakeTexts(step),
       ];
     case "attack":
       return [
         { field: "reason", text: step.reason },
+        ...circumstanceTexts(step),
         ...effectSources(step.onHit, "onHit"),
       ];
+    case "spell":
+      return [{ field: "reason", text: step.reason }];
   }
 }
 
@@ -246,6 +349,8 @@ function plannedDiff(
         case "check":
           addEffects(step.onSuccess);
           addEffects(step.onFailure);
+          addEffects(step.onCost);
+          addEffects(step.onSevere);
           break;
         case "attack":
           addEffects(step.onHit);
@@ -277,6 +382,163 @@ function plannedDiff(
   };
 }
 
+/** The first `attack` attacker, `spell` caster or `move` mover that is not the action's actor. */
+function foreignActor(
+  steps: readonly Step[],
+  actor: string | null,
+  party: ReadonlySet<string>,
+): PlanFailure | null {
+  for (const [stepIndex, step] of steps.entries()) {
+    const named =
+      step.step === "attack"
+        ? { field: "attackerId", id: step.attackerId }
+        : step.step === "spell"
+          ? { field: "casterId", id: step.casterId }
+          : step.step === "move"
+            ? { field: "combatantId", id: step.combatantId }
+            : null;
+    if (!named) continue;
+    if (actor === null ? !party.has(named.id) : named.id !== actor) {
+      return { stepIndex, ...named, reason: "not-the-actor" };
+    }
+  }
+  return null;
+}
+
+/** Spec 082 D8: the first check or attack whose number the stats cannot derive. */
+function statGap(
+  steps: readonly Step[],
+  combatants: Readonly<Record<string, Combatant>>,
+  joining: readonly string[],
+): PlanFailure | null {
+  for (const [stepIndex, step] of steps.entries()) {
+    if (step.step === "check" && step.combatantId) {
+      const c = combatants[step.combatantId];
+      if (!c || joining.includes(step.combatantId)) continue;
+      const d = checkModifier(c, step.kind, step.ability, step.skill);
+      if (!d.ok) {
+        return {
+          stepIndex,
+          field: step.skill ? "skill" : "ability",
+          id: `${step.combatantId}: ${d.missing}`,
+          reason: "stat-undefined",
+        };
+      }
+    } else if (step.step === "attack") {
+      const c = combatants[step.attackerId];
+      if (!c || joining.includes(step.attackerId)) continue;
+      const d = findAttack(c, step.attack);
+      if (!d.ok) {
+        return {
+          stepIndex,
+          field: "attack",
+          id: `${step.attackerId}: ${d.missing}`,
+          reason: "stat-undefined",
+        };
+      }
+    }
+  }
+  return null;
+}
+
+export type SpellGap = {
+  code: SpellRefusalCode | typeof STAT_REFUSAL_CODE;
+  failure: PlanFailure;
+};
+
+/**
+ * Spec 083 D6: the first spell step the SRD, the seed list, the engine table or
+ * the stats cannot resolve; and a non-clarify `spell` reading with no spell step.
+ */
+function spellGap(
+  steps: readonly Step[],
+  intent: InterpretReading["intent"] | null,
+  input: PlanInput,
+): SpellGap | null {
+  const fail = (
+    code: SpellGap["code"],
+    stepIndex: number,
+    field: string,
+    id: string,
+    reason: PlanFailureReason,
+  ): SpellGap => ({ code, failure: { stepIndex, field, id, reason } });
+  for (const [stepIndex, step] of steps.entries()) {
+    if (step.step !== "spell") continue;
+    const { casterId, spellId, slotLevel, targetId } = step;
+    const srd = input.srdSpell?.(spellId);
+    if (!srd) {
+      return fail(
+        "SPELL_UNKNOWN",
+        stepIndex,
+        "spellId",
+        spellId,
+        "spell-unknown",
+      );
+    }
+    if (input.joining.includes(casterId)) continue;
+    const list = input.spellLists?.get(casterId);
+    if (!list?.includes(spellId)) {
+      return fail(
+        "SPELL_NOT_PREPARED",
+        stepIndex,
+        "spellId",
+        `${casterId}: ${spellId}`,
+        "spell-not-prepared",
+      );
+    }
+    const mech = SPELLS[spellId];
+    const badLevel =
+      srd.level === 0
+        ? slotLevel !== null
+        : slotLevel === null || slotLevel < srd.level;
+    if (!mech || badLevel) {
+      return fail(
+        "SPELL_UNRESOLVED",
+        stepIndex,
+        mech ? "slotLevel" : "spellId",
+        spellId,
+        "spell-unresolved",
+      );
+    }
+    const caster = input.combatants[casterId];
+    if (!caster?.stats || spellcastingModifier(caster.stats) === null) {
+      return fail(
+        "STAT_UNDEFINED",
+        stepIndex,
+        "casterId",
+        `${casterId}: spellcasting ability`,
+        "stat-undefined",
+      );
+    }
+    const target = input.combatants[targetId];
+    if (
+      mech.delivery.kind === "save" &&
+      target &&
+      !input.joining.includes(targetId)
+    ) {
+      const d = checkModifier(
+        target,
+        "saving-throw",
+        mech.delivery.ability,
+        null,
+      );
+      if (!d.ok) {
+        return fail(
+          "STAT_UNDEFINED",
+          stepIndex,
+          "targetId",
+          `${targetId}: ${d.missing}`,
+          "stat-undefined",
+        );
+      }
+    }
+  }
+  if (intent === "spell" && !steps.some((s) => s.step === "spell")) {
+    return fail("SPELL_UNRESOLVED", 0, "intent", "spell", "spell-unresolved");
+  }
+  return null;
+}
+
 export function checkPlan(input: PlanInput): PlanVerdict[] {
   const { snapshot } = input;
   const valid = new Set<string>(input.joining);
@@ -302,10 +564,19 @@ export function checkPlan(input: PlanInput): PlanVerdict[] {
     }
   }
 
+  const partyCombatants = new Set<string>(
+    snapshot.actors.flatMap((a) =>
+      a.kind === "party" && a.combatantId ? [a.combatantId] : [],
+    ),
+  );
+
   const groups = new Map<string | null, readonly Step[]>();
+  /** The intent of a non-clarify reading, for the spell-intent rule (spec 083 D6). */
+  const intents = new Map<string | null, InterpretReading["intent"]>();
   for (const r of input.readings) {
     // A clarify reading runs no step: nothing to gate.
     groups.set(r.actionId, r.clarify !== null ? [] : r.steps);
+    if (r.clarify === null) intents.set(r.actionId, r.intent);
   }
   for (const r of input.rulings) groups.set(r.actionId, r.steps);
 
@@ -317,6 +588,24 @@ export function checkPlan(input: PlanInput): PlanVerdict[] {
   for (const [actionId, steps] of groups) {
     let failure: PlanFailure | null = null;
     const pull = new Set<string>();
+    // Spec 079 D5: no foreign actor in a party action. The monster turn is not checked.
+    const actorFailure =
+      actionId !== null && input.actors?.has(actionId)
+        ? foreignActor(
+            steps,
+            input.actors.get(actionId) ?? null,
+            partyCombatants,
+          )
+        : null;
+    if (actorFailure) {
+      verdicts.push({
+        actionId,
+        ok: false,
+        code: ACTOR_REFUSAL_CODE,
+        failure: actorFailure,
+      });
+      continue;
+    }
     for (const [stepIndex, step] of steps.entries()) {
       for (const { field, id, presenceReason } of stepIds(step)) {
         if (presenceReason !== undefined) {
@@ -367,6 +656,28 @@ export function checkPlan(input: PlanInput): PlanVerdict[] {
         ok: false,
         code: "UNKNOWN_COMBATANT",
         failure,
+      });
+      continue;
+    }
+    // Spec 082 D8: the stats must derive every named modifier and attack.
+    const gap = statGap(steps, input.combatants, input.joining);
+    if (gap) {
+      verdicts.push({
+        actionId,
+        ok: false,
+        code: STAT_REFUSAL_CODE,
+        failure: gap,
+      });
+      continue;
+    }
+    // Spec 083 D6: a spell step must resolve; a spell reading needs a spell step.
+    const sGap = spellGap(steps, intents.get(actionId) ?? null, input);
+    if (sGap) {
+      verdicts.push({
+        actionId,
+        ok: false,
+        code: sGap.code,
+        failure: sGap.failure,
       });
       continue;
     }
@@ -479,9 +790,11 @@ export function askUndeclared(input: {
         const id =
           step.step === "attack"
             ? step.attackerId
-            : step.step === "check" && step.kind === "ability-check"
-              ? step.combatantId
-              : null;
+            : step.step === "spell"
+              ? step.casterId
+              : step.step === "check" && step.kind === "ability-check"
+                ? step.combatantId
+                : null;
         const other = id
           ? snapshot.actors.find(
               (a) =>

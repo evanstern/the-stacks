@@ -1,7 +1,7 @@
 {
   "v": 1,
   "name": "downed-seat",
-  "dice": [14, 15, 15, 12, 7, 20, 3, 2, 1, 18, 12, 12, 3, 12, 1],
+  "dice": [14, 15, 15, 12, 7, 20, 3, 2, 1, 20, 6, 5, 12, 12, 3, 12, 1],
   "calls": [
     {
       "purpose": "dm.director",
@@ -101,12 +101,20 @@
                   "kind": "ability-check",
                   "ability": "int",
                   "skill": "investigation",
-                  "expression": "1d20",
-                  "mode": "normal",
-                  "dc": 13,
+                  "difficulty": "easy",
+                  "circumstance": null,
                   "autoFail": null,
                   "onSuccess": [],
-                  "onFailure": []
+                  "onFailure": [],
+                  "stakes": {
+                    "success": "The attempt works as intended.",
+                    "cost": "It works, but at a small price.",
+                    "failure": "The attempt comes to nothing.",
+                    "severe": "It goes badly wrong."
+                  },
+                  "onCost": [],
+                  "onSevere": [],
+                  "newRisk": null
                 }
               ]
             }
@@ -200,12 +208,20 @@
               "kind": "ability-check",
               "ability": "cha",
               "skill": "persuasion",
-              "expression": "1d20-1",
-              "mode": "normal",
-              "dc": 12,
+              "difficulty": "easy",
+              "circumstance": null,
               "autoFail": null,
               "onSuccess": [],
-              "onFailure": []
+              "onFailure": [],
+              "stakes": {
+                "success": "The attempt works as intended.",
+                "cost": "It works, but at a small price.",
+                "failure": "The attempt comes to nothing.",
+                "severe": "It goes badly wrong."
+              },
+              "onCost": [],
+              "onSevere": [],
+              "newRisk": null
             }
           ]
         }
@@ -352,25 +368,9 @@
                   "reason": "Snag swings his notched scimitar at Tamsin",
                   "attackerId": "snag",
                   "targetId": "tamsin",
-                  "expression": "1d20+4",
-                  "mode": "normal",
-                  "targetAc": null,
-                  "onHit": [
-                    {
-                      "effect": "damage",
-                      "targetId": "tamsin",
-                      "components": [
-                        {
-                          "amount": {
-                            "kind": "fixed",
-                            "value": 13
-                          },
-                          "damageType": "slashing"
-                        }
-                      ],
-                      "defenses": null
-                    }
-                  ]
+                  "attack": "Scimitar",
+                  "circumstance": null,
+                  "onHit": []
                 }
               ]
             }
@@ -457,25 +457,9 @@
                   "reason": "Odo swings his mace at the goblin lookout",
                   "attackerId": "odo",
                   "targetId": "goblin-3",
-                  "expression": "1d20+3",
-                  "mode": "normal",
-                  "targetAc": null,
-                  "onHit": [
-                    {
-                      "effect": "damage",
-                      "targetId": "goblin-3",
-                      "components": [
-                        {
-                          "amount": {
-                            "kind": "roll",
-                            "expression": "1d6+1"
-                          },
-                          "damageType": "bludgeoning"
-                        }
-                      ],
-                      "defenses": null
-                    }
-                  ]
+                  "attack": "Mace",
+                  "circumstance": null,
+                  "onHit": []
                 }
               ]
             }
@@ -563,25 +547,9 @@
                   "reason": "Kestrel looses an arrow at the goblin by the fire",
                   "attackerId": "kestrel",
                   "targetId": "goblin-4",
-                  "expression": "1d20+5",
-                  "mode": "normal",
-                  "targetAc": null,
-                  "onHit": [
-                    {
-                      "effect": "damage",
-                      "targetId": "goblin-4",
-                      "components": [
-                        {
-                          "amount": {
-                            "kind": "roll",
-                            "expression": "1d6+3"
-                          },
-                          "damageType": "piercing"
-                        }
-                      ],
-                      "defenses": null
-                    }
-                  ]
+                  "attack": "Shortbow",
+                  "circumstance": null,
+                  "onHit": []
                 }
               ]
             }

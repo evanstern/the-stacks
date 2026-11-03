@@ -2,7 +2,7 @@ import { readdirSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { parseDiceExpression } from "@the-stacks/dnd5e-engine";
-import { getById } from "@the-stacks/srd";
+import { getById, getByName } from "@the-stacks/srd";
 import { type SceneSeed, SceneSeedSchema } from "./schema.js";
 
 /** A seed that fails the schema or a cross-check; `issues` lists every problem. */
@@ -143,6 +143,11 @@ export function crossCheckSeed(seed: SceneSeed): string[] {
         `character "${c.characterId}" combatant id "${c.identity.combatant.id}" differs`,
       );
     }
+    if (c.identity.combatant.stats !== undefined) {
+      issues.push(
+        `character "${c.characterId}" combatant carries stats; the loader builds them from the sheet`,
+      );
+    }
     for (const spell of c.identity.spells) {
       if (!getById("spell", spell)) {
         issues.push(
@@ -154,6 +159,17 @@ export function crossCheckSeed(seed: SceneSeed): string[] {
       if (!hasPlainD20(atk.expression)) {
         issues.push(
           `character "${c.characterId}" attack "${atk.name}" expression "${atk.expression}" is not a valid plain d20 expression`,
+        );
+      }
+      if (!/^1d20([+-]\d+)?$/.test(atk.expression.replace(/\s+/g, ""))) {
+        issues.push(
+          `character "${c.characterId}" attack "${atk.name}" expression "${atk.expression}" is not 1d20 plus or minus a number`,
+        );
+      }
+      const weapon = getByName("equipment", atk.name);
+      if (!weapon || weapon.category !== "weapon") {
+        issues.push(
+          `character "${c.characterId}" attack "${atk.name}" is no SRD weapon`,
         );
       }
       for (const d of atk.damage) {

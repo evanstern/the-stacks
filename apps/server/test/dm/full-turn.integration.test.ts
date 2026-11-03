@@ -141,7 +141,7 @@ describe.skipIf(!reachable)("one full turn (database)", () => {
     const [prose, ...lines] = text.split("\n\n");
     expect(prose).not.toMatch(/[0-9]/);
     expect(lines.join("\n")).toMatch(/1d20 → 14 = 14/);
-    expect(lines.join("\n")).toMatch(/DC 13: success/);
+    expect(lines.join("\n")).toMatch(/DC 10: success/);
 
     // The shipped narration's seqs are stored on the checkpoint.
     const stored2 = turn?.result as unknown as {

@@ -10,6 +10,7 @@ sources:
   - packages/dnd5e-engine/src/evolve.ts
   - packages/dnd5e-engine/src/rng.ts
   - packages/dnd5e-engine/src/dice.ts
+  - packages/dnd5e-engine/src/derive.ts
   - packages/dnd5e-engine/src/schema/events.ts
   - packages/dnd5e-engine/src/schema/state.ts
   - packages/dnd5e-engine/src/schema/commands.ts
@@ -17,7 +18,8 @@ sources:
   - packages/dnd5e-engine/test/purity.test.ts
   - packages/dnd5e-engine/test/coverage.test.ts
   - specs/026-dnd5e-engine/spec.md
-verified_against: 28ac1698b24704bac7cdac300316e7f0e00e728c
+verified_against: 7440e7041ff0ca7ca70b9e7ea72d8b63b46e3bcb
+size_budget_exempt: TASK-0105 adds the spell.cast paragraph to the one engine-command note; the note sat within 40 chars of the 8000 budget before it, and the engine commands do not split without a TASK of its own
 ---
 
 # 5e engine
@@ -39,9 +41,9 @@ against `EngineCommandSchema` (`INVALID_COMMAND`), then dispatches by `command.t
 handler map (`roll`, `combatant.add/remove`, `damage.apply`, `healing.apply`, `temp-hp.grant`,
 `death-save.roll`, `stabilize`, `attack.roll`, `check.roll`, `condition.apply/remove`,
 `exhaustion.adjust`, `initiative.roll/join/leave`, `turn.advance`, `encounter.end`,
-`rest.short/long`, `spell-slot.expend/restore`). Each handler lives in `src/commands/`.
-`execute` never mutates its inputs. `evolve` applies one event; `replay(events, state)`
-folds many. Replaying every event from `emptyState()` reproduces live state.
+`rest.short/long`, `spell-slot.expend/restore`, `spell.cast`). Each handler lives in `src/commands/`.
+`evolve` applies one event; `replay(events, state)`
+folds many. Replaying all events from `emptyState()` reproduces state.
 
 `initiative.leave` (`handleInitiativeLeave`, `src/commands/encounter.ts`) removes a combatant from the
 encounter order and keeps its state. It refuses `NO_ACTIVE_ENCOUNTER` without an encounter,
@@ -51,14 +53,15 @@ the turn to an all-dead order. When the active combatant leaves, the leave is th
 transition, as in `turn.advance`: the leaver's turn-end conditions expire, dead entries are
 skipped, the next live entry becomes active (wrapping to index 0 and a new round), and its
 turn-start conditions expire. A leaver before the active entry shifts `turnIndex` down by one.
-The command emits `encounter.changed` and draws no dice.
+The command emits `encounter.changed` and draws no dice. A leaver's id is removed from
+`reactionsSpent` (below) in the same event.
 
 ## RNG
 
 `Rng` is one method, `rollDie(sides)`, returning an integer in `1..sides`. `seededRng(seed)`
 is mulberry32 over a 32-bit seed with rejection sampling, so every face is equally likely
 (play uses it). It rejects a die size that is not an integer in `1..1000`
-(`MAX_SIDES`, matching the dice parser's sides limit) with `RngContractError`. `scriptedRng(faces)` returns a fixed face list and exposes `remaining()` and
+(`MAX_SIDES`) with `RngContractError`. `scriptedRng(faces)` returns a fixed face list and exposes `remaining()` and
 `calls()` (tests use it); it throws `ScriptedDiceError` when exhausted or out of range. Dice
 parsing (`parseDiceExpression`) supports `NdS`, keep-highest/lowest (`kh`/`kl`), and modifiers,
 with hard limits (count 100, sides 1000, 20 terms, 200 characters, modifier +/-1000) that
@@ -81,14 +84,36 @@ each term's faces, which were kept, the modifier and the total, so a recorded ro
 audited without re-running the RNG. Attack and check events also record the AC or DC, its
 source and the outcome.
 
+Spec 070: `check.resolved` records optional `margin` and `band` (`success`, `success-at-cost`,
+`failure`, `severe-failure`). `bandOf` decides: with `naturals`, nat 20 succeeds and nat 1 fails; with
+`outcomeBands`, an ability check missing by 1-2 is `success-at-cost`, by 5+ `severe-failure`. `outcome` stays two-valued.
+
 ## Refuse before draw
 
 A handler runs every refusal check before it calls `rollDie`. A refused command consumes no
 dice, so the RNG stream is unchanged after a refusal. Refusals carry a code from
 `RefusalCodeSchema` (for example `TARGET_AC_UNKNOWN`, `D20_TERM_REQUIRED`, `NOT_DYING`,
-`NO_SLOT_AVAILABLE`), a message and optional detail (28 codes). `REASON_CONTRADICTS_STATE` is raised by the DM plan gate only (spec 058, TASK-0161); `execute` never returns it.
+`NO_SLOT_AVAILABLE`, `REACTION_SPENT`, `STAT_UNDEFINED`), a message and optional detail (30 codes). The DM plan gate alone raises `REASON_CONTRADICTS_STATE` (spec 058).
 `attack.roll` and ability-check `check.roll` refuse an unable actor with `ACTOR_UNABLE` (`commands/attacks.ts`): lifeState `unconscious` or `stable`, or an `incapacitated`, `paralyzed`, `petrified`, `stunned` or `unconscious` condition. The detail names `combatantId`, `role`, `lifeState` and `conditions`. Saving throws and attack targets are never checked, so a dying actor can still roll its death save. A broken RNG contract (a face outside
 `1..sides`, or a die size outside `1..1000`) throws `RngContractError` rather than refusing. `encounter.end` keeps combatants in state; it is not what refused the actions in the TASK-0110 repro, whose cause was resolve order ([[dm-runtime]]), not an engine rule.
+
+## Reactions
+
+`EncounterSchema` carries an optional `reactionsSpent`: the ids whose Reaction is spent
+until the start of their next turn (SRD 5.2.1 p. 10). `attack.roll` with `reaction: true`
+is the only command that spends one. It refuses `NO_ACTIVE_ENCOUNTER` outside an encounter,
+`INVALID_COMMAND` with no attacker, `UNKNOWN_COMBATANT` for an attacker outside the order,
+and `REACTION_SPENT` when the attacker already spent its Reaction. On success it emits the
+`attack.resolved` event with `reaction: true` and an `encounter.changed` event that adds the
+attacker to `reactionsSpent`. `turn.advance` clears the incoming combatant's id from
+`reactionsSpent` with its own `encounter.changed`, and `initiative.leave` clears both the
+leaver and the incoming combatant. `encounter.end` drops the encounter, and with it `reactionsSpent`.
+
+## Stats and derived rolls
+
+Spec 082. A `Combatant` may carry `stats`; `src/derive.ts` derives rolls from them. `check.roll` takes `dc` or a `difficulty` tier; `attack.roll` takes `expression` or an `attack` entry name. A missing stat refuses `STAT_UNDEFINED`.
+
+**Spells** (spec 083, TASK-0105). `spell.cast` (`src/commands/spells.ts`) resolves six SRD spells (`fire-bolt`, `sacred-flame`, `inflict-wounds`, `ray-of-sickness`, `cure-wounds`, `healing-word`) from the engine-held `SPELLS` table (`src/spells.ts`; no SRD import, a server test checks it against the records, [[srd-data]]). It rolls the attack or save (`spellcastingModifier`, `spellSaveDc`), damage (half on a save, rounded down before defenses), healing and conditions, and spends the slot (`slotExpendEvent`; `NO_SLOT_AVAILABLE`). An unknown spell or bad slot level refuses `SPELL_UNRESOLVED`.
 
 ## Boundary rule
 
@@ -107,8 +132,8 @@ Research R8 (spec FR-018 to FR-023): the engine owns the arithmetic for attack, 
 check resolution (natural 20 critical, natural 1 miss, total meets or beats AC/DC),
 resistance, immunity and vulnerability per damage component (halve rounding down, double),
 and critical damage (dice doubled, modifiers not). Adjudication - the DM runtime or an LLM
-node - supplies inputs as data: the expression, roll mode, target AC or DC, a per-command
-defense set, or an automatic-failure reason on `check.roll`. It never computes outcomes.
+node - supplies inputs as data: steps name a tier or entry (below); code may send an expression, roll mode, target AC or DC, a per-command
+defense set, or on `check.roll` an automatic-failure reason, an `autoSuccess` reason and `houseRules` (default false). It never computes outcomes.
 The engine does not derive automatic failure from conditions.
 
 ## Connections

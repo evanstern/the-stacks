@@ -90,3 +90,26 @@ regardless of combatant state." A pulled attack target starts no encounter and r
 disposition (spec 075 OQ-1 (a)).
 
 Amended by spec 078: `arriving` also holds the Director's legal arrivals, and the id check does not treat an arriving id as absent.
+
+## Amended by specs/082-engine-derived-numbers (TASK-0104)
+
+- `circumstance.reason` on a check or attack step is a model-written text. The reason check
+  covers it, field `circumstance.reason`.
+- New rule: for each check with a combatant and each attack, `checkModifier` or `findAttack` over
+  the engine combatant must succeed. Joining combatants are skipped. A failure refuses the group
+  with `STAT_UNDEFINED` and a `PlanFailure` (`reason` `stat-undefined`, `field` `ability`, `skill`
+  or `attack`). The stat check runs after the id walk and before the reason check.
+
+## Amended by specs/083-spells-by-srd-id (TASK-0105)
+
+- A `spell` step's `reason` is a model-written text; the reason check covers it, field `reason`.
+- New spell rule, run after the stat check and before the reason check, per spell step in order:
+  `SPELL_UNKNOWN` (no SRD record), `SPELL_NOT_PREPARED` (the caster has no seed list or the id is
+  not on it), `SPELL_UNRESOLVED` (no engine table entry, or a slot level wrong for the spell's
+  level), `STAT_UNDEFINED` (no caster spellcasting modifier, or a save spell's target with no
+  derivable save). A joining caster is skipped. `PlanFailure.reason` gains `spell-unknown`,
+  `spell-not-prepared` and `spell-unresolved`.
+- A non-clarify reading with intent `spell` and no spell step is refused `SPELL_UNRESOLVED`
+  (field `intent`).
+- A spell step's caster is checked like an attacker: another party member's spell in a character
+  action is refused `STEP_ACTOR_MISMATCH`.

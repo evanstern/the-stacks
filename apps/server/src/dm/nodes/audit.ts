@@ -38,6 +38,10 @@ import { composeText, narrateAttempt } from "./narrate.js";
 
 export const MAX_NARRATION_ATTEMPTS = 3;
 
+/** A spend verb followed, in the same sentence, by a spell slot ("spell slot", "<ordinal>-level slot", "last slot"). */
+const SLOT_SPEND_CLAIM =
+  /\b(?:spends?|spent|expends?|expended|burns?|burned|burnt|uses?|used|drains?|drained)\b[^.!?\n]*?\b(?:spell[- ]?slots?|(?:first|second|third|fourth|fifth|\w+)[- ]level slots?|last slot)\b/i;
+
 export const AUDIT_ISSUE_KINDS = [
   "ledger-mismatch",
   "invented-mechanics",
@@ -174,7 +178,8 @@ export function deterministicChecks(
 
   const hasRoll =
     facts.actions.some((a) => a.rolls.length > 0) ||
-    (facts.npcTurn?.rolls.length ?? 0) > 0;
+    (facts.npcTurn?.rolls.length ?? 0) > 0 ||
+    (facts.pulled ?? []).some((x) => x.rolls.length > 0);
   if (!hasRoll && DICE_LANGUAGE.test(prose)) {
     add(
       "invented-mechanics",
@@ -187,8 +192,12 @@ export function deterministicChecks(
   }
 
   for (const a of facts.actions) {
-    if (!a.characterName || a.outcomes.length !== 1) continue;
-    const only = a.outcomes[0];
+    if (!a.characterName) continue;
+    // Only the character's own rolls: a reaction attack belongs to someone else (spec 079).
+    const own = a.rolls.filter((r) => r.name === a.characterName && r.outcome);
+    if (own.length !== 1) continue;
+    const only = own[0]?.outcome;
+    if (!only) continue;
     const opposite =
       only === "hit" || only === "critical-hit" || only === "success"
         ? NEGATIVE_WORDS
@@ -286,6 +295,22 @@ export function deterministicChecks(
         );
       }
     }
+  }
+
+  // TASK-0211 AC #3: prose may say a slot was spent only when the engine spent one.
+  // ponytail: any spend this beat clears the check, not one per named caster;
+  // add per-caster matching if a two-caster beat shows a wrong-caster claim passing.
+  const spentSlot = [
+    ...facts.actions.flatMap((a) => a.changes),
+    ...(facts.npcTurn?.changes ?? []),
+    ...(facts.pulled ?? []).flatMap((x) => x.changes),
+  ].some((c) => c.kind === "spell-slot");
+  const slotClaim = SLOT_SPEND_CLAIM.exec(prose);
+  if (slotClaim && !spentSlot) {
+    add(
+      "ledger-mismatch",
+      `The prose says a spell slot was spent ("${slotClaim[0].slice(0, 60)}"), and the engine spent none this turn.`,
+    );
   }
 
   const words = wordCount(prose);

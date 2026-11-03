@@ -4,7 +4,10 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { getById } from "@the-stacks/srd";
 import { describe, expect, it } from "vitest";
-import { combatantFromSrd } from "../../src/dm/seed/combatants.js";
+import {
+  combatantFromSrd,
+  statsFromSrd,
+} from "../../src/dm/seed/combatants.js";
 import {
   listSeeds,
   loadSeed,
@@ -285,6 +288,7 @@ describe("combatantFromSrd", () => {
       conModifier: 0,
       ac: 15,
       defenses: { resistances: [], vulnerabilities: [], immunities: [] },
+      stats: statsFromSrd(monster),
     });
   });
 
@@ -300,6 +304,7 @@ describe("combatantFromSrd", () => {
       conModifier: 0,
       ac: 12,
       defenses: { resistances: [], vulnerabilities: [], immunities: [] },
+      stats: statsFromSrd(monster),
     });
   });
 
@@ -462,5 +467,67 @@ describe("seed NPC presence, identity and aliases (spec 050)", () => {
     for (const n of bare.npcs) delete n.identity.aliases;
     for (const n of parseSeed(bare).npcs)
       expect(n.identity.aliases).toEqual([]);
+  });
+});
+
+describe("seed tableRules (spec 070)", () => {
+  it("defaults to bands and naturals on, group checks off", () => {
+    const seed = raw();
+    delete seed.tableRules;
+    expect(parseSeed(seed).tableRules).toEqual({
+      outcomeBands: true,
+      naturals: true,
+      groupChecks: false,
+    });
+  });
+
+  it.each([
+    ["outcomeBands", false],
+    ["naturals", false],
+    ["groupChecks", true],
+  ])("overrides %s alone", (flag, value) => {
+    const seed = raw();
+    seed.tableRules = { [flag]: value };
+    const rules = parseSeed(seed).tableRules as Record<string, boolean>;
+    expect(rules[flag]).toBe(value);
+    expect(Object.keys(rules).sort()).toEqual([
+      "groupChecks",
+      "naturals",
+      "outcomeBands",
+    ]);
+  });
+});
+
+describe("seed character stats checks (spec 082 FR-011)", () => {
+  it("refuses an attack expression that is not 1d20 plus a number", () => {
+    const issues = issuesFor((s) => {
+      s.characters[0].identity.attacks[0].expression = "2d20";
+    });
+    expect(issues.join(" ")).toContain("is not a valid plain d20 expression");
+  });
+  it("refuses an attack with a modifier that is not a plain number", () => {
+    const issues = issuesFor((s) => {
+      s.characters[0].identity.attacks[0].expression = "1d20+5+1d4";
+    });
+    expect(issues.join(" ")).toContain("not 1d20 plus or minus a number");
+  });
+  it("refuses an attack that is no SRD weapon", () => {
+    const issues = issuesFor((s) => {
+      s.characters[0].identity.attacks[0].name = "Moonblade";
+    });
+    expect(issues.join(" ")).toContain("is no SRD weapon");
+  });
+  it("refuses a combatant that already carries stats", () => {
+    const issues = issuesFor((s) => {
+      s.characters[0].identity.combatant.stats = {
+        abilityMods: {},
+        proficiencyBonus: 2,
+        saves: {},
+        skills: {},
+        attacks: [],
+        spellcastingAbility: null,
+      };
+    });
+    expect(issues.join(" ")).toContain("carries stats");
   });
 });

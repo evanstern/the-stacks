@@ -46,8 +46,8 @@ no keep and a positive sign (a "plain d20 term"); the engine rolls it twice and 
 
 | Command | Fields | Events | Refusals |
 |---|---|---|---|
-| `attack.roll` | `attackerId: Id \| null`, `targetId`, `expression` (e.g. `"1d20+5"`), `mode: RollMode`, `targetAc: int 1..40 \| null = null`, `reason` | `dice.rolled` (purpose `attack`), `attack.resolved` | `INVALID_DICE_EXPRESSION`, `DICE_LIMIT_EXCEEDED`, `D20_TERM_REQUIRED`, `UNKNOWN_COMBATANT`, `TARGET_DEAD`, `TARGET_AC_UNKNOWN` |
-| `check.roll` | `combatantId: Id \| null`, `kind: "ability-check" \| "saving-throw"`, `ability: "str" \| "dex" \| "con" \| "int" \| "wis" \| "cha"`, `skill: string \| null = null`, `expression` (e.g. `"1d20+3"`), `mode: RollMode`, `dc: int 1..40`, `autoFail: { reason } \| null = null`, `reason` | `dice.rolled` (purpose `check` or `save`), `check.resolved`; with `autoFail`, `check.resolved` only | `INVALID_DICE_EXPRESSION`, `DICE_LIMIT_EXCEEDED`, `D20_TERM_REQUIRED`, `UNKNOWN_COMBATANT`, `TARGET_DEAD` |
+| `attack.roll` | `attackerId: Id \| null`, `targetId`, `expression` (e.g. `"1d20+5"`), `mode: RollMode`, `targetAc: int 1..40 \| null = null`, `reaction?: boolean` (Amended by spec 079 (TASK-0208): spends the attacker's Reaction), `reason` | `dice.rolled` (purpose `attack`), `attack.resolved` | `INVALID_DICE_EXPRESSION`, `DICE_LIMIT_EXCEEDED`, `D20_TERM_REQUIRED`, `UNKNOWN_COMBATANT`, `TARGET_DEAD`, `TARGET_AC_UNKNOWN`, and with `reaction: true`: `NO_ACTIVE_ENCOUNTER`, `INVALID_COMMAND` (null attacker), `UNKNOWN_COMBATANT` (`details.reason: "not-in-order"`), `REACTION_SPENT`; emits `encounter.changed` after `attack.resolved` |
+| `check.roll` | `combatantId: Id \| null`, `kind: "ability-check" \| "saving-throw"`, `ability: "str" \| "dex" \| "con" \| "int" \| "wis" \| "cha"`, `skill: string \| null = null`, `expression` (e.g. `"1d20+3"`), `mode: RollMode`, `dc: int 1..40`, `autoFail: { reason } \| null = null`, `autoSuccess?: { reason } \| null` (Amended by specs/070-stakes-before-dice), `houseRules?: { outcomeBands, naturals }` (Amended by specs/070-stakes-before-dice), `reason` | `dice.rolled` (purpose `check` or `save`), `check.resolved`; with `autoFail` or `autoSuccess`, `check.resolved` only | `INVALID_DICE_EXPRESSION`, `DICE_LIMIT_EXCEEDED`, `D20_TERM_REQUIRED`, `UNKNOWN_COMBATANT`, `TARGET_DEAD` |
 
 - Both commands require a plain d20 term in `expression`, else `D20_TERM_REQUIRED`. The
   rest of the expression carries the bonus adjudication chose (proficiency, ability
@@ -77,6 +77,14 @@ no keep and a positive sign (a "plain d20 term"); the engine rolls it twice and 
   `attack.resolved` outcome is `critical-hit`.
 
 Amended by specs/033-director-robustness/contracts/rules-terms.md.
+
+Amended by specs/070-stakes-before-dice (TASK-0127): `check.roll` bands its result.
+`autoSuccess` draws no die and emits `check.resolved` with outcome `success`, band `success`, and null roll
+fields; `autoFail` with `autoSuccess` refuses `INVALID_COMMAND`. `houseRules` defaults to both flags false
+(SRD-pure); the DM runtime sends the seed's `tableRules`. With `naturals`, a natural 20 is a success and a
+natural 1 a failure. With `outcomeBands`, an ability check missing its DC by 1 or 2 is `success-at-cost`
+(outcome `success`) and by 5 or more is `severe-failure` (outcome `failure`). A saving throw never gets
+those bands. The engine exports `bandOf` for this rule.
 
 ## Combatants
 
@@ -203,7 +211,7 @@ source `"hp-zero"`.
 | `initiative.roll` | `participants: [{ combatantId, mode: RollMode }]` (1..50, unique), `reason` | one `dice.rolled` per participant in list order, then `encounter.started` | `ENCOUNTER_ACTIVE`, `UNKNOWN_COMBATANT`, `DUPLICATE_PARTICIPANT`, `TARGET_DEAD` |
 | `initiative.join` | `combatantId`, `mode: RollMode`, `reason` | `dice.rolled`, `encounter.changed` | `NO_ACTIVE_ENCOUNTER`, `UNKNOWN_COMBATANT`, `ALREADY_IN_ENCOUNTER`, `TARGET_DEAD` |
 | `initiative.leave` | `combatantId`, `reason` | when the leaver is active: `condition.removed` for its `turn-end` expiries and for the `turn-start` and `turn-end` expiries of each skipped dead combatant, then `encounter.changed`, then `condition.removed` for each `turn-start` expiry of the incoming combatant; otherwise `encounter.changed` only | `NO_ACTIVE_ENCOUNTER`, `UNKNOWN_COMBATANT` (also `details.reason: "not-in-order"` when the combatant is not in the order), `NO_ELIGIBLE_COMBATANT` (the order would be empty, or the leaver is active and every remaining combatant is dead) |
-| `turn.advance` | `reason` | `condition.removed` for each `turn-end` expiry of the outgoing turn, `turn.advanced`, `condition.removed` for each `turn-start` expiry of the incoming turn | `NO_ACTIVE_ENCOUNTER`, `NO_ELIGIBLE_COMBATANT` |
+| `turn.advance` | `reason` | `condition.removed` for each `turn-end` expiry of the outgoing turn, `turn.advanced`, `condition.removed` for each `turn-start` expiry of the incoming turn. Amended by spec 079 (TASK-0208): an `encounter.changed` that resets the incoming combatant's Reaction follows `turn.advanced` when it was spent | `NO_ACTIVE_ENCOUNTER`, `NO_ELIGIBLE_COMBATANT` |
 | `encounter.end` | `reason` | `condition.removed` for each instance with `expiresAt`, then `encounter.ended` | `NO_ACTIVE_ENCOUNTER` |
 
 - Each participant rolls `1d20 + initiativeBonus` with its mode. Order: total descending,
@@ -274,3 +282,27 @@ source `"hp-zero"`.
   `pact`, the pact pool is null or its level differs).
 - `spell-slot.restore` refuses when `expended < count` (`SLOT_NOT_EXPENDED`); it never
   restores past max.
+
+## Amended by specs/082-engine-derived-numbers (TASK-0104)
+
+`attack.roll`: `expression` is optional; new optional `attack: string` names an entry in the attacker's
+`stats.attacks`. Exactly one of `expression` and `attack`, else `INVALID_COMMAND`. With `attack`, the
+attacker is non-null, the roll is `1d20+toHit` (minus 2 per exhaustion level) at a mode folded from
+`mode` and the SRD conditions of attacker and target, and an unknown attack or missing stats refuses
+`STAT_UNDEFINED` before any die. `check.roll`: `expression` and `dc` are optional; new optional
+`difficulty` (`very-easy` 5, `easy` 10, `medium` 15, `hard` 20, `very-hard` 25, `nearly-impossible` 30).
+Exactly one of `dc` and `difficulty`, else `INVALID_COMMAND`. Without `expression`, a named combatant's
+modifier is derived from `stats` (`STAT_UNDEFINED` when it cannot be) and the mode is folded from
+conditions; a null combatant rolls flat `1d20`. An explicit `expression` keeps the old behaviour (no
+condition folding). `combatant.add`'s `CombatantInit` gains optional `stats`.
+
+## Amended by specs/083-spells-by-srd-id (TASK-0105)
+
+New command `spell.cast`: `casterId`, `spellId` (SRD id grammar), `targetId`, `slotLevel` (1..9 or
+`null` for a cantrip), `casterLevel` (1..20), optional `houseRules`, `reason`. The engine looks the
+spell up in its `SPELLS` table and resolves it in one result: spend the slot (the `spell-slot.expend`
+rules, standard pool else pact), roll the spell attack or the target's save at the caster's spell DC,
+then apply damage (half on a save when the table says so), healing (dice plus the spellcasting
+modifier) or a condition. Every refusal comes before any die. Refusals: `SPELL_UNRESOLVED`,
+`UNKNOWN_COMBATANT`, `TARGET_DEAD`, `ACTOR_UNABLE`, `STAT_UNDEFINED`, `SLOT_LEVEL_UNAVAILABLE`,
+`NO_SLOT_AVAILABLE`, `TARGET_AC_UNKNOWN`.

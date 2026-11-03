@@ -23,23 +23,30 @@ function check(
     kind: "ability-check",
     ability,
     skill,
-    expression: "1d20",
-    mode: "normal",
-    dc: 12,
+    difficulty: "medium",
+    circumstance: null,
     autoFail: null,
     onSuccess: [],
     onFailure: [],
+    stakes: {
+      success: "The attempt works as intended.",
+      cost: "It works, at a small price.",
+      failure: "The attempt comes to nothing.",
+      severe: "It goes badly wrong.",
+    },
+    onCost: [],
+    onSevere: [],
+    newRisk: null,
   } as unknown as Step;
 }
 const attack = (reason: string): Step =>
   ({
     step: "attack",
     reason,
-    attackerId: null,
+    attackerId: "tamsin",
     targetId: "snag",
-    expression: "1d20+5",
-    mode: "normal",
-    targetAc: null,
+    attack: "Longsword",
+    circumstance: null,
     onHit: [
       { effect: "heal", targetId: "snag", amount: { kind: "flat", value: 1 } },
     ],

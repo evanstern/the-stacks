@@ -77,7 +77,7 @@ describe.skipIf(!reachable)("audit through a full pipeline (database)", () => {
     const text = payloadOf<{ text: string }>(narrations[0]).text;
     expect(text).toContain("The shutter shrieks");
     expect(text).not.toContain("fails to move");
-    expect(text).toContain("vs DC 12: success");
+    expect(text).toContain("vs DC 15: success");
     expect(rows.some((r) => r.type === "journal.entry.added")).toBe(false);
     expect(w.scripted.remaining()).toEqual({
       calls: expect.objectContaining({ "dm.narrate": 0, "dm.audit": 0 }),
@@ -100,7 +100,7 @@ describe.skipIf(!reachable)("audit through a full pipeline (database)", () => {
     expect(narrations).toHaveLength(1);
     const text = payloadOf<{ text: string }>(narrations[0]).text;
     expect(text).toContain("Tamsin Vale pulls it off.");
-    expect(text).toContain("vs DC 12: success");
+    expect(text).toContain("vs DC 15: success");
     const flag = rows.find(
       (r) =>
         r.type === "journal.entry.added" &&

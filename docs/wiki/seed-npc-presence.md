@@ -15,7 +15,7 @@ sources:
   - apps/server/src/dm/snapshot/build.ts
   - packages/session-model/src/gate/proposals.ts
   - packages/session-model/src/gate/plan.ts
-verified_against: 022452c9327344e8ae67e69066acfe6450e134e3
+verified_against: 7440e7041ff0ca7ca70b9e7ea72d8b63b46e3bcb
 ---
 
 # Seed NPC presence
@@ -28,11 +28,12 @@ the DM pipeline is in [[dm-runtime]].
 
 ## The seed declaration
 
-`SceneSeedSchema` (`seed/schema.ts`) gives every beat a required `presence`: a record from NPC
+`SceneSeedSchema` (`seed/schema.ts`) gives the scene `tableRules` (`outcomeBands`, `naturals` default true; `groupChecks` default false, spec 070) and every beat a required `presence`: a record from NPC
 id to `ScenePresenceSchema` (`present`, `yielded`, `absent`). There is no default, so a seed
 without it fails to load. `SeedNpc.identity` gains `aliases` (up to 6 strings of up to 60
-characters, default empty). `SeedCharacter.identity` gains required `class` (up to 40 characters) and `level` (1 to 20); the three seeds set them. Scene start copies both onto each `director:party:<id>` row's `after` (TASK-0164; `PartyMemberSchema` holds them as optional fields). `greyhollow-ford.json` declares all three NPCs in all three beats
+characters, default empty). Spec 083: the plan gate reads each character's `identity.spells` as the prepared list, and `resolve` reads `identity.level` as the spell `casterLevel`; Odo's list adds `cure-wounds`. `SeedCharacter.identity` gains required `class` (up to 40 characters) and `level` (1 to 20); the three seeds set them. Scene start copies both onto each `director:party:<id>` row's `after` (TASK-0164; `PartyMemberSchema` holds them as optional fields). `greyhollow-ford.json` declares all three NPCs in all three beats
 and aliases "the keeper" (`wenna`), "the boy" (`pell`) and "the goblin leader" (`snag`).
+Since spec 080, beat clue text is also the learned fact: a check step's `reveals` (`<beatId>#<n>`) names one clue, and resolve copies its text (`clueFor`) onto the submission. The ferry-house footprint clue names goblin feet.
 `greyhollow-ford-duo.json` (TASK-0163, `specs/054-two-player-alpha-kit/`) is the same scene with
 the same three NPCs and presence maps and three party characters: `tamsin` and `kestrel` seat
 `human`, `odo` seat `companion`.
@@ -40,6 +41,7 @@ the same three NPCs and presence maps and three party characters: `tamsin` and `
 
 `crossCheckSeed` (`seed/load.ts`) reports an issue for each of these:
 
+- a character whose `identity.combatant` carries `stats` (the loader builds them from the sheet), or whose attack expression is not `1d20` plus or minus a number, or whose attack names no SRD weapon (spec 082);
 - an NPC whose `identity.combatant` differs from its id, or names no encounter monster;
 - a beat that lists an NPC in `npcIds` and declares no presence for it;
 - a beat whose `presence` names an unknown NPC;
@@ -87,7 +89,7 @@ Resolve builds these proposals, as it does every `scene-presence` proposal. Seed
   snapshot actor does not read `absent`. It no longer collects `beats[].npcIds`.
 - `narrate` filters the beat's NPC ids, or `presentNpcIds` when no seed beat matches,
   against the S1 snapshot and drops each actor that reads `absent`. It then withholds refused
-  rulings and `goalNote` text ([[output-claim-gate]]); this does not touch the NPC list.
+  rulings, `goalNote` text and a monster `say` line ([[output-claim-gate]]; spec 081); this does not touch the NPC list.
 - `buildSnapshot` adds `identity.aliases` to the NPC actor's `aliases`
   ([[actor-snapshot]]).
 

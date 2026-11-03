@@ -1,5 +1,7 @@
 import { z } from "zod";
+import { DifficultySchema } from "../derive.js";
 import {
+  AbilitySchema,
   CombatantIdSchema,
   CombatantSchema,
   ConditionInstanceSchema,
@@ -12,6 +14,13 @@ const Reason = z.string().min(1).max(500);
 const Id = CombatantIdSchema;
 const V = z.literal(1);
 const Int = z.number().int();
+export const OutcomeBand = z.enum([
+  "success",
+  "success-at-cost",
+  "failure",
+  "severe-failure",
+]);
+export type OutcomeBand = z.infer<typeof OutcomeBand>;
 const HpPair = z.object({ current: Int, temp: Int });
 
 export const DiceTermResultSchema = z.discriminatedUnion("kind", [
@@ -42,7 +51,7 @@ export const DamageComponentResultSchema = z.object({
   rollIndex: Int.nullable(),
 });
 
-const Ability = z.enum(["str", "dex", "con", "int", "wis", "cha"]);
+const Ability = AbilitySchema;
 const Mode = z.enum(["normal", "advantage", "disadvantage"]);
 const SlotRef = z.object({
   pool: z.enum(["standard", "pact"]),
@@ -93,6 +102,10 @@ export const EngineEventSchema = z.discriminatedUnion("type", [
     total: Int,
     natural: Int,
     outcome: z.enum(["hit", "miss", "critical-hit"]),
+    reaction: z.boolean().optional(),
+    attack: z.string().optional(),
+    // Spec 083: the SRD spell id of a spell.cast attack.
+    spellId: z.string().optional(),
   }),
   z.object({
     type: z.literal("check.resolved"),
@@ -104,10 +117,16 @@ export const EngineEventSchema = z.discriminatedUnion("type", [
     skill: z.string().nullable(),
     rollIndex: Int.nullable(),
     dc: Int,
+    difficulty: DifficultySchema.optional(),
     total: Int.nullable(),
     natural: Int.nullable(),
     autoFail: z.object({ reason: Reason }).nullable(),
     outcome: z.enum(["success", "failure"]),
+    // Spec 070: optional so v1 rows written before it still parse.
+    margin: Int.nullable().optional(),
+    band: OutcomeBand.optional(),
+    // Spec 083: the SRD spell id of a spell.cast save.
+    spellId: z.string().optional(),
   }),
   z.object({
     type: z.literal("rest.completed"),
@@ -144,6 +163,8 @@ export const EngineEventSchema = z.discriminatedUnion("type", [
     components: z.array(DamageComponentResultSchema).nullable(),
     defensesSource: z.enum(["command", "record"]).nullable(),
     critical: z.boolean(),
+    // Spec 083: damage was halved (a successful save) before defenses.
+    half: z.literal(true).optional(),
     rollIndex: Int.nullable(),
     before: HpPair,
     after: HpPair,

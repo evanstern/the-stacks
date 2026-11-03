@@ -24,7 +24,12 @@ function commandTypes(): string[] {
  * them, so no `expectRefusal` call can assert them. `REASON_CONTRADICTS_STATE`
  * is the DM plan gate's code (spec 058).
  */
-const PLAN_GATE_ONLY = ["REASON_CONTRADICTS_STATE"] as const;
+const PLAN_GATE_ONLY = [
+  "REASON_CONTRADICTS_STATE",
+  "STEP_ACTOR_MISMATCH",
+  "SPELL_UNKNOWN",
+  "SPELL_NOT_PREPARED",
+] as const;
 
 describe("coverage meta-test", () => {
   it("every command type appears in a command test file", () => {

@@ -14,12 +14,20 @@ const check = (over: Record<string, unknown> = {}) => ({
   kind: "ability-check",
   ability: "wis",
   skill: "perception",
-  expression: "1d20+3",
-  mode: "normal",
-  dc: 12,
+  difficulty: "medium",
+  circumstance: null,
   autoFail: null,
   onSuccess: [],
   onFailure: [],
+  stakes: {
+    success: "The attempt works as intended.",
+    cost: "It works, at a small price.",
+    failure: "The attempt comes to nothing.",
+    severe: "It goes badly wrong.",
+  },
+  onCost: [],
+  onSevere: [],
+  newRisk: null,
   ...over,
 });
 

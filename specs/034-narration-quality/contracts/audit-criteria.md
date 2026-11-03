@@ -218,3 +218,10 @@ Node tests, in `audit.test.ts` with a scripted `dm.audit` reply:
      alias pairs with a `SCENE_START_VERBS` form. Detail: `The opening moves or voices <name>
      ("<match>").`
 - The window is lexical (two words before the verb); a paraphrase can pass.
+
+## Amendment 2026-11-03 (specs/080-declared-outcome, TASK-0170): deliver the settled outcome
+
+Amended by specs/080-declared-outcome. Audit is `dm.audit-v8`. Criterion 2 also reports
+`ledger-mismatch` when the prose does not deliver a roll's settled outcome or learned fact: a
+success whose prose leaves the task undone or the learned fact unnamed. The rest of the system
+prompt is unchanged.

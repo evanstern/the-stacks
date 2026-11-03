@@ -52,12 +52,23 @@
                   "kind": "ability-check",
                   "ability": "dex",
                   "skill": "stealth",
-                  "expression": "1d20+5",
-                  "mode": "disadvantage",
-                  "dc": 13,
+                  "difficulty": "medium",
+                  "circumstance": {
+                    "mode": "disadvantage",
+                    "reason": "Heavy mail and a boathook make the party hard to keep quiet."
+                  },
                   "autoFail": null,
                   "onSuccess": [],
-                  "onFailure": []
+                  "onFailure": [],
+                  "stakes": {
+                    "success": "The attempt works as intended.",
+                    "cost": "It works, but at a small price.",
+                    "failure": "The attempt comes to nothing.",
+                    "severe": "It goes badly wrong."
+                  },
+                  "onCost": [],
+                  "onSevere": [],
+                  "newRisk": null
                 }
               ]
             }

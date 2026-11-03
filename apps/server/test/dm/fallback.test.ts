@@ -172,6 +172,75 @@ describe("factualSummary: one sentence per fact", () => {
     );
   });
 
+  it("names the band, and drops a consequence that fails the claim check (spec 070)", () => {
+    const at = (
+      band: FactRoll["band"],
+      outcome: FactOutcome,
+      consequence: string | null,
+    ) =>
+      action({
+        rolls: [roll(outcome, { band, consequence })],
+        outcomes: [outcome],
+      });
+    expect(
+      sum(
+        facts({
+          actions: [
+            at("success-at-cost", "success", "The lock bites her hand."),
+          ],
+        }),
+      ),
+    ).toBe(
+      "Ana picks the lock. Ana pulls it off, at a cost. The lock bites her hand.",
+    );
+    expect(
+      sum(
+        facts({
+          actions: [at("severe-failure", "failure", "The pick snaps.")],
+        }),
+      ),
+    ).toBe("Ana picks the lock. Ana fails badly. The pick snaps.");
+    expect(sum(facts({ actions: [at("failure", "failure", null)] }))).toBe(
+      "Ana picks the lock. Ana comes up short.",
+    );
+    // A system word or a death claim is not spoken.
+    for (const bad of ["The dice mock her.", "Ana is dead."]) {
+      expect(
+        sum(facts({ actions: [at("severe-failure", "failure", bad)] })),
+      ).toBe("Ana picks the lock. Ana fails badly.");
+    }
+  });
+
+  it("ships the success outcome and the learned fact, dropping text that fails the claim check (spec 080)", () => {
+    const at = (consequence: string | null, revealed: string | null) =>
+      action({
+        rolls: [roll("success", { band: "success", consequence, revealed })],
+        outcomes: ["success"],
+      });
+    expect(
+      sum(
+        facts({
+          actions: [
+            at("Ana reads the prints.", "The prints are goblin feet, splayed."),
+          ],
+        }),
+      ),
+    ).toBe(
+      "Ana picks the lock. Ana pulls it off. Ana reads the prints. The prints are goblin feet, splayed.",
+    );
+    // A system word or a death claim is dropped; the other sentence still ships.
+    expect(
+      sum(
+        facts({
+          actions: [at("The dice favour her.", "Ana is dead.")],
+        }),
+      ),
+    ).toBe("Ana picks the lock. Ana pulls it off.");
+    expect(
+      sum(facts({ actions: [at("Ana reads the prints.", "Ana is dead.")] })),
+    ).toBe("Ana picks the lock. Ana pulls it off. Ana reads the prints.");
+  });
+
   it("hit, critical hit and miss outcome sentences", () => {
     for (const [o, line] of [
       ["hit", "Ana strikes home."],
@@ -186,6 +255,53 @@ describe("factualSummary: one sentence per fact", () => {
         `Ana swings at the guard. ${line}`,
       );
     }
+  });
+
+  it("pins the sentences of a spell.cast batch per delivery (spec 083 T028)", () => {
+    const dmg: FactChange = {
+      kind: "hp",
+      target: "Guard",
+      direction: "damage",
+      amount: 6,
+      damageType: "fire",
+      before: 9,
+      after: 3,
+    };
+    const attack = action({
+      rolls: [roll("hit", { reason: "Ana hurls a bolt of fire" })],
+      outcomes: ["hit"],
+      changes: [dmg],
+    });
+    const save = action({
+      rolls: [
+        roll("failure", {
+          name: "Guard",
+          reason: "Guard resists a flame Ana calls down",
+        }),
+      ],
+      outcomes: ["failure"],
+      changes: [dmg],
+    });
+    const heal = action({
+      changes: [
+        {
+          kind: "hp",
+          target: "Bram",
+          direction: "heal",
+          amount: 8,
+          damageType: null,
+          before: 0,
+          after: 8,
+        },
+      ],
+    });
+    expect(
+      [attack, save, heal].map((a) => sum(facts({ actions: [a] }))),
+    ).toEqual([
+      "Ana hurls a bolt of fire. Ana strikes home. Guard is wounded.",
+      "Guard resists a flame Ana calls down. Guard comes up short. Guard is wounded.",
+      "Ana goes ahead with it. Bram is healed.",
+    ]);
   });
 
   it("drops a reason that holds a system word or a contradicting verb", () => {
@@ -316,6 +432,37 @@ describe("factualSummary: one sentence per fact", () => {
       "Snag offers a parley.",
     );
     expect(sum(npc("talk", []))).toBe("Snag speaks up.");
+    // specs/081: a speakable say line is voiced as quoted speech, before the reasons
+    const say = (line: string, reasons = ["Snag offers a parley."]) =>
+      facts({
+        npcTurn: {
+          name: "Snag",
+          rolls: [],
+          outcomes: [],
+          changes: [],
+          plan: { intent: "talk", reasons, say: line, held: false },
+        },
+      });
+    expect(sum(say("Hold your fire, friends!"))).toBe(
+      'Snag calls out, "Hold your fire, friends."',
+    );
+    expect(sum(say('"Hold your fire," he says.'))).toBe(
+      'Snag calls out, "Hold your fire, he says."',
+    );
+    expect(sum(say("Two more hide left of the fire!"))).toBe(
+      'Snag calls out, "Two more hide left of the fire."',
+    );
+    expect(sum(say("Three of us wait by the ford."))).toBe(
+      'Snag calls out, "Three of us wait by the ford."',
+    );
+    // refused lines fall back to the spec 071 sentence
+    for (const bad of [
+      "Roll a d20 for it!",
+      "He is dead already.",
+      "Will you parley?",
+    ]) {
+      expect(sum(say(bad))).toBe("Snag offers a parley.");
+    }
     expect(sum(npc("move", []))).toBe("Snag shifts ground.");
     expect(sum(npc("help", []))).toBe("Snag lends a hand.");
     expect(sum(npc("attack", []))).toBe("Snag holds back, watching.");
@@ -502,6 +649,48 @@ describe("factualSummary: run-5 replays", () => {
   });
 });
 
+describe("factualSummary: the roller is the subject (spec 079)", () => {
+  it("run 1 seq 154-161: the goblin's reaction hit names the goblin", () => {
+    const hit = roll("hit", {
+      name: "Goblin with a pot-helm",
+      reason: "Goblin with a pot-helm strikes as Kestrel pulls away",
+      against: { kind: "AC", value: 14 },
+      target: "Kestrel",
+      reaction: true,
+    });
+    const out = sum(
+      facts({
+        actions: [
+          action({
+            characterName: "Kestrel",
+            rolls: [hit],
+            outcomes: ["hit"],
+            changes: [
+              {
+                kind: "hp",
+                target: "Kestrel",
+                direction: "damage",
+                amount: 4,
+                damageType: "slashing",
+                before: 9,
+                after: 5,
+              },
+            ],
+          }),
+        ],
+      }),
+    );
+    expect(out).toContain("Goblin with a pot-helm strikes home.");
+    expect(out).toContain("Kestrel is wounded.");
+    expect(out).not.toContain("Kestrel strikes home");
+  });
+
+  it("an own check still names the character", () => {
+    const out = sum(facts({ actions: [action({ rolls: [roll("success")] })] }));
+    expect(out).toContain("Ana pulls it off.");
+  });
+});
+
 describe("factualSummary: property", () => {
   it("holds no system word or digit, passes the checks, covers every fact", () => {
     let seed = 12345;
@@ -606,6 +795,7 @@ describe("factualSummary: property", () => {
           plan: {
             intent: pick(["talk", "move", "help", "attack", "other"]),
             reasons: rnd(2) ? [pick(reasons)] : [],
+            say: rnd(2) ? pick(reasons) : null,
             held: rnd(3) === 0,
           },
         };
@@ -678,5 +868,70 @@ describe("factualSummary: property", () => {
     for (const t of ["alarm", "alerted", "ambush", "causeway", "segment"]) {
       expect(out).not.toContain(t);
     }
+  });
+});
+
+describe("factualSummary: a drop to zero names the fall once (TASK-0212)", () => {
+  // Run 1 seq 189-196: the goblin's hit took Kestrel 5 -> 0. The engine emits
+  // hp, life-state (conscious -> unconscious) and condition.applied (hp-zero).
+  const drop: FactChange[] = [
+    {
+      kind: "hp",
+      target: "Kestrel",
+      direction: "damage",
+      amount: 5,
+      damageType: null,
+      before: 5,
+      after: 0,
+    },
+    {
+      kind: "life-state",
+      target: "Kestrel",
+      before: "conscious",
+      after: "unconscious",
+    },
+    {
+      kind: "condition",
+      target: "Kestrel",
+      op: "applied",
+      condition: "unconscious",
+    },
+  ];
+
+  it("seq 189-196: 'falls unconscious' appears exactly once", () => {
+    const out = sum(facts({ actions: [action({ changes: drop })] }));
+    expect(out).toBe(
+      "Ana goes ahead with it. Kestrel is wounded. Kestrel falls unconscious.",
+    );
+    expect(out.match(/falls unconscious/g)).toHaveLength(1);
+  });
+
+  it("a heal back to conscious renders the wake once", () => {
+    const heal: FactChange[] = [
+      {
+        kind: "hp",
+        target: "Kestrel",
+        direction: "heal",
+        amount: 2,
+        damageType: null,
+        before: 0,
+        after: 2,
+      },
+      {
+        kind: "life-state",
+        target: "Kestrel",
+        before: "unconscious",
+        after: "conscious",
+      },
+      {
+        kind: "condition",
+        target: "Kestrel",
+        op: "removed",
+        condition: "unconscious",
+      },
+    ];
+    const out = sum(facts({ actions: [action({ changes: heal })] }));
+    expect(out.match(/wakes/g)).toHaveLength(1);
+    expect(out.match(/falls unconscious/g)).toBeNull();
   });
 });

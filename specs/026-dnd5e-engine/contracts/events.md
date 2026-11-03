@@ -53,6 +53,7 @@ z.object({
   ac: z.number().int(), acSource: z.enum(["command", "record"]),
   total: z.number().int(), natural: z.number().int(),
   outcome: z.enum(["hit", "miss", "critical-hit"]),
+  reaction: z.boolean().optional(),       // Amended by spec 079 (TASK-0208): present and true only on a reaction attack
 });
 
 z.object({
@@ -66,6 +67,8 @@ z.object({
   natural: z.number().int().nullable(),        // null when autoFail
   autoFail: z.object({ reason: Reason }).nullable(),
   outcome: z.enum(["success", "failure"]),     // always "failure" when autoFail
+  margin: z.number().int().nullable().optional(), // Amended by specs/070-stakes-before-dice: total minus dc; null with no roll
+  band: OutcomeBand.optional(),                  // Amended by specs/070-stakes-before-dice: absent on rows written before it
 });
 
 z.object({
@@ -96,7 +99,7 @@ the dice terms show the doubled `count` (a `2d6` crit shows `count: 4` and four 
 | `hit-dice.changed` | one pool's `remaining` | `{ die, remaining }` | `{ die, remaining }` | `combatantId` |
 | `spell-slots.changed` | one slot's `expended` | `{ pool, level, expended }` | `{ pool, level, expended }` | `combatantId` |
 | `encounter.started` | `encounter` | `null` | `Encounter` | — |
-| `encounter.changed` | `encounter` | `Encounter` | `Encounter` | `combatantId` (the joiner) |
+| `encounter.changed` | `encounter` | `Encounter` | `Encounter` | `combatantId` (the joiner, the leaver, the reactor that spent its Reaction, or the incoming combatant whose Reaction reset). Amended by spec 079 (TASK-0208): `Encounter.reactionsSpent` rides `before` and `after` |
 | `turn.advanced` | `encounter.round`, `encounter.turnIndex` | `{ round, turnIndex, combatantId }` | `{ round, turnIndex, combatantId }` | `skipped: Id[]` (dead combatants passed over) |
 | `encounter.ended` | `encounter` | `Encounter` | `null` | — |
 
@@ -154,3 +157,21 @@ expression: "2d6+2" }, damageType: "slashing" }], critical: false, defenses: nul
 ```
 
 (Remaining damage after 0 HP is 2, below max 12, so no massive-damage death.)
+
+## Amendment 2026-11-02 (specs/070-stakes-before-dice, TASK-0127): outcome bands
+
+Amended by specs/070-stakes-before-dice. `OutcomeBand` is `success | success-at-cost | failure |
+severe-failure`. `check.resolved` gains optional `margin` and `band`; `v` stays 1 and old rows parse
+without them. `outcome` stays the two-value result: `success-at-cost` reads `success`, `severe-failure`
+reads `failure`. An auto-fail row carries band `failure`; an auto-success row carries band `success`.
+
+## Amended by specs/082-engine-derived-numbers (TASK-0104)
+
+`check.resolved` gains optional `difficulty`. `attack.resolved` gains optional `attack` (the entry
+name). `combatant.added`'s `after` carries optional `stats`. `v` stays 1; old rows parse.
+
+## Amended by specs/083-spells-by-srd-id (TASK-0105)
+
+`attack.resolved` and `check.resolved` gain optional `spellId` (the SRD spell id of a `spell.cast`).
+`hp.changed` gains optional `half: true` (the damage was halved, rounded down, before defenses).
+`v` stays 1; old rows parse. `spell.cast` emits only existing event types.

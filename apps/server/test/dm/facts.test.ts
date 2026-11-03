@@ -218,6 +218,53 @@ describe("dice-line renderer", () => {
     expect(c.outcomes).toEqual(["critical-hit"]);
   });
 
+  it("sets reaction from the linked attack.resolved (spec 079)", () => {
+    const rows = attackRows("hit", 14);
+    (
+      rows[1] as unknown as { outcome: { reaction?: boolean } }
+    ).outcome.reaction = true;
+    expect(collectFacts(rows, nameOf).rolls[0]?.reaction).toBe(true);
+    expect(
+      collectFacts(attackRows("hit", 14), nameOf).rolls[0]?.reaction,
+    ).toBeUndefined();
+  });
+
+  it("renders a reaction roll as its own line (spec 079)", () => {
+    const rows = attackRows("hit", 14);
+    (
+      rows[1] as unknown as { outcome: { reaction?: boolean } }
+    ).outcome.reaction = true;
+    const c = collectFacts(rows, nameOf);
+    const line = factEntries({
+      actions: [{ rolls: c.rolls, changes: [], followUps: [] }],
+      clarify: [],
+      events: [],
+      modeChange: null,
+      party: [],
+      presentNpcs: [],
+      rulings: [],
+      director: { pacing: {}, goalNote: "", sceneEnded: false },
+    } as never).find((l) => l.includes("reaction:"));
+    expect(line).toBe(
+      "  reaction: Ana strikes at Goblin as they pull away -> hit",
+    );
+  });
+
+  it("renders an open followUp from an earlier beat (spec 079)", () => {
+    const f = {
+      actions: [],
+      clarify: [],
+      events: [],
+      modeChange: null,
+      rulings: [],
+      director: { sceneEnded: false },
+      openFollowUps: [{ name: "Kestrel", text: "cut Pell's bonds" }],
+    };
+    expect(factEntries(f as never)).toContain(
+      "Earlier beat, not yet attempted: Kestrel: cut Pell's bonds",
+    );
+  });
+
   it("renders a miss with no damage line", () => {
     const c = collectFacts(attackRows("miss", 3), nameOf);
     expect(c.rolls.map(renderRollLine)).toEqual([
@@ -267,6 +314,138 @@ describe("dice-line renderer", () => {
     expect(c.rolls.map(renderRollLine)).toEqual([
       "Ana — Ana is paralyzed: auto-fail vs DC 20: failure",
     ]);
+  });
+
+  describe("bands (spec 070)", () => {
+    const checkRows = (event: object, withRoll = true): LedgerRow[] => [
+      ...(withRoll
+        ? [
+            roll(1, "b1", 0, {
+              reason: "Ana picks the lock [0a#1]",
+              expression: "1d20+5",
+              purpose: "check",
+              combatantId: "ana",
+              faces: [5],
+              mod: 5,
+              natural: 5,
+            }),
+          ]
+        : []),
+      outcomeRow(2, "b1", 1, {
+        type: "check.resolved",
+        v: 1,
+        reason: "Ana picks the lock [0a#1]",
+        combatantId: "ana",
+        kind: "ability-check",
+        ability: "dex",
+        skill: null,
+        rollIndex: withRoll ? 0 : null,
+        dc: 12,
+        total: withRoll ? 10 : null,
+        natural: withRoll ? 5 : null,
+        autoFail: null,
+        outcome: "success",
+        ...event,
+      }),
+    ];
+    const stakes = new Map([
+      [
+        "b1",
+        {
+          success: "The attempt works as intended.",
+          cost: "The pick bites her palm.",
+          failure: "The lock holds.",
+          severe: "The pick snaps off in the lock.",
+        },
+      ],
+    ]);
+
+    it.each([
+      ["success", "The attempt works as intended.", 1, "success"],
+      ["success-at-cost", "The pick bites her palm.", -2, "success at a cost"],
+      ["failure", "The lock holds.", -3, "failure"],
+      [
+        "severe-failure",
+        "The pick snaps off in the lock.",
+        -7,
+        "severe failure",
+      ],
+    ])(
+      "carries band %s, margin and consequence",
+      (band, consequence, margin, word) => {
+        const outcome =
+          band === "success" || band === "success-at-cost"
+            ? "success"
+            : "failure";
+        const c = collectFacts(
+          checkRows({ band, margin, outcome }),
+          nameOf,
+          new Map(),
+          stakes,
+        );
+        expect(c.rolls[0]).toMatchObject({ band, margin, consequence });
+        expect(renderRollLine(c.rolls[0] as never)).toContain(`: ${word}`);
+      },
+    );
+
+    it("sets revealed on both success bands and null on both failure bands (spec 080)", () => {
+      const revealed = new Map([["b1", "Goblin prints."]]);
+      const got = (band: string, outcome: string) =>
+        collectFacts(
+          checkRows({ band, margin: 0, outcome }),
+          nameOf,
+          new Map(),
+          stakes,
+          revealed,
+        ).rolls[0]?.revealed;
+      expect(got("success", "success")).toBe("Goblin prints.");
+      expect(got("success-at-cost", "success")).toBe("Goblin prints.");
+      expect(got("failure", "failure")).toBeNull();
+      expect(got("severe-failure", "failure")).toBeNull();
+    });
+
+    it("gives a null consequence for an old submission with success null", () => {
+      const old = new Map([
+        ["b1", { ...stakes.get("b1"), success: null } as never],
+      ]);
+      const c = collectFacts(
+        checkRows({ band: "success", margin: 1, outcome: "success" }),
+        nameOf,
+        new Map(),
+        old,
+      );
+      expect(c.rolls[0]?.consequence).toBeNull();
+    });
+
+    it("leaves band null-free on an old row with no band", () => {
+      const c = collectFacts(checkRows({}), nameOf, new Map(), stakes);
+      expect(c.rolls[0]?.band).toBeUndefined();
+      expect(c.rolls[0]?.consequence).toBeUndefined();
+      expect(renderRollLine(c.rolls[0] as never)).toBe(
+        "Ana — Ana picks the lock: 1d20+5 → 5 = 10 vs DC 12: success",
+      );
+    });
+
+    it("renders a free retry as auto-success", () => {
+      const c = collectFacts(
+        checkRows({ band: "success", margin: null }, false),
+        nameOf,
+        new Map(),
+        stakes,
+      );
+      expect(c.rolls[0]).toMatchObject({
+        autoSuccess: true,
+        autoFail: false,
+        band: "success",
+        consequence: "The attempt works as intended.",
+      });
+      expect(renderRollLine(c.rolls[0] as never)).toBe(
+        "Ana — Ana picks the lock: no roll needed: success vs DC 12".replace(
+          ": success vs DC 12",
+          ": success",
+        ),
+      );
+    });
   });
 
   it("renders healing and records life-state and condition changes", () => {
@@ -466,6 +645,7 @@ describe("facts v2: party, events, target, setting (run-5 rows)", () => {
       expect(f.npcTurn?.plan).toEqual({
         intent: "talk",
         reasons: ["Snag offers a parley."],
+        say: null,
         held: false,
       });
       expect(f.turn?.actor).toBe(f.npcTurn?.name);
@@ -496,11 +676,48 @@ describe("facts v2: party, events, target, setting (run-5 rows)", () => {
       expect(factEntries(f)).toContain("  held: the plan did not go ahead");
     });
 
+    it("carries the monster's say line; a refused plan drops it; a line alone is not held (specs/081)", () => {
+      const said = { ...plan, say: "Two more hide left of the fire!" };
+      const f = build(58, 56, "turn", { npcTurn: npc }, { npcPlan: said });
+      expect(f.npcTurn?.plan?.say).toBe("Two more hide left of the fire!");
+      expect(factEntries(f)).toContain(
+        "  says: Two more hide left of the fire!",
+      );
+      const refused = build(
+        58,
+        56,
+        "turn",
+        {
+          npcTurn: npc,
+          planGate: [
+            {
+              actionId: null,
+              ok: false,
+              code: "UNKNOWN_COMBATANT",
+              failure: {} as never,
+            },
+          ],
+        },
+        { npcPlan: said },
+      );
+      expect(refused.npcTurn?.plan?.say).toBeNull();
+      expect(factEntries(refused).join("\n")).not.toContain("says:");
+      const lineOnly = build(
+        58,
+        56,
+        "turn",
+        { npcTurn: npc },
+        { npcPlan: { intent: "talk", steps: [], say: "Hold!" } },
+      );
+      expect(lineOnly.npcTurn?.plan?.held).toBe(false);
+    });
+
     it("absent inputs give the empty plan and no turn", () => {
       const f = build(58, 56, "turn", { npcTurn: npc });
       expect(f.npcTurn?.plan).toEqual({
         intent: "other",
         reasons: [],
+        say: null,
         held: true,
       });
       expect(build(58, 39, "free").turn).toBeUndefined();

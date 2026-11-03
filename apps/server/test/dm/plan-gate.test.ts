@@ -1,5 +1,9 @@
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { SYSTEM_WORDS } from "../../src/dm/fallback.js";
+import { cutPlans } from "../../src/dm/first-stage.js";
 import {
   arrivingNpcs,
   askUndeclared,
@@ -11,7 +15,11 @@ import {
 } from "../../src/dm/gates/plan-gate.js";
 import type { Ruling } from "../../src/dm/nodes/adjudicate.js";
 import type { BeatItem } from "../../src/dm/nodes/assemble.js";
-import type { InterpretReading, Step } from "../../src/dm/nodes/schemas.js";
+import {
+  InterpretOutput,
+  type InterpretReading,
+  type Step,
+} from "../../src/dm/nodes/schemas.js";
 import { buildSnapshot } from "../../src/dm/snapshot/index.js";
 import {
   M2_SEQ221_CONTROL,
@@ -24,8 +32,9 @@ import {
   greyhollowFight,
   PLAYER_USER,
 } from "./snapshot-fixtures.js";
-import { attackStep, checkStep, reading } from "./world.js";
+import { attackStep, checkStep, reading, spellStep } from "./world.js";
 
+const HERE = dirname(fileURLToPath(import.meta.url));
 const { projections, seed } = greyhollowFight();
 const snapshot = buildSnapshot(projections, seed);
 
@@ -41,6 +50,7 @@ const plan = (
     snapshot,
     readings,
     rulings: [],
+    combatants: {},
     joining: [],
     arriving: [],
     resumed: [],
@@ -58,6 +68,231 @@ const damageOn = (targetId: string) => ({
     { amount: { kind: "roll", expression: "1d4" }, damageType: "fire" },
   ],
   defenses: null,
+});
+
+describe("checkPlan: STAT_UNDEFINED (spec 082 D8)", () => {
+  const base = projections.engine.combatants;
+  const stats = {
+    abilityMods: { str: 3 },
+    proficiencyBonus: 2,
+    saves: {},
+    skills: {},
+    attacks: [
+      {
+        name: "Longsword",
+        range: "melee" as const,
+        toHit: 5,
+        damage: [],
+      },
+    ],
+    spellcastingAbility: null,
+  };
+  const withStats = {
+    ...base,
+    tamsin: { ...base.tamsin, stats },
+  } as typeof base;
+
+  it("passes a derivable attack and check", () => {
+    const v = plan(
+      [read("a1", [attackStep("goblin-2"), checkStep({ ability: "str" })])],
+      { combatants: withStats },
+    );
+    expect(v).toEqual([{ actionId: "a1", ok: true }]);
+  });
+  it("refuses an unknown attack name", () => {
+    const v = plan(
+      [read("a1", [attackStep("goblin-2", { attack: "Warhammer" })])],
+      {
+        combatants: withStats,
+      },
+    );
+    expect(v[0]).toMatchObject({
+      ok: false,
+      code: "STAT_UNDEFINED",
+      failure: { field: "attack", reason: "stat-undefined" },
+    });
+  });
+  it("refuses a combatant with no stats", () => {
+    const v = plan([read("a1", [attackStep("goblin-2")])], {
+      combatants: base,
+    });
+    expect(v[0]).toMatchObject({ ok: false, code: "STAT_UNDEFINED" });
+  });
+  it("refuses a missing ability modifier", () => {
+    const v = plan([read("a1", [checkStep({ ability: "wis", skill: null })])], {
+      combatants: withStats,
+    });
+    expect(v[0]).toMatchObject({ ok: false, code: "STAT_UNDEFINED" });
+  });
+  it("skips a joining combatant", () => {
+    const v = plan([read("a1", [attackStep("goblin-2")])], {
+      combatants: base,
+      joining: ["tamsin"],
+    });
+    expect(v[0]).toMatchObject({ ok: true });
+  });
+  it("refuses a circumstance reason that contradicts state", () => {
+    const v = plan(
+      [
+        read("a1", [
+          attackStep("goblin-2", {
+            circumstance: {
+              mode: "advantage",
+              reason: M2_SEQ221_REASON,
+            },
+          }),
+        ]),
+      ],
+      { combatants: withStats },
+    );
+    expect(v[0]).toMatchObject({
+      ok: false,
+      code: "REASON_CONTRADICTS_STATE",
+      failure: { field: "circumstance.reason" },
+    });
+  });
+});
+
+describe("checkPlan: spells (spec 083 D6)", () => {
+  const base = projections.engine.combatants;
+  const mkStats = (spellcastingAbility: "wis" | null) => ({
+    abilityMods: { wis: 3, dex: 1 },
+    proficiencyBonus: 2,
+    saves: {},
+    skills: {},
+    attacks: [],
+    spellcastingAbility,
+  });
+  const caster = {
+    ...base,
+    odo: { ...base.odo, stats: mkStats("wis") },
+    "goblin-2": { ...base["goblin-2"], stats: mkStats(null) },
+  } as typeof base;
+  const LEVELS: Record<string, number> = {
+    "sacred-flame": 0,
+    "cure-wounds": 1,
+    bless: 1,
+    "fire-bolt": 0,
+  };
+  const spellLists = new Map([
+    ["odo", ["sacred-flame", "cure-wounds", "bless"]],
+  ]);
+  const gate = (
+    readings: InterpretReading[],
+    extra: Partial<Parameters<typeof checkPlan>[0]> = {},
+  ) =>
+    plan(readings, {
+      combatants: caster,
+      spellLists,
+      srdSpell: (id) => (id in LEVELS ? { level: LEVELS[id] ?? 0 } : undefined),
+      ...extra,
+    });
+  const spellRead = (s: unknown[], over = {}) =>
+    read("a1", s, { intent: "spell", ...over });
+
+  it("passes a prepared, resolvable spell", () => {
+    expect(gate([spellRead([spellStep("goblin-2")])])).toEqual([
+      { actionId: "a1", ok: true },
+    ]);
+    expect(
+      gate([
+        spellRead([
+          spellStep("kestrel", { spellId: "cure-wounds", slotLevel: 1 }),
+        ]),
+      ]),
+    ).toEqual([{ actionId: "a1", ok: true }]);
+  });
+  it("refuses an id with no SRD record", () => {
+    const v = gate([
+      spellRead([spellStep("goblin-2", { spellId: "no-such" })]),
+    ]);
+    expect(v[0]).toMatchObject({
+      ok: false,
+      code: "SPELL_UNKNOWN",
+      failure: { reason: "spell-unknown" },
+    });
+  });
+  it("refuses a spell not on the caster's list", () => {
+    const v = gate([
+      spellRead([spellStep("goblin-2", { spellId: "fire-bolt" })]),
+    ]);
+    expect(v[0]).toMatchObject({ ok: false, code: "SPELL_NOT_PREPARED" });
+  });
+  it("refuses a monster caster, which has no list", () => {
+    const v = gate(
+      [spellRead([spellStep("odo", { casterId: "goblin-2" })], {})],
+      { actors: undefined },
+    );
+    expect(v[0]).toMatchObject({ ok: false, code: "SPELL_NOT_PREPARED" });
+  });
+  it("refuses a spell with no table entry", () => {
+    const v = gate([
+      spellRead([spellStep("goblin-2", { spellId: "bless", slotLevel: 1 })]),
+    ]);
+    expect(v[0]).toMatchObject({ ok: false, code: "SPELL_UNRESOLVED" });
+  });
+  it("refuses a cantrip with a slot level and a leveled spell below its level", () => {
+    const a = gate([spellRead([spellStep("goblin-2", { slotLevel: 1 })])]);
+    expect(a[0]).toMatchObject({ ok: false, code: "SPELL_UNRESOLVED" });
+    const b = gate([
+      spellRead([
+        spellStep("kestrel", { spellId: "cure-wounds", slotLevel: null }),
+      ]),
+    ]);
+    expect(b[0]).toMatchObject({ ok: false, code: "SPELL_UNRESOLVED" });
+  });
+  it("refuses intent spell with only check and effect steps", () => {
+    const v = gate([
+      spellRead([
+        checkStep({ combatantId: null }),
+        {
+          step: "effect",
+          reason: "Odo's flame burns",
+          effects: [damageOn("goblin-2")],
+        },
+      ]),
+    ]);
+    expect(v[0]).toMatchObject({
+      ok: false,
+      code: "SPELL_UNRESOLVED",
+      failure: { field: "intent" },
+    });
+  });
+  it("passes a clarify reading with intent spell", () => {
+    const v = gate([spellRead([], { clarify: "Which spell?" })]);
+    expect(v[0]).toMatchObject({ ok: true });
+  });
+  it("refuses a caster with no spellcasting ability", () => {
+    const c = {
+      ...caster,
+      odo: { ...caster.odo, stats: mkStats(null) },
+    } as typeof base;
+    const v = gate([spellRead([spellStep("goblin-2")])], { combatants: c });
+    expect(v[0]).toMatchObject({ ok: false, code: "STAT_UNDEFINED" });
+  });
+  it("skips a joining caster", () => {
+    const v = gate(
+      [spellRead([spellStep("goblin-2", { casterId: "goblin-9" })])],
+      { joining: ["goblin-9"] },
+    );
+    expect(v[0]).toMatchObject({ ok: true });
+  });
+  it("refuses another party member's spell in a character action", () => {
+    const v = gate([spellRead([spellStep("goblin-2", { casterId: "odo" })])], {
+      actors: new Map([["a1", "tamsin"]]),
+    });
+    expect(v[0]).toMatchObject({ ok: false, code: "STEP_ACTOR_MISMATCH" });
+  });
+  it("refuses a spell reason that contradicts state", () => {
+    const v = gate([
+      spellRead([spellStep("goblin-2", { reason: M2_SEQ221_REASON })]),
+    ]);
+    expect(v[0]).toMatchObject({
+      ok: false,
+      code: "REASON_CONTRADICTS_STATE",
+      failure: { field: "reason" },
+    });
+  });
 });
 
 describe("checkPlan", () => {
@@ -188,6 +423,7 @@ describe("checkPlan: absent actors", () => {
     readings: InterpretReading[],
   ): ReturnType<typeof checkPlan> =>
     checkPlan({
+      combatants: {},
       snapshot: snap,
       readings,
       rulings: [],
@@ -250,6 +486,7 @@ describe("checkPlan: absent actors", () => {
       seq: 12,
     };
     const v = checkPlan({
+      combatants: {},
       snapshot: buildSnapshot(f.projections, f.seed),
       readings: [read("a1", [attackStep("pell")])] as InterpretReading[],
       rulings: [],
@@ -349,6 +586,7 @@ describe("joiningCombatants", () => {
 describe("checkPlan: roll reasons", () => {
   const run = (reason: string) =>
     checkPlan({
+      combatants: {},
       snapshot: M2_SEQ221_S0,
       readings: [m2Seq221Reading(reason)],
       rulings: [],
@@ -422,6 +660,7 @@ describe("checkPlan: reason state", () => {
     extra: Partial<Parameters<typeof checkPlan>[0]> = {},
   ) =>
     checkPlan({
+      combatants: {},
       snapshot: pellAway(),
       readings,
       rulings: [],
@@ -451,6 +690,43 @@ describe("checkPlan: reason state", () => {
     );
   });
 
+  it("refuses a stakes text that contradicts state (spec 070)", () => {
+    const v = run([
+      read("a1", [
+        checkStep({
+          reason: "Ana studies the reeds",
+          stakes: {
+            success: "The attempt works as intended.",
+            cost: "It works, at a small price.",
+            failure: PELL_REASON,
+            severe: "It goes badly wrong.",
+          },
+        }),
+      ]),
+    ]);
+    expect(v[0]).toMatchObject({
+      ok: false,
+      code: "REASON_CONTRADICTS_STATE",
+      failure: { stepIndex: 0, field: "stakes.failure", text: PELL_REASON },
+    });
+  });
+
+  it("refuses an absent id in onSevere (spec 070)", () => {
+    const v = run([
+      read("a1", [
+        checkStep({
+          reason: "Ana studies the reeds",
+          onSevere: [damageOn("pell")],
+        }),
+      ]),
+    ]);
+    expect(v[0]).toMatchObject({
+      ok: false,
+      code: "UNKNOWN_COMBATANT",
+      failure: { field: "onSevere[0].targetId", id: "pell" },
+    });
+  });
+
   it("exempts an arriving NPC from the act rule", () => {
     const v = run([read("a1", [pellStep()])], { arriving: ["pell"] });
     expect(v).toEqual([{ actionId: "a1", ok: true }]);
@@ -469,6 +745,7 @@ describe("checkPlan: reason state", () => {
       seq: 125,
     };
     const v = checkPlan({
+      combatants: {},
       snapshot: buildSnapshot(f.projections, f.seed),
       readings: [read("a1", [attackStep("goblin-3")])],
       rulings: [],
@@ -666,6 +943,7 @@ describe("checkPlan: non-combatant NPC pull (specs 068, 075)", () => {
       seq: 125,
     };
     const v = checkPlan({
+      combatants: {},
       snapshot: buildSnapshot(f.projections, f.seed),
       readings: [read("a1", [attackStep("pell")])],
       rulings: [],
@@ -701,6 +979,7 @@ describe("checkPlan: non-combatant NPC pull (specs 068, 075)", () => {
       seq: 125,
     };
     const v = checkPlan({
+      combatants: {},
       snapshot: buildSnapshot(f.projections, f.seed),
       readings: [read("a1", [checkStep({ combatantId: "pell" })])],
       rulings: [],
@@ -940,5 +1219,87 @@ describe("askUndeclared (spec 077)", () => {
       expect(q.match(/\?/g)).toHaveLength(1);
       expect(q.length).toBeLessThanOrEqual(200);
     }
+  });
+});
+
+describe("checkPlan actor rule (spec 079 D5)", () => {
+  const actors = new Map<string, string | null>([
+    ["a1", "kestrel"],
+    ["party", null],
+  ]);
+  const withActors = (readings: InterpretReading[]) =>
+    plan(readings, { actors });
+  const move = (combatantId: string) => ({
+    step: "move",
+    reason: "Kestrel runs for Pell",
+    combatantId,
+    leavesReachOf: ["goblin-2"],
+  });
+
+  it("refuses a foreign attacker inside a character action", () => {
+    const v = withActors([
+      read("a1", [attackStep("kestrel", { attackerId: "goblin-2" })]),
+    ]);
+    expect(v[0]).toEqual({
+      actionId: "a1",
+      ok: false,
+      code: "STEP_ACTOR_MISMATCH",
+      failure: {
+        stepIndex: 0,
+        field: "attackerId",
+        id: "goblin-2",
+        reason: "not-the-actor",
+      },
+    });
+  });
+
+  it("refuses a foreign mover, and passes the actor's own move", () => {
+    expect(withActors([read("a1", [move("tamsin")])])[0]).toMatchObject({
+      ok: false,
+      code: "STEP_ACTOR_MISMATCH",
+      failure: { field: "combatantId", id: "tamsin" },
+    });
+    expect(withActors([read("a1", [move("kestrel")])])[0]).toEqual({
+      actionId: "a1",
+      ok: true,
+    });
+  });
+
+  it("a party-scope action may name any party member, not a monster", () => {
+    expect(withActors([read("party", [move("tamsin")])])[0]).toMatchObject({
+      ok: true,
+    });
+    expect(
+      withActors([
+        read("party", [attackStep("kestrel", { attackerId: "goblin-2" })]),
+      ])[0],
+    ).toMatchObject({ ok: false, code: "STEP_ACTOR_MISMATCH" });
+  });
+
+  it("does not check the monster turn", () => {
+    const v = withActors([
+      read(null, [attackStep("kestrel", { attackerId: "goblin-2" })]),
+    ]);
+    expect(v[0]).toMatchObject({ ok: true });
+  });
+
+  it("run 1's plan-approach plan (Kestrel attacks Snag in Tamsin's action) passes after the free-mode cut (R4)", () => {
+    const script = JSON.parse(
+      readFileSync(join(HERE, "scripts", "plan-approach.json"), "utf8"),
+    );
+    const call = script.calls.find(
+      (c: { purpose: string }) => c.purpose === "dm.interpret",
+    );
+    const parsed = InterpretOutput.parse(call.respond.value);
+    const cut = cutPlans({
+      mode: "free",
+      readings: parsed.readings,
+      rulings: [],
+    });
+    // The scripted action belongs to Tamsin; Kestrel's attack is cut as a later stage.
+    const v = plan(cut.readings, {
+      actors: new Map([[parsed.readings[0]?.actionId as string, "tamsin"]]),
+    });
+    expect(v[0]).toMatchObject({ ok: true });
   });
 });

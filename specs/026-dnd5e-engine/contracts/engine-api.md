@@ -196,6 +196,7 @@ export const EncounterSchema = z.object({
   round: z.number().int().min(1),
   turnIndex: z.number().int().min(0),       // refine: < order.length
   order: z.array(InitiativeEntrySchema).min(1),
+  reactionsSpent: z.array(CombatantIdSchema).optional(), // Amended by spec 079 (TASK-0208): Reaction spent until that combatant's next turn start; absent = none
 });
 
 export const EngineStateSchema = z.object({
@@ -258,3 +259,15 @@ value. `0d6`, `1d0` and a keep `n` of 0 are `INVALID_DICE_EXPRESSION`.
   success/failure or an adjusted damage amount (orchestrator ruling 2026-10-25, research R8).
   `resolve` builds commands; `narrate` and `audit` read the ledger fields
   (`reason`, faces, `total`, `before`, `after`) and never call `execute` themselves.
+
+## Amended by specs/082-engine-derived-numbers (TASK-0104)
+
+New exports: `derive.ts` (`checkModifier`, `findAttack`, `firstMeleeAttack`, `checkModeSources`,
+`attackModeSources`, `foldMode`, `d20Expression`, `spellSaveDc`, `spellAttackBonus`, `DIFFICULTY_DC`,
+`DifficultySchema`), `CombatantStatsSchema`, `AttackEntrySchema`, `AbilitySchema`, `AmountSchema`,
+`SKILL_ABILITY`. `Combatant` gains optional `stats`.
+
+## Amended by specs/083-spells-by-srd-id (TASK-0105)
+
+New exports: `SPELLS`, `SpellMechanicsSchema`, `SpellMechanics`, `spellDice`, `spellcastingModifier`.
+`spellSaveDc` and `spellAttackBonus` now use `spellcastingModifier`.

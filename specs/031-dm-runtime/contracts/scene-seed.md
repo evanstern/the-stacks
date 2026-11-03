@@ -195,3 +195,16 @@ states a DM-only fact.
 ### Amended by spec 072 (TASK-0164)
 
 `characters[].identity` gains required `class` (1..40 chars) and `level` (1..20).
+
+## Amended by specs/082-engine-derived-numbers (TASK-0104)
+
+**Stats sources.** The engine combatant carries `stats` (the engine's `CombatantStats`), built by
+code at `combatant.add`: a seed PC from its sheet (`statsFromCharacter`: `abilityMods`,
+`proficiencyBonus`, `saves`, `skills` copied; each attack's `toHit` parsed from `1d20+N`, `range`
+from the SRD weapon of the same name, damage dice as roll amounts; `spellcastingAbility` from the
+SRD class record), a monster or pulled-in NPC from its SRD record (`statsFromSrd`; attack parts with
+a `condition` are skipped; `spellcastingAbility` is null). The seed gains no field.
+
+**Loader checks (FR-011).** `crossCheckSeed` also refuses: a character attack expression that is not
+`1d20` plus or minus a number; a character attack whose name is no SRD weapon; a character
+`identity.combatant` that already carries `stats`.

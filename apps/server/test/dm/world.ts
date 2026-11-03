@@ -15,6 +15,7 @@ import {
   loadDmScript,
   type ScriptedDm,
 } from "../../src/dm/script/load.js";
+import type { SceneSeed } from "../../src/dm/seed/schema.js";
 import { readFrom } from "../../src/events/log.js";
 import { createGate, type Gate } from "../../src/gate/index.js";
 import type { PresenceReader } from "../../src/presence/index.js";
@@ -107,6 +108,8 @@ export async function createWorld(
     gate?: (g: Gate) => Gate;
     /** Who is at the table for `recordPresence`. Default: no humans. */
     presence?: PresenceReader;
+    /** Overrides the context seed (table-rule overrides). */
+    seed?: SceneSeed;
   } = {},
 ): Promise<World> {
   const sessionId = randomUUID();
@@ -144,6 +147,7 @@ export async function createWorld(
 
   const ctx: World["ctx"] = (over = {}) =>
     makeCtx({
+      seed: opts.seed,
       job: { sessionId, ...over.job },
       checkpoint: over.checkpoint ?? checkpoint.current,
       deps: {
@@ -232,12 +236,20 @@ export const checkStep = (over: Record<string, unknown> = {}) => ({
   kind: "ability-check",
   ability: "str",
   skill: "athletics",
-  expression: "1d20+4",
-  mode: "normal",
-  dc: 12,
+  difficulty: "medium",
+  circumstance: null,
   autoFail: null,
   onSuccess: [],
   onFailure: [],
+  stakes: {
+    success: "The attempt works as intended.",
+    cost: "It works, at a small price.",
+    failure: "The attempt comes to nothing.",
+    severe: "It goes badly wrong.",
+  },
+  onCost: [],
+  onSevere: [],
+  newRisk: null,
   ...over,
 });
 
@@ -249,22 +261,22 @@ export const attackStep = (
   reason: "Tamsin swings her longsword",
   attackerId: "tamsin",
   targetId,
-  expression: "1d20+5",
-  mode: "normal",
-  targetAc: null,
-  onHit: [
-    {
-      effect: "damage",
-      targetId,
-      components: [
-        {
-          amount: { kind: "roll", expression: "1d8+3" },
-          damageType: "slashing",
-        },
-      ],
-      defenses: null,
-    },
-  ],
+  attack: "Longsword",
+  circumstance: null,
+  onHit: [],
+  ...over,
+});
+
+export const spellStep = (
+  targetId: string,
+  over: Record<string, unknown> = {},
+) => ({
+  step: "spell",
+  reason: "Odo calls down sacred flame",
+  casterId: "odo",
+  spellId: "sacred-flame",
+  slotLevel: null,
+  targetId,
   ...over,
 });
 

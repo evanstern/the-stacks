@@ -122,9 +122,8 @@
                   "kind": "ability-check",
                   "ability": "dex",
                   "skill": "sleight-of-hand",
-                  "expression": "1d20",
-                  "mode": "normal",
-                  "dc": 12,
+                  "difficulty": "medium",
+                  "circumstance": null,
                   "autoFail": null,
                   "onSuccess": [
                     {
@@ -135,7 +134,16 @@
                       "source": "cut free"
                     }
                   ],
-                  "onFailure": []
+                  "onFailure": [],
+                  "stakes": {
+                    "success": "The attempt works as intended.",
+                    "cost": "It works, but at a small price.",
+                    "failure": "The attempt comes to nothing.",
+                    "severe": "It goes badly wrong."
+                  },
+                  "onCost": [],
+                  "onSevere": [],
+                  "newRisk": null
                 }
               ]
             }

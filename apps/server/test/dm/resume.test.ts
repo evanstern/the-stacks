@@ -102,7 +102,7 @@ describe("needsPriorTurns", () => {
 const reading = (actionId: string): InterpretReading =>
   ({
     actionId,
-    kind: "check",
+    intent: "check",
     uncertain: false,
     needsAdjudication: false,
     rulesQuestion: null,
@@ -135,6 +135,8 @@ function sub(
     batchId: null,
     proposalId,
     outcome: null,
+    band: null,
+    stakes: null,
     seqs: [],
     ...over,
   };
@@ -233,6 +235,32 @@ describe("findResumedPlans", () => {
     expect(plans[0]?.ruling).toEqual(ruling("a1"));
   });
 
+  it("skips an old-shape paused reading (spec 082 D10)", () => {
+    const s = sub("act:a1:s0", "pending", "p1");
+    const old = {
+      ...reading("a1"),
+      steps: [
+        {
+          step: "check",
+          reason: "r",
+          combatantId: "tamsin",
+          kind: "ability-check",
+          ability: "str",
+          skill: null,
+          expression: "1d20",
+          mode: "normal",
+          dc: 12,
+          autoFail: null,
+          onSuccess: [],
+          onFailure: [],
+        },
+      ],
+    } as unknown as InterpretReading;
+    expect(
+      findResumedPlans(proj([approved()]), ["a1"], [prior("j1", [s], [old])]),
+    ).toEqual([]);
+  });
+
   it("only keeps submissions keyed for the action", () => {
     const s = sub("act:a1:s0", "pending", "p1");
     const other = sub("act:a2:s0", "applied", null);
@@ -255,7 +283,11 @@ describe("refreshSubmission", () => {
     batchId: "batch-1",
     index: 1,
     actionId: "a1",
-    outcome: { type: "check.resolved", outcome: "success" },
+    outcome: {
+      type: "check.resolved",
+      outcome: "success",
+      band: "success-at-cost",
+    },
   } as unknown as LedgerRow;
 
   it("rewrites an approved pending submission as applied", () => {
@@ -265,6 +297,7 @@ describe("refreshSubmission", () => {
       result: "applied",
       batchId: "batch-1",
       outcome: "success",
+      band: "success-at-cost",
       seqs: [],
       stepRef: "job#3",
       key: "act:a1:s0",

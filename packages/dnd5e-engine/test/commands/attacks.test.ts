@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { SkillSchema } from "../../src/index.js";
+import { bandOf, SkillSchema } from "../../src/index.js";
 import {
   expectOk,
   expectRefusal,
@@ -604,5 +604,302 @@ describe("attack to damage flow", () => {
     });
     expect(dmg.rng.remaining()).toBe(0);
     expect(settle(s1, dmg.result).combatants["gob-1"]?.hp.current).toBe(23);
+  });
+});
+
+describe("check.roll outcome bands (spec 070)", () => {
+  const on = { outcomeBands: true, naturals: true };
+  const bandsOnly = { outcomeBands: true, naturals: false };
+  // Ability check, 1d20+0 against DC 12: the face is the total.
+  const ability = (over: Record<string, unknown> = {}) =>
+    check({
+      kind: "ability-check",
+      ability: "cha",
+      combatantId: "pc-ana",
+      expression: "1d20+0",
+      dc: 12,
+      ...over,
+    });
+  const bandFor = (face: number, houseRules: object, over = {}) =>
+    checkOf(
+      expectOk(run(state(), ability({ houseRules, ...over }), [face]).result),
+    );
+
+  it.each([
+    [12, 0, "success", "success"],
+    [11, -1, "success-at-cost", "success"],
+    [10, -2, "success-at-cost", "success"],
+    [9, -3, "failure", "failure"],
+    [8, -4, "failure", "failure"],
+    [7, -5, "severe-failure", "failure"],
+  ])(
+    "face %i (margin %i) with bands on is %s",
+    (face, margin, band, outcome) => {
+      expect(bandFor(face, bandsOnly)).toMatchObject({ margin, band, outcome });
+    },
+  );
+
+  it("bands off: a miss is a plain failure at any margin", () => {
+    expect(bandFor(11, { outcomeBands: false, naturals: false })).toMatchObject(
+      { margin: -1, band: "failure", outcome: "failure" },
+    );
+    expect(bandFor(2, { outcomeBands: false, naturals: false })).toMatchObject({
+      band: "failure",
+    });
+  });
+
+  it("a saving throw never gets a cost or severe band", () => {
+    const save = (face: number) =>
+      checkOf(
+        expectOk(run(state(), check({ houseRules: bandsOnly }), [face]).result),
+      );
+    expect(save(9)).toMatchObject({ margin: -2, band: "failure" });
+    expect(save(5)).toMatchObject({ margin: -6, band: "failure" });
+  });
+
+  it("natural 20 below the DC succeeds and natural 1 above it fails (naturals on)", () => {
+    expect(bandFor(20, on, { dc: 30 })).toMatchObject({
+      band: "success",
+      outcome: "success",
+    });
+    expect(bandFor(1, on, { expression: "1d20+20", dc: 12 })).toMatchObject({
+      band: "failure",
+      outcome: "failure",
+    });
+  });
+
+  it("naturals off: the total decides", () => {
+    expect(
+      bandFor(20, { outcomeBands: false, naturals: false }, { dc: 30 }),
+    ).toMatchObject({ outcome: "failure" });
+  });
+
+  it("natural 1 at margin -6 with bands on is a severe failure", () => {
+    expect(bandFor(1, on, { dc: 7 })).toMatchObject({
+      margin: -6,
+      band: "severe-failure",
+    });
+  });
+
+  it("autoSuccess resolves success with no dice and no draw", () => {
+    const { result, rng } = run(
+      state(),
+      ability({ autoSuccess: { reason: "free retry" } }),
+      [],
+    );
+    const events = expectOk(result);
+    expect(events.map((e) => e.type)).toEqual(["check.resolved"]);
+    expect(checkOf(events)).toMatchObject({
+      outcome: "success",
+      band: "success",
+      margin: null,
+      total: null,
+      natural: null,
+    });
+    expect(rng.remaining()).toBe(0);
+  });
+
+  it("refuses autoSuccess beside autoFail", () => {
+    expectRefusedBeforeDraw(
+      run(
+        state(),
+        ability({
+          autoSuccess: { reason: "a" },
+          autoFail: { reason: "b" },
+        }),
+        [10],
+      ),
+      "INVALID_COMMAND",
+    );
+  });
+
+  it("autoFail records band failure and a null margin", () => {
+    const { result } = run(
+      state(),
+      ability({ autoFail: { reason: "locked" } }),
+      [],
+    );
+    expect(checkOf(expectOk(result))).toMatchObject({
+      band: "failure",
+      margin: null,
+    });
+  });
+
+  it("sending no houseRules gives SRD behaviour", () => {
+    expect(
+      checkOf(expectOk(run(state(), ability(), [11]).result)),
+    ).toMatchObject({ band: "failure", outcome: "failure", margin: -1 });
+  });
+
+  it("bandOf is pure", () => {
+    expect(
+      bandOf({
+        total: 10,
+        dc: 12,
+        natural: 10,
+        kind: "ability-check",
+        houseRules: bandsOnly,
+      }).band,
+    ).toBe("success-at-cost");
+  });
+});
+
+describe("derived rolls (spec 082)", () => {
+  const stats = {
+    abilityMods: { str: 3, wis: 3, dex: 2 },
+    proficiencyBonus: 2,
+    saves: {},
+    skills: { athletics: 5 },
+    attacks: [
+      {
+        name: "Longsword",
+        range: "melee" as const,
+        toHit: 5,
+        damage: [
+          {
+            amount: { kind: "roll" as const, expression: "1d8+3" },
+            damageType: "slashing" as const,
+          },
+        ],
+      },
+    ],
+    spellcastingAbility: null,
+  };
+  const derivedHero = (over = {}) => hero({ stats, ...over });
+  const dcheck = (over: Record<string, unknown> = {}) => ({
+    type: "check.roll",
+    combatantId: "pc-ana",
+    kind: "ability-check",
+    ability: "str",
+    skill: "athletics",
+    difficulty: "medium",
+    reason: "climb",
+    ...over,
+  });
+  const dattack = (over: Record<string, unknown> = {}) => ({
+    type: "attack.roll",
+    attackerId: "pc-ana",
+    targetId: "gob-1",
+    attack: "Longsword",
+    reason: "swing",
+    ...over,
+  });
+
+  it("derives a check at tier medium: 1d20+5 vs DC 15", () => {
+    const out = run(stateWith(derivedHero(), goblin()), dcheck(), [10]);
+    const events = expectOk(out.result);
+    expect(events[0]).toMatchObject({
+      type: "dice.rolled",
+      expression: "1d20+5",
+    });
+    expect(checkOf(events)).toMatchObject({
+      dc: 15,
+      difficulty: "medium",
+      total: 15,
+      outcome: "success",
+    });
+  });
+  it("rolls a scene check flat", () => {
+    const out = run(
+      stateWith(derivedHero(), goblin()),
+      dcheck({ combatantId: null, difficulty: "hard" }),
+      [12],
+    );
+    const events = expectOk(out.result);
+    expect(events[0]).toMatchObject({ expression: "1d20" });
+    expect(checkOf(events)).toMatchObject({ dc: 20, outcome: "failure" });
+  });
+  it("refuses dc with difficulty, and neither", () => {
+    const st = stateWith(derivedHero(), goblin());
+    expectRefusedBeforeDraw(
+      run(st, dcheck({ dc: 15 }), [10]),
+      "INVALID_COMMAND",
+    );
+    expectRefusedBeforeDraw(
+      run(st, dcheck({ difficulty: undefined }), [10]),
+      "INVALID_COMMAND",
+    );
+  });
+  it("keeps explicit expression and dc, ignoring conditions", () => {
+    const st = stateWith(
+      derivedHero({ conditions: [cond("poisoned")] }),
+      goblin(),
+    );
+    const out = run(
+      st,
+      dcheck({ expression: "1d20+1", dc: 12, difficulty: undefined }),
+      [10],
+    );
+    expect(out.rng.remaining()).toBe(0);
+    expect(checkOf(expectOk(out.result))).toMatchObject({ dc: 12, total: 11 });
+  });
+  it("rolls a poisoned check with disadvantage", () => {
+    const st = stateWith(
+      derivedHero({ conditions: [cond("poisoned")] }),
+      goblin(),
+    );
+    const out = run(st, dcheck(), [18, 4]);
+    expect(checkOf(expectOk(out.result)).total).toBe(9);
+  });
+  it("derives an attack by name against the record AC", () => {
+    const out = run(stateWith(derivedHero(), goblin()), dattack(), [10]);
+    const events = expectOk(out.result);
+    expect(events[0]).toMatchObject({ expression: "1d20+5" });
+    expect(outcomeOf(events)).toMatchObject({
+      attack: "Longsword",
+      ac: 15,
+      total: 15,
+      outcome: "hit",
+    });
+  });
+  it("rolls a poisoned attacker with disadvantage", () => {
+    const st = stateWith(
+      derivedHero({ conditions: [cond("poisoned")] }),
+      goblin(),
+    );
+    const out = run(st, dattack(), [18, 2]);
+    expect(outcomeOf(expectOk(out.result)).total).toBe(7);
+  });
+  it("refuses attack with expression", () => {
+    expectRefusedBeforeDraw(
+      run(
+        stateWith(derivedHero(), goblin()),
+        dattack({ expression: "1d20" }),
+        [10],
+      ),
+      "INVALID_COMMAND",
+    );
+  });
+  it("refuses STAT_UNDEFINED before any draw", () => {
+    expectRefusedBeforeDraw(
+      run(stateWith(hero(), goblin()), dattack(), [10]),
+      "STAT_UNDEFINED",
+    );
+    expectRefusedBeforeDraw(
+      run(
+        stateWith(derivedHero(), goblin()),
+        dattack({ attack: "Warhammer" }),
+        [10],
+      ),
+      "STAT_UNDEFINED",
+    );
+    expectRefusedBeforeDraw(
+      run(stateWith(hero(), goblin()), dcheck(), [10]),
+      "STAT_UNDEFINED",
+    );
+    expectRefusedBeforeDraw(
+      run(
+        stateWith(derivedHero(), goblin()),
+        dcheck({ ability: "int", skill: null }),
+        [10],
+      ),
+      "STAT_UNDEFINED",
+    );
+  });
+  it("bands against the tier DC", () => {
+    // 1d20+5 total 14 vs DC 15: margin -1
+    const out = run(stateWith(derivedHero(), goblin()), dcheck(), [9]);
+    const e = checkOf(expectOk(out.result));
+    expect(e).toMatchObject({ dc: 15, margin: -1 });
   });
 });

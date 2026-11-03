@@ -1,6 +1,7 @@
 import {
   DamageTypeSchema,
   DefenseSetSchema,
+  DifficultySchema,
   EngineCommandSchema,
   type Skill,
 } from "@the-stacks/dnd5e-engine";
@@ -126,31 +127,66 @@ export const EffectSchema = z.discriminatedUnion("effect", [
 ]);
 export type Effect = z.infer<typeof EffectSchema>;
 
+/** Spec 070 D1: one consequence text per outcome band, declared before the dice. */
+const StakeText = z.string().min(1).max(200);
+export const StakesSchema = z.object({
+  success: StakeText, // spec 080: the concrete outcome of this attempt, always written
+  cost: StakeText.nullable(), // required on an ability check
+  failure: StakeText, // always required
+  severe: StakeText.nullable(), // required on an ability check
+});
+export type Stakes = z.infer<typeof StakesSchema>;
+
+/** Spec 080 D1: `<beatId>#<n>`, the n-th discoverable clue of a seed beat (1-based). */
+export const ClueRefSchema = z
+  .string()
+  .regex(/^[a-z0-9][a-z0-9_.:-]{0,63}#[1-8]$/);
+
+export { DifficultySchema };
+
+/** Spec 082 D6: advantage or disadvantage from a source no condition states, with its reason. */
+const CircumstanceSchema = z
+  .object({ mode: z.enum(["advantage", "disadvantage"]), reason: Reason })
+  .nullable()
+  .default(null);
+
 export const StepSchema = z.discriminatedUnion("step", [
   z.object({ step: z.literal("none"), reason: Reason }),
-  z.object({
+  z.strictObject({
     step: z.literal("check"),
     reason: Reason,
     combatantId: CombatantIdSchema.nullable(),
     kind: z.enum(["ability-check", "saving-throw"]),
     ability: AbilitySchema,
     skill: SkillSchema.nullable(),
-    expression: z.string().min(1).max(200),
-    mode: RollModeSchema,
-    dc: z.number().int().min(1).max(40),
+    difficulty: DifficultySchema,
+    circumstance: CircumstanceSchema,
     autoFail: z.object({ reason: Reason }).nullable(),
     onSuccess: z.array(EffectSchema).max(4),
     onFailure: z.array(EffectSchema).max(4),
+    stakes: StakesSchema,
+    reveals: ClueRefSchema.nullable().default(null),
+    onCost: z.array(EffectSchema).max(4).default([]),
+    onSevere: z.array(EffectSchema).max(4).default([]),
+    newRisk: z.string().min(1).max(200).nullable().default(null),
   }),
-  z.object({
+  z.strictObject({
     step: z.literal("attack"),
     reason: Reason,
-    attackerId: CombatantIdSchema.nullable(),
+    attackerId: CombatantIdSchema,
     targetId: CombatantIdSchema,
-    expression: z.string().min(1).max(200),
-    mode: RollModeSchema,
-    targetAc: z.number().int().min(1).max(40).nullable(),
-    onHit: z.array(EffectSchema).min(1).max(4),
+    attack: z.string().min(1).max(60),
+    circumstance: CircumstanceSchema,
+    onHit: z.array(EffectSchema).max(4),
+  }),
+  // Spec 083 D4: the engine resolves the spell's attack, save, dice and effects.
+  z.strictObject({
+    step: z.literal("spell"),
+    reason: Reason,
+    casterId: CombatantIdSchema,
+    spellId: z.string().regex(/^[a-z0-9]+(-[a-z0-9]+)*$/),
+    slotLevel: z.number().int().min(1).max(9).nullable(),
+    targetId: CombatantIdSchema,
   }),
   z.object({
     step: z.literal("effect"),
@@ -163,8 +199,49 @@ export const StepSchema = z.discriminatedUnion("step", [
     expression: z.string().min(1).max(200),
     mode: RollModeSchema,
   }),
+  z.object({
+    step: z.literal("move"),
+    reason: Reason,
+    combatantId: CombatantIdSchema,
+    leavesReachOf: z.array(CombatantIdSchema).max(6),
+  }),
 ]);
 export type Step = z.infer<typeof StepSchema>;
+
+/**
+ * An ability check names a cost and a severe consequence; a saving throw may not.
+ * Spec 082: an attack's `onHit` carries no damage (the engine applies the attack entry's).
+ */
+function refineSteps(
+  steps: readonly Step[],
+  ctx: z.RefinementCtx,
+  base: (string | number)[],
+): void {
+  steps.forEach((step, i) => {
+    if (step.step === "attack") {
+      step.onHit.forEach((e, j) => {
+        if (e.effect === "damage") {
+          ctx.addIssue({
+            code: "custom",
+            message:
+              "an attack's onHit carries no damage effect: the engine applies the attack's damage",
+            path: [...base, i, "onHit", j],
+          });
+        }
+      });
+    }
+    if (step.step !== "check" || step.kind !== "ability-check") return;
+    for (const key of ["cost", "severe"] as const) {
+      if (step.stakes[key] === null) {
+        ctx.addIssue({
+          code: "custom",
+          message: `an ability check needs stakes.${key}`,
+          path: [...base, i, "stakes", key],
+        });
+      }
+    }
+  });
+}
 
 export const InterpretReadingSchema = z
   .object({
@@ -186,6 +263,7 @@ export const InterpretReadingSchema = z
     clarify: z.string().min(1).max(200).nullable(),
     steps: z.array(StepSchema).max(6),
     followUps: z.array(z.string().min(1).max(200)).max(6).default([]),
+    say: z.string().min(1).max(200).nullable().optional(), // a monster's spoken line (specs/081)
   })
   .superRefine((r, ctx) => {
     if (r.needsAdjudication && r.rulesQuestion === null) {
@@ -195,6 +273,7 @@ export const InterpretReadingSchema = z
         path: ["rulesQuestion"],
       });
     }
+    refineSteps(r.steps, ctx, ["steps"]);
   });
 export type InterpretReading = z.infer<typeof InterpretReadingSchema>;
 
@@ -306,24 +385,26 @@ export const ReactOutput = z
   });
 export type ReactOutput = z.infer<typeof ReactOutput>;
 
-export const AdjudicateModelOutput = z.object({
-  ruling: z.string().min(1).max(600),
-  citations: z
-    .array(
-      z.discriminatedUnion("source", [
-        z.object({
-          source: z.literal("library"),
-          p: z.number().int().min(1),
-          quote: z.string().min(1).max(500),
-        }),
-        z.object({
-          source: z.literal("srd"),
-          kind: SrdKind,
-          id: z.string().min(1),
-        }),
-      ]),
-    )
-    .max(6),
-  steps: z.array(StepSchema).min(1).max(6),
-});
+export const AdjudicateModelOutput = z
+  .object({
+    ruling: z.string().min(1).max(600),
+    citations: z
+      .array(
+        z.discriminatedUnion("source", [
+          z.object({
+            source: z.literal("library"),
+            p: z.number().int().min(1),
+            quote: z.string().min(1).max(500),
+          }),
+          z.object({
+            source: z.literal("srd"),
+            kind: SrdKind,
+            id: z.string().min(1),
+          }),
+        ]),
+      )
+      .max(6),
+    steps: z.array(StepSchema).min(1).max(6),
+  })
+  .superRefine((o, ctx) => refineSteps(o.steps, ctx, ["steps"]));
 export type AdjudicateModelOutput = z.infer<typeof AdjudicateModelOutput>;

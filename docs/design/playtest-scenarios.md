@@ -23,6 +23,15 @@ the same opening every run.
 2. Script: `DM_FAKE_SCRIPT=<script-name>` (rehearsal only; see `.claude/skills/playtest-run/SKILL.md`).
 3. Checklist: `checklist.mjs derive --scenario docs/playtests/scenarios/<file>.md ...`.
 
+## Standing rows
+
+Every scenario checklist carries these rows until their card is Done. Drop a row when its card closes.
+
+| id | item | source |
+|----|------|--------|
+| S-sneak-attack | Sneak Attack is off (attack damage comes from the attack entry only, spec 082). Record whether a rogue's attack would have qualified, and TASK-0225's status. | TASK-0225 |
+| S-spells-refused | Spells the engine cannot resolve yet are refused (spec 083). Record which spells a player tried that were refused (Bless and Guidance especially), and the status of TASK-0226 to 0229. | TASK-0226, 0227, 0228, 0229 |
+
 ## Rule for runbook authors
 
 Every runbook ends with a "Last step" that authors its scenario, and a rehearsal log of that

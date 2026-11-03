@@ -178,6 +178,15 @@ function expiring(
   return events;
 }
 
+/** The `reactionsSpent` slice with each given id removed; empty when none was spent. */
+function withoutSpent(
+  enc: Encounter,
+  ...ids: (string | null)[]
+): Pick<Encounter, "reactionsSpent"> {
+  if (!enc.reactionsSpent) return {};
+  return { reactionsSpent: enc.reactionsSpent.filter((x) => !ids.includes(x)) };
+}
+
 export const handleInitiativeLeave: Handler<"initiative.leave"> = (
   state,
   command,
@@ -255,7 +264,13 @@ export const handleInitiativeLeave: Handler<"initiative.leave"> = (
     reason,
     combatantId: id,
     before: enc,
-    after: { ...enc, round, turnIndex, order },
+    after: {
+      ...enc,
+      round,
+      turnIndex,
+      order,
+      ...withoutSpent(enc, id, incomingId),
+    },
   });
   if (incomingId !== null) {
     events.push(
@@ -330,6 +345,18 @@ export const handleTurnAdvance: Handler<"turn.advance"> = (
     },
     after: { round, turnIndex: index, combatantId: incoming.combatantId },
   });
+  if (enc.reactionsSpent?.includes(incoming.combatantId)) {
+    // The Reaction returns at the start of its owner's turn (SRD 5.2.1 p. 10).
+    const advanced = { ...enc, round, turnIndex: index };
+    events.push({
+      type: "encounter.changed",
+      v: 1,
+      reason,
+      combatantId: incoming.combatantId,
+      before: advanced,
+      after: { ...advanced, ...withoutSpent(enc, incoming.combatantId) },
+    });
+  }
   events.push(
     ...expiring(
       state,

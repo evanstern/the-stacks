@@ -21,6 +21,8 @@ export const RefusalCodeSchema = z.enum([
   "EXHAUSTION_OUT_OF_RANGE",
   "ENCOUNTER_ACTIVE",
   "NO_ACTIVE_ENCOUNTER",
+  "REACTION_SPENT",
+  "STEP_ACTOR_MISMATCH",
   "ALREADY_IN_ENCOUNTER",
   "NO_ELIGIBLE_COMBATANT",
   "INSUFFICIENT_HIT_DICE",
@@ -30,6 +32,10 @@ export const RefusalCodeSchema = z.enum([
   "SLOT_NOT_EXPENDED",
   "ACTOR_UNABLE",
   "REASON_CONTRADICTS_STATE",
+  "STAT_UNDEFINED",
+  "SPELL_UNRESOLVED",
+  "SPELL_UNKNOWN",
+  "SPELL_NOT_PREPARED",
 ]);
 
 export const RefusalSchema = z.object({
