@@ -14,7 +14,7 @@ sources:
   - apps/server/src/dm/prompts/step-grammar.ts
   - apps/server/src/dm/seed/schema.ts
   - specs/033-director-robustness/contracts/rules-terms.md
-verified_against: a64dcee87d062d661ddd1f6262a3f6596dee2ba1
+verified_against: 9d2c6fae
 size_budget_exempt: TASK-0105 adds the spell rule to the one plan-gate note; the note sat within 40 chars of the 8000 budget before it, and the gate rules do not split without a TASK of its own
 ---
 
