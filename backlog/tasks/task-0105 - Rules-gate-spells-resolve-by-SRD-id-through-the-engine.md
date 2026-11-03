@@ -36,7 +36,10 @@ Spec: specs/083-spells-by-srd-id
 - [ ] #4 The interpret and adjudicate prompts render the spell-step shape and state that spell numbers come from the engine
 - [ ] #5 Scripted-dice engine tests cover at least one attack spell, one save spell and one condition spell from the SRD; existing dm tests and the scripted CI playtest stay green
 - [ ] #6 Spec phase: Seam check [orchestrator]
+- [ ] #7 Spec phase: Engine spell resolution (card AC #2, #3, #5; US1, US2, US3, US4)
 <!-- AC:END -->
+
+
 
 
 
