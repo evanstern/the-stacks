@@ -4,7 +4,7 @@ title: 'Engine: opposition as a derived DC, and Help as advantage'
 status: In Progress
 assignee: []
 created_date: '2026-10-27 02:32'
-updated_date: '2026-11-03 09:54'
+updated_date: '2026-11-03 10:06'
 labels:
   - dm
   - engine
@@ -48,6 +48,9 @@ spec-bridge sync: Seam check [orchestrator]: 0/1 · Engine (card AC #1, #2; US1,
 Spec 084 (d781547f). Defaults (a) taken: OQ-1 opposition as a check difficulty variant {opposedBy, rule}; OQ-2 the formula for every opponent, stat-block escape DCs added to TASK-0224; OQ-3 an assist lasts until used, replaced, or an encounter ends; OQ-4 an assist fact in facts/narrate/fallback (fallback order: after 0204, before 0214); OQ-5 group checks carded; OQ-6 commit order. Held behind 0105 (merged #124); now unblocked.
 
 Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5 (spec 084 phase 0 seam check and amendment, C1)
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 084 phases 1-2)
+Phase 0: S1 (spell attacks bypass handleAttackRoll) resolved as D5a per SRD 5.2.1 Help text ('the next attack roll'); a spell attack takes the assist.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
