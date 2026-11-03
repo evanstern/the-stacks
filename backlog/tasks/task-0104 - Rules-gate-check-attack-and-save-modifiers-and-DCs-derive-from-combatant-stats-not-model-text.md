@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-10-26 15:42'
-updated_date: '2026-11-03 06:25'
+updated_date: '2026-11-03 07:06'
 labels:
   - engine
   - dm
@@ -69,6 +69,8 @@ Phase 0 seam check (eeb91c61): 15 seams moved, none changed meaning; see specs/0
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 082 phases 1-2)
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 082 phases 3-4)
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 082 phase 5, wiki)
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
