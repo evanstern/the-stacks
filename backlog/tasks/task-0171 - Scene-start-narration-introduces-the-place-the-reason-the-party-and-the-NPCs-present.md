@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-10-28 19:39'
-updated_date: '2026-11-03 01:19'
+updated_date: '2026-11-03 03:43'
 labels:
   - dm
   - narration
@@ -55,6 +55,8 @@ Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5 (spec 0
 spec-bridge sync: The opening premise (card AC #1; US1): 0/5 · The opening prompt (card AC #2, #5; US1, US2, US4): 0/5 · The name check, the fallback and the scripts (card AC #3, #4; US2, US3): 0/8 · Wiki re-ground: 0/5
 
 Spec 076 (c5bfc692). Defaults taken: OQ-2 (a) scene-start fallback names everyone (fallback.ts joins 0171's footprint, between 0213 and 0214 in the fallback order); OQ-3 (a) opening up to about 160 words, never over 180. OQ-1 (what 'who plays them' means) put to the operator. Footprint correction: adds nodes/narrate.ts, nodes/audit.ts, fallback.ts and eight DM scripts; drops scene-start.ts and prompts/audit.ts. Phase 1 waits on TASK-0127 (seed/schema.ts); phases 2-3 on 0113, 0127, 0170.
+
+OPERATOR RULING 2026-11-02 on spec 076 OQ-1 (in chat, answering what 'who plays them' means for the opening): "The opening should name the characters, not the players". The opening names every party character; it names no player. No user lookup, no display names reach the model. Spec 076 is amended to match before its phase 2 builds; runbook B's scenario row reads 'names the party characters and Wenna'.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
