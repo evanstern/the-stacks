@@ -3,10 +3,10 @@ id: TASK-0206
 title: >-
   An NPC the narration reveals stays absent and out of combat, so acting on it
   is refused
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-11-02 22:42'
-updated_date: '2026-11-02 22:59'
+updated_date: '2026-11-03 01:20'
 labels:
   - dm
   - playtest
@@ -40,6 +40,8 @@ Related: TASK-0194 (non-combatant targets, merged: it pulls present non-combatan
 
 <!-- SECTION:NOTES:BEGIN -->
 Run 1 seq 63-89: once the reed-camp encounter started (seq 76, after Odo's parley), Snag became a combatant and 'I shoot at Snag' resolved (miss 7 vs AC 15). The gap is the reveal before the encounter starts.
+
+Claimed 2026-11-02 by M3 runbook B (docs/design/m3-runbook-b-resolution-quality.md). Worktree .worktrees/task-0206, branch task-0206-revealed-npc-present, cut from origin/main fbf4d1df. Spec number 078 claimed with a stub. Spine #6.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
