@@ -1,9 +1,10 @@
 ---
 id: TASK-0214
 title: Combat narration fails the audit on most turns
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-11-02 23:22'
+updated_date: '2026-11-03 09:43'
 labels:
   - dm
   - narration
@@ -31,6 +32,12 @@ Related: TASK-0193, TASK-0204 (question ending), TASK-0113 (player agency), TASK
 - [ ] #1 On a hosted run of 15+ combat turns, at least 70% of narrations pass the audit on attempt 1
 - [ ] #2 The narrate prompt or facts change is replay-tested against the run 1 refusals (seq 103, 126, 131, 161, 196)
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Claimed 2026-11-03 by M3 runbook B (docs/design/m3-runbook-b-resolution-quality.md). Worktree .worktrees/task-0214, branch task-0214-combat-audit-pass-rate, cut from origin/main d59c369a. Spec number 085 claimed with a stub. Spine #19 (last).
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
