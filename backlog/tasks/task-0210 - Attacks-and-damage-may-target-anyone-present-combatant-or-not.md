@@ -32,13 +32,15 @@ Spec: specs/075-attack-anyone
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 An attack or damage step on a present non-combatant passes the plan gate and pulls the target in, with a test (replays run 1 seq 45: 'I take aim and shoot at Snag' once Snag is present)
-- [ ] #2 An absent actor is still refused, with a test
-- [ ] #3 The spec 068 contract amendment and wiki notes record the reversal and cite this ruling
+- [x] #1 An attack or damage step on a present non-combatant passes the plan gate and pulls the target in, with a test (replays run 1 seq 45: 'I take aim and shoot at Snag' once Snag is present)
+- [x] #2 An absent actor is still refused, with a test
+- [x] #3 The spec 068 contract amendment and wiki notes record the reversal and cite this ruling
 - [x] #4 Spec phase: The gate, its unit tests and the contract (card AC #1, #2, #3)
 - [x] #5 Spec phase: The DB tests and the run 1 seq 45 replay (card AC #1, #2; merge condition)
 - [x] #6 Spec phase: Wiki re-ground (card AC #3)
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
