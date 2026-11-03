@@ -14,8 +14,9 @@ acts, methods or skills the player did not declare."
 `speckit-specify` ran as authoring guidance only. The spec dir was claimed with a stub, so its
 branch and directory steps were skipped. `speckit-clarify` was skipped: the operator ruling of
 2026-10-26, the research findings (a)–(e) and the 2026-11-02 widening on the card settle the
-behaviour. The three open questions below are scope calls the card leaves open; each has a default,
-and this spec, plan.md and tasks.md are written against each default.
+behaviour. The three open questions below are scope calls the card leaves open. The operator ruled
+OQ-1 on 2026-11-02 (option b). OQ-2 and OQ-3 carry defaults. This spec, plan.md and tasks.md are
+written against the OQ-1 ruling and the other two defaults.
 
 ## Decision records and rules this card implements
 
@@ -31,6 +32,11 @@ and this spec, plan.md and tasks.md are written against each default.
   (d) control effects compel only through a recorded fact naming the effect;
   (e) `player-agency` blocks volitional acts only: intent, speech, purposeful movement, choices,
   chosen emotions.
+- **Operator ruling 2026-11-02 on OQ-1**, verbatim, answering "May the narration show a reflexive
+  flinch when a foe misses a PC?": "Yes, allow a flinch". A foe's miss on a party member is a fifth
+  reflex trigger, `avoid`. It allows a reflexive flinch. A chosen dodge, a twist with intent and a
+  meaningful reposition stay blocked: they are volitional. Small displacement inside the flinch is
+  colour, as for the other triggers.
 - **Widening 2026-11-02** (card notes, runbook B lane B1): the rule covers the Director's goal note
   and interpret. Evidence: runbook A playtest run 1 (`docs/playtests/2026-11-02-runbook-a-playtest.md`,
   PR #109) findings 4, 14 and 19. The goal note prescribed "call Stealth (Kestrel leads…)" and "a
@@ -50,7 +56,8 @@ This card sets the **shared player-agency rule**. Later B1 cards apply it and mu
 
 ## Background: what happens today
 
-1. The narrate rule (narrate-v7) forbids any party-member feeling or choice, and on a foe's miss it
+1. The narrate rule (narrate-v8 on `main`, TASK-0209) forbids any party-member feeling or choice,
+   and on a foe's miss it
    says "unchanged and unmoved: no wound, no dodge, no twisting free". It names no allowed reflex.
 2. The `dm.audit` definition of `player-agency` blocks "says, feels or chooses beyond their
    declared action". It names no allowed reflex either.
@@ -93,15 +100,18 @@ note as pacing advice that never adds a step.
 ### User Story 2 - Reflexes the dice decided may be narrated; choices may not (Priority: P1)
 
 A goblin lands a critical hit on Tamsin. The narrator may show her staggered back a step. A
-goblin's attack misses Tamsin. The narrator tells the miss from the goblin's side. Neither prose
-shows Tamsin choosing anything.
+goblin's attack misses Tamsin. The narrator tells the miss from the goblin's side and may show
+Tamsin flinch. Neither prose shows Tamsin choosing anything: no dodge, no duck, no twist that times
+the blow.
 
-**Why this priority**: the operator ruling, research (a)–(e), and card AC #2.
+**Why this priority**: the operator rulings (2026-10-26, 2026-11-02 OQ-1), research (a)–(e), and
+card AC #2.
 
 **Independent Test**: facts built from ledger rows with a critical hit, a heavy hit and a failed
-save on party members carry one involuntary effect each. The narrate and audit prompts render them.
-A miss on a party member carries none. Prose that pairs the missed member with a defence verb fails
-the deterministic audit.
+save on party members carry one involuntary effect each. A foe's miss on a party member carries
+`avoid`. The narrate and audit prompts render them. On a miss, prose that pairs the missed member
+with a defence verb fails the deterministic audit. Prose that pairs the member with a reflex verb
+passes, unless an intent marker follows the reflex verb.
 
 **Acceptance Scenarios**:
 
@@ -111,14 +121,22 @@ the deterministic audit.
    or more, **When** facts are built, **Then** the facts list `heavy-hit` for that member.
 3. **Given** a failed saving throw by a party member, **When** facts are built, **Then** the facts
    list `flinch` for that member, naming the save's ability.
-4. **Given** the same rows on a monster or a seed NPC, **When** facts are built, **Then** no
+4. **Given** an attack row with outcome `miss` whose target is a party member, **When** facts are
+   built, **Then** the facts list an involuntary effect `avoid` for that member, naming the attacker.
+5. **Given** the same rows on a monster or a seed NPC, **When** facts are built, **Then** no
    involuntary effect is listed (the world's characters are the narrator's to move).
-5. **Given** a foe's missed attack on Tamsin and the prose "Tamsin twists just enough" (verify
+6. **Given** a foe's missed attack on Tamsin and the prose "Tamsin twists just enough" (verify
    20261026T192319Z seq 82), **When** the deterministic audit runs, **Then** it reports a blocking
-   `player-agency` issue naming Tamsin and the matched words.
-6. **Given** the same miss and the prose of seq 87 or seq 126, **When** the deterministic audit runs,
+   `player-agency` issue naming Tamsin and the matched words. "Just enough" times the twist to the
+   blow: a twist with intent, not a flinch.
+7. **Given** the same miss and the prose of seq 87 or seq 126, **When** the deterministic audit runs,
    **Then** no `player-agency` issue is reported.
-7. **Given** any turn, **When** the `dm.audit` prompt is built, **Then** its `player-agency`
+8. **Given** the same miss and the prose "Tamsin flinches as the dagger hisses past her ribs",
+   **When** the deterministic audit runs, **Then** no `player-agency` issue is reported.
+9. **Given** the same miss and the prose "Tamsin ducks under the dagger" or "Tamsin jerks aside just
+   in time", **When** the deterministic audit runs, **Then** it reports a blocking `player-agency`
+   issue naming Tamsin.
+10. **Given** any turn, **When** the `dm.audit` prompt is built, **Then** its `player-agency`
    definition blocks volitional acts only and allows a listed involuntary effect shown as a reflex.
 
 ---
@@ -170,6 +188,11 @@ companion seat. The prompt lists both with their controller and states the compa
 
 - A party member's own declared action names a defence ("I take the Dodge action", "I duck behind
   the post"). The miss check skips that member for that beat.
+- A party member succeeds on a save against a foe's effect, or a foe's grab fails. The ruling names
+  a foe's miss only, so no `avoid` is derived. The narrator tells it from the foe's side; the miss
+  check does not run on it.
+- A foe's attack misses one party member and hits another in the same beat. Each member gets its own
+  effect; the miss check runs only on the missed member.
 - A party member at 0 HP takes damage. The heavy-hit rule still applies on the damage row; the
   life-state change stays a separate fact.
 - A critical hit that also deals heavy damage lists both effects. The narrator may use either.
@@ -198,11 +221,15 @@ companion seat. The prompt lists both with their controller and states the compa
 - **FR-005**: The doctrine pair `hero-is-theirs` MUST be revised to block decisions, not reflexes.
 - **FR-006**: Narration facts MUST carry a code-derived list of involuntary effects for party
   members: `stagger` (critical hit), `heavy-hit` (damage of half maximum HP or more), `flinch`
-  (failed saving throw). Monsters and seed NPCs get none.
+  (failed saving throw), `avoid` (a foe's attack missed them; OQ-1 ruling). Monsters and seed NPCs
+  get none.
 - **FR-007**: The narrate and `dm.audit` prompts MUST render the same involuntary-effects lines.
-- **FR-008**: The narrate miss rule MUST tell a foe's miss from the foe's side and forbid a party
-  member's chosen defence. A deterministic check MUST block prose that pairs the missed party member
-  with a defence verb, unless that member's own declared action this beat names the defence.
+- **FR-008**: The narrate miss rule MUST tell a foe's miss from the foe's side, MUST allow a
+  reflexive flinch by the missed party member, and MUST forbid a chosen defence: a dodge, a twist
+  with intent, a meaningful reposition. A deterministic check MUST block prose that pairs the missed
+  party member with a defence verb, or with a reflex verb followed by an intent marker. It MUST pass
+  a reflex verb with no intent marker. It skips a member whose own declared action this beat names
+  the defence.
 - **FR-009**: At scene start, the narrate prompt MUST forbid moving, leading or voicing a party
   member, and a deterministic check MUST block prose that pairs a party name with an act or speech
   verb.
@@ -214,22 +241,24 @@ companion seat. The prompt lists both with their controller and states the compa
 - **FR-012**: `FactRoll` MUST reserve an optional `band` field (`success`, `success-at-cost`,
   `failure`, `severe-failure`, or null) for TASK-0127. This card never sets it.
 - **FR-013**: Each changed prompt MUST bump its version one past `main`.
+- **FR-014**: The shared `AGENCY_RULE` reflex line MUST name the fifth trigger: a flinch on a foe's
+  miss.
 
 ### Acceptance criteria mapping (card TASK-0113)
 
 | Card AC | Requirements | Proof |
 |---|---|---|
 | #1 scene-start hero framing, with a test over the opening framing | FR-009 | US3 scenarios 1–3 |
-| #2 v3 miss rule measured on a captured run; fix with a test below a stated rate | FR-008 | Measurement in plan.md R2 (2 of 3 = 67%, below the 90% bar); US2 scenarios 5–6 |
+| #2 v3 miss rule measured on a captured run; fix with a test below a stated rate | FR-006, FR-008, FR-014 | Measurement in plan.md R2, re-classified under the OQ-1 ruling (2 of 3 = 67%, below the 90% bar); US2 scenarios 4, 6–9 |
 | #3 playtest auditor states whether companions count, with a test | FR-011 | US4 scenarios 1–3 |
 | #4 goal notes state no undeclared act, method or skill, with a prompt test | FR-001, FR-002, FR-003 | US1 scenario 1 |
 | #5 interpret steps carry no undeclared volitional act, with a test | FR-001, FR-002, FR-004 | US1 scenarios 2–3 |
-| Ruling and research (a)–(e) | FR-002, FR-005, FR-006, FR-007, FR-010, FR-012 | US2 scenarios 1–4, 7 |
+| Rulings and research (a)–(e) | FR-002, FR-005, FR-006, FR-007, FR-010, FR-012, FR-014 | US2 scenarios 1–5, 10 |
 
 ### Key Entities
 
 - **Agency rule**: the shared rule text plus one line per node.
-- **Involuntary effect**: `{ name, trigger: "stagger" | "heavy-hit" | "flinch", detail }`, derived
+- **Involuntary effect**: `{ name, trigger: "stagger" | "heavy-hit" | "flinch" | "avoid", detail }`, derived
   by code from this turn's ledger rows for a party member.
 - **Roll band** (reserved): an optional field on each roll fact, filled by TASK-0127.
 
@@ -238,7 +267,8 @@ companion seat. The prompt lists both with their controller and states the compa
 ### Measurable Outcomes
 
 - **SC-001**: On the three captured misses of verify 20261026T192319Z, the deterministic check
-  blocks exactly the one breach (seq 82) and passes the other two.
+  blocks exactly the one breach (seq 82, a twist with intent under the OQ-1 ruling) and passes the
+  other two. A plain flinch on a miss passes.
 - **SC-002**: The captured scene-start breach (seq 10) is blocked; all four shipped seed framings
   pass.
 - **SC-003**: Every prompt that decides or audits a party member's action (director, interpret,
@@ -248,11 +278,13 @@ companion seat. The prompt lists both with their controller and states the compa
 
 ## Open questions (operator)
 
-- **OQ-1 — Is a foe's miss a reflex trigger?** The operator ruling names "after being hit, or
-  missing"; research (b) lists four confirmed triggers and a miss is not one. **Default (a):** a
-  miss is not a trigger. The narrator tells the miss from the foe's side; a chosen dodge or twist is
-  blocked. (b) would add a fifth trigger `avoid` that allows a reflexive flinch on a miss, and would
-  reclassify seq 82 as allowed.
+- **OQ-1 — Is a foe's miss a reflex trigger? RESOLVED 2026-11-02: (b).** The 2026-10-26 ruling
+  names "after being hit, or missing"; research (b) listed four triggers and a miss was not one. The
+  operator was asked "May the narration show a reflexive flinch when a foe misses a PC?" and ruled:
+  "Yes, allow a flinch". A miss is the fifth trigger, `avoid`. A chosen dodge, a twist with intent
+  and a meaningful reposition stay blocked. The earlier note that (b) "would reclassify seq 82 as
+  allowed" does not hold: seq 82's "twists just enough" times the twist to the blow, so it is a twist
+  with intent and stays a breach (plan R2). OQ-4 asks the operator to confirm that reading.
 - **OQ-2 — Surprise.** The engine records no surprise, so the startlement trigger has no fact to
   derive from. **Default:** derive none in this card. The orchestrator cards "engine records
   surprise; facts derive startlement" for a later runbook (no "for now" without a card).
@@ -260,12 +292,19 @@ companion seat. The prompt lists both with their controller and states the compa
   treats companions as player characters ("companions speak for themselves"). TASK-0106 verify F7
   ("Brother Odo steps forward, weighing the line") is then a real narration finding. (b) would scope
   `hero-is-theirs` to human seats only and let the narrator move companions.
+- **OQ-4 — Is seq 82 a flinch or a twist with intent?** Raised by the OQ-1 ruling. **Default:**
+  a twist with intent. "Tamsin twists just enough, and the blade bites smoke instead of flesh" makes
+  her movement the reason the blade misses, and "just enough" measures it against the blow. A flinch
+  happens to her; it never decides the outcome. The check draws that line with intent markers (plan
+  R5). If the operator rules seq 82 a flinch, drop "just enough" from the markers; adherence becomes
+  3 of 3 and the deterministic miss check still ships for "dodge"/"duck" breaches like verify
+  183818Z seq 250 ("She wrenches clear").
 
 ## Assumptions
 
 - No paid model run. AC #2's measurement uses the captured narrate-v3 run
   `specs/034-narration-quality/evidence/verify-20261026T192319Z-greyhollow-ford-provider/` (the only
-  captured run on the v3 rule). A fresh measurement on narrate-v8 needs a hosted run (C6); runbook
+  captured run on the v3 rule). A fresh measurement on narrate-v9 needs a hosted run (C6); runbook
   B's playtest takes it.
 - The 90% adherence bar is this spec's stated rate. Three samples cannot prove a rate above it; the
   deterministic check makes the rule hold by code instead.

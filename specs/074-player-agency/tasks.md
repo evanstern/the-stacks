@@ -2,8 +2,9 @@
 
 **Input**: `specs/074-player-agency/` (spec.md, plan.md), card TASK-0113.
 
-**Prerequisites**: none beyond `origin/main` b756b68f. The operator has not ruled OQ-1, OQ-2 or
-OQ-3; the tasks below implement each default.
+**Prerequisites**: the branch holds `origin/main` fbf4d1df (TASK-0209, `dm.narrate-v8`). The
+operator ruled OQ-1 on 2026-11-02: "Yes, allow a flinch" (spec). OQ-2, OQ-3 and OQ-4 are not ruled;
+the tasks below implement each default. Phase 1 is built (commit c7ef9e3f).
 
 **Dispatch**: one phase is one implementer dispatch (sonnet), re-grounded from this spec dir and the
 branch commits. Each implementer phase ends with `pnpm ci:check` green and one commit led by
@@ -45,43 +46,56 @@ report if another file is needed. No paid model run; tests use the fake gateway.
       `specs/032-playtest-harness/contracts/auditor.md` (the Party section, `playtest.audit-v2`).
 - [ ] T012 Run `pnpm ci:check`.
 
-## Phase 2: Facts, narrate, audit (card AC #1, #2; US2, US3)
+## Phase 2: Facts, narrate, audit (card AC #1, #2; US2, US3; OQ-1 ruling)
 
+- [ ] T013a [US2] In `apps/server/src/dm/doctrine/doctrine.ts`, replace the `AGENCY_RULE` reflex line
+      with the amended text (plan D1, OQ-1 ruling). In `apps/server/test/dm/doctrine.test.ts`, assert
+      it holds "a flinch on a foe's miss" and "a twist that times the blow". Change no version: Phase 1
+      bumps already cover director, interpret and the playtest auditor (plan R7).
 - [ ] T013 [US2] In `apps/server/src/dm/facts.ts`, add `FactBand`, optional `FactRoll.band`,
       `FactInvoluntary`, optional `NarrationFacts.involuntary` and the pure `deriveInvoluntary`
-      (plan D3). Set `involuntary` in `buildNarrationFacts` from this turn's action, NPC-turn and
-      settle rows. Import no engine value.
-- [ ] T014 [US2] In `apps/server/src/dm/audit-words.ts`, add `DEFENCE_VERBS` and
-      `SCENE_START_VERBS` (plan R5). Leave `ACT_VERBS` unchanged.
+      (plan D3), with the `avoid` trigger for a foe's miss on a party member. Set `involuntary` in
+      `buildNarrationFacts` from this turn's action, NPC-turn and settle rows. Import no engine value.
+- [ ] T014 [US2] In `apps/server/src/dm/audit-words.ts`, add `DEFENCE_VERBS`, `REFLEX_VERBS`,
+      `INTENT_MARKERS` and `SCENE_START_VERBS` (plan R5). Leave `ACT_VERBS` and `INVOLUNTARY_VERBS`
+      unchanged.
 - [ ] T015 [US2] In `apps/server/src/dm/prompts/narrate.ts`, render `Reflex:` lines in
       `factEntries`. Replace the party line with `agencyRule("narrate")`. Rewrite the miss line and
-      add the scene-start line (plan D4). Bump to `dm.narrate-v8`.
+      add the scene-start line (plan D4). Keep TASK-0209's unclear-intent and either-or lines verbatim
+      (plan R9). Bump to `dm.narrate-v9`.
 - [ ] T016 [US2] In `apps/server/src/dm/prompts/audit.ts`, rewrite definition 1 with
       `agencyRule("audit")` (plan D4). Bump to `dm.audit-v5`.
 - [ ] T017 [US2] [US3] In `apps/server/src/dm/nodes/audit.ts` `deterministicChecks`, add the miss-
-      defence and scene-start-hero checks (plan D4). Mark the lexical window with a `ponytail:`
-      comment (plan Risks).
+      defence and scene-start-hero checks (plan D4): a defence verb fails, a reflex verb with an
+      intent marker fails, a plain reflex verb passes. Run both on the prose with a matched clarify
+      question stripped (plan R9); leave the either-or clarify exemption unchanged. Mark the lexical
+      window with a `ponytail:` comment (plan Risks).
 - [ ] T018 [US2] In `apps/server/test/dm/facts.test.ts`, test `deriveInvoluntary`: a critical hit
       on a party member gives `stagger`; damage of exactly half max HP gives `heavy-hit`, one less
       gives none; a failed DEX save gives `flinch` "failed dex save"; the same rows on a monster give
       none; a failed death save gives none; a crit with heavy damage gives both; max HP 0 gives no
-      heavy-hit.
+      heavy-hit; a foe's miss on a party member gives `avoid` "missed by <attacker>"; a foe's miss on
+      a monster gives none; a successful save gives none.
 - [ ] T019 [US2] [US3] Create `apps/server/test/dm/fixtures/player-agency-captures.json` with the
       prose of verify 20261026T192319Z seq 10, 82, 87 and 126 (copied from the evidence
       `transcript.jsonl`, prose paragraph only) and the minimal facts each needs.
 - [ ] T020 [US2] [US3] Create `apps/server/test/dm/player-agency.test.ts`: seq 82 fails with one
-      blocking `player-agency` issue naming Tamsin; seq 87 and seq 126 pass the agency checks
-      (card AC #2, SC-001); seq 10 at scene start fails on "Tamsin Vale leads"; each
+      blocking `player-agency` issue naming Tamsin ("twists just enough"); seq 87 and seq 126 pass
+      the agency checks (card AC #2, SC-001); on the seq 82 miss, "Tamsin flinches as the dagger
+      hisses past her ribs" passes, and "Tamsin ducks under the dagger" and "Tamsin jerks aside just
+      in time" fail (OQ-1 ruling); seq 10 at scene start fails on "Tamsin Vale leads"; each
       `apps/server/seeds/*.json` `opening.framing` at scene start passes (card AC #1, SC-002); a
       member whose own declared action says "I duck behind the post" is exempt on that beat.
-- [ ] T021 [US2] In `apps/server/test/dm/narrate.test.ts`, pin `dm.narrate-v8` and `dm.audit-v5`.
+- [ ] T021 [US2] In `apps/server/test/dm/narrate.test.ts`, pin `dm.narrate-v9` and `dm.audit-v5`.
       Assert narrate and audit system prompts hold their `agencyRule` text, the narrate system holds
       the new miss line, a scene-start narrate user prompt holds the opening line, and facts with a
-      `stagger` render a `Reflex:` line in both user prompts. Replace the assertion on "beyond their
-      declared action" with the new definition text.
+      `stagger` or an `avoid` render a `Reflex:` line in both user prompts. Replace the assertion on
+      "beyond their declared action" with the new definition text. Keep TASK-0209's assertions.
 - [ ] T022 Amend `specs/034-narration-quality/contracts/audit-criteria.md` (the two checks,
       definition 1, `dm.audit-v5`) and `specs/034-narration-quality/contracts/narration-facts.md`
-      (`involuntary`, `band`, the rule lines, `dm.narrate-v8`).
+      (`involuntary` with the five triggers, `band`, the rule lines, `dm.narrate-v9`). Amend
+      `specs/031-dm-runtime/contracts/doctrine.md` (the agency-rule paragraph names the foe's-miss
+      flinch).
 - [ ] T023 Run `pnpm ci:check`.
 
 ## Phase 3: Wiki (re-ground)
@@ -90,7 +104,7 @@ report if another file is needed. No paid model run; tests use the fake gateway.
       freshness . docs/wiki` and list every stale note.
 - [ ] T025 Review `docs/wiki/dm-narration-quality.md` (NEEDS-REVIEW): the agency rule, involuntary
       facts, the reserved band, the two deterministic checks, the prompt-version paragraph
-      (`dm.narrate-v8`, `dm.audit-v5`, `dm.director-v5`, `dm.companion-v7`, `dm.react-v2`).
+      (`dm.narrate-v9`, `dm.audit-v5`, `dm.director-v5`, `dm.companion-v7`, `dm.react-v2`).
 - [ ] T026 Review `docs/wiki/dm-runtime.md` (NEEDS-REVIEW): the doctrine section (`AGENCY_RULE`,
       revised pair), the Director goal-note rule, `dm.interpret-v6`.
 - [ ] T027 Re-pin or review `output-claim-gate`, `dm-talk-triggers`, `dm-failure-and-gates`
@@ -107,6 +121,7 @@ report if another file is needed. No paid model run; tests use the fake gateway.
 - Phase 3 last.
 - Phase 1 changes narrate and audit prompt text (the revised pair) without bumping them; Phase 2
   bumps both. The PR lands both phases together.
+- T013a before T015 and T016: the narrate and audit prompts render the amended reflex line.
 
 ## Parallel opportunities
 
@@ -118,8 +133,8 @@ report if another file is needed. No paid model run; tests use the fake gateway.
 | Card AC | Tasks |
 |---|---|
 | #1 scene-start framing | T015, T017, T019, T020 |
-| #2 miss rule measured, fixed, tested | plan R2 (measurement), T014, T015, T017, T019, T020 |
+| #2 miss rule measured, fixed, tested | plan R2 (measurement, re-classified for OQ-1), T013a, T013, T014, T015, T017, T019, T020 |
 | #3 playtest auditor companion rule | T005, T010, T011 |
 | #4 Director goal note | T001, T002, T007 |
 | #5 interpret steps | T001, T003, T008 |
-| Ruling, research (a)–(e), band reservation | T001, T013, T015, T016, T018, T021 |
+| Rulings, research (a)–(e), band reservation | T001, T013a, T013, T015, T016, T018, T021 |

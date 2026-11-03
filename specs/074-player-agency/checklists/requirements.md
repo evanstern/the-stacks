@@ -13,7 +13,7 @@
 
 ## Requirement Completeness
 
-- [x] No [NEEDS CLARIFICATION] markers remain (OQ-1, OQ-2, OQ-3 carry defaults)
+- [x] No [NEEDS CLARIFICATION] markers remain (OQ-1 ruled 2026-11-02; OQ-2, OQ-3, OQ-4 carry defaults)
 - [x] Requirements are testable and unambiguous
 - [x] Success criteria are measurable
 - [x] Success criteria are technology-agnostic
