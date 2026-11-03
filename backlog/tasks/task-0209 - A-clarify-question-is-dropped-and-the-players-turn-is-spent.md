@@ -4,7 +4,7 @@ title: A clarify question is dropped and the player's turn is spent
 status: In Progress
 assignee: []
 created_date: '2026-11-02 23:13'
-updated_date: '2026-11-03 00:38'
+updated_date: '2026-11-03 00:40'
 labels:
   - dm
   - playtest
@@ -51,6 +51,8 @@ Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5 (spec 0
 spec-bridge sync: A clarify holds the turn (card AC #1, merge condition; US1): 0/7 · The player sees the question (card AC #2; US2): 0/9 · Wiki upkeep: 0/5
 
 Spec 073 (02dc49be). Defaults (a) taken: OQ-1 no interpret change; OQ-2 a companion clarify still advances; OQ-3 hold Director turn-entry/tracker/scene-end on a clarify beat; OQ-4 keep narrate.ts and nodes/audit.ts here. Runbook amendment: 0209 footprint widens to narrate.ts, nodes/audit.ts, pipeline/runner.ts, first-stage.ts; TASK-0113 phase 2 (same narrate/audit files) draft-holds until 0209 merges, matching spine order. 0113 phase 1 is disjoint and builds in parallel.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 073 phases 1-2)
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
