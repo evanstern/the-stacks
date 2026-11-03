@@ -3,9 +3,10 @@ id: TASK-0170
 title: >-
   A check's declared outcome is fixed before the roll and handed to the narrator
   as fact
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-10-28 19:20'
+updated_date: '2026-11-03 03:18'
 labels:
   - dm
   - rules
@@ -36,6 +37,12 @@ Shape: builds on TASK-0127. 0127 has interpret declare a consequence per outcome
 - [ ] #4 The auditor fails narration that does not deliver the applied outcome, with a test over a captured run that replays the claw-marks case
 - [ ] #5 A success on an information-seeking check names seed information in its declared outcome, with a test
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Claimed 2026-11-02 by M3 runbook B (docs/design/m3-runbook-b-resolution-quality.md). Worktree .worktrees/task-0170, branch task-0170-declared-outcome, cut from origin/main b79489e2. Spec number 080 claimed with a stub. Spine #9; spec authored early against spec 070.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
