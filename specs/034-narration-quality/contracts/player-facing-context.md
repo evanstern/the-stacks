@@ -122,3 +122,6 @@ example names a person, place or fact of a shipped seed.
 
 `apps/server/test/dm/seed.test.ts` adds: no player-facing field of the shipped seed matches
 `/river[- ]things?/i` or `/\bwards?\b/i`.
+
+**Amended by spec 076 (TASK-0171).** `opening.premise` is player-facing.
+`PlayerSeedView.openingPremise: string` carries it.

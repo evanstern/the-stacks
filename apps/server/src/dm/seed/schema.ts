@@ -184,7 +184,7 @@ export const SceneSeedSchema = z.object({
       }),
     )
     .max(6),
-  opening: z.object({ framing: Text(800) }),
+  opening: z.object({ framing: Text(800), premise: Text(500) }),
   // Spec 070 D3: table rules. A seed with none takes the defaults (OQ-1 (a)).
   // groupChecks is read by nothing until TASK-0128.
   tableRules: z

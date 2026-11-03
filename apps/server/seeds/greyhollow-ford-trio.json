@@ -247,6 +247,7 @@
     { "trackerId": "alarm", "name": "The reed-camp is alerted", "segments": 3, "note": "When full, the goblins ambush the party on the causeway instead of waiting at camp.", "advanceWhen": "Noise, light, or a failed Stealth check near the reeds." }
   ],
   "opening": {
-    "framing": "The party reaches Greyhollow Ford as the light goes amber. The ferry is chained, the ferry-house door hangs open, and the bell that should have rung for them is silent."
+    "framing": "The party reaches Greyhollow Ford as the light goes amber. The ferry is chained, the ferry-house door hangs open, and the bell that should have rung for them is silent.",
+    "premise": "The party came to Greyhollow Ford to cross the river before full dark. Tamsin Vale carries a Greyhollow ferry token, and the ferry keeper owes her a crossing."
   }
 }
