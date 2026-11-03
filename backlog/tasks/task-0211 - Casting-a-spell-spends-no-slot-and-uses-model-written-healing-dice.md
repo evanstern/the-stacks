@@ -4,6 +4,7 @@ title: Casting a spell spends no slot and uses model-written healing dice
 status: To Do
 assignee: []
 created_date: '2026-11-02 23:19'
+updated_date: '2026-11-03 08:02'
 labels:
   - dm
   - rules
@@ -33,6 +34,12 @@ Related: TASK-0104 (engine-derived modifiers and DCs; the same model-written-num
 - [ ] #2 A named SRD spell's dice come from its SRD record (Cure Wounds 2d8 + modifier), not a model expression, with a test
 - [ ] #3 Narration never states a slot was spent unless the engine spent it
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Split with TASK-0105 (spec 083 OQ-1 a, 2026-11-03): 0105 delivers AC #2 (Cure Wounds 2d8 + modifier from the SRD record) and the slot spend with NO_SLOT_AVAILABLE refusal. 0211 keeps the seq 204-210 replay test (AC #1) and AC #3 (narration never states a slot was spent unless the engine spent it).
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
