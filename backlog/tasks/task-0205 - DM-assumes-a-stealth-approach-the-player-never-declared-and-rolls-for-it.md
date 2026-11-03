@@ -31,13 +31,15 @@ Spec: specs/077-no-undeclared-method
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Interpret does not add a check whose method the declaration does not state or clearly imply; it asks (clarify) instead, with a test replaying this action
-- [ ] #2 A check from one player's action rolls for that player's character, never another human's, with a test
-- [ ] #3 The Director's goal note cannot prescribe a skill the player did not choose (prompt rule plus test)
+- [x] #1 Interpret does not add a check whose method the declaration does not state or clearly imply; it asks (clarify) instead, with a test replaying this action
+- [x] #2 A check from one player's action rolls for that player's character, never another human's, with a test
+- [x] #3 The Director's goal note cannot prescribe a skill the player did not choose (prompt rule plus test)
 - [x] #4 Spec phase: The rule (card AC #1, #2; US1, US2)
 - [x] #5 Spec phase: Wiring and the run 1 replay (merge condition; US1, US2)
 - [x] #6 Spec phase: Wiki (re-ground)
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
@@ -67,6 +69,6 @@ All spec tasks complete (The rule (card AC #1, #2; US1, US2): 5/5 · Wiring and 
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
-- [ ] #1 All tests and checks run green
-- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
+- [x] #1 All tests and checks run green
+- [x] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
