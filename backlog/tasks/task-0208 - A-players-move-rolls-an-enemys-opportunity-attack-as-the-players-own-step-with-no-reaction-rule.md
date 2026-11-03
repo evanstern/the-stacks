@@ -44,16 +44,6 @@ Spec: specs/079-engine-opportunity-attack
 - [x] #9 Spec phase: Wiki upkeep
 <!-- AC:END -->
 
-
-
-
-
-
-
-
-
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -75,6 +65,8 @@ AC #4 coverage note: the open-followUp line is unit-tested at the facts and narr
 
 Phase 5: haiku pass stopped after one note (prose judgment over 12 stale notes); re-dispatched at the default tier.
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 079 phase 5, wiki)
+
+spec-bridge sync: The engine owns reactions (card AC #1, engine part; US1 scenarios 3 and 4): 8/8 · A move away draws the engine's reaction (card AC #1 and #2, merge condition; US1, US2): 12/12 · The reader sees whose attack it was (card AC #2 and #3; US2 scenario 4, US3): 11/11 · A followUp stays undone in later beats (card AC #4; US4): 8/8 · Wiki upkeep: 5/5 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
