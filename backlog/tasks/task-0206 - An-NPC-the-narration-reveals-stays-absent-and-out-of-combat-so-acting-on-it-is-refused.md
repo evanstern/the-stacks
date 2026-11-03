@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-11-02 22:42'
-updated_date: '2026-11-03 01:21'
+updated_date: '2026-11-03 02:36'
 labels:
   - dm
   - playtest
@@ -36,7 +36,10 @@ Spec: specs/078-revealed-npc-present
 - [ ] #1 A Director or narration reveal of a seed NPC records it present (scene-presence event), with a test replaying seq 40
 - [ ] #2 An attack on a present hostile NPC that belongs to a seed encounter starts that encounter (or joins it to initiative) and resolves, with a test replaying seq 45
 - [ ] #3 The chronicle never calls a revealed, present NPC departed
+- [ ] #4 Spec phase: The Director's arrivals, resolve and the plan gate (card AC #1, #2)
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
