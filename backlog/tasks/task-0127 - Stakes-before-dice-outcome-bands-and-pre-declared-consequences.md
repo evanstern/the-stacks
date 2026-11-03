@@ -4,7 +4,7 @@ title: 'Stakes before dice: outcome bands and pre-declared consequences'
 status: In Progress
 assignee: []
 created_date: '2026-10-27 02:32'
-updated_date: '2026-11-03 04:04'
+updated_date: '2026-11-03 04:23'
 labels:
   - dm
   - doctrine
@@ -54,6 +54,9 @@ Claimed 2026-11-02 by M3 runbook B (docs/design/m3-runbook-b-resolution-quality.
 Correction to the claim note above: TASK-0127 is not under an escape line. It builds the merged spec 070 (specs/070-stakes-before-dice, PR #103); no new spec number. OQ-1 (a) and OQ-2 (a) stand (runbook B C0).
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 070 phases 1-2, with seam check)
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 070 phases 3-4)
+Seam check (phases 1-2): no seam changed meaning; adjustments in specs/070-stakes-before-dice/deviations.md.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
