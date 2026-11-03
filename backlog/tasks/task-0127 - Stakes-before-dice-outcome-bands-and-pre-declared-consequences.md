@@ -1,10 +1,10 @@
 ---
 id: TASK-0127
 title: 'Stakes before dice: outcome bands and pre-declared consequences'
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-10-27 02:32'
-updated_date: '2026-11-02 07:54'
+updated_date: '2026-11-03 04:03'
 labels:
   - dm
   - doctrine
@@ -48,6 +48,8 @@ Operator ruling 2026-11-02 (in chat, answering 'How should the remaining lanes g
 
 Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5 (spec 070 authoring, C1)
 Spec 070 committed (94d555be). Card back to To Do per runbook A side lane: spec-only PR; runbook B builds it. Open for runbook B sign-off (spec written against default (a)): OQ-1 house-rule flags as an optional tableRules object on the scene seed vs a session event; OQ-2 retry detected by code vs flagged by the model. Build order: after TASK-0113, TASK-0193 and TASK-0194 merge (shared facts.ts, narrate.ts, resolve.ts, plan-gate.ts).
+
+Claimed 2026-11-02 by M3 runbook B (docs/design/m3-runbook-b-resolution-quality.md). Worktree .worktrees/task-0127, branch task-0127-stakes-before-dice, cut from origin/main 38b8e737. No spec dir: signed escape line covers this task. Spine #8. Builds the merged spec 070 (no new spec number).
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
