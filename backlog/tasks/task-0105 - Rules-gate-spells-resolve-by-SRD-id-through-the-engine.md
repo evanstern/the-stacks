@@ -30,16 +30,18 @@ Spec: specs/083-spells-by-srd-id
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Node output has a spell step that names an SRD spell id; an id not in the SRD data is rejected by the gate, with a test
-- [ ] #2 The engine resolves the spell's attack or save, DC, damage and conditions from the SRD record and the caster's stats; no spell number is model-written
-- [ ] #3 A spell the engine cannot resolve mechanically yet is refused with a refusal code, not improvised into free steps, with a test
-- [ ] #4 The interpret and adjudicate prompts render the spell-step shape and state that spell numbers come from the engine
-- [ ] #5 Scripted-dice engine tests cover at least one attack spell, one save spell and one condition spell from the SRD; existing dm tests and the scripted CI playtest stay green
+- [x] #1 Node output has a spell step that names an SRD spell id; an id not in the SRD data is rejected by the gate, with a test
+- [x] #2 The engine resolves the spell's attack or save, DC, damage and conditions from the SRD record and the caster's stats; no spell number is model-written
+- [x] #3 A spell the engine cannot resolve mechanically yet is refused with a refusal code, not improvised into free steps, with a test
+- [x] #4 The interpret and adjudicate prompts render the spell-step shape and state that spell numbers come from the engine
+- [x] #5 Scripted-dice engine tests cover at least one attack spell, one save spell and one condition spell from the SRD; existing dm tests and the scripted CI playtest stay green
 - [x] #6 Spec phase: Seam check [orchestrator]
 - [x] #7 Spec phase: Engine spell resolution (card AC #2, #3, #5; US1, US2, US3, US4)
 - [x] #8 Spec phase: Spell step, plan gate, resolve, prompts, snapshot and seeds (card AC #1–#5; US1–US5)
 - [x] #9 Spec phase: Re-ground (wiki)
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
@@ -69,6 +71,6 @@ All spec tasks complete (Seam check [orchestrator]: 1/1 · Engine spell resoluti
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
-- [ ] #1 All tests and checks run green
-- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
+- [x] #1 All tests and checks run green
+- [x] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
