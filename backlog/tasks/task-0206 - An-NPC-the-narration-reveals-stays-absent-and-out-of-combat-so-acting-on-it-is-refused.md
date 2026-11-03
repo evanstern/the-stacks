@@ -33,13 +33,15 @@ Spec: specs/078-revealed-npc-present
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 A Director or narration reveal of a seed NPC records it present (scene-presence event), with a test replaying seq 40
-- [ ] #2 An attack on a present hostile NPC that belongs to a seed encounter starts that encounter (or joins it to initiative) and resolves, with a test replaying seq 45
-- [ ] #3 The chronicle never calls a revealed, present NPC departed
+- [x] #1 A Director or narration reveal of a seed NPC records it present (scene-presence event), with a test replaying seq 40
+- [x] #2 An attack on a present hostile NPC that belongs to a seed encounter starts that encounter (or joins it to initiative) and resolves, with a test replaying seq 45
+- [x] #3 The chronicle never calls a revealed, present NPC departed
 - [x] #4 Spec phase: The Director's arrivals, resolve and the plan gate (card AC #1, #2)
 - [x] #5 Spec phase: The chronicle and the run 1 seq 40–45 replay (card AC #1, #2, #3; merge condition)
 - [x] #6 Spec phase: Wiki re-ground
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
@@ -70,6 +72,6 @@ All spec tasks complete (The Director's arrivals, resolve and the plan gate (car
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
-- [ ] #1 All tests and checks run green
-- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
+- [x] #1 All tests and checks run green
+- [x] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
