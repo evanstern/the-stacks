@@ -48,7 +48,7 @@ report if another file is needed. No paid model run; tests use the fake gateway.
 
 ## Phase 2: Facts, narrate, audit (card AC #1, #2; US2, US3; OQ-1 ruling)
 
-- [ ] T013a [US2] In `apps/server/src/dm/doctrine/doctrine.ts`, replace the `AGENCY_RULE` reflex line
+- [x] T013a [US2] In `apps/server/src/dm/doctrine/doctrine.ts`, replace the `AGENCY_RULE` reflex line
       with the amended text (plan D1, OQ-1 ruling). In `apps/server/test/dm/doctrine.test.ts`, assert
       it holds "a flinch on a foe's miss" and "a twist that times the blow". Change no version: Phase 1
       bumps already cover director, interpret and the playtest auditor (plan R7).
