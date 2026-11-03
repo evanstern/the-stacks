@@ -41,22 +41,22 @@ the closing clarify loop of `factualSummary`. If a task seems to need another fi
 **Independent test**: `fallback.test.ts`, `audit.test.ts`, `narrate.test.ts` and
 `interpret-prompt.test.ts` pass with the new cases.
 
-- [ ] T008 [US2] In `apps/server/src/dm/nodes/audit.ts`, apply plan D5. Exempt a closing clarify
+- [x] T008 [US2] In `apps/server/src/dm/nodes/audit.ts`, apply plan D5. Exempt a closing clarify
       question from the option-menu check.
-- [ ] T009 [US2] In `apps/server/src/dm/fallback.ts`, apply plan D4. Change only the closing clarify
+- [x] T009 [US2] In `apps/server/src/dm/fallback.ts`, apply plan D4. Change only the closing clarify
       loop of `factualSummary`.
-- [ ] T010 [US2] In `apps/server/src/dm/prompts/narrate.ts`, apply plan D6. Set `PROMPT_VERSION` to
+- [x] T010 [US2] In `apps/server/src/dm/prompts/narrate.ts`, apply plan D6. Set `PROMPT_VERSION` to
       `dm.narrate-v8`. Replace the two rule texts.
-- [ ] T011 [P] [US2] Extend `apps/server/test/dm/fallback.test.ts` as plan "Tests" says, including
+- [x] T011 [P] [US2] Extend `apps/server/test/dm/fallback.test.ts` as plan "Tests" says, including
       the `run 1 seq 172–176` case. Update the "Which door?" expectations. The property test passes.
-- [ ] T012 [P] [US2] Extend `apps/server/test/dm/audit.test.ts` as plan "Tests" says.
-- [ ] T013 [P] [US2] In `apps/server/test/dm/narrate.test.ts`, pin `dm.narrate-v8` and assert both v8
+- [x] T012 [P] [US2] Extend `apps/server/test/dm/audit.test.ts` as plan "Tests" says.
+- [x] T013 [P] [US2] In `apps/server/test/dm/narrate.test.ts`, pin `dm.narrate-v8` and assert both v8
       rules.
-- [ ] T014 [P] [US2] Extend `apps/server/test/dm/interpret-prompt.test.ts` with the answer-turn case.
-- [ ] T015 Amend `specs/034-narration-quality/contracts/fallback-summary.md`, `audit-criteria.md`
+- [x] T014 [P] [US2] Extend `apps/server/test/dm/interpret-prompt.test.ts` with the answer-turn case.
+- [x] T015 Amend `specs/034-narration-quality/contracts/fallback-summary.md`, `audit-criteria.md`
       and `narration-facts.md` as plan "Contracts" says. Mark each change
       "Amended by spec 073 (TASK-0209)".
-- [ ] T016 Run `pnpm ci:check`. Commit as `TASK-0209 phase 2: the clarify question reaches the player`.
+- [x] T016 Run `pnpm ci:check`. Commit as `TASK-0209 phase 2: the clarify question reaches the player`.
 
 ## Phase 3: Wiki upkeep
 

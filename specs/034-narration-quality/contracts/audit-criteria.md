@@ -91,6 +91,8 @@ research.md R7.2 gives the counts and an alternative rule pending an operator ru
 | clarify question (new) | Fails when `facts.clarify` is non-empty and the trimmed prose does not end with `?`. Kind `doctrine`. Detail: "The facts ask a question and the prose does not end with one." |
 | life states | The detail quotes the matched words, at most 60 characters: `The prose says a character dies ("<match>"), and no fact records a death.` |
 | option menu | The detail quotes the closing question, at most 120 characters. |
+
+Amended by spec 073 (TASK-0209): the option-menu check skips an either-or ending when the prose ends with a `facts.clarify` question (compared lowercase, digits spelled, quotes stripped). A list line still fails.
 | length | The detail states the count: `The prose is <n> words; the limit is 220.` The limit stays 220. |
 
 ## Deterministic checks (amendment, spec 051)

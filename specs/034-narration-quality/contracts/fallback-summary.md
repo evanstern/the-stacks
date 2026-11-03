@@ -40,7 +40,7 @@ research.md R2, R4 (F23). Card AC #2.
 | Event `encounter-ended`, or `modeChange` to free | `The fighting stops.` (once) |
 | `modeChange` to turn with no `encounter-started` event | `A fight breaks out.` |
 | `director.sceneEnded` | `That is the end of it at <facts.setting.locationName>.` |
-| Each clarify (last) | `What does <Name> do?` (`the party` for a party action) |
+| Each clarify (last) | the question itself with digits spelled, when speakable; else `What does <Name> do?` (`the party` for a party action). Amended by spec 073 (TASK-0209). |
 | Nothing at all | `The moment holds.` |
 
 Outcome sentences: success `<Name> pulls it off.`; failure `<Name> comes up short.`; hit
