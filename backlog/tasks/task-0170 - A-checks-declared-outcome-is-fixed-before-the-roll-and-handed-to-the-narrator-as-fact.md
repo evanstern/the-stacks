@@ -40,9 +40,11 @@ Spec: specs/080-declared-outcome
 - [ ] #5 A success on an information-seeking check names seed information in its declared outcome, with a test
 - [x] #6 Spec phase: Step contract, discoverable clues, seeds, fixtures (card AC #1, #5; US1, US2)
 - [x] #7 Spec phase: Resolve and facts carry the applied outcome (card AC #2, #5; US1, US2)
-- [ ] #8 Spec phase: Narration, audit, fallback and the claw-marks replay (card AC #3, #4; US1, US3)
+- [x] #8 Spec phase: Narration, audit, fallback and the claw-marks replay (card AC #3, #4; US1, US3)
 - [ ] #9 Spec phase: Contracts and wiki re-ground
 <!-- AC:END -->
+
+
 
 
 
