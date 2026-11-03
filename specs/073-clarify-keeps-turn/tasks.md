@@ -19,19 +19,19 @@ the closing clarify loop of `factualSummary`. If a task seems to need another fi
 
 **Independent test**: `clarify-keeps-turn.integration.test.ts` and `first-stage.test.ts` pass.
 
-- [ ] T001 [US1] In `apps/server/src/dm/first-stage.ts`, apply plan D1. Add `clarifyHolds` and
+- [x] T001 [US1] In `apps/server/src/dm/first-stage.ts`, apply plan D1. Add `clarifyHolds` and
       `CLARIFY_HELD`. Give `holdDirector` an optional `reason` parameter defaulting to `HELD`.
-- [ ] T002 [US1] In `apps/server/src/dm/pipeline/runner.ts`, apply plan D2. Hold the Director for a
+- [x] T002 [US1] In `apps/server/src/dm/pipeline/runner.ts`, apply plan D2. Hold the Director for a
       clarify beat after the cut hold. Add `clarified` to the `dm.plan.cut` log line.
-- [ ] T003 [US1] In `apps/server/src/dm/nodes/resolve.ts`, apply plan D3. Compute the held ids.
+- [x] T003 [US1] In `apps/server/src/dm/nodes/resolve.ts`, apply plan D3. Compute the held ids.
       Exclude them from the third disjunct of the turn advance group's `done` test.
-- [ ] T004 [US1] Create `apps/server/test/dm/clarify-keeps-turn.integration.test.ts` with plan
+- [x] T004 [US1] Create `apps/server/test/dm/clarify-keeps-turn.integration.test.ts` with plan
       "Tests" cases 1 to 3. Follow `resolve.integration.test.ts`'s `inTurnMode` pattern. Name the
       run 1 source in the file header.
-- [ ] T005 [P] [US1] Extend `apps/server/test/dm/first-stage.test.ts` as plan "Tests" says.
-- [ ] T006 Amend `specs/031-dm-runtime/contracts/resolve.md` and `director.md` as plan "Contracts"
+- [x] T005 [P] [US1] Extend `apps/server/test/dm/first-stage.test.ts` as plan "Tests" says.
+- [x] T006 Amend `specs/031-dm-runtime/contracts/resolve.md` and `director.md` as plan "Contracts"
       says. Mark each change "Amended by spec 073 (TASK-0209)".
-- [ ] T007 Run `pnpm ci:check` and the DB suite. Commit as
+- [x] T007 Run `pnpm ci:check` and the DB suite. Commit as
       `TASK-0209 phase 1: a clarify holds the turn`.
 
 ## Phase 2: The player sees the question (card AC #2; US2)

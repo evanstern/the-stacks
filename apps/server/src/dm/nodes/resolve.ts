@@ -13,6 +13,7 @@ import {
   type TableMode,
 } from "@the-stacks/session-model";
 import type { Gate } from "../../gate/index.js";
+import { clarifyHolds } from "../first-stage.js";
 import {
   arrivingNpcs,
   checkPlan,
@@ -1128,6 +1129,14 @@ export const resolve: Node<"resolve"> = async (ctx) => {
     modeJustStarted: false,
   };
   const actionResults: ResolveOutput["actionResults"] = [];
+  /** A human's clarify holds the turn (specs/073). */
+  const clarifyHeld = hold
+    ? new Set<string>()
+    : clarifyHolds(
+        assembled.beat,
+        ctx.results.interpret?.readings ?? [],
+        ctx.results.adjudicate?.rulings ?? [],
+      );
   /** The active combatant when the turn began (spec 048, the skipped advance). */
   const activeAtStart =
     ctx.job.attempt > 1
@@ -1279,6 +1288,7 @@ export const resolve: Node<"resolve"> = async (ctx) => {
               (b) =>
                 b.characterId !== null &&
                 b.characterId === mode.activeCharacterId &&
+                !clarifyHeld.has(b.actionId) &&
                 actionResults.some(
                   (r) =>
                     r.actionId === b.actionId && r.outcome !== "awaiting-dm",
