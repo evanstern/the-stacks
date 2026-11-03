@@ -49,6 +49,8 @@ Claimed 2026-11-03 by M3 runbook B (docs/design/m3-runbook-b-resolution-quality.
 Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5 (spec 083 authoring, C1)
 
 spec-bridge sync: Seam check [orchestrator]: 1/1 · Engine spell resolution (card AC #2, #3, #5; US1, US2, US3, US4): 0/16 · Spell step, plan gate, resolve, prompts, snapshot and seeds (card AC #1–#5; US1–US5): 0/14 · Re-ground (wiki): 0/6
+
+Spec 083 (ba693258). Defaults taken: OQ-1 (a) this card spends the slot (0211 keeps its seq 204-210 replay and the narration rule); OQ-2 unresolvable spell families refused SPELL_UNRESOLVED per card AC #3, one follow-up card per family (TASK-0226..0229), and a standing S-spells-refused playtest row; OQ-3 engine-held spell table tested against SRD text; OQ-4 a turn-limited condition outside an encounter is not applied, damage lands; OQ-5 the seed spell list gates casting (SPELL_NOT_PREPARED); OQ-6 monster spellcasting carded beside TASK-0224. Spine amendment: 0128 shares schemas.ts, plan-gate.ts, resolve.ts, step-grammar.ts with 0105; 0105 merges first, 0128 builds after.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
