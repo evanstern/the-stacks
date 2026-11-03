@@ -238,6 +238,15 @@ export const checkStep = (over: Record<string, unknown> = {}) => ({
   autoFail: null,
   onSuccess: [],
   onFailure: [],
+  stakes: {
+    success: null,
+    cost: "It works, at a small price.",
+    failure: "The attempt comes to nothing.",
+    severe: "It goes badly wrong.",
+  },
+  onCost: [],
+  onSevere: [],
+  newRisk: null,
   ...over,
 });
 

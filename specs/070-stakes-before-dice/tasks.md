@@ -34,34 +34,34 @@ ends with `pnpm ci:check` green and one commit led by `TASK-0127:`. DB suites ru
 
 ## Phase 2: Step contract, prompts, table rules, plan gate, fixtures (card AC #1, #3; US1, US2)
 
-- [ ] T008 [US1] In `apps/server/src/dm/nodes/schemas.ts`, add `StakesSchema` and the check-step
+- [x] T008 [US1] In `apps/server/src/dm/nodes/schemas.ts`, add `StakesSchema` and the check-step
       fields `stakes`, `onCost`, `onSevere`, `newRisk` (plan D1). Add the ability-check
       `superRefine` to `InterpretReadingSchema` and `AdjudicateModelOutput`.
-- [ ] T009 [US1] In `apps/server/src/dm/prompts/step-grammar.ts`, document the new fields and the
+- [x] T009 [US1] In `apps/server/src/dm/prompts/step-grammar.ts`, document the new fields and the
       band meanings in one line each.
-- [ ] T010 [US1] In `apps/server/src/dm/prompts/interpret.ts`, add stakes to `EXAMPLE_OUTPUT` and the
+- [x] T010 [US1] In `apps/server/src/dm/prompts/interpret.ts`, add stakes to `EXAMPLE_OUTPUT` and the
       three FR-005 rules to `OUTPUT_SHAPE`. Bump `PROMPT_VERSION` one past `main`.
-- [ ] T011 [US1] Bump `PROMPT_VERSION` in `apps/server/src/dm/prompts/adjudicate.ts` one past `main`.
-- [ ] T012 [US2] In `apps/server/src/dm/seed/schema.ts`, add the `tableRules` object with defaults
+- [x] T011 [US1] Bump `PROMPT_VERSION` in `apps/server/src/dm/prompts/adjudicate.ts` one past `main`.
+- [x] T012 [US2] In `apps/server/src/dm/seed/schema.ts`, add the `tableRules` object with defaults
       (plan D3).
-- [ ] T013 [US1] In `apps/server/src/dm/gates/plan-gate.ts`, claim-check the stakes texts and
+- [x] T013 [US1] In `apps/server/src/dm/gates/plan-gate.ts`, claim-check the stakes texts and
       `newRisk`, and walk `onCost` and `onSevere` ids and condition sources (plan D5).
-- [ ] T014 Add a `checkStep(over)` builder to `apps/server/test/dm/helpers.ts` that fills valid
+- [x] T014 Add a `checkStep(over)` builder to `apps/server/test/dm/helpers.ts` that fills valid
       stakes and empty new lists.
-- [ ] T015 Add stakes to every check step in the 14 JSON fixtures plan.md lists (3 `dm-scripts`,
+- [x] T015 Add stakes to every check step in the 14 JSON fixtures plan.md lists (3 `dm-scripts`,
       10 test scripts, `downed-seat.json`). Keep each text short and true to the fixture's reason.
-- [ ] T016 Update the TS tests plan.md lists for Phase 2 to use `checkStep()` or carry stakes.
-- [ ] T017 [US1] In `apps/server/test/dm/interpret.test.ts`, add: a check with no `stakes.failure`
+- [x] T016 Update the TS tests plan.md lists for Phase 2 to use `checkStep()` or carry stakes.
+- [x] T017 [US1] In `apps/server/test/dm/interpret.test.ts`, add: a check with no `stakes.failure`
       is rejected (card AC #1); an ability check with null `cost` is rejected; a saving throw with
       null `cost` and `severe` parses; `newRisk` defaults to null.
-- [ ] T018 [US1] In `apps/server/test/dm/interpret-prompt.test.ts`, assert the new version strings
+- [x] T018 [US1] In `apps/server/test/dm/interpret-prompt.test.ts`, assert the new version strings
       and that the prompt carries the FR-005 rules and a stakes example.
-- [ ] T019 [US2] In `apps/server/test/dm/seed.test.ts`, assert the defaults on a seed with no
+- [x] T019 [US2] In `apps/server/test/dm/seed.test.ts`, assert the defaults on a seed with no
       `tableRules` and an override of each flag (card AC #3, group checks included).
-- [ ] T020 [US1] In `apps/server/test/dm/plan-gate.test.ts`, add a contradicting stakes text refused
+- [x] T020 [US1] In `apps/server/test/dm/plan-gate.test.ts`, add a contradicting stakes text refused
       with `REASON_CONTRADICTS_STATE` and an unknown id in `onSevere` refused with
       `UNKNOWN_COMBATANT`.
-- [ ] T021 Run `pnpm ci:check` and the DB suites with `REQUIRE_DATABASE=1`.
+- [x] T021 Run `pnpm ci:check` and the DB suites with `REQUIRE_DATABASE=1`.
 
 ## Phase 3: Resolve by band and the free retry (card AC #2, #3, #5; US1, US2, US3)
 
