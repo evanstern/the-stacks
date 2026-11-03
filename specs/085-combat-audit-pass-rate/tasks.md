@@ -97,17 +97,17 @@ cases.
 **Independent test**: `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/1.0.1/gates/cli.mjs
 freshness . docs/wiki` prints `OK`.
 
-- [ ] T021 Run `/grounding-wiki:wiki-update`. Review `dm-narration-quality.md` (NEEDS-REVIEW):
+- [x] T021 Run `/grounding-wiki:wiki-update`. Review `dm-narration-quality.md` (NEEDS-REVIEW):
       the new narrate, audit and director versions with one sentence each; `turn.offTurn` and the
       `Off turn:` line; the off-turn check; the issue `actor` rule; `dropStockEnding`; the
       count-withheld goal note.
-- [ ] T022 Review `dm-runtime.md` (NEEDS-REVIEW): the turn rule and the director version.
-- [ ] T023 Review `output-claim-gate.md` (NEEDS-REVIEW): `offTurnActs` and its caller.
-- [ ] T024 Re-pin `presence.md` and `seed-npc-presence.md` after checking their claims (the
+- [x] T022 Review `dm-runtime.md` (NEEDS-REVIEW): the turn rule and the director version.
+- [x] T023 Review `output-claim-gate.md` (NEEDS-REVIEW): `offTurnActs` and its caller.
+- [x] T024 Re-pin `presence.md` and `seed-npc-presence.md` after checking their claims (the
       director version, the narrate node) against the diff.
-- [ ] T025 Update `docs/wiki/CAPSULES.md` and `docs/wiki/INDEX.md` for every changed note summary,
+- [x] T025 Update `docs/wiki/CAPSULES.md` and `docs/wiki/INDEX.md` for every changed note summary,
       and add one TASK-0214 sentence to the INDEX state paragraph.
-- [ ] T026 Run the freshness gate, the spec-bridge check and `pnpm ci:check`. Commit as
+- [x] T026 Run the freshness gate, the spec-bridge check and `pnpm ci:check`. Commit as
       `TASK-0214 phase 4: wiki re-ground`.
 
 ## After merge (orchestrator, not a phase)
