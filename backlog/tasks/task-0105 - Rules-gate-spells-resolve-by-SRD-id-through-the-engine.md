@@ -38,7 +38,10 @@ Spec: specs/083-spells-by-srd-id
 - [ ] #6 Spec phase: Seam check [orchestrator]
 - [ ] #7 Spec phase: Engine spell resolution (card AC #2, #3, #5; US1, US2, US3, US4)
 - [ ] #8 Spec phase: Spell step, plan gate, resolve, prompts, snapshot and seeds (card AC #1–#5; US1–US5)
+- [ ] #9 Spec phase: Re-ground (wiki)
 <!-- AC:END -->
+
+
 
 
 
