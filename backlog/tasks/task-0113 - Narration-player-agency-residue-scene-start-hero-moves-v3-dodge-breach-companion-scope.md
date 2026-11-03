@@ -3,10 +3,10 @@ id: TASK-0113
 title: >-
   Narration player-agency residue: scene-start hero moves, v3 dodge breach,
   companion scope
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-10-26 20:08'
-updated_date: '2026-11-03 02:34'
+updated_date: '2026-11-03 02:40'
 labels:
   - dm
   - narration
@@ -73,6 +73,12 @@ Spec 074 OQ-4 default taken (orchestrator, flagged to the operator): seq 82 'twi
 
 Dispatch: tier=haiku pinned=cc/claude-haiku-5-5 served=claude-haiku-5-5 (spec 074 phase 3, wiki)
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Rule source, Director, interpret, playtest auditor (card AC #3, #4, #5; US1, US4): 12/12 · Facts, narrate, audit (card AC #1, #2; US2, US3; OQ-1 ruling): 12/12 · Wiki (re-ground): 6/6). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
