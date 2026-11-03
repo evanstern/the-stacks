@@ -42,24 +42,24 @@ ships Pell's words.
 **Independent test**: `talk-fallback-line.test.ts`, `fallback.test.ts`, `facts.test.ts` and
 `narrate.test.ts` pass with the new cases.
 
-- [ ] T005 [US1] In `apps/server/src/dm/facts.ts`, apply plan D3: `FactNpcPlan.say`, the
+- [x] T005 [US1] In `apps/server/src/dm/facts.ts`, apply plan D3: `FactNpcPlan.say`, the
       `npcPlan.say` input, and the `held` rule.
-- [ ] T006 [US1] In `apps/server/src/dm/nodes/narrate.ts`, apply plan D4: pass `reading.say`,
+- [x] T006 [US1] In `apps/server/src/dm/nodes/narrate.ts`, apply plan D4: pass `reading.say`,
       and drop a refuted line in `withholdRefusedInputs`.
-- [ ] T007 [US3] In `apps/server/src/dm/prompts/narrate.ts`, apply plan D5: the `says:` fact line
+- [x] T007 [US3] In `apps/server/src/dm/prompts/narrate.ts`, apply plan D5: the `says:` fact line
       and the one rule. Bump `PROMPT_VERSION` to the next version. In
       `apps/server/src/dm/prompts/audit.ts`, bump `PROMPT_VERSION` to the next version.
-- [ ] T008 [US1] In `apps/server/src/dm/fallback.ts`, apply plan D6 inside `plannedSentence` only.
-- [ ] T009 [P] [US1] Extend `apps/server/test/dm/fallback.test.ts`: a voiced line; lines refused
+- [x] T008 [US1] In `apps/server/src/dm/fallback.ts`, apply plan D6 inside `plannedSentence` only.
+- [x] T009 [P] [US1] Extend `apps/server/test/dm/fallback.test.ts`: a voiced line; lines refused
       for a dice word, a death word and a `?`; quote marks stripped; digits spelled; a random
       `say` in the property generator.
-- [ ] T010 [P] [US1] Extend `apps/server/test/dm/facts.test.ts`: `say` from `npcPlan`; a refused
+- [x] T010 [P] [US1] Extend `apps/server/test/dm/facts.test.ts`: `say` from `npcPlan`; a refused
       plan gives `say: null`; a line with no step is not held.
-- [ ] T011 [P] [US3] Extend `apps/server/test/dm/narrate.test.ts`: the version pins and a refuted
+- [x] T011 [P] [US3] Extend `apps/server/test/dm/narrate.test.ts`: the version pins and a refuted
       line withheld.
-- [ ] T012 [US1] Write `apps/server/test/dm/talk-fallback-line.test.ts`, the merge condition: the
+- [x] T012 [US1] Write `apps/server/test/dm/talk-fallback-line.test.ts`, the merge condition: the
       run 1 seq 124–126 replay with the four cases in plan "Tests". Name the source in the header.
-- [ ] T013 Amend `specs/034-narration-quality/contracts/fallback-summary.md` and
+- [x] T013 Amend `specs/034-narration-quality/contracts/fallback-summary.md` and
       `narration-facts.md` as plan "Contracts" says. Commit as
       `TASK-0207 phase 2: talk fallback voices the line`.
 

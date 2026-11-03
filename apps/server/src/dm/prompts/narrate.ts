@@ -25,7 +25,7 @@ import {
   transcriptEntries,
 } from "./common.js";
 
-export const PROMPT_VERSION = "dm.narrate-v12";
+export const PROMPT_VERSION = "dm.narrate-v13";
 
 const RULES = [
   "You narrate the result of one beat of a tabletop role-playing session. The facts below are TRUE and already decided by the rules engine. Retell them as story.",
@@ -40,6 +40,7 @@ const RULES = [
   "When an intent is unclear, describe the moment, then end with the Unclear intent question exactly as written.",
   "Cover every Event line.",
   "Only the actor named on the Turn line acts in this beat. The actor on the Next line has not acted: never show them move, speak or strike.",
+  "When the Monster turn has a says: line, the monster speaks those words in this beat.",
   "Name a character as dead or unconscious only when a fact or the state sections say so; when a fact says so, say so.",
   "A dead, unconscious, stable or absent character does not act or speak. Count only what the state sections show.",
   "A not-yet-attempted step has not happened, in this beat or an earlier one. Stop before it; never show it start or done.",
@@ -125,6 +126,7 @@ export function factEntries(facts: NarrationFacts): string[] {
     if (plan && plan.reasons.length > 0) {
       out.push(`  planned: ${[plan.intent, ...plan.reasons].join("; ")}`);
     }
+    if (plan?.say && !plan.held) out.push(`  says: ${plan.say}`);
     if (plan?.held) out.push("  held: the plan did not go ahead");
     if (facts.npcTurn.rolls.length === 0) {
       out.push(

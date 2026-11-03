@@ -8,7 +8,7 @@ import { memorySink } from "../../src/ai/usage.js";
 import { agencyRule } from "../../src/dm/doctrine/doctrine.js";
 import { assemble } from "../../src/dm/nodes/assemble.js";
 import type { DirectorNodeOutput } from "../../src/dm/nodes/director.js";
-import { narrate } from "../../src/dm/nodes/narrate.js";
+import { narrate, withholdRefusedInputs } from "../../src/dm/nodes/narrate.js";
 import type { ResolveOutput } from "../../src/dm/nodes/resolve.js";
 import {
   PROMPT_VERSION as AUDIT_VERSION,
@@ -314,7 +314,7 @@ describe("narrate", () => {
       facts,
       prior: null,
     });
-    expect(NARRATE_VERSION).toBe("dm.narrate-v12");
+    expect(NARRATE_VERSION).toBe("dm.narrate-v13");
     expect(prompt.system).toContain(
       "A roll's band and outcome are settled. A success means the attempted task happens. Deliver the outcome and any learned fact plainly in the prose; invent no other.",
     );
@@ -598,6 +598,43 @@ describe("narrate", () => {
       );
     });
 
+    it("drops a monster line the state refutes and keeps a clean one (specs/081)", async () => {
+      const base = await setup(["x"]);
+      const fight = greyhollowFight();
+      const snapshot = buildSnapshot(fight.projections, fight.seed);
+      for (const a of snapshot.actors) {
+        if (a.id === "goblin-3") a.lifeState = "dead";
+      }
+      const state = {
+        snapshot,
+        diff: { fromSeq: 0, toSeq: 1, stage: [], actors: [] },
+      };
+      const out = await narrate(base.ctx);
+      if (!out.ok) throw new Error("narrate failed");
+      const withSay = (say: string) => ({
+        ...out.output.facts,
+        npcTurn: {
+          name: "Snag",
+          rolls: [],
+          outcomes: [],
+          changes: [],
+          plan: { intent: "talk", reasons: [], say, held: false },
+        },
+      });
+      const bad = withholdRefusedInputs(
+        withSay("The goblin lookout rallies the others."),
+        state,
+      );
+      expect(bad.facts.npcTurn?.plan?.say).toBeNull();
+      expect(bad.withheld[0]?.detail).toMatch(/withheld monster line: /);
+      const ok = withholdRefusedInputs(
+        withSay("Hold your fire, friends!"),
+        state,
+      );
+      expect(ok.facts.npcTurn?.plan?.say).toBe("Hold your fire, friends!");
+      expect(ok.withheld).toEqual([]);
+    });
+
     it("blanks a refused goalNote", async () => {
       const { n, prompt } = await withheldRun(
         "The lock yields to patient work.",
@@ -661,7 +698,7 @@ describe("narrate", () => {
       snapshot,
       prose: "Prose.",
     });
-    expect(AUDIT_VERSION).toBe("dm.audit-v8");
+    expect(AUDIT_VERSION).toBe("dm.audit-v9");
     expect(p.system).toContain("6. The actor on the Turn line acts");
     expect(p.system).toContain("7. A roll's band and consequence are decided.");
     expect(p.system).toContain(
