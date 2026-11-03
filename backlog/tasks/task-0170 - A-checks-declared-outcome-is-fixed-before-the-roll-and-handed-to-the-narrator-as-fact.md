@@ -27,6 +27,8 @@ Rule (operator, 2026-10-28): success means the attempted task happens. 'I push t
 Why: two-browser alpha playtest 2026-10-28, item 2. Tamsin investigated 'what may have made these claw marks' and rolled 23 vs DC 12. The narration described the marks in more detail and never named a creature, so the success read as a failure. The defect sits upstream of narration: the narrator gets the roll but no definite outcome for the attempt, so it improvises one.
 
 Shape: builds on TASK-0127. 0127 has interpret declare a consequence per outcome band before the roll, and carries the band in NarrationFacts. This card adds the success side. Interpret states each band's outcome for this specific attempt, success included. Resolve puts the outcome that applied into NarrationFacts beside the roll line. For an information-seeking check, the success outcome names seed information (ties to TASK-0148 reveal facts).
+
+Spec: specs/080-declared-outcome
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
