@@ -39,12 +39,6 @@ Spec: specs/073-clarify-keeps-turn
 - [x] #5 Spec phase: Wiki upkeep
 <!-- AC:END -->
 
-
-
-
-
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -61,6 +55,8 @@ Spec 073 (02dc49be). Defaults (a) taken: OQ-1 no interpret change; OQ-2 a compan
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 073 phases 1-2)
 
 Dispatch: tier=haiku pinned=cc/claude-haiku-5-5 served=claude-haiku-5-5 (spec 073 phase 3, wiki)
+
+spec-bridge sync: A clarify holds the turn (card AC #1, merge condition; US1): 7/7 · The player sees the question (card AC #2; US2): 9/9 · Wiki upkeep: 5/5 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
