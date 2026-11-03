@@ -131,18 +131,18 @@ followUps, re-pinned honestly.
 **Independent test**: `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/1.0.1/gates/cli.mjs
 freshness . docs/wiki` prints `OK`.
 
-- [ ] T040 Run `/grounding-wiki:wiki-update`. Review these notes against the diff (NEEDS-REVIEW):
+- [x] T040 Run `/grounding-wiki:wiki-update`. Review these notes against the diff (NEEDS-REVIEW):
       `dnd5e-engine`, `dm-runtime`, `dm-failure-and-gates`, `dm-narration-quality`.
-- [ ] T041 In `dnd5e-engine.md`, describe `reactionsSpent`, the `reaction` flag, `REACTION_SPENT`
+- [x] T041 In `dnd5e-engine.md`, describe `reactionsSpent`, the `reaction` flag, `REACTION_SPENT`
       and the turn-start reset. In `dm-runtime.md`, describe the `move` step and resolve's
       opportunity attack from the SRD record. In `dm-failure-and-gates.md`, describe the plan
       gate's actor rule and its code. In `dm-narration-quality.md`, describe the roller as fallback
       subject, the reaction line, open followUps and the new prompt versions.
-- [ ] T042 Re-pin every other note that lists a touched file as a source (for example
+- [x] T042 Re-pin every other note that lists a touched file as a source (for example
       `dm-turn-jobs`, `party-panel`, `seed-npc-presence`, `turn-floor`, `dm-talk-triggers`,
       `srd-data`, `output-claim-gate`, `play-route`). Read each changed hunk first. Edit the note
       when a claim changed.
-- [ ] T043 Update the `CAPSULES.md` lines for every note edited in T041. Add one sentence to
+- [x] T043 Update the `CAPSULES.md` lines for every note edited in T041. Add one sentence to
       `INDEX.md`'s state paragraph naming TASK-0208 and specs/079.
 - [ ] T044 Run the freshness gate and the spec-bridge gate. Run `pnpm ci:check`. Commit as
       `TASK-0208 phase 5: re-ground the wiki`.

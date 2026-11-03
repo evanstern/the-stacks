@@ -41,7 +41,7 @@ sources:
   - apps/server/seeds/greyhollow-ford-trio.json
   - biome.json
 size_budget_exempt: both notes sat within 30 chars of the 8000 budget before TASK-0180; the talk path got its own note (dm-talk-triggers) and only a pointer line lands here; the rest is one pipeline each, not splittable without a TASK of its own
-verified_against: 022452c9327344e8ae67e69066acfe6450e134e3
+verified_against: c6a800dd72487bcec95a4d0d0f2e94bbb821b4c4
 ---
 
 # DM runtime
@@ -62,7 +62,7 @@ async function `(TurnContext) => NodeResult`.
    records ([[srd-data]]). `AssembleOutput.resumed` holds the plans of actions whose paused turn's proposal is now approved (`resume.ts`, TASK-0168, specs/057); the checkpoint freezes them.
 2. **director** - `dm.director`. Decides scene-level changes (set the scene, trackers, table
    mode, encounter setup), whether the beat resolves or **holds** for companions, and the optional `arrivals` list (offstage seed NPCs now on screen, `dm.director-v6`). `legalizeDirector` keeps only offstage seed NPCs and drops all arrivals on scene start.
-3. **interpret** - `dm.interpret`. Reads each action into steps (check, attack, effect, roll) and
+3. **interpret** - `dm.interpret`. Reads each action into steps (check, attack, move, effect, roll; `dm.interpret-v7`) and
    flags `needsAdjudication`. Resumed actions are not read again; their stored readings rejoin in beat order.
 4. **adjudicate** - `dm.adjudicate`, only when an interpret reading asks. May call `retrieve`
    ([[retrieval]]) for rules text and returns a ruling. Resumed readings keep their stored ruling.
@@ -92,7 +92,7 @@ view). An over-cap snapshot fails the turn with `state-overflow` ([[dm-failure-a
 (`companion.ts` and `chronicle.ts` also call it). It picks each next step from **engine events alone**: a `check.roll` or `attack.roll`
 `mechanics` proposal goes in, the appended `check.resolved`/hit outcome comes out, and only then
 do effects (`damage.apply`, `healing.apply`, `condition.*`) follow. A `presence` effect (`arrived`, `left`, `fled`, `removed`, `surrendered`, `conceded`) is not an engine command: resolve submits a `scene-presence` proposal, and `findLanded` recognises a landed one from the `scenePresence` projection. Resolve alone builds that kind ([[proposal-gate]]) and logs seed presence ([[seed-npc-presence]]). No model is read inside
-resolve; the engine ([[dnd5e-engine]]) owns every number. Since TASK-0194 (spec 068) resolve first pulls each plan-gate `pull` id into the scene (`pullIn`: `combatant.add` from the NPC's SRD block, default `commoner`, then `initiative.join` in an encounter when it can act), as `actionId: null` rows. Since spec 075 (TASK-0210) the same `pullIn` also pulls attack targets, attackers and damage targets. The operator ruled: "I actually think that the rule itself is incorrect -- we should be able to attack anyone regardless of combatant state." A gate refusal is recorded, never retried. Each submission is checkpointed (`Submission`, keyed `<jobId>#<n>`).
+resolve; the engine ([[dnd5e-engine]]) owns every number. Since TASK-0194 (spec 068) resolve first pulls each plan-gate `pull` id into the scene (`pullIn`: `combatant.add` from the NPC's SRD block, default `commoner`, then `initiative.join` in an encounter when it can act), as `actionId: null` rows. Since spec 075 (TASK-0210) the same `pullIn` also pulls attack targets, attackers and damage targets. The operator ruled: "I actually think that the rule itself is incorrect -- we should be able to attack anyone regardless of combatant state." A `move` step (TASK-0208, spec 079) submits no command of its own: for each hostile in `leavesReachOf` that `reactions.ts` `reactors` finds still adjacent, able and holding its reaction, resolve submits an `attack.roll` with `reaction: true` from the hostile's first SRD melee attack (`meleeAttackOf`), keyed `<step key>:r<n>`, then `damage.apply` on a hit. Interpret never plans the hostile's attack; a hostile with no melee attack logs `dm.reaction.skipped`. Only a pause stops the chain. `follow-ups.ts` carries an open `followUp` of an earlier beat into narrate facts. A gate refusal is recorded, never retried. Each submission is checkpointed (`Submission`, keyed `<jobId>#<n>`).
 
 Resolve's six groups and settling: [[dm-turn-jobs]]; floor guard: [[turn-floor]].
 
