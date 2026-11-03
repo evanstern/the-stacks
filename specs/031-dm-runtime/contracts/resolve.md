@@ -226,3 +226,11 @@ row (`findLanded` and `refreshSubmission` read it too) and runs `effectsForBand`
 ability check in the current scene's ledger with the same combatant, ability and skill (`isFreeRetry`).
 A saving throw is never a free retry. A presence effect in `onCost` or `onSevere` counts as a
 presence target.
+
+## Amendment 2026-11-03 (specs/080-declared-outcome, TASK-0170): applied outcome and revealed clue
+
+Amended by specs/080-declared-outcome. A `Submission` gains optional `reveals` (the step's clue
+reference, else null) and `revealedText` (`clueFor(seed, reveals)`: the seed clue text, null when
+none or unknown; an unknown reference logs `dm.reveals.unknown`). Both are checkpointed and never
+in a public row; an older checkpoint lacks them. `consequenceFor` now returns `stakes.success` for
+the `success` band and falls back from a null `severe` to `failure`. No effect or band logic changes.

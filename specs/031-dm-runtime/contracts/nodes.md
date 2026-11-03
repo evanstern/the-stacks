@@ -330,3 +330,12 @@ new danger; null means a repeat is a free retry. The plan gate runs `checkClaims
 `SceneSeed.tableRules` is `{ outcomeBands: true, naturals: true, groupChecks: false }` by default.
 Prompts: `dm.interpret-v8`, `dm.adjudicate-v6`, `dm.narrate-v11`, `dm.audit-v7`. `Submission` gains
 `band` and `stakes` (checkpointed, never in a public row).
+
+## Amendment 2026-11-03 (specs/080-declared-outcome, TASK-0170): the declared outcome
+
+Amended by specs/080-declared-outcome. `stakes.success` is now required on every `check` step
+(`str`, at most 200 characters, never null): the concrete outcome of the attempt on a success. A
+`check` step gains `reveals: "<beatId>#<n>" | null` (default null; `n` is 1 to 8): the one listed
+clue of the current beat that a success shows. Interpret's prompt gains a `Discoverable clues`
+section (`clueEntries`, no DC). Prompts: `dm.interpret-v9`, `dm.adjudicate-v7`. No node signature
+changes.

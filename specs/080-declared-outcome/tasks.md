@@ -83,18 +83,18 @@ lists for the phase. Stop and report if another file is needed.
       State "reconstructed" and both sources in the header.
 - [x] T025 [US3] Create `apps/server/test/dm/declared-outcome-audit.test.ts` with the five steps of
       plan D7 (card AC #4; runbook merge condition "names the creature on success").
-- [ ] T026 Run `pnpm ci:check`.
+- [x] T026 Run `pnpm ci:check`.
 
 ## Phase 4: Contracts and wiki re-ground
 
-- [ ] T027 Amend `specs/031-dm-runtime/contracts/nodes.md` and `resolve.md`, and
+- [x] T027 Amend `specs/031-dm-runtime/contracts/nodes.md` and `resolve.md`, and
       `specs/034-narration-quality/contracts/narration-facts.md` and `audit-criteria.md`. Mark each
       "Amended by specs/080-declared-outcome".
-- [ ] T028 Re-ground the NEEDS-REVIEW notes against the diff: `docs/wiki/dm-narration-quality.md`,
+- [x] T028 Re-ground the NEEDS-REVIEW notes against the diff: `docs/wiki/dm-narration-quality.md`,
       `dm-runtime.md`, `dm-failure-and-gates.md`, `seed-npc-presence.md` (seed clue text),
       `dm-turn-jobs.md` (`resolve.ts`). Give every other note that lists a touched file a computed
       re-pin only when its claims did not change.
-- [ ] T029 Update `docs/wiki/CAPSULES.md` and the `docs/wiki/INDEX.md` state paragraph with one
+- [x] T029 Update `docs/wiki/CAPSULES.md` and the `docs/wiki/INDEX.md` state paragraph with one
       sentence for TASK-0170 (specs/080).
 - [ ] T030 **[orchestrator]** Add the TASK-0170 execution-log row to
       `docs/design/m3-runbook-b-resolution-quality.md`: dispatches, test counts, prompt versions, no

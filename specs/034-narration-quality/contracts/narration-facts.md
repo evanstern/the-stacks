@@ -194,3 +194,12 @@ auto-success: its line reads `<name> — <reason>: no roll needed: success`. Nar
 (tell the declared consequence, invent no other) and audit is `dm.audit-v7` (report `ledger-mismatch`
 when the prose tells another band or consequence). The fallback `outcomeSentence` voices the band and
 the consequence, the latter only when `reasonSpeakable` passes it.
+
+## Amendment 2026-11-03 (specs/080-declared-outcome, TASK-0170): consequence on every band, revealed on success
+
+Amended by specs/080-declared-outcome. `consequence` now carries the declared stakes text for every
+band, `success` included (this supersedes "`success` has none" above). `FactRoll` gains optional
+`revealed`: the clue text, set only on `success` and `success-at-cost` and null otherwise. Narrate
+is `dm.narrate-v12`: the roll line reads `outcome (settled): ...` and, when set, `learned
+(settled): ...`; a success means the attempted task happens. The fallback appends the learned fact
+under the same `reasonSpeakable` check.
