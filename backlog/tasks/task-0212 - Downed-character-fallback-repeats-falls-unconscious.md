@@ -1,9 +1,10 @@
 ---
 id: TASK-0212
 title: Downed-character fallback repeats 'falls unconscious'
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-11-02 23:19'
+updated_date: '2026-11-03 05:21'
 labels:
   - dm
   - narration
@@ -30,6 +31,12 @@ Where: apps/server/src/dm/fallback.ts — collapse a life-state change and its h
 <!-- AC:BEGIN -->
 - [ ] #1 A drop to zero renders 'falls unconscious' once, with a test replaying seq 189-196
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Claimed 2026-11-03 by M3 runbook B (docs/design/m3-runbook-b-resolution-quality.md). Worktree .worktrees/task-0212, branch task-0212-one-falls-unconscious, cut from origin/main 88589234. No spec dir: signed escape line covers this task. Spine #11. Escape line E2 (card ACs drive).
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
