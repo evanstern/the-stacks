@@ -33,10 +33,12 @@ Spec: specs/074-player-agency
 - [ ] #3 The playtest auditor's hero-is-theirs check states whether companions count, with a test
 - [ ] #4 The Director's goal notes state no volitional act, method or skill for a PC that its player did not declare, with a prompt test
 - [ ] #5 Interpret steps carry no volitional act for a PC that its player did not declare, with a test
-- [ ] #6 Spec phase: Rule source, Director, interpret, playtest auditor (card AC #3, #4, #5; US1, US4)
+- [x] #6 Spec phase: Rule source, Director, interpret, playtest auditor (card AC #3, #4, #5; US1, US4)
 - [ ] #7 Spec phase: Wiki (re-ground)
 - [ ] #8 Spec phase: Facts, narrate, audit (card AC #1, #2; US2, US3; OQ-1 ruling)
 <!-- AC:END -->
+
+
 
 
 
