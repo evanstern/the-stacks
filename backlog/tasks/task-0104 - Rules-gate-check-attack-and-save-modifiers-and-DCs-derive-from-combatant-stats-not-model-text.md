@@ -3,10 +3,10 @@ id: TASK-0104
 title: >-
   Rules gate: check, attack and save modifiers and DCs derive from combatant
   stats, not model text
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-10-26 15:42'
-updated_date: '2026-11-03 07:06'
+updated_date: '2026-11-03 07:12'
 labels:
   - engine
   - dm
@@ -72,6 +72,12 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 082 phase 5, wiki)
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Seam check [orchestrator]: 1/1 · Engine derivation (card AC #1, #2, #4, #5; US1, US2, US3, US4): 13/13 · Stats on combatants and the reaction path (card AC #1, #3, #4; US2, US3): 9/9 · Step contract, prompts, resolve and plan gate (card AC #1–#4; US1, US2, US3): 14/14 · Scripts, fixtures and integration tests (card AC #5; US5): 7/7 · Re-ground (wiki): 6/6). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
