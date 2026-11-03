@@ -20,7 +20,7 @@ import {
   transcriptEntries,
 } from "./common.js";
 
-export const PROMPT_VERSION = "dm.narrate-v9";
+export const PROMPT_VERSION = "dm.narrate-v10";
 
 const RULES = [
   "You narrate the result of one beat of a tabletop role-playing session. The facts below are TRUE and already decided by the rules engine. Retell them as story.",
@@ -42,6 +42,9 @@ const RULES = [
 
 /** The facts as capped entries, most important first. */
 function rollEntry(r: FactRoll): string {
+  if (r.reaction) {
+    return `  reaction: ${r.name} strikes at ${r.target ?? "them"} as they pull away -> ${r.outcome ?? "no result"}`;
+  }
   const target = r.target ? ` target ${r.target}` : "";
   return `  roll: ${r.reason}${target} -> ${r.outcome ?? "no result"}`;
 }

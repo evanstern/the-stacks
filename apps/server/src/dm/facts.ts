@@ -45,6 +45,8 @@ export interface FactRoll {
   /** Attack target name, from attack.resolved.targetId. */
   target: string | null;
   band?: FactBand | null;
+  /** True for an opportunity attack (the attacker spent its reaction). */
+  reaction?: boolean;
 }
 
 /** A reflex the dice allow the narrator to show (spec 074 D3). Never a choice. */
@@ -225,12 +227,14 @@ export function collectFacts(
       let against: FactRoll["against"] = null;
       let outcome: FactOutcome | null = null;
       let target: string | null = null;
+      let reaction = false;
       if (link) {
         const o = link.outcome;
         if (o.type === "attack.resolved") {
           against = { kind: "AC", value: o.ac };
           outcome = o.outcome;
           target = nameOf(o.targetId);
+          reaction = o.reaction === true;
         } else if (o.type === "check.resolved") {
           against = { kind: "DC", value: o.dc };
           outcome = o.outcome;
@@ -248,6 +252,7 @@ export function collectFacts(
         outcome,
         autoFail: false,
         target,
+        ...(reaction ? { reaction: true } : {}),
       });
     }
   }

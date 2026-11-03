@@ -72,7 +72,7 @@ and the plan gate refuses a foreign actor's step.
       inline snapshot, and assert the D6 sentence.
 - [x] T019 Amend `specs/031-dm-runtime/contracts/resolve.md` (plan "Contracts"). Mark the change
       "Amended by spec 079 (TASK-0208)".
-- [ ] T020 Run `pnpm ci:check` and the DB suite. Commit as
+- [x] T020 Run `pnpm ci:check` and the DB suite. Commit as
       `TASK-0208 phase 2: a move away draws the engine's reaction`.
 
 ## Phase 3: The reader sees whose attack it was (card AC #2 and #3; US2 scenario 4, US3)
@@ -83,22 +83,22 @@ audit stops pairing the mover with the reactor's outcome.
 **Independent test**: `fallback.test.ts`, `audit.test.ts`, `facts.test.ts`, `narrate.test.ts` and
 `ledger-format.test.mjs` pass with the new cases.
 
-- [ ] T021 [US2] In `apps/server/src/dm/facts.ts`, add `FactRoll.reaction` and set it in
+- [x] T021 [US2] In `apps/server/src/dm/facts.ts`, add `FactRoll.reaction` and set it in
       `collectFacts` (plan D7).
-- [ ] T022 [US2] In `prompts/narrate.ts`, add the reaction branch to `rollEntry`. Bump the version.
+- [x] T022 [US2] In `prompts/narrate.ts`, add the reaction branch to `rollEntry`. Bump the version.
       Bump `prompts/audit.ts`'s version.
-- [ ] T023 [US3] In `fallback.ts`, change `rollSentences` to name the roller (plan D7). Change no
+- [x] T023 [US3] In `fallback.ts`, change `rollSentences` to name the roller (plan D7). Change no
       other function.
-- [ ] T024 [US3] In `nodes/audit.ts`, make the opposite-outcome check read the character's own rolls
+- [x] T024 [US3] In `nodes/audit.ts`, make the opposite-outcome check read the character's own rolls
       (plan D7).
-- [ ] T025 [US2] In `apps/web/app/play/ledger-format.ts`, add the `Reaction: ` prefix (plan D9).
-- [ ] T026 [P] [US3] Extend `apps/server/test/dm/fallback.test.ts` with the `run 1 seq 154-161`
+- [x] T025 [US2] In `apps/web/app/play/ledger-format.ts`, add the `Reaction: ` prefix (plan D9).
+- [x] T026 [P] [US3] Extend `apps/server/test/dm/fallback.test.ts` with the `run 1 seq 154-161`
       case and the own-check case. Keep the property test green.
-- [ ] T027 [P] [US3] Extend `audit.test.ts` (plan "Tests").
-- [ ] T028 [P] [US2] Extend `facts.test.ts` and `narrate.test.ts` for the reaction flag, the
+- [x] T027 [P] [US3] Extend `audit.test.ts` (plan "Tests").
+- [x] T028 [P] [US2] Extend `facts.test.ts` and `narrate.test.ts` for the reaction flag, the
       reaction line and the new versions.
-- [ ] T029 [P] [US2] Extend `apps/web/test/play/ledger-format.test.mjs`.
-- [ ] T030 Amend `specs/034-narration-quality/contracts/fallback-summary.md` and
+- [x] T029 [P] [US2] Extend `apps/web/test/play/ledger-format.test.mjs`.
+- [x] T030 Amend `specs/034-narration-quality/contracts/fallback-summary.md` and
       `narration-facts.md` (the `reaction` field). Mark each change "Amended by spec 079 (TASK-0208)".
 - [ ] T031 Run `pnpm ci:check`. Commit as `TASK-0208 phase 3: the reader sees whose attack it was`.
 

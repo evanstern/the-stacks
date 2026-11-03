@@ -308,7 +308,7 @@ describe("narrate", () => {
       facts,
       prior: null,
     });
-    expect(NARRATE_VERSION).toBe("dm.narrate-v9");
+    expect(NARRATE_VERSION).toBe("dm.narrate-v10");
     expect(prompt.system).toContain(agencyRule("narrate"));
     expect(prompt.system).toContain(
       "Never show the party member choosing a defence: no dodge, no duck, no twist that times the blow, no step aside.",
@@ -558,7 +558,7 @@ describe("narrate", () => {
       snapshot,
       prose: "Prose.",
     });
-    expect(AUDIT_VERSION).toBe("dm.audit-v5");
+    expect(AUDIT_VERSION).toBe("dm.audit-v6");
     expect(p.system).toContain("6. The actor on the Turn line acts");
     const turnFacts = {
       ...out.output.facts,

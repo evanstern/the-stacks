@@ -84,10 +84,12 @@ export function changedFields(before: unknown, after: unknown): ChangedField[] {
 function outcomeSummary(row: Extract<LedgerRow, { kind: "outcome" }>): string {
   const o = row.outcome;
   switch (o.type) {
-    case "attack.resolved":
+    case "attack.resolved": {
+      const prefix = o.reaction === true ? "Reaction: " : "";
       return o.outcome === "critical-hit"
-        ? `Critical hit (${o.total} vs AC ${o.ac})`
-        : `${o.outcome === "hit" ? "Hit" : "Miss"} (${o.total} vs AC ${o.ac})`;
+        ? `${prefix}Critical hit (${o.total} vs AC ${o.ac})`
+        : `${prefix}${o.outcome === "hit" ? "Hit" : "Miss"} (${o.total} vs AC ${o.ac})`;
+    }
     case "check.resolved": {
       const result = o.outcome === "success" ? "Success" : "Failure";
       return o.total === null

@@ -218,6 +218,38 @@ describe("dice-line renderer", () => {
     expect(c.outcomes).toEqual(["critical-hit"]);
   });
 
+  it("sets reaction from the linked attack.resolved (spec 079)", () => {
+    const rows = attackRows("hit", 14);
+    (
+      rows[1] as unknown as { outcome: { reaction?: boolean } }
+    ).outcome.reaction = true;
+    expect(collectFacts(rows, nameOf).rolls[0]?.reaction).toBe(true);
+    expect(
+      collectFacts(attackRows("hit", 14), nameOf).rolls[0]?.reaction,
+    ).toBeUndefined();
+  });
+
+  it("renders a reaction roll as its own line (spec 079)", () => {
+    const rows = attackRows("hit", 14);
+    (
+      rows[1] as unknown as { outcome: { reaction?: boolean } }
+    ).outcome.reaction = true;
+    const c = collectFacts(rows, nameOf);
+    const line = factEntries({
+      actions: [{ rolls: c.rolls, changes: [], followUps: [] }],
+      clarify: [],
+      events: [],
+      modeChange: null,
+      party: [],
+      presentNpcs: [],
+      rulings: [],
+      director: { pacing: {}, goalNote: "", sceneEnded: false },
+    } as never).find((l) => l.includes("reaction:"));
+    expect(line).toBe(
+      "  reaction: Ana strikes at Goblin as they pull away -> hit",
+    );
+  });
+
   it("renders a miss with no damage line", () => {
     const c = collectFacts(attackRows("miss", 3), nameOf);
     expect(c.rolls.map(renderRollLine)).toEqual([

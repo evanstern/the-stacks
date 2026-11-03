@@ -187,8 +187,12 @@ export function deterministicChecks(
   }
 
   for (const a of facts.actions) {
-    if (!a.characterName || a.outcomes.length !== 1) continue;
-    const only = a.outcomes[0];
+    if (!a.characterName) continue;
+    // Only the character's own rolls: a reaction attack belongs to someone else (spec 079).
+    const own = a.rolls.filter((r) => r.name === a.characterName && r.outcome);
+    if (own.length !== 1) continue;
+    const only = own[0]?.outcome;
+    if (!only) continue;
     const opposite =
       only === "hit" || only === "critical-hit" || only === "success"
         ? NEGATIVE_WORDS
