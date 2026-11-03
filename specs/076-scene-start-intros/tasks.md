@@ -25,17 +25,17 @@ carries it.
 
 **Independent test**: `seed.test.ts` passes with the new cases; every shipped seed loads.
 
-- [ ] T001 [US1] In `apps/server/src/dm/seed/schema.ts`, apply plan D1: required
+- [x] T001 [US1] In `apps/server/src/dm/seed/schema.ts`, apply plan D1: required
       `opening.premise` (`Text(500)`).
-- [ ] T002 [US1] Add the plan D2 premise after `framing` in `apps/server/seeds/greyhollow-ford.json`,
+- [x] T002 [US1] Add the plan D2 premise after `framing` in `apps/server/seeds/greyhollow-ford.json`,
       `greyhollow-ford-duo.json`, `greyhollow-ford-trio.json` and `greyhollow-ford-reed-camp.json`.
       Copy `greyhollow-ford.json` byte for byte to
       `specs/031-dm-runtime/data/greyhollow-ford.seed.json`.
-- [ ] T003 [US1] In `apps/server/src/dm/seed/views.ts`, apply plan D3: `openingPremise`.
-- [ ] T004 [P] [US1] Extend `apps/server/test/dm/seed.test.ts` as plan "Tests" says: the missing
+- [x] T003 [US1] In `apps/server/src/dm/seed/views.ts`, apply plan D3: `openingPremise`.
+- [x] T004 [P] [US1] Extend `apps/server/test/dm/seed.test.ts` as plan "Tests" says: the missing
       premise names `opening.premise`; every shipped seed has one; no premise holds a DM-only
       string.
-- [ ] T005 Amend `specs/031-dm-runtime/contracts/scene-seed.md` and
+- [x] T005 Amend `specs/031-dm-runtime/contracts/scene-seed.md` and
       `specs/034-narration-quality/contracts/player-facing-context.md` as plan "Contracts" says.
       Commit as `TASK-0171 phase 1: opening premise`.
 
@@ -103,21 +103,21 @@ pass; every scripted scene and playtest integration test stays green.
 **Independent test**: `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/1.0.1/gates/cli.mjs
 freshness . docs/wiki` prints `OK`.
 
-- [ ] T019 Update `docs/wiki/seed-npc-presence.md` (NEEDS-REVIEW): `opening.premise` in the seed
+- [x] T019 Update `docs/wiki/seed-npc-presence.md` (NEEDS-REVIEW): `opening.premise` in the seed
       declaration; the scene-start NPC list in "NPC lists from presence" (first beat's declaration
       and S1, not the Director's beat). Add `greyhollow-ford-reed-camp.json` to its sources if it
       states the premise.
-- [ ] T020 Update `docs/wiki/dm-narration-quality.md` (NEEDS-REVIEW): `openingPremise` in the
+- [x] T020 Update `docs/wiki/dm-narration-quality.md` (NEEDS-REVIEW): `openingPremise` in the
       player view; the opening section (no player, no controller); the scene-start name and
       controller checks under "Audit"; the scene-start fallback sentences; `dm.narrate-v10`.
-- [ ] T021 Re-verify and re-pin every other note citing a changed file: `dm-runtime.md` (seed
+- [x] T021 Re-verify and re-pin every other note citing a changed file: `dm-runtime.md` (seed
       schema, seeds, `nodes/narrate.ts`, `greyhollow-live.json`), `dm-failure-and-gates.md` (seed
       schema), `debug-view.md` (`seed/views.ts`), `playtest-harness.md` (reed-camp seed and script),
       `ai-gateway.md` (`greyhollow-live.json`), `dm-talk-triggers.md` (`greyhollow-talk.json`),
       `output-claim-gate.md` if the gate names it, and any note the freshness gate reports.
-- [ ] T022 Update `docs/wiki/CAPSULES.md` and `docs/wiki/INDEX.md`: one sentence for scene-start
+- [x] T022 Update `docs/wiki/CAPSULES.md` and `docs/wiki/INDEX.md`: one sentence for scene-start
       intros (TASK-0171, specs/076).
-- [ ] T023 Run the freshness gate and the spec-bridge gate
+- [x] T023 Run the freshness gate and the spec-bridge gate
       (`node ~/.claude/plugins/cache/praxisflux/spec-bridge/1.0.1/gates/cli.mjs check .`). Commit
       as `TASK-0171 phase 4: wiki re-ground`.
 

@@ -288,6 +288,8 @@ Then **stop for the operator to play it** (checkpoint C7).
 | 2026-11-03 | TASK-0104 | #123 | 4cea63d8 | opus (spec 082 + seam check), sonnet x3 | Engine-derived numbers; `STAT_UNDEFINED`; interpret-v11, adjudicate-v8. Cards TASK-0222, 0223, 0224. |
 | 2026-11-03 | TASK-0105 | #124 | ff1eb0ed | opus (spec 083), sonnet x3 | Engine `spell.cast`, six spells, slot spend (delivers TASK-0211 AC #2). Unresolvable families carded TASK-0226..0229; monster casting TASK-0230; standing S-spells-refused playtest row. 0128 rebased behind it (shared files). Two wiki notes took size exemptions (split carded). interpret-v12, adjudicate-v9. |
 | 2026-11-03 | (amendment) | — | — | — | TASK-0211 moves from 'spec set' to escape line E5 (card ACs drive): TASK-0105 (#124) delivered its AC #2 and the slot spend, leaving AC #1's seq 204-210 replay and AC #3 (narration states no unspent slot). Operator told; runs sonnet. |
+| 2026-11-03 | TASK-0211 | #125 | 38834068 | sonnet | E5. Deterministic check: no spent slot claimed without a spend fact. narrate-v15, audit-v10. |
+| 2026-11-03 | TASK-0171 | (this PR) | (at merge) | opus (spec 076 + amendment), sonnet x3 | Opening names every party character (never a player, operator ruling) and every NPC present at the first beat (the Wenna root cause). Seed `opening.premise`. narrate-v16. Flake seen once: jobs.integration concurrency case. |
 
 ## Later runbooks (order on record; each gets its own runbook and sign-off)
 
