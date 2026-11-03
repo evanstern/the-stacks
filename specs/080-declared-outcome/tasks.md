@@ -16,30 +16,30 @@ lists for the phase. Stop and report if another file is needed.
 
 ## Phase 1: Step contract, discoverable clues, seeds, fixtures (card AC #1, #5; US1, US2)
 
-- [ ] T001 [US1] In `apps/server/src/dm/nodes/schemas.ts`, make `StakesSchema.success` required, add
+- [x] T001 [US1] In `apps/server/src/dm/nodes/schemas.ts`, make `StakesSchema.success` required, add
       `ClueRefSchema`, and add `reveals` (nullable, default null) to the `check` step (plan D1).
-- [ ] T002 [US2] In `apps/server/src/dm/prompts/common.ts`, add `clueEntries(seed, beatId)` (plan D2).
+- [x] T002 [US2] In `apps/server/src/dm/prompts/common.ts`, add `clueEntries(seed, beatId)` (plan D2).
       Render no DC.
-- [ ] T003 [US2] In `apps/server/src/dm/prompts/interpret.ts`, add the "Discoverable clues" section
+- [x] T003 [US2] In `apps/server/src/dm/prompts/interpret.ts`, add the "Discoverable clues" section
       after "Scene seed", the FR-003 sentence in `OUTPUT_SHAPE`, and a success text with `reveals` in
       `EXAMPLE_OUTPUT`. Bump `PROMPT_VERSION` one past `main`.
-- [ ] T004 [US1] In `apps/server/src/dm/prompts/step-grammar.ts`, add `reveals` to the check line and
+- [x] T004 [US1] In `apps/server/src/dm/prompts/step-grammar.ts`, add `reveals` to the check line and
       extend the narrative-outcome sentence (plan D2).
-- [ ] T005 Bump `PROMPT_VERSION` in `apps/server/src/dm/prompts/adjudicate.ts` one past `main`.
-- [ ] T006 [US2] Amend ferry-house clue 1 in the three `apps/server/seeds/greyhollow-ford*.json`
+- [x] T005 Bump `PROMPT_VERSION` in `apps/server/src/dm/prompts/adjudicate.ts` one past `main`.
+- [x] T006 [US2] Amend ferry-house clue 1 in the three `apps/server/seeds/greyhollow-ford*.json`
       seeds and `specs/031-dm-runtime/data/greyhollow-ford.seed.json` (plan D6). Keep the base seed
       and the spec copy byte-identical.
-- [ ] T007 Give 070's `checkStep()` builder in `apps/server/test/dm/helpers.ts` a default success
+- [x] T007 Give 070's `checkStep()` builder in `apps/server/test/dm/helpers.ts` a default success
       text. Fill every null `stakes.success` in the TS tests and the 19 JSON fixtures plan.md lists.
       Keep each text short, concrete and true to the fixture's reason.
-- [ ] T008 [US1] In `apps/server/test/dm/interpret.test.ts`, add: a check with `stakes.success: null`
+- [x] T008 [US1] In `apps/server/test/dm/interpret.test.ts`, add: a check with `stakes.success: null`
       is rejected (card AC #1); a check with no `stakes.success` is rejected; `reveals` defaults to
       null; a malformed `reveals` (`"ferry-house"`, `"ferry-house#9"`) is rejected.
-- [ ] T009 [US2] In `apps/server/test/dm/interpret-prompt.test.ts`, assert the new version strings,
+- [x] T009 [US2] In `apps/server/test/dm/interpret-prompt.test.ts`, assert the new version strings,
       the FR-003 sentence, and over the duo seed with `beatId: "ferry-house"`: three clue lines
       `ferry-house#1..3`, no DC digits in them, no `the-keeper` clue, no location or NPC secret. With
       `beatId: null`, assert no clue line.
-- [ ] T010 Run `pnpm ci:check` and the DB suites with `REQUIRE_DATABASE=1`.
+- [x] T010 Run `pnpm ci:check` and the DB suites with `REQUIRE_DATABASE=1`.
 
 ## Phase 2: Resolve and facts carry the applied outcome (card AC #2, #5; US1, US2)
 

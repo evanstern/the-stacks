@@ -129,12 +129,17 @@ export type Effect = z.infer<typeof EffectSchema>;
 /** Spec 070 D1: one consequence text per outcome band, declared before the dice. */
 const StakeText = z.string().min(1).max(200);
 export const StakesSchema = z.object({
-  success: StakeText.nullable(), // TASK-0170 makes this required
+  success: StakeText, // spec 080: the concrete outcome of this attempt, always written
   cost: StakeText.nullable(), // required on an ability check
   failure: StakeText, // always required
   severe: StakeText.nullable(), // required on an ability check
 });
 export type Stakes = z.infer<typeof StakesSchema>;
+
+/** Spec 080 D1: `<beatId>#<n>`, the n-th discoverable clue of a seed beat (1-based). */
+export const ClueRefSchema = z
+  .string()
+  .regex(/^[a-z0-9][a-z0-9_.:-]{0,63}#[1-8]$/);
 
 export const StepSchema = z.discriminatedUnion("step", [
   z.object({ step: z.literal("none"), reason: Reason }),
@@ -152,6 +157,7 @@ export const StepSchema = z.discriminatedUnion("step", [
     onSuccess: z.array(EffectSchema).max(4),
     onFailure: z.array(EffectSchema).max(4),
     stakes: StakesSchema,
+    reveals: ClueRefSchema.nullable().default(null),
     onCost: z.array(EffectSchema).max(4).default([]),
     onSevere: z.array(EffectSchema).max(4).default([]),
     newRisk: z.string().min(1).max(200).nullable().default(null),

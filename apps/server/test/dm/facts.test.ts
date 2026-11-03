@@ -352,7 +352,7 @@ describe("dice-line renderer", () => {
       [
         "b1",
         {
-          success: null,
+          success: "The attempt works as intended.",
           cost: "The pick bites her palm.",
           failure: "The lock holds.",
           severe: "The pick snaps off in the lock.",

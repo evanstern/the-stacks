@@ -39,7 +39,7 @@
       "kind": "exploration",
       "summary": "The empty ferry-house: a cut bell rope, a pried-open strongbox, small clawed tracks in the mud.",
       "clues": [
-        { "text": "Small clawed footprints lead from the ferry-house down to the causeway.", "check": { "ability": "wis", "skill": "perception", "dc": 12 } },
+        { "text": "Small clawed footprints, goblin feet by their size and splayed toes, lead from the ferry-house down to the causeway.", "check": { "ability": "wis", "skill": "perception", "dc": 12 } },
         { "text": "The rope was gnawed through, then cut clean; the bell's clapper is gone, not the bell.", "check": { "ability": "int", "skill": "investigation", "dc": 13 } },
         { "text": "Someone is hiding in the loft above the ferry-house; dust sifts down.", "check": { "ability": "wis", "skill": "perception", "dc": 14 } }
       ],

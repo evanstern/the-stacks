@@ -81,7 +81,7 @@ function ledgerFor(
 
 const SEVERE = "Snag spurns the toll and orders Tamsin dragged to the post.";
 const stakes = {
-  success: null,
+  success: "The attempt works as intended.",
   cost: "It works, at a small price.",
   failure: "The grab fails and Goblin-4 loses its footing.",
   severe: SEVERE,

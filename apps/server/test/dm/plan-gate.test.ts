@@ -466,7 +466,7 @@ describe("checkPlan: reason state", () => {
         checkStep({
           reason: "Ana studies the reeds",
           stakes: {
-            success: null,
+            success: "The attempt works as intended.",
             cost: "It works, at a small price.",
             failure: PELL_REASON,
             severe: "It goes badly wrong.",

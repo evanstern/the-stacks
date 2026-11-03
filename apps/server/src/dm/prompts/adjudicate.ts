@@ -12,7 +12,7 @@ import {
 } from "./common.js";
 import { STEP_GRAMMAR } from "./step-grammar.js";
 
-export const PROMPT_VERSION = "dm.adjudicate-v6";
+export const PROMPT_VERSION = "dm.adjudicate-v7";
 
 const OUTPUT_SHAPE = [
   "Reply with ONE JSON object and nothing else:",

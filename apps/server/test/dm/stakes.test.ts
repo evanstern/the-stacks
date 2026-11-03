@@ -85,7 +85,12 @@ describe("isFreeRetry", () => {
 });
 
 describe("consequenceFor", () => {
-  const stakes = { success: null, cost: "C", failure: "F", severe: "V" };
+  const stakes = {
+    success: "The attempt works as intended.",
+    cost: "C",
+    failure: "F",
+    severe: "V",
+  };
   it("returns the declared text per band", () => {
     expect(consequenceFor(stakes, "success")).toBeNull();
     expect(consequenceFor(stakes, "success-at-cost")).toBe("C");

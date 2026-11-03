@@ -45,7 +45,7 @@ const checkStep = {
   onSuccess: [],
   onFailure: [],
   stakes: {
-    success: null,
+    success: "The attempt works as intended.",
     cost: "It works, at a small price.",
     failure: "The attempt comes to nothing.",
     severe: "It goes badly wrong.",
@@ -248,6 +248,20 @@ describe("check stakes contract (spec 070)", () => {
   it("rejects a check with no stakes.failure", () => {
     const { failure: _f, ...rest } = checkStep.stakes;
     expect(parse({ stakes: rest }).success).toBe(false);
+  });
+
+  it("requires stakes.success (spec 080)", () => {
+    expect(parse({ stakes: stakes({ success: null }) }).success).toBe(false);
+    const { success: _s, ...rest } = checkStep.stakes;
+    expect(parse({ stakes: rest }).success).toBe(false);
+  });
+
+  it("defaults reveals to null and rejects a malformed reference (spec 080)", () => {
+    const { reveals: _r, ...rest } = checkStep as Record<string, unknown>;
+    expect(StepSchema.parse(rest)).toMatchObject({ reveals: null });
+    expect(parse({ reveals: "ferry-house#1" }).success).toBe(true);
+    expect(parse({ reveals: "ferry-house" }).success).toBe(false);
+    expect(parse({ reveals: "ferry-house#9" }).success).toBe(false);
   });
 
   it("rejects an ability check with a null cost or severe", () => {
