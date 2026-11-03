@@ -68,27 +68,27 @@ everyone; every scripted opening passes.
 **Independent test**: the captured-replay cases and `scene-start-intros.integration.test.ts`
 pass; every scripted scene and playtest integration test stays green.
 
-- [ ] T011 [US3] In `apps/server/src/dm/nodes/audit.ts`, apply plan D6: `beforeClosingQuestion`,
+- [x] T011 [US3] In `apps/server/src/dm/nodes/audit.ts`, apply plan D6: `beforeClosingQuestion`,
       `namesCharacter`, the name check and the controller check (FR-016), inside TASK-0113's
       scene-start block in `deterministicChecks`.
-- [ ] T012 [US3] In `apps/server/src/dm/fallback.ts`, apply plan D7: the scene-start party and
+- [x] T012 [US3] In `apps/server/src/dm/fallback.ts`, apply plan D7: the scene-start party and
       present-NPC sentences.
-- [ ] T013 [US2] Apply plan D8 to the eight scripted openings:
+- [x] T013 [US2] Apply plan D8 to the eight scripted openings:
       `apps/server/test/dm/scripts/scene-start.json`,
       `apps/server/test/dm/scripts/greyhollow-ford-full.json`,
       `apps/server/test/playtest/fixtures/downed-seat.json`,
       `apps/server/dm-scripts/greyhollow-live.json`, `greyhollow-human-dm.json`,
       `greyhollow-plan-approach.json`, `greyhollow-talk.json`, `runbook-a-reed-camp.json`.
-- [ ] T014 [US2] Create `apps/server/test/dm/scripts/scene-start-intro-regenerate.json` per plan
+- [x] T014 [US2] Create `apps/server/test/dm/scripts/scene-start-intro-regenerate.json` per plan
       D8.
-- [ ] T015 [P] [US3] Add to `apps/server/test/dm/scene-start-intros.test.ts` the helper cases, the
+- [x] T015 [P] [US3] Add to `apps/server/test/dm/scene-start-intros.test.ts` the helper cases, the
       captured replay, the D8 texts passing every deterministic check, and the controller-check
       cases of plan "Tests" (R6 texts as constants with their source paths).
-- [ ] T016 [P] [US3] Extend `apps/server/test/dm/fallback.test.ts` with the scene-start names
+- [x] T016 [P] [US3] Extend `apps/server/test/dm/fallback.test.ts` with the scene-start names
       case; the property test stays green.
-- [ ] T017 [US2] Create `apps/server/test/dm/scene-start-intros.integration.test.ts` per plan
+- [x] T017 [US2] Create `apps/server/test/dm/scene-start-intros.integration.test.ts` per plan
       "Tests" and run it with `REQUIRE_DATABASE=1`.
-- [ ] T018 Run the full server suite with `REQUIRE_DATABASE=1`, including
+- [x] T018 Run the full server suite with `REQUIRE_DATABASE=1`, including
       `dm-scripts.test.ts`, `scene.integration.test.ts`, `script-env.integration.test.ts`,
       `player-agency.test.ts`, the `attack-anyone`, `revealed-npc` and `no-undeclared-method`
       integration tests and `test/playtest/harness.integration.test.ts`. Amend

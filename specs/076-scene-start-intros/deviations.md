@@ -10,3 +10,6 @@ Seam check at HEAD (merged with main through TASK-0213/0211), 2026-11-03.
   lines in `RULES` grew (TASK-0127, 0208, 0170); the opening section does not touch them.
 - `nodes/narrate.ts`: `beatNpcIds` still the Director-beat expression at HEAD. D5 applies.
 - Phase 2: `PROMPT_VERSION` is `dm.narrate-v16` (plan said v10).
+- Phase 3: the regenerate script holds the captured verify text as attempt 1; the integration test
+  uses the duo seed with two humans as the plan says. Scripts edited: 7 base-text files, the
+  reed-camp file, and the new scene-start-intro-regenerate.json. No audit prompt change (v10).
