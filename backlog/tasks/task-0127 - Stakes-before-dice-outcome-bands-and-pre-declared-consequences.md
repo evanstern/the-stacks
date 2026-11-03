@@ -4,7 +4,7 @@ title: 'Stakes before dice: outcome bands and pre-declared consequences'
 status: In Progress
 assignee: []
 created_date: '2026-10-27 02:32'
-updated_date: '2026-11-03 04:23'
+updated_date: '2026-11-03 04:37'
 labels:
   - dm
   - doctrine
@@ -57,6 +57,8 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 070 phases 3-4)
 Seam check (phases 1-2): no seam changed meaning; adjustments in specs/070-stakes-before-dice/deviations.md.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 070 phase 5, contracts and wiki)
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
