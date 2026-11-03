@@ -27,6 +27,8 @@ Outcome: an opportunity attack happens only by the engine's reaction rule (leavi
 Why: runbook A playtest run 1 (2026-11-02, session 9296c653, seq 151-161). Kestrel declared 'I run to Pell and attempt to free him.' The Director's goal note said 'charge costs an opening (reaction swing) before she arrives'. Interpret then made the action's only step an attack by goblin-2 on Kestrel (1d20+4 → 19 = 23 vs AC 14, hit, 4 slashing), and parked the actual free as a followUp. So: (1) the opportunity attack was a model choice, not an engine rule; no reaction was tracked, and nothing checked that Kestrel left the goblin's reach; (2) it took the place of the player's action, and the free never resolved; (3) the fallback read 'Kestrel dashes … Kestrel strikes home. Kestrel is wounded.', giving the hit to the wrong subject; (4) the next NPC turn's narration (Snag, seq 166) then showed 'Kestrel's blade finds the rope … a strand parting', a free that never resolved. The operator asked: 'was that a ruling that the pot-helm goblin got an attack of opportunity?'
 
 Related: TASK-0104 (engine-derived numbers), TASK-0205 (DM invents the player's method), TASK-0193 (fallback wording).
+
+Spec: specs/079-engine-opportunity-attack
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
