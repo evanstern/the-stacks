@@ -65,17 +65,17 @@ the closing clarify loop of `factualSummary`. If a task seems to need another fi
 **Independent test**: `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/1.0.1/gates/cli.mjs
 freshness . docs/wiki` prints `OK`.
 
-- [ ] T017 Run `/grounding-wiki:wiki-update`. Review these notes against the diff (NEEDS-REVIEW):
+- [x] T017 Run `/grounding-wiki:wiki-update`. Review these notes against the diff (NEEDS-REVIEW):
       `dm-failure-and-gates`, `dm-runtime`, `turn-floor`, `dm-narration-quality`.
-- [ ] T018 In `turn-floor.md` "Resolve's 'turn moved' guard", add that a human's clarify skips the
+- [x] T018 In `turn-floor.md` "Resolve's 'turn moved' guard", add that a human's clarify skips the
       advance and the floor stays with the active actor. In `dm-runtime.md`, describe the clarify
       hold on the Director and the advance. In `dm-narration-quality.md`, record `dm.narrate-v8`,
       the voiced fallback question and the option-menu exemption. In `dm-failure-and-gates.md`,
       record that the option-menu check exempts the clarify question.
-- [ ] T019 Re-pin the notes that list a touched file only as a source and need no prose change:
+- [x] T019 Re-pin the notes that list a touched file only as a source and need no prose change:
       `dm-turn-jobs`, `dm-talk-triggers`, `party-panel`, `seed-npc-presence`. Read each changed
       hunk first; edit the note if a claim changed.
-- [ ] T020 Update the `CAPSULES.md` lines for every note edited in T018. Add one sentence to
+- [x] T020 Update the `CAPSULES.md` lines for every note edited in T018. Add one sentence to
       `INDEX.md`'s state paragraph naming TASK-0209 and specs/073.
-- [ ] T021 Run the freshness gate and the spec-bridge gate. Run `pnpm ci:check`. Commit as
+- [x] T021 Run the freshness gate and the spec-bridge gate. Run `pnpm ci:check`. Commit as
       `TASK-0209 phase 3: re-ground the wiki`.
