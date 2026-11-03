@@ -15,7 +15,7 @@ sources:
   - apps/server/src/dm/claims.ts
   - apps/server/src/dm/audit-words.ts
   - specs/034-narration-quality/contracts/audit-criteria.md
-verified_against: 095b85f615387975ce3ae59a3c95aa46ca903b10
+verified_against: 02f7965a7e86e0a2233c756a7bd9cbc70730bc6c
 ---
 
 # DM narration quality
@@ -58,7 +58,7 @@ throws `SnapshotOverflowError` and fails the turn with `state-overflow` ([[dm-ru
 ## Audit
 
 `nodes/audit.ts`: `deterministicChecks(facts, narration, state)` is pure and every issue blocks
-(empty prose, digits, dice language with no roll, outcome-word pairing, `MAX_WORDS`, option menu,
+(empty prose, digits, dice language with no roll, outcome-word pairing, `MAX_WORDS`, option menu (the clarify question is exempt),
 a clarify turn that does not end in `?`, dice lines versus the renderer). The four actor-anonymous
 death and unconscious word checks are gone: `checkClaims(state, prose)` (`claims.ts`, spec 051)
 replaces them, and each claim issue blocks as `ledger-mismatch` with the detail prefix
@@ -82,7 +82,7 @@ the audit records the withheld texts as non-blocking issues on attempt 1 only. D
 
 `factualSummary(facts)` (`fallback.ts`) is deterministic in-fiction prose: opening framing on
 scene start, one sentence per refusal, roll outcome, public change and event, "What does X do?"
-for each clarify, and a scene-end line. It holds no digit, system word or tracker name, passes
+for each clarify (the question voiced when speakable, else "What does X do?"), and a scene-end line. It holds no digit, system word or tracker name, passes
 `deterministicChecks` by construction and is never sent to `dm.audit`. `factualSummary(facts, state?)` passes
 each roll reason through `checkClaims` in `reasonUsable` (a refused reason is not voiced), and
 says "<name> dies" instead of "is dead" for a numbered name ("Goblin three"), which the checker
@@ -92,7 +92,7 @@ flag.
 
 ## Prompt versions
 
-`dm.react-v1` (talk path, purpose `dm.narrate`), `dm.narrate-v7`, `dm.audit-v4`, `dm.director-v4`, `dm.chronicle-v3`, `dm.companion-v6`. Narrate v5 (spec 051) says a fact or the state sections may name a character dead or unconscious, and a dead, unconscious, stable or absent character does not act or speak. (For companion: v3 on the
+`dm.react-v1` (talk path, purpose `dm.narrate`), `dm.narrate-v8` (specs/073: the clarify question is the one either-or ending allowed, and it is voiced in the fallback), `dm.audit-v4`, `dm.director-v4`, `dm.chronicle-v3`, `dm.companion-v6`. Narrate v5 (spec 051) says a fact or the state sections may name a character dead or unconscious, and a dead, unconscious, stable or absent character does not act or speak. (For companion: v3 on the
 snapshot branch added the `seat` state view; v4 added the react trigger and the withdraw and
 revise decisions; companion v5 is both together; companion v6 (TASK-0189) adds the "Post that triggered you" section naming the speaking PC and whom the post addressed; see [[dm-runtime]]). The snapshot bumped narrate, audit,
 director, interpret, adjudicate and chronicle too. Narrate v6 (TASK-0182, specs/064) adds the rule "A not-yet-attempted step has not happened. Stop before it; never show it start."; `FactAction.followUps` render as `not yet attempted: <text>` lines, and `withholdRefusedInputs` drops a refused follow-up. Interpret v5 and director v4 came in the same task. Narrate v7 and audit v4 (TASK-0193, specs/071) add the `Turn:` and `Next:` lines (from `NarrationFacts.turn`, set only in turn mode) and the rule that only the Turn actor acts in the beat; audit definition 6 treats showing the Next actor act as `invented-mechanics`. A monster turn also renders `planned:`, `held:` and a no-rules-effect line from `FactNpcTurn.plan`. The presence effect bumped interpret and adjudicate to `dm.interpret-v4` and `dm.adjudicate-v4`.
