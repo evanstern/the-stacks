@@ -16,7 +16,7 @@ sources:
   - apps/server/src/dm/audit-words.ts
   - specs/034-narration-quality/contracts/audit-criteria.md
 size_budget_exempt: TASK-0113 adds the agency checks and reflex facts to the one narration-and-audit pipeline; it does not split without a TASK of its own (sibling notes dm-runtime and playtest-harness carry the same exemption)
-verified_against: a64dcee87d062d661ddd1f6262a3f6596dee2ba1
+verified_against: 9d2c6fae
 ---
 
 # DM narration quality
@@ -59,7 +59,7 @@ throws `SnapshotOverflowError` and fails the turn with `state-overflow` ([[dm-ru
 ## Audit
 
 `nodes/audit.ts`: `deterministicChecks(facts, narration, state)` is pure and every issue blocks
-A `spell-slot` fact change is recorded for each `spell-slots.changed` event that raises `expended` (a rest is not a spend). `deterministicChecks` adds a blocking `ledger-mismatch` when the prose says a spell slot was spent (a spend verb then a slot in one sentence) and no action, NPC turn or pulled NPC holds a `spell-slot` change this beat (TASK-0211); it does not match the caster by name.
+A `spell-slot` fact change is recorded for each `spell-slots.changed` event that raises `expended` (a rest is not a spend). `deterministicChecks` adds a blocking `ledger-mismatch` when the prose says a spell slot was spent (a spend verb then a slot in one sentence) and no action, NPC turn or pulled NPC holds a `spell-slot` change this beat (TASK-0211); it does not match the caster by name. It also blocks a turn whose prose ends on the literal "What do you do?" (TASK-0204, also the "all" and "two" forms); no clarify question may end on that phrase.
 (empty prose, digits, dice language with no roll, outcome-word pairing, `MAX_WORDS`, option menu (the clarify question is exempt),
 a clarify turn that does not end in `?`, dice lines versus the renderer). Two agency checks (specs/074) also block: a party member choosing a defence on a recorded miss, and a party member moved or voiced in the scene-start opening. At scene start a third check blocks (kind `other`) an opening that omits a party member or present NPC (whole-word, full or given name) before its closing question, or holds the word "player" or "AI companion". Both agency checks run with a trailing clarify question removed. The four actor-anonymous
 death and unconscious word checks are gone: `checkClaims(state, prose)` (`claims.ts`, spec 051)

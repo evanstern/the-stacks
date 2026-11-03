@@ -379,6 +379,15 @@ export function deterministicChecks(
       `The prose offers an option menu: ${quoted}. Ask one open question instead.`,
     );
   }
+  // The literal stock ending is the doctrine's wrong example (end-on-demand).
+  if (
+    /\bwhat do you(?: all| two)? do\?["'\u201d\u2019]*$/i.test(prose.trim())
+  ) {
+    add(
+      "doctrine",
+      'The prose ends on "What do you do?". End on a moment that demands a response.',
+    );
+  }
   if (facts.clarify.length > 0 && !prose.trim().endsWith("?")) {
     add(
       "doctrine",

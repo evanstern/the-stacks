@@ -738,8 +738,8 @@ export const MANNER_SKILLS = [
   question: string;
 }[];
 
-export const otherPlayerQuestion = (name: string) =>
-  `${name}'s player decides what ${name} does. What do you do?`;
+export const otherPlayerQuestion = (name: string, declarer: string) =>
+  `${name}'s player decides what ${name} does. What does ${declarer} do instead?`;
 
 export interface Asked {
   actionId: string;
@@ -795,6 +795,10 @@ export function askUndeclared(input: {
               : step.step === "check" && step.kind === "ability-check"
                 ? step.combatantId
                 : null;
+        const declarerName =
+          snapshot.actors.find(
+            (a) => a.kind === "party" && a.characterId === item.characterId,
+          )?.name ?? "your character";
         const other = id
           ? snapshot.actors.find(
               (a) =>
@@ -808,7 +812,7 @@ export function askUndeclared(input: {
           other.controller.kind === "player" &&
           other.controller.userId !== item.actor
         ) {
-          question = otherPlayerQuestion(other.name);
+          question = otherPlayerQuestion(other.name, declarerName);
           rule = "other-player";
           detail = other.name;
         }

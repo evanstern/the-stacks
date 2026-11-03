@@ -122,7 +122,7 @@ describe.skipIf(!reachable)("no undeclared method (database)", () => {
     expect(count(after, "check.resolved")).toBe(0);
     const r = cp.interpret?.readings.find((x) => x.actionId === ACTION);
     expect(r?.clarify).toBe(
-      "Kestrel's player decides what Kestrel does. What do you do?",
+      "Kestrel's player decides what Kestrel does. What does Tamsin Vale do instead?",
     );
   });
 
