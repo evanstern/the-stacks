@@ -294,3 +294,25 @@ Amended by specs/065-talk-triggers.
   `interrupted`.
 - A confirm row and an answer do not count toward the chain cap. A confirm prompts no companion.
 - Resolve skips a beat action withdrawn before its group runs.
+
+## Amendment 2026-11-02 (specs/077-no-undeclared-method): the undeclared-method ask
+
+Amended by spec 077 (TASK-0205).
+
+- The runner's post-planning step calls `askUndeclared` (`gates/plan-gate.ts`) after `cutPlans`
+  and before `clarifyHolds`. `cutBeat`, `clarifyHolds`, the stored checkpoint and `ctx.results`
+  read its output. The `dm.plan.cut` log line gains `asked` (a count).
+- It visits each beat item with `status: "committed"` whose id is not a resumed plan. The group's
+  steps are its ruling's steps when a ruling names the action, else its reading's. A reading with
+  `clarify` set and the NPC reading (`actionId: null`) are skipped.
+- It walks the steps in order. On each step it tests the manner rule, then the other-player rule.
+  The first failure asks and stops the walk.
+- Manner rule (skipped when `actor` starts with `ai:`): a `check` step with `kind: "ability-check"`
+  whose `skill` is a `MANNER_SKILLS` row (stealth, deception, intimidation) fails when the row's
+  cue pattern does not match the item's `text`.
+- Other-player rule (skipped when `scope` is `party`): a `check` with `kind: "ability-check"`
+  (`combatantId`) or an `attack` (`attackerId`) fails when the id names a party actor whose
+  controller is a `player` with a `userId` other than the item's `actor`. A null id passes.
+- On a failure the reading becomes `{ ...reading, steps: [], followUps: [], clarify: question }`
+  and the ruling for that action id is removed. Any other reading or ruling is returned unchanged.
+- No prompt version changes.
