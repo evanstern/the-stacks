@@ -117,7 +117,7 @@ Phases run in order: Phase 2 needs Phase 1's engine command and exports.
 - [x] T030 Amend `specs/031-dm-runtime/contracts/nodes.md`, `resolve.md` and
       `specs/058-roll-reason-plan-gate/contracts/plan-reason-gate.md`, each marked "Amended by
       specs/083-spells-by-srd-id".
-- [ ] T031 Run `pnpm ci:check` and the full DB suites, including `dm-scripts.test.ts` and
+- [x] T031 Run `pnpm ci:check` and the full DB suites, including `dm-scripts.test.ts` and
       `apps/server/test/playtest/harness.integration.test.ts` (the scripted CI playtest).
 
 ## Phase 3: Re-ground (wiki)
@@ -134,5 +134,5 @@ Phases run in order: Phase 2 needs Phase 1's engine command and exports.
       `output-claim-gate`.
 - [x] T035 Update `docs/wiki/CAPSULES.md` and `docs/wiki/INDEX.md`: the dnd5e-engine and
       dm-failure-and-gates one-liners, and the INDEX state paragraph.
-- [ ] T036 Run the wiki freshness gate (prints `OK`) and the spec-bridge gate (exits 0).
-- [ ] T037 [orchestrator] Add the execution-log row to the runbook B file.
+- [x] T036 Run the wiki freshness gate (prints `OK`) and the spec-bridge gate (exits 0).
+- [x] T037 [orchestrator] Add the execution-log row to the runbook B file.

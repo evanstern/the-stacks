@@ -284,7 +284,8 @@ Then **stop for the operator to play it** (checkpoint C7).
 | 2026-11-03 | TASK-0207 | #121 | bed923f4 | opus (spec 081), sonnet x2 | `say` field; the fallback voices an NPC's planned line. interpret-v10, narrate-v13, audit-v9. Card TASK-0220. |
 | 2026-11-03 | TASK-0213 | #122 | 05ef251e | sonnet (tier raised from haiku: root-cause hunt) | pullIn discarded its batch ids; NPC and PC paths fixed after two orchestrator reviews. narrate-v14. |
 | 2026-11-03 | (ruling) | — | — | — | Spec 082 OQ-1, operator: "I'm okay with stats-only as long as the rule for Sneak Attack is something that's going to come later…". Carded TASK-0225 (m-4); standing S-sneak-attack playtest row. |
-| 2026-11-03 | TASK-0104 | (this PR) | (at merge) | opus (spec 082 + seam check), sonnet x3 | Engine-derived numbers; `STAT_UNDEFINED`; interpret-v11, adjudicate-v8. Cards TASK-0222, 0223, 0224. |
+| 2026-11-03 | TASK-0104 | #123 | 4cea63d8 | opus (spec 082 + seam check), sonnet x3 | Engine-derived numbers; `STAT_UNDEFINED`; interpret-v11, adjudicate-v8. Cards TASK-0222, 0223, 0224. |
+| 2026-11-03 | TASK-0105 | (this PR) | (at merge) | opus (spec 083), sonnet x3 | Engine `spell.cast`, six spells, slot spend (delivers TASK-0211 AC #2). Unresolvable families carded TASK-0226..0229; monster casting TASK-0230; standing S-spells-refused playtest row. 0128 rebased behind it (shared files). Two wiki notes took size exemptions (split carded). interpret-v12, adjudicate-v9. |
 
 ## Later runbooks (order on record; each gets its own runbook and sign-off)
 
