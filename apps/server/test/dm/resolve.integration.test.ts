@@ -1,8 +1,10 @@
 import { mechanicsProposal } from "@the-stacks/session-model";
 import { afterAll, describe, expect, it } from "vitest";
+import { collectFacts, renderDiceLines } from "../../src/dm/facts.js";
 import type { ResolveOutput } from "../../src/dm/nodes/resolve.js";
 import { loadSeed } from "../../src/dm/seed/load.js";
 import { diffSnapshots } from "../../src/dm/snapshot/index.js";
+import { expectedDiceLines } from "../../src/playtest/auditor/checks.js";
 import {
   attackStep,
   checkStep,
@@ -585,6 +587,81 @@ describe.skipIf(!reachable)("resolve (database)", () => {
       const attack = seqOf(rows, "attack.resolved");
       expect(attack).toBeLessThan(seqOf(rows, "encounter.ended"));
       expect(rows.some((r) => r.type === "turn.advanced")).toBe(false);
+    });
+
+    it("TASK-0213: an NPC turn that pulls Pell in renders his initiative roll as a dice line", async () => {
+      // Run 1 seq 97-103 (docs/playtests/2026-11-02-runbook-a-playtest.md). The raw
+      // run 1 rows are not in the repo, so this builds the replay from the
+      // engine's own row shapes: Snag's turn, Pell pulled in (combatant.added,
+      // then his initiative roll), then Snag's attack.
+      const w = await inTurnMode([...initDice(SNAG_FIRST), 16, 15, 4]);
+      freshCheckpoint(w);
+      const out = await run(
+        w,
+        [
+          reading(null, [attackStep("pell", { attackerId: "snag" })], {
+            intent: "attack",
+          }),
+        ],
+        { job: { ...nextJob(), trigger: "npc-turn" } },
+      );
+      const rows = await readRows(w);
+      const p = await w.projections();
+      const initRoll = p.ledger.find(
+        (l) =>
+          l.kind === "roll" &&
+          l.roll.combatantId === "pell" &&
+          l.roll.purpose === "initiative",
+      );
+      expect(initRoll).toBeDefined();
+      expect(out.npcTurn?.batchIds).toContain(initRoll?.batchId);
+
+      const nameOf = (id: string | null) =>
+        id ? (p.engine.combatants[id]?.name ?? id) : "The scene";
+      const rolls = collectFacts(
+        p.ledger.filter(
+          (l) => l.batchId && out.npcTurn?.batchIds.includes(l.batchId),
+        ),
+        nameOf,
+      ).rolls;
+      expect(rolls.some((r) => r.name === "Pell Marsh" && r.total === 16)).toBe(
+        true,
+      );
+
+      // The auditor's dice-lines check: the shipped lines match the ledger.
+      const first = rows.findIndex(
+        (r) =>
+          r.type === "combatant.added" &&
+          payloadOf<{ event: { combatantId: string } }>(r).event.combatantId ===
+            "pell",
+      );
+      const segRows = rows.slice(first);
+      const seg = {
+        index: 0,
+        narrationSeq: null,
+        fromSeq: segRows[0]?.seq ?? 0,
+        toSeq: segRows.at(-1)?.seq ?? 0,
+        rows: segRows,
+        ledger: p.ledger.filter((l) => l.seq >= (segRows[0]?.seq ?? 0)),
+      };
+      const expected = expectedDiceLines(seg, {
+        transcript: rows,
+        seed: null,
+      }).lines;
+      const initLine = expected.filter((l) =>
+        l.includes("Pell Marsh joins the fight"),
+      );
+      expect(initLine).toHaveLength(1);
+      const shipped = [
+        ...renderDiceLines({
+          actions: [],
+          settled: [],
+          npcTurn: { name: "Snag", rolls, outcomes: [], changes: [] },
+        } as never),
+      ];
+      expect(
+        shipped.filter((l) => l.includes("Pell Marsh joins the fight")),
+      ).toEqual(initLine);
     });
 
     it("tracker advances and the scene end follow the action, in order", async () => {
