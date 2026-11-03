@@ -37,6 +37,10 @@ const plan = (
     ...extra,
   });
 
+const pellAlias = snapshot.actors
+  .find((a) => a.id === "pell")
+  ?.aliases.find((x) => x !== "pell") as string;
+
 const damageOn = (targetId: string) => ({
   effect: "damage",
   targetId,
@@ -52,7 +56,7 @@ describe("checkPlan", () => {
     expect(v).toEqual([{ actionId: "a1", ok: true }]);
   });
 
-  it("refuses an effect on a seed NPC with no combatant as not-a-combatant", () => {
+  it("passes a damage effect on a seed NPC with no combatant, pulling it (spec 075)", () => {
     const v = plan([
       read("a1", [
         {
@@ -62,19 +66,7 @@ describe("checkPlan", () => {
         },
       ]),
     ]);
-    expect(v).toEqual([
-      {
-        actionId: "a1",
-        ok: false,
-        code: "UNKNOWN_COMBATANT",
-        failure: {
-          stepIndex: 0,
-          field: "effects[0].targetId",
-          id: "pell",
-          reason: "not-a-combatant",
-        },
-      },
-    ]);
+    expect(v).toEqual([{ actionId: "a1", ok: true, pull: ["pell"] }]);
   });
 
   it("refuses an unknown id as not-in-snapshot", () => {
@@ -120,7 +112,7 @@ describe("checkPlan", () => {
     expect(ok[0]).toMatchObject({
       failure: { field: "onFailure[0].targetId", id: "zzz" },
     });
-    const second = plan([read("a1", [checkStep(), attackStep("pell")])]);
+    const second = plan([read("a1", [checkStep(), attackStep(pellAlias)])]);
     expect(second[0]).toMatchObject({
       failure: { stepIndex: 1, reason: "not-a-combatant" },
     });
@@ -134,13 +126,13 @@ describe("checkPlan", () => {
   });
 
   it("lets a ruling replace the reading's steps", () => {
-    const bad = read("a1", [attackStep("pell")]);
+    const bad = read("a1", [attackStep("ghoul-9")]);
     const v = plan([bad], {
       rulings: [{ actionId: "a1", steps: steps(attackStep("goblin-2")) }],
     });
     expect(v).toEqual([{ actionId: "a1", ok: true }]);
     const v2 = plan([read("a1", [attackStep("goblin-2")])], {
-      rulings: [{ actionId: "a1", steps: steps(attackStep("pell")) }],
+      rulings: [{ actionId: "a1", steps: steps(attackStep("ghoul-9")) }],
     });
     expect(v2[0]?.ok).toBe(false);
   });
@@ -148,7 +140,7 @@ describe("checkPlan", () => {
   it("gates the NPC group (actionId null)", () => {
     const v = plan([
       read("a1", [attackStep("goblin-2")]),
-      read(null, [attackStep("pell", { attackerId: "snag" })]),
+      read(null, [attackStep("ghoul-9", { attackerId: "snag" })]),
     ]);
     expect(v.map((x) => [x.actionId, x.ok])).toEqual([
       ["a1", true],
@@ -588,7 +580,7 @@ describe("arrivingNpcs", () => {
   });
 });
 
-describe("checkPlan: non-combatant NPC pull (spec 068)", () => {
+describe("checkPlan: non-combatant NPC pull (specs 068, 075)", () => {
   const condOn = (targetId: string) => ({
     effect: "condition",
     op: "remove",
@@ -619,18 +611,44 @@ describe("checkPlan: non-combatant NPC pull (spec 068)", () => {
     }
   });
 
-  it("still refuses attack ids and damage effects on pell", () => {
+  it("passes attack ids and damage effects on pell (spec 075)", () => {
     for (const step of [
       attackStep("pell"),
       attackStep("goblin-2", { attackerId: "pell" }),
       checkStep({ onSuccess: [damageOn("pell")] }),
     ]) {
-      expect(plan([read("a1", [step])])[0]).toMatchObject({
-        ok: false,
-        code: "UNKNOWN_COMBATANT",
-        failure: { id: "pell", reason: "not-a-combatant" },
-      });
+      expect(plan([read("a1", [step])])).toEqual([
+        { actionId: "a1", ok: true, pull: ["pell"] },
+      ]);
     }
+  });
+
+  it("refuses pell's alias as an attack targetId", () => {
+    expect(plan([read("a1", [attackStep(pellAlias)])])[0]).toMatchObject({
+      ok: false,
+      failure: { field: "targetId", reason: "not-a-combatant" },
+    });
+  });
+
+  it("refuses an absent pell as an attack targetId", () => {
+    const f = greyhollowFight();
+    f.projections.scenePresence.pell = {
+      presence: "absent",
+      reason: "fled",
+      seq: 125,
+    };
+    const v = checkPlan({
+      snapshot: buildSnapshot(f.projections, f.seed),
+      readings: [read("a1", [attackStep("pell")])],
+      rulings: [],
+      joining: [],
+      arriving: [],
+      resumed: [],
+    });
+    expect(v[0]).toMatchObject({
+      ok: false,
+      failure: { field: "targetId", id: "pell", reason: "absent" },
+    });
   });
 
   it("refuses an alias of pell", () => {
