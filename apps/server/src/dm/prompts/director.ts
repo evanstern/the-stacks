@@ -16,7 +16,7 @@ import {
   transcriptEntries,
 } from "./common.js";
 
-export const PROMPT_VERSION = "dm.director-v5";
+export const PROMPT_VERSION = "dm.director-v6";
 
 const OUTPUT_SHAPE = [
   "Reply with ONE JSON object and nothing else:",
@@ -26,13 +26,14 @@ const OUTPUT_SHAPE = [
   ' "scene":{"status":"continue"}|{"status":"end","outcome":"goal-met"|"retreat"|"failed","reason":str},',
   ' "pacing":{"tension":"low"|"rising"|"high","spotlight":characterId|null,"beatId":seed beat id|null},',
   ' "goalNote":str (a private pacing note for the narrator, 300 characters at most; it names no party member\'s act, method, skill or reaction its player did not declare),',
-  ' "companionPrompts":[characterId]}',
+  ' "companionPrompts":[characterId],',
+  ' "arrivals":[seed NPC id of an offstage NPC now on screen]}',
 ].join("\n");
 
 const SYSTEM = [
   "You are the Director of a tabletop role-playing session. You decide pacing and structure for the next beat. You never roll dice and never state a result: you run before any dice are rolled.",
   agencyRule("director"),
-  "Hold a beat only to give an AI companion a chance to speak first; otherwise resolve. Move to turn mode only when a seed encounter's trigger has happened. Return to free mode when an encounter is over. End the scene only when the goal's success or failure condition is met or the party retreats. Advance a tracker only when its advance-when condition happened. Decide table mode and trackers from what each beat item's first stage does; a trigger that needs a roll this beat to succeed waits for the next beat.",
+  "Hold a beat only to give an AI companion a chance to speak first; otherwise resolve. Move to turn mode only when a seed encounter's trigger has happened. Return to free mode when an encounter is over. End the scene only when the goal's success or failure condition is met or the party retreats. Advance a tracker only when its advance-when condition happened. Decide table mode and trackers from what each beat item's first stage does; a trigger that needs a roll this beat to succeed waits for the next beat. Name in arrivals each offstage NPC the recent transcript or the beat to resolve shows on screen: seen, heard or met. Never name one only mentioned or expected.",
   "Doctrine:",
   "{{DOCTRINE}}",
   OUTPUT_SHAPE,
@@ -43,6 +44,7 @@ export interface DirectorPromptInput {
   assembled: AssembleOutput;
   aiCompanions: string[];
   runnableEncounterIds: string[];
+  offstageNpcs: string[];
 }
 
 export function buildDirectorPrompt(input: DirectorPromptInput): {
@@ -69,6 +71,7 @@ export function buildDirectorPrompt(input: DirectorPromptInput): {
     section("Scene seed", seedEntries(ctx.seed, assembled), CAPS.seed, "end"),
     section("Seed beats", beats, CAPS.seed, "end"),
     section("Encounters you may start", encounters, 400, "end"),
+    section("Offstage NPCs", input.offstageNpcs, 300, "end"),
     dmStateSection(assembled.snapshot, ctx.seed, true),
     section("AI companions in the party", input.aiCompanions, 200, "end"),
     section(

@@ -74,7 +74,7 @@ export interface PlanInput {
   rulings: readonly { actionId: string | null; steps: readonly Step[] }[];
   /** The combatant ids this turn's Director opening moves add. */
   joining: readonly string[];
-  /** Seed NPC ids the encounter start marks `arrived` (spec 058). */
+  /** Seed NPC ids the encounter start marks `arrived` (spec 058) and the Director's legal arrivals (spec 078). An arriving id is not absent. */
   arriving: readonly string[];
   /** Action ids with a resumed plan (spec 057): they skip the reason check. */
   resumed: readonly string[];
@@ -285,9 +285,10 @@ export function checkPlan(input: PlanInput): PlanVerdict[] {
   const inOrder = new Set<string>(snapshot.stage.encounter?.order ?? []);
   const actorIds = new Set<string>(input.joining);
   const absentIds = new Set<string>();
+  const arrivingIds = new Set<string>(input.arriving);
   for (const a of snapshot.actors) {
     actorIds.add(a.id);
-    if (a.presence === "absent") {
+    if (a.presence === "absent" && !arrivingIds.has(a.id)) {
       absentIds.add(a.id);
       if (a.combatantId) absentIds.add(a.combatantId);
     }

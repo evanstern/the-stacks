@@ -855,6 +855,22 @@ async function directorOpening(
     return;
   }
 
+  // arrivals (spec 078): the Director's legal reveals, before any action group.
+  let arrived = 0;
+  for (const id of director.arrivals ?? []) {
+    const npc = seed.npcs.find((n) => n.id === id);
+    if (!npc) continue;
+    arrived += 1;
+    await run.submit(`director:arrival:${id}`, "scene-presence", () => ({
+      kind: "scene-presence",
+      ...note(`${npc.name} arrives`, "The Director reports the NPC on screen."),
+      actorId: id,
+      reason: "arrived",
+      actionId: null,
+      visibility: "public",
+    }));
+  }
+
   // table mode
   const tm = director.tableMode;
   if (tm.to === "turn") {
@@ -877,7 +893,7 @@ async function directorOpening(
       await seedPresence(
         run,
         ctx,
-        p,
+        arrived > 0 ? await deps.loadProjections(ctx.job.sessionId) : p,
         "encounter-start",
         seed.beats.find((b) => b.encounterId === enc.id),
       );
@@ -1178,11 +1194,16 @@ export const resolve: Node<"resolve"> = async (ctx) => {
         startingEncounter,
         assembled.projections.engine.combatants,
       ),
-      arriving: arrivingNpcs(
-        ctx.seed,
-        startingEncounter,
-        assembled.projections.scenePresence,
-      ),
+      arriving: [
+        ...new Set([
+          ...arrivingNpcs(
+            ctx.seed,
+            startingEncounter,
+            assembled.projections.scenePresence,
+          ),
+          ...(director.arrivals ?? []),
+        ]),
+      ],
       resumed: (assembled.resumed ?? []).map((plan) => plan.actionId),
     });
     const verdictFor = (actionId: string | null) =>

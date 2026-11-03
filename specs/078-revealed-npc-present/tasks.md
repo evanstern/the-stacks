@@ -13,24 +13,24 @@ name.
 
 ## Phase 1: The Director's arrivals, resolve and the plan gate (card AC #1, #2)
 
-- [ ] T001 Merge `origin/main` into the branch. Confirm `prompts/director.ts` holds TASK-0113's
+- [x] T001 Merge `origin/main` into the branch. Confirm `prompts/director.ts` holds TASK-0113's
       `dm.director-v5` and `agencyRule`. Stop and report if it does not.
-- [ ] T002 In `apps/server/src/dm/nodes/schemas.ts`, add the optional `arrivals` field to
+- [x] T002 In `apps/server/src/dm/nodes/schemas.ts`, add the optional `arrivals` field to
       `DirectorOutput` (plan D1).
-- [ ] T003 In `apps/server/src/dm/nodes/director.ts`, add `offstageNpcIds`, the `arrivals`
+- [x] T003 In `apps/server/src/dm/nodes/director.ts`, add `offstageNpcIds`, the `arrivals`
       override kind and the legality rules (plan D1).
-- [ ] T004 In `apps/server/src/dm/prompts/director.ts`, apply plan D2 hunks 1–4. Pass
+- [x] T004 In `apps/server/src/dm/prompts/director.ts`, apply plan D2 hunks 1–4. Pass
       `offstageNpcs` from the director node.
-- [ ] T005 In `apps/server/src/dm/nodes/resolve.ts`, add the arrivals group and the fresh load in
+- [x] T005 In `apps/server/src/dm/nodes/resolve.ts`, add the arrivals group and the fresh load in
       `directorOpening` (plan D3). Merge the arrivals into the `checkPlan` `arriving` argument
       (plan D4).
-- [ ] T006 In `apps/server/src/dm/gates/plan-gate.ts`, skip arriving ids when building
+- [x] T006 In `apps/server/src/dm/gates/plan-gate.ts`, skip arriving ids when building
       `absentIds` (plan D4). Update the `PlanInput.arriving` comment.
-- [ ] T007 Apply the plan D7 rows for `director.test.ts`, `assemble.test.ts`,
+- [x] T007 Apply the plan D7 rows for `director.test.ts`, `assemble.test.ts`,
       `trio-views.test.ts` and `plan-gate.test.ts`.
-- [ ] T008 Append the plan D6 amendments to `specs/031-dm-runtime/contracts/director.md` and
+- [x] T008 Append the plan D6 amendments to `specs/031-dm-runtime/contracts/director.md` and
       `specs/058-roll-reason-plan-gate/contracts/plan-reason-gate.md`.
-- [ ] T009 Run `pnpm ci:check`.
+- [x] T009 Run `pnpm ci:check`.
 
 ## Phase 2: The chronicle and the run 1 seq 40–45 replay (card AC #1, #2, #3; merge condition)
 
