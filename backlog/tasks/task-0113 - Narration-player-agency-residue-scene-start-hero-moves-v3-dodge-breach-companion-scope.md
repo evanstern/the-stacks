@@ -59,6 +59,8 @@ Claimed 2026-11-02 by M3 runbook B (docs/design/m3-runbook-b-resolution-quality.
 Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5 (spec 074 authoring, C1)
 
 spec-bridge sync: Rule source, Director, interpret, playtest auditor (card AC #3, #4, #5; US1, US4): 0/12 · Facts, narrate, audit (card AC #1, #2; US2, US3): 0/11 · Wiki (re-ground): 0/6
+
+Spec 074 (5f6dc7e7). OQ-2 default taken: no startle fact in this card (engine records no surprise); carded separately. OQ-3 default taken: AI companions count under hero-is-theirs. OQ-1 (is a foe's miss a reflex trigger) put to the operator before Phase 2; Phase 1 does not depend on it.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
