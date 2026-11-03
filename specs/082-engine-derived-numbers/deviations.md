@@ -91,3 +91,62 @@ None.
   scenario carries a standing S-sneak-attack row (`docs/design/playtest-scenarios.md`).
 - OQ-2, OQ-3 and OQ-7 resolved (a) and carded: TASK-0222, TASK-0223, TASK-0224.
 - OQ-4, OQ-5 and OQ-6 resolved (a): defaults accepted.
+
+## Phase 3 and 4 build notes (2026-11-03)
+
+### Phase 3
+
+1. **`attack` `onHit` damage refusal** sits in the shared `refineSteps` (renamed from
+   `requireAbilityStakes`) as planned. The reading-level `superRefine` reports it at
+   `steps.<i>.onHit.<j>`.
+2. **Plan gate failure id.** A `STAT_UNDEFINED` `PlanFailure` puts `<combatantId>: <missing>` in
+   `id`, so the operator log names the gap (`attack "Warhammer"`, `abilityMods.wis`).
+3. **`PlanInput.combatants` is required** (not optional). Every `checkPlan` caller and test passes
+   it. The plan-gate tests pass `{}` where stats are not the subject.
+4. **Resume (D10).** `findResumedPlans` re-parses with `InterpretReadingSchema` and `StepSchema`;
+   the failing plan is skipped (OQ-5 (a)).
+5. **Attack damage in resolve.** `hitDamage` runs at key `<key>:dmg` before the `onHit` effects.
+   A pending damage proposal pauses the chain like any other submission.
+
+### Phase 4: script migration
+
+Tier rule: the tier whose DC minus the derived modifier is nearest to the old DC minus the old
+modifier (keeps the scripted margin within 1 to 2 points). Every script die below was then
+checked against the outcome and band the script asserts.
+
+| Script | Check | Old | New | Dice change |
+|---|---|---|---|---|
+| greyhollow-human-dm, human-dm-approval, human-dm-roll-chain | tamsin wis perception | `1d20` DC 13 | `medium` (`1d20+3` DC 15) | none |
+| greyhollow-live | tamsin int investigation | `1d20` DC 13 | `easy` (`1d20` DC 10) | none |
+| exploration-check | tamsin int investigation | `1d20` DC 13 | `easy` | none |
+| greyhollow-ford-full, downed-seat | tamsin int investigation / cha persuasion | DC 13 / 12 | `easy` / `easy` | none (downed-seat: see attack) |
+| greyhollow-plan-approach, plan-approach | kestrel stealth / odo stealth / tamsin persuasion | DC 12, 12, 13 | `medium` / `easy` / `easy` | first die 8 to 6 |
+| runbook-a-reed-camp, free-pell | tamsin dex sleight-of-hand | `1d20` DC 12 | `medium` (`1d20+2`) | none |
+| approach-reed-camp | kestrel dex stealth, disadvantage | `1d20+5` DC 13 | `medium`, `circumstance` disadvantage with reason | none (the script had no dice) |
+| audit-advisory, audit-fallback, audit-regenerate | tamsin str athletics | `1d20+4` DC 12 | `medium` (`1d20+5` DC 15) | none; `audit.integration.test.ts` reads `vs DC 15` |
+| encounter-end-bargain | odo cha persuasion | `1d20+2` DC 12 | `medium` (`1d20+3`) | none |
+| social-adjudicated | tamsin cha persuasion | `1d20-1` DC 12 | `easy` | none |
+| reveal-snag, shoot-snag | tamsin wis perception | `1d20` DC 12 | `medium` (`1d20+3`) | none |
+
+- `exploration-check` and `full-turn.integration.test.ts`: the old `DC 13: success` line becomes
+  `DC 10: success`. The tier is `easy`.
+- Attacks: all 19 attack steps drop `expression`, `mode` and `targetAc` and name the seed or SRD
+  entry (`Longsword`, `Mace`, `Shortbow`, `Scimitar`). Their derived to-hit equals the old
+  expression, so no attack die changed. Every `onHit` damage effect is removed; the entry's damage
+  dice equal the old expressions. No scripted attack had a derived roll mode, so R10 inserted no
+  extra die.
+- `downed-seat.json` (R11): Snag's attack scripts a natural 20 then dice 6 and 5 (critical
+  `2d6+2` = 13), inserted before the old tail. Dice array gains two entries.
+- `circumstance` on `approach-reed-camp.json`: reason "Heavy mail and a boathook make the party
+  hard to keep quiet." (the Stealth line the goalNote already argues).
+
+### Test edits outside the script list
+
+- `resolve.integration.test.ts`: the engine-refusal case now uses a `roll` step with an invalid
+  expression (an attack can no longer carry one) and one more scripted die; Snag's NPC attacks name
+  `Scimitar`; "margin -2" scripts die 8 (`1d20+5` vs DC 15 gives margin -2); the natural-20 case
+  uses `nearly-impossible`.
+- `plan-gate.test.ts`, `interpret.test.ts`, `resume.test.ts`, `interpret-prompt.test.ts`: new cases
+  for tasks T031 to T034; the prompt snapshot is regenerated.
+- New `derived-numbers.integration.test.ts` uses a party-scope action so Kestrel may attack in
+  Tamsin's turn (spec 079 D5), and the reed-camp encounter start so a goblin target exists.

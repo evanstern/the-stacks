@@ -130,24 +130,24 @@ Phase 4 closes the full gate.
 
 ## Phase 4: Scripts, fixtures and integration tests (card AC #5; US5)
 
-- [ ] T038 [US5] Migrate each check step in the 21 JSON scripts and fixtures plan.md lists: drop
+- [x] T038 [US5] Migrate each check step in the 21 JSON scripts and fixtures plan.md lists: drop
       `expression`, `dc` and `mode`; add `difficulty` and `circumstance` (`approach-reed-camp.json`'s
       disadvantage becomes a circumstance with its reason). Pick the tier that keeps the scripted
       outcome and spec 070 band per plan R9; where none does, change the scripted die.
-- [ ] T039 [US5] Migrate each attack step: drop `expression`, `targetAc` and `mode`; add `attack`
+- [x] T039 [US5] Migrate each attack step: drop `expression`, `targetAc` and `mode`; add `attack`
       (the seed or SRD entry name) and `circumstance: null`; move the damage effect out of `onHit`.
       In `downed-seat.json`, script a natural 20 and critical damage dice that total 13 (plan R11).
-- [ ] T040 [US5] Walk every migrated roll for a derived mode (plan R10: downed, prone, restrained,
+- [x] T040 [US5] Walk every migrated roll for a derived mode (plan R10: downed, prone, restrained,
       poisoned or invisible actors). Insert or move scripted dice so each roll keeps its outcome.
-- [ ] T041 [US5] Record every per-script tier, die and dice-count change in `deviations.md`.
-- [ ] T042 [US5] Update the integration tests plan.md lists for Phase 4 wherever an assertion reads a
+- [x] T041 [US5] Record every per-script tier, die and dice-count change in `deviations.md`.
+- [x] T042 [US5] Update the integration tests plan.md lists for Phase 4 wherever an assertion reads a
       changed dice line, DC or die count. Keep each test's intent.
-- [ ] T043 [US1] Create `apps/server/test/dm/derived-numbers.integration.test.ts` over the
+- [x] T043 [US1] Create `apps/server/test/dm/derived-numbers.integration.test.ts` over the
       greyhollow-ford seed: a check step at tier `medium` lands a dice row `1d20+5` and DC 15 for
       Tamsin's Athletics; Kestrel's `Shortbow` attack on a goblin rolls `1d20+5` vs its record AC
       and applies `1d6+3` piercing on a hit; an attack naming `Warhammer` is refused
       `STAT_UNDEFINED` with no dice row (card AC #4).
-- [ ] T044 Run `pnpm ci:check` and the full DB suites, including `dm-scripts.test.ts` and
+- [x] T044 Run `pnpm ci:check` and the full DB suites, including `dm-scripts.test.ts` and
       `apps/server/test/playtest/harness.integration.test.ts` (the scripted CI playtest).
 
 ## Phase 5: Re-ground (wiki)
