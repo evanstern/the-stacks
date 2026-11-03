@@ -1,0 +1,182 @@
+{
+  "v": 1,
+  "name": "shoot-snag",
+  "dice": [15, 18, 4],
+  "calls": [
+    {
+      "purpose": "dm.director",
+      "note": "turn 1: free mode, the reveal (run 1 seq 33-43)",
+      "respond": {
+        "type": "json",
+        "value": {
+          "beat": {
+            "decision": "resolve"
+          },
+          "tableMode": {
+            "to": "stay"
+          },
+          "trackers": [],
+          "scene": {
+            "status": "continue"
+          },
+          "pacing": {
+            "tension": "low",
+            "spotlight": null,
+            "beatId": "ferry-house"
+          },
+          "goalNote": "Reward the careful look.",
+          "companionPrompts": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.interpret",
+      "note": "run 1 seq 33-43: one Perception check, success reveals Snag",
+      "respond": {
+        "type": "json",
+        "value": {
+          "readings": [
+            {
+              "actionId": "act-listen",
+              "intent": "check",
+              "uncertain": true,
+              "needsAdjudication": false,
+              "rulesQuestion": null,
+              "clarify": null,
+              "steps": [
+                {
+                  "step": "check",
+                  "reason": "Tamsin listens and looks across the reeds",
+                  "combatantId": "tamsin",
+                  "kind": "ability-check",
+                  "ability": "wis",
+                  "skill": "perception",
+                  "expression": "1d20",
+                  "mode": "normal",
+                  "dc": 12,
+                  "autoFail": null,
+                  "onSuccess": [
+                    {
+                      "effect": "presence",
+                      "targetId": "snag",
+                      "reason": "arrived"
+                    }
+                  ],
+                  "onFailure": []
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "purpose": "dm.narrate",
+      "note": "the reveal",
+      "respond": {
+        "type": "text",
+        "value": "Tamsin holds still and listens. Through the reeds she makes out a goblin with a scimitar guarding a bound man at a post."
+      }
+    },
+    {
+      "purpose": "dm.audit",
+      "respond": {
+        "type": "json",
+        "value": {
+          "verdict": "pass",
+          "issues": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.director",
+      "note": "turn 2: free mode, Kestrel shoots (run 1 seq 45)",
+      "respond": {
+        "type": "json",
+        "value": {
+          "beat": {
+            "decision": "resolve"
+          },
+          "tableMode": {
+            "to": "stay"
+          },
+          "trackers": [],
+          "scene": {
+            "status": "continue"
+          },
+          "pacing": {
+            "tension": "low",
+            "spotlight": null,
+            "beatId": "ferry-house"
+          },
+          "goalNote": "Let the shot land.",
+          "companionPrompts": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.interpret",
+      "note": "run 1 seq 45: an attack on Snag, who is present with no combatant",
+      "respond": {
+        "type": "json",
+        "value": {
+          "readings": [
+            {
+              "actionId": "act-shoot",
+              "intent": "attack",
+              "uncertain": true,
+              "needsAdjudication": false,
+              "rulesQuestion": null,
+              "clarify": null,
+              "steps": [
+                {
+                  "step": "attack",
+                  "reason": "Kestrel takes aim and looses an arrow at Snag",
+                  "attackerId": "kestrel",
+                  "targetId": "snag",
+                  "expression": "1d20+5",
+                  "mode": "normal",
+                  "targetAc": null,
+                  "onHit": [
+                    {
+                      "effect": "damage",
+                      "targetId": "snag",
+                      "components": [
+                        {
+                          "amount": {
+                            "kind": "roll",
+                            "expression": "1d6+3"
+                          },
+                          "damageType": "piercing"
+                        }
+                      ],
+                      "defenses": null
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "purpose": "dm.narrate",
+      "note": "the shot",
+      "respond": {
+        "type": "text",
+        "value": "Kestrel draws the string back and looses an arrow at the goblin on the island."
+      }
+    },
+    {
+      "purpose": "dm.audit",
+      "respond": {
+        "type": "json",
+        "value": {
+          "verdict": "pass",
+          "issues": []
+        }
+      }
+    }
+  ]
+}
