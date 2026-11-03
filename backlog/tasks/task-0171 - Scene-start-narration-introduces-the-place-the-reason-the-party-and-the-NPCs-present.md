@@ -53,6 +53,8 @@ Claimed 2026-11-02 by M3 runbook B (docs/design/m3-runbook-b-resolution-quality.
 Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5 (spec 076 authoring, C1)
 
 spec-bridge sync: The opening premise (card AC #1; US1): 0/5 · The opening prompt (card AC #2, #5; US1, US2, US4): 0/5 · The name check, the fallback and the scripts (card AC #3, #4; US2, US3): 0/8 · Wiki re-ground: 0/5
+
+Spec 076 (c5bfc692). Defaults taken: OQ-2 (a) scene-start fallback names everyone (fallback.ts joins 0171's footprint, between 0213 and 0214 in the fallback order); OQ-3 (a) opening up to about 160 words, never over 180. OQ-1 (what 'who plays them' means) put to the operator. Footprint correction: adds nodes/narrate.ts, nodes/audit.ts, fallback.ts and eight DM scripts; drops scene-start.ts and prompts/audit.ts. Phase 1 waits on TASK-0127 (seed/schema.ts); phases 2-3 on 0113, 0127, 0170.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
