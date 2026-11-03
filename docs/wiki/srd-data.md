@@ -22,7 +22,7 @@ sources:
   - apps/server/src/dm/nodes/schemas.ts
   - apps/web/app/routes/about.tsx
   - biome.json
-verified_against: acdbc0bdfda63c1539712c716456eb07bc8f00cc
+verified_against: c6a800dd72487bcec95a4d0d0f2e94bbb821b4c4
 ---
 
 # SRD data package

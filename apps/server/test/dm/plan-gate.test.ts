@@ -1,5 +1,9 @@
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { SYSTEM_WORDS } from "../../src/dm/fallback.js";
+import { cutPlans } from "../../src/dm/first-stage.js";
 import {
   arrivingNpcs,
   askUndeclared,
@@ -11,7 +15,11 @@ import {
 } from "../../src/dm/gates/plan-gate.js";
 import type { Ruling } from "../../src/dm/nodes/adjudicate.js";
 import type { BeatItem } from "../../src/dm/nodes/assemble.js";
-import type { InterpretReading, Step } from "../../src/dm/nodes/schemas.js";
+import {
+  InterpretOutput,
+  type InterpretReading,
+  type Step,
+} from "../../src/dm/nodes/schemas.js";
 import { buildSnapshot } from "../../src/dm/snapshot/index.js";
 import {
   M2_SEQ221_CONTROL,
@@ -26,6 +34,7 @@ import {
 } from "./snapshot-fixtures.js";
 import { attackStep, checkStep, reading } from "./world.js";
 
+const HERE = dirname(fileURLToPath(import.meta.url));
 const { projections, seed } = greyhollowFight();
 const snapshot = buildSnapshot(projections, seed);
 
@@ -940,5 +949,87 @@ describe("askUndeclared (spec 077)", () => {
       expect(q.match(/\?/g)).toHaveLength(1);
       expect(q.length).toBeLessThanOrEqual(200);
     }
+  });
+});
+
+describe("checkPlan actor rule (spec 079 D5)", () => {
+  const actors = new Map<string, string | null>([
+    ["a1", "kestrel"],
+    ["party", null],
+  ]);
+  const withActors = (readings: InterpretReading[]) =>
+    plan(readings, { actors });
+  const move = (combatantId: string) => ({
+    step: "move",
+    reason: "Kestrel runs for Pell",
+    combatantId,
+    leavesReachOf: ["goblin-2"],
+  });
+
+  it("refuses a foreign attacker inside a character action", () => {
+    const v = withActors([
+      read("a1", [attackStep("kestrel", { attackerId: "goblin-2" })]),
+    ]);
+    expect(v[0]).toEqual({
+      actionId: "a1",
+      ok: false,
+      code: "STEP_ACTOR_MISMATCH",
+      failure: {
+        stepIndex: 0,
+        field: "attackerId",
+        id: "goblin-2",
+        reason: "not-the-actor",
+      },
+    });
+  });
+
+  it("refuses a foreign mover, and passes the actor's own move", () => {
+    expect(withActors([read("a1", [move("tamsin")])])[0]).toMatchObject({
+      ok: false,
+      code: "STEP_ACTOR_MISMATCH",
+      failure: { field: "combatantId", id: "tamsin" },
+    });
+    expect(withActors([read("a1", [move("kestrel")])])[0]).toEqual({
+      actionId: "a1",
+      ok: true,
+    });
+  });
+
+  it("a party-scope action may name any party member, not a monster", () => {
+    expect(withActors([read("party", [move("tamsin")])])[0]).toMatchObject({
+      ok: true,
+    });
+    expect(
+      withActors([
+        read("party", [attackStep("kestrel", { attackerId: "goblin-2" })]),
+      ])[0],
+    ).toMatchObject({ ok: false, code: "STEP_ACTOR_MISMATCH" });
+  });
+
+  it("does not check the monster turn", () => {
+    const v = withActors([
+      read(null, [attackStep("kestrel", { attackerId: "goblin-2" })]),
+    ]);
+    expect(v[0]).toMatchObject({ ok: true });
+  });
+
+  it("run 1's plan-approach plan (Kestrel attacks Snag in Tamsin's action) passes after the free-mode cut (R4)", () => {
+    const script = JSON.parse(
+      readFileSync(join(HERE, "scripts", "plan-approach.json"), "utf8"),
+    );
+    const call = script.calls.find(
+      (c: { purpose: string }) => c.purpose === "dm.interpret",
+    );
+    const parsed = InterpretOutput.parse(call.respond.value);
+    const cut = cutPlans({
+      mode: "free",
+      readings: parsed.readings,
+      rulings: [],
+    });
+    // The scripted action belongs to Tamsin; Kestrel's attack is cut as a later stage.
+    const v = plan(cut.readings, {
+      actors: new Map([[parsed.readings[0]?.actionId as string, "tamsin"]]),
+    });
+    expect(v[0]).toMatchObject({ ok: true });
   });
 });

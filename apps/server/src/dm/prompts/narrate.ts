@@ -20,7 +20,7 @@ import {
   transcriptEntries,
 } from "./common.js";
 
-export const PROMPT_VERSION = "dm.narrate-v9";
+export const PROMPT_VERSION = "dm.narrate-v10";
 
 const RULES = [
   "You narrate the result of one beat of a tabletop role-playing session. The facts below are TRUE and already decided by the rules engine. Retell them as story.",
@@ -36,12 +36,15 @@ const RULES = [
   "Only the actor named on the Turn line acts in this beat. The actor on the Next line has not acted: never show them move, speak or strike.",
   "Name a character as dead or unconscious only when a fact or the state sections say so; when a fact says so, say so.",
   "A dead, unconscious, stable or absent character does not act or speak. Count only what the state sections show.",
-  "A not-yet-attempted step has not happened. Stop before it; never show it start.",
+  "A not-yet-attempted step has not happened, in this beat or an earlier one. Stop before it; never show it start or done.",
   "End on something that demands a response. Do not end with an either-or question, except the Unclear intent question.",
 ].join("\n");
 
 /** The facts as capped entries, most important first. */
 function rollEntry(r: FactRoll): string {
+  if (r.reaction) {
+    return `  reaction: ${r.name} strikes at ${r.target ?? "them"} as they pull away -> ${r.outcome ?? "no result"}`;
+  }
   const target = r.target ? ` target ${r.target}` : "";
   return `  roll: ${r.reason}${target} -> ${r.outcome ?? "no result"}`;
 }
@@ -102,6 +105,9 @@ export function factEntries(facts: NarrationFacts): string[] {
     for (const r of a.rolls) out.push(rollEntry(r));
     for (const c of a.changes) out.push(`  change: ${describeChange(c)}`);
     for (const f of a.followUps) out.push(`  not yet attempted: ${f}`);
+  }
+  for (const f of facts.openFollowUps ?? []) {
+    out.push(`Earlier beat, not yet attempted: ${f.name}: ${f.text}`);
   }
   if (facts.npcTurn) {
     out.push(`Monster turn: ${facts.npcTurn.name}`);

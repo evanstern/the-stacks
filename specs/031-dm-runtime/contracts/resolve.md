@@ -39,6 +39,13 @@ Resolve runs these groups in order. Each group is a list of submissions. The ord
    `UNKNOWN_COMBATANT` and runs no step. A refused NPC group runs no step; the turn still
    advances. The verdicts go to `TurnCheckpoint.planGate`.
 
+   *Amended by spec 079 (TASK-0208):* a party action group whose `attack` step names a foreign
+   `attackerId`, or whose `move` step names a foreign `combatantId`, is refused whole with
+   `STEP_ACTOR_MISMATCH` (failure reason `not-the-actor`) before any step runs. The actor is the
+   action's character combatant; a party-scope action may name any party combatant. The NPC
+   group and the monster turn are not checked. Spec 077's `askUndeclared` covers only another
+   human's PC roll (a clarify), so it supplies no refusal code to reuse.
+
    *Amended by spec 068 (TASK-0194):* when an `ok` verdict carries `pull`, resolve pulls each
    id into the scene before that group's steps run: `combatant.add` from the NPC's SRD block
    (`identity.srdMonsterId`, default `commoner`), then `initiative.join` when an encounter is
@@ -139,6 +146,12 @@ For one beat item with its reading (or ruling, which replaces the reading's step
    effect. The gate's policy for the kind is `ask`. The plan gate refuses an `absent` actor id with
    `UNKNOWN_COMBATANT` (reason `absent`), except an `arrived` presence effect.
    - `roll` → `mechanics` `roll`.
+   - `move` → Amended by spec 079 (TASK-0208). The step submits nothing itself. For each
+     `leavesReachOf` id that is an unspent, able encounter monster, resolve submits a
+     `mechanics` `attack.roll` with `reaction: true` (attacker the hostile, target the mover,
+     expression from the hostile's SRD melee attack), then `damage.apply` on a hit with the SRD
+     damage dice (critical on `critical-hit`). The reaction batches join the action's `batchIds`.
+     A refusal of a reaction does not stop the mover's chain; a pending proposal pauses it.
 4. Then submit `action.resolve`:
    - `applied` with every applied `batchId`, when at least one batch applied;
    - `refused` with the engine's code, when the first mechanics step was refused by the

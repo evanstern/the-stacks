@@ -163,6 +163,12 @@ export const StepSchema = z.discriminatedUnion("step", [
     expression: z.string().min(1).max(200),
     mode: RollModeSchema,
   }),
+  z.object({
+    step: z.literal("move"),
+    reason: Reason,
+    combatantId: CombatantIdSchema,
+    leavesReachOf: z.array(CombatantIdSchema).max(6),
+  }),
 ]);
 export type Step = z.infer<typeof StepSchema>;
 

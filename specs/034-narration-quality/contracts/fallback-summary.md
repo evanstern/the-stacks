@@ -62,3 +62,10 @@ a clarify. The fallback satisfies it by the last row.
 3. Property test over generated facts: no system word, no digit, `deterministicChecks` passes,
    and every action, change and event yields its sentence.
 4. No output contains a tracker name or note from the fixture facts' projections.
+
+## Amendment 2026-11-02 (specs/079-engine-opportunity-attack, TASK-0208): the roller is the subject
+
+Amended by spec 079 (TASK-0208). In an applied action's roll sentences, the subject is the roll's
+own `name`, not the action's character. A roll whose `name` is empty or `The scene` keeps the
+action's name. A check rolled by the action's own character still names that character. The
+outcome sentence's signature `(name, outcome)` is unchanged. Only `rollSentences` changed.

@@ -45,6 +45,8 @@ export interface FactRoll {
   /** Attack target name, from attack.resolved.targetId. */
   target: string | null;
   band?: FactBand | null;
+  /** True for an opportunity attack (the attacker spent its reaction). */
+  reaction?: boolean;
 }
 
 /** A reflex the dice allow the narrator to show (spec 074 D3). Never a choice. */
@@ -145,6 +147,8 @@ export interface NarrationFacts {
   turn?: { actor: string; next: string | null };
   /** Settled death-save turns (TASK-0112); omitted when settling rolled nothing. */
   settled?: FactSettled[];
+  /** A party member's followUps from an earlier beat, still not attempted (spec 079). */
+  openFollowUps?: { name: string; text: string }[];
   /** Reflexes derived from this turn's rows (spec 074); always set by `buildNarrationFacts`. */
   involuntary?: FactInvoluntary[];
   director: {
@@ -225,12 +229,14 @@ export function collectFacts(
       let against: FactRoll["against"] = null;
       let outcome: FactOutcome | null = null;
       let target: string | null = null;
+      let reaction = false;
       if (link) {
         const o = link.outcome;
         if (o.type === "attack.resolved") {
           against = { kind: "AC", value: o.ac };
           outcome = o.outcome;
           target = nameOf(o.targetId);
+          reaction = o.reaction === true;
         } else if (o.type === "check.resolved") {
           against = { kind: "DC", value: o.dc };
           outcome = o.outcome;
@@ -248,6 +254,7 @@ export function collectFacts(
         outcome,
         autoFail: false,
         target,
+        ...(reaction ? { reaction: true } : {}),
       });
     }
   }
@@ -483,6 +490,8 @@ export interface BuildFactsInput {
   clarify: { actionId: string; question: string }[];
   /** Follow-ups per action id, from the ruling when one exists, else the reading. */
   followUps?: Record<string, string[]>;
+  /** Open followUps from earlier beats, by character id (spec 079). */
+  openFollowUps?: { characterId: string; text: string }[];
   /** The monster's reading (ruling steps replace the reading's); null when none. */
   npcPlan?: { intent: string; steps: { reason: string }[] } | null;
   /** The combatant active at the start of the beat; set only when the table was in turn mode. */
@@ -681,6 +690,11 @@ export function buildNarrationFacts(input: BuildFactsInput): NarrationFacts {
     nameOf,
   );
 
+  const openFollowUps = (input.openFollowUps ?? []).flatMap((f) => {
+    const name = p.party.find((m) => m.characterId === f.characterId)?.name;
+    return name ? [{ name, text: f.text }] : [];
+  });
+
   const beatNpcs = input.beatNpcIds;
   const presentNpcs = beatNpcs.flatMap((id) => {
     const n = seed.npcs.find((x) => x.id === id);
@@ -704,6 +718,7 @@ export function buildNarrationFacts(input: BuildFactsInput): NarrationFacts {
     npcTurn,
     ...(turn ? { turn } : {}),
     ...(settled.length > 0 ? { settled } : {}),
+    ...(openFollowUps.length > 0 ? { openFollowUps } : {}),
     involuntary,
     director: {
       pacing: input.director.pacing,
