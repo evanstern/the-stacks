@@ -1,9 +1,10 @@
 ---
 id: TASK-0128
 title: 'Engine: opposition as a derived DC, and Help as advantage'
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-10-27 02:32'
+updated_date: '2026-11-03 07:18'
 labels:
   - dm
   - engine
@@ -27,6 +28,12 @@ Outcome: opposed efforts and assistance resolve by SRD 5.2.1 rules in the engine
 - [ ] #2 A Help action grants advantage on the ally's next matching check and expires per SRD 5.2.1, with a test
 - [ ] #3 Interpret emits opposition and help as step kinds, and a schema test covers both
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Claimed 2026-11-03 by M3 runbook B (docs/design/m3-runbook-b-resolution-quality.md). Worktree .worktrees/task-0128, branch task-0128-opposition-and-help, cut from origin/main 4cea63d8. Spec number 084 claimed with a stub. Spine #15; beside 0105 if disjoint.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
