@@ -39,18 +39,14 @@ Spec: specs/081-talk-fallback-line
 - [ ] #5 Spec phase: Wiki re-ground
 <!-- AC:END -->
 
-
-
-
-
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
 Claimed 2026-11-02 by M3 runbook B (docs/design/m3-runbook-b-resolution-quality.md). Worktree .worktrees/task-0207, branch task-0207-talk-fallback-line, cut from origin/main b79489e2. Spec number 081 claimed with a stub. Spine #10.
 
 Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5 (spec 081 authoring, C1)
+
+spec-bridge sync: The plan carries the line (card AC #2; US2): 0/4 · The fallback voices the line (card AC #1; US1, US3): 0/9 · Wiki re-ground: 0/5
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
