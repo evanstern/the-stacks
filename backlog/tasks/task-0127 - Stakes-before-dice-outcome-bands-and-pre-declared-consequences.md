@@ -37,8 +37,10 @@ Spec: specs/070-stakes-before-dice
 - [x] #9 Spec phase: Step contract, prompts, table rules, plan gate, fixtures (card AC #1, #3; US1, US2)
 - [x] #10 Spec phase: Resolve by band and the free retry (card AC #2, #3, #5; US1, US2, US3)
 - [x] #11 Spec phase: Facts, narration, audit, fallback, ledger view (card AC #2, #6; US1, US4)
-- [ ] #12 Spec phase: Contracts and wiki re-ground
+- [x] #12 Spec phase: Contracts and wiki re-ground
 <!-- AC:END -->
+
+
 
 
 
