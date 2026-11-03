@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-10-26 20:08'
-updated_date: '2026-11-02 23:41'
+updated_date: '2026-11-03 00:33'
 labels:
   - dm
   - narration
@@ -33,7 +33,10 @@ Spec: specs/074-player-agency
 - [ ] #3 The playtest auditor's hero-is-theirs check states whether companions count, with a test
 - [ ] #4 The Director's goal notes state no volitional act, method or skill for a PC that its player did not declare, with a prompt test
 - [ ] #5 Interpret steps carry no volitional act for a PC that its player did not declare, with a test
+- [ ] #6 Spec phase: Rule source, Director, interpret, playtest auditor (card AC #3, #4, #5; US1, US4)
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
