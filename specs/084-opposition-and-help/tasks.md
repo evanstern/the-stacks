@@ -110,20 +110,20 @@ Phases 1 to 3 run in order: each needs the previous phase's types.
 
 ## Phase 3: Narration facts and end-to-end test (card AC #1–#3; US1, US2, US4)
 
-- [ ] T028 [US4] In `apps/server/src/dm/facts.ts`, add the `assist` `FactChange` from
+- [x] T028 [US4] In `apps/server/src/dm/facts.ts`, add the `assist` `FactChange` from
       `assist.granted` rows (plan D13); `renderChangeLine` returns null for it.
-- [ ] T029 [US4] In `prompts/narrate.ts`, render the assist in `describeChange` and bump
+- [x] T029 [US4] In `prompts/narrate.ts`, render the assist in `describeChange` and bump
       `PROMPT_VERSION` to `dm.narrate-v17`. Bump `prompts/audit.ts` to `dm.audit-v11`. In `fallback.ts`, add the assist sentence to
       `changeSentence`.
-- [ ] T030 [US4] In `apps/server/test/dm/facts.test.ts` and `fallback.test.ts`, add one case per
+- [x] T030 [US4] In `apps/server/test/dm/facts.test.ts` and `fallback.test.ts`, add one case per
       assist kind. In `narrate.test.ts`, assert `dm.narrate-v17` and `dm.audit-v11`.
-- [ ] T031 [US1, US2] Create `apps/server/test/dm/opposition-and-help.integration.test.ts` over
+- [x] T031 [US1, US2] Create `apps/server/test/dm/opposition-and-help.integration.test.ts` over
       the reed-camp seed with scripted dice: (1) Tamsin's Athletics check opposed by Snag rolls
       against DC 9 and the `check.resolved` row carries `opposition`; (2) a party-scope beat where
       Kestrel helps Tamsin's Acrobatics, then Tamsin's Acrobatics check rolls two d20s and the
       assist ends `used`; (3) in an encounter, an unused assist ends at the start of Kestrel's next
       turn. Use the fake gateway; no paid run.
-- [ ] T032 Run `pnpm ci:check` and the DB suites with `REQUIRE_DATABASE=1`. Re-run a known-flaky
+- [x] T032 Run `pnpm ci:check` and the DB suites with `REQUIRE_DATABASE=1`. Re-run a known-flaky
       gateway or scene test once and report it (dispatch rules).
 
 ## Phase 4: Re-ground (wiki)

@@ -1083,3 +1083,36 @@ describe("deriveInvoluntary (spec 074 D3)", () => {
     expect(derive([attack(1, "goblin", "miss")])).toEqual([]);
   });
 });
+
+describe("assist facts (spec 084 D13)", () => {
+  const assistRow = (kind: "ability-check" | "attack") =>
+    [
+      {
+        kind: "change",
+        ...common(1, "h1", 0),
+        reason: "Goblin helps Ana",
+        type: "assist.granted",
+        subject: "ana",
+        before: null,
+        after:
+          kind === "attack"
+            ? { kind, helperId: "goblin", expiresAt: null }
+            : {
+                kind,
+                helperId: "goblin",
+                skill: "acrobatics",
+                expiresAt: null,
+              },
+      },
+    ] as unknown as LedgerRow[];
+
+  for (const kind of ["ability-check", "attack"] as const) {
+    it(`builds an assist fact for a ${kind} assist and adds no dice line`, () => {
+      const c = collectFacts(assistRow(kind), nameOf);
+      expect(c.changes).toEqual([
+        { kind: "assist", target: "Ana", helper: "Goblin", assist: kind },
+      ]);
+      expect(c.changes.map(renderChangeLine)).toEqual([null]);
+    });
+  }
+});

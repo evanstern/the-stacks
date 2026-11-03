@@ -111,6 +111,13 @@ export type FactChange =
       level: number;
     }
   | {
+      kind: "assist";
+      /** The holder: the creature the assist helps. */
+      target: string;
+      helper: string;
+      assist: "ability-check" | "attack";
+    }
+  | {
       kind: "death-saves";
       target: string;
       /** The tally after the save. */
@@ -381,6 +388,17 @@ export function collectFacts(
         target,
         op: "removed",
         condition: c.condition,
+      });
+    } else if (row.type === "assist.granted") {
+      const a = row.after as {
+        kind: "ability-check" | "attack";
+        helperId: string;
+      };
+      out.changes.push({
+        kind: "assist",
+        target,
+        helper: nameOf(a.helperId),
+        assist: a.kind,
       });
     } else if (row.type === "spell-slots.changed") {
       const b = row.before as { pool: string; level: number; expended: number };

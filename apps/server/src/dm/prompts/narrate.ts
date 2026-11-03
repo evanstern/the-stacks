@@ -25,7 +25,7 @@ import {
   transcriptEntries,
 } from "./common.js";
 
-export const PROMPT_VERSION = "dm.narrate-v16";
+export const PROMPT_VERSION = "dm.narrate-v17";
 
 const RULES = [
   "You narrate the result of one beat of a tabletop role-playing session. The facts below are TRUE and already decided by the rules engine. Retell them as story.",
@@ -181,6 +181,10 @@ function describeChange(
       return `${c.target} ${c.op === "applied" ? "gains" : "loses"} ${c.condition}`;
     case "spell-slot":
       return `${c.target} spends a level ${c.level} spell slot`;
+    case "assist":
+      return c.assist === "attack"
+        ? `${c.helper} distracts ${c.target}`
+        : `${c.helper} helps ${c.target}`;
     case "death-saves":
       return c.failed
         ? `${c.target} fails a death saving throw`
