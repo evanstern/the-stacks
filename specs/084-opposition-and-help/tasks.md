@@ -23,55 +23,55 @@ Phases 1 to 3 run in order: each needs the previous phase's types.
 
 ## Phase 1: Engine (card AC #1, #2; US1, US2)
 
-- [ ] T002 [US1] In `packages/dnd5e-engine/src/schema/state.ts`, add optional `abilityScores` to
+- [x] T002 [US1] In `packages/dnd5e-engine/src/schema/state.ts`, add optional `abilityScores` to
       `CombatantStatsSchema`, `AssistSchema`, and optional `assists` on `CombatantSchema` with the
       unique-helper refinement (plan D1).
-- [ ] T003 [US1] In `schema/commands.ts`, add `check.roll.opposition` and the `help.grant` command.
+- [x] T003 [US1] In `schema/commands.ts`, add `check.roll.opposition` and the `help.grant` command.
       In `schema/events.ts`, add `check.resolved.opposition`, `assist.granted` and `assist.ended`.
       In `schema/refusals.ts`, add `NOT_PROFICIENT` (plan D3). Use `.optional()`, never
       `.default()` (spec 082 R8).
-- [ ] T004 [US1] In `derive.ts`, add `OppositionRuleSchema`, `oppositionCovers`, `oppositionDc`,
+- [x] T004 [US1] In `derive.ts`, add `OppositionRuleSchema`, `oppositionCovers`, `oppositionDc`,
       `checkAssists`, `attackAssists` and `helperExpiry`, each citing its SRD record (plan D2).
       Mark the two `ponytail:` proxies.
-- [ ] T005 [US1] In `commands/attacks.ts`, apply plan D4 to `handleCheckRoll` and D5 to
+- [x] T005 [US1] In `commands/attacks.ts`, apply plan D4 to `handleCheckRoll` and D5 to
       `handleAttackRoll`. Widen `actorUnable`'s `role` to add `"helper"`. In `commands/spells.ts`,
       apply plan D5a to the attack delivery of `handleSpellCast`.
-- [ ] T006 [US2] Create `commands/help.ts` with `handleHelpGrant` (plan D6). Register it in
+- [x] T006 [US2] Create `commands/help.ts` with `handleHelpGrant` (plan D6). Register it in
       `execute.ts`.
-- [ ] T007 [US2] In `commands/encounter.ts`, make `expiring` end assists and `handleEncounterEnd`
+- [x] T007 [US2] In `commands/encounter.ts`, make `expiring` end assists and `handleEncounterEnd`
       end every assist. In `evolve.ts`, apply `assist.granted` and `assist.ended` (plan D7).
-- [ ] T008 Export the new schemas, types and functions from `index.ts`. Document `help.grant`,
+- [x] T008 Export the new schemas, types and functions from `index.ts`. Document `help.grant`,
       the opposition rules and the assist lifecycle in `packages/dnd5e-engine/README.md`.
-- [ ] T009 [US1] In `test/derive.test.ts`, add: `unarmed-strike` DC for Snag's SRD numbers
+- [x] T009 [US1] In `test/derive.test.ts`, add: `unarmed-strike` DC for Snag's SRD numbers
       (Str −1, PB 2 → 9) and Tamsin's (Str +3, PB 2 → 13); `influence` DC for Int 10 (15) and
       Int 18 (18); missing stats, Strength modifier or Intelligence score → `{ok:false}`; the
       `oppositionCovers` table; `checkAssists` skill matching; `attackAssists` excluding the helper;
       `helperExpiry` for a helper before, at and after the active index, and with no encounter.
-- [ ] T010 [US1] In `test/commands/attacks.test.ts`, add `check.roll` cases: an opposed check
+- [x] T010 [US1] In `test/commands/attacks.test.ts`, add `check.roll` cases: an opposed check
       records the derived DC and `opposition`; `expectRefusedBeforeDraw` for two DC sources, the
       opponent equal to the checker, an uncovered check, an unknown opponent, a dead opponent and
       an opponent with no stats; spec 070's band on a derived opposition DC.
-- [ ] T011 [US2] In the same file, add assist cases: an ability-check assist rolls advantage (two
+- [x] T011 [US2] In the same file, add assist cases: an ability-check assist rolls advantage (two
       scripted d20s, higher kept) and emits `assist.ended` `used`; a different skill and a saving
       throw leave it; an assist plus a disadvantage `circumstance` rolls normal and is still used;
       two assists give advantage once and both end; an auto-fail and a free retry leave it; an
       explicit-expression check leaves it; an attack assist applies to another attacker and not
       to the helper. In `test/commands/spells.test.ts`, add: a spell attack against a target holding
       an attack assist rolls advantage and ends it `used`; a save spell leaves it.
-- [ ] T012 [US2] Create `test/commands/help.test.ts`: `help.grant` (`type: "help.grant"`, for the
+- [x] T012 [US2] Create `test/commands/help.test.ts`: `help.grant` (`type: "help.grant"`, for the
       coverage meta-test) records the assist with the R4 expiry; `expectRefusal` for
       `NOT_PROFICIENT`, `STAT_UNDEFINED`, `ACTOR_UNABLE`, `INVALID_COMMAND` (self-help),
       `UNKNOWN_COMBATANT` and `TARGET_DEAD`; a second grant ends the first with `replaced`.
-- [ ] T013 [US2] In `test/commands/encounter.test.ts`, add: an assist ends `expired` at the start
+- [x] T013 [US2] In `test/commands/encounter.test.ts`, add: an assist ends `expired` at the start
       of its helper's next turn, not earlier; it ends when a dead helper's turn is skipped; it ends
       `encounter-ended` at `encounter.end`. In `test/replay.test.ts`, add: an assist survives
       replay and its end removes it.
-- [ ] T014 In `packages/session-model/test/catalog.test.ts`, move the mechanics count from 18 to
+- [x] T014 In `packages/session-model/test/catalog.test.ts`, move the mechanics count from 18 to
       20 and the catalog count from 37 to 39. In `packages/dnd5e-engine/test/execute.test.ts`, move
       the counts from 23 commands, 18 events and 34 refusal codes to 24, 20 and 35.
-- [ ] T015 Amend `specs/026-dnd5e-engine/contracts/commands.md`, `events.md`, `refusals.md` and
+- [x] T015 Amend `specs/026-dnd5e-engine/contracts/commands.md`, `events.md`, `refusals.md` and
       `engine-api.md`, each marked "Amended by specs/084-opposition-and-help".
-- [ ] T016 Run `pnpm ci:check`.
+- [x] T016 Run `pnpm ci:check`.
 
 ## Phase 2: Step contract, prompts, plan gate and resolve (card AC #1, #3; US1, US3)
 

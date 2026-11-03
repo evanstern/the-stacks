@@ -53,3 +53,19 @@ where the SRD says so), healing (dice plus the spellcasting modifier) or a condi
 holds six spells (`fire-bolt`, `sacred-flame`, `inflict-wounds`, `ray-of-sickness`,
 `cure-wounds`, `healing-word`); any other id refuses `SPELL_UNRESOLVED`. The engine imports no
 SRD data: `apps/server/test/dm/spell-mechanics.test.ts` checks each entry against the SRD record.
+
+## Opposition and Help (spec 084)
+
+`check.roll` takes a third DC source, `opposition: { opponentId, rule }`. Rule `unarmed-strike`
+derives 8 + the opponent's Strength modifier + proficiency bonus (grapple and shove, SRD p. 190).
+Rule `influence` derives the higher of 15 and the opponent's Intelligence score
+(`stats.abilityScores.int`). `oppositionCovers` limits each rule to the checks the SRD names.
+`check.resolved` records `opposition`. A missing stat refuses `STAT_UNDEFINED`.
+
+`help.grant` records an assist on its holder (`combatant.assists`): the ally for an ability-check
+assist (the helper must be proficient in the skill, else `NOT_PROFICIENT`), or the distracted enemy
+for an attack assist. The next derived check with that skill, or attack roll (weapon or spell)
+against that enemy by anyone but the helper, rolls with advantage and emits `assist.ended`
+(`used`). An assist also ends at the start of its helper's next turn (`expired`), when the helper
+grants another (`replaced`), and at `encounter.end`. An assist granted outside an encounter lasts
+until used.

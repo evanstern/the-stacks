@@ -1,7 +1,7 @@
 # Contract: refusals
 
 ```ts
-export const RefusalCodeSchema = z.enum([ /* the 27 codes below, in this order */ ]);
+export const RefusalCodeSchema = z.enum([ /* the codes below, in this order */ ]);
 
 export const RefusalSchema = z.object({
   code: RefusalCodeSchema,
@@ -66,3 +66,12 @@ export const RefusalSchema = z.object({
 | 32 | `SPELL_UNRESOLVED` | `spell.cast` names a spell with no engine mechanics, a cantrip with a slot level, or a leveled spell cast below its level. Raised before any die | `spell.cast` |
 | 33 | `SPELL_UNKNOWN` | The DM plan gate found no SRD record for the spell id. Plan gate only; `execute` never returns it | none (the DM plan gate) |
 | 34 | `SPELL_NOT_PREPARED` | The DM plan gate found the spell absent from the caster's spell list. Plan gate only; `execute` never returns it | none (the DM plan gate) |
+
+## Amended by specs/084-opposition-and-help (TASK-0128)
+
+| 35 | `NOT_PROFICIENT` | `help.grant` with an ability-check assist whose helper has no total for that skill. Raised before any die | `help.grant` |
+
+`check.roll` with `opposition` also raises `STAT_UNDEFINED` (details `combatantId` is the opponent) and
+`INVALID_COMMAND` (two DC sources, the opponent is the checker, or the rule does not cover the check).
+`help.grant` raises `UNKNOWN_COMBATANT`, `TARGET_DEAD`, `ACTOR_UNABLE` (role `helper`), `STAT_UNDEFINED`
+and `INVALID_COMMAND` (self-help).

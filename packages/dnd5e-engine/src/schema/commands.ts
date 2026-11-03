@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { DifficultySchema } from "../derive.js";
+import { DifficultySchema, OppositionRuleSchema } from "../derive.js";
 import {
   AbilitySchema,
   AmountSchema,
@@ -111,6 +111,10 @@ export const EngineCommandSchema = z.discriminatedUnion("type", [
     // Exactly one of dc and difficulty (checked in the handler, plan R8).
     dc: z.number().int().min(1).max(40).optional(),
     difficulty: DifficultySchema.optional(),
+    // Spec 084: the DC derives from an opponent's stats (a third DC source; exactly one of the three).
+    opposition: z
+      .object({ opponentId: Id, rule: OppositionRuleSchema })
+      .optional(),
     autoFail: z.object({ reason: Reason }).nullable().default(null),
     // Spec 070: auto-success (a free retry) and the table's house rules.
     // The engine defaults stay SRD-pure; the DM runtime sends the seed's values.
@@ -255,6 +259,20 @@ export const EngineCommandSchema = z.discriminatedUnion("type", [
     houseRules: z
       .object({ outcomeBands: z.boolean(), naturals: z.boolean() })
       .optional(),
+    reason: Reason,
+  }),
+  z.object({
+    // Spec 084: the Help action. The ally (or the distracted enemy) holds the assist.
+    type: z.literal("help.grant"),
+    helperId: Id,
+    assist: z.discriminatedUnion("kind", [
+      z.object({
+        kind: z.literal("ability-check"),
+        allyId: Id,
+        skill: SkillSchema,
+      }),
+      z.object({ kind: z.literal("attack"), targetId: Id }),
+    ]),
     reason: Reason,
   }),
   z.object({

@@ -271,3 +271,8 @@ New exports: `derive.ts` (`checkModifier`, `findAttack`, `firstMeleeAttack`, `ch
 
 New exports: `SPELLS`, `SpellMechanicsSchema`, `SpellMechanics`, `spellDice`, `spellcastingModifier`.
 `spellSaveDc` and `spellAttackBonus` now use `spellcastingModifier`.
+
+## Amended by specs/084-opposition-and-help (TASK-0128)
+
+`index.ts` also exports `OppositionRuleSchema`, `oppositionCovers`, `oppositionDc`, `checkAssists`,
+`attackAssists`, `helperExpiry`, `AssistSchema` and the types `Assist` and `OppositionRule`.

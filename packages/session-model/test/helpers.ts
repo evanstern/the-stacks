@@ -147,6 +147,15 @@ export function engineExamples(): Record<string, EngineEvent> {
   });
   step({ type: "exhaustion.adjust", targetId: "ana", delta: 1, reason: r });
   step({ type: "exhaustion.adjust", targetId: "ana", delta: 1, reason: r });
+  // Spec 084: a second grant replaces the first, which emits assist.ended.
+  for (let i = 0; i < 2; i++) {
+    step({
+      type: "help.grant",
+      helperId: "ana",
+      assist: { kind: "attack", targetId: "goblin" },
+      reason: r,
+    });
+  }
   step({
     type: "initiative.roll",
     participants: [{ combatantId: "ana" }, { combatantId: "goblin" }],

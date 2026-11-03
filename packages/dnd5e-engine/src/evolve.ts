@@ -73,6 +73,18 @@ export function evolve(state: EngineState, event: EngineEvent): EngineState {
           (i) => i.instanceId !== event.before.instanceId,
         ),
       }));
+    case "assist.granted":
+      return update(state, event.combatantId, (c) => ({
+        ...c,
+        assists: [...(c.assists ?? []), event.after],
+      }));
+    case "assist.ended":
+      return update(state, event.combatantId, (c) => ({
+        ...c,
+        assists: (c.assists ?? []).filter(
+          (a) => a.helperId !== event.before.helperId,
+        ),
+      }));
     case "hit-dice.changed":
       return update(state, event.combatantId, (c) => ({
         ...c,
