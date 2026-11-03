@@ -1,10 +1,10 @@
 ---
 id: TASK-0128
 title: 'Engine: opposition as a derived DC, and Help as advantage'
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-10-27 02:32'
-updated_date: '2026-11-03 10:23'
+updated_date: '2026-11-03 10:36'
 labels:
   - dm
   - engine
@@ -54,6 +54,12 @@ Phase 0: S1 (spell attacks bypass handleAttackRoll) resolved as D5a per SRD 5.2.
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 084 phases 3-4)
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Seam check [orchestrator]: 1/1 · Engine (card AC #1, #2; US1, US2): 15/15 · Step contract, prompts, plan gate and resolve (card AC #1, #3; US1, US3): 11/11 · Narration facts and end-to-end test (card AC #1–#3; US1, US2, US4): 5/5 · Re-ground (wiki): 7/7). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
