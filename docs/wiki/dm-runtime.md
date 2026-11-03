@@ -41,7 +41,7 @@ sources:
   - apps/server/seeds/greyhollow-ford-trio.json
   - biome.json
 size_budget_exempt: both notes sat within 30 chars of the 8000 budget before TASK-0180; the talk path got its own note (dm-talk-triggers) and only a pointer line lands here; the rest is one pipeline each, not splittable without a TASK of its own
-verified_against: 6f0ae5134da76dfa68dca0b6855be847ba05739a
+verified_against: acdbc0bdfda63c1539712c716456eb07bc8f00cc
 ---
 
 # DM runtime
@@ -61,7 +61,7 @@ async function `(TurnContext) => NodeResult`.
    (`AssembleOutput.snapshot`; each actor's logged scene presence sets `presentNpcIds`), selects scene-seed material, and looks up SRD
    records ([[srd-data]]). `AssembleOutput.resumed` holds the plans of actions whose paused turn's proposal is now approved (`resume.ts`, TASK-0168, specs/057); the checkpoint freezes them.
 2. **director** - `dm.director`. Decides scene-level changes (set the scene, trackers, table
-   mode, encounter setup) and whether the beat resolves or **holds** for companions.
+   mode, encounter setup), whether the beat resolves or **holds** for companions, and the optional `arrivals` list (offstage seed NPCs now on screen, `dm.director-v6`). `legalizeDirector` keeps only offstage seed NPCs and drops all arrivals on scene start.
 3. **interpret** - `dm.interpret`. Reads each action into steps (check, attack, effect, roll) and
    flags `needsAdjudication`. Resumed actions are not read again; their stored readings rejoin in beat order.
 4. **adjudicate** - `dm.adjudicate`, only when an interpret reading asks. May call `retrieve`
@@ -129,7 +129,7 @@ commits; a withdraw still takes the hold act.
 A `hold` decision queues a companion job that force-queues the turn. A trio table queues no companion job. `chronicle.ts` runs off the hot path after narration: `dm.chronicle`
 turns new narration into `journal` proposals, idempotent when nothing is new. It reads the state at
 its `throughSeq` (`loadProjectionsThrough`, [[session-model]]) and prints it in the `fiction` view
-(`dm.chronicle-v3`).
+(`dm.chronicle-v4`). The chronicle prompt drops absent actors from the fiction snapshot and allows a departure only when the transcript says so.
 
 ## Routes and boundary
 

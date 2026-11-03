@@ -49,19 +49,19 @@ name.
 
 ## Phase 3: Wiki re-ground
 
-- [ ] T017 Review `docs/wiki/presence.md` (NEEDS-REVIEW): add the Director arrivals path to the
+- [x] T017 Review `docs/wiki/presence.md` (NEEDS-REVIEW): add the Director arrivals path to the
       scene-presence paragraph.
-- [ ] T018 Review `docs/wiki/seed-npc-presence.md` (NEEDS-REVIEW): add the arrivals group, the
+- [x] T018 Review `docs/wiki/seed-npc-presence.md` (NEEDS-REVIEW): add the arrivals group, the
       fresh load before the encounter-start group, and the arriving absent rule.
-- [ ] T019 Review `docs/wiki/dm-runtime.md` (NEEDS-REVIEW): the Director output field, its
+- [x] T019 Review `docs/wiki/dm-runtime.md` (NEEDS-REVIEW): the Director output field, its
       legality row, the prompt versions, and the chronicle state filter.
-- [ ] T020 Re-pin every other note that lists a touched source: `dm-failure-and-gates.md`
+- [x] T020 Re-pin every other note that lists a touched source: `dm-failure-and-gates.md`
       (arriving rule), `output-claim-gate.md`, `dm-turn-jobs.md`, `party-panel.md`,
       `turn-floor.md`, `dm-talk-triggers.md`, `srd-data.md`. Edit text only where the diff
       changes what the note says.
-- [ ] T021 Update `docs/wiki/CAPSULES.md` and `docs/wiki/INDEX.md` for the changed notes. Add one
+- [x] T021 Update `docs/wiki/CAPSULES.md` and `docs/wiki/INDEX.md` for the changed notes. Add one
       INDEX sentence for spec 078.
-- [ ] T022 Run the wiki freshness gate and the spec-bridge gate (dispatch rules "Gates").
+- [x] T022 Run the wiki freshness gate and the spec-bridge gate (dispatch rules "Gates").
 
 ## Dependencies
 
