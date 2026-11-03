@@ -314,7 +314,44 @@ describe("narrate", () => {
       facts,
       prior: null,
     });
-    expect(NARRATE_VERSION).toBe("dm.narrate-v10");
+    expect(NARRATE_VERSION).toBe("dm.narrate-v11");
+    expect(prompt.system).toContain(
+      "A roll's band and consequence are decided. Tell that consequence; invent no other.",
+    );
+    const banded = factEntries({
+      ...facts,
+      actions: [
+        {
+          actionId: "a1",
+          characterName: "Odo",
+          text: "offers the toll",
+          outcome: "applied",
+          refusalCode: null,
+          rolls: [
+            {
+              name: "Odo",
+              reason: "Odo offers the toll",
+              expression: "1d20+3",
+              shown: "7",
+              total: 10,
+              against: { kind: "DC" as const, value: 15 },
+              outcome: "failure" as const,
+              autoFail: false,
+              target: null,
+              band: "severe-failure" as const,
+              margin: -5,
+              consequence: "Snag spurns the toll.",
+            },
+          ],
+          outcomes: ["failure" as const],
+          changes: [],
+          followUps: [],
+        },
+      ],
+    });
+    expect(banded.join("\n")).toContain(
+      "roll: Odo offers the toll -> severe failure; consequence: Snag spurns the toll.",
+    );
     expect(prompt.system).toContain(
       "A not-yet-attempted step has not happened, in this beat or an earlier one. Stop before it; never show it start or done.",
     );
@@ -623,8 +660,9 @@ describe("narrate", () => {
       snapshot,
       prose: "Prose.",
     });
-    expect(AUDIT_VERSION).toBe("dm.audit-v6");
+    expect(AUDIT_VERSION).toBe("dm.audit-v7");
     expect(p.system).toContain("6. The actor on the Turn line acts");
+    expect(p.system).toContain("7. A roll's band and consequence are decided.");
     const turnFacts = {
       ...out.output.facts,
       turn: { actor: "Snag", next: "Kestrel" },

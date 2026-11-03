@@ -30,3 +30,30 @@ adjudicate-v5, narrate-v10, audit-v6; the bumps are v8, v6, v11, v7. The check s
   `world.ts`; none needed an edit.
 - **`nodes/schemas.ts`:** a `Stakes` type export (`Stakes`) was added to `schemas.ts`
   for Phase 3 (`stakes.ts`).
+
+## Phase 3
+
+- **`stakes.ts` imports the engine type `OutcomeBand` only** (type import, no value). `effectsForBand`
+  reads an unknown or missing band as `failure`, so an old row with only `outcome` still applies
+  `onSuccess` or `onFailure` as before.
+- **`world.ts` gained a `seed` option** on `createWorld` so integration tests can override the table
+  rules (T026). Not on plan.md's file list; test helper only.
+- **`assemble.test.ts` literal** gained `band: null, stakes: null` for the widened `Submission` type.
+
+## Phase 4
+
+- **`facts.ts` shape:** `margin`, `consequence` and `autoSuccess` are optional on `FactRoll`, and
+  `band`/`margin`/`consequence` are set only when the outcome row carries a band. An old row stays
+  byte-identical to before. `FactBand` stays the local literal type 0113 reserved. The stakes type
+  is a type import from `nodes/schemas.js`; `consequenceFor` is the one value import (`stakes.ts`
+  imports no engine value).
+- **Auto-success without a roll:** `collectFacts` treats a rollless `check.resolved` with
+  `autoFail: null` and outcome `success` as auto-success. Its line reads
+  `<name> — <reason>: no roll needed: success`. The auto-fail line is unchanged.
+- **`outcomeWord`** is a new export of `facts.ts`, shared by `renderRollLine` and the narrate
+  `rollEntry`.
+- **Fixture rows:** `stakes-capture-20261026T183818Z.json` holds seq 168-175 and 202-206 (202 is the
+  dice row of the seq 203 check; tasks.md names 203-206 only).
+- **Fallback:** `outcomeSentence` gained an optional band argument. The consequence is voiced only
+  when `reasonSpeakable` passes it (digits, system words, dice words, death words, claim check).
+  Other `fallback.ts` hunks untouched.

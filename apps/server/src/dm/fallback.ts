@@ -55,7 +55,13 @@ function joinNames(names: readonly string[]): string {
   return `${names.slice(0, -1).join(", ")} and ${names[names.length - 1]}`;
 }
 
-function outcomeSentence(name: string, outcome: FactOutcome): string {
+function outcomeSentence(
+  name: string,
+  outcome: FactOutcome,
+  band?: FactRoll["band"],
+): string {
+  if (band === "success-at-cost") return `${name} pulls it off, at a cost.`;
+  if (band === "severe-failure") return `${name} fails badly.`;
   switch (outcome) {
     case "success":
       return `${name} pulls it off.`;
@@ -118,7 +124,12 @@ function rollSentences(
       r.name && r.name !== "The scene" ? spellDigits(r.name) : subject;
     const spoken = spellDigits(r.reason).replace(/[.!]+$/, "");
     if (reasonUsable(spoken, who, r.outcome, state)) out.push(`${spoken}.`);
-    out.push(outcomeSentence(who, r.outcome));
+    out.push(outcomeSentence(who, r.outcome, r.band));
+    // Spec 070: the declared consequence is voiced only when it passes the claim check.
+    if (r.consequence) {
+      const said = spellDigits(r.consequence).replace(/[.!]+$/, "");
+      if (reasonSpeakable(said, state)) out.push(`${said}.`);
+    }
   }
   return out;
 }

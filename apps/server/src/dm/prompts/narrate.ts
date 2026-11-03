@@ -2,7 +2,12 @@
  * DM-craft doctrine adapted from tabletop-dm (https://github.com/bradbushSFAI/tabletop-dm, commit fe2c29b), Copyright (c) 2026 Brad Bush, used under the MIT License. See apps/server/src/dm/doctrine/NOTICE.md.
  */
 import { agencyRule, renderDoctrine } from "../doctrine/doctrine.js";
-import type { FactEvent, FactRoll, NarrationFacts } from "../facts.js";
+import {
+  type FactEvent,
+  type FactRoll,
+  type NarrationFacts,
+  outcomeWord,
+} from "../facts.js";
 import type { AssembleOutput } from "../nodes/assemble.js";
 import type { AuditIssue } from "../nodes/audit.js";
 import type { PlayerSeedView } from "../seed/views.js";
@@ -20,7 +25,7 @@ import {
   transcriptEntries,
 } from "./common.js";
 
-export const PROMPT_VERSION = "dm.narrate-v10";
+export const PROMPT_VERSION = "dm.narrate-v11";
 
 const RULES = [
   "You narrate the result of one beat of a tabletop role-playing session. The facts below are TRUE and already decided by the rules engine. Retell them as story.",
@@ -31,6 +36,7 @@ const RULES = [
   "Every other character is part of the world. Give them words, moves and reactions.",
   "No rules effect means nothing was rolled. The attempt still happens; show what the world does with it. Never grant a hit, a wound, a condition, a death or a hidden discovery without a fact.",
   "When a foe's attack misses a party member, its grab fails, or a party member succeeds on a save against it, tell it from the foe's side: the blow goes wide, glances off armour, finds only air. On a miss listed under Reflex, the party member may flinch. The flinch never causes the miss. Never show the party member choosing a defence: no dodge, no duck, no twist that times the blow, no step aside. Never show a wound unless a fact records damage.",
+  "A roll's band and consequence are decided. Tell that consequence; invent no other. A success at a cost succeeds and the consequence lands. A severe failure fails worse than a plain failure. A free retry with no roll succeeds.",
   "When an intent is unclear, describe the moment, then end with the Unclear intent question exactly as written.",
   "Cover every Event line.",
   "Only the actor named on the Turn line acts in this beat. The actor on the Next line has not acted: never show them move, speak or strike.",
@@ -46,7 +52,10 @@ function rollEntry(r: FactRoll): string {
     return `  reaction: ${r.name} strikes at ${r.target ?? "them"} as they pull away -> ${r.outcome ?? "no result"}`;
   }
   const target = r.target ? ` target ${r.target}` : "";
-  return `  roll: ${r.reason}${target} -> ${r.outcome ?? "no result"}`;
+  const word = outcomeWord(r) ?? "no result";
+  const noRoll = r.autoSuccess ? " (no roll needed; a free retry)" : "";
+  const consequence = r.consequence ? `; consequence: ${r.consequence}` : "";
+  return `  roll: ${r.reason}${target} -> ${word}${noRoll}${consequence}`;
 }
 
 function eventEntry(e: FactEvent): string {

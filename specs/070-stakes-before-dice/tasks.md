@@ -89,36 +89,36 @@ ends with `pnpm ci:check` green and one commit led by `TASK-0127:`. DB suites ru
 
 ## Phase 4: Facts, narration, audit, fallback, ledger view (card AC #2, #6; US1, US4)
 
-- [ ] T030 [US1] In `apps/server/src/dm/facts.ts`, add `band`, `margin`, `consequence` and
+- [x] T030 [US1] In `apps/server/src/dm/facts.ts`, add `band`, `margin`, `consequence` and
       `autoSuccess` to `FactRoll`. Fill them in `collectFacts` from the outcome row and a
       `stakesByBatch` map that `buildNarrationFacts` builds from `resolve.submissions`. Render the
       band word and the auto-success line in `renderRollLine` (plan D6). Use the field name TASK-0113
       reserved (plan R10). Import no engine value.
-- [ ] T031 [US4] In `apps/server/src/dm/prompts/narrate.ts`, add the band and consequence to
+- [x] T031 [US4] In `apps/server/src/dm/prompts/narrate.ts`, add the band and consequence to
       `rollEntry` and the decided-consequence rule. Bump `PROMPT_VERSION`.
-- [ ] T032 [US4] In `apps/server/src/dm/prompts/audit.ts`, add the band-delivery criterion as
+- [x] T032 [US4] In `apps/server/src/dm/prompts/audit.ts`, add the band-delivery criterion as
       `ledger-mismatch`. Bump `PROMPT_VERSION`.
-- [ ] T033 [US4] In `apps/server/src/dm/fallback.ts`, make `outcomeSentence` band-aware and append
+- [x] T033 [US4] In `apps/server/src/dm/fallback.ts`, make `outcomeSentence` band-aware and append
       the consequence only when `checkClaims` passes it.
-- [ ] T034 [P] [US1] In `apps/web/app/play/ledger-format.ts`, show the band label and the
+- [x] T034 [P] [US1] In `apps/web/app/play/ledger-format.ts`, show the band label and the
       auto-success label (plan D7). Test it in `apps/web/test/play/ledger-format.test.mjs`, old rows
       included.
-- [ ] T035 [US1] In `apps/server/test/dm/facts.test.ts`, assert band, margin and consequence for each
+- [x] T035 [US1] In `apps/server/test/dm/facts.test.ts`, assert band, margin and consequence for each
       band, `consequence: null` on success, an old row with no `band`, and the auto-success line.
-- [ ] T036 [US4] In `apps/server/test/dm/narrate.test.ts` and `apps/server/test/dm/audit.test.ts`,
+- [x] T036 [US4] In `apps/server/test/dm/narrate.test.ts` and `apps/server/test/dm/audit.test.ts`,
       assert the new versions, the prompt lines, and that the deterministic check refuses a
       `success-at-cost` actor paired with a failure word (spec US4 #3).
-- [ ] T037 [US4] In `apps/server/test/dm/fallback.test.ts`, assert the band sentences and that a
+- [x] T037 [US4] In `apps/server/test/dm/fallback.test.ts`, assert the band sentences and that a
       consequence failing the claim check is dropped.
-- [ ] T038 [US4] Create `apps/server/test/dm/fixtures/stakes-capture-20261026T183818Z.json` from the
+- [x] T038 [US4] Create `apps/server/test/dm/fixtures/stakes-capture-20261026T183818Z.json` from the
       seq 168–175 and 203–206 rows of
       `specs/034-narration-quality/evidence/verify-20261026T183818Z-greyhollow-ford-provider/`.
-- [ ] T039 [US4] Create `apps/server/test/dm/stakes-audit.test.ts` (card AC #6): build facts for
+- [x] T039 [US4] Create `apps/server/test/dm/stakes-audit.test.ts` (card AC #6): build facts for
       seq 171 with the declared severe consequence of spec US4; assert the audit prompt carries
       band and consequence; run the audit node with a fake gateway that returns `fail`
       (`ledger-mismatch`) for the captured seq 175 prose and `pass` for a second draft; assert one
       regenerate and that the second draft ships. Repeat for seq 203 (`failure`, the F6 dodge).
-- [ ] T040 Run `pnpm ci:check`.
+- [x] T040 Run `pnpm ci:check`.
 
 ## Phase 5: Contracts and wiki re-ground
 
