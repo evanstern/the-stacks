@@ -39,12 +39,6 @@ Spec: specs/073-clarify-keeps-turn
 - [ ] #5 Spec phase: Wiki upkeep
 <!-- AC:END -->
 
-
-
-
-
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -53,6 +47,8 @@ Operator ruling 2026-11-02 on the open question: "I actually think that the rule
 Claimed 2026-11-02 by M3 runbook B (docs/design/m3-runbook-b-resolution-quality.md). Worktree .worktrees/task-0209, branch task-0209-clarify-keeps-turn, cut from origin/main b756b68f. Spec number 073 claimed with a stub. Spine #2.
 
 Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5 (spec 073 authoring, C1)
+
+spec-bridge sync: A clarify holds the turn (card AC #1, merge condition; US1): 0/7 · The player sees the question (card AC #2; US2): 0/9 · Wiki upkeep: 0/5
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
