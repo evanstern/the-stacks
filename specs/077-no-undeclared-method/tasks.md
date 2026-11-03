@@ -60,19 +60,19 @@ and report.
 **Independent test**: `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/1.0.1/gates/cli.mjs
 freshness . docs/wiki` prints `OK`.
 
-- [ ] T013 Run `/grounding-wiki:wiki-update`. Treat `dm-failure-and-gates`, `dm-runtime` and
+- [x] T013 Run `/grounding-wiki:wiki-update`. Treat `dm-failure-and-gates`, `dm-runtime` and
       `dm-narration-quality` as NEEDS-REVIEW.
-- [ ] T014 In `docs/wiki/dm-failure-and-gates.md`, describe `askUndeclared`: its two rules, the
+- [x] T014 In `docs/wiki/dm-failure-and-gates.md`, describe `askUndeclared`: its two rules, the
       skip list, and its place between the cut and `clarifyHolds`. Name spec 077.
-- [ ] T015 In `docs/wiki/dm-runtime.md`, add the ask to the post-planning step and the `asked` log
+- [x] T015 In `docs/wiki/dm-runtime.md`, add the ask to the post-planning step and the `asked` log
       field.
-- [ ] T016 In `docs/wiki/dm-narration-quality.md`, state that the fallback voices the ask
+- [x] T016 In `docs/wiki/dm-narration-quality.md`, state that the fallback voices the ask
       questions as clarify questions (spec 073). Change nothing else.
-- [ ] T017 Verify `output-claim-gate`, `seed-npc-presence`, `dm-talk-triggers` and `dm-turn-jobs`
+- [x] T017 Verify `output-claim-gate`, `seed-npc-presence`, `dm-talk-triggers` and `dm-turn-jobs`
       against the diff. Re-pin each one only when its text still holds.
-- [ ] T018 Update `docs/wiki/CAPSULES.md` and `docs/wiki/INDEX.md` (the state paragraph: one
+- [x] T018 Update `docs/wiki/CAPSULES.md` and `docs/wiki/INDEX.md` (the state paragraph: one
       sentence on TASK-0205).
-- [ ] T019 Run the freshness gate and the spec-bridge gate
+- [x] T019 Run the freshness gate and the spec-bridge gate
       (`node ~/.claude/plugins/cache/praxisflux/spec-bridge/1.0.1/gates/cli.mjs check .`). Commit as
       `TASK-0205 phase 3: re-ground the wiki`.
 
