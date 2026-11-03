@@ -36,8 +36,10 @@ Spec: specs/073-clarify-keeps-turn
 - [ ] #2 The narration or fallback shows the clarify question itself, with a test
 - [x] #3 Spec phase: A clarify holds the turn (card AC #1, merge condition; US1)
 - [x] #4 Spec phase: The player sees the question (card AC #2; US2)
-- [ ] #5 Spec phase: Wiki upkeep
+- [x] #5 Spec phase: Wiki upkeep
 <!-- AC:END -->
+
+
 
 
 
