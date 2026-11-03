@@ -36,22 +36,14 @@ Spec: specs/084-opposition-and-help
 - [ ] #8 Spec phase: Re-ground (wiki)
 <!-- AC:END -->
 
-
-
-
-
-
-
-
-
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
 Claimed 2026-11-03 by M3 runbook B (docs/design/m3-runbook-b-resolution-quality.md). Worktree .worktrees/task-0128, branch task-0128-opposition-and-help, cut from origin/main 4cea63d8. Spec number 084 claimed with a stub. Spine #15; beside 0105 if disjoint.
 
 Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5 (spec 084 authoring, C1)
+
+spec-bridge sync: Seam check [orchestrator]: 0/1 · Engine (card AC #1, #2; US1, US2): 0/15 · Step contract, prompts, plan gate and resolve (card AC #1, #3; US1, US3): 0/11 · Narration facts and end-to-end test (card AC #1–#3; US1, US2, US4): 0/5 · Re-ground (wiki): 0/7
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
