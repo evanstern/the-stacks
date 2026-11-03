@@ -55,6 +55,9 @@ One `gateway.chat` per segment: `purpose: "playtest.audit"`, `maxTokens` from co
    true. The narration and the companions' talk are on trial. Report only problems you can tie
    to cited row numbers. Answer with JSON only."
 2. **Doctrine**: every `DOCTRINE` pair rendered as `id: Rule / Wrong / Right` (≤ 1,200 tokens).
+2a. **Party** (`playtest.audit-v2`, spec 074): one line per seed character, `<name> (human player)`
+   or `<name> (AI companion)` from `seat`, or `(party unknown)` when the seed is null, then
+   `agencyRule("auditor")`.
 3. **Hidden information**: the seed's location and NPC `hooks.secrets` and the segment's
    DM-only rows (trackers), marked `[dm-only]`, with the rule "no public text may reveal these".
 4. **Rows**: each row of the segment as one line `#<seq> <type> <actor> <visibility>: <summary>`

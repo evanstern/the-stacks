@@ -15,7 +15,8 @@ sources:
   - apps/server/src/dm/claims.ts
   - apps/server/src/dm/audit-words.ts
   - specs/034-narration-quality/contracts/audit-criteria.md
-verified_against: 02f7965a7e86e0a2233c756a7bd9cbc70730bc6c
+size_budget_exempt: TASK-0113 adds the agency checks and reflex facts to the one narration-and-audit pipeline; it does not split without a TASK of its own (sibling notes dm-runtime and playtest-harness carry the same exemption)
+verified_against: 6f0ae5134da76dfa68dca0b6855be847ba05739a
 ---
 
 # DM narration quality
@@ -59,7 +60,7 @@ throws `SnapshotOverflowError` and fails the turn with `state-overflow` ([[dm-ru
 
 `nodes/audit.ts`: `deterministicChecks(facts, narration, state)` is pure and every issue blocks
 (empty prose, digits, dice language with no roll, outcome-word pairing, `MAX_WORDS`, option menu (the clarify question is exempt),
-a clarify turn that does not end in `?`, dice lines versus the renderer). The four actor-anonymous
+a clarify turn that does not end in `?`, dice lines versus the renderer). Two agency checks (specs/074) also block: a party member choosing a defence on a recorded miss, and a party member moved or voiced in the scene-start opening. Both run with a trailing clarify question removed. The four actor-anonymous
 death and unconscious word checks are gone: `checkClaims(state, prose)` (`claims.ts`, spec 051)
 replaces them, and each claim issue blocks as `ledger-mismatch` with the detail prefix
 `Actor state:`. The `ClaimState` is S1 plus the S0-to-S1 diff from resolve ([[actor-snapshot]]).
@@ -92,7 +93,7 @@ flag.
 
 ## Prompt versions
 
-`dm.react-v1` (talk path, purpose `dm.narrate`), `dm.narrate-v8` (specs/073: the clarify question is the one either-or ending allowed, and it is voiced in the fallback), `dm.audit-v4`, `dm.director-v4`, `dm.chronicle-v3`, `dm.companion-v6`. Narrate v5 (spec 051) says a fact or the state sections may name a character dead or unconscious, and a dead, unconscious, stable or absent character does not act or speak. (For companion: v3 on the
+`dm.react-v2` (talk path, purpose `dm.narrate`), `dm.narrate-v9` (specs/074: the agency rule and reflex lines; specs/073 made the clarify question the one either-or ending allowed, voiced in the fallback), `dm.audit-v5` (specs/074: two agency checks), `dm.director-v5`, `dm.chronicle-v3`, `dm.companion-v7`, `dm.interpret-v6`, `dm.adjudicate-v4`. The agency rule (`agencyRule`, `doctrine.ts`) renders into narrate and audit. Facts carry `involuntary` reflexes (`deriveInvoluntary`, specs/074): a stagger on a critical hit, a heavy-hit reaction, a flinch on a failed save, a flinch on a foe's miss; narrate lists each as a `Reflex:` line. Narrate v5 (spec 051) says a fact or the state sections may name a character dead or unconscious, and a dead, unconscious, stable or absent character does not act or speak. (For companion: v3 on the
 snapshot branch added the `seat` state view; v4 added the react trigger and the withdraw and
 revise decisions; companion v5 is both together; companion v6 (TASK-0189) adds the "Post that triggered you" section naming the speaking PC and whom the post addressed; see [[dm-runtime]]). The snapshot bumped narrate, audit,
 director, interpret, adjudicate and chronicle too. Narrate v6 (TASK-0182, specs/064) adds the rule "A not-yet-attempted step has not happened. Stop before it; never show it start."; `FactAction.followUps` render as `not yet attempted: <text>` lines, and `withholdRefusedInputs` drops a refused follow-up. Interpret v5 and director v4 came in the same task. Narrate v7 and audit v4 (TASK-0193, specs/071) add the `Turn:` and `Next:` lines (from `NarrationFacts.turn`, set only in turn mode) and the rule that only the Turn actor acts in the beat; audit definition 6 treats showing the Next actor act as `invented-mechanics`. A monster turn also renders `planned:`, `held:` and a no-rules-effect line from `FactNpcTurn.plan`. The presence effect bumped interpret and adjudicate to `dm.interpret-v4` and `dm.adjudicate-v4`.

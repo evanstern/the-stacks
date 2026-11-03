@@ -41,7 +41,7 @@ sources:
   - apps/server/seeds/greyhollow-ford-trio.json
   - biome.json
 size_budget_exempt: both notes sat within 30 chars of the 8000 budget before TASK-0180; the talk path got its own note (dm-talk-triggers) and only a pointer line lands here; the rest is one pipeline each, not splittable without a TASK of its own
-verified_against: 02f7965a7e86e0a2233c756a7bd9cbc70730bc6c
+verified_against: 6f0ae5134da76dfa68dca0b6855be847ba05739a
 ---
 
 # DM runtime
@@ -113,6 +113,7 @@ the fallback and the player-facing seed view are in [[dm-narration-quality]].
   the seed id is the scene id.
 - **Doctrine** (`doctrine/doctrine.ts`): DM-craft rules adapted from tabletop-dm (commit
   fe2c29b, Copyright (c) 2026 Brad Bush, MIT). `doctrine/NOTICE.md` carries the licence.
+- **Agency** (specs/074, TASK-0113; `AGENCY_RULE` and `agencyRule(node)` in `doctrine.ts`): one shared rule, rendered into the director, interpret, narrate, audit, companion, react and playtest-auditor prompts. A party member's volitional acts belong to its player. The dice may decide a reflex only, and a reflex must be a fact (`FactInvoluntary`). The Director's goal note is pacing advice; the interpret prompt says so. The DOCTRINE pair 'Never decide the hero's words...' now allows a reflex and shows a club strike as the right example.
 - **Scripted DM** (`dm/script/`): per-purpose responses and dice become a strict `FakeProvider` plus
   `scriptedRng`, for tests and evidence runs ([[test-suite]]). `script/env.ts` also loads a shipped
   script (`apps/server/dm-scripts/greyhollow-live.json`) at boot under `DM_FAKE_SCRIPT` on a worktree

@@ -2,7 +2,7 @@
  * DM-craft doctrine adapted from tabletop-dm (https://github.com/bradbushSFAI/tabletop-dm, commit fe2c29b), Copyright (c) 2026 Brad Bush, used under the MIT License. See apps/server/src/dm/doctrine/NOTICE.md.
  */
 import { estimateTokens } from "@the-stacks/srd";
-import { DOCTRINE } from "../../dm/doctrine/doctrine.js";
+import { agencyRule, DOCTRINE } from "../../dm/doctrine/doctrine.js";
 import type { SceneSeed } from "../../dm/seed/schema.js";
 import type { Segment } from "./segments.js";
 
@@ -12,7 +12,7 @@ import type { Segment } from "./segments.js";
  * module renders; it is never sent to the model.
  */
 
-export const AUDITOR_PROMPT_VERSION = "playtest.audit-v1";
+export const AUDITOR_PROMPT_VERSION = "playtest.audit-v2";
 
 export const SYSTEM_TEXT =
   "You audit a tabletop game transcript. The ledger rows and state changes are true. The narration and the companions' talk are on trial. Report only problems you can tie to cited row numbers. Answer with JSON only.";
@@ -75,6 +75,15 @@ export function buildAuditorPrompt(
     (d) => `${d.id}: ${d.rule} / Wrong: ${d.wrong} / Right: ${d.right}`,
   ).join("\n");
 
+  const party = seed
+    ? seed.characters
+        .map(
+          (c) =>
+            `${c.name} (${c.seat === "human" ? "human player" : "AI companion"})`,
+        )
+        .join("\n")
+    : "(party unknown)";
+
   const hidden: string[] = [];
   if (seed) {
     for (const s of seed.location.hooks.secrets) hidden.push(`[dm-only] ${s}`);
@@ -121,6 +130,8 @@ export function buildAuditorPrompt(
   const user = [
     "## Doctrine",
     doctrine,
+    "## Party",
+    `${party}\n${agencyRule("auditor")}`,
     "## Hidden information",
     hiddenBlock,
     "## Rows",

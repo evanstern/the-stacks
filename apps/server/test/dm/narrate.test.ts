@@ -5,6 +5,7 @@ import ts from "typescript";
 import { describe, expect, it } from "vitest";
 import { createGateway } from "../../src/ai/gateway.js";
 import { memorySink } from "../../src/ai/usage.js";
+import { agencyRule } from "../../src/dm/doctrine/doctrine.js";
 import { assemble } from "../../src/dm/nodes/assemble.js";
 import type { DirectorNodeOutput } from "../../src/dm/nodes/director.js";
 import { narrate } from "../../src/dm/nodes/narrate.js";
@@ -307,7 +308,58 @@ describe("narrate", () => {
       facts,
       prior: null,
     });
-    expect(NARRATE_VERSION).toBe("dm.narrate-v8");
+    expect(NARRATE_VERSION).toBe("dm.narrate-v9");
+    expect(prompt.system).toContain(agencyRule("narrate"));
+    expect(prompt.system).toContain(
+      "Never show the party member choosing a defence: no dodge, no duck, no twist that times the blow, no step aside.",
+    );
+    const reflexFacts = {
+      ...facts,
+      involuntary: [
+        {
+          name: "Tamsin Vale",
+          trigger: "avoid" as const,
+          detail: "missed by Snag",
+        },
+        {
+          name: "Brother Odo",
+          trigger: "stagger" as const,
+          detail: "critical hit by Snag",
+        },
+      ],
+    };
+    const reflexNarrate = buildNarratePrompt({
+      seed: playerFacingSeed(ctx.seed),
+      roster: rosterOf(assembled.projections.party),
+      assembled,
+      snapshot,
+      facts: reflexFacts,
+      prior: null,
+    }).user;
+    const reflexAudit = buildAuditPrompt({
+      facts: reflexFacts,
+      snapshot,
+      prose: "P.",
+    }).user;
+    for (const u of [reflexNarrate, reflexAudit]) {
+      expect(u).toContain(
+        "Reflex: Tamsin Vale may flinch as it misses (missed by Snag)",
+      );
+      expect(u).toContain(
+        "Reflex: Brother Odo may stagger (critical hit by Snag)",
+      );
+    }
+    const opening = buildNarratePrompt({
+      seed: playerFacingSeed(ctx.seed),
+      roster: rosterOf(assembled.projections.party),
+      assembled,
+      snapshot,
+      facts: { ...facts, trigger: "scene-start" },
+      prior: null,
+    }).user;
+    expect(opening).toContain(
+      "The opening shows the place and what the party finds. It never moves, leads or voices a party member.",
+    );
     expect(prompt.system).toContain(
       "Name a character as dead or unconscious only when a fact or the state sections say so; when a fact says so, say so.",
     );
@@ -338,10 +390,10 @@ describe("narrate", () => {
       "No rules effect means nothing was rolled.",
     );
     expect(prompt.system).toContain(
-      "When a foe's attack misses, its grab fails, or a party member succeeds on a save against it, describe only what the foe did.",
+      "When a foe's attack misses a party member, its grab fails, or a party member succeeds on a save against it, tell it from the foe's side: the blow goes wide, glances off armour, finds only air.",
     );
     expect(prompt.system).toContain(
-      "Never show a wound on a party member unless a fact records damage to them.",
+      "Never show a wound unless a fact records damage.",
     );
     const sys = prompt.system;
     expect(sys.indexOf("When a foe's attack misses")).toBeGreaterThan(
@@ -357,7 +409,7 @@ describe("narrate", () => {
       "Do not end with an either-or question, except the Unclear intent question.",
     );
     expect(prompt.system).toContain("Cover every Event line.");
-    expect(prompt.system).toContain("companions speak for themselves");
+    expect(prompt.system).toContain("AI companions included");
   });
 
   describe("input check on rulings and goalNote (spec 051, OQ-2)", () => {
@@ -506,7 +558,7 @@ describe("narrate", () => {
       snapshot,
       prose: "Prose.",
     });
-    expect(AUDIT_VERSION).toBe("dm.audit-v4");
+    expect(AUDIT_VERSION).toBe("dm.audit-v5");
     expect(p.system).toContain("6. The actor on the Turn line acts");
     const turnFacts = {
       ...out.output.facts,
@@ -536,7 +588,10 @@ describe("narrate", () => {
     expect(p.user).toContain("## Party (player characters)");
     expect(p.user).toContain("Brother Odo (party, AI companion)");
     expect(p.user).toContain("## Other characters (the world)");
-    expect(p.system).toContain("beyond their declared action");
+    expect(p.system).toContain(agencyRule("audit"));
+    expect(p.system).toContain(
+      "Showing a party member carry out their declared action is allowed.",
+    );
     expect(p.system).toContain("never `player-agency`");
     expect(p.system).toContain("No rules effect means nothing was rolled");
     expect(p.system).toContain("ending on that open question is correct");

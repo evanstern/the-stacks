@@ -1,7 +1,7 @@
 /**
  * DM-craft doctrine adapted from tabletop-dm (https://github.com/bradbushSFAI/tabletop-dm, commit fe2c29b), Copyright (c) 2026 Brad Bush, used under the MIT License. See apps/server/src/dm/doctrine/NOTICE.md.
  */
-import { renderDoctrine } from "../doctrine/doctrine.js";
+import { agencyRule, renderDoctrine } from "../doctrine/doctrine.js";
 import type { FactEvent, FactRoll, NarrationFacts } from "../facts.js";
 import type { AssembleOutput } from "../nodes/assemble.js";
 import type { AuditIssue } from "../nodes/audit.js";
@@ -20,17 +20,17 @@ import {
   transcriptEntries,
 } from "./common.js";
 
-export const PROMPT_VERSION = "dm.narrate-v8";
+export const PROMPT_VERSION = "dm.narrate-v9";
 
 const RULES = [
   "You narrate the result of one beat of a tabletop role-playing session. The facts below are TRUE and already decided by the rules engine. Retell them as story.",
   "Write plain prose only: one short scene of about one hundred words, never more than one hundred fifty. No lists, no headings, no bold.",
   "Write NO digits. Do not state totals, damage numbers, hit points, armor class or difficulty. Code appends the dice lines after your prose.",
   "Never contradict a fact. A hit lands, a miss misses, a failure fails. Do not invent rolls, dice or mechanics.",
-  "The party members are player characters, AI companions included. Never decide what one says, feels or chooses. You may show a party member carrying out the action they declared, in plain words, and nothing more. Never invent a companion's speech or state; companions speak for themselves.",
+  agencyRule("narrate"),
   "Every other character is part of the world. Give them words, moves and reactions.",
   "No rules effect means nothing was rolled. The attempt still happens; show what the world does with it. Never grant a hit, a wound, a condition, a death or a hidden discovery without a fact.",
-  "When a foe's attack misses, its grab fails, or a party member succeeds on a save against it, describe only what the foe did. The party member stays unchanged and unmoved: no wound, no dodge, no twisting free. Never show a wound on a party member unless a fact records damage to them.",
+  "When a foe's attack misses a party member, its grab fails, or a party member succeeds on a save against it, tell it from the foe's side: the blow goes wide, glances off armour, finds only air. On a miss listed under Reflex, the party member may flinch. The flinch never causes the miss. Never show the party member choosing a defence: no dodge, no duck, no twist that times the blow, no step aside. Never show a wound unless a fact records damage.",
   "When an intent is unclear, describe the moment, then end with the Unclear intent question exactly as written.",
   "Cover every Event line.",
   "Only the actor named on the Turn line acts in this beat. The actor on the Next line has not acted: never show them move, speak or strike.",
@@ -62,6 +62,16 @@ function eventEntry(e: FactEvent): string {
       return `Event: ${e.name} is now ${e.presence} (${e.reason})`;
   }
 }
+
+const REFLEX_PHRASE: Record<
+  NonNullable<NarrationFacts["involuntary"]>[number]["trigger"],
+  string
+> = {
+  stagger: "stagger",
+  "heavy-hit": "reel from a heavy hit",
+  flinch: "flinch",
+  avoid: "flinch as it misses",
+};
 
 export function factEntries(facts: NarrationFacts): string[] {
   const out: string[] = [];
@@ -113,6 +123,9 @@ export function factEntries(facts: NarrationFacts): string[] {
     out.push(`Downed turn: ${st.name}`);
     for (const r of st.rolls) out.push(rollEntry(r));
     for (const c of st.changes) out.push(`  change: ${describeChange(c)}`);
+  }
+  for (const i of facts.involuntary ?? []) {
+    out.push(`Reflex: ${i.name} may ${REFLEX_PHRASE[i.trigger]} (${i.detail})`);
   }
   for (const e of facts.events) out.push(eventEntry(e));
   if (facts.modeChange) {
@@ -210,6 +223,7 @@ export function buildNarratePrompt(input: NarratePromptInput): {
     facts.trigger === "scene-start"
       ? [
           `Open the scene. Framing: ${seed.openingFraming}`,
+          "The opening shows the place and what the party finds. It never moves, leads or voices a party member.",
           `Location: ${seed.location.name}. Mood: ${seed.location.mood}`,
         ]
       : [];
