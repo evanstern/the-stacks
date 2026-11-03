@@ -133,9 +133,9 @@ ends with `pnpm ci:check` green and one commit led by `TASK-0127:`. DB suites ru
       claims did not change gets a computed re-pin only.
 - [x] T043 Update `docs/wiki/CAPSULES.md` and the `docs/wiki/INDEX.md` state paragraph with one
       sentence for TASK-0127 (specs/070).
-- [ ] T044 **[orchestrator]** Add the TASK-0127 execution-log row to the runbook B file: dispatches,
+- [x] T044 **[orchestrator]** Add the TASK-0127 execution-log row to the runbook B file: dispatches,
       test counts, prompt versions, no migration, no frozen contract change.
-- [ ] T045 Run the wiki freshness gate (`OK`), the spec-bridge check (exit 0) and `pnpm ci:check`.
+- [x] T045 Run the wiki freshness gate (`OK`), the spec-bridge check (exit 0) and `pnpm ci:check`.
 
 ## Dependencies
 

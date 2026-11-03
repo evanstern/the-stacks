@@ -278,6 +278,7 @@ Then **stop for the operator to play it** (checkpoint C7).
 | 2026-11-02 | (incident) | — | — | — | A brief's `export $(grep ... .env)` ran bare `export` with no .env and printed a secret into an implementer transcript. Nothing committed. Operator: "No need" (no rotation). Briefs now use `VAR="$(sed ...)"`. |
 | 2026-11-02 | (ruling) | — | — | — | Spec 076 OQ-1, operator: "The opening should name the characters, not the players". |
 | 2026-11-02 | TASK-0208 | #117 | 38b8e737 | opus (spec 079), sonnet x3, haiku (stopped) | Engine reactions, `STEP_ACTOR_MISMATCH`. Cards TASK-0218, 0219. Spec 081 (0207) carded TASK-0220. |
+| 2026-11-02 | TASK-0127 | (this PR) | (at merge) | sonnet x3 (spec 070 by opus in runbook A) | Built the merged spec 070. Seam check: no seam changed meaning; deviations in `specs/070-stakes-before-dice/deviations.md`. Nat 20/nat 1 on by default. interpret-v8, adjudicate-v6, narrate-v11, audit-v7. |
 
 ## Later runbooks (order on record; each gets its own runbook and sign-off)
 
