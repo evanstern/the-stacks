@@ -1,10 +1,10 @@
 ---
 id: TASK-0205
 title: DM assumes a stealth approach the player never declared and rolls for it
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-11-02 22:21'
-updated_date: '2026-11-03 03:00'
+updated_date: '2026-11-03 03:04'
 labels:
   - dm
   - playtest
@@ -56,6 +56,12 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (
 
 Dispatch: tier=haiku pinned=cc/claude-haiku-5-5 served=claude-haiku-5-5 (spec 077 phase 3, wiki)
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (The rule (card AC #1, #2; US1, US2): 5/5 · Wiring and the run 1 replay (merge condition; US1, US2): 7/7 · Wiki (re-ground): 7/7). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
