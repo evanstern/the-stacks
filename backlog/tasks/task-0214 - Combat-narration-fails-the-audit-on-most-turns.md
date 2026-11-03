@@ -4,7 +4,7 @@ title: Combat narration fails the audit on most turns
 status: In Progress
 assignee: []
 created_date: '2026-11-02 23:22'
-updated_date: '2026-11-03 09:43'
+updated_date: '2026-11-03 09:44'
 labels:
   - dm
   - narration
@@ -39,6 +39,8 @@ Spec: specs/085-combat-audit-pass-rate
 
 <!-- SECTION:NOTES:BEGIN -->
 Claimed 2026-11-03 by M3 runbook B (docs/design/m3-runbook-b-resolution-quality.md). Worktree .worktrees/task-0214, branch task-0214-combat-audit-pass-rate, cut from origin/main d59c369a. Spec number 085 claimed with a stub. Spine #19 (last).
+
+Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5 (spec 085 authoring, C1; triage of run 1 refusals against merged upstream fixes)
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
