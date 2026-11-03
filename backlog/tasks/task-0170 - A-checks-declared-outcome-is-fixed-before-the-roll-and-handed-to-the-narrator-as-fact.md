@@ -39,7 +39,10 @@ Spec: specs/080-declared-outcome
 - [ ] #4 The auditor fails narration that does not deliver the applied outcome, with a test over a captured run that replays the claw-marks case
 - [ ] #5 A success on an information-seeking check names seed information in its declared outcome, with a test
 - [ ] #6 Spec phase: Step contract, discoverable clues, seeds, fixtures (card AC #1, #5; US1, US2)
+- [ ] #7 Spec phase: Resolve and facts carry the applied outcome (card AC #2, #5; US1, US2)
 <!-- AC:END -->
+
+
 
 
 
