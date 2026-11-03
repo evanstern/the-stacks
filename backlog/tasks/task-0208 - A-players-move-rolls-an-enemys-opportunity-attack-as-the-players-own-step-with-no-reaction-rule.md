@@ -3,9 +3,10 @@ id: TASK-0208
 title: >-
   A player's move rolls an enemy's opportunity attack as the player's own step,
   with no reaction rule
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-11-02 23:11'
+updated_date: '2026-11-03 01:20'
 labels:
   - dm
   - rules
@@ -35,6 +36,12 @@ Related: TASK-0104 (engine-derived numbers), TASK-0205 (DM invents the player's 
 - [ ] #3 The fallback names the attacker as the subject of an attack's outcome ('The pot-helm goblin strikes home'), with a test replaying seq 154-161
 - [ ] #4 Narration never shows a followUp ('not yet attempted') as done, in a later beat either
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Claimed 2026-11-02 by M3 runbook B (docs/design/m3-runbook-b-resolution-quality.md). Worktree .worktrees/task-0208, branch task-0208-engine-opportunity-attack, cut from origin/main fbf4d1df. Spec number 079 claimed with a stub. Spine #7.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
