@@ -44,22 +44,14 @@ Spec: specs/079-engine-opportunity-attack
 - [ ] #9 Spec phase: Wiki upkeep
 <!-- AC:END -->
 
-
-
-
-
-
-
-
-
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
 Claimed 2026-11-02 by M3 runbook B (docs/design/m3-runbook-b-resolution-quality.md). Worktree .worktrees/task-0208, branch task-0208-engine-opportunity-attack, cut from origin/main fbf4d1df. Spec number 079 claimed with a stub. Spine #7.
 
 Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5 (spec 079 authoring, C1)
+
+spec-bridge sync: The engine owns reactions (card AC #1, engine part; US1 scenarios 3 and 4): 0/8 · A move away draws the engine's reaction (card AC #1 and #2, merge condition; US1, US2): 0/12 · The reader sees whose attack it was (card AC #2 and #3; US2 scenario 4, US3): 0/11 · A followUp stays undone in later beats (card AC #4; US4): 0/8 · Wiki upkeep: 0/5
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
