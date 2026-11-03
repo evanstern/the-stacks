@@ -3,10 +3,10 @@ id: TASK-0170
 title: >-
   A check's declared outcome is fixed before the roll and handed to the narrator
   as fact
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-10-28 19:20'
-updated_date: '2026-11-03 05:11'
+updated_date: '2026-11-03 05:16'
 labels:
   - dm
   - rules
@@ -62,6 +62,12 @@ Seam check (phases 1-2): seams moved, none changed meaning; see specs/080-declar
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 080 phase 4, contracts and wiki)
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Step contract, discoverable clues, seeds, fixtures (card AC #1, #5; US1, US2): 10/10 · Resolve and facts carry the applied outcome (card AC #2, #5; US1, US2): 7/7 · Narration, audit, fallback and the claw-marks replay (card AC #3, #4; US1, US3): 9/9 · Contracts and wiki re-ground: 5/5). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
