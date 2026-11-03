@@ -1,9 +1,10 @@
 ---
 id: TASK-0105
 title: 'Rules gate: spells resolve by SRD id through the engine'
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-10-26 15:42'
+updated_date: '2026-11-03 06:10'
 labels:
   - engine
   - dm
@@ -33,6 +34,12 @@ Depends on TASK-0104 (the engine derives the caster's spell attack bonus and sav
 - [ ] #4 The interpret and adjudicate prompts render the spell-step shape and state that spell numbers come from the engine
 - [ ] #5 Scripted-dice engine tests cover at least one attack spell, one save spell and one condition spell from the SRD; existing dm tests and the scripted CI playtest stay green
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Claimed 2026-11-03 by M3 runbook B (docs/design/m3-runbook-b-resolution-quality.md). Worktree .worktrees/task-0105, branch task-0105-spells-by-srd-id, cut from origin/main 05ef251e. Spec number 083 claimed with a stub. Spine #14; spec authored while 0104 builds.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
