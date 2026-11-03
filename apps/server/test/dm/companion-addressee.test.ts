@@ -30,7 +30,7 @@ const prompt = () =>
   });
 
 describe("companion prompt names the speaker (TASK-0189)", () => {
-  it("is v6", () => expect(PROMPT_VERSION).toBe("dm.companion-v6"));
+  it("is v7", () => expect(PROMPT_VERSION).toBe("dm.companion-v7"));
 
   it("names Tamsin as the speaker and Odo as addressed, not Wenna", () => {
     const { user } = prompt();

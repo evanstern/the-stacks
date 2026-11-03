@@ -72,9 +72,9 @@ export const DOCTRINE: readonly DoctrinePair[] = [
   {
     id: "hero-is-theirs",
     topic: "Agency",
-    rule: "Never decide the hero's words, feelings or moves.",
+    rule: "Never decide the hero's words, choices or chosen feelings; the dice may decide a reflex.",
     wrong: '"You nod and step back, afraid."',
-    right: '"The smell reaches you before the sight does."',
+    right: '"The club catches you square; you stagger back a step."',
     nodes: ["narrate", "audit", "companion"],
   },
   {
@@ -234,4 +234,37 @@ export function renderDoctrine(node: DoctrineNode): string {
   return doctrineFor(node)
     .map((p) => `Rule: ${p.rule}\nWrong: ${p.wrong}\nRight: ${p.right}`)
     .join("\n\n");
+}
+
+/** The one agency rule every node renders (specs/074-player-agency). Never capped. */
+export const AGENCY_RULE: readonly string[] = [
+  "Party members are player characters, AI companions included. Each one's player decides its volitional acts: intent, speech, purposeful movement, choices, chosen emotions, and the method or skill it uses.",
+  "Never state, plan or narrate a volitional act, method, skill or reaction for a party member that its player did not declare.",
+  "The dice may decide a reflex: an effect listed under Reflex in the facts (a stagger on a critical hit, a heavy-hit reaction, a flinch on a failed save). A small displacement inside a reflex is colour; a position change that matters needs a fact.",
+  "A condition limits what a character can do; it never decides what the character chooses. Only a recorded fact naming a control effect compels a party member.",
+];
+
+export type AgencyNode =
+  | "director"
+  | "interpret"
+  | "narrate"
+  | "audit"
+  | "auditor";
+
+const NODE_LINE: Record<AgencyNode, string> = {
+  director:
+    "Your goal note is pacing advice. It never names a party member's act, method, skill or reaction that its player did not declare; leave those to the player and the engine.",
+  interpret:
+    "Plan for a party member only what its player declared. Add no method, skill, move, reaction or speech they did not state; when the method matters and is not stated, ask (clarify). A monster's reaction is never a step of a party member's action.",
+  narrate:
+    "Show a party member carrying out the action they declared, in plain words, and any listed reflex. Nothing more.",
+  audit:
+    "A volitional act, speech or chosen feeling of a party member beyond its declared action is `player-agency`. A listed reflex shown as a reflex is not.",
+  auditor:
+    "`hero-is-theirs` covers every party member, AI companions included. A companion's own talk rows and declared actions are its own choices, never `player-agency`.",
+};
+
+/** The shared rule lines plus one node line, newline-joined. */
+export function agencyRule(node: AgencyNode): string {
+  return [...AGENCY_RULE, NODE_LINE[node]].join("\n");
 }

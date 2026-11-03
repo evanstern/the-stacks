@@ -130,7 +130,7 @@ describe.skipIf(!reachable)("talk turn (database)", () => {
       expect.objectContaining({ kind: "addressed", actorId: "wenna" }),
     );
     expect(result.calls.map((c) => [c.purpose, c.promptVersion])).toEqual([
-      [PURPOSE_OF.narrate, "dm.react-v1"],
+      [PURPOSE_OF.narrate, "dm.react-v2"],
     ]);
   });
 

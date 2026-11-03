@@ -2,7 +2,13 @@ import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-import { DOCTRINE, DOCTRINE_NOTICE } from "../../src/dm/doctrine/doctrine.js";
+import {
+  AGENCY_RULE,
+  type AgencyNode,
+  agencyRule,
+  DOCTRINE,
+  DOCTRINE_NOTICE,
+} from "../../src/dm/doctrine/doctrine.js";
 
 const SRC = join(
   dirname(fileURLToPath(import.meta.url)),
@@ -75,5 +81,35 @@ describe("doctrine attribution (AC #14)", () => {
       expect(p.nodes.length).toBeGreaterThan(0);
       expect(p.rule.length).toBeGreaterThan(0);
     }
+  });
+});
+
+describe("agency rule (spec 074)", () => {
+  const nodes: AgencyNode[] = [
+    "director",
+    "interpret",
+    "narrate",
+    "audit",
+    "auditor",
+  ];
+  it("agencyRule(node) holds every shared line and its own node line", () => {
+    const seen = new Set<string>();
+    for (const node of nodes) {
+      const text = agencyRule(node);
+      for (const line of AGENCY_RULE) expect(text).toContain(line);
+      const nodeLine = text.split("\n").slice(AGENCY_RULE.length);
+      expect(nodeLine).toHaveLength(1);
+      seen.add(nodeLine[0] ?? "");
+    }
+    expect(seen.size).toBe(nodes.length);
+  });
+  it("hero-is-theirs blocks decisions, not reflexes", () => {
+    const p = DOCTRINE.find((d) => d.id === "hero-is-theirs");
+    expect(p?.rule).toBe(
+      "Never decide the hero's words, choices or chosen feelings; the dice may decide a reflex.",
+    );
+    expect(p?.right).toBe(
+      '"The club catches you square; you stagger back a step."',
+    );
   });
 });

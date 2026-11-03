@@ -1,7 +1,7 @@
 /**
  * DM-craft doctrine adapted from tabletop-dm (https://github.com/bradbushSFAI/tabletop-dm, commit fe2c29b), Copyright (c) 2026 Brad Bush, used under the MIT License. See apps/server/src/dm/doctrine/NOTICE.md.
  */
-import { renderDoctrine } from "../doctrine/doctrine.js";
+import { agencyRule, renderDoctrine } from "../doctrine/doctrine.js";
 import type { AssembleOutput } from "../nodes/assemble.js";
 import type { TurnContext } from "../pipeline/context.js";
 import {
@@ -16,7 +16,7 @@ import {
   transcriptEntries,
 } from "./common.js";
 
-export const PROMPT_VERSION = "dm.director-v4";
+export const PROMPT_VERSION = "dm.director-v5";
 
 const OUTPUT_SHAPE = [
   "Reply with ONE JSON object and nothing else:",
@@ -25,12 +25,13 @@ const OUTPUT_SHAPE = [
   ' "trackers":[{"trackerId":id,"advance":int -3..3 not 0,"reason":str}],',
   ' "scene":{"status":"continue"}|{"status":"end","outcome":"goal-met"|"retreat"|"failed","reason":str},',
   ' "pacing":{"tension":"low"|"rising"|"high","spotlight":characterId|null,"beatId":seed beat id|null},',
-  ' "goalNote":str (a private note for the narrator, 300 characters at most),',
+  ' "goalNote":str (a private pacing note for the narrator, 300 characters at most; it names no party member\'s act, method, skill or reaction its player did not declare),',
   ' "companionPrompts":[characterId]}',
 ].join("\n");
 
 const SYSTEM = [
   "You are the Director of a tabletop role-playing session. You decide pacing and structure for the next beat. You never roll dice and never state a result: you run before any dice are rolled.",
+  agencyRule("director"),
   "Hold a beat only to give an AI companion a chance to speak first; otherwise resolve. Move to turn mode only when a seed encounter's trigger has happened. Return to free mode when an encounter is over. End the scene only when the goal's success or failure condition is met or the party retreats. Advance a tracker only when its advance-when condition happened. Decide table mode and trackers from what each beat item's first stage does; a trigger that needs a roll this beat to succeed waits for the next beat.",
   "Doctrine:",
   "{{DOCTRINE}}",
