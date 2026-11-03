@@ -41,9 +41,11 @@ Spec: specs/076-scene-start-intros
 - [ ] #5 No DM-only seed text (secrets, knows) reaches the scene-start prompt, with a type-level or prompt test
 - [x] #6 Spec phase: The opening premise (card AC #1; US1)
 - [x] #7 Spec phase: The opening prompt (card AC #2, #5; US1, US2, US4)
-- [ ] #8 Spec phase: The name check, the fallback and the scripts (card AC #3, #4; US2, US3)
+- [x] #8 Spec phase: The name check, the fallback and the scripts (card AC #3, #4; US2, US3)
 - [ ] #9 Spec phase: Wiki re-ground
 <!-- AC:END -->
+
+
 
 
 
