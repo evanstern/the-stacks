@@ -77,7 +77,7 @@ freshness . docs/wiki` prints `OK`.
 - [x] T016 Re-pin `dm-talk-triggers.md`, `dm-failure-and-gates.md`, `srd-data.md` and
       `seed-npc-presence.md` after checking their claims against the diff.
 - [x] T017 Update `docs/wiki/CAPSULES.md` and `docs/wiki/INDEX.md` for any changed note summary.
-- [ ] T018 Run the freshness gate, the spec-bridge check and `pnpm ci:check`. Commit as
+- [x] T018 Run the freshness gate, the spec-bridge check and `pnpm ci:check`. Commit as
       `TASK-0207 phase 3: wiki re-ground`.
 
 ## Dependencies
