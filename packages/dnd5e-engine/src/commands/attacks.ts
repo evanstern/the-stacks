@@ -22,7 +22,7 @@ function d20Required(expression: string): RefusalResult {
 }
 
 /** First failing UNKNOWN_COMBATANT / TARGET_DEAD check over the named ids, unknowns first. */
-function checkNamed(
+export function checkNamed(
   state: EngineState,
   ids: readonly (string | null)[],
 ): RefusalResult | null {
@@ -68,7 +68,7 @@ function isUnable(c: Combatant): boolean {
   );
 }
 
-function actorUnable(
+export function actorUnable(
   state: EngineState,
   id: string | null,
   role: "attacker" | "checker",

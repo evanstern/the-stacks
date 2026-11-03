@@ -22,28 +22,28 @@ Phases run in order: Phase 2 needs Phase 1's engine command and exports.
 
 ## Phase 1: Engine spell resolution (card AC #2, #3, #5; US1, US2, US3, US4)
 
-- [ ] T002 [US1] Create `packages/dnd5e-engine/src/spells.ts` with `SpellMechanicsSchema`, the six
+- [x] T002 [US1] Create `packages/dnd5e-engine/src/spells.ts` with `SpellMechanicsSchema`, the six
       `SPELLS` entries of plan R5 (each citing its SRD id and page in a comment) and `spellDice`
       (plan D1, R9).
-- [ ] T003 [US1] In `packages/dnd5e-engine/src/schema/commands.ts`, add `spell.cast` (plan D2). In
+- [x] T003 [US1] In `packages/dnd5e-engine/src/schema/commands.ts`, add `spell.cast` (plan D2). In
       `schema/events.ts`, add optional `spellId` on `attack.resolved` and `check.resolved`, and
       optional `half` on `hp.changed`. In `schema/refusals.ts`, add `SPELL_UNRESOLVED`,
       `SPELL_UNKNOWN` and `SPELL_NOT_PREPARED`.
-- [ ] T004 In `packages/dnd5e-engine/src/commands/hit-points.ts`, extract `damageEvents` and
+- [x] T004 In `packages/dnd5e-engine/src/commands/hit-points.ts`, extract `damageEvents` and
       `healingEvents` from the two handlers with no behaviour change, and add the `half` option
       (plan R8). In `conditions.ts` export `appliedEvent`; in `attacks.ts` export `checkNamed` and
       `actorUnable`.
-- [ ] T005 In `packages/dnd5e-engine/src/derive.ts`, add `spellcastingModifier(stats)` and use it in
+- [x] T005 In `packages/dnd5e-engine/src/derive.ts`, add `spellcastingModifier(stats)` and use it in
       `spellSaveDc` and `spellAttackBonus`.
-- [ ] T006 [US4] In `packages/dnd5e-engine/src/commands/spell-slots.ts`, export `slotExpendEvent`
+- [x] T006 [US4] In `packages/dnd5e-engine/src/commands/spell-slots.ts`, export `slotExpendEvent`
       built from the existing `slotOf` and `preflight` (plan R6). `handleSpellSlotExpend` uses it.
-- [ ] T007 [US1] Create `packages/dnd5e-engine/src/commands/spells.ts` with `handleSpellCast` in
+- [x] T007 [US1] Create `packages/dnd5e-engine/src/commands/spells.ts` with `handleSpellCast` in
       plan D3's order: every refusal before any draw; slot, then attack, save or auto; condition
       expiry per plan R7 with a `ponytail:` comment on the no-encounter skip (OQ-4). Register it in
       `execute.ts`.
-- [ ] T008 Export `SPELLS`, `SpellMechanicsSchema`, `spellDice` and `spellcastingModifier` from
+- [x] T008 Export `SPELLS`, `SpellMechanicsSchema`, `spellDice` and `spellcastingModifier` from
       `packages/dnd5e-engine/src/index.ts`.
-- [ ] T009 [US1] Create `packages/dnd5e-engine/test/commands/spells.test.ts` with scripted dice
+- [x] T009 [US1] Create `packages/dnd5e-engine/test/commands/spells.test.ts` with scripted dice
       (`scriptedRng`), a Wis +3 PB +2 caster (DC 13, attack +5) and an Int +3 PB +2 caster:
       `fire-bolt` hit (`1d20+5` vs AC, `1d10` fire), miss (no damage), critical (doubled die);
       `fire-bolt` at caster level 5 rolls `2d10`; `sacred-flame` failed save (`1d8` radiant) and
@@ -53,29 +53,29 @@ Phases run in order: Phase 2 needs Phase 1's engine command and exports.
       encounter applies damage and no condition; `cure-wounds` heals `2d8+3`, `4d8+3` at slot 2, and
       wakes a 0 HP target; `healing-word` heals `2d4+3`; a poisoned caster's spell attack rolls with
       disadvantage; a restrained target's Dex save rolls with disadvantage.
-- [ ] T010 [US3] In the same file, refusal cases, each with `expectRefusedBeforeDraw`:
+- [x] T010 [US3] In the same file, refusal cases, each with `expectRefusedBeforeDraw`:
       `SPELL_UNRESOLVED` for `bless` (no entry) and for a cantrip with a slot level;
       `INVALID_COMMAND` for `cure-wounds` at slot level 0 (schema); `STAT_UNDEFINED` for a caster with
       no spellcasting ability and for a save target with no stats; `ACTOR_UNABLE` for an unconscious
       caster; `TARGET_DEAD`; `UNKNOWN_COMBATANT`.
-- [ ] T011 [US4] In the same file, slot cases: a leveled cast's first event is
+- [x] T011 [US4] In the same file, slot cases: a leveled cast's first event is
       `spell-slots.changed` 0 → 1; a cast with every slot spent is refused `NO_SLOT_AVAILABLE`
       before any draw; a caster with no slot of the level is refused `SLOT_LEVEL_UNAVAILABLE`; a
       cantrip spends none; a pact caster spends the pact slot.
-- [ ] T012 In `packages/dnd5e-engine/test/commands/hit-points.test.ts`, add `half` cases (odd roll
+- [x] T012 In `packages/dnd5e-engine/test/commands/hit-points.test.ts`, add `half` cases (odd roll
       rounds down; half then resistance). Keep every existing case unchanged and green.
-- [ ] T013 In `packages/dnd5e-engine/test/coverage.test.ts`, add `SPELL_UNKNOWN` and
+- [x] T013 In `packages/dnd5e-engine/test/coverage.test.ts`, add `SPELL_UNKNOWN` and
       `SPELL_NOT_PREPARED` to `PLAN_GATE_ONLY`.
-- [ ] T014 Create `apps/server/test/dm/spell-mechanics.test.ts`: for each `SPELLS` entry, the SRD
+- [x] T014 Create `apps/server/test/dm/spell-mechanics.test.ts`: for each `SPELLS` entry, the SRD
       spell record exists, its level matches, and the record's `text` or `higherLevels` contains each
       dice string, the attack phrase ("ranged spell attack" or "melee spell attack"), the save
       ability ("Dexterity saving throw" and so on), "half as much damage" when `onSuccess` is
       `half`, the condition name, "spellcasting ability modifier" when `addModifier`, the scaling
       die, and "end of your next turn" for `caster-next-turn-end`. Assert no entry is concentration.
-- [ ] T015 Update `packages/dnd5e-engine/README.md` with one paragraph on `spell.cast` and the table.
-- [ ] T016 Amend `specs/026-dnd5e-engine/contracts/commands.md`, `events.md`, `refusals.md` and
+- [x] T015 Update `packages/dnd5e-engine/README.md` with one paragraph on `spell.cast` and the table.
+- [x] T016 Amend `specs/026-dnd5e-engine/contracts/commands.md`, `events.md`, `refusals.md` and
       `engine-api.md`, each section marked "Amended by specs/083-spells-by-srd-id".
-- [ ] T017 Run `pnpm ci:check`. `replay.test.ts` and the existing `hit-points.test.ts` cases must pass
+- [x] T017 Run `pnpm ci:check`. `replay.test.ts` and the existing `hit-points.test.ts` cases must pass
       unchanged.
 
 ## Phase 2: Spell step, plan gate, resolve, prompts, snapshot and seeds (card AC #1–#5; US1–US5)

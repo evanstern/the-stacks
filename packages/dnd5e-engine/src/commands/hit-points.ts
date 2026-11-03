@@ -119,7 +119,10 @@ function targetDead(id: string): RefusalResult {
 }
 
 /** Parse a rolled amount's expression; with `critical`, check the doubled limits. */
-function preflight(expression: string, critical: boolean): DiceFailure | null {
+export function preflight(
+  expression: string,
+  critical: boolean,
+): DiceFailure | null {
   const parsed = parseDiceExpression(expression);
   if (!parsed.ok) return parsed;
   return critical ? checkLimits(criticalTerms(parsed.terms)) : null;
@@ -180,26 +183,29 @@ function adjust(
   return { applied, adjustment };
 }
 
-export const handleDamageApply: Handler<"damage.apply"> = (
-  state,
-  command,
-  rng,
-) => {
-  const target = state.combatants[command.targetId];
-  if (!target) return unknownCombatant(command.targetId);
-  if (target.lifeState === "dead") return targetDead(target.id);
-  for (const comp of command.components) {
-    if (comp.amount.kind !== "roll") continue;
-    const failure = preflight(comp.amount.expression, command.critical);
-    if (failure) return refuse(failure.code, failure.message);
-  }
-
-  const reason = command.reason;
-  const events: EngineEvent[] = [];
-  const defenses = command.defenses ?? target.defenses;
-  const defensesSource = command.defenses ? "command" : "record";
+/**
+ * Roll and apply damage components to `target`, pushing the dice and `hp.changed` events
+ * (and any life-state fallout) onto `events`. `half` halves each rolled component, rounded
+ * down, before defenses (playing-the-game.damage-and-healing.saving-throws-and-damage.half-damage).
+ * Returns a refusal when a roll fails; callers preflight the dice first.
+ */
+export function damageEvents(
+  target: Combatant,
+  comps: readonly { amount: Amount; damageType: DamageType }[],
+  opts: {
+    critical: boolean;
+    half?: boolean;
+    reason: string;
+    defenses?: DefenseSet | null;
+  },
+  events: EngineEvent[],
+  rng: Rng,
+): RefusalResult | null {
+  const { reason, critical } = opts;
+  const defenses = opts.defenses ?? target.defenses;
+  const defensesSource = opts.defenses ? "command" : "record";
   const components: Component[] = [];
-  for (const comp of command.components) {
+  for (const comp of comps) {
     let raw: number;
     let rollIndex: number | null = null;
     if (comp.amount.kind === "fixed") {
@@ -209,7 +215,7 @@ export const handleDamageApply: Handler<"damage.apply"> = (
         comp.amount.expression,
         {
           mode: "normal",
-          critical: command.critical,
+          critical,
           purpose: "damage",
           combatantId: target.id,
           reason,
@@ -221,6 +227,7 @@ export const handleDamageApply: Handler<"damage.apply"> = (
       events.push(rolled.event);
       raw = Math.max(0, rolled.total);
     }
+    if (opts.half) raw = Math.floor(raw / 2);
     const { applied, adjustment } = adjust(raw, comp.damageType, defenses);
     components.push({
       damageType: comp.damageType,
@@ -249,7 +256,8 @@ export const handleDamageApply: Handler<"damage.apply"> = (
     rawAmount: rawTotal,
     components,
     defensesSource,
-    critical: command.critical,
+    critical,
+    ...(opts.half ? { half: true as const } : {}),
     rollIndex: null,
     before: { current: target.hp.current, temp: target.hp.temp },
     after: { current: afterCurrent, temp: afterTemp },
@@ -268,7 +276,7 @@ export const handleDamageApply: Handler<"damage.apply"> = (
       }
       const failures = Math.min(
         3,
-        target.deathSaves.failures + (command.critical ? 2 : 1),
+        target.deathSaves.failures + (critical ? 2 : 1),
       );
       events.push({
         type: "death-saves.changed",
@@ -284,10 +292,10 @@ export const handleDamageApply: Handler<"damage.apply"> = (
       }
     }
   }
-  return { ok: true, events };
-};
+  return null;
+}
 
-export const handleHealingApply: Handler<"healing.apply"> = (
+export const handleDamageApply: Handler<"damage.apply"> = (
   state,
   command,
   rng,
@@ -295,14 +303,36 @@ export const handleHealingApply: Handler<"healing.apply"> = (
   const target = state.combatants[command.targetId];
   if (!target) return unknownCombatant(command.targetId);
   if (target.lifeState === "dead") return targetDead(target.id);
-  if (command.amount.kind === "roll") {
-    const failure = preflight(command.amount.expression, false);
+  for (const comp of command.components) {
+    if (comp.amount.kind !== "roll") continue;
+    const failure = preflight(comp.amount.expression, command.critical);
     if (failure) return refuse(failure.code, failure.message);
   }
-  const reason = command.reason;
   const events: EngineEvent[] = [];
+  const refusal = damageEvents(
+    target,
+    command.components,
+    {
+      critical: command.critical,
+      reason: command.reason,
+      defenses: command.defenses,
+    },
+    events,
+    rng,
+  );
+  return refusal ?? { ok: true, events };
+};
+
+/** Roll or fix a healing amount on `target`, pushing the `hp.changed` event (and waking a 0 HP target). */
+export function healingEvents(
+  target: Combatant,
+  amount: Amount,
+  reason: string,
+  events: EngineEvent[],
+  rng: Rng,
+): RefusalResult | null {
   const resolved = resolveAmount(
-    command.amount,
+    amount,
     { purpose: "healing", combatantId: target.id, reason },
     events,
     rng,
@@ -330,7 +360,30 @@ export const handleHealingApply: Handler<"healing.apply"> = (
   if (target.hp.current === 0 && afterCurrent >= 1) {
     events.push(...leaveZero(target, reason, null));
   }
-  return { ok: true, events };
+  return null;
+}
+
+export const handleHealingApply: Handler<"healing.apply"> = (
+  state,
+  command,
+  rng,
+) => {
+  const target = state.combatants[command.targetId];
+  if (!target) return unknownCombatant(command.targetId);
+  if (target.lifeState === "dead") return targetDead(target.id);
+  if (command.amount.kind === "roll") {
+    const failure = preflight(command.amount.expression, false);
+    if (failure) return refuse(failure.code, failure.message);
+  }
+  const events: EngineEvent[] = [];
+  const refusal = healingEvents(
+    target,
+    command.amount,
+    command.reason,
+    events,
+    rng,
+  );
+  return refusal ?? { ok: true, events };
 };
 
 export const handleTempHpGrant: Handler<"temp-hp.grant"> = (

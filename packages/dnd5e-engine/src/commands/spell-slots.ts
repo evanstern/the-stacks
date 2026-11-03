@@ -1,6 +1,7 @@
 import type { Handler } from "../handler.js";
+import type { EngineEvent } from "../schema/events.js";
 import { type RefusalResult, refuse } from "../schema/refusals.js";
-import type { Combatant } from "../schema/state.js";
+import type { Combatant, EngineState } from "../schema/state.js";
 
 /** The slot a pool and level name on a combatant, or null when none exists. */
 function slotOf(
@@ -46,46 +47,56 @@ function preflight(
   return { c, slot };
 }
 
+/**
+ * The `spell-slots.changed` event that spends one slot, or a refusal. `pool` null picks the
+ * standard pool when the combatant has a slot of the level, else the pact pool.
+ */
+export function slotExpendEvent(
+  state: EngineState,
+  id: string,
+  pool: "standard" | "pact" | null,
+  level: number,
+  reason: string,
+): EngineEvent | RefusalResult {
+  const c = state.combatants[id];
+  // Standard pool when the combatant has a slot of the level, else the pact pool.
+  const use =
+    pool ??
+    (c && !slotOf(c, "standard", level) && slotOf(c, "pact", level)
+      ? "pact"
+      : "standard");
+  const pre = preflight(c, id, use, level);
+  if ("ok" in pre) return pre;
+  if (pre.slot.expended >= pre.slot.max) {
+    return refuse(
+      "NO_SLOT_AVAILABLE",
+      `every ${use} slot of level ${level} is expended`,
+      { combatantId: pre.c.id, pool: use, level },
+    );
+  }
+  return {
+    type: "spell-slots.changed",
+    v: 1,
+    reason,
+    combatantId: pre.c.id,
+    before: { pool: use, level, expended: pre.slot.expended },
+    after: { pool: use, level, expended: pre.slot.expended + 1 },
+  };
+}
+
 export const handleSpellSlotExpend: Handler<"spell-slot.expend"> = (
   state,
   command,
   _rng,
 ) => {
-  const pre = preflight(
-    state.combatants[command.targetId],
+  const out = slotExpendEvent(
+    state,
     command.targetId,
     command.pool,
     command.level,
+    command.reason,
   );
-  if ("ok" in pre) return pre;
-  if (pre.slot.expended >= pre.slot.max) {
-    return refuse(
-      "NO_SLOT_AVAILABLE",
-      `every ${command.pool} slot of level ${command.level} is expended`,
-      { combatantId: pre.c.id, pool: command.pool, level: command.level },
-    );
-  }
-  return {
-    ok: true,
-    events: [
-      {
-        type: "spell-slots.changed",
-        v: 1,
-        reason: command.reason,
-        combatantId: pre.c.id,
-        before: {
-          pool: command.pool,
-          level: command.level,
-          expended: pre.slot.expended,
-        },
-        after: {
-          pool: command.pool,
-          level: command.level,
-          expended: pre.slot.expended + 1,
-        },
-      },
-    ],
-  };
+  return "ok" in out ? out : { ok: true, events: [out] };
 };
 
 export const handleSpellSlotRestore: Handler<"spell-slot.restore"> = (
