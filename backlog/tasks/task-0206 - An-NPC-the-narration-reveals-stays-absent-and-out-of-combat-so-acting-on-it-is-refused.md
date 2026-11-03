@@ -3,10 +3,10 @@ id: TASK-0206
 title: >-
   An NPC the narration reveals stays absent and out of combat, so acting on it
   is refused
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-11-02 22:42'
-updated_date: '2026-11-03 02:58'
+updated_date: '2026-11-03 03:13'
 labels:
   - dm
   - playtest
@@ -59,6 +59,12 @@ Spine amendment: 0206 builds in parallel with 0205 (both touch plan-gate.ts in s
 
 Dispatch: tier=haiku pinned=cc/claude-haiku-5-5 served=claude-haiku-5-5 (spec 078 phase 3, wiki)
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (The Director's arrivals, resolve and the plan gate (card AC #1, #2): 9/9 · The chronicle and the run 1 seq 40–45 replay (card AC #1, #2, #3; merge condition): 7/7 · Wiki re-ground: 6/6). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
