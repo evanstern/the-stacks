@@ -159,6 +159,8 @@ export interface NarrationFacts {
   npcTurn: FactNpcTurn | null;
   /** Whose beat this is and who acts after it; set only in turn mode (spec 071). */
   turn?: { actor: string; next: string | null };
+  /** Rolls from NPCs an action pulled into the scene (TASK-0213); omitted when none. */
+  pulled?: FactSettled[];
   /** Settled death-save turns (TASK-0112); omitted when settling rolled nothing. */
   settled?: FactSettled[];
   /** A party member's followUps from an earlier beat, still not attempted (spec 079). */
@@ -443,6 +445,8 @@ export function renderDiceLines(facts: NarrationFacts): string[] {
     }
   };
   for (const a of facts.actions) push(a.rolls, a.changes);
+  // Pulls log before the NPC turn's rows, so the auditor's null-action group sees them first.
+  for (const s of facts.pulled ?? []) push(s.rolls, s.changes);
   if (facts.npcTurn) push(facts.npcTurn.rolls, facts.npcTurn.changes);
   for (const s of facts.settled ?? []) push(s.rolls, s.changes);
   return lines;
@@ -728,6 +732,22 @@ export function buildNarrationFacts(input: BuildFactsInput): NarrationFacts {
     };
   }
 
+  // TASK-0213: the initiative a PC action's pull rolled. Its rows carry no actionId.
+  const pulled: FactSettled[] = [];
+  for (const r of input.resolve.actionResults) {
+    const ids = new Set(r.pullBatchIds ?? []);
+    for (const batchId of ids) {
+      const rows = p.ledger.filter((l) => l.batchId === batchId);
+      const first = rows.find((l) => l.kind === "roll");
+      pulled.push({
+        name: nameOf(
+          first && first.kind === "roll" ? first.roll.combatantId : null,
+        ),
+        ...collectFacts(rows, nameOf, types, stakesByBatch, revealedByBatch),
+      });
+    }
+  }
+
   // Settling (TASK-0112): the death saves rolled for combatants the turn passed.
   const settleBatches = new Set(
     input.resolve.submissions.flatMap((s) =>
@@ -796,6 +816,7 @@ export function buildNarrationFacts(input: BuildFactsInput): NarrationFacts {
     actions,
     npcTurn,
     ...(turn ? { turn } : {}),
+    ...(pulled.length > 0 ? { pulled } : {}),
     ...(settled.length > 0 ? { settled } : {}),
     ...(openFollowUps.length > 0 ? { openFollowUps } : {}),
     involuntary,

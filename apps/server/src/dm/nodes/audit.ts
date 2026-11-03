@@ -174,7 +174,8 @@ export function deterministicChecks(
 
   const hasRoll =
     facts.actions.some((a) => a.rolls.length > 0) ||
-    (facts.npcTurn?.rolls.length ?? 0) > 0;
+    (facts.npcTurn?.rolls.length ?? 0) > 0 ||
+    (facts.pulled ?? []).some((x) => x.rolls.length > 0);
   if (!hasRoll && DICE_LANGUAGE.test(prose)) {
     add(
       "invented-mechanics",

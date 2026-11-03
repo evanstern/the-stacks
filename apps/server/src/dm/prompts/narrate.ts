@@ -25,7 +25,7 @@ import {
   transcriptEntries,
 } from "./common.js";
 
-export const PROMPT_VERSION = "dm.narrate-v13";
+export const PROMPT_VERSION = "dm.narrate-v14";
 
 const RULES = [
   "You narrate the result of one beat of a tabletop role-playing session. The facts below are TRUE and already decided by the rules engine. Retell them as story.",
@@ -136,6 +136,10 @@ export function factEntries(facts: NarrationFacts): string[] {
     for (const r of facts.npcTurn.rolls) out.push(rollEntry(r));
     for (const c of facts.npcTurn.changes)
       out.push(`  change: ${describeChange(c)}`);
+  }
+  for (const st of facts.pulled ?? []) {
+    out.push(`Joined the fight: ${st.name}`);
+    for (const r of st.rolls) out.push(rollEntry(r));
   }
   for (const st of facts.settled ?? []) {
     out.push(`Downed turn: ${st.name}`);

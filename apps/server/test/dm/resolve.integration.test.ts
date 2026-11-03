@@ -1,8 +1,15 @@
 import { mechanicsProposal } from "@the-stacks/session-model";
 import { afterAll, describe, expect, it } from "vitest";
+import {
+  buildNarrationFacts,
+  collectFacts,
+  renderDiceLines,
+} from "../../src/dm/facts.js";
 import type { ResolveOutput } from "../../src/dm/nodes/resolve.js";
 import { loadSeed } from "../../src/dm/seed/load.js";
+import { playerFacingSeed } from "../../src/dm/seed/views.js";
 import { diffSnapshots } from "../../src/dm/snapshot/index.js";
+import { expectedDiceLines } from "../../src/playtest/auditor/checks.js";
 import {
   attackStep,
   checkStep,
@@ -585,6 +592,138 @@ describe.skipIf(!reachable)("resolve (database)", () => {
       const attack = seqOf(rows, "attack.resolved");
       expect(attack).toBeLessThan(seqOf(rows, "encounter.ended"));
       expect(rows.some((r) => r.type === "turn.advanced")).toBe(false);
+    });
+
+    it("TASK-0213: an NPC turn that pulls Pell in renders his initiative roll as a dice line", async () => {
+      // Run 1 seq 97-103 (docs/playtests/2026-11-02-runbook-a-playtest.md). The raw
+      // run 1 rows are not in the repo, so this builds the replay from the
+      // engine's own row shapes: Snag's turn, Pell pulled in (combatant.added,
+      // then his initiative roll), then Snag's attack.
+      const w = await inTurnMode([...initDice(SNAG_FIRST), 16, 15, 4]);
+      freshCheckpoint(w);
+      const out = await run(
+        w,
+        [
+          reading(null, [attackStep("pell", { attackerId: "snag" })], {
+            intent: "attack",
+          }),
+        ],
+        { job: { ...nextJob(), trigger: "npc-turn" } },
+      );
+      const rows = await readRows(w);
+      const p = await w.projections();
+      const initRoll = p.ledger.find(
+        (l) =>
+          l.kind === "roll" &&
+          l.roll.combatantId === "pell" &&
+          l.roll.purpose === "initiative",
+      );
+      expect(initRoll).toBeDefined();
+      expect(out.npcTurn?.batchIds).toContain(initRoll?.batchId);
+
+      const nameOf = (id: string | null) =>
+        id ? (p.engine.combatants[id]?.name ?? id) : "The scene";
+      const rolls = collectFacts(
+        p.ledger.filter(
+          (l) => l.batchId && out.npcTurn?.batchIds.includes(l.batchId),
+        ),
+        nameOf,
+      ).rolls;
+      expect(rolls.some((r) => r.name === "Pell Marsh" && r.total === 16)).toBe(
+        true,
+      );
+
+      // The auditor's dice-lines check: the shipped lines match the ledger.
+      const first = rows.findIndex(
+        (r) =>
+          r.type === "combatant.added" &&
+          payloadOf<{ event: { combatantId: string } }>(r).event.combatantId ===
+            "pell",
+      );
+      const segRows = rows.slice(first);
+      const seg = {
+        index: 0,
+        narrationSeq: null,
+        fromSeq: segRows[0]?.seq ?? 0,
+        toSeq: segRows.at(-1)?.seq ?? 0,
+        rows: segRows,
+        ledger: p.ledger.filter((l) => l.seq >= (segRows[0]?.seq ?? 0)),
+      };
+      const expected = expectedDiceLines(seg, {
+        transcript: rows,
+        seed: null,
+      }).lines;
+      const initLine = expected.filter((l) =>
+        l.includes("Pell Marsh joins the fight"),
+      );
+      expect(initLine).toHaveLength(1);
+      const shipped = [
+        ...renderDiceLines({
+          actions: [],
+          settled: [],
+          npcTurn: { name: "Snag", rolls, outcomes: [], changes: [] },
+        } as never),
+      ];
+      expect(
+        shipped.filter((l) => l.includes("Pell Marsh joins the fight")),
+      ).toEqual(initLine);
+    });
+
+    it("TASK-0213: a PC attack on a present non-combatant renders the joiner's initiative line once", async () => {
+      const w = await inTurnMode([...initDice(TAMSIN_FIRST), 16, 15, 4]);
+      const id = await commitAction(w, "Tamsin strikes at Pell.");
+      freshCheckpoint(w);
+      const { result, ctx } = await w.runResolve({
+        readings: [reading(id, [attackStep("pell")])] as never,
+        job: nextJob(),
+      });
+      if (!result.ok) throw new Error(result.error.message);
+      const out = result.output as ResolveOutput;
+      const p = await w.projections();
+      const init = p.ledger.find(
+        (l) =>
+          l.kind === "roll" &&
+          l.roll.combatantId === "pell" &&
+          l.roll.purpose === "initiative",
+      );
+      expect(init).toBeDefined();
+      const [res] = out.actionResults;
+      // The pull rides its own field: the outcome and batchIds stay the action's.
+      expect(res?.outcome).toBe("applied");
+      expect(res?.pullBatchIds).toContain(init?.batchId);
+      expect(res?.batchIds).not.toContain(init?.batchId);
+
+      const { assemble: assembled, director } = ctx.results;
+      if (!assembled || !director) throw new Error("missing results");
+      const facts = buildNarrationFacts({
+        trigger: "action",
+        seed: playerFacingSeed(ctx.seed),
+        beatNpcIds: [],
+        projections: p,
+        beat: assembled.beat,
+        director,
+        adjudicate: null,
+        resolve: out,
+        presentNpcIds: [],
+        modeBefore: "turn",
+        appendedRows: out.appendedRows,
+        clarify: [],
+      } as never);
+      const joined = renderDiceLines(facts).filter((l) =>
+        l.includes("Pell Marsh joins the fight"),
+      );
+      expect(joined).toHaveLength(1);
+    });
+
+    it("TASK-0213: a plan-refused action stays refused and reports no pull", async () => {
+      const w = await inTurnMode([...initDice(TAMSIN_FIRST), 10]);
+      const id = await commitAction(w, "Tamsin bargains with Pell.");
+      freshCheckpoint(w);
+      const out = await run(w, [reading(id, [attackStep("ghoul-9")])], {
+        job: nextJob(),
+      });
+      expect(out.actionResults[0]).toMatchObject({ outcome: "refused" });
+      expect(out.actionResults[0]?.pullBatchIds).toBeUndefined();
     });
 
     it("tracker advances and the scene end follow the action, in order", async () => {
