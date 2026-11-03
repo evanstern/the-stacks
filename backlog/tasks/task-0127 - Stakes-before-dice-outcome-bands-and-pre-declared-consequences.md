@@ -33,7 +33,10 @@ Spec: specs/070-stakes-before-dice
 - [ ] #5 A retry with no new risk resolves without a roll, with a test
 - [ ] #6 The auditor checks that prose delivers the declared band, with a test over a captured run
 - [ ] #7 A natural 1 on a d20 test fails when its flag is on, with an engine test
+- [ ] #8 Spec phase: Engine bands, naturals and auto-success (card AC #2, #4, #7; US1, US2)
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
