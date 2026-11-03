@@ -31,11 +31,11 @@ Spec: specs/082-engine-derived-numbers
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Check, save and attack steps from interpret and adjudicate carry no model-written modifier; the engine derives it from the acting combatant's stats
-- [ ] #2 A check or save DC comes from an engine-tabulated difficulty (SRD 5.2.1 DC table) or a target stat the engine reads; the model picks a difficulty tier, not a number
-- [ ] #3 Attack rolls use the target's AC from its stats; targetAc is not model-written
-- [ ] #4 A step naming a combatant, ability or skill the stats do not define is rejected at the schema or engine gate, with a test
-- [ ] #5 Scripted-dice engine tests cover each derivation; existing dm tests and the scripted CI playtest stay green
+- [x] #1 Check, save and attack steps from interpret and adjudicate carry no model-written modifier; the engine derives it from the acting combatant's stats
+- [x] #2 A check or save DC comes from an engine-tabulated difficulty (SRD 5.2.1 DC table) or a target stat the engine reads; the model picks a difficulty tier, not a number
+- [x] #3 Attack rolls use the target's AC from its stats; targetAc is not model-written
+- [x] #4 A step naming a combatant, ability or skill the stats do not define is rejected at the schema or engine gate, with a test
+- [x] #5 Scripted-dice engine tests cover each derivation; existing dm tests and the scripted CI playtest stay green
 - [x] #6 Spec phase: Seam check [orchestrator]
 - [x] #7 Spec phase: Engine derivation (card AC #1, #2, #4, #5; US1, US2, US3, US4)
 - [x] #8 Spec phase: Stats on combatants and the reaction path (card AC #1, #3, #4; US2, US3)
@@ -43,6 +43,8 @@ Spec: specs/082-engine-derived-numbers
 - [x] #10 Spec phase: Scripts, fixtures and integration tests (card AC #5; US5)
 - [x] #11 Spec phase: Re-ground (wiki)
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
@@ -83,6 +85,6 @@ All spec tasks complete (Seam check [orchestrator]: 1/1 · Engine derivation (ca
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
-- [ ] #1 All tests and checks run green
-- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
+- [x] #1 All tests and checks run green
+- [x] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
