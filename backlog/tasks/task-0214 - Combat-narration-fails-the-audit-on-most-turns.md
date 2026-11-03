@@ -4,7 +4,7 @@ title: Combat narration fails the audit on most turns
 status: In Progress
 assignee: []
 created_date: '2026-11-02 23:22'
-updated_date: '2026-11-03 10:47'
+updated_date: '2026-11-03 11:01'
 labels:
   - dm
   - narration
@@ -51,6 +51,8 @@ spec-bridge sync: Only the on-turn actor acts (US1; FR-001 to FR-004): 0/10 · F
 Spec 085 (58a523af). Triage: seq 103 dice-lines FIXED (0213); 161 wrong subject FIXED (0208); 196 duplicate line FIXED (0212); PC/companion feelings FIXED (0113); next-actor-acts-in-this-beat OPEN (seq 103, 131, 196); NPC feelings, stock ending, goal-note counts PARTLY. Defaults (a) taken: OQ-1 rebuild run 1 rows from the log (no vm-104 command); OQ-2 no followUp-shown-done code check now, revisit card opened; OQ-3 companions count as party members (spec 074 OQ-3 default); OQ-4 keep the goal note in narrate, withhold one stating a count. Footprint: fallback.ts untouched; adds claims.ts, audit-words.ts, nodes/audit.ts, nodes/narrate.ts, prompts/director.ts. AC #1 ticks at the playtest.
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 085 phases 1-2, with seam check)
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 085 phases 3-4, plus the pre-audit block test skipped in phase 1)
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
