@@ -32,7 +32,7 @@ Spec: specs/085-combat-audit-pass-rate
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
 - [ ] #1 On a hosted run of 15+ combat turns, at least 70% of narrations pass the audit on attempt 1
-- [ ] #2 The narrate prompt or facts change is replay-tested against the run 1 refusals (seq 103, 126, 131, 161, 196)
+- [x] #2 The narrate prompt or facts change is replay-tested against the run 1 refusals (seq 103, 126, 131, 161, 196)
 - [x] #3 Spec phase: Only the on-turn actor acts (US1; FR-001 to FR-004)
 - [x] #4 Spec phase: Feelings, endings and the goal note (US2–US4; FR-005 to FR-010)
 - [x] #5 Spec phase: Replay run 1 (US5; card AC #2, FR-011, FR-013)
@@ -55,6 +55,8 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 085 phases 3-4, plus the pre-audit block test skipped in phase 1)
 
 spec-bridge sync: Only the on-turn actor acts (US1; FR-001 to FR-004): 10/10 · Feelings, endings and the goal note (US2–US4; FR-005 to FR-010): 8/8 · Replay run 1 (US5; card AC #2, FR-011, FR-013): 2/2 · Wiki re-ground: 6/6 — status In Progress → Done
+
+AC #2: combat-audit-replay.test.ts replays seq 103, 126, 131, 161, 196 (rebuilt from the playtest log). Pre-audit block proven in audit.test.ts (no dm.audit call on an off-turn-act attempt). Gates on the final tree, two full runs: green. AC #1 (70%+ first-attempt pass on a hosted 15+ combat-turn run) ticks at the runbook B playtest; card stays In Progress until then.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
