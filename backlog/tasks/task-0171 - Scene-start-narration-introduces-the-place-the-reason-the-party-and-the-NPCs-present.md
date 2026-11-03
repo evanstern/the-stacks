@@ -3,10 +3,10 @@ id: TASK-0171
 title: >-
   Scene-start narration introduces the place, the reason, the party and the NPCs
   present
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-10-28 19:39'
-updated_date: '2026-11-03 09:11'
+updated_date: '2026-11-03 09:18'
 labels:
   - dm
   - narration
@@ -67,6 +67,12 @@ Seam check (phases 1-2): no seam changed meaning; narrate-v16; see deviations.md
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 076 phase 4, wiki)
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (The opening premise (card AC #1; US1): 5/5 · The opening prompt (card AC #2, #5; US1, US2, US4): 5/5 · The name check, the fallback and the scripts (card AC #3, #4; US2, US3): 8/8 · Wiki re-ground: 5/5). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
