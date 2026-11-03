@@ -45,20 +45,14 @@ Spec: specs/076-scene-start-intros
 - [ ] #9 Spec phase: Wiki re-ground
 <!-- AC:END -->
 
-
-
-
-
-
-
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
 Claimed 2026-11-02 by M3 runbook B (docs/design/m3-runbook-b-resolution-quality.md). Worktree .worktrees/task-0171, branch task-0171-scene-start-intros, cut from origin/main b756b68f. Spec number 076 claimed with a stub. Spine #17; spec authored early.
 
 Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5 (spec 076 authoring, C1)
+
+spec-bridge sync: The opening premise (card AC #1; US1): 0/5 · The opening prompt (card AC #2, #5; US1, US2, US4): 0/5 · The name check, the fallback and the scripts (card AC #3, #4; US2, US3): 0/8 · Wiki re-ground: 0/5
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
