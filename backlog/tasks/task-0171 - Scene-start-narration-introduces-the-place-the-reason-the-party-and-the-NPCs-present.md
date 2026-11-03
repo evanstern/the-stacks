@@ -34,16 +34,18 @@ Spec: specs/076-scene-start-intros
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 The seed opening carries a premise field (why the party is here), the loader requires it, and the shipped seeds fill it
-- [ ] #2 The scene-start narrate prompt receives the location identity and portrayal, the premise, the goal statement, each party character with its controller, and each NPC present at the first beat, from player-safe seed views only
-- [ ] #3 The scene-start narration names every party character and every present NPC before it asks what the party does, with a test over a captured run
-- [ ] #4 The audit flags a scene-start narration that omits a party character or a present NPC, with a test
-- [ ] #5 No DM-only seed text (secrets, knows) reaches the scene-start prompt, with a type-level or prompt test
+- [x] #1 The seed opening carries a premise field (why the party is here), the loader requires it, and the shipped seeds fill it
+- [x] #2 The scene-start narrate prompt receives the location identity and portrayal, the premise, the goal statement, each party character with its controller, and each NPC present at the first beat, from player-safe seed views only
+- [x] #3 The scene-start narration names every party character and every present NPC before it asks what the party does, with a test over a captured run
+- [x] #4 The audit flags a scene-start narration that omits a party character or a present NPC, with a test
+- [x] #5 No DM-only seed text (secrets, knows) reaches the scene-start prompt, with a type-level or prompt test
 - [x] #6 Spec phase: The opening premise (card AC #1; US1)
 - [x] #7 Spec phase: The opening prompt (card AC #2, #5; US1, US2, US4)
 - [x] #8 Spec phase: The name check, the fallback and the scripts (card AC #3, #4; US2, US3)
 - [x] #9 Spec phase: Wiki re-ground
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
@@ -78,6 +80,6 @@ All spec tasks complete (The opening premise (card AC #1; US1): 5/5 · The openi
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
-- [ ] #1 All tests and checks run green
-- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
+- [x] #1 All tests and checks run green
+- [x] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
