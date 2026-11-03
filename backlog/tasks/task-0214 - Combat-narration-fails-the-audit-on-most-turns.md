@@ -47,6 +47,8 @@ Claimed 2026-11-03 by M3 runbook B (docs/design/m3-runbook-b-resolution-quality.
 Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5 (spec 085 authoring, C1; triage of run 1 refusals against merged upstream fixes)
 
 spec-bridge sync: Only the on-turn actor acts (US1; FR-001 to FR-004): 0/10 · Feelings, endings and the goal note (US2–US4; FR-005 to FR-010): 0/8 · Replay run 1 (US5; card AC #2, FR-011, FR-013): 0/2 · Wiki re-ground: 0/6
+
+Spec 085 (58a523af). Triage: seq 103 dice-lines FIXED (0213); 161 wrong subject FIXED (0208); 196 duplicate line FIXED (0212); PC/companion feelings FIXED (0113); next-actor-acts-in-this-beat OPEN (seq 103, 131, 196); NPC feelings, stock ending, goal-note counts PARTLY. Defaults (a) taken: OQ-1 rebuild run 1 rows from the log (no vm-104 command); OQ-2 no followUp-shown-done code check now, revisit card opened; OQ-3 companions count as party members (spec 074 OQ-3 default); OQ-4 keep the goal note in narrate, withhold one stating a count. Footprint: fallback.ts untouched; adds claims.ts, audit-words.ts, nodes/audit.ts, nodes/narrate.ts, prompts/director.ts. AC #1 ticks at the playtest.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
