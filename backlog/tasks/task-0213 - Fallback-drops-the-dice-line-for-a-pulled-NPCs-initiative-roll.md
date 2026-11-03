@@ -1,9 +1,10 @@
 ---
 id: TASK-0213
 title: Fallback drops the dice line for a pulled NPC's initiative roll
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-11-02 23:21'
+updated_date: '2026-11-03 05:43'
 labels:
   - dm
   - narration
@@ -31,6 +32,12 @@ Where: apps/server/src/dm/fallback.ts and facts.ts (the pull's initiative roll),
 <!-- AC:BEGIN -->
 - [ ] #1 The auditor's dice-lines check passes on a replay of seq 97-103, with a test
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Claimed 2026-11-03 by M3 runbook B (docs/design/m3-runbook-b-resolution-quality.md). Worktree .worktrees/task-0213, branch task-0213-pull-in-dice-line, cut from origin/main bed923f4. No spec dir: signed escape line covers this task. Spine #12. Escape line E3 (card ACs drive).
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
