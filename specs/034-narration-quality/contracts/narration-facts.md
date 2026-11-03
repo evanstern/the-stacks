@@ -148,3 +148,21 @@ Amended by specs/064-plan-first-step.
 - `withholdRefusedInputs` refuses each follow-up the same way as other model text and drops it.
 - `PROMPT_VERSION = "dm.narrate-v6"`. RULES gain, before the closing rule: "A not-yet-attempted
   step has not happened. Stop before it; never show it start."
+
+## Amendment 2026-11-02 (specs/074-player-agency, TASK-0113): reflexes, band and narrate v9
+
+- `NarrationFacts.involuntary?: FactInvoluntary[]` (`name`, `trigger`, `detail`), always set by
+  `buildNarrationFacts` from this turn's action, NPC-turn and settle rows, via the pure
+  `deriveInvoluntary`. Five reflex triggers on a party member, in seq order, deduped by
+  `name|trigger`:
+  - `stagger`: a critical hit on the member.
+  - `heavy-hit`: damage of half the member's maximum HP or more.
+  - `flinch`: a failed saving throw (a failed death save yields none).
+  - `avoid`: a foe's miss on the member (OQ-1 ruling, "Yes, allow a flinch").
+- `FactRoll.band?: FactBand | null` is reserved for TASK-0127; this card never sets it.
+- `factEntries` renders `Reflex: <name> may <stagger|reel from a heavy hit|flinch|flinch as it
+  misses> (<detail>)` for each.
+- `PROMPT_VERSION = "dm.narrate-v9"`. The party rule line is `agencyRule("narrate")`. The miss line
+  allows a flinch on a listed miss and bars a chosen defence. The scene-start prompt adds: "The
+  opening shows the place and what the party finds. It never moves, leads or voices a party
+  member." The v8 clarify lines are unchanged.

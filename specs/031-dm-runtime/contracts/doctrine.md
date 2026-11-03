@@ -66,7 +66,7 @@ token cap in [nodes.md](nodes.md).
 | `no-menus` | Never hand the player a list or an either-or. | "Do you fight, or flee?" | Leave the choice unwritten; let the player phrase it. | narrate, audit, companion |
 | `stop-at-choice` | Stop where the player must decide. | Narrating the hero through the door and into the room. | Describe what the door reveals, then stop. | narrate, audit |
 | `plain-prose` | Keep the story in plain prose; numbers live on their own lines. | Headings, bullets or bold inside the story. | Prose, then the dice lines the code writes. | narrate, audit |
-| `hero-is-theirs` | Never decide the hero's words, feelings or moves. | "You nod and step back, afraid." | "The smell reaches you before the sight does." | narrate, audit, companion |
+| `hero-is-theirs` | Never decide the hero's words, choices or chosen feelings; the dice may decide a reflex. | "You nod and step back, afraid." | "The club catches you square; you stagger back a step." | narrate, audit, companion |
 | `world-not-hero` | Narrate what the world did to the attempt, not the hero's inner state. | "You panic and lose your grip." | "A link in the chain gives, and the floor rushes up." | narrate, audit |
 | `blame-the-situation` | A failed roll is the world's doing, not the hero's incompetence. | "You fumble like a fool." | "The ledge crumbles under your boot." | narrate |
 | `roll-when-uncertain` | Roll only when the outcome is uncertain and failure is interesting. | Calling for a check to open an unlocked door. | Narrate the certain outcome; save rolls for risk. | interpret, director |
@@ -91,3 +91,15 @@ Amended by specs/034-narration-quality/contracts/player-facing-context.md.
 The table is the content of `DOCTRINE`; the implementer may tighten wording but keeps every
 `id`, rule and node mapping. A changed pair is a reviewed diff to this table and the code
 together.
+
+## The agency rule (spec 074)
+
+`doctrine.ts` also exports `AGENCY_RULE` (four shared lines) and `agencyRule(node)` (the shared
+lines plus one node line, for `director`, `interpret`, `narrate`, `audit`, `auditor`). Each node
+renders it outside the doctrine cap, so a cap never drops it. The `hero-is-theirs` row above covers
+every party member, AI companions included.
+
+Amended 2026-11-02 (TASK-0113, OQ-1 ruling): the reflex line of the agency rule names five reflex
+triggers: a stagger on a critical hit, a heavy-hit reaction, a flinch on a failed save, a flinch on
+a foe's miss, and no more. A dodge, a twist that times the blow and a chosen step aside stay
+choices, never reflexes.

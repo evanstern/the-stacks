@@ -407,3 +407,93 @@ export const OBJECT_CUES: ReadonlySet<string> = new Set([
   "about",
   "after",
 ]);
+
+// ---------------------------------------------------------------------------
+// Player-agency lexicons (specs/074-player-agency/plan.md R5). Lemmas; expand
+// with `verbForms`. The claim gate reads ACT_VERBS and INVOLUNTARY_VERBS, so
+// these are separate lists.
+
+/** A chosen defence on a recorded miss: always a breach. */
+export const DEFENCE_VERBS: readonly string[] = [
+  "dodge",
+  "duck",
+  "sidestep",
+  "swerve",
+  "weave",
+  "evade",
+  "parry",
+  "deflect",
+  "leap",
+  "jump",
+  "roll",
+  "spin",
+  "wrench",
+  "lean",
+];
+
+/** A flinch the dice allow on a miss (OQ-1 ruling); a breach only with an intent marker. */
+export const REFLEX_VERBS: readonly string[] = [
+  "flinch",
+  "recoil",
+  "wince",
+  "jerk",
+  "twist",
+  "tense",
+  "stiffen",
+];
+
+/** Words that turn a reflex verb into a chosen defence when within three words after it. */
+export const INTENT_MARKERS: readonly string[] = [
+  "just enough",
+  "in time",
+  "aside",
+  "clear",
+  "free",
+  "out of the way",
+  "under",
+  "beneath",
+];
+
+/** A party member moved or voiced at scene start: act and speech verbs plus these. */
+export const SCENE_START_VERBS: readonly string[] = [
+  ...ACT_VERBS,
+  ...SPEECH_VERBS,
+  "lead",
+  "follow",
+  "head",
+  "stride",
+  "enter",
+  "approach",
+  "kneel",
+  "crouch",
+  "study",
+  "scan",
+  "weigh",
+  "listen",
+];
+
+/** True when `name` is followed within two words by a reflex verb, then an intent marker within three words. */
+export function namePairsWithIntentReflex(
+  prose: string,
+  name: string,
+  verbs: readonly string[],
+): string | null {
+  const re = new RegExp(
+    `\\b${escapeRe(name)}\\b(?:\\W+\\w+){0,2}?\\W+(?:${verbs.map(escapeRe).join("|")})\\b((?:\\W+\\w+){0,3}?)\\W+(?:${INTENT_MARKERS.map(escapeRe).join("|")})\\b`,
+    "i",
+  );
+  return re.exec(prose)?.[0] ?? null;
+}
+
+/** The matched text of `name` paired with one of `words`, or null. */
+export function namePairMatch(
+  prose: string,
+  name: string,
+  words: readonly string[],
+): string | null {
+  const re = new RegExp(
+    `\\b${escapeRe(name)}\\b(?:\\W+\\w+){0,2}?\\W+(?:${words.map(escapeRe).join("|")})\\b`,
+    "i",
+  );
+  return re.exec(prose)?.[0] ?? null;
+}

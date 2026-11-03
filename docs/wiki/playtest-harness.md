@@ -12,6 +12,7 @@ sources:
   - apps/server/src/playtest/cli.ts
   - apps/server/src/playtest/purpose.ts
   - apps/server/src/playtest/auditor/audit.ts
+  - apps/server/src/playtest/auditor/prompt.ts
   - apps/server/src/playtest/auditor/checks.ts
   - apps/server/src/playtest/auditor/segments.ts
   - apps/server/src/playtest/auditor/schema.ts
@@ -25,7 +26,7 @@ sources:
   - apps/server/seeds/greyhollow-ford-reed-camp.json
   - apps/server/dm-scripts/runbook-a-reed-camp.json
 size_budget_exempt: the note sat within 40 chars of the 8000 budget before TASK-0195; the per-runbook scenario section is a short pointer to docs/design/playtest-scenarios.md, and the in-process harness above is one pipeline that does not split without a TASK of its own
-verified_against: 54b63816537598f02d2cd1aeac2a8303476d148f
+verified_against: 6f0ae5134da76dfa68dca0b6855be847ba05739a
 ---
 
 # Playtest harness
@@ -95,6 +96,8 @@ already in flight.
 `report.md` when audited. Default `.playtests/<runId>/` (gitignored); `--out` overrides. `exportSession` reads a session read-only; `readRunDir` re-reads a saved directory.
 
 ## The auditor
+
+The auditor prompt (`auditor/prompt.ts`, `playtest.audit-v2`, specs/074) adds a `## Party` section: each seed character with `human player` or `AI companion`, then `agencyRule("auditor")`. `hero-is-theirs` covers every party member, companions included; a companion's own talk and declared actions are its own choices.
 
 `auditor/audit.ts`'s `runAudit({transcript, ledger, jobs, seed, gateway, models})` cuts the
 transcript with `segments.ts` (each `ai:dm` narration closes a segment; a tail with a `talk`
