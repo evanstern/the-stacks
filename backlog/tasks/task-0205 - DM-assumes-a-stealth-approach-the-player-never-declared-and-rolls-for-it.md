@@ -1,10 +1,10 @@
 ---
 id: TASK-0205
 title: DM assumes a stealth approach the player never declared and rolls for it
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-11-02 22:21'
-updated_date: '2026-11-02 23:04'
+updated_date: '2026-11-03 01:20'
 labels:
   - dm
   - playtest
@@ -38,6 +38,8 @@ Related: TASK-0128 (group checks), TASK-0127/spec 070 (stakes before dice), TASK
 
 <!-- SECTION:NOTES:BEGIN -->
 Run 1 again, seq 114-122. Tamsin: 'I move towards Pell' became an Athletics check (6+5 = 11 vs DC 13, failure); the Director's goal note told interpret to show 'the hidden goblins tracking her'. The operator: 'the result assumed stealth was still on … I never said to stop sneaking, however, the stealth check failed so I had assumed we were out of stealth because of that.' The DM keeps an approach mode (stealth) the player never declared and that a failed check should have ended. Add: a failed stealth check ends the hidden state, and the hidden state is tracked, not assumed from goal-note prose.
+
+Claimed 2026-11-02 by M3 runbook B (docs/design/m3-runbook-b-resolution-quality.md). Worktree .worktrees/task-0205, branch task-0205-no-undeclared-method, cut from origin/main fbf4d1df. Spec number 077 claimed with a stub. Spine #5.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
