@@ -337,10 +337,13 @@ describe("prompt caps (SC-007)", () => {
       runnableEncounterIds: [],
       offstageNpcs: [],
     });
-    expect(DIRECTOR_VERSION).toBe("dm.director-v6");
+    expect(DIRECTOR_VERSION).toBe("dm.director-v7");
     expect(prompt.system).toContain(agencyRule("director"));
     expect(prompt.system).toContain(
       "names no party member's act, method, skill or reaction",
+    );
+    expect(prompt.system).toContain(
+      "states no count of the fallen or the remaining, no morale condition and no encounter trigger",
     );
     expect(prompt.system).toContain(
       "a trigger that needs a roll this beat to succeed waits for the next beat.",

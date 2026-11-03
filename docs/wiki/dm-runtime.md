@@ -41,7 +41,7 @@ sources:
   - apps/server/seeds/greyhollow-ford-trio.json
   - biome.json
 size_budget_exempt: both notes sat within 30 chars of the 8000 budget before TASK-0180; the talk path got its own note (dm-talk-triggers) and only a pointer line lands here; the rest is one pipeline each, not splittable without a TASK of its own
-verified_against: 3a617d4a10e572a061aa5be87b3f9711fd7910ae
+verified_against: b107176515076b2c01a604419d13b8d484b11cdc
 ---
 
 # DM runtime
@@ -61,7 +61,7 @@ async function `(TurnContext) => NodeResult`.
    (`AssembleOutput.snapshot`; each actor's logged scene presence sets `presentNpcIds`), selects scene-seed material, and looks up SRD
    records ([[srd-data]]). `AssembleOutput.resumed` holds the plans of actions whose paused turn's proposal is now approved (`resume.ts`, TASK-0168, specs/057); the checkpoint freezes them.
 2. **director** - `dm.director`. Decides scene-level changes (set the scene, trackers, table
-   mode, encounter setup), whether the beat resolves or **holds** for companions, and the optional `arrivals` list (offstage seed NPCs now on screen, `dm.director-v6`). `legalizeDirector` keeps only offstage seed NPCs and drops all arrivals on scene start.
+   mode, encounter setup), whether the beat resolves or **holds** for companions, and the optional `arrivals` list (offstage seed NPCs now on screen, `dm.director-v7`; its `goalNote` states no count, morale or trigger, TASK-0214). `legalizeDirector` keeps only offstage seed NPCs and drops all arrivals on scene start.
 3. **interpret** - `dm.interpret`. Reads each action into steps (check, attack, spell, help, move, effect, roll; `dm.interpret-v13`, `dm.adjudicate-v10`; a spell step names the caster, the SRD spell id, the slot level (null for a cantrip) and one target, no numbers, spec 083; a check step names a `difficulty` tier, or `{opposedBy, rule}` naming the creature whose stats derive the DC (rule `unarmed-strike` or `influence`, spec 084; the schema refuses an opponent equal to the checker or a rule that does not cover the check); a `help` step names the helper and an assist (`ability-check` with ally and skill, or `attack` with the distracted target), and the helper is the declaring character; an attack step names the `attack` entry, and either may carry a `circumstance` (mode plus reason); the model writes no expression, DC, AC or hit damage (spec 082); a monster reading may set `say`, its spoken line, kept apart from rules notes and carried into the facts as `says:`; every check step declares `stakes`, a consequence per outcome band, success included, before the roll, and may set `reveals`, one clue of the beat's `Discoverable clues` section) and
    flags `needsAdjudication`. Resumed actions are not read again; their stored readings rejoin in beat order.
 4. **adjudicate** - `dm.adjudicate`, only when an interpret reading asks. May call `retrieve`
@@ -69,7 +69,7 @@ async function `(TurnContext) => NodeResult`.
    A code-only **first-stage cut** (`first-stage.ts`, TASK-0182) runs between adjudicate and resolve: in `free` mode steps after the first run of like checks become `followUps`, and `holdDirector` holds that beat's turn, tracker and scene-end moves. `checkpoint.cut` makes a reclaim skip it. A human's clarify also holds (specs/073): `clarifyHolds` marks each committed human action whose reading asks a question and has no ruling; the cut holds that beat's turn, tracker and scene-end moves with reason `held: an action awaits an answer`. An AI actor's clarify does not hold. After the cut, `askUndeclared` (spec 077, [[dm-failure-and-gates]]) turns an undeclared manner check or another human's roll into a clarify, so the same hold applies; the `dm.plan.cut` log line reports the count as `asked`.
 5. **resolve** - code only; the one node that writes. It first seeds the run with each resumed plan's submissions (an approved `pending` one becomes `applied`), so the chain continues without a second roll. After its last gate write it builds **S1** and returns
    `ResolveOutput.snapshot` and `ResolveOutput.diff` (S0 to S1). See below.
-6. **narrate** - `dm.narrate`. Writes prose from code-built facts (including the monster reading's plan and the turn holder, TASK-0193), the player-facing seed view and S1 ([[dm-narration-quality]]).
+6. **narrate** - `dm.narrate`. Writes prose from code-built facts (including the monster reading's plan, the turn holder and the Off turn list, TASK-0193, TASK-0214), the player-facing seed view and S1 ([[dm-narration-quality]]).
 7. **audit** - deterministic checks, including the claim gate against S1 and the diff ([[output-claim-gate]]), plus one `dm.audit` call (same S1 sections); decides what ships ([[dm-narration-quality]]).
 
 An empty-beat `talk` turn skips this order ([[dm-talk-triggers]]).

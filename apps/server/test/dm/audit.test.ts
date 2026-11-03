@@ -10,9 +10,11 @@ import {
 } from "../../src/dm/facts.js";
 import { assemble } from "../../src/dm/nodes/assemble.js";
 import {
+  AuditModelOutput,
   audit,
   detailNamesPartyMember,
   deterministicChecks,
+  llmIssueBlocksFor,
   MAX_NARRATION_ATTEMPTS,
 } from "../../src/dm/nodes/audit.js";
 import type { DirectorNodeOutput } from "../../src/dm/nodes/director.js";
@@ -369,6 +371,52 @@ describe("literal stock ending (TASK-0204)", () => {
     const f = { ...facts(), trigger: "scene-start" as const };
     expect(literal(`${CLEAN} What do you do?`, f)).toBe(true);
     expect(literal(`${CLEAN} What does Tamsin do?`, f)).toBe(false);
+  });
+});
+
+describe("off-turn actors (TASK-0214)", () => {
+  const f = (offTurn?: string[]) => ({
+    ...facts(),
+    turn: { actor: "Ana", next: null, ...(offTurn ? { offTurn } : {}) },
+  });
+  it("blocks an off-turn turn action as invented-mechanics", () => {
+    const r = check(`${CLEAN} Guard hurls a spear.`, f(["Guard"]));
+    expect(r.issues.map((i) => i.kind)).toContain("invented-mechanics");
+    expect(r.issues.some((i) => i.detail.includes("off turn"))).toBe(true);
+  });
+  it("runs no check without an offTurn list", () => {
+    expect(check(`${CLEAN} Guard hurls a spear.`, f()).pass).toBe(true);
+    expect(check(`${CLEAN} Guard hurls a spear.`).pass).toBe(true);
+  });
+});
+
+describe("issue actor blocking rule (TASK-0214)", () => {
+  const issue = (actor?: string) => ({
+    kind: "player-agency" as const,
+    detail: "Narration decides what Kestrel feels about Snag's sneer.",
+    ...(actor ? { actor } : {}),
+  });
+  it("an NPC actor is advisory even when the detail names a party member", () => {
+    expect(llmIssueBlocksFor(issue("Snag"), SEED_PARTY)).toBe(false);
+  });
+  it("a party actor blocks", () => {
+    expect(llmIssueBlocksFor(issue("Brother Odo"), SEED_PARTY)).toBe(true);
+  });
+  it("no actor falls back to the detail test", () => {
+    expect(llmIssueBlocksFor(issue(), SEED_PARTY)).toBe(true);
+  });
+  it("parses a reply with and without actor", () => {
+    const base = {
+      verdict: "fail",
+      issues: [{ kind: "doctrine", detail: "x" }],
+    };
+    expect(AuditModelOutput.safeParse(base).success).toBe(true);
+    expect(
+      AuditModelOutput.safeParse({
+        ...base,
+        issues: [{ kind: "doctrine", detail: "x", actor: "Snag" }],
+      }).success,
+    ).toBe(true);
   });
 });
 
@@ -763,5 +811,65 @@ describe("audit loop", () => {
     const r = check("Ana opens 3 locks.");
     expect(r.pass).toBe(false);
     expect(r.issues.length).toBeGreaterThan(0);
+  });
+});
+
+describe("off-turn act blocks before dm.audit (TASK-0214)", () => {
+  it("refuses the attempt in code and records no dm.audit call for it", async () => {
+    // One dm.audit response only: a call on attempt 1 would consume it and pass the off-turn prose.
+    const scripted = createScriptedDm(
+      loadDmScript({
+        v: 1,
+        name: "audit",
+        dice: [],
+        calls: [
+          text("dm.narrate", `${CLEAN} Guard hurls a spear at Ana.`),
+          text("dm.narrate", CLEAN),
+          json("dm.audit", PASS),
+        ],
+      }),
+    );
+    const gateway = createGateway({
+      config: scripted.aiConfig,
+      sink: memorySink(),
+      adapters: { fake: () => scripted.provider },
+    });
+    const events = freeEventsThrough("action.resolved");
+    const base = makeCtx({
+      deps: { gateway, loadProjections: async () => projectDm(events) },
+    });
+    const assembled = await assemble(base);
+    if (!assembled.ok) throw new Error("assemble failed");
+    const resolve: ResolveOutput = {
+      ...resolved,
+      snapshot: claimState().snapshot,
+    };
+    const ctx0 = {
+      ...base,
+      results: { assemble: assembled.output, director, resolve },
+    };
+    const narrated = await narrate(ctx0);
+    if (!narrated.ok) throw new Error("narrate failed");
+    const withTurn = {
+      ...narrated.output,
+      facts: {
+        ...narrated.output.facts,
+        turn: { actor: "Ana", next: null, offTurn: ["Guard"] },
+      },
+    };
+    const out = await audit({
+      ...ctx0,
+      results: { ...ctx0.results, narrate: withTurn },
+    });
+    if (!out.ok) throw new Error("audit failed");
+    const r = out.output.record;
+    expect(r.attempts[0]?.llm).toEqual({ skipped: true });
+    expect(r.attempts[0]?.deterministic.issues[0]?.kind).toBe(
+      "invented-mechanics",
+    );
+    expect(r.final).toBe("passed-after-regenerate");
+    expect(r.attempts).toHaveLength(2);
+    expect(scripted.remaining().calls["dm.audit"]).toBe(0);
+    expect(out.calls.filter((c) => c.purpose === "dm.audit")).toHaveLength(1);
   });
 });

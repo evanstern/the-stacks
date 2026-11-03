@@ -202,7 +202,7 @@ describe("run 3 seq 150-157: Snag's turn (spec 071)", () => {
     expect(np.user).toMatch(/Next: Kestrel .*has not acted yet\./);
     expect(np.user).toContain(`planned: talk; ${REASON}`);
     expect(np.system).toContain(
-      "Only the actor named on the Turn line acts in this beat.",
+      "Only the actors on the Turn line, the Action lines and the roll lines act in this beat.",
     );
     const ap = buildAuditPrompt({
       facts: narrated.facts,
@@ -212,7 +212,7 @@ describe("run 3 seq 150-157: Snag's turn (spec 071)", () => {
     expect(ap.user).toContain("Turn: Snag acts in this beat.");
     expect(ap.user).toMatch(/Next: Kestrel /);
     expect(ap.system).toContain(
-      "6. The actor on the Turn line acts in this beat",
+      "6. Turn mode. Only the actors on the Turn line",
     );
   });
 

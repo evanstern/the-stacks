@@ -8,7 +8,11 @@ import { memorySink } from "../../src/ai/usage.js";
 import { agencyRule } from "../../src/dm/doctrine/doctrine.js";
 import { assemble } from "../../src/dm/nodes/assemble.js";
 import type { DirectorNodeOutput } from "../../src/dm/nodes/director.js";
-import { narrate, withholdRefusedInputs } from "../../src/dm/nodes/narrate.js";
+import {
+  dropStockEnding,
+  narrate,
+  withholdRefusedInputs,
+} from "../../src/dm/nodes/narrate.js";
 import type { ResolveOutput } from "../../src/dm/nodes/resolve.js";
 import {
   PROMPT_VERSION as AUDIT_VERSION,
@@ -356,7 +360,7 @@ describe("narrate", () => {
       facts,
       prior: null,
     });
-    expect(NARRATE_VERSION).toBe("dm.narrate-v17");
+    expect(NARRATE_VERSION).toBe("dm.narrate-v18");
     expect(prompt.system).toContain(
       "A roll's band and outcome are settled. A success means the attempted task happens. Deliver the outcome and any learned fact plainly in the prose; invent no other.",
     );
@@ -495,7 +499,7 @@ describe("narrate", () => {
       "end with the Unclear intent question exactly as written",
     );
     expect(prompt.system).toContain(
-      "Do not end with an either-or question, except the Unclear intent question.",
+      'Never end on "What do you do?" or an either-or question, except the Unclear intent question.',
     );
     expect(prompt.system).toContain("Cover every Event line.");
     expect(prompt.system).toContain("AI companions included");
@@ -692,6 +696,32 @@ describe("narrate", () => {
       expect(n.facts.rulings).toHaveLength(1);
     });
 
+    it("withholds a goalNote that states a true count (TASK-0214)", async () => {
+      const base = await setup(["x"]);
+      const out = await narrate(base.ctx);
+      if (!out.ok) throw new Error("narrate failed");
+      const fight = greyhollowFight();
+      const snapshot = buildSnapshot(fight.projections, fight.seed);
+      for (const a of snapshot.actors) {
+        if (a.id === "goblin-2" || a.id === "goblin-3") a.lifeState = "dead";
+      }
+      const state = { snapshot, diff: null };
+      const note = "Two goblins down; Snag eyes a bargain.";
+      const r = withholdRefusedInputs(
+        {
+          ...out.output.facts,
+          director: { ...out.output.facts.director, goalNote: note },
+        },
+        state,
+      );
+      expect(r.facts.director.goalNote).toBe("");
+      expect(r.withheld).toHaveLength(1);
+      expect(r.withheld[0]?.kind).toBe("doctrine");
+      expect(r.withheld[0]?.detail).toMatch(
+        /^Withheld goalNote: it states a count/,
+      );
+    });
+
     it("passes a clean ruling and note unchanged", async () => {
       const { n } = await withheldRun(
         "The lock yields to patient work.",
@@ -740,8 +770,10 @@ describe("narrate", () => {
       snapshot,
       prose: "Prose.",
     });
-    expect(AUDIT_VERSION).toBe("dm.audit-v11");
-    expect(p.system).toContain("6. The actor on the Turn line acts");
+    expect(AUDIT_VERSION).toBe("dm.audit-v12");
+    expect(p.system).toContain(
+      "6. Turn mode. Only the actors on the Turn line",
+    );
     expect(p.system).toContain("7. A roll's band and consequence are decided.");
     expect(p.system).toContain(
       "does not deliver a roll's settled outcome or learned fact",
@@ -783,5 +815,25 @@ describe("narrate", () => {
     expect(p.system).toContain("ending on that open question is correct");
     expect(p.system).toContain("Code checks length; do not report length.");
     expect(p.system).toContain("Report craft concerns as `doctrine`");
+  });
+});
+
+describe("dropStockEnding (TASK-0214)", () => {
+  it("drops a trailing What do you do? after a sentence end", () => {
+    expect(dropStockEnding("The door groans open. What do you do?")).toBe(
+      "The door groans open.",
+    );
+    expect(dropStockEnding('The door groans open. "What do you all do?"')).toBe(
+      "The door groans open.",
+    );
+  });
+  it("leaves prose with no earlier sentence, other endings and mid-prose phrases", () => {
+    expect(dropStockEnding("What do you do?")).toBe("What do you do?");
+    expect(dropStockEnding("The door opens. What does Tamsin do?")).toBe(
+      "The door opens. What does Tamsin do?",
+    );
+    expect(dropStockEnding("What do you do? The door opens.")).toBe(
+      "What do you do? The door opens.",
+    );
   });
 });

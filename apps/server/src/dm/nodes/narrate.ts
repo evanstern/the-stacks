@@ -1,3 +1,4 @@
+import { hasCountClaim, STOCK_ENDING } from "../audit-words.js";
 import { type ClaimState, checkClaims } from "../claims.js";
 import {
   buildNarrationFacts,
@@ -88,9 +89,16 @@ export function withholdRefusedInputs(
   );
   const npcSay = facts.npcTurn?.plan?.say;
   const dropSay = Boolean(npcSay) && refuse("monster line", npcSay as string);
-  const goalNote = refuse("goalNote", facts.director.goalNote)
-    ? ""
-    : facts.director.goalNote;
+  const refusedNote = refuse("goalNote", facts.director.goalNote);
+  // TASK-0214: a count in the note restates DM-only seed text; withhold it.
+  const countNote = !refusedNote && hasCountClaim(facts.director.goalNote);
+  if (countNote) {
+    withheld.push({
+      kind: "doctrine",
+      detail: `Withheld goalNote: it states a count ("${facts.director.goalNote.slice(0, 60)}").`,
+    });
+  }
+  const goalNote = refusedNote || countNote ? "" : facts.director.goalNote;
   return {
     facts: {
       ...facts,
@@ -109,6 +117,23 @@ export function withholdRefusedInputs(
     },
     withheld,
   };
+}
+
+/**
+ * Drops a trailing "What do you do?" sentence when a sentence end precedes it
+ * (TASK-0214 R5). The audit's literal-ending check stays as the backstop for
+ * prose with no earlier sentence.
+ */
+export function dropStockEnding(prose: string): string {
+  const m = STOCK_ENDING.exec(prose.trim());
+  if (!m) return prose;
+  const t = prose.trim();
+  // Strip the opening quote of a quoted stock line.
+  const head = t
+    .slice(0, m.index)
+    .replace(/["'\u201c\u2018]+$/, "")
+    .trimEnd();
+  return /[.!?]["'\u201d\u2019]*$/.test(head) ? head : prose;
 }
 
 /** Cuts prose to the cap at a sentence end when one exists. */
@@ -159,7 +184,10 @@ export async function narrateAttempt(
     signal: ctx.signal,
   });
   if (!result.ok) return result;
-  return { ok: true, prose: clipProse(result.text), calls: result.calls };
+  const clipped = clipProse(result.text);
+  // A clarify question may end the prose; leave it whole.
+  const prose = facts.clarify.length > 0 ? clipped : dropStockEnding(clipped);
+  return { ok: true, prose, calls: result.calls };
 }
 
 export const narrate: Node<"narrate"> = async (ctx) => {

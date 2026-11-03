@@ -13,10 +13,11 @@ import {
   POSITIVE_WORDS,
   REFLEX_VERBS,
   SCENE_START_VERBS,
+  STOCK_ENDING,
   verbForms,
   wordCount,
 } from "../audit-words.js";
-import { type ClaimState, checkClaims } from "../claims.js";
+import { type ClaimState, checkClaims, offTurnActs } from "../claims.js";
 import { type NarrationFacts, renderDiceLines } from "../facts.js";
 import { factualSummary, spellDigits } from "../fallback.js";
 import { callJson } from "../pipeline/call.js";
@@ -54,6 +55,8 @@ export type AuditIssueKind = (typeof AUDIT_ISSUE_KINDS)[number];
 export interface AuditIssue {
   kind: AuditIssueKind;
   detail: string;
+  /** The character the issue is about, when the model names one (TASK-0214). */
+  actor?: string;
 }
 
 export const AuditModelOutput = z
@@ -64,6 +67,7 @@ export const AuditModelOutput = z
         z.object({
           kind: z.enum(AUDIT_ISSUE_KINDS),
           detail: z.string().min(1).max(300),
+          actor: z.string().min(1).max(80).optional(),
         }),
       )
       .max(8),
@@ -136,6 +140,8 @@ export function llmIssueBlocksFor(
   party: NarrationFacts["party"],
 ): boolean {
   if (issue.kind !== "player-agency") return llmIssueBlocks(issue.kind);
+  // TASK-0214: a named actor decides; an NPC's feelings never block.
+  if (issue.actor) return detailNamesPartyMember(issue.actor, party);
   return detailNamesPartyMember(issue.detail, party);
 }
 
@@ -210,6 +216,13 @@ export function deterministicChecks(
 
   for (const c of checkClaims(state, prose).issues) {
     add("ledger-mismatch", `Actor state: ${c.detail}`);
+  }
+
+  // TASK-0214: an off-turn actor takes no turn action; code blocks it before dm.audit.
+  if (facts.turn?.offTurn?.length) {
+    for (const c of offTurnActs(state, prose, facts.turn.offTurn)) {
+      add("invented-mechanics", c.detail);
+    }
   }
 
   for (const a of facts.actions) {
@@ -380,9 +393,8 @@ export function deterministicChecks(
     );
   }
   // The literal stock ending is the doctrine's wrong example (end-on-demand).
-  if (
-    /\bwhat do you(?: all| two)? do\?["'\u201d\u2019]*$/i.test(prose.trim())
-  ) {
+  // narrateAttempt drops a trailing stock sentence first; this stays as the backstop.
+  if (STOCK_ENDING.test(prose.trim())) {
     add(
       "doctrine",
       'The prose ends on "What do you do?". End on a moment that demands a response.',

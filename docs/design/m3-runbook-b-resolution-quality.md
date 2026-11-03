@@ -291,7 +291,8 @@ Then **stop for the operator to play it** (checkpoint C7).
 | 2026-11-03 | TASK-0211 | #125 | 38834068 | sonnet | E5. Deterministic check: no spent slot claimed without a spend fact. narrate-v15, audit-v10. |
 | 2026-11-03 | TASK-0171 | #126 | 40a0783d | opus (spec 076 + amendment), sonnet x3 | Opening names every party character (never a player, operator ruling) and every NPC present at the first beat (the Wenna root cause). Seed `opening.premise`. narrate-v16. Flake seen once: jobs.integration concurrency case. |
 | 2026-11-03 | TASK-0204 | #127 | d59c369a | haiku (two passes) | E4. Literal-ending check; review reworded TASK-0205's clarify question, which ended on the banned phrase. AC #2 ticks at the playtest. |
-| 2026-11-03 | TASK-0128 | (this PR) | (at merge) | opus (spec 084 + seam check), sonnet x2 | Opposition as a check difficulty variant; `help.grant` assists (a spell attack takes one, D5a per SRD text). narrate-v17, audit-v11, interpret-v13, adjudicate-v10. Cards TASK-0232; TASK-0224 scope added. |
+| 2026-11-03 | TASK-0128 | #128 | 97591e36 | opus (spec 084 + seam check), sonnet x2 | Opposition as a check difficulty variant; `help.grant` assists (a spell attack takes one, D5a per SRD text). narrate-v17, audit-v11, interpret-v13, adjudicate-v10. Cards TASK-0232; TASK-0224 scope added. |
+| 2026-11-03 | TASK-0214 | (this PR) | (at merge) | opus (spec 085), sonnet x2 | Triaged run 1's refusals against merged fixes; built the open part: off-turn actors blocked in code before the model audit, issue `actor` rule, stock ending dropped, goal-note counts withheld. narrate-v18, audit-v12, director-v7. Card TASK-0233 (revisit). Agents twice wrote a probe file into root (cleaned; root verified clean). |
 
 ## Later runbooks (order on record; each gets its own runbook and sign-off)
 

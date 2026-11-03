@@ -59,3 +59,13 @@ Amended by spec 058 / TASK-0161: the `checkPlan` row above.
 - Companion `say` and public chronicle entries. Owner: TASK-0144.
 - The code fallback as a whole. It is code, not model text, and passes by construction (property
   test).
+
+## Amendment 2026-11-03 (specs/085-combat-audit-pass-rate, TASK-0214): `offTurnActs`
+
+`offTurnActs(state, text, offTurn)` in `claims.ts` is a second consumer of the clause walk. It names an
+actor on `facts.turn.offTurn` shown, as the subject of a clause, taking a turn action (verb lemmas in
+`TURN_ACT_VERBS`: attack, swing, strike, slash, stab, lunge, charge, fire, shoot, loose, throw, hurl,
+cast) within the four-token window. It skips quoted speech, a negated act, the turn-order phrase
+("acts next", "moves next"), a barred actor (the claim gate reports it) and a shared group noun (unique
+aliases only). Each hit is a `ClaimIssue` with `claim: "act"`. `deterministicChecks` is the caller and
+blocks each hit as `invented-mechanics`.

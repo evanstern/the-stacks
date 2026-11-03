@@ -203,3 +203,13 @@ band, `success` included (this supersedes "`success` has none" above). `FactRoll
 is `dm.narrate-v12`: the roll line reads `outcome (settled): ...` and, when set, `learned
 (settled): ...`; a success means the attempted task happens. The fallback appends the learned fact
 under the same `reasonSpeakable` check.
+
+## Amendment 2026-11-03 (specs/085-combat-audit-pass-rate, TASK-0214): off-turn actors
+
+`turn` gains optional `offTurn: string[]`: the standing combatants who do not act in this beat, in
+initiative order. It lists encounter-order names whose life state is conscious and whose S1 presence
+is not absent, minus the Turn actor, each Action's character and each roll name (reaction rollers
+included; `pulled` and `settled` rolls do not count). It is absent when empty and in free mode.
+`factEntries` pushes `Off turn: <names> (may speak, look or flinch; no strike, shot, cast, throw or
+charge).` after the `Next:` line. Narrate is `dm.narrate-v18`: it shares the exported `TURN_RULE` with
+audit, and it ends on a moment that demands a response, never on "What do you do?".

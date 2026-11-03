@@ -21,6 +21,7 @@ import {
   PASSIVE_AUX,
   PASSIVE_ONLY,
   SPEECH_VERBS,
+  TURN_ACT_VERBS,
   TURN_ORDER_PHRASE,
   UNCONSCIOUS_RECORDED,
   UNCONSCIOUS_WORDS,
@@ -711,6 +712,68 @@ function countIssues(ctx: Context, text: string): Found[] {
     }
   }
   return found;
+}
+
+// ---------------------------------------------------------------------------
+// Off-turn actors (TASK-0214).
+
+const TURN_ACT_FORMS = new Set(TURN_ACT_VERBS.flatMap(verbForms));
+
+/**
+ * Names an off-turn actor shown taking a turn action (strike, shoot, cast,
+ * throw, charge). Same walk as `actIssues`, with a different actor filter and
+ * verb list. Words, looks and flinches pass.
+ * ponytail: unique aliases only ("the goblin" with three goblins is skipped);
+ * upgrade to the group-noun resolver when a playtest shows a shared-noun breach passing.
+ */
+export function offTurnActs(
+  state: ClaimState,
+  text: string,
+  offTurn: readonly string[],
+): ClaimIssue[] {
+  const ctx = new Context(state.snapshot, state.diff);
+  const narr = maskQuotes(text);
+  const occs = ctx.occurrences(narr);
+  const names = new Set(offTurn);
+  const issues: ClaimIssue[] = [];
+  const seen = new Set<string>();
+  for (const c of clausesOf(narr)) {
+    const tokens = tokenize(narr, c.start, c.end);
+    for (const o of occs) {
+      if (o.start < c.start || o.start >= c.end || !o.unique) continue;
+      const actor = ctx.actor(o.ids[0] as string);
+      if (!actor || !names.has(actor.name)) continue;
+      // The claim gate reports a barred actor.
+      if (ctx.barredState(actor)) continue;
+      if (TURN_ORDER_PHRASE.test(narr.slice(o.end, c.end))) continue;
+      if (!isSubject(o, tokens, c.start)) continue;
+      const comma = narr.indexOf(",", o.end);
+      const segEnd = comma === -1 || comma > c.end ? c.end : comma;
+      const window = tokens
+        .filter((t) => t.start >= o.end && t.start < segEnd)
+        .slice(0, 4);
+      for (const t of window) {
+        if (occs.some((x) => x !== o && t.start >= x.start && t.start < x.end))
+          break;
+        const between = narr.slice(o.end, t.start).replace(/’/g, "'");
+        if (NEGATION_RE.test(between)) break;
+        if (!TURN_ACT_FORMS.has(t.w)) continue;
+        const matched = truncate(text.slice(o.start, t.end));
+        const key = `${actor.id}|${matched}`;
+        if (!seen.has(key)) {
+          seen.add(key);
+          issues.push({
+            claim: "act",
+            actorIds: [actor.id],
+            matched,
+            detail: `${ctx.displayName(actor)} is off turn and is shown taking a turn action ("${matched}").`,
+          });
+        }
+        break;
+      }
+    }
+  }
+  return issues;
 }
 
 // ---------------------------------------------------------------------------
