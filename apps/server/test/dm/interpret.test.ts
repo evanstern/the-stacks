@@ -356,4 +356,50 @@ describe("check stakes contract (spec 070)", () => {
       AdjudicateModelOutput.safeParse(ruling(checkStep.stakes)).success,
     ).toBe(true);
   });
+
+  describe("spell step (spec 083 D4)", () => {
+    const spell = {
+      step: "spell",
+      reason: "Odo calls down sacred flame",
+      casterId: "odo",
+      spellId: "sacred-flame",
+      slotLevel: null,
+      targetId: "goblin-1",
+    };
+    it("parses a cantrip and a leveled cast", () => {
+      expect(StepSchema.safeParse(spell).success).toBe(true);
+      expect(
+        StepSchema.safeParse({
+          ...spell,
+          spellId: "cure-wounds",
+          slotLevel: 2,
+        }).success,
+      ).toBe(true);
+    });
+    it("refuses a model-written number or effect", () => {
+      for (const extra of [
+        { dc: 13 },
+        { expression: "1d8" },
+        { damage: [] },
+        { effects: [] },
+        { amount: 5 },
+      ]) {
+        expect(StepSchema.safeParse({ ...spell, ...extra }).success).toBe(
+          false,
+        );
+      }
+    });
+    it("refuses slotLevel 0 and 10 and a bad id grammar", () => {
+      for (const extra of [
+        { slotLevel: 0 },
+        { slotLevel: 10 },
+        { spellId: "Sacred Flame" },
+        { spellId: "" },
+      ]) {
+        expect(StepSchema.safeParse({ ...spell, ...extra }).success).toBe(
+          false,
+        );
+      }
+    });
+  });
 });

@@ -80,41 +80,41 @@ Phases run in order: Phase 2 needs Phase 1's engine command and exports.
 
 ## Phase 2: Spell step, plan gate, resolve, prompts, snapshot and seeds (card AC #1–#5; US1–US5)
 
-- [ ] T018 [US1] In `apps/server/src/dm/nodes/schemas.ts`, add the strict `spell` step (plan D4).
-- [ ] T019 [US3] In `apps/server/src/dm/gates/plan-gate.ts`, apply plan D6: the `spellLists` and
+- [x] T018 [US1] In `apps/server/src/dm/nodes/schemas.ts`, add the strict `spell` step (plan D4).
+- [x] T019 [US3] In `apps/server/src/dm/gates/plan-gate.ts`, apply plan D6: the `spellLists` and
       `srdSpell` inputs, `stepIds`, `foreignActor`, `stepTexts`, `askUndeclared`, `spellGap` and the
       intent-`spell` refusal, and the new verdict codes and failure reasons.
-- [ ] T020 [US1] In `apps/server/src/dm/nodes/resolve.ts`, add `case "spell"` (plan D5) and pass
+- [x] T020 [US1] In `apps/server/src/dm/nodes/resolve.ts`, add `case "spell"` (plan D5) and pass
       `spellLists` and `srdSpell` to `checkPlan`, built from the seed characters and `deps.srd`.
-- [ ] T021 [US5] In `apps/server/src/dm/prompts/step-grammar.ts`, add the spell line and the rule
+- [x] T021 [US5] In `apps/server/src/dm/prompts/step-grammar.ts`, add the spell line and the rule
       sentence (plan D7). Bump `prompts/interpret.ts` and `prompts/adjudicate.ts` one past `main`
       (interpret-v12, adjudicate-v9 at authoring; record any other value).
-- [ ] T022 [US5] In `apps/server/src/dm/snapshot/render.ts`, render the sheet's spell ids.
-- [ ] T023 Add `"cure-wounds"` to Odo's `identity.spells` in the four greyhollow seeds (plan D8).
-- [ ] T024 Add a `spellStep()` helper to `apps/server/test/dm/world.ts`.
-- [ ] T025 [US1] In `apps/server/test/dm/interpret.test.ts`: a spell step parses; one with `dc`,
+- [x] T022 [US5] In `apps/server/src/dm/snapshot/render.ts`, render the sheet's spell ids.
+- [x] T023 Add `"cure-wounds"` to Odo's `identity.spells` in the four greyhollow seeds (plan D8).
+- [x] T024 Add a `spellStep()` helper to `apps/server/test/dm/world.ts`.
+- [x] T025 [US1] In `apps/server/test/dm/interpret.test.ts`: a spell step parses; one with `dc`,
       `expression`, `damage`, `effects` or `amount` is rejected; `slotLevel` 0 and 10 are rejected; a
       bad id grammar is rejected.
-- [ ] T026 [US3] In `apps/server/test/dm/plan-gate.test.ts`: `SPELL_UNKNOWN`, `SPELL_NOT_PREPARED`
+- [x] T026 [US3] In `apps/server/test/dm/plan-gate.test.ts`: `SPELL_UNKNOWN`, `SPELL_NOT_PREPARED`
       (Odo and `fire-bolt`; a monster caster), `SPELL_UNRESOLVED` (`bless`; a cantrip with a slot
       level; a leveled spell below its level; intent `spell` with only check and effect steps),
       `STAT_UNDEFINED` (a caster with no spellcasting ability); a spell by another party member in a
       character action is refused `STEP_ACTOR_MISMATCH`; a joining caster is skipped; a
       contradicting spell `reason` is refused `REASON_CONTRADICTS_STATE`; a clarify reading with
       intent `spell` passes.
-- [ ] T027 [US5] In `apps/server/test/dm/interpret-prompt.test.ts`: the new version strings, the
+- [x] T027 [US5] In `apps/server/test/dm/interpret-prompt.test.ts`: the new version strings, the
       spell grammar line and the rule sentence. In `snapshot-render.test.ts`: Odo's sheet lists his
       spell ids.
-- [ ] T028 In `apps/server/test/dm/fallback.test.ts`, add one case per delivery (attack, save, heal)
+- [x] T028 In `apps/server/test/dm/fallback.test.ts`, add one case per delivery (attack, save, heal)
       that pins the fallback sentences for a `spell.cast` batch. If a sentence is wrong, stop and
       report (plan "Not touched").
-- [ ] T029 [US2] [US4] Create `apps/server/test/dm/spells.integration.test.ts` over the
+- [x] T029 [US2] [US4] Create `apps/server/test/dm/spells.integration.test.ts` over the
       greyhollow-ford seed: Odo's `sacred-flame` on a goblin lands a save row at DC 13 and radiant
       damage on a failure; Odo's `cure-wounds` heals a downed Kestrel `2d8+3` and she wakes (TASK-0211
       AC #2); three casts of `cure-wounds` spend both slots, and the third is refused
       `NO_SLOT_AVAILABLE` with no healing row; `bless` is refused `SPELL_UNRESOLVED` with no dice
       row (card AC #3); `no-such-spell` is refused `SPELL_UNKNOWN`.
-- [ ] T030 Amend `specs/031-dm-runtime/contracts/nodes.md`, `resolve.md` and
+- [x] T030 Amend `specs/031-dm-runtime/contracts/nodes.md`, `resolve.md` and
       `specs/058-roll-reason-plan-gate/contracts/plan-reason-gate.md`, each marked "Amended by
       specs/083-spells-by-srd-id".
 - [ ] T031 Run `pnpm ci:check` and the full DB suites, including `dm-scripts.test.ts` and

@@ -181,7 +181,7 @@
         "attacks": [
           { "name": "Mace", "expression": "1d20+3", "damage": [{ "dice": "1d6+1", "damageType": "bludgeoning" }] }
         ],
-        "spells": ["sacred-flame", "guidance", "healing-word", "bless"]
+        "spells": ["sacred-flame", "guidance", "healing-word", "bless", "cure-wounds"]
       },
       "portrayal": {
         "voice": "Warm, slow, fond of proverbs he gets slightly wrong.",

@@ -99,3 +99,17 @@ Amended by spec 078: `arriving` also holds the Director's legal arrivals, and th
   the engine combatant must succeed. Joining combatants are skipped. A failure refuses the group
   with `STAT_UNDEFINED` and a `PlanFailure` (`reason` `stat-undefined`, `field` `ability`, `skill`
   or `attack`). The stat check runs after the id walk and before the reason check.
+
+## Amended by specs/083-spells-by-srd-id (TASK-0105)
+
+- A `spell` step's `reason` is a model-written text; the reason check covers it, field `reason`.
+- New spell rule, run after the stat check and before the reason check, per spell step in order:
+  `SPELL_UNKNOWN` (no SRD record), `SPELL_NOT_PREPARED` (the caster has no seed list or the id is
+  not on it), `SPELL_UNRESOLVED` (no engine table entry, or a slot level wrong for the spell's
+  level), `STAT_UNDEFINED` (no caster spellcasting modifier, or a save spell's target with no
+  derivable save). A joining caster is skipped. `PlanFailure.reason` gains `spell-unknown`,
+  `spell-not-prepared` and `spell-unresolved`.
+- A non-clarify reading with intent `spell` and no spell step is refused `SPELL_UNRESOLVED`
+  (field `intent`).
+- A spell step's caster is checked like an attacker: another party member's spell in a character
+  action is refused `STEP_ACTOR_MISMATCH`.

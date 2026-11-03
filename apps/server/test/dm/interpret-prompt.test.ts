@@ -70,8 +70,8 @@ const NARRATIVE =
 
 describe("interpret and adjudicate prompts", () => {
   it("bumps the prompt versions", () => {
-    expect(INTERPRET_VERSION).toBe("dm.interpret-v11");
-    expect(ADJUDICATE_VERSION).toBe("dm.adjudicate-v8");
+    expect(INTERPRET_VERSION).toBe("dm.interpret-v12");
+    expect(ADJUDICATE_VERSION).toBe("dm.adjudicate-v9");
   });
 
   it("renders a frightened monster's condition and AC from S0 (G6)", async () => {
@@ -227,6 +227,18 @@ describe("interpret and adjudicate prompts", () => {
     expect(OUTPUT_SHAPE).toContain("set reveals to that clue");
   });
 
+  it("renders the spell step and the engine-owns-spell-numbers rule (spec 083 D7)", () => {
+    expect(STEP_GRAMMAR).toContain('{"step":"spell"');
+    expect(STEP_GRAMMAR).toContain("Spell numbers come from the engine");
+    expect(STEP_GRAMMAR).toContain(
+      "never rebuild it from check, attack or effect steps",
+    );
+    const line = STEP_GRAMMAR.split("\n").find((l) =>
+      l.startsWith('{"step":"spell"'),
+    );
+    expect(line).not.toMatch(/"dc"|expression|damage|1d20/);
+  });
+
   it("renders the tier list and the derivation rule, with no number field (spec 082)", () => {
     expect(STEP_GRAMMAR).toContain("medium (DC 15)");
     expect(STEP_GRAMMAR).toContain("nearly-impossible (DC 30)");
@@ -246,6 +258,8 @@ describe("interpret and adjudicate prompts", () => {
       {"step":"check","reason":str,"combatantId":id|null,"kind":"ability-check"|"saving-throw","ability":"str"|"dex"|"con"|"int"|"wis"|"cha","skill":skill key|null,"difficulty":difficulty tier,"circumstance":{"mode":"advantage"|"disadvantage","reason":str}|null,"autoFail":{"reason":str}|null,"onSuccess":[effect],"onFailure":[effect],"stakes":{"success":str,"cost":str|null,"failure":str,"severe":str|null},"onCost":[effect],"onSevere":[effect],"newRisk":str|null,"reveals":clue ref|null}
       A check's stakes are declared before the dice. stakes.success: what happens when the attempt succeeds, written as the concrete outcome of this attempt; always written. reveals: the reference of one listed discoverable clue that a success shows, else null. stakes.cost: what happens on success at a cost, a miss by 1 or 2 (the goal is met, with a price). stakes.failure: what a plain failure costs; always written. stakes.severe: what happens on a severe failure, a miss by 5 or more. An ability check needs cost and severe; a saving throw sets them null. onCost and onSevere hold the effects of those bands. newRisk is a new danger that makes a repeat attempt a fresh roll; null otherwise.
       {"step":"attack","reason":str,"attackerId":id,"targetId":id,"attack":attack name,"circumstance":{"mode":"advantage"|"disadvantage","reason":str}|null,"onHit":[effect]}  (onHit holds conditions, healing or presence, never damage: the engine applies the attack's own damage on a hit)
+      {"step":"spell","reason":str,"casterId":id,"spellId":SRD spell id,"slotLevel":int 1-9|null,"targetId":id}  (slotLevel null for a cantrip)
+      Name the caster, the SRD spell id from the caster's spell list, the slot level (null for a cantrip) and one target. The engine resolves the spell's attack or save, DC, damage, healing and conditions from the SRD record and the caster's stats. Spell numbers come from the engine. A spell the engine cannot resolve is refused; never rebuild it from check, attack or effect steps.
       Difficulty tiers (the only allowed values of "difficulty"): very-easy (DC 5), easy (DC 10), medium (DC 15), hard (DC 20), very-hard (DC 25), nearly-impossible (DC 30)
       {"step":"effect","reason":str,"effects":[effect]}
       {"step":"roll","reason":str,"expression":"1d6","mode":roll mode}
