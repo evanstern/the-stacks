@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-10-28 19:20'
-updated_date: '2026-11-03 04:51'
+updated_date: '2026-11-03 05:04'
 labels:
   - dm
   - rules
@@ -56,6 +56,9 @@ spec-bridge sync: Step contract, discoverable clues, seeds, fixtures (card AC #1
 Spec 080 (93143a67). Defaults (a) taken: OQ-1 a success names only the current beat's clues (seed-marked discoverable); secrets and knows stay out. OQ-2 ferry-house clue 1 names goblin feet in the three seeds and the spec 031 copy. OQ-3 claw-marks fixture is reconstructed and labelled so; the runbook B playtest re-checks it live. OQ-4 no lexical delivery check here; revisit card opened. Findings: the seed never named the creature, and interpret never saw beat clues. Builds after TASK-0127.
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 080 phases 1-2, with seam check against built spec 070)
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 080 phase 3)
+Seam check (phases 1-2): seams moved, none changed meaning; see specs/080-declared-outcome/deviations.md.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
