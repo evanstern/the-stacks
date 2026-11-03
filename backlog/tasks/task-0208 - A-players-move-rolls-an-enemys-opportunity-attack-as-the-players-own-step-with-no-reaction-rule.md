@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-11-02 23:11'
-updated_date: '2026-11-03 01:20'
+updated_date: '2026-11-03 01:21'
 labels:
   - dm
   - rules
@@ -43,6 +43,8 @@ Spec: specs/079-engine-opportunity-attack
 
 <!-- SECTION:NOTES:BEGIN -->
 Claimed 2026-11-02 by M3 runbook B (docs/design/m3-runbook-b-resolution-quality.md). Worktree .worktrees/task-0208, branch task-0208-engine-opportunity-attack, cut from origin/main fbf4d1df. Spec number 079 claimed with a stub. Spine #7.
+
+Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5 (spec 079 authoring, C1)
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
