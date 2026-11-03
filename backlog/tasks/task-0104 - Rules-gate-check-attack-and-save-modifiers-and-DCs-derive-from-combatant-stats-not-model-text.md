@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-10-26 15:42'
-updated_date: '2026-11-03 05:50'
+updated_date: '2026-11-03 06:09'
 labels:
   - engine
   - dm
@@ -36,13 +36,15 @@ Spec: specs/082-engine-derived-numbers
 - [ ] #3 Attack rolls use the target's AC from its stats; targetAc is not model-written
 - [ ] #4 A step naming a combatant, ability or skill the stats do not define is rejected at the schema or engine gate, with a test
 - [ ] #5 Scripted-dice engine tests cover each derivation; existing dm tests and the scripted CI playtest stay green
-- [ ] #6 Spec phase: Seam check [orchestrator]
+- [x] #6 Spec phase: Seam check [orchestrator]
 - [ ] #7 Spec phase: Engine derivation (card AC #1, #2, #4, #5; US1, US2, US3, US4)
 - [ ] #8 Spec phase: Stats on combatants and the reaction path (card AC #1, #3, #4; US2, US3)
 - [ ] #9 Spec phase: Step contract, prompts, resolve and plan gate (card AC #1–#4; US1, US2, US3)
 - [ ] #10 Spec phase: Scripts, fixtures and integration tests (card AC #5; US5)
 - [ ] #11 Spec phase: Re-ground (wiki)
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
