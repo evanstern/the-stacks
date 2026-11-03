@@ -41,12 +41,6 @@ Spec: specs/078-revealed-npc-present
 - [x] #6 Spec phase: Wiki re-ground
 <!-- AC:END -->
 
-
-
-
-
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -64,6 +58,8 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (
 Spine amendment: 0206 builds in parallel with 0205 (both touch plan-gate.ts in separate functions; runner.ts only 0205). 0205 merges first.
 
 Dispatch: tier=haiku pinned=cc/claude-haiku-5-5 served=claude-haiku-5-5 (spec 078 phase 3, wiki)
+
+spec-bridge sync: The Director's arrivals, resolve and the plan gate (card AC #1, #2): 9/9 · The chronicle and the run 1 seq 40–45 replay (card AC #1, #2, #3; merge condition): 7/7 · Wiki re-ground: 6/6 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
