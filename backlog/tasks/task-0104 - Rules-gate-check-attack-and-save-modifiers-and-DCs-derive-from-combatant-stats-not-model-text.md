@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-10-26 15:42'
-updated_date: '2026-11-03 03:19'
+updated_date: '2026-11-03 03:20'
 labels:
   - engine
   - dm
@@ -44,6 +44,8 @@ Spec: specs/082-engine-derived-numbers
 RESEARCH FINDINGS 2026-10-26 (TASK-0115; decision-0022 D14 point 4). Derive the modifier from the character's ability, proficiency and skill data. The model picks a difficulty tier from the SRD 5.2.1 ladder (Very Easy 5, Easy 10, Medium 15, Hard 20, Very Hard 25, Nearly Impossible 30; SRD p.6), never a raw number. Advantage and disadvantage come from conditions where the SRD defines them, plus model-stated circumstances with a reason. Social DCs keyed to NPC attitude belong to TASK-0119. Dependents: TASK-0128 (opposition DC and Help), TASK-0130 (doctrine pass).
 
 Claimed 2026-11-02 by M3 runbook B (docs/design/m3-runbook-b-resolution-quality.md). Worktree .worktrees/task-0104, branch task-0104-engine-derived-numbers, cut from origin/main b79489e2. Spec number 082 claimed with a stub. Spine #13; R3: authored against spec 070's step contract.
+
+Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5 (spec 082 authoring, C1)
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
