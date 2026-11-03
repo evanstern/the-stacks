@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-10-28 19:20'
-updated_date: '2026-11-03 03:20'
+updated_date: '2026-11-03 04:21'
 labels:
   - dm
   - rules
@@ -38,7 +38,10 @@ Spec: specs/080-declared-outcome
 - [ ] #3 The narrate prompt presents the applied outcome as settled fact that the prose must deliver
 - [ ] #4 The auditor fails narration that does not deliver the applied outcome, with a test over a captured run that replays the claw-marks case
 - [ ] #5 A success on an information-seeking check names seed information in its declared outcome, with a test
+- [ ] #6 Spec phase: Step contract, discoverable clues, seeds, fixtures (card AC #1, #5; US1, US2)
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
