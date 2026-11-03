@@ -26,15 +26,17 @@ Spec: specs/084-opposition-and-help
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 The engine derives an opposition DC from the opponent's stats for each SRD-defined case, with tests
-- [ ] #2 A Help action grants advantage on the ally's next matching check and expires per SRD 5.2.1, with a test
-- [ ] #3 Interpret emits opposition and help as step kinds, and a schema test covers both
+- [x] #1 The engine derives an opposition DC from the opponent's stats for each SRD-defined case, with tests
+- [x] #2 A Help action grants advantage on the ally's next matching check and expires per SRD 5.2.1, with a test
+- [x] #3 Interpret emits opposition and help as step kinds, and a schema test covers both
 - [x] #4 Spec phase: Seam check [orchestrator]
 - [x] #5 Spec phase: Engine (card AC #1, #2; US1, US2)
 - [x] #6 Spec phase: Step contract, prompts, plan gate and resolve (card AC #1, #3; US1, US3)
 - [x] #7 Spec phase: Narration facts and end-to-end test (card AC #1–#3; US1, US2, US4)
 - [x] #8 Spec phase: Re-ground (wiki)
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
@@ -65,6 +67,6 @@ All spec tasks complete (Seam check [orchestrator]: 1/1 · Engine (card AC #1, #
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
-- [ ] #1 All tests and checks run green
-- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
+- [x] #1 All tests and checks run green
+- [x] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
