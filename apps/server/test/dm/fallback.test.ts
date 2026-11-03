@@ -375,13 +375,38 @@ describe("factualSummary: one sentence per fact", () => {
       actions: [action({ outcome: "no-effect" })],
       clarify: [{ actionId: "a1", question: "Which door?" }],
     });
-    expect(sum(hold)).toBe("What does Ana do?");
+    expect(sum(hold)).toBe("Which door?");
     const party = facts({
       actions: [action({ outcome: "no-effect", characterName: null })],
-      clarify: [{ actionId: "a1", question: "Which door?" }],
+      clarify: [{ actionId: "a1", question: "Roll for it?" }],
     });
     expect(sum(party)).toBe("What does the party do?");
     expect(sum(facts())).toBe("The moment holds.");
+  });
+
+  it("run 1 seq 172-176: ends on the clarify question, no turn handoff", () => {
+    const f = facts({
+      actions: [action({ outcome: "no-effect", characterName: "Tamsin" })],
+      clarify: [
+        {
+          actionId: "a1",
+          question: "Longsword in melee, or the light crossbow at range?",
+        },
+      ],
+    });
+    const out = sum(f);
+    expect(
+      out.endsWith("Longsword in melee, or the light crossbow at range?"),
+    ).toBe(true);
+    expect(out).not.toContain("moves next");
+  });
+
+  it("an unspeakable clarify question keeps the stock line", () => {
+    const f = facts({
+      actions: [action({ outcome: "no-effect" })],
+      clarify: [{ actionId: "a1", question: "Roll for it?" }],
+    });
+    expect(sum(f)).toBe("What does Ana do?");
   });
 });
 
@@ -471,7 +496,7 @@ describe("factualSummary: run-5 replays", () => {
     expect(out).toContain("Snag");
     expect(out).toContain("join the fight.");
     expect(out).toContain("Snag moves first.");
-    expect(out.endsWith("What does Tamsin Vale do?")).toBe(true);
+    expect(out.endsWith("Which way do you press on?")).toBe(true);
     expect(out).not.toMatch(/[0-9]/);
     expect(out).not.toMatch(/clearer|The party enters/);
   });

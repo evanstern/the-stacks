@@ -1,4 +1,5 @@
 import type { Ruling } from "./nodes/adjudicate.js";
+import type { BeatItem } from "./nodes/assemble.js";
 import type { DirectorNodeOutput } from "./nodes/director.js";
 import type { InterpretReading, Step } from "./nodes/schemas.js";
 
@@ -70,26 +71,47 @@ export function cutPlans(input: {
 }
 
 const HELD = "held: the plan was cut to its first stage";
+export const CLARIFY_HELD = "held: an action awaits an answer";
+
+/**
+ * Action ids a human's clarify holds (specs/073): committed, not an `ai:`
+ * actor, a reading that asks a question, no ruling that names the action.
+ */
+export function clarifyHolds(
+  beat: readonly BeatItem[],
+  readings: readonly InterpretReading[],
+  rulings: readonly Ruling[],
+): Set<string> {
+  const held = new Set<string>();
+  for (const b of beat) {
+    if (b.status !== "committed" || b.actor.startsWith("ai:")) continue;
+    if (rulings.some((r) => r.actionId === b.actionId)) continue;
+    if (readings.some((r) => r.actionId === b.actionId && r.clarify !== null))
+      held.add(b.actionId);
+  }
+  return held;
+}
 
 /** Holds turn, tracker and scene-end decisions of a cut beat. `free` is never held. */
 export function holdDirector(
   director: DirectorNodeOutput,
   cutBeat: boolean,
+  reason: string = HELD,
 ): DirectorNodeOutput {
   if (!cutBeat) return director;
   const overrides = [...director.overrides];
   let { tableMode, trackers, scene } = director;
   if (tableMode.to === "turn") {
     tableMode = { to: "stay" };
-    overrides.push({ decision: "turn", reason: HELD });
+    overrides.push({ decision: "turn", reason });
   }
   if (trackers.length > 0) {
     trackers = [];
-    overrides.push({ decision: "tracker", reason: HELD });
+    overrides.push({ decision: "tracker", reason });
   }
   if (scene.status === "end") {
     scene = { status: "continue" };
-    overrides.push({ decision: "scene-end", reason: HELD });
+    overrides.push({ decision: "scene-end", reason });
   }
   if (overrides.length === director.overrides.length) return director;
   return { ...director, tableMode, trackers, scene, overrides };

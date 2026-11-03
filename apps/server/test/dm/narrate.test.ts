@@ -307,7 +307,7 @@ describe("narrate", () => {
       facts,
       prior: null,
     });
-    expect(NARRATE_VERSION).toBe("dm.narrate-v7");
+    expect(NARRATE_VERSION).toBe("dm.narrate-v8");
     expect(prompt.system).toContain(
       "Name a character as dead or unconscious only when a fact or the state sections say so; when a fact says so, say so.",
     );
@@ -351,9 +351,11 @@ describe("narrate", () => {
       sys.indexOf("When an intent is unclear"),
     );
     expect(prompt.system).toContain(
-      "end with one short open question in your own words",
+      "end with the Unclear intent question exactly as written",
     );
-    expect(prompt.system).toContain("Never offer options.");
+    expect(prompt.system).toContain(
+      "Do not end with an either-or question, except the Unclear intent question.",
+    );
     expect(prompt.system).toContain("Cover every Event line.");
     expect(prompt.system).toContain("companions speak for themselves");
   });

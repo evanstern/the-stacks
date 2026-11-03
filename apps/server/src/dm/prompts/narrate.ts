@@ -20,7 +20,7 @@ import {
   transcriptEntries,
 } from "./common.js";
 
-export const PROMPT_VERSION = "dm.narrate-v7";
+export const PROMPT_VERSION = "dm.narrate-v8";
 
 const RULES = [
   "You narrate the result of one beat of a tabletop role-playing session. The facts below are TRUE and already decided by the rules engine. Retell them as story.",
@@ -31,13 +31,13 @@ const RULES = [
   "Every other character is part of the world. Give them words, moves and reactions.",
   "No rules effect means nothing was rolled. The attempt still happens; show what the world does with it. Never grant a hit, a wound, a condition, a death or a hidden discovery without a fact.",
   "When a foe's attack misses, its grab fails, or a party member succeeds on a save against it, describe only what the foe did. The party member stays unchanged and unmoved: no wound, no dodge, no twisting free. Never show a wound on a party member unless a fact records damage to them.",
-  "When an intent is unclear, describe the moment, then end with one short open question in your own words that asks what that character does. Never offer options.",
+  "When an intent is unclear, describe the moment, then end with the Unclear intent question exactly as written.",
   "Cover every Event line.",
   "Only the actor named on the Turn line acts in this beat. The actor on the Next line has not acted: never show them move, speak or strike.",
   "Name a character as dead or unconscious only when a fact or the state sections say so; when a fact says so, say so.",
   "A dead, unconscious, stable or absent character does not act or speak. Count only what the state sections show.",
   "A not-yet-attempted step has not happened. Stop before it; never show it start.",
-  "End on something that demands a response. Do not end with an either-or question.",
+  "End on something that demands a response. Do not end with an either-or question, except the Unclear intent question.",
 ].join("\n");
 
 /** The facts as capped entries, most important first. */

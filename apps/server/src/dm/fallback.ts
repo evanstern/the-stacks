@@ -280,7 +280,11 @@ export function factualSummary(
   for (const c of facts.clarify) {
     const a = facts.actions.find((x) => x.actionId === c.actionId);
     const who = a?.characterName ? spellDigits(a.characterName) : "the party";
-    out.push(`What does ${who} do?`);
+    // Voice the question when it is speakable (specs/073); else the stock line.
+    const body = spellDigits(c.question.trim().replace(/\?+$/, ""));
+    out.push(
+      reasonSpeakable(body, state) ? `${body}?` : `What does ${who} do?`,
+    );
   }
 
   if (out.length === 0) out.push("The moment holds.");

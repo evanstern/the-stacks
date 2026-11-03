@@ -1,10 +1,13 @@
 import { describe, expect, it } from "vitest";
 import {
+  CLARIFY_HELD,
+  clarifyHolds,
   cutPlans,
   firstStage,
   holdDirector,
 } from "../../src/dm/first-stage.js";
 import type { Ruling } from "../../src/dm/nodes/adjudicate.js";
+import type { BeatItem } from "../../src/dm/nodes/assemble.js";
 import type { DirectorNodeOutput } from "../../src/dm/nodes/director.js";
 import type { InterpretReading, Step } from "../../src/dm/nodes/schemas.js";
 
@@ -202,5 +205,38 @@ describe("holdDirector", () => {
   it("adds no override when holding an already-held output", () => {
     const once = holdDirector(director(), true);
     expect(holdDirector(once, true).overrides).toHaveLength(3);
+  });
+});
+
+describe("clarifyHolds", () => {
+  const item = (actionId: string, over: Partial<BeatItem> = {}): BeatItem => ({
+    actionId,
+    committedSeq: 1,
+    actor: "user:tamsin",
+    characterId: "tamsin",
+    scope: "character",
+    text: "t",
+    status: "committed",
+    ...over,
+  });
+  const asks = (id: string) => ({ ...reading(id, []), clarify: "Which?" });
+  it("selects a human's clarify only", () => {
+    const beat = [
+      item("a"),
+      item("b", { actor: "ai:companion:odo" }),
+      item("c"),
+      item("d", { status: "resolved" }),
+      item("e"),
+    ];
+    const readings: InterpretReading[] = ["a", "b", "c", "d"].map(asks);
+    readings.push(reading("e", []));
+    const held = clarifyHolds(beat, readings, [ruling("c", [])]);
+    expect([...held]).toEqual(["a"]);
+  });
+  it("records the clarify reason and never holds free", () => {
+    const out = holdDirector(director(), true, CLARIFY_HELD);
+    expect(out.overrides.every((o) => o.reason === CLARIFY_HELD)).toBe(true);
+    const d = director({ tableMode: { to: "free", reason: "r" } });
+    expect(holdDirector(d, true, CLARIFY_HELD).tableMode).toEqual(d.tableMode);
   });
 });

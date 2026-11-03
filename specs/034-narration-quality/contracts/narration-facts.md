@@ -74,6 +74,9 @@ RULES changes:
    without a fact."
 4. Add: "When an intent is unclear, describe the moment, then end with one short open question
    in your own words that asks what that character does. Never offer options."
+   Amended by spec 073 (TASK-0209), `dm.narrate-v8`: "When an intent is unclear, describe the
+   moment, then end with the Unclear intent question exactly as written." The closing rule adds
+   ", except the Unclear intent question".
 5. Add: "Cover every Event line."
 6. Keep every other rule.
 
