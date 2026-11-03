@@ -1,10 +1,10 @@
 ---
 id: TASK-0127
 title: 'Stakes before dice: outcome bands and pre-declared consequences'
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-10-27 02:32'
-updated_date: '2026-11-03 04:37'
+updated_date: '2026-11-03 04:43'
 labels:
   - dm
   - doctrine
@@ -60,6 +60,12 @@ Seam check (phases 1-2): no seam changed meaning; adjustments in specs/070-stake
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 070 phase 5, contracts and wiki)
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Engine bands, naturals and auto-success (card AC #2, #4, #7; US1, US2): 7/7 · Step contract, prompts, table rules, plan gate, fixtures (card AC #1, #3; US1, US2): 14/14 · Resolve by band and the free retry (card AC #2, #3, #5; US1, US2, US3): 8/8 · Facts, narration, audit, fallback, ledger view (card AC #2, #6; US1, US4): 11/11 · Contracts and wiki re-ground: 5/5). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
