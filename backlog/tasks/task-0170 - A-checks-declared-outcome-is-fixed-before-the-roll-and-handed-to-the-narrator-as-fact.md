@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-10-28 19:20'
-updated_date: '2026-11-03 05:04'
+updated_date: '2026-11-03 05:11'
 labels:
   - dm
   - rules
@@ -59,6 +59,8 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 080 phase 3)
 Seam check (phases 1-2): seams moved, none changed meaning; see specs/080-declared-outcome/deviations.md.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 080 phase 4, contracts and wiki)
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
