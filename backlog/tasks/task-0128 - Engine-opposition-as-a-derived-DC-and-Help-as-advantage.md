@@ -32,7 +32,10 @@ Spec: specs/084-opposition-and-help
 - [ ] #4 Spec phase: Seam check [orchestrator]
 - [ ] #5 Spec phase: Engine (card AC #1, #2; US1, US2)
 - [ ] #6 Spec phase: Step contract, prompts, plan gate and resolve (card AC #1, #3; US1, US3)
+- [ ] #7 Spec phase: Narration facts and end-to-end test (card AC #1–#3; US1, US2, US4)
 <!-- AC:END -->
+
+
 
 
 
