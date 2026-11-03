@@ -39,12 +39,6 @@ Spec: specs/077-no-undeclared-method
 - [x] #6 Spec phase: Wiki (re-ground)
 <!-- AC:END -->
 
-
-
-
-
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -61,6 +55,8 @@ Spec 077 (4b023442). Defaults taken: OQ-1 a roll on another human's PC becomes a
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 077 phases 1-2)
 
 Dispatch: tier=haiku pinned=cc/claude-haiku-5-5 served=claude-haiku-5-5 (spec 077 phase 3, wiki)
+
+spec-bridge sync: The rule (card AC #1, #2; US1, US2): 5/5 · Wiring and the run 1 replay (merge condition; US1, US2): 7/7 · Wiki (re-ground): 7/7 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
