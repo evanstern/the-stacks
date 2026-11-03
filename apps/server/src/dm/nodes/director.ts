@@ -20,7 +20,8 @@ export type DirectorOverrideKind =
   | "free"
   | "tracker"
   | "scene-end"
-  | "companionPrompts";
+  | "companionPrompts"
+  | "arrivals";
 
 export interface DirectorOverride {
   decision: DirectorOverrideKind;
@@ -45,6 +46,16 @@ export function aiCompanionIds(projections: SessionProjections): string[] {
   return projections.party
     .filter((m) => m.controller.kind === "ai-companion")
     .map((m) => m.characterId);
+}
+
+/** Seed NPC ids, in seed order, whose logged presence is `absent`. */
+export function offstageNpcIds(
+  projections: SessionProjections,
+  seed: SceneSeed,
+): string[] {
+  return seed.npcs
+    .filter((n) => projections.scenePresence[n.id]?.presence === "absent")
+    .map((n) => n.id);
 }
 
 /** Seed encounters whose monsters are not yet in the engine state. */
@@ -115,6 +126,7 @@ export function legalizeDirector(
     pacing: model.pacing,
     goalNote: model.goalNote,
     companionPrompts: model.companionPrompts,
+    arrivals: model.arrivals ?? [],
     overrides,
   };
   const free = projections.tableMode.mode === "free";
@@ -152,6 +164,13 @@ export function legalizeDirector(
     out.trackers = [];
     out.scene = { status: "continue" };
     out.companionPrompts = [];
+    if ((model.arrivals ?? []).length > 0) {
+      overrides.push({
+        decision: "arrivals",
+        reason: "scene start logs only the seed declaration",
+      });
+    }
+    out.arrivals = [];
     return out;
   }
 
@@ -223,6 +242,19 @@ export function legalizeDirector(
     }
     out.companionPrompts = legal;
   }
+
+  // arrivals
+  const offstage = new Set(offstageNpcIds(projections, seed));
+  const arrivals = [...new Set(model.arrivals ?? [])].filter((id) =>
+    offstage.has(id),
+  );
+  if (arrivals.length !== (model.arrivals ?? []).length) {
+    overrides.push({
+      decision: "arrivals",
+      reason: "an arrival named an NPC that is not offstage",
+    });
+  }
+  out.arrivals = arrivals;
   return out;
 }
 
@@ -244,6 +276,10 @@ export const director: Node<"director"> = async (ctx) => {
       return `${id} (${m?.name ?? id})`;
     }),
     runnableEncounterIds: runnableEncounterIds(assembled.projections, ctx.seed),
+    offstageNpcs: offstageNpcIds(assembled.projections, ctx.seed).map((id) => {
+      const n = ctx.seed.npcs.find((x) => x.id === id);
+      return `NPC ${id} (${n?.name ?? id}, ${n?.identity.role ?? "npc"})`;
+    }),
   });
   const result = await callJson(ctx.deps, {
     purpose: PURPOSE_OF.director,

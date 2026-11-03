@@ -41,7 +41,7 @@ sources:
   - apps/server/seeds/greyhollow-ford-trio.json
   - biome.json
 size_budget_exempt: both notes sat within 30 chars of the 8000 budget before TASK-0180; the talk path got its own note (dm-talk-triggers) and only a pointer line lands here; the rest is one pipeline each, not splittable without a TASK of its own
-verified_against: 02f7965a7e86e0a2233c756a7bd9cbc70730bc6c
+verified_against: 022452c9327344e8ae67e69066acfe6450e134e3
 ---
 
 # DM runtime
@@ -61,12 +61,12 @@ async function `(TurnContext) => NodeResult`.
    (`AssembleOutput.snapshot`; each actor's logged scene presence sets `presentNpcIds`), selects scene-seed material, and looks up SRD
    records ([[srd-data]]). `AssembleOutput.resumed` holds the plans of actions whose paused turn's proposal is now approved (`resume.ts`, TASK-0168, specs/057); the checkpoint freezes them.
 2. **director** - `dm.director`. Decides scene-level changes (set the scene, trackers, table
-   mode, encounter setup) and whether the beat resolves or **holds** for companions.
+   mode, encounter setup), whether the beat resolves or **holds** for companions, and the optional `arrivals` list (offstage seed NPCs now on screen, `dm.director-v6`). `legalizeDirector` keeps only offstage seed NPCs and drops all arrivals on scene start.
 3. **interpret** - `dm.interpret`. Reads each action into steps (check, attack, effect, roll) and
    flags `needsAdjudication`. Resumed actions are not read again; their stored readings rejoin in beat order.
 4. **adjudicate** - `dm.adjudicate`, only when an interpret reading asks. May call `retrieve`
    ([[retrieval]]) for rules text and returns a ruling. Resumed readings keep their stored ruling.
-   A code-only **first-stage cut** (`first-stage.ts`, TASK-0182) runs between adjudicate and resolve: in `free` mode steps after the first run of like checks become `followUps`, and `holdDirector` holds that beat's turn, tracker and scene-end moves. `checkpoint.cut` makes a reclaim skip it. A human's clarify also holds (specs/073): `clarifyHolds` marks each committed human action whose reading asks a question and has no ruling; the cut holds that beat's turn, tracker and scene-end moves with reason `held: an action awaits an answer`. An AI actor's clarify does not hold.
+   A code-only **first-stage cut** (`first-stage.ts`, TASK-0182) runs between adjudicate and resolve: in `free` mode steps after the first run of like checks become `followUps`, and `holdDirector` holds that beat's turn, tracker and scene-end moves. `checkpoint.cut` makes a reclaim skip it. A human's clarify also holds (specs/073): `clarifyHolds` marks each committed human action whose reading asks a question and has no ruling; the cut holds that beat's turn, tracker and scene-end moves with reason `held: an action awaits an answer`. An AI actor's clarify does not hold. After the cut, `askUndeclared` (spec 077, [[dm-failure-and-gates]]) turns an undeclared manner check or another human's roll into a clarify, so the same hold applies; the `dm.plan.cut` log line reports the count as `asked`.
 5. **resolve** - code only; the one node that writes. It first seeds the run with each resumed plan's submissions (an approved `pending` one becomes `applied`), so the chain continues without a second roll. After its last gate write it builds **S1** and returns
    `ResolveOutput.snapshot` and `ResolveOutput.diff` (S0 to S1). See below.
 6. **narrate** - `dm.narrate`. Writes prose from code-built facts (including the monster reading's plan and the turn holder, TASK-0193), the player-facing seed view and S1 ([[dm-narration-quality]]).
@@ -113,6 +113,7 @@ the fallback and the player-facing seed view are in [[dm-narration-quality]].
   the seed id is the scene id.
 - **Doctrine** (`doctrine/doctrine.ts`): DM-craft rules adapted from tabletop-dm (commit
   fe2c29b, Copyright (c) 2026 Brad Bush, MIT). `doctrine/NOTICE.md` carries the licence.
+- **Agency** (specs/074, TASK-0113; `AGENCY_RULE` and `agencyRule(node)` in `doctrine.ts`): one shared rule, rendered into the director, interpret, narrate, audit, companion, react and playtest-auditor prompts. A party member's volitional acts belong to its player. The dice may decide a reflex only, and a reflex must be a fact (`FactInvoluntary`). The Director's goal note is pacing advice; the interpret prompt says so. The DOCTRINE pair 'Never decide the hero's words...' now allows a reflex and shows a club strike as the right example.
 - **Scripted DM** (`dm/script/`): per-purpose responses and dice become a strict `FakeProvider` plus
   `scriptedRng`, for tests and evidence runs ([[test-suite]]). `script/env.ts` also loads a shipped
   script (`apps/server/dm-scripts/greyhollow-live.json`) at boot under `DM_FAKE_SCRIPT` on a worktree
@@ -128,7 +129,7 @@ commits; a withdraw still takes the hold act.
 A `hold` decision queues a companion job that force-queues the turn. A trio table queues no companion job. `chronicle.ts` runs off the hot path after narration: `dm.chronicle`
 turns new narration into `journal` proposals, idempotent when nothing is new. It reads the state at
 its `throughSeq` (`loadProjectionsThrough`, [[session-model]]) and prints it in the `fiction` view
-(`dm.chronicle-v3`).
+(`dm.chronicle-v4`). The chronicle prompt drops absent actors from the fiction snapshot and allows a departure only when the transcript says so.
 
 ## Routes and boundary
 

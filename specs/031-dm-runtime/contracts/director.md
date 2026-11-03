@@ -109,3 +109,9 @@ Add this row to the legality table. Code enforces it after the cut, not the mode
 
 `holdDirector(director, cutBeat)` applies the row. A `free` decision is never held. The Director
 prompt is `dm.director-v4`.
+
+## Amendment 2026-11-02 (specs/078-revealed-npc-present): arrivals
+
+- Field: `arrivals?: RefId[]` (max 4), the offstage seed NPC ids the transcript or the beat shows on screen. `legalizeDirector` always sets it; an omitted field reads `[]`.
+- Legality: an arrival is legal when it names a seed NPC whose logged presence is `absent` and the trigger is not `scene-start`. Otherwise the id is dropped, duplicates collapse to the first, and one `arrivals` override is recorded.
+- Proposal: resolve submits one public `scene-presence` `arrived` proposal per legal arrival, key `director:arrival:<npcId>`, as the first opening move after the scene-start block.

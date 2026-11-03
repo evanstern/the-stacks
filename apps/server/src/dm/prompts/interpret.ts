@@ -1,7 +1,7 @@
 /**
  * DM-craft doctrine adapted from tabletop-dm (https://github.com/bradbushSFAI/tabletop-dm, commit fe2c29b), Copyright (c) 2026 Brad Bush, used under the MIT License. See apps/server/src/dm/doctrine/NOTICE.md.
  */
-import { renderDoctrine } from "../doctrine/doctrine.js";
+import { agencyRule, renderDoctrine } from "../doctrine/doctrine.js";
 import type { AssembleOutput } from "../nodes/assemble.js";
 import type { DirectorNodeOutput } from "../nodes/director.js";
 import type { TurnContext } from "../pipeline/context.js";
@@ -18,7 +18,7 @@ import {
 } from "./common.js";
 import { STEP_GRAMMAR } from "./step-grammar.js";
 
-export const PROMPT_VERSION = "dm.interpret-v5";
+export const PROMPT_VERSION = "dm.interpret-v6";
 
 /** One complete minimal reading: a check step with empty effect lists. */
 export const EXAMPLE_OUTPUT = {
@@ -72,6 +72,7 @@ export function buildInterpretPrompt(input: {
   ).join("\n\n");
   const system = [
     "You are the rules reader of a tabletop role-playing pipeline. You turn each declared action into mechanics inputs. You never decide a result.",
+    agencyRule("interpret"),
     "Doctrine:",
     doctrine,
     STEP_GRAMMAR,
@@ -105,7 +106,7 @@ export function buildInterpretPrompt(input: {
       CAPS.srdRecords * CAPS.srdPerRecord,
       "end",
     ),
-    `Pacing: ${director.pacing.tension}; note: ${director.goalNote}`,
+    `Pacing: ${director.pacing.tension}. Director's note (pacing advice only; it never adds a step, a method or a skill): ${director.goalNote}`,
     section("Beat items", beatEntries(freshBeat), 800, "end"),
     assembled.npcTurn
       ? `Monster turn: ${assembled.npcTurn.combatantId}${assembled.npcTurn.srdMonsterId ? ` (SRD ${assembled.npcTurn.srdMonsterId})` : ""}. Write one reading with actionId null.`

@@ -88,3 +88,5 @@ Spec 075 removes spec 068's attack and damage exception. Operator ruling, 2026-1
 "I actually think that the rule itself is incorrect -- we should be able to attack anyone
 regardless of combatant state." A pulled attack target starts no encounter and records no
 disposition (spec 075 OQ-1 (a)).
+
+Amended by spec 078: `arriving` also holds the Director's legal arrivals, and the id check does not treat an arriving id as absent.

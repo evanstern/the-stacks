@@ -1,6 +1,6 @@
 ---
 name: dm-talk-triggers
-description: In-character talk draws a world reaction (TASK-0180, specs/065, decision-0027) - the readable-post rule, code triggers, the 3 s quiet window and coalesced `talk` turn, the model-skip rule, the one `react` call (`dm.react-v1`), code checks, escalation into an unstarted encounter, the two-reaction chain cap, companion prompts, and the reclaim rules.
+description: In-character talk draws a world reaction (TASK-0180, specs/065, decision-0027) - the readable-post rule, code triggers, the 3 s quiet window and coalesced `talk` turn, the model-skip rule, the one `react` call (`dm.react-v2`), code checks, escalation into an unstarted encounter, the two-reaction chain cap, companion prompts, and the reclaim rules.
 kind: pipeline
 sources:
   - apps/server/src/dm/talk-triggers.ts
@@ -13,7 +13,7 @@ sources:
   - apps/server/src/dm/pipeline/context.ts
   - apps/server/src/dm/nodes/schemas.ts
   - apps/server/dm-scripts/greyhollow-talk.json
-verified_against: 02f7965a7e86e0a2233c756a7bd9cbc70730bc6c
+verified_against: 022452c9327344e8ae67e69066acfe6450e134e3
 ---
 
 # DM talk triggers
@@ -59,4 +59,4 @@ full pipeline.
 A landed narration is never shipped twice. A reclaimed escalation reads its posts as free mode
 once the opening move landed (commit c2e6d785), because the mode is already `turn`.
 
-`dm.react-v1` uses purpose `dm.narrate` ([[dm-runtime]]); no new purpose or migration.
+`dm.react-v2` uses purpose `dm.narrate` ([[dm-runtime]]); no new purpose or migration.

@@ -255,6 +255,8 @@ export const DirectorOutput = z.object({
   }),
   goalNote: z.string().max(300),
   companionPrompts: z.array(RefIdSchema).max(4),
+  /** Offstage seed NPCs now on screen (specs/078-revealed-npc-present). */
+  arrivals: z.array(RefIdSchema).max(4).optional(),
 });
 export type DirectorOutput = z.infer<typeof DirectorOutput>;
 
