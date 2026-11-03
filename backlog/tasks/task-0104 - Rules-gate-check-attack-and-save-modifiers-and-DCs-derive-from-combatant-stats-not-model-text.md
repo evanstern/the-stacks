@@ -44,18 +44,6 @@ Spec: specs/082-engine-derived-numbers
 - [ ] #11 Spec phase: Re-ground (wiki)
 <!-- AC:END -->
 
-
-
-
-
-
-
-
-
-
-
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -64,6 +52,8 @@ RESEARCH FINDINGS 2026-10-26 (TASK-0115; decision-0022 D14 point 4). Derive the 
 Claimed 2026-11-02 by M3 runbook B (docs/design/m3-runbook-b-resolution-quality.md). Worktree .worktrees/task-0104, branch task-0104-engine-derived-numbers, cut from origin/main b79489e2. Spec number 082 claimed with a stub. Spine #13; R3: authored against spec 070's step contract.
 
 Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5 (spec 082 authoring, C1)
+
+spec-bridge sync: Seam check [orchestrator]: 0/1 · Engine derivation (card AC #1, #2, #4, #5; US1, US2, US3, US4): 0/13 · Stats on combatants and the reaction path (card AC #1, #3, #4; US2, US3): 0/9 · Step contract, prompts, resolve and plan gate (card AC #1–#4; US1, US2, US3): 0/14 · Scripts, fixtures and integration tests (card AC #5; US5): 0/7 · Re-ground (wiki): 0/6
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
