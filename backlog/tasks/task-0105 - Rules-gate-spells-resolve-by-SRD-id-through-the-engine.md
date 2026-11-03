@@ -24,6 +24,8 @@ Outcome: when a character casts a spell, interpret or adjudicate emits a spell s
 Why: operator requirement 2026-10-26 (TASK-0102 card): 'Conditions, spells, and other rules with definitions absolutely need to be deterministically defined and resolvable.' Today no spell id exists in any node output: intent 'spell' plays as model-written check, attack and effect steps (apps/server/src/dm/nodes/schemas.ts). The SRD spell records exist since TASK-0043 (packages/srd, kind 'spell'). Found by the TASK-0102 gate audit (specs/033-director-robustness, rules-terms section).
 
 Depends on TASK-0104 (the engine derives the caster's spell attack bonus and save DC from stats). Spell slots on a PC sheet stay with TASK-0058 (m-4); this card resolves the spell, not slot bookkeeping, unless the spec finds the seed already tracks slots.
+
+Spec: specs/083-spells-by-srd-id
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
