@@ -74,10 +74,19 @@ checked at the plan gate before resolve logs them (spec 058)."
 Append a row to `specs/026-dnd5e-engine/contracts/refusals.md`: `REASON_CONTRADICTS_STATE` — "A DM
 step reason contradicts actor state. Plan gate only (spec 058); `execute` never returns it."
 
-## Non-combatant targets (spec 068)
+## Non-combatant targets (spec 068, amended by spec 075)
 
-*Amended by spec 068 (TASK-0194):* the id check also accepts the exact id of an S0 `npc` actor
-with no combatant, but only where the field is not an attack or damage target: `check`
-`combatantId`, and `condition` or `heal` effect targets. `attackerId`, `targetId` and damage
-effects still refuse. An accepted actor outside the encounter order (or any such actor in free
-mode) is listed in the `ok` verdict as `pull`, in first-seen order and without duplicates.
+*Amended by spec 068 (TASK-0194), then by spec 075 (TASK-0210):* the id check also accepts the
+exact id of an S0 `npc` actor with no combatant, in every named-id field: `check` `combatantId`,
+`attack` `attackerId` and `targetId`, and every `condition`, `heal` and `damage` effect target.
+An accepted actor outside the encounter order (or any such actor in free mode) is listed in the
+`ok` verdict as `pull`, in first-seen order and without duplicates. An alias still fails
+`not-a-combatant`. An absent actor still fails `absent`, except as the target of a `presence`
+effect with reason `arrived`.
+
+Spec 075 removes spec 068's attack and damage exception. Operator ruling, 2026-11-02 (TASK-0210):
+"I actually think that the rule itself is incorrect -- we should be able to attack anyone
+regardless of combatant state." A pulled attack target starts no encounter and records no
+disposition (spec 075 OQ-1 (a)).
+
+Amended by spec 078: `arriving` also holds the Director's legal arrivals, and the id check does not treat an arriving id as absent.

@@ -183,7 +183,7 @@ describe("F23: the fallback states the ledger in the fiction (T012, flipped)", (
     );
     const out = factualSummary(facts);
     expect(out).toBe(
-      "A fight breaks out. Snag, Goblin with a pot-helm, Goblin lookout and Goblin by the fire join the fight. Snag moves first. What does Tamsin Vale do?",
+      "A fight breaks out. Snag, Goblin with a pot-helm, Goblin lookout and Goblin by the fire join the fight. Snag moves first. Which way do you press on?",
     );
     expect(out).not.toContain("clearer description");
   });
@@ -351,15 +351,15 @@ describe("A3 and A4: clarify relay and craft judgments (T015)", () => {
       prior: null,
     });
     expect(prompt.system).toContain(
-      "end with one short open question in your own words",
+      "end with the Unclear intent question exactly as written",
     );
-    expect(prompt.system).toContain("Never offer options.");
+    expect(prompt.system).toContain("except the Unclear intent question.");
     expect(prompt.user).toContain(
       "on hold (the intent is unclear; nothing happened yet)",
     );
   });
 
-  it("A3: prose ending with that question fails deterministicChecks as an option menu", () => {
+  it("A3 (flipped by spec 073): prose ending with the clarify question passes the option-menu check", () => {
     const facts = noEffectFacts(194, "free", TAMSIN_PT4, [
       { actionId: "pt-4", question: CLARIFY_QUESTION },
     ]);
@@ -371,11 +371,7 @@ describe("A3 and A4: clarify relay and craft judgments (T015)", () => {
       },
       EMPTY_RESOLVE_SNAPSHOT,
     );
-    expect(r.pass).toBe(false);
-    expect(r.issues).toContainEqual({
-      kind: "doctrine",
-      detail: `The prose offers an option menu: the closing question "${CLARIFY_QUESTION}". Ask one open question instead.`,
-    });
+    expect(r.pass).toBe(true);
   });
 
   it("A4 (flipped): a doctrine-only dm.audit failure ships the narration on attempt 1", async () => {

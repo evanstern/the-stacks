@@ -1,5 +1,6 @@
 import { DamageTypeSchema } from "@the-stacks/dnd5e-engine";
 import { describe, expect, it } from "vitest";
+import { agencyRule } from "../../src/dm/doctrine/doctrine.js";
 import { assemble } from "../../src/dm/nodes/assemble.js";
 import type { DirectorNodeOutput } from "../../src/dm/nodes/director.js";
 import {
@@ -18,7 +19,14 @@ import {
   OUTPUT_SHAPE,
 } from "../../src/dm/prompts/interpret.js";
 import { STEP_GRAMMAR } from "../../src/dm/prompts/step-grammar.js";
-import { freeEventsThrough, makeCtx, projectDm } from "./helpers.js";
+import {
+  commit,
+  declare,
+  freeEventsThrough,
+  makeCtx,
+  projectDm,
+  row,
+} from "./helpers.js";
 import { clone, condition, greyhollowFight } from "./snapshot-fixtures.js";
 
 const director: DirectorNodeOutput = {
@@ -61,7 +69,7 @@ const NARRATIVE =
 
 describe("interpret and adjudicate prompts", () => {
   it("bumps the prompt versions", () => {
-    expect(INTERPRET_VERSION).toBe("dm.interpret-v5");
+    expect(INTERPRET_VERSION).toBe("dm.interpret-v6");
     expect(ADJUDICATE_VERSION).toBe("dm.adjudicate-v4");
   });
 
@@ -130,6 +138,30 @@ describe("interpret and adjudicate prompts", () => {
     expect(interpret.system).toContain("followUps");
   });
 
+  it("holds the agency rule and labels the goal note as pacing advice", async () => {
+    const ctx = makeCtx({
+      deps: {
+        loadProjections: async () =>
+          projectDm(freeEventsThrough("action.committed")),
+      },
+    });
+    const assembled = await assemble(ctx);
+    if (!assembled.ok) throw new Error("assemble failed");
+    const p = buildInterpretPrompt({
+      ctx,
+      assembled: assembled.output,
+      director: {
+        ...director,
+        goalNote: "Approach beat: call Stealth (Kestrel leads, +5)",
+      },
+    });
+    expect(p.system).toContain(agencyRule("interpret"));
+    expect(p.user).toContain(
+      "pacing advice only; it never adds a step, a method or a skill",
+    );
+    expect(p.user).toContain("Approach beat: call Stealth");
+  });
+
   it("the example object parses under InterpretOutput", () => {
     expect(InterpretOutput.safeParse(EXAMPLE_OUTPUT).success).toBe(true);
   });
@@ -163,5 +195,35 @@ describe("interpret and adjudicate prompts", () => {
       Example of one complete reading:
       {"readings":[{"actionId":"act-1","intent":"check","uncertain":true,"needsAdjudication":false,"rulesQuestion":null,"clarify":null,"followUps":[],"steps":[{"step":"check","reason":"Ana searches the ford for tracks.","combatantId":"pc-ana","kind":"ability-check","ability":"wis","skill":"survival","expression":"1d20+3","mode":"normal","dc":12,"autoFail":null,"onSuccess":[],"onFailure":[]}]}]}"
     `);
+  });
+
+  it("an answer turn's prompt holds the declaration and the question under Recent transcript", async () => {
+    const q = "Longsword in melee, or the light crossbow at range?";
+    const base = freeEventsThrough("action.committed");
+    const seq = (n: number) => base.length + n;
+    const events = [
+      ...base,
+      row(seq(1), "ai:dm", "narration", {
+        text: `Pell watches you. ${q}`,
+        actionIds: [],
+      }),
+      declare(seq(2), "act-answer", "tamsin", "I swing my longsword at Pell."),
+      commit(seq(3), "act-answer"),
+    ];
+    const ctx = makeCtx({
+      deps: { loadProjections: async () => projectDm(events) },
+    });
+    const assembled = await assemble(ctx);
+    if (!assembled.ok) throw new Error("assemble failed");
+    const { user } = buildInterpretPrompt({
+      ctx,
+      assembled: assembled.output,
+      director,
+    });
+    const at = user.indexOf("Recent transcript");
+    expect(at).toBeGreaterThanOrEqual(0);
+    const tail = user.slice(at);
+    expect(tail).toContain(`narration: Pell watches you. ${q}`);
+    expect(tail).toContain("I swing my longsword at Pell.");
   });
 });

@@ -84,6 +84,10 @@ Resolve runs these groups in order. Each group is a list of submissions. The ord
    of the turn left the order (`initiative.leave` already handed the turn on), resolve skips its
    own `turn.advance`. Settling and the `table-mode` row still run.
 
+   Amended by spec 073 (TASK-0209): a human's clarify (committed, actor not `ai:`, reading
+   `clarify` set, no ruling names it) does not count as the active actor's resolved action. The
+   group does not run for it, and the floor stays with the active actor.
+
    Amended 2026-10-27 (TASK-0050, operator rulings FT-1, FT-3, Q6): the two skips are one "turn
    moved" guard. Resolve records the turn at assemble (`{ round, activeCombatantId }`) and
    compares it with a fresh projection:
@@ -116,6 +120,8 @@ In hold mode (runner step 2.7), resolve runs the opening moves, then the closing
 For one beat item with its reading (or ruling, which replaces the reading's steps):
 
 1. `clarify` set → submit `action.resolve` `no-effect`. Record the question for narrate.
+   Amended by spec 073 (TASK-0209): the resolve is `no-effect`, and a human's clarify holds the
+   turn advance (see the Turn advance group).
 2. `steps` is `[{ step: "none" }]` → submit `action.resolve` `no-effect`.
 3. Otherwise run each step:
    - `check` → `mechanics` `check.roll` with `actionId`. When the batch applies, read the

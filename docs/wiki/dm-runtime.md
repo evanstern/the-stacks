@@ -41,7 +41,7 @@ sources:
   - apps/server/seeds/greyhollow-ford-trio.json
   - biome.json
 size_budget_exempt: both notes sat within 30 chars of the 8000 budget before TASK-0180; the talk path got its own note (dm-talk-triggers) and only a pointer line lands here; the rest is one pipeline each, not splittable without a TASK of its own
-verified_against: 0c5c064c0f43566445e806a0cc21452015752504
+verified_against: 022452c9327344e8ae67e69066acfe6450e134e3
 ---
 
 # DM runtime
@@ -61,12 +61,12 @@ async function `(TurnContext) => NodeResult`.
    (`AssembleOutput.snapshot`; each actor's logged scene presence sets `presentNpcIds`), selects scene-seed material, and looks up SRD
    records ([[srd-data]]). `AssembleOutput.resumed` holds the plans of actions whose paused turn's proposal is now approved (`resume.ts`, TASK-0168, specs/057); the checkpoint freezes them.
 2. **director** - `dm.director`. Decides scene-level changes (set the scene, trackers, table
-   mode, encounter setup) and whether the beat resolves or **holds** for companions.
+   mode, encounter setup), whether the beat resolves or **holds** for companions, and the optional `arrivals` list (offstage seed NPCs now on screen, `dm.director-v6`). `legalizeDirector` keeps only offstage seed NPCs and drops all arrivals on scene start.
 3. **interpret** - `dm.interpret`. Reads each action into steps (check, attack, effect, roll) and
    flags `needsAdjudication`. Resumed actions are not read again; their stored readings rejoin in beat order.
 4. **adjudicate** - `dm.adjudicate`, only when an interpret reading asks. May call `retrieve`
    ([[retrieval]]) for rules text and returns a ruling. Resumed readings keep their stored ruling.
-   A code-only **first-stage cut** (`first-stage.ts`, TASK-0182) runs between adjudicate and resolve: in `free` mode steps after the first run of like checks become `followUps`, and `holdDirector` holds that beat's turn, tracker and scene-end moves. `checkpoint.cut` makes a reclaim skip it.
+   A code-only **first-stage cut** (`first-stage.ts`, TASK-0182) runs between adjudicate and resolve: in `free` mode steps after the first run of like checks become `followUps`, and `holdDirector` holds that beat's turn, tracker and scene-end moves. `checkpoint.cut` makes a reclaim skip it. A human's clarify also holds (specs/073): `clarifyHolds` marks each committed human action whose reading asks a question and has no ruling; the cut holds that beat's turn, tracker and scene-end moves with reason `held: an action awaits an answer`. An AI actor's clarify does not hold. After the cut, `askUndeclared` (spec 077, [[dm-failure-and-gates]]) turns an undeclared manner check or another human's roll into a clarify, so the same hold applies; the `dm.plan.cut` log line reports the count as `asked`.
 5. **resolve** - code only; the one node that writes. It first seeds the run with each resumed plan's submissions (an approved `pending` one becomes `applied`), so the chain continues without a second roll. After its last gate write it builds **S1** and returns
    `ResolveOutput.snapshot` and `ResolveOutput.diff` (S0 to S1). See below.
 6. **narrate** - `dm.narrate`. Writes prose from code-built facts (including the monster reading's plan and the turn holder, TASK-0193), the player-facing seed view and S1 ([[dm-narration-quality]]).
@@ -75,7 +75,7 @@ async function `(TurnContext) => NodeResult`.
 An empty-beat `talk` turn skips this order ([[dm-talk-triggers]]).
 
 Director, interpret and adjudicate outputs are checkpointed in `jobs.result`; a reclaim does not re-pay them. Model output is parsed with Zod through `callJson`/`callText` (`pipeline/call.ts`); every call
-is recorded to `recordCall` ([[dm-turn-jobs]]). Parse order: think strip, fence strip, parse, normalize, schema. Excerpts keep raw text (TASK-0181).
+is recorded to `recordCall` ([[dm-turn-jobs]]). Parse order: think strip, strict parse (fence stripped), else the one top-level object inside surrounding prose, then normalize, schema. Each unparsable reply logs `dm.call.invalid-json` with a 200-char head and tail (TASK-0203). Excerpts keep raw text (TASK-0181).
 
 `callJson` makes at most two attempts, the second with the first's issues. Only the director passes a `normalize` hook (`normalizeDirector`): it cuts an over-long `goalNote` or `reason` to 300 characters (spec 033).
 
@@ -92,7 +92,7 @@ view). An over-cap snapshot fails the turn with `state-overflow` ([[dm-failure-a
 (`companion.ts` and `chronicle.ts` also call it). It picks each next step from **engine events alone**: a `check.roll` or `attack.roll`
 `mechanics` proposal goes in, the appended `check.resolved`/hit outcome comes out, and only then
 do effects (`damage.apply`, `healing.apply`, `condition.*`) follow. A `presence` effect (`arrived`, `left`, `fled`, `removed`, `surrendered`, `conceded`) is not an engine command: resolve submits a `scene-presence` proposal, and `findLanded` recognises a landed one from the `scenePresence` projection. Resolve alone builds that kind ([[proposal-gate]]) and logs seed presence ([[seed-npc-presence]]). No model is read inside
-resolve; the engine ([[dnd5e-engine]]) owns every number. Since TASK-0194 (spec 068) resolve first pulls each plan-gate `pull` id into the scene (`pullIn`: `combatant.add` from the NPC's SRD block, default `commoner`, then `initiative.join` in an encounter when it can act), as `actionId: null` rows. A gate refusal is recorded, never retried. Each submission is checkpointed (`Submission`, keyed `<jobId>#<n>`).
+resolve; the engine ([[dnd5e-engine]]) owns every number. Since TASK-0194 (spec 068) resolve first pulls each plan-gate `pull` id into the scene (`pullIn`: `combatant.add` from the NPC's SRD block, default `commoner`, then `initiative.join` in an encounter when it can act), as `actionId: null` rows. Since spec 075 (TASK-0210) the same `pullIn` also pulls attack targets, attackers and damage targets. The operator ruled: "I actually think that the rule itself is incorrect -- we should be able to attack anyone regardless of combatant state." A gate refusal is recorded, never retried. Each submission is checkpointed (`Submission`, keyed `<jobId>#<n>`).
 
 Resolve's six groups and settling: [[dm-turn-jobs]]; floor guard: [[turn-floor]].
 
@@ -113,6 +113,7 @@ the fallback and the player-facing seed view are in [[dm-narration-quality]].
   the seed id is the scene id.
 - **Doctrine** (`doctrine/doctrine.ts`): DM-craft rules adapted from tabletop-dm (commit
   fe2c29b, Copyright (c) 2026 Brad Bush, MIT). `doctrine/NOTICE.md` carries the licence.
+- **Agency** (specs/074, TASK-0113; `AGENCY_RULE` and `agencyRule(node)` in `doctrine.ts`): one shared rule, rendered into the director, interpret, narrate, audit, companion, react and playtest-auditor prompts. A party member's volitional acts belong to its player. The dice may decide a reflex only, and a reflex must be a fact (`FactInvoluntary`). The Director's goal note is pacing advice; the interpret prompt says so. The DOCTRINE pair 'Never decide the hero's words...' now allows a reflex and shows a club strike as the right example.
 - **Scripted DM** (`dm/script/`): per-purpose responses and dice become a strict `FakeProvider` plus
   `scriptedRng`, for tests and evidence runs ([[test-suite]]). `script/env.ts` also loads a shipped
   script (`apps/server/dm-scripts/greyhollow-live.json`) at boot under `DM_FAKE_SCRIPT` on a worktree
@@ -128,7 +129,7 @@ commits; a withdraw still takes the hold act.
 A `hold` decision queues a companion job that force-queues the turn. A trio table queues no companion job. `chronicle.ts` runs off the hot path after narration: `dm.chronicle`
 turns new narration into `journal` proposals, idempotent when nothing is new. It reads the state at
 its `throughSeq` (`loadProjectionsThrough`, [[session-model]]) and prints it in the `fiction` view
-(`dm.chronicle-v3`).
+(`dm.chronicle-v4`). The chronicle prompt drops absent actors from the fiction snapshot and allows a departure only when the transcript says so.
 
 ## Routes and boundary
 

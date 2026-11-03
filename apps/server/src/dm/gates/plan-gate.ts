@@ -1,10 +1,12 @@
-import type { RefusalCode } from "@the-stacks/dnd5e-engine";
+import type { RefusalCode, Skill } from "@the-stacks/dnd5e-engine";
 import {
   REASON_TO_PRESENCE,
   type ScenePresence,
   type SessionProjections,
 } from "@the-stacks/session-model";
 import { type ClaimIssue, checkClaims } from "../claims.js";
+import type { Ruling } from "../nodes/adjudicate.js";
+import type { BeatItem } from "../nodes/assemble.js";
 import type { DirectorNodeOutput } from "../nodes/director.js";
 import type { Effect, InterpretReading, Step } from "../nodes/schemas.js";
 import type { SceneSeed } from "../seed/schema.js";
@@ -74,7 +76,7 @@ export interface PlanInput {
   rulings: readonly { actionId: string | null; steps: readonly Step[] }[];
   /** The combatant ids this turn's Director opening moves add. */
   joining: readonly string[];
-  /** Seed NPC ids the encounter start marks `arrived` (spec 058). */
+  /** Seed NPC ids the encounter start marks `arrived` (spec 058) and the Director's legal arrivals (spec 078). An arriving id is not absent. */
   arriving: readonly string[];
   /** Action ids with a resumed plan (spec 057): they skip the reason check. */
   resumed: readonly string[];
@@ -136,8 +138,6 @@ interface NamedId {
   id: string;
   /** Set on a presence effect's target: the effect's reason. */
   presenceReason?: string;
-  /** True when a non-combatant NPC may be named here (spec 068): not an attack or damage. */
-  pullable: boolean;
 }
 
 function effectIds(effects: readonly Effect[], list: string): NamedId[] {
@@ -145,7 +145,6 @@ function effectIds(effects: readonly Effect[], list: string): NamedId[] {
     return {
       field: `${list}[${j}].targetId`,
       id: e.targetId,
-      pullable: e.effect === "condition" || e.effect === "heal",
       ...(e.effect === "presence" ? { presenceReason: e.reason } : {}),
     };
   });
@@ -162,7 +161,7 @@ function stepIds(step: Step): NamedId[] {
     case "check":
       return [
         ...(step.combatantId
-          ? [{ field: "combatantId", id: step.combatantId, pullable: true }]
+          ? [{ field: "combatantId", id: step.combatantId }]
           : []),
         ...effectIds(step.onSuccess, "onSuccess"),
         ...effectIds(step.onFailure, "onFailure"),
@@ -170,9 +169,9 @@ function stepIds(step: Step): NamedId[] {
     case "attack":
       return [
         ...(step.attackerId
-          ? [{ field: "attackerId", id: step.attackerId, pullable: false }]
+          ? [{ field: "attackerId", id: step.attackerId }]
           : []),
-        { field: "targetId", id: step.targetId, pullable: false },
+        { field: "targetId", id: step.targetId },
         ...effectIds(step.onHit, "onHit"),
       ];
   }
@@ -282,14 +281,16 @@ export function checkPlan(input: PlanInput): PlanVerdict[] {
   const { snapshot } = input;
   const valid = new Set<string>(input.joining);
   const noCombatant = new Set<string>();
-  // Spec 068: exact ids of S0 npc actors with no combatant (never aliases).
+  // Specs 068 and 075: exact ids of S0 npc actors with no combatant (never aliases).
+  // Any non-presence field may name one, attacks and damage included.
   const npcIds = new Set<string>();
   const inOrder = new Set<string>(snapshot.stage.encounter?.order ?? []);
   const actorIds = new Set<string>(input.joining);
   const absentIds = new Set<string>();
+  const arrivingIds = new Set<string>(input.arriving);
   for (const a of snapshot.actors) {
     actorIds.add(a.id);
-    if (a.presence === "absent") {
+    if (a.presence === "absent" && !arrivingIds.has(a.id)) {
       absentIds.add(a.id);
       if (a.combatantId) absentIds.add(a.combatantId);
     }
@@ -317,7 +318,7 @@ export function checkPlan(input: PlanInput): PlanVerdict[] {
     let failure: PlanFailure | null = null;
     const pull = new Set<string>();
     for (const [stepIndex, step] of steps.entries()) {
-      for (const { field, id, presenceReason, pullable } of stepIds(step)) {
+      for (const { field, id, presenceReason } of stepIds(step)) {
         if (presenceReason !== undefined) {
           // A presence effect targets any S0 actor, combatant or not.
           const reason: PlanFailureReason | null = !actorIds.has(id)
@@ -329,7 +330,7 @@ export function checkPlan(input: PlanInput): PlanVerdict[] {
           failure = { stepIndex, field, id, reason };
           break;
         }
-        if (!valid.has(id) && !(pullable && npcIds.has(id))) {
+        if (!valid.has(id) && !npcIds.has(id)) {
           failure = {
             stepIndex,
             field,
@@ -342,7 +343,7 @@ export function checkPlan(input: PlanInput): PlanVerdict[] {
           failure = { stepIndex, field, id, reason: "absent" };
           break;
         }
-        // Spec 068: a named actor outside the order is pulled in. Free mode
+        // Specs 068, 075: a named actor outside the order is pulled in. Free mode
         // pulls only an actor with no combatant (nothing else to do).
         const actor = snapshot.actors.find(
           (a) =>
@@ -396,4 +397,126 @@ export function checkPlan(input: PlanInput): PlanVerdict[] {
     );
   }
   return verdicts;
+}
+
+/**
+ * Skills that name how a character presents itself (spec 077 OQ-3 (a)).
+ * ponytail: cues are lexical. Ceiling: negation ("I don't sneak") matches and
+ * synonyms outside the list miss. Upgrade: an interpret-written `method` field
+ * the gate compares, if the playtest shows misses.
+ */
+export const MANNER_SKILLS = [
+  {
+    skill: "stealth",
+    cues: /\b(sneak\w*|snuck|stealth\w*|hid|hide|hides|hiding|hidden|quiet\w*|silent\w*|unseen|unnoticed|undetected|creep\w*|crept|skulk\w*|tiptoe\w*|slink\w*|stalk\w*)\b/i,
+    question: "Are you trying to stay unseen, or moving openly?",
+  },
+  {
+    skill: "deception",
+    cues: /\b(lie|lies|lying|lied|bluff\w*|deceiv\w*|trick\w*|pretend\w*|feign\w*|disguis\w*|mislead\w*|fake\w*|pose as|posing as)\b/i,
+    question: "Are you being honest with them, or trying to mislead them?",
+  },
+  {
+    skill: "intimidation",
+    cues: /\b(intimidat\w*|threat\w*|menac\w*|scare\w*|frighten\w*|cow|bully\w*|glower\w*|loom\w*|snarl\w*)\b/i,
+    question: "Are you trying to frighten them, or asking plainly?",
+  },
+] as const satisfies readonly {
+  skill: Skill;
+  cues: RegExp;
+  question: string;
+}[];
+
+export const otherPlayerQuestion = (name: string) =>
+  `${name}'s player decides what ${name} does. What do you do?`;
+
+export interface Asked {
+  actionId: string;
+  stepIndex: number;
+  rule: "manner" | "other-player";
+  /** The manner skill, or the other PC's name. */
+  detail: string;
+}
+
+/**
+ * Spec 077: a manner skill the declaration does not state, or a roll for
+ * another human's PC, becomes a clarify. Pure; the runner applies it after the
+ * free-mode cut and before `clarifyHolds`.
+ */
+export function askUndeclared(input: {
+  snapshot: ActorSnapshot;
+  beat: readonly BeatItem[];
+  readings: readonly InterpretReading[];
+  rulings: readonly Ruling[];
+  resumed: readonly string[];
+}): { readings: InterpretReading[]; rulings: Ruling[]; asked: Asked[] } {
+  const { snapshot, beat } = input;
+  const resumed = new Set(input.resumed);
+  const asked: Asked[] = [];
+  const questions = new Map<string, string>();
+  for (const item of beat) {
+    if (item.status !== "committed" || resumed.has(item.actionId)) continue;
+    const reading = input.readings.find((r) => r.actionId === item.actionId);
+    if (!reading || reading.clarify !== null) continue;
+    const ruling = input.rulings.find((r) => r.actionId === item.actionId);
+    const steps = ruling ? ruling.steps : reading.steps;
+    for (const [stepIndex, step] of steps.entries()) {
+      let question: string | null = null;
+      let rule: Asked["rule"] = "manner";
+      let detail = "";
+      if (
+        step.step === "check" &&
+        step.kind === "ability-check" &&
+        !item.actor.startsWith("ai:")
+      ) {
+        const row = MANNER_SKILLS.find((m) => m.skill === step.skill);
+        if (row && !row.cues.test(item.text)) {
+          question = row.question;
+          detail = row.skill;
+        }
+      }
+      if (!question && item.scope !== "party") {
+        const id =
+          step.step === "attack"
+            ? step.attackerId
+            : step.step === "check" && step.kind === "ability-check"
+              ? step.combatantId
+              : null;
+        const other = id
+          ? snapshot.actors.find(
+              (a) =>
+                a.kind === "party" &&
+                (a.combatantId === id ||
+                  (a.combatantId === null && a.id === id)),
+            )
+          : undefined;
+        if (
+          other &&
+          other.controller.kind === "player" &&
+          other.controller.userId !== item.actor
+        ) {
+          question = otherPlayerQuestion(other.name);
+          rule = "other-player";
+          detail = other.name;
+        }
+      }
+      if (question) {
+        questions.set(item.actionId, question);
+        asked.push({ actionId: item.actionId, stepIndex, rule, detail });
+        break;
+      }
+    }
+  }
+  return {
+    readings: input.readings.map((r) => {
+      const q = r.actionId === null ? undefined : questions.get(r.actionId);
+      return q === undefined
+        ? (r as InterpretReading)
+        : { ...r, steps: [], followUps: [], clarify: q };
+    }),
+    rulings: input.rulings.filter(
+      (r) => r.actionId === null || !questions.has(r.actionId),
+    ),
+    asked,
+  };
 }

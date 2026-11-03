@@ -1,0 +1,87 @@
+{
+  "v": 1,
+  "name": "approach-reed-camp",
+  "dice": [],
+  "calls": [
+    {
+      "purpose": "dm.director",
+      "note": "free mode, resolve; run 1 seq 24 goal note",
+      "respond": {
+        "type": "json",
+        "value": {
+          "beat": {
+            "decision": "resolve"
+          },
+          "tableMode": {
+            "to": "stay"
+          },
+          "trackers": [],
+          "scene": {
+            "status": "continue"
+          },
+          "pacing": {
+            "tension": "low",
+            "spotlight": null,
+            "beatId": "reed-camp"
+          },
+          "goalNote": "Approach beat: call Stealth (Kestrel leads, +5; Tamsin's mail and Wenna's boathook argue against quiet)",
+          "companionPrompts": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.interpret",
+      "note": "run 1 seq 24: Stealth for Kestrel, dex, disadvantage, DC 13, 1d20+5",
+      "respond": {
+        "type": "json",
+        "value": {
+          "readings": [
+            {
+              "actionId": "act-approach",
+              "intent": "check",
+              "uncertain": true,
+              "needsAdjudication": false,
+              "rulesQuestion": null,
+              "clarify": null,
+              "followUps": [],
+              "steps": [
+                {
+                  "step": "check",
+                  "reason": "Kestrel leads the party toward the reed camp unseen",
+                  "combatantId": "kestrel",
+                  "kind": "ability-check",
+                  "ability": "dex",
+                  "skill": "stealth",
+                  "expression": "1d20+5",
+                  "mode": "disadvantage",
+                  "dc": 13,
+                  "autoFail": null,
+                  "onSuccess": [],
+                  "onFailure": []
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "purpose": "dm.narrate",
+      "note": "a short narration that ends on the question",
+      "respond": {
+        "type": "text",
+        "value": "Tamsin and the others edge toward the reed camp, the ford quiet around them. Are you trying to stay unseen, or moving openly?"
+      }
+    },
+    {
+      "purpose": "dm.audit",
+      "respond": {
+        "type": "json",
+        "value": {
+          "verdict": "pass",
+          "issues": []
+        }
+      }
+    }
+  ]
+}

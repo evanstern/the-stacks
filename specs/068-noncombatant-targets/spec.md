@@ -113,6 +113,8 @@ order and for free mode.
 - **FR-002** (card AC #2): The plan gate MUST still refuse a non-combatant NPC named as an
   `attack` step's `attackerId` or `targetId`, or as a `damage` effect's `targetId`. The code stays
   `UNKNOWN_COMBATANT`, reason `not-a-combatant`.
+  *Reversed 2026-11-02 by spec 075 (TASK-0210): "I actually think that the rule itself is incorrect
+  -- we should be able to attack anyone regardless of combatant state."*
 - **FR-003**: The plan gate MUST accept a non-combatant NPC only by its exact actor id. An alias
   still fails `not-a-combatant`.
 - **FR-004**: The absent rule MUST hold unchanged. An absent non-combatant NPC fails `absent`.
@@ -182,6 +184,8 @@ order and for free mode.
 - **OQ-4 — Attacks.** The widened ruling reads "acting on anyone". AC #2 still refuses an attack
   or damage on a non-combatant. (a) Keep AC #2 as written (recommended: the card is the authority).
   (b) Pull attack targets too and drop AC #2.
+  *Reversed 2026-11-02 by spec 075 (TASK-0210): "I actually think that the rule itself is incorrect
+  -- we should be able to attack anyone regardless of combatant state."*
 
 ## Assumptions
 

@@ -22,7 +22,7 @@ import {
 } from "./world.js";
 
 /**
- * Spec 068 (TASK-0194): acting on a non-combatant NPC pulls them in. The
+ * Specs 068 and 075 (TASK-0194, TASK-0210): acting on a non-combatant NPC pulls them in. The
  * fixture rebuilds run 3 seq 118 / 133 ("I run to Pell and attempt to free
  * him") from docs/playtests/2026-11-01-two-browser-alpha-run-3.md item 13.
  */
@@ -50,6 +50,7 @@ const chronicle = {
 /** Scene start, then one turn of free-pell.json; `mutate` edits the interpret reading. */
 async function runFreePell(
   mutate?: (steps: Record<string, unknown>[]) => Record<string, unknown>[],
+  extraDice: number[] = [],
 ) {
   const s = script("free-pell.json");
   const start = script("scene-start.json");
@@ -65,7 +66,7 @@ async function runFreePell(
     },
   );
   const w: World = await createWorld({
-    dice: s.dice,
+    dice: [...s.dice, ...extraDice],
     calls: [...start.calls, ...calls, chronicle, chronicle, chronicle],
   });
   const { worker } = workerFor(w, { retrieve });
@@ -161,23 +162,26 @@ describe.skipIf(!reachable)("non-combatant targets (database)", () => {
     ]);
   });
 
-  it("control: an attack on a non-combatant is still refused", async () => {
-    const { rows, turn } = await runFreePell(() => [attackStep("pell")]);
-    expect(resolvedOf(rows)?.payload).toMatchObject({
-      outcome: "refused",
-      refusalCode: "UNKNOWN_COMBATANT",
-    });
-    expect(planGateOf(turn)?.[0]).toMatchObject({
-      ok: false,
-      code: "UNKNOWN_COMBATANT",
-      failure: { id: "pell", reason: "not-a-combatant" },
-    });
-    expect(
-      rows.filter(
-        (r) =>
-          r.type === "combatant.added" && eventOf(r).combatantId === "pell",
-      ),
-    ).toHaveLength(0);
+  it("an attack on Pell pulls him in and resolves (spec 075)", async () => {
+    // One extra die feeds the damage roll.
+    const { rows, turn } = await runFreePell(() => [attackStep("pell")], [5]);
+    expect(resolvedOf(rows)?.payload).toMatchObject({ outcome: "applied" });
+    expect(planGateOf(turn)).toEqual([
+      { actionId: ACTION, ok: true, pull: ["pell"] },
+    ]);
+    const added = rows.findIndex(
+      (r) => r.type === "combatant.added" && eventOf(r).combatantId === "pell",
+    );
+    const attack = rows.findIndex(
+      (r) => r.type === "attack.resolved" && eventOf(r).targetId === "pell",
+    );
+    expect(added).toBeGreaterThan(-1);
+    expect(attack).toBeGreaterThan(added);
+    const order = rows
+      .filter((r) => r.type === "encounter.changed")
+      .map((r) => eventOf(r).after.order as { combatantId: string }[])
+      .at(-1);
+    expect(order?.filter((o) => o.combatantId === "pell")).toHaveLength(1);
   });
 
   it("reclaim: each pull is one keyed submission, written once", async () => {

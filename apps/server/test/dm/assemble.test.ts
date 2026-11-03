@@ -1,5 +1,6 @@
 import { estimateTokens } from "@the-stacks/srd";
 import { describe, expect, it } from "vitest";
+import { agencyRule } from "../../src/dm/doctrine/doctrine.js";
 import type { TurnCheckpoint } from "../../src/dm/jobs.js";
 import { assemble } from "../../src/dm/nodes/assemble.js";
 import { CAPS } from "../../src/dm/prompts/common.js";
@@ -286,6 +287,7 @@ describe("assemble: S0", () => {
       assembled: output,
       aiCompanions: [],
       runnableEncounterIds: [],
+      offstageNpcs: [],
     });
     const state = /## State\n([\s\S]*?)(\n\n##|$)/.exec(prompt.user);
     expect(state?.[1]).toContain("Table mode: free");
@@ -295,6 +297,21 @@ describe("assemble: S0", () => {
     for (const t of output.snapshot.stage.trackers) {
       expect(state?.[1]).toContain(t.trackerId);
     }
+  });
+});
+
+describe("director offstage NPCs (spec 078)", () => {
+  it("lists an offstage NPC and carries the arrivals sentence", async () => {
+    const { ctx, output } = await run(freeEventsThrough("action.committed"));
+    const prompt = buildDirectorPrompt({
+      ctx,
+      assembled: output,
+      aiCompanions: [],
+      runnableEncounterIds: [],
+      offstageNpcs: ["NPC snag (Snag, goblin)"],
+    });
+    expect(prompt.user).toContain("## Offstage NPCs\nNPC snag (Snag, goblin)");
+    expect(prompt.system).toContain("Name in arrivals each offstage NPC");
   });
 });
 
@@ -318,8 +335,13 @@ describe("prompt caps (SC-007)", () => {
       assembled: output,
       aiCompanions: [],
       runnableEncounterIds: [],
+      offstageNpcs: [],
     });
-    expect(DIRECTOR_VERSION).toBe("dm.director-v4");
+    expect(DIRECTOR_VERSION).toBe("dm.director-v6");
+    expect(prompt.system).toContain(agencyRule("director"));
+    expect(prompt.system).toContain(
+      "names no party member's act, method, skill or reaction",
+    );
     expect(prompt.system).toContain(
       "a trigger that needs a roll this beat to succeed waits for the next beat.",
     );

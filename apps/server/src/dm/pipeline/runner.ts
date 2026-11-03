@@ -1,5 +1,11 @@
 import { createHash } from "node:crypto";
-import { cutPlans, holdDirector } from "../first-stage.js";
+import {
+  CLARIFY_HELD,
+  clarifyHolds,
+  cutPlans,
+  holdDirector,
+} from "../first-stage.js";
+import { askUndeclared } from "../gates/plan-gate.js";
 import type { TurnCheckpoint } from "../jobs.js";
 import { findLandedNarration, submitNarration } from "../nodes/resolve.js";
 import { SnapshotOverflowError } from "../snapshot/index.js";
@@ -209,23 +215,39 @@ export async function runTurn(
         ctx.results.adjudicate
       ) {
         const adjudicated = ctx.results.adjudicate;
+        const assembledOut = ctx.results.assemble as NodeOutputs["assemble"];
         const cut = cutPlans({
-          mode:
-            (ctx.results.assemble as NodeOutputs["assemble"]).projections
-              .tableMode?.mode ?? "turn",
+          mode: assembledOut.projections.tableMode?.mode ?? "turn",
           readings: interpreted.readings,
           rulings: adjudicated.rulings,
+        });
+        // Spec 077: ask before an undeclared method or another human's roll.
+        const asked = askUndeclared({
+          snapshot: assembledOut.snapshot,
+          beat: assembledOut.beat,
+          readings: cut.readings,
+          rulings: cut.rulings,
+          resumed: (assembledOut.resumed ?? []).map((p) => p.actionId),
         });
         const cutBeat =
           cut.readings.some((r) => r.followUps.length > 0) ||
           cut.rulings.some((r) => r.followUps.length > 0);
-        const held = holdDirector(director, cutBeat);
+        const clarified = clarifyHolds(
+          assembledOut.beat,
+          asked.readings,
+          asked.rulings,
+        );
+        const held = holdDirector(
+          holdDirector(director, cutBeat),
+          clarified.size > 0,
+          CLARIFY_HELD,
+        );
         ctx = {
           ...ctx,
           results: {
             ...ctx.results,
-            interpret: { ...interpreted, readings: cut.readings },
-            adjudicate: { ...adjudicated, rulings: cut.rulings },
+            interpret: { ...interpreted, readings: asked.readings },
+            adjudicate: { ...adjudicated, rulings: asked.rulings },
             director: held,
           },
         };
@@ -242,6 +264,8 @@ export async function runTurn(
           jobId: ctx.job.id,
           readings: cut.readings.filter((r) => r.followUps.length > 0).length,
           rulings: cut.rulings.filter((r) => r.followUps.length > 0).length,
+          clarified: clarified.size,
+          asked: asked.asked.length,
         });
       }
     }

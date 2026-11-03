@@ -15,7 +15,7 @@ sources:
   - apps/server/src/dm/snapshot/build.ts
   - packages/session-model/src/gate/proposals.ts
   - packages/session-model/src/gate/plan.ts
-verified_against: 0c5c064c0f43566445e806a0cc21452015752504
+verified_against: 022452c9327344e8ae67e69066acfe6450e134e3
 ---
 
 # Seed NPC presence
@@ -59,7 +59,7 @@ where it used to write `public`. An effect-driven `presence` effect in resolve s
 
 ## The seed-presence group
 
-`arrivingNpcs` (`gates/plan-gate.ts`, spec 058) mirrors the encounter-start branch below for the plan gate: it lists the seed NPCs the beat declares `present` whose logged presence is not, so a roll reason naming one passes against the planned `arrived` change ([[dm-failure-and-gates]]).
+`arrivingNpcs` (`gates/plan-gate.ts`, spec 058) mirrors the encounter-start branch below for the plan gate: it lists the seed NPCs the beat declares `present` whose logged presence is not, so a roll reason naming one passes against the planned `arrived` change ([[dm-failure-and-gates]]). Resolve adds the Director's `arrivals` ids to that list, so an arriving id is not absent to the plan gate.
 
 `seedPresence` in `nodes/resolve.ts` runs inside the Director's opening moves. It reads the
 seed and the projections only and never a Director field. For each seed NPC it reads the beat's
@@ -69,10 +69,11 @@ declared value and the logged value (no entry means `present`):
 |---|---|---|---|
 | Scene start, after the party and tracker rows | `seed.beats[0]` | `absent` | reason `removed`, visibility `dm` |
 | Scene start | `seed.beats[0]` | `yielded` | reason `conceded`, visibility `dm` |
+| Director opening, before any action group | the `arrivals` ids the Director names (offstage at scene start) | `present` | reason `arrived`, visibility `public` |
 | Encounter start, before the initiative join | the beat whose `encounterId` is that encounter | `present` | reason `arrived`, visibility `public` |
 
 A declared `present` at scene start logs nothing, and a declared `absent` or `yielded` at
-encounter start logs nothing. A row is skipped when the logged value already equals
+encounter start logs nothing. Scene start drops every `arrivals` id, so only the seed declares an NPC on scene start. The Director's arrival rows log before the encounter-start group; the group then reloads projections before `seedPresence` when any arrival logged, so it reads the new presence. A row is skipped when the logged value already equals
 `REASON_TO_PRESENCE[reason]`. Each row is submitted under the key
 `seed:presence:<moment>:<npcId>` with `actionId: null` and a note `Seed presence: <name>
 <reason>`. The key makes a reclaim replay the same submission, and `findLanded` recognises a
