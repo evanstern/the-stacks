@@ -32,7 +32,13 @@ import {
   greyhollowFight,
   PLAYER_USER,
 } from "./snapshot-fixtures.js";
-import { attackStep, checkStep, reading, spellStep } from "./world.js";
+import {
+  attackStep,
+  checkStep,
+  helpStep,
+  reading,
+  spellStep,
+} from "./world.js";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const { projections, seed } = greyhollowFight();
@@ -1305,5 +1311,147 @@ describe("checkPlan actor rule (spec 079 D5)", () => {
       actors: new Map([[parsed.readings[0]?.actionId as string, "tamsin"]]),
     });
     expect(v[0]).toMatchObject({ ok: true });
+  });
+});
+
+describe("checkPlan: opposition and help (spec 084 D12)", () => {
+  const base = projections.engine.combatants;
+  const mk = (over = {}) => ({
+    abilityMods: { str: 3, dex: 2 },
+    proficiencyBonus: 2,
+    saves: {},
+    skills: { acrobatics: 4, athletics: 5 },
+    attacks: [],
+    spellcastingAbility: null,
+    ...over,
+  });
+  const withStats = {
+    ...base,
+    tamsin: { ...base.tamsin, stats: mk() },
+    kestrel: { ...base.kestrel, stats: mk() },
+    snag: { ...base.snag, stats: mk({ abilityMods: { str: -1 } }) },
+  } as typeof base;
+  const opposed = (over = {}) =>
+    checkStep({
+      difficulty: { opposedBy: "snag", rule: "unarmed-strike" },
+      ...over,
+    });
+
+  it("passes a derivable opposition and a help", () => {
+    expect(
+      plan([read("a1", [opposed()])], { combatants: withStats })[0],
+    ).toEqual({ actionId: "a1", ok: true });
+    expect(
+      plan([read("a1", [helpStep()])], { combatants: withStats })[0],
+    ).toEqual({ actionId: "a1", ok: true });
+  });
+  it("refuses a help step naming an unknown id", () => {
+    const v = plan(
+      [
+        read("a1", [
+          helpStep({ assist: { kind: "attack", targetId: "nobody" } }),
+        ]),
+      ],
+      { combatants: withStats },
+    );
+    expect(v[0]).toMatchObject({
+      ok: false,
+      failure: { field: "assist.targetId", id: "nobody" },
+    });
+    const w = plan([read("a1", [helpStep({ helperId: "nobody" })])], {
+      combatants: withStats,
+    });
+    expect(w[0]).toMatchObject({ ok: false, failure: { field: "helperId" } });
+  });
+  it("refuses a help step whose helper is not the actor", () => {
+    const v = plan([read("a1", [helpStep()])], {
+      combatants: withStats,
+      actors: new Map([["a1", "tamsin"]]),
+    });
+    expect(v[0]).toMatchObject({
+      ok: false,
+      code: "STEP_ACTOR_MISMATCH",
+      failure: { field: "helperId", id: "kestrel" },
+    });
+  });
+  it("refuses an opponent without stats and skips a joining one", () => {
+    const noOpp = {
+      ...withStats,
+      snag: { ...base.snag, stats: undefined },
+    } as typeof base;
+    expect(
+      plan([read("a1", [opposed()])], { combatants: noOpp })[0],
+    ).toMatchObject({
+      ok: false,
+      code: "STAT_UNDEFINED",
+      failure: { field: "difficulty.opposedBy", reason: "stat-undefined" },
+    });
+    expect(
+      plan([read("a1", [opposed()])], {
+        combatants: noOpp,
+        joining: ["snag"],
+      })[0],
+    ).toMatchObject({ ok: true });
+  });
+  it("refuses a help reason that contradicts state", () => {
+    const v = plan([read("a1", [helpStep({ reason: M2_SEQ221_REASON })])], {
+      combatants: withStats,
+    });
+    expect(v[0]).toMatchObject({
+      ok: false,
+      code: "REASON_CONTRADICTS_STATE",
+      failure: { field: "reason" },
+    });
+  });
+});
+
+describe("askUndeclared: help (spec 084 D12)", () => {
+  const duo = greyhollowDuo();
+  const s0 = buildSnapshot(duo.projections, duo.seed);
+  const item = (): BeatItem => ({
+    actionId: "a1",
+    committedSeq: 11,
+    actor: PLAYER_USER,
+    characterId: "tamsin",
+    scope: "character",
+    text: "I help Kestrel.",
+    status: "committed",
+  });
+  const ask = (steps: unknown[]) =>
+    askUndeclared({
+      snapshot: s0,
+      beat: [item()],
+      readings: [read("a1", steps)],
+      rulings: [],
+      resumed: [],
+    });
+  it("asks when the helper is another human's PC", () => {
+    const r = ask([
+      helpStep({
+        helperId: "kestrel",
+        assist: { kind: "attack", targetId: "goblin-2" },
+      }),
+    ]);
+    expect(r.readings[0]?.clarify).toBe(
+      "Kestrel's player decides what Kestrel does. What does Tamsin Vale do instead?",
+    );
+    expect(r.asked[0]).toMatchObject({
+      rule: "other-player",
+      detail: "Kestrel",
+    });
+  });
+  it("passes when only the ally is another human's PC", () => {
+    const r = ask([
+      helpStep({
+        helperId: "tamsin",
+        assist: {
+          kind: "ability-check",
+          allyId: "kestrel",
+          skill: "acrobatics",
+        },
+      }),
+    ]);
+    expect(r.readings[0]?.clarify).toBeNull();
+    expect(r.asked).toEqual([]);
   });
 });

@@ -113,3 +113,17 @@ Amended by spec 078: `arriving` also holds the Director's legal arrivals, and th
   (field `intent`).
 - A spell step's caster is checked like an attacker: another party member's spell in a character
   action is refused `STEP_ACTOR_MISMATCH`.
+
+## Amended by specs/084-opposition-and-help (TASK-0128)
+
+- A `help` step names `helperId` and `assist.allyId` or `assist.targetId`; the gate checks each id like any
+  named id (field `helperId`, `assist.allyId`, `assist.targetId`). Its `reason` is a model-written text; the
+  reason check covers it.
+- A `help` step's `helperId` is checked like an attacker: another party member's help in a character action is
+  refused `STEP_ACTOR_MISMATCH` (field `helperId`).
+- An opposition `difficulty` names `opposedBy`, checked like a named id (field `difficulty.opposedBy`). The
+  stat check runs `oppositionDc` on the opponent; a gap is `STAT_UNDEFINED` at `difficulty.opposedBy`. A joining
+  opponent is skipped. An ability-check help whose helper has no stats is `STAT_UNDEFINED` at `helperId`.
+  Proficiency is left to the engine's `NOT_PROFICIENT` refusal.
+- `askUndeclared` treats a help step's `helperId` like an attacker: another human's PC as helper asks
+  `otherPlayerQuestion(name, declarer)`. The ally or target does not.

@@ -2,6 +2,7 @@ import {
   type Combatant,
   checkModifier,
   findAttack,
+  oppositionDc,
   type RefusalCode,
   type Skill,
   SPELLS,
@@ -233,6 +234,9 @@ function stepIds(step: Step): NamedId[] {
         ...(step.combatantId
           ? [{ field: "combatantId", id: step.combatantId }]
           : []),
+        ...(typeof step.difficulty !== "string"
+          ? [{ field: "difficulty.opposedBy", id: step.difficulty.opposedBy }]
+          : []),
         ...effectIds(step.onSuccess, "onSuccess"),
         ...effectIds(step.onFailure, "onFailure"),
         ...effectIds(step.onCost, "onCost"),
@@ -248,6 +252,13 @@ function stepIds(step: Step): NamedId[] {
       return [
         { field: "casterId", id: step.casterId },
         { field: "targetId", id: step.targetId },
+      ];
+    case "help":
+      return [
+        { field: "helperId", id: step.helperId },
+        step.assist.kind === "ability-check"
+          ? { field: "assist.allyId", id: step.assist.allyId }
+          : { field: "assist.targetId", id: step.assist.targetId },
       ];
   }
 }
@@ -319,6 +330,7 @@ function stepTexts(step: Step): NamedText[] {
         ...effectSources(step.onHit, "onHit"),
       ];
     case "spell":
+    case "help":
       return [{ field: "reason", text: step.reason }];
   }
 }
@@ -394,9 +406,11 @@ function foreignActor(
         ? { field: "attackerId", id: step.attackerId }
         : step.step === "spell"
           ? { field: "casterId", id: step.casterId }
-          : step.step === "move"
-            ? { field: "combatantId", id: step.combatantId }
-            : null;
+          : step.step === "help"
+            ? { field: "helperId", id: step.helperId }
+            : step.step === "move"
+              ? { field: "combatantId", id: step.combatantId }
+              : null;
     if (!named) continue;
     if (actor === null ? !party.has(named.id) : named.id !== actor) {
       return { stepIndex, ...named, reason: "not-the-actor" };
@@ -412,6 +426,33 @@ function statGap(
   joining: readonly string[],
 ): PlanFailure | null {
   for (const [stepIndex, step] of steps.entries()) {
+    if (step.step === "check" && typeof step.difficulty !== "string") {
+      // Spec 084 D12: the opponent's stats must give the DC. A joining opponent is skipped.
+      const { opposedBy, rule } = step.difficulty;
+      const opp = combatants[opposedBy];
+      if (opp && !joining.includes(opposedBy)) {
+        const d = oppositionDc(opp, rule);
+        if (!d.ok) {
+          return {
+            stepIndex,
+            field: "difficulty.opposedBy",
+            id: `${opposedBy}: ${d.missing}`,
+            reason: "stat-undefined",
+          };
+        }
+      }
+    }
+    if (step.step === "help" && step.assist.kind === "ability-check") {
+      const helper = combatants[step.helperId];
+      if (helper && !joining.includes(step.helperId) && !helper.stats) {
+        return {
+          stepIndex,
+          field: "helperId",
+          id: `${step.helperId}: stats`,
+          reason: "stat-undefined",
+        };
+      }
+    }
     if (step.step === "check" && step.combatantId) {
       const c = combatants[step.combatantId];
       if (!c || joining.includes(step.combatantId)) continue;
@@ -792,9 +833,11 @@ export function askUndeclared(input: {
             ? step.attackerId
             : step.step === "spell"
               ? step.casterId
-              : step.step === "check" && step.kind === "ability-check"
-                ? step.combatantId
-                : null;
+              : step.step === "help"
+                ? step.helperId
+                : step.step === "check" && step.kind === "ability-check"
+                  ? step.combatantId
+                  : null;
         const declarerName =
           snapshot.actors.find(
             (a) => a.kind === "party" && a.characterId === item.characterId,

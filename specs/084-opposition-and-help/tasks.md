@@ -75,37 +75,37 @@ Phases 1 to 3 run in order: each needs the previous phase's types.
 
 ## Phase 2: Step contract, prompts, plan gate and resolve (card AC #1, #3; US1, US3)
 
-- [ ] T017 [US1] In `apps/server/src/dm/seed/combatants.ts`, fill `abilityScores` in
+- [x] T017 [US1] In `apps/server/src/dm/seed/combatants.ts`, fill `abilityScores` in
       `statsFromSrd` (plan D8). In `seed/schema.ts`, replace the `groupChecks` comment with the TASK-0232 text (plan D14).
-- [ ] T018 [US3] In `apps/server/src/dm/nodes/schemas.ts`, widen the check step's `difficulty`,
+- [x] T018 [US3] In `apps/server/src/dm/nodes/schemas.ts`, widen the check step's `difficulty`,
       add the `help` step, and add the three `refineSteps` branches (plan D9).
-- [ ] T019 [US3] In `prompts/step-grammar.ts`, add the D10 lines. In `prompts/interpret.ts`, add
+- [x] T019 [US3] In `prompts/step-grammar.ts`, add the D10 lines. In `prompts/interpret.ts`, add
       the help sentence to `OUTPUT_SHAPE` and bump `PROMPT_VERSION` to `dm.interpret-v13`. Bump
       `prompts/adjudicate.ts` to `dm.adjudicate-v10`.
-- [ ] T020 [US3] In `gates/plan-gate.ts`, apply plan D12 to `stepIds`, `stepTexts`,
+- [x] T020 [US3] In `gates/plan-gate.ts`, apply plan D12 to `stepIds`, `stepTexts`,
       `foreignActor`, `statGap` and `askUndeclared`.
-- [ ] T021 [US1] In `nodes/resolve.ts`, apply plan D11 to `case "check"` and add `case "help"`.
-- [ ] T022 [US1] In `apps/server/test/dm/seed-stats.test.ts`, assert `abilityScores` for the
+- [x] T021 [US1] In `nodes/resolve.ts`, apply plan D11 to `case "check"` and add `case "help"`.
+- [x] T022 [US1] In `apps/server/test/dm/seed-stats.test.ts`, assert `abilityScores` for the
       goblin warrior and none for a seed PC. Add `helpStep()` to `apps/server/test/dm/world.ts`.
-- [ ] T023 [US3] In `apps/server/test/dm/interpret.test.ts`, add: a check with an opposition
+- [x] T023 [US3] In `apps/server/test/dm/interpret.test.ts`, add: a check with an opposition
       `difficulty` parses; `opposedBy` equal to `combatantId` fails at `difficulty.opposedBy`; an
       uncovered rule fails at `difficulty.rule`; both help assist kinds parse; an ally or target
       equal to the helper fails at `assist`; an unknown assist kind and an extra field fail; a tier
       string still parses.
-- [ ] T024 [US3] In `apps/server/test/dm/plan-gate.test.ts`, add: a help step naming an absent or
+- [x] T024 [US3] In `apps/server/test/dm/plan-gate.test.ts`, add: a help step naming an absent or
       unknown id is refused; a help step whose helper is not the actor is refused
       `STEP_ACTOR_MISMATCH`; an opposition whose opponent lacks stats is refused `STAT_UNDEFINED`
       and a joining opponent is skipped; a contradicting help `reason` is refused
       `REASON_CONTRADICTS_STATE`; `askUndeclared` asks when the helper is another human's PC, with
       the question "<Helper>'s player decides what <Helper> does. What does <Declarer> do
       instead?", and passes when only the ally is.
-- [ ] T025 In `apps/server/test/dm/interpret-prompt.test.ts`, assert the new version strings, the
+- [x] T025 In `apps/server/test/dm/interpret-prompt.test.ts`, assert the new version strings, the
       opposition-rules line and the help line. Regenerate the inline snapshot.
-- [ ] T026 Amend `specs/031-dm-runtime/contracts/nodes.md` (step shapes), `resolve.md` (the two
+- [x] T026 Amend `specs/031-dm-runtime/contracts/nodes.md` (step shapes), `resolve.md` (the two
       submissions), `scene-seed.md` (`abilityScores` from SRD) and
       `specs/058-roll-reason-plan-gate/contracts/plan-reason-gate.md` (help ids, actor and stat
       rules), each marked "Amended by specs/084-opposition-and-help".
-- [ ] T027 Run `pnpm ci:check`. Run the DB suites with `REQUIRE_DATABASE=1`: every shipped script
+- [x] T027 Run `pnpm ci:check`. Run the DB suites with `REQUIRE_DATABASE=1`: every shipped script
       stays green unchanged (SC-004).
 
 ## Phase 3: Narration facts and end-to-end test (card AC #1–#3; US1, US2, US4)

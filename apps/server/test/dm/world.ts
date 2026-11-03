@@ -280,6 +280,14 @@ export const spellStep = (
   ...over,
 });
 
+export const helpStep = (over: Record<string, unknown> = {}) => ({
+  step: "help",
+  reason: "Kestrel steadies Tamsin",
+  helperId: "kestrel",
+  assist: { kind: "ability-check", allyId: "tamsin", skill: "acrobatics" },
+  ...over,
+});
+
 export const reading = (
   actionId: string | null,
   steps: unknown[],
