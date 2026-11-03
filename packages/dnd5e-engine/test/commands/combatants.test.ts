@@ -179,3 +179,27 @@ describe("combatant.remove", () => {
     expectRefusal(result, "UNKNOWN_COMBATANT");
   });
 });
+
+describe("combatant.add stats (spec 082)", () => {
+  it("copies stats when present and parses without them", () => {
+    const stats = {
+      abilityMods: { str: 3 },
+      proficiencyBonus: 2,
+      saves: {},
+      skills: {},
+      attacks: [],
+      spellcastingAbility: null,
+    };
+    const state = stateWith();
+    const withStats = run(
+      state,
+      add({ id: "a", name: "A", hp: { max: 5 }, zeroHpRule: "dies", stats }),
+    );
+    expect(settle(state, withStats.result).combatants.a?.stats).toEqual(stats);
+    const without = run(
+      state,
+      add({ id: "b", name: "B", hp: { max: 5 }, zeroHpRule: "dies" }),
+    );
+    expect(settle(state, without.result).combatants.b?.stats).toBeUndefined();
+  });
+});

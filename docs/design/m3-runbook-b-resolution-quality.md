@@ -281,7 +281,10 @@ Then **stop for the operator to play it** (checkpoint C7).
 | 2026-11-02 | TASK-0127 | #118 | bbba03a0 | sonnet x3 (spec 070 by opus in runbook A) | Built the merged spec 070. Seam check: no seam changed meaning; deviations in `specs/070-stakes-before-dice/deviations.md`. Nat 20/nat 1 on by default. interpret-v8, adjudicate-v6, narrate-v11, audit-v7. |
 | 2026-11-03 | TASK-0170 | #119 | 88589234 | opus (spec 080), sonnet x3 | Delta on spec 070. A check declares its success outcome and may reveal one beat clue; the seed now names goblin feet. Claw-marks fixture reconstructed. Card TASK-0221 (revisit). interpret-v9, adjudicate-v7, narrate-v12, audit-v8. |
 | 2026-11-03 | TASK-0212 | #120 | d334e998 | haiku | E2. One 'falls unconscious'. Orchestrator ran the DB gate and fixed one stale wiki clause before merge. |
-| 2026-11-03 | TASK-0207 | (this PR) | (at merge) | opus (spec 081), sonnet x2 | `say` field; the fallback voices an NPC's planned line. interpret-v10, narrate-v13, audit-v9. Card TASK-0220. |
+| 2026-11-03 | TASK-0207 | #121 | bed923f4 | opus (spec 081), sonnet x2 | `say` field; the fallback voices an NPC's planned line. interpret-v10, narrate-v13, audit-v9. Card TASK-0220. |
+| 2026-11-03 | TASK-0213 | #122 | 05ef251e | sonnet (tier raised from haiku: root-cause hunt) | pullIn discarded its batch ids; NPC and PC paths fixed after two orchestrator reviews. narrate-v14. |
+| 2026-11-03 | (ruling) | — | — | — | Spec 082 OQ-1, operator: "I'm okay with stats-only as long as the rule for Sneak Attack is something that's going to come later…". Carded TASK-0225 (m-4); standing S-sneak-attack playtest row. |
+| 2026-11-03 | TASK-0104 | (this PR) | (at merge) | opus (spec 082 + seam check), sonnet x3 | Engine-derived numbers; `STAT_UNDEFINED`; interpret-v11, adjudicate-v8. Cards TASK-0222, 0223, 0224. |
 
 ## Later runbooks (order on record; each gets its own runbook and sign-off)
 

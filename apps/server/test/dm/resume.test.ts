@@ -102,7 +102,7 @@ describe("needsPriorTurns", () => {
 const reading = (actionId: string): InterpretReading =>
   ({
     actionId,
-    kind: "check",
+    intent: "check",
     uncertain: false,
     needsAdjudication: false,
     rulesQuestion: null,
@@ -233,6 +233,32 @@ describe("findResumedPlans", () => {
       [prior("j1", [s], [reading("a1")], [ruling("a1")])],
     );
     expect(plans[0]?.ruling).toEqual(ruling("a1"));
+  });
+
+  it("skips an old-shape paused reading (spec 082 D10)", () => {
+    const s = sub("act:a1:s0", "pending", "p1");
+    const old = {
+      ...reading("a1"),
+      steps: [
+        {
+          step: "check",
+          reason: "r",
+          combatantId: "tamsin",
+          kind: "ability-check",
+          ability: "str",
+          skill: null,
+          expression: "1d20",
+          mode: "normal",
+          dc: 12,
+          autoFail: null,
+          onSuccess: [],
+          onFailure: [],
+        },
+      ],
+    } as unknown as InterpretReading;
+    expect(
+      findResumedPlans(proj([approved()]), ["a1"], [prior("j1", [s], [old])]),
+    ).toEqual([]);
   });
 
   it("only keeps submissions keyed for the action", () => {

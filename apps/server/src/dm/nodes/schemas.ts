@@ -1,6 +1,7 @@
 import {
   DamageTypeSchema,
   DefenseSetSchema,
+  DifficultySchema,
   EngineCommandSchema,
   type Skill,
 } from "@the-stacks/dnd5e-engine";
@@ -141,18 +142,25 @@ export const ClueRefSchema = z
   .string()
   .regex(/^[a-z0-9][a-z0-9_.:-]{0,63}#[1-8]$/);
 
+export { DifficultySchema };
+
+/** Spec 082 D6: advantage or disadvantage from a source no condition states, with its reason. */
+const CircumstanceSchema = z
+  .object({ mode: z.enum(["advantage", "disadvantage"]), reason: Reason })
+  .nullable()
+  .default(null);
+
 export const StepSchema = z.discriminatedUnion("step", [
   z.object({ step: z.literal("none"), reason: Reason }),
-  z.object({
+  z.strictObject({
     step: z.literal("check"),
     reason: Reason,
     combatantId: CombatantIdSchema.nullable(),
     kind: z.enum(["ability-check", "saving-throw"]),
     ability: AbilitySchema,
     skill: SkillSchema.nullable(),
-    expression: z.string().min(1).max(200),
-    mode: RollModeSchema,
-    dc: z.number().int().min(1).max(40),
+    difficulty: DifficultySchema,
+    circumstance: CircumstanceSchema,
     autoFail: z.object({ reason: Reason }).nullable(),
     onSuccess: z.array(EffectSchema).max(4),
     onFailure: z.array(EffectSchema).max(4),
@@ -162,15 +170,14 @@ export const StepSchema = z.discriminatedUnion("step", [
     onSevere: z.array(EffectSchema).max(4).default([]),
     newRisk: z.string().min(1).max(200).nullable().default(null),
   }),
-  z.object({
+  z.strictObject({
     step: z.literal("attack"),
     reason: Reason,
-    attackerId: CombatantIdSchema.nullable(),
+    attackerId: CombatantIdSchema,
     targetId: CombatantIdSchema,
-    expression: z.string().min(1).max(200),
-    mode: RollModeSchema,
-    targetAc: z.number().int().min(1).max(40).nullable(),
-    onHit: z.array(EffectSchema).min(1).max(4),
+    attack: z.string().min(1).max(60),
+    circumstance: CircumstanceSchema,
+    onHit: z.array(EffectSchema).max(4),
   }),
   z.object({
     step: z.literal("effect"),
@@ -192,13 +199,28 @@ export const StepSchema = z.discriminatedUnion("step", [
 ]);
 export type Step = z.infer<typeof StepSchema>;
 
-/** An ability check names a cost and a severe consequence; a saving throw may not. */
-function requireAbilityStakes(
+/**
+ * An ability check names a cost and a severe consequence; a saving throw may not.
+ * Spec 082: an attack's `onHit` carries no damage (the engine applies the attack entry's).
+ */
+function refineSteps(
   steps: readonly Step[],
   ctx: z.RefinementCtx,
   base: (string | number)[],
 ): void {
   steps.forEach((step, i) => {
+    if (step.step === "attack") {
+      step.onHit.forEach((e, j) => {
+        if (e.effect === "damage") {
+          ctx.addIssue({
+            code: "custom",
+            message:
+              "an attack's onHit carries no damage effect: the engine applies the attack's damage",
+            path: [...base, i, "onHit", j],
+          });
+        }
+      });
+    }
     if (step.step !== "check" || step.kind !== "ability-check") return;
     for (const key of ["cost", "severe"] as const) {
       if (step.stakes[key] === null) {
@@ -242,7 +264,7 @@ export const InterpretReadingSchema = z
         path: ["rulesQuestion"],
       });
     }
-    requireAbilityStakes(r.steps, ctx, ["steps"]);
+    refineSteps(r.steps, ctx, ["steps"]);
   });
 export type InterpretReading = z.infer<typeof InterpretReadingSchema>;
 
@@ -375,5 +397,5 @@ export const AdjudicateModelOutput = z
       .max(6),
     steps: z.array(StepSchema).min(1).max(6),
   })
-  .superRefine((o, ctx) => requireAbilityStakes(o.steps, ctx, ["steps"]));
+  .superRefine((o, ctx) => refineSteps(o.steps, ctx, ["steps"]));
 export type AdjudicateModelOutput = z.infer<typeof AdjudicateModelOutput>;

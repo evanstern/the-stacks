@@ -1,4 +1,10 @@
-import type { RefusalCode, Skill } from "@the-stacks/dnd5e-engine";
+import {
+  type Combatant,
+  checkModifier,
+  findAttack,
+  type RefusalCode,
+  type Skill,
+} from "@the-stacks/dnd5e-engine";
 import {
   REASON_TO_PRESENCE,
   type ScenePresence,
@@ -27,7 +33,8 @@ export type PlanFailureReason =
   | "not-a-combatant"
   | "not-in-snapshot"
   | "absent"
-  | "not-the-actor";
+  | "not-the-actor"
+  | "stat-undefined";
 
 export interface PlanFailure {
   stepIndex: number;
@@ -52,6 +59,13 @@ export type ReasonRefusalCode = typeof REASON_REFUSAL_CODE;
  */
 export const ACTOR_REFUSAL_CODE =
   "STEP_ACTOR_MISMATCH" as const satisfies RefusalCode;
+
+/**
+ * The refusal code of a group whose step the stats cannot derive (spec 082 D8):
+ * no stats, a missing ability modifier or an unknown attack name. An engine code.
+ */
+export const STAT_REFUSAL_CODE =
+  "STAT_UNDEFINED" as const satisfies RefusalCode;
 
 /** A model text (step reason or condition source) the claim gate refused. */
 export interface ReasonFailure {
@@ -82,6 +96,12 @@ export type PlanVerdict =
       ok: false;
       code: typeof ACTOR_REFUSAL_CODE;
       failure: PlanFailure;
+    }
+  | {
+      actionId: string | null;
+      ok: false;
+      code: typeof STAT_REFUSAL_CODE;
+      failure: PlanFailure;
     };
 
 export interface PlanInput {
@@ -101,6 +121,8 @@ export interface PlanInput {
    * is not actor-checked (spec 079 D5).
    */
   actors?: ReadonlyMap<string, string | null>;
+  /** The engine combatants (spec 082 D8). A joining or absent id is not stat-checked. */
+  combatants: Readonly<Record<string, Combatant>>;
 }
 
 type EncounterSeed = SceneSeed["encounters"][number];
@@ -199,9 +221,7 @@ function stepIds(step: Step): NamedId[] {
       ];
     case "attack":
       return [
-        ...(step.attackerId
-          ? [{ field: "attackerId", id: step.attackerId }]
-          : []),
+        { field: "attackerId", id: step.attackerId },
         { field: "targetId", id: step.targetId },
         ...effectIds(step.onHit, "onHit"),
       ];
@@ -234,6 +254,15 @@ function stakeTexts(step: Extract<Step, { step: "check" }>): NamedText[] {
   return out;
 }
 
+/** Spec 082 D8: a circumstance's reason is a model-written claim. */
+function circumstanceTexts(
+  step: Extract<Step, { step: "check" | "attack" }>,
+): NamedText[] {
+  return step.circumstance
+    ? [{ field: "circumstance.reason", text: step.circumstance.reason }]
+    : [];
+}
+
 /** Every model-written text a step carries, in the order checked. */
 function stepTexts(step: Step): NamedText[] {
   switch (step.step) {
@@ -256,11 +285,13 @@ function stepTexts(step: Step): NamedText[] {
         ...effectSources(step.onFailure, "onFailure"),
         ...effectSources(step.onCost, "onCost"),
         ...effectSources(step.onSevere, "onSevere"),
+        ...circumstanceTexts(step),
         ...stakeTexts(step),
       ];
     case "attack":
       return [
         { field: "reason", text: step.reason },
+        ...circumstanceTexts(step),
         ...effectSources(step.onHit, "onHit"),
       ];
   }
@@ -333,7 +364,7 @@ function foreignActor(
 ): PlanFailure | null {
   for (const [stepIndex, step] of steps.entries()) {
     const named =
-      step.step === "attack" && step.attackerId
+      step.step === "attack"
         ? { field: "attackerId", id: step.attackerId }
         : step.step === "move"
           ? { field: "combatantId", id: step.combatantId }
@@ -341,6 +372,42 @@ function foreignActor(
     if (!named) continue;
     if (actor === null ? !party.has(named.id) : named.id !== actor) {
       return { stepIndex, ...named, reason: "not-the-actor" };
+    }
+  }
+  return null;
+}
+
+/** Spec 082 D8: the first check or attack whose number the stats cannot derive. */
+function statGap(
+  steps: readonly Step[],
+  combatants: Readonly<Record<string, Combatant>>,
+  joining: readonly string[],
+): PlanFailure | null {
+  for (const [stepIndex, step] of steps.entries()) {
+    if (step.step === "check" && step.combatantId) {
+      const c = combatants[step.combatantId];
+      if (!c || joining.includes(step.combatantId)) continue;
+      const d = checkModifier(c, step.kind, step.ability, step.skill);
+      if (!d.ok) {
+        return {
+          stepIndex,
+          field: step.skill ? "skill" : "ability",
+          id: `${step.combatantId}: ${d.missing}`,
+          reason: "stat-undefined",
+        };
+      }
+    } else if (step.step === "attack") {
+      const c = combatants[step.attackerId];
+      if (!c || joining.includes(step.attackerId)) continue;
+      const d = findAttack(c, step.attack);
+      if (!d.ok) {
+        return {
+          stepIndex,
+          field: "attack",
+          id: `${step.attackerId}: ${d.missing}`,
+          reason: "stat-undefined",
+        };
+      }
     }
   }
   return null;
@@ -460,6 +527,17 @@ export function checkPlan(input: PlanInput): PlanVerdict[] {
         ok: false,
         code: "UNKNOWN_COMBATANT",
         failure,
+      });
+      continue;
+    }
+    // Spec 082 D8: the stats must derive every named modifier and attack.
+    const gap = statGap(steps, input.combatants, input.joining);
+    if (gap) {
+      verdicts.push({
+        actionId,
+        ok: false,
+        code: STAT_REFUSAL_CODE,
+        failure: gap,
       });
       continue;
     }

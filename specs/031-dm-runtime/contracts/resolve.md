@@ -150,8 +150,9 @@ For one beat item with its reading (or ruling, which replaces the reading's step
    - `move` → Amended by spec 079 (TASK-0208). The step submits nothing itself. For each
      `leavesReachOf` id that is an unspent, able encounter monster, resolve submits a
      `mechanics` `attack.roll` with `reaction: true` (attacker the hostile, target the mover,
-     expression from the hostile's SRD melee attack), then `damage.apply` on a hit with the SRD
-     damage dice (critical on `critical-hit`). The reaction batches join the action's `batchIds`.
+     `attack` the hostile's first melee entry in its engine stats), then `damage.apply` on a hit
+     with the entry's damage (critical on `critical-hit`). Amended by
+     specs/082-engine-derived-numbers. The reaction batches join the action's `batchIds`.
      A refusal of a reaction does not stop the mover's chain; a pending proposal pauses it.
 4. Then submit `action.resolve`:
    - `applied` with every applied `batchId`, when at least one batch applied;
@@ -234,3 +235,14 @@ reference, else null) and `revealedText` (`clueFor(seed, reveals)`: the seed clu
 none or unknown; an unknown reference logs `dm.reveals.unknown`). Both are checkpointed and never
 in a public row; an older checkpoint lacks them. `consequenceFor` now returns `stakes.success` for
 the `success` band and falls back from a null `severe` to `failure`. No effect or band logic changes.
+
+## Amended by specs/082-engine-derived-numbers (TASK-0104)
+
+- `check` submits `check.roll` with `difficulty` and `mode` (`circumstance.mode` or `normal`), and
+  no `expression` or `dc`. Everything else spec 070 and 080 added stays.
+- `attack` submits `attack.roll` with `attack` and `mode`, and no `expression` or `targetAc`. On
+  `hit` or `critical-hit` resolve reads the attacker's entry from the fresh projections and submits
+  `damage.apply` at key `<key>:dmg` with the entry's components and `critical`. `onHit` effects
+  follow.
+- `checkPlan` receives the engine combatants. A step the stats cannot derive refuses its group with
+  `STAT_UNDEFINED` before any step runs.

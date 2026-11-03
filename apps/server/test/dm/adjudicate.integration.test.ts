@@ -88,9 +88,8 @@ async function setup(opts: { citations: unknown[]; readings: number }) {
             kind: "ability-check",
             ability: "str",
             skill: "athletics",
-            expression: "1d20+3",
-            mode: "normal",
-            dc: 12,
+            difficulty: "medium",
+            circumstance: null,
             autoFail: null,
             onSuccess: [
               {

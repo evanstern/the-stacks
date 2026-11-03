@@ -1,6 +1,10 @@
 import { z } from "zod";
+import { DifficultySchema } from "../derive.js";
 import {
+  AbilitySchema,
+  AmountSchema,
   CombatantIdSchema,
+  CombatantStatsSchema,
   ConditionKeySchema,
   DamageTypeSchema,
   DefenseSetSchema,
@@ -9,23 +13,14 @@ import {
   SkillSchema,
 } from "./state.js";
 
+const Ability = AbilitySchema;
+const Amount = AmountSchema;
 const Reason = z.string().min(1).max(500);
 const Id = CombatantIdSchema;
 const RollMode = z
   .enum(["normal", "advantage", "disadvantage"])
   .default("normal");
-const Amount = z.discriminatedUnion("kind", [
-  z.object({
-    kind: z.literal("fixed"),
-    value: z.number().int().min(0).max(10000),
-  }),
-  z.object({
-    kind: z.literal("roll"),
-    expression: z.string().min(1).max(200),
-  }),
-]);
 const SlotLevel = z.number().int().min(1).max(9);
-const Ability = z.enum(["str", "dex", "con", "int", "wis", "cha"]);
 // exhaustion moves only through exhaustion.adjust; passing it is a parse failure.
 const NonExhaustionCondition = ConditionKeySchema.exclude(["exhaustion"]);
 
@@ -82,6 +77,7 @@ const CombatantInit = z.object({
         .default(null),
     })
     .default({ standard: {}, pact: null }),
+  stats: CombatantStatsSchema.optional(),
 });
 
 export const EngineCommandSchema = z.discriminatedUnion("type", [
@@ -95,7 +91,9 @@ export const EngineCommandSchema = z.discriminatedUnion("type", [
     type: z.literal("attack.roll"),
     attackerId: Id.nullable(),
     targetId: Id,
-    expression: z.string().min(1).max(200),
+    // Spec 082: exactly one of expression (explicit) and attack (a stats entry name).
+    expression: z.string().min(1).max(200).optional(),
+    attack: z.string().min(1).max(60).optional(),
     mode: RollMode,
     targetAc: z.number().int().min(1).max(40).nullable().default(null),
     reaction: z.boolean().optional(),
@@ -107,9 +105,12 @@ export const EngineCommandSchema = z.discriminatedUnion("type", [
     kind: z.enum(["ability-check", "saving-throw"]),
     ability: Ability,
     skill: SkillSchema.nullable().default(null),
-    expression: z.string().min(1).max(200),
+    // Spec 082: expression is explicit-only; without it the engine derives the modifier.
+    expression: z.string().min(1).max(200).optional(),
     mode: RollMode,
-    dc: z.number().int().min(1).max(40),
+    // Exactly one of dc and difficulty (checked in the handler, plan R8).
+    dc: z.number().int().min(1).max(40).optional(),
+    difficulty: DifficultySchema.optional(),
     autoFail: z.object({ reason: Reason }).nullable().default(null),
     // Spec 070: auto-success (a free retry) and the table's house rules.
     // The engine defaults stay SRD-pure; the DM runtime sends the seed's values.
