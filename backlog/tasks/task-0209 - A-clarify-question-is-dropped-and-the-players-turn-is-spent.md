@@ -1,10 +1,10 @@
 ---
 id: TASK-0209
 title: A clarify question is dropped and the player's turn is spent
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-11-02 23:13'
-updated_date: '2026-11-03 00:57'
+updated_date: '2026-11-03 01:03'
 labels:
   - dm
   - playtest
@@ -56,6 +56,12 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (
 
 Dispatch: tier=haiku pinned=cc/claude-haiku-5-5 served=claude-haiku-5-5 (spec 073 phase 3, wiki)
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (A clarify holds the turn (card AC #1, merge condition; US1): 7/7 · The player sees the question (card AC #2; US2): 9/9 · Wiki upkeep: 5/5). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
