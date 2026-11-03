@@ -1,10 +1,10 @@
 ---
 id: TASK-0211
 title: Casting a spell spends no slot and uses model-written healing dice
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-11-02 23:19'
-updated_date: '2026-11-03 08:02'
+updated_date: '2026-11-03 08:33'
 labels:
   - dm
   - rules
@@ -39,6 +39,8 @@ Related: TASK-0104 (engine-derived modifiers and DCs; the same model-written-num
 
 <!-- SECTION:NOTES:BEGIN -->
 Split with TASK-0105 (spec 083 OQ-1 a, 2026-11-03): 0105 delivers AC #2 (Cure Wounds 2d8 + modifier from the SRD record) and the slot spend with NO_SLOT_AVAILABLE refusal. 0211 keeps the seq 204-210 replay test (AC #1) and AC #3 (narration never states a slot was spent unless the engine spent it).
+
+Claimed 2026-11-03 by M3 runbook B (docs/design/m3-runbook-b-resolution-quality.md). Worktree .worktrees/task-0211, branch task-0211-spell-slot-narration, cut from origin/main ff1eb0ed. No spec dir: signed escape line covers this task. Spine #16. Most of the card delivered by TASK-0105 (#124); remaining AC #1 replay and AC #3 under a card-ACs-drive line (see runbook amendment).
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
