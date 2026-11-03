@@ -29,17 +29,17 @@ one commit led by `TASK-0210:`. No phase edits `dm/nodes/resolve.ts` or any `dm/
 
 ## Phase 2: The DB tests and the run 1 seq 45 replay (card AC #1, #2; merge condition)
 
-- [ ] T008 In `apps/server/test/dm/resolve.integration.test.ts`, apply the three plan D3 rows: move
+- [x] T008 In `apps/server/test/dm/resolve.integration.test.ts`, apply the three plan D3 rows: move
       each refusal case to unknown id `ghoul-9` and update its expectations and comment.
-- [ ] T009 In `apps/server/test/dm/noncombatant-targets.integration.test.ts`, replace the attack
+- [x] T009 In `apps/server/test/dm/noncombatant-targets.integration.test.ts`, replace the attack
       control with the attack-pull case (plan D3). Add the extra-dice argument to `runFreePell`.
-- [ ] T010 Create `apps/server/test/dm/scripts/shoot-snag.json` (plan D4). Take the post texts from
+- [x] T010 Create `apps/server/test/dm/scripts/shoot-snag.json` (plan D4). Take the post texts from
       `docs/playtests/2026-11-02-runbook-a-playtest.md` findings 5 and 6.
-- [ ] T011 Create `apps/server/test/dm/attack-anyone.integration.test.ts` with the seq 45 replay
+- [x] T011 Create `apps/server/test/dm/attack-anyone.integration.test.ts` with the seq 45 replay
       and the absent control (plan D4). Declare Kestrel's action through Kestrel's player.
-- [ ] T012 Run the DB suites with `REQUIRE_DATABASE=1` on the worktree stack (dispatch rules). Run
+- [x] T012 Run the DB suites with `REQUIRE_DATABASE=1` on the worktree stack (dispatch rules). Run
       the plan D5 mutation guard on D4 test 1, then restore.
-- [ ] T013 Run `pnpm ci:check`.
+- [x] T013 Run `pnpm ci:check`.
 
 ## Phase 3: Wiki re-ground (card AC #3)
 

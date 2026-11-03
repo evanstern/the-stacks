@@ -646,9 +646,9 @@ describe.skipIf(!reachable)("resolve (database)", () => {
       const id = await commitAction(w, "Tamsin bargains with Pell.");
       freshCheckpoint(w);
       // The plan gate (TASK-0112) refuses this plan; the refusal must land
-      // before the encounter ends. An attack stays refused on a non-combatant
-      // (spec 068); a check on Pell would pull him in.
-      const out = await run(w, [reading(id, [attackStep("pell")])], {
+      // before the encounter ends. An unknown id is refused (an attack on Pell
+      // would pull him in, spec 075).
+      const out = await run(w, [reading(id, [attackStep("ghoul-9")])], {
         director: { tableMode: { to: "free", reason: "The goblins flee." } },
         job: nextJob(),
       });
@@ -663,7 +663,7 @@ describe.skipIf(!reachable)("resolve (database)", () => {
     });
 
     describe("plan gate (TASK-0112)", () => {
-      it("refuses the whole action group when a later step names a non-combatant, with no row from step 0", async () => {
+      it("refuses the whole action group when a later step names an unknown id, with no row from step 0", async () => {
         const w = await inTurnMode([...initDice(TAMSIN_FIRST), 15]);
         const id = await commitAction(
           w,
@@ -673,7 +673,7 @@ describe.skipIf(!reachable)("resolve (database)", () => {
         const before = (await readRows(w)).length;
         const out = await run(
           w,
-          [reading(id, [checkStep(), attackStep("pell")])],
+          [reading(id, [checkStep(), attackStep("ghoul-9")])],
           { job: nextJob() },
         );
         expect(out.actionResults).toMatchObject([
@@ -688,7 +688,7 @@ describe.skipIf(!reachable)("resolve (database)", () => {
             actionId: id,
             ok: false,
             code: "UNKNOWN_COMBATANT",
-            failure: { stepIndex: 1, id: "pell", reason: "not-a-combatant" },
+            failure: { stepIndex: 1, id: "ghoul-9", reason: "not-in-snapshot" },
           },
         ]);
         const rows = (await readRows(w)).slice(before);
@@ -705,11 +705,11 @@ describe.skipIf(!reachable)("resolve (database)", () => {
         const before = (await readRows(w)).length;
         const out = await run(
           w,
-          [reading(null, [attackStep("pell", { attackerId: "snag" })])],
+          [reading(null, [attackStep("ghoul-9", { attackerId: "snag" })])],
           { job: { ...nextJob(), trigger: "npc-turn" } },
         );
         expect(out.planGate).toMatchObject([
-          { actionId: null, ok: false, failure: { id: "pell" } },
+          { actionId: null, ok: false, failure: { id: "ghoul-9" } },
         ]);
         expect(out.npcTurn).toMatchObject({ batchIds: [], awaitingDm: false });
         const rows = (await readRows(w)).slice(before);
