@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-10-28 19:20'
-updated_date: '2026-11-03 03:18'
+updated_date: '2026-11-03 03:20'
 labels:
   - dm
   - rules
@@ -44,6 +44,8 @@ Spec: specs/080-declared-outcome
 
 <!-- SECTION:NOTES:BEGIN -->
 Claimed 2026-11-02 by M3 runbook B (docs/design/m3-runbook-b-resolution-quality.md). Worktree .worktrees/task-0170, branch task-0170-declared-outcome, cut from origin/main b79489e2. Spec number 080 claimed with a stub. Spine #9; spec authored early against spec 070.
+
+Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5 (spec 080 authoring, C1)
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
