@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-11-02 23:11'
-updated_date: '2026-11-03 01:21'
+updated_date: '2026-11-03 03:17'
 labels:
   - dm
   - rules
@@ -37,7 +37,10 @@ Spec: specs/079-engine-opportunity-attack
 - [ ] #2 A player's action resolves its own declared step (here, the free attempt); an enemy reaction is a separate event
 - [ ] #3 The fallback names the attacker as the subject of an attack's outcome ('The pot-helm goblin strikes home'), with a test replaying seq 154-161
 - [ ] #4 Narration never shows a followUp ('not yet attempted') as done, in a later beat either
+- [ ] #5 Spec phase: The engine owns reactions (card AC #1, engine part; US1 scenarios 3 and 4)
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
