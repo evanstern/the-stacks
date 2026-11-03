@@ -15,7 +15,7 @@ Phases run in order: Phase 2 needs Phase 1's engine command and exports.
 
 ## Phase 0: Seam check [orchestrator]
 
-- [ ] T001 [orchestrator] Merge `origin/main` into the branch. Re-read plan.md R1's seams
+- [x] T001 [orchestrator] Merge `origin/main` into the branch. Re-read plan.md R1's seams
       (`derive.ts` exports, `CombatantStatsSchema`, `statGap`, prompt versions). If TASK-0128 or
       another card moved one, record it in a new `specs/083-spells-by-srd-id/deviations.md` and amend
       plan.md D4–D7.
