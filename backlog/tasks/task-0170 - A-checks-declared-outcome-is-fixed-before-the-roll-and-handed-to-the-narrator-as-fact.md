@@ -44,14 +44,6 @@ Spec: specs/080-declared-outcome
 - [x] #9 Spec phase: Contracts and wiki re-ground
 <!-- AC:END -->
 
-
-
-
-
-
-
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -69,6 +61,8 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (
 Seam check (phases 1-2): seams moved, none changed meaning; see specs/080-declared-outcome/deviations.md.
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 080 phase 4, contracts and wiki)
+
+spec-bridge sync: Step contract, discoverable clues, seeds, fixtures (card AC #1, #5; US1, US2): 10/10 · Resolve and facts carry the applied outcome (card AC #2, #5; US1, US2): 7/7 · Narration, audit, fallback and the claw-marks replay (card AC #3, #4; US1, US3): 9/9 · Contracts and wiki re-ground: 5/5 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
