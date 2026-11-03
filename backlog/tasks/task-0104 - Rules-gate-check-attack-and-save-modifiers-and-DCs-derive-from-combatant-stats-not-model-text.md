@@ -44,8 +44,6 @@ Spec: specs/082-engine-derived-numbers
 - [ ] #11 Spec phase: Re-ground (wiki)
 <!-- AC:END -->
 
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -63,6 +61,8 @@ OPERATOR RULING 2026-11-02 on spec 082 OQ-1, in the operator's words: "I'm okay 
 
 Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5 (spec 082 authoring, C1)
 Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5 (spec 082 phase 0 seam check and amendment, C1)
+
+spec-bridge sync: Seam check [orchestrator]: 1/1 · Engine derivation (card AC #1, #2, #4, #5; US1, US2, US3, US4): 0/13 · Stats on combatants and the reaction path (card AC #1, #3, #4; US2, US3): 0/9 · Step contract, prompts, resolve and plan gate (card AC #1–#4; US1, US2, US3): 0/14 · Scripts, fixtures and integration tests (card AC #5; US5): 0/7 · Re-ground (wiki): 0/6
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
