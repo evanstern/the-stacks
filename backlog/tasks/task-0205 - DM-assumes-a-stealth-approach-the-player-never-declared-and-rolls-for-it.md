@@ -35,7 +35,10 @@ Spec: specs/077-no-undeclared-method
 - [ ] #2 A check from one player's action rolls for that player's character, never another human's, with a test
 - [ ] #3 The Director's goal note cannot prescribe a skill the player did not choose (prompt rule plus test)
 - [ ] #4 Spec phase: The rule (card AC #1, #2; US1, US2)
+- [ ] #5 Spec phase: Wiring and the run 1 replay (merge condition; US1, US2)
 <!-- AC:END -->
+
+
 
 
 
