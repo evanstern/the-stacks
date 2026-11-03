@@ -23,6 +23,7 @@ import {
 } from "../gates/plan-gate.js";
 import type { TurnCheckpoint } from "../jobs.js";
 import type { Node, NodeError, TurnContext } from "../pipeline/context.js";
+import { meleeAttackOf, reactors } from "../reactions.js";
 import { refreshSubmission } from "../resume.js";
 import { combatantFromSrd } from "../seed/combatants.js";
 import type { SceneSeed } from "../seed/schema.js";
@@ -562,6 +563,89 @@ async function runSteps(
         }
         break;
       }
+      case "move": {
+        // Spec 079 D4: the engine, not interpret, decides the reactions.
+        const fresh = await run.ctx.deps.loadProjections(run.ctx.job.sessionId);
+        const seedMonsters = new Map(
+          run.ctx.seed.encounters.flatMap((e) =>
+            e.monsters.map((m) => [m.combatantId, m.srdMonsterId] as const),
+          ),
+        );
+        const ids = reactors({
+          moverId: step.combatantId,
+          leavesReachOf: step.leavesReachOf,
+          engine: fresh.engine,
+          partyCombatantIds: new Set(
+            fresh.party.flatMap((m) => (m.combatantId ? [m.combatantId] : [])),
+          ),
+          encounterMonsters: seedMonsters,
+        });
+        const moverName =
+          fresh.engine.combatants[step.combatantId]?.name ?? step.combatantId;
+        for (const [n, id] of ids.entries()) {
+          if (stopped) break;
+          const rec = run.ctx.deps.srd.getById(
+            "monster",
+            seedMonsters.get(id) as string,
+          );
+          const atk = rec ? meleeAttackOf(rec) : null;
+          if (!atk) {
+            run.ctx.deps.log({
+              event: "dm.reaction.skipped",
+              jobId: run.ctx.job.id,
+              reactorId: id,
+              reason: "no-melee-attack",
+            });
+            continue;
+          }
+          const reactorName = fresh.engine.combatants[id]?.name ?? id;
+          const rkey = `${key}:r${n}`;
+          const sub = await run.mech(
+            rkey,
+            {
+              type: "attack.roll",
+              attackerId: id,
+              targetId: step.combatantId,
+              expression: atk.expression,
+              mode: "normal",
+              targetAc: null,
+              reaction: true,
+            },
+            `${reactorName} strikes as ${moverName} pulls away`,
+            actionId,
+          );
+          // A reaction is not the mover's step: only a pause stops the chain.
+          if (sub.result === "pending" || sub.result === "suggested") {
+            chain.awaiting = true;
+            stopped = true;
+            break;
+          }
+          if (sub.result !== "applied") continue;
+          if (sub.batchId) chain.batchIds.push(sub.batchId);
+          if (sub.outcome === "hit" || sub.outcome === "critical-hit") {
+            const dmg = await run.mech(
+              `${rkey}:e0`,
+              {
+                type: "damage.apply",
+                targetId: step.combatantId,
+                components: atk.components,
+                critical: sub.outcome === "critical-hit",
+                defenses: null,
+              },
+              `${reactorName} strikes as ${moverName} pulls away: damage`,
+              actionId,
+            );
+            if (dmg.result === "applied") {
+              if (dmg.batchId) chain.batchIds.push(dmg.batchId);
+            } else if (dmg.result !== "refused") {
+              chain.awaiting = true;
+              stopped = true;
+              break;
+            }
+          }
+        }
+        break;
+      }
       case "attack": {
         const sub = await run.mech(
           key,
@@ -612,6 +696,7 @@ function presenceTargets(
         effects(step.onSuccess);
         effects(step.onFailure);
       } else if (step.step === "attack") effects(step.onHit);
+      // A move step carries no presence effect (spec 079).
     }
   }
   return out;
@@ -1046,6 +1131,22 @@ async function pullIn(
   }
 }
 
+/** Action id -> the acting character's combatant id; `null` for a party-scope action. */
+function actionActors(assembled: AssembleOutput): Map<string, string | null> {
+  const out = new Map<string, string | null>();
+  for (const item of assembled.beat) {
+    if (item.scope === "party") {
+      out.set(item.actionId, null);
+      continue;
+    }
+    const member = assembled.projections.party.find(
+      (m) => m.characterId === item.characterId,
+    );
+    if (member?.combatantId) out.set(item.actionId, member.combatantId);
+  }
+  return out;
+}
+
 async function resolveAction(
   run: Run,
   ctx: TurnContext,
@@ -1205,6 +1306,7 @@ export const resolve: Node<"resolve"> = async (ctx) => {
         ]),
       ],
       resumed: (assembled.resumed ?? []).map((plan) => plan.actionId),
+      actors: actionActors(assembled),
     });
     const verdictFor = (actionId: string | null) =>
       run.planGate.find((v) => v.actionId === actionId);

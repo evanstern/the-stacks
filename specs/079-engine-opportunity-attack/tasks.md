@@ -50,27 +50,27 @@ and the plan gate refuses a foreign actor's step.
 **Independent test**: `opportunity-attack.integration.test.ts`, `reactions.test.ts`,
 `plan-gate.test.ts`, `interpret-prompt.test.ts` and `dm-scripts.test.ts` pass.
 
-- [ ] T009 [US1] In `apps/server/src/dm/nodes/schemas.ts`, add the `move` step (plan D3).
-- [ ] T010 [US1] In `prompts/step-grammar.ts`, add the `move` line (plan D3). Bump
+- [x] T009 [US1] In `apps/server/src/dm/nodes/schemas.ts`, add the `move` step (plan D3).
+- [x] T010 [US1] In `prompts/step-grammar.ts`, add the `move` line (plan D3). Bump
       `prompts/adjudicate.ts`'s version.
-- [ ] T011 [US1] In `prompts/interpret.ts`, add the D6 sentence to `OUTPUT_SHAPE`. Bump the version.
-- [ ] T012 [US1] Create `apps/server/src/dm/reactions.ts` with `meleeAttackOf` and `reactors`
+- [x] T011 [US1] In `prompts/interpret.ts`, add the D6 sentence to `OUTPUT_SHAPE`. Bump the version.
+- [x] T012 [US1] Create `apps/server/src/dm/reactions.ts` with `meleeAttackOf` and `reactors`
       (plan D4).
-- [ ] T013 [US1] In `gates/plan-gate.ts`, add the `move` cases and the actor rule (plan D3, D5).
+- [x] T013 [US1] In `gates/plan-gate.ts`, add the `move` cases and the actor rule (plan D3, D5).
       Add the OQ-4 code to the engine refusal enum and `PLAN_GATE_ONLY` only when spec 077 added
       none.
-- [ ] T014 [US1] [US2] In `nodes/resolve.ts`, add `case "move"` to `runSteps`, the `move` no-op in
+- [x] T014 [US1] [US2] In `nodes/resolve.ts`, add `case "move"` to `runSteps`, the `move` no-op in
       `presenceTargets`, and the `actors` input to `checkPlan` (plan D4, D5).
-- [ ] T015 [P] [US1] Create `apps/server/test/dm/reactions.test.ts` (plan "Tests").
-- [ ] T016 [P] [US1] Extend `apps/server/test/dm/plan-gate.test.ts` (plan "Tests"), including the
+- [x] T015 [P] [US1] Create `apps/server/test/dm/reactions.test.ts` (plan "Tests").
+- [x] T016 [P] [US1] Extend `apps/server/test/dm/plan-gate.test.ts` (plan "Tests"), including the
       `plan-approach.json` case from plan R4.
-- [ ] T017 [US1] [US2] Create `apps/server/test/dm/opportunity-attack.integration.test.ts` with
+- [x] T017 [US1] [US2] Create `apps/server/test/dm/opportunity-attack.integration.test.ts` with
       plan "Tests" cases 1 to 4. Seat Kestrel human on `greyhollow-ford-reed-camp`, as
       `attack-anyone.integration.test.ts` seats her on the duo seed. Name the run 1 source in the
       file header.
-- [ ] T018 [P] [US1] In `interpret-prompt.test.ts`, pin both new versions, update the step-grammar
+- [x] T018 [P] [US1] In `interpret-prompt.test.ts`, pin both new versions, update the step-grammar
       inline snapshot, and assert the D6 sentence.
-- [ ] T019 Amend `specs/031-dm-runtime/contracts/resolve.md` (plan "Contracts"). Mark the change
+- [x] T019 Amend `specs/031-dm-runtime/contracts/resolve.md` (plan "Contracts"). Mark the change
       "Amended by spec 079 (TASK-0208)".
 - [ ] T020 Run `pnpm ci:check` and the DB suite. Commit as
       `TASK-0208 phase 2: a move away draws the engine's reaction`.

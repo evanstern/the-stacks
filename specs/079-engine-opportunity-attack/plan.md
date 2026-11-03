@@ -266,6 +266,8 @@ party-scope action it must be a party member's combatant. On a mismatch the verd
 `{ ok: false, code: <OQ-4 code>, failure: { stepIndex, field, id, reason: "not-the-actor" } }`.
 `PlanFailureReason` gains `"not-the-actor"`. The monster turn (`actionId: null`) is not checked.
 
+**Build record (Phase 2):** spec 077 added no refusal code. Its `askUndeclared` turns another human's PC roll into a clarify, so nothing was reusable for a non-party attacker. This card added `STEP_ACTOR_MISMATCH` (plan-gate only) as written below.
+
 OQ-4 code: reuse the code spec 077 (TASK-0205) adds for its AC #2 rule. If spec 077 merged none,
 add `STEP_ACTOR_MISMATCH` to `RefusalCodeSchema` and to `PLAN_GATE_ONLY` in
 `test/coverage.test.ts`, with a `satisfies RefusalCode` constant beside `REASON_REFUSAL_CODE`.
