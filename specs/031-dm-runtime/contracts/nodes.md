@@ -125,26 +125,28 @@ export const StepSchema = z.discriminatedUnion("step", [
   z.object({ step: z.literal("check"), reason: Reason,
     combatantId: CombatantIdSchema.nullable(),
     kind: z.enum(["ability-check", "saving-throw"]), ability: AbilitySchema,
-    skill: z.string().max(40).nullable(), expression: z.string().min(1).max(200),
-    mode: RollModeSchema, dc: z.number().int().min(1).max(40),
+    skill: z.string().max(40).nullable(),
+    difficulty: DifficultySchema, circumstance: Circumstance,     // Amended by specs/082-engine-derived-numbers
     autoFail: z.object({ reason: Reason }).nullable(),
     onSuccess: z.array(Effect).max(4), onFailure: z.array(Effect).max(4),
     stakes: StakesSchema, onCost: z.array(Effect).max(4).default([]),     // Amended by specs/070-stakes-before-dice
     onSevere: z.array(Effect).max(4).default([]), newRisk: z.string().min(1).max(200).nullable().default(null) }),
   z.object({ step: z.literal("attack"), reason: Reason,
-    attackerId: CombatantIdSchema.nullable(), targetId: CombatantIdSchema,
-    expression: z.string().min(1).max(200), mode: RollModeSchema,
-    targetAc: z.number().int().min(1).max(40).nullable(),
-    onHit: z.array(Effect).min(1).max(4) }),
+    attackerId: CombatantIdSchema, targetId: CombatantIdSchema,       // Amended by specs/082-engine-derived-numbers
+    attack: z.string().min(1).max(60), circumstance: Circumstance,
+    onHit: z.array(Effect).max(4) }),   // no damage effect: the engine applies the attack entry's damage
   z.object({ step: z.literal("effect"), reason: Reason, effects: z.array(Effect).min(1).max(4) }),
   z.object({ step: z.literal("roll"), reason: Reason, expression: z.string().min(1).max(200),
     mode: RollModeSchema }),
 ]);
 ```
 
-The schema has **no field for a total, an applied amount, or a verdict** (AC #5, R8). An
-`expression` carries the bonus the model chose (ability modifier, proficiency, bonus dice);
-the engine parses and rolls it. A `fixed` amount is allowed only where the SRD names a fixed
+The schema has **no field for a total, an applied amount, or a verdict** (AC #5, R8). Amended
+by specs/082-engine-derived-numbers: the check and attack steps are strict objects and carry no
+`expression`, `dc`, `targetAc` or `mode`. `difficulty` is a tier (`very-easy` 5 to
+`nearly-impossible` 30); `attack` names a seed or SRD attack entry; `circumstance` is `null` or
+`{ mode, reason }`. The engine derives the modifier, DC, AC, damage and roll mode from the
+combatant's stats and conditions. The `roll` step keeps its `expression`. A `fixed` amount is allowed only where the SRD names a fixed
 value; the prompt says so, and audit does not police it.
 
 Amended by specs/033-director-robustness/contracts/interpret-output.md.

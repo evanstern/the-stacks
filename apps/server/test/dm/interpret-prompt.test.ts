@@ -70,8 +70,8 @@ const NARRATIVE =
 
 describe("interpret and adjudicate prompts", () => {
   it("bumps the prompt versions", () => {
-    expect(INTERPRET_VERSION).toBe("dm.interpret-v10");
-    expect(ADJUDICATE_VERSION).toBe("dm.adjudicate-v7");
+    expect(INTERPRET_VERSION).toBe("dm.interpret-v11");
+    expect(ADJUDICATE_VERSION).toBe("dm.adjudicate-v8");
   });
 
   it("renders a frightened monster's condition and AC from S0 (G6)", async () => {
@@ -227,13 +227,26 @@ describe("interpret and adjudicate prompts", () => {
     expect(OUTPUT_SHAPE).toContain("set reveals to that clue");
   });
 
+  it("renders the tier list and the derivation rule, with no number field (spec 082)", () => {
+    expect(STEP_GRAMMAR).toContain("medium (DC 15)");
+    expect(STEP_GRAMMAR).toContain("nearly-impossible (DC 30)");
+    expect(STEP_GRAMMAR).toContain("The engine derives every modifier, DC, AC");
+    const lines = STEP_GRAMMAR.split("\n").filter(
+      (l) =>
+        l.startsWith('{"step":"check"') || l.startsWith('{"step":"attack"'),
+    );
+    expect(lines).toHaveLength(2);
+    for (const l of lines) expect(l).not.toMatch(/"dc"|targetAc|1d20/);
+  });
+
   it("matches the step grammar and output shape snapshot", () => {
     expect(`${STEP_GRAMMAR}\n\n${OUTPUT_SHAPE}`).toMatchInlineSnapshot(`
       "A step states mechanics INPUTS as data. Allowed steps:
       {"step":"none","reason":str}  (certain outcome; no roll)
-      {"step":"check","reason":str,"combatantId":id|null,"kind":"ability-check"|"saving-throw","ability":"str"|"dex"|"con"|"int"|"wis"|"cha","skill":skill key|null,"expression":"1d20+5","mode":"normal"|"advantage"|"disadvantage","dc":int,"autoFail":{"reason":str}|null,"onSuccess":[effect],"onFailure":[effect],"stakes":{"success":str,"cost":str|null,"failure":str,"severe":str|null},"onCost":[effect],"onSevere":[effect],"newRisk":str|null,"reveals":clue ref|null}
+      {"step":"check","reason":str,"combatantId":id|null,"kind":"ability-check"|"saving-throw","ability":"str"|"dex"|"con"|"int"|"wis"|"cha","skill":skill key|null,"difficulty":difficulty tier,"circumstance":{"mode":"advantage"|"disadvantage","reason":str}|null,"autoFail":{"reason":str}|null,"onSuccess":[effect],"onFailure":[effect],"stakes":{"success":str,"cost":str|null,"failure":str,"severe":str|null},"onCost":[effect],"onSevere":[effect],"newRisk":str|null,"reveals":clue ref|null}
       A check's stakes are declared before the dice. stakes.success: what happens when the attempt succeeds, written as the concrete outcome of this attempt; always written. reveals: the reference of one listed discoverable clue that a success shows, else null. stakes.cost: what happens on success at a cost, a miss by 1 or 2 (the goal is met, with a price). stakes.failure: what a plain failure costs; always written. stakes.severe: what happens on a severe failure, a miss by 5 or more. An ability check needs cost and severe; a saving throw sets them null. onCost and onSevere hold the effects of those bands. newRisk is a new danger that makes a repeat attempt a fresh roll; null otherwise.
-      {"step":"attack","reason":str,"attackerId":id|null,"targetId":id,"expression":"1d20+5","mode":roll mode,"targetAc":int|null,"onHit":[effect]}
+      {"step":"attack","reason":str,"attackerId":id,"targetId":id,"attack":attack name,"circumstance":{"mode":"advantage"|"disadvantage","reason":str}|null,"onHit":[effect]}  (onHit holds conditions, healing or presence, never damage: the engine applies the attack's own damage on a hit)
+      Difficulty tiers (the only allowed values of "difficulty"): very-easy (DC 5), easy (DC 10), medium (DC 15), hard (DC 20), very-hard (DC 25), nearly-impossible (DC 30)
       {"step":"effect","reason":str,"effects":[effect]}
       {"step":"roll","reason":str,"expression":"1d6","mode":roll mode}
       {"step":"move","reason":str,"combatantId":id,"leavesReachOf":[id]}  (the mover moves; list each hostile it stands next to and moves away from without Disengage)
@@ -243,7 +256,7 @@ describe("interpret and adjudicate prompts", () => {
       {"effect":"condition","op":"apply"|"remove","targetId":id,"condition":condition key,"source":str}
       {"effect":"presence","targetId":id,"reason":presence reason}
       Amount is {"kind":"roll","expression":"1d8+3"} or {"kind":"fixed","value":int}; use fixed only where the SRD names a fixed value.
-      The expression carries the modifier you choose (ability modifier, proficiency, bonus dice). Never state a total, an applied amount or whether anything succeeds: the engine rolls and decides every number.
+      Name the ability, skill, difficulty and attack only. The engine derives every modifier, DC, AC and damage from the combatant's stats, and advantage or disadvantage from conditions. Add a circumstance only for a source no condition states. Never state a total, an applied amount or whether anything succeeds: the engine rolls and decides every number.
       Conditions (the only allowed values of "condition"): blinded, charmed, deafened, frightened, grappled, incapacitated, invisible, paralyzed, petrified, poisoned, prone, restrained, stunned, unconscious
       Presence reasons (the only allowed values of "reason" in a presence effect): arrived, left, fled, removed, surrendered, conceded
       A presence effect states that an actor arrived, left, fled, was removed, surrendered or conceded. Put another actor's presence change in onSuccess, onFailure or onHit of a roll against that actor. The acting actor's own presence change may stand in an effect step.
@@ -258,7 +271,7 @@ describe("interpret and adjudicate prompts", () => {
       Write the stakes of every check before the dice: one short consequence per outcome band. Write failure as something that happens. When failure would cost nothing, use a none step instead of a check. Write cost as a price the player pays while still getting the goal, and severe as a worse turn, not only a missed goal. Write no stakes text that tells the player's character what they think or do. Write stakes.success as the concrete outcome of this attempt: what happens to the task and the world when the roll succeeds, so a success always delivers what the player declared. When a success would show one listed discoverable clue, name the thing found in stakes.success and set reveals to that clue's reference, such as ford-crossing#1; otherwise set reveals null. Set newRisk only when a failed attempt has changed the situation so that a repeat is dangerous.
       Keep every field short. Write one sentence per reason, at most 500 characters. Write rulesQuestion at most 500 characters. Write clarify as one short question, at most 200 characters. Write at most 6 steps per reading and at most 4 effects per list. Write source at most 100 characters and expression at most 200 characters.
       Example of one complete reading:
-      {"readings":[{"actionId":"act-1","intent":"check","uncertain":true,"needsAdjudication":false,"rulesQuestion":null,"clarify":null,"followUps":[],"say":null,"steps":[{"step":"check","reason":"Ana searches the ford for tracks.","combatantId":"pc-ana","kind":"ability-check","ability":"wis","skill":"survival","expression":"1d20+3","mode":"normal","dc":12,"autoFail":null,"onSuccess":[],"onFailure":[],"stakes":{"success":"She finds fresh tracks leading north: three goblins passed here.","cost":"She finds the tracks, but the cold ford soaks her boots.","failure":"The trail goes cold and the light fades.","severe":"She loses the trail and wanders into the reeds, noisily."},"onCost":[],"onSevere":[],"newRisk":null,"reveals":"ford-crossing#1"}]}]}"
+      {"readings":[{"actionId":"act-1","intent":"check","uncertain":true,"needsAdjudication":false,"rulesQuestion":null,"clarify":null,"followUps":[],"say":null,"steps":[{"step":"check","reason":"Ana searches the ford for tracks.","combatantId":"pc-ana","kind":"ability-check","ability":"wis","skill":"survival","difficulty":"medium","circumstance":null,"autoFail":null,"onSuccess":[],"onFailure":[],"stakes":{"success":"She finds fresh tracks leading north: three goblins passed here.","cost":"She finds the tracks, but the cold ford soaks her boots.","failure":"The trail goes cold and the light fades.","severe":"She loses the trail and wanders into the reeds, noisily."},"onCost":[],"onSevere":[],"newRisk":null,"reveals":"ford-crossing#1"}]}]}"
     `);
   });
 

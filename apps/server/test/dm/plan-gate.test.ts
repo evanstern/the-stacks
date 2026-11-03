@@ -50,6 +50,7 @@ const plan = (
     snapshot,
     readings,
     rulings: [],
+    combatants: {},
     joining: [],
     arriving: [],
     resumed: [],
@@ -67,6 +68,89 @@ const damageOn = (targetId: string) => ({
     { amount: { kind: "roll", expression: "1d4" }, damageType: "fire" },
   ],
   defenses: null,
+});
+
+describe("checkPlan: STAT_UNDEFINED (spec 082 D8)", () => {
+  const base = projections.engine.combatants;
+  const stats = {
+    abilityMods: { str: 3 },
+    proficiencyBonus: 2,
+    saves: {},
+    skills: {},
+    attacks: [
+      {
+        name: "Longsword",
+        range: "melee" as const,
+        toHit: 5,
+        damage: [],
+      },
+    ],
+    spellcastingAbility: null,
+  };
+  const withStats = {
+    ...base,
+    tamsin: { ...base.tamsin, stats },
+  } as typeof base;
+
+  it("passes a derivable attack and check", () => {
+    const v = plan(
+      [read("a1", [attackStep("goblin-2"), checkStep({ ability: "str" })])],
+      { combatants: withStats },
+    );
+    expect(v).toEqual([{ actionId: "a1", ok: true }]);
+  });
+  it("refuses an unknown attack name", () => {
+    const v = plan(
+      [read("a1", [attackStep("goblin-2", { attack: "Warhammer" })])],
+      {
+        combatants: withStats,
+      },
+    );
+    expect(v[0]).toMatchObject({
+      ok: false,
+      code: "STAT_UNDEFINED",
+      failure: { field: "attack", reason: "stat-undefined" },
+    });
+  });
+  it("refuses a combatant with no stats", () => {
+    const v = plan([read("a1", [attackStep("goblin-2")])], {
+      combatants: base,
+    });
+    expect(v[0]).toMatchObject({ ok: false, code: "STAT_UNDEFINED" });
+  });
+  it("refuses a missing ability modifier", () => {
+    const v = plan([read("a1", [checkStep({ ability: "wis", skill: null })])], {
+      combatants: withStats,
+    });
+    expect(v[0]).toMatchObject({ ok: false, code: "STAT_UNDEFINED" });
+  });
+  it("skips a joining combatant", () => {
+    const v = plan([read("a1", [attackStep("goblin-2")])], {
+      combatants: base,
+      joining: ["tamsin"],
+    });
+    expect(v[0]).toMatchObject({ ok: true });
+  });
+  it("refuses a circumstance reason that contradicts state", () => {
+    const v = plan(
+      [
+        read("a1", [
+          attackStep("goblin-2", {
+            circumstance: {
+              mode: "advantage",
+              reason: M2_SEQ221_REASON,
+            },
+          }),
+        ]),
+      ],
+      { combatants: withStats },
+    );
+    expect(v[0]).toMatchObject({
+      ok: false,
+      code: "REASON_CONTRADICTS_STATE",
+      failure: { field: "circumstance.reason" },
+    });
+  });
 });
 
 describe("checkPlan", () => {
@@ -197,6 +281,7 @@ describe("checkPlan: absent actors", () => {
     readings: InterpretReading[],
   ): ReturnType<typeof checkPlan> =>
     checkPlan({
+      combatants: {},
       snapshot: snap,
       readings,
       rulings: [],
@@ -259,6 +344,7 @@ describe("checkPlan: absent actors", () => {
       seq: 12,
     };
     const v = checkPlan({
+      combatants: {},
       snapshot: buildSnapshot(f.projections, f.seed),
       readings: [read("a1", [attackStep("pell")])] as InterpretReading[],
       rulings: [],
@@ -358,6 +444,7 @@ describe("joiningCombatants", () => {
 describe("checkPlan: roll reasons", () => {
   const run = (reason: string) =>
     checkPlan({
+      combatants: {},
       snapshot: M2_SEQ221_S0,
       readings: [m2Seq221Reading(reason)],
       rulings: [],
@@ -431,6 +518,7 @@ describe("checkPlan: reason state", () => {
     extra: Partial<Parameters<typeof checkPlan>[0]> = {},
   ) =>
     checkPlan({
+      combatants: {},
       snapshot: pellAway(),
       readings,
       rulings: [],
@@ -515,6 +603,7 @@ describe("checkPlan: reason state", () => {
       seq: 125,
     };
     const v = checkPlan({
+      combatants: {},
       snapshot: buildSnapshot(f.projections, f.seed),
       readings: [read("a1", [attackStep("goblin-3")])],
       rulings: [],
@@ -712,6 +801,7 @@ describe("checkPlan: non-combatant NPC pull (specs 068, 075)", () => {
       seq: 125,
     };
     const v = checkPlan({
+      combatants: {},
       snapshot: buildSnapshot(f.projections, f.seed),
       readings: [read("a1", [attackStep("pell")])],
       rulings: [],
@@ -747,6 +837,7 @@ describe("checkPlan: non-combatant NPC pull (specs 068, 075)", () => {
       seq: 125,
     };
     const v = checkPlan({
+      combatants: {},
       snapshot: buildSnapshot(f.projections, f.seed),
       readings: [read("a1", [checkStep({ combatantId: "pell" })])],
       rulings: [],

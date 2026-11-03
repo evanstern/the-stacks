@@ -1,6 +1,7 @@
 import {
   type AttackEntry,
   type EngineCommand,
+  findAttack,
   firstMeleeAttack,
 } from "@the-stacks/dnd5e-engine";
 import {
@@ -604,9 +605,8 @@ async function runSteps(
             kind: step.kind,
             ability: step.ability,
             skill: step.skill,
-            expression: step.expression,
-            mode: step.mode,
-            dc: step.dc,
+            difficulty: step.difficulty,
+            mode: step.circumstance?.mode ?? "normal",
             autoFail: step.autoFail,
             houseRules: { outcomeBands, naturals },
             autoSuccess: isFreeRetry(step, fresh.ledger)
@@ -718,9 +718,9 @@ async function runSteps(
             type: "attack.roll",
             attackerId: step.attackerId,
             targetId: step.targetId,
-            expression: step.expression,
-            mode: step.mode,
-            targetAc: step.targetAc,
+            attack: step.attack,
+            mode: step.circumstance?.mode ?? "normal",
+            targetAc: null,
           },
           step.reason,
           actionId,
@@ -729,12 +729,29 @@ async function runSteps(
           take(sub) &&
           (sub.outcome === "hit" || sub.outcome === "critical-hit")
         ) {
-          await runEffects(
-            key,
-            step.onHit,
-            step.reason,
-            sub.outcome === "critical-hit",
+          // Spec 082 D7: the attack entry's damage is the only damage source.
+          const critical = sub.outcome === "critical-hit";
+          const fresh = await run.ctx.deps.loadProjections(
+            run.ctx.job.sessionId,
           );
+          const attacker = fresh.engine.combatants[step.attackerId];
+          const found = attacker ? findAttack(attacker, step.attack) : null;
+          if (found?.ok) {
+            const dmg = await run.mech(
+              `${key}:dmg`,
+              hitDamage(found.value, step.targetId, critical),
+              `${step.reason}: damage`,
+              actionId,
+            );
+            if (dmg.result === "applied") {
+              if (dmg.batchId) chain.batchIds.push(dmg.batchId);
+            } else if (dmg.result !== "refused") {
+              chain.awaiting = true;
+              stopped = true;
+              break;
+            }
+          }
+          await runEffects(key, step.onHit, step.reason, critical);
         }
         break;
       }
@@ -1388,6 +1405,7 @@ export const resolve: Node<"resolve"> = async (ctx) => {
       ],
       resumed: (assembled.resumed ?? []).map((plan) => plan.actionId),
       actors: actionActors(assembled),
+      combatants: assembled.projections.engine.combatants,
     });
     const verdictFor = (actionId: string | null) =>
       run.planGate.find((v) => v.actionId === actionId);

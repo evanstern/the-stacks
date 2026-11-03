@@ -36,22 +36,9 @@ export function m2Seq221Reading(reason: string): InterpretReading {
         reason,
         attackerId: "goblin-2",
         targetId: "tamsin",
-        expression: "1d20+4",
-        mode: "normal",
-        targetAc: null,
-        onHit: [
-          {
-            effect: "damage",
-            targetId: "tamsin",
-            components: [
-              {
-                amount: { kind: "roll", expression: "1d6+2" },
-                damageType: "slashing",
-              },
-            ],
-            defenses: null,
-          },
-        ],
+        attack: "Scimitar",
+        circumstance: null,
+        onHit: [],
       },
     ],
     { intent: "attack" },

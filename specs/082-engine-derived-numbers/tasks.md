@@ -90,42 +90,42 @@ Phase 4 closes the full gate.
 
 ## Phase 3: Step contract, prompts, resolve and plan gate (card AC #1–#4; US1, US2, US3)
 
-- [ ] T024 [US1] In `apps/server/src/dm/nodes/schemas.ts`, apply plan D6 to the check and attack
+- [x] T024 [US1] In `apps/server/src/dm/nodes/schemas.ts`, apply plan D6 to the check and attack
       steps: strict objects, `difficulty`, `circumstance`, `attack`, non-null `attackerId`. Add the
       `onHit` damage refusal to the shared `requireAbilityStakes` helper (renamed `refineSteps`).
       Keep spec 080's `reveals` and the spec 070 stakes fields.
-- [ ] T025 [US1] In `apps/server/src/dm/prompts/step-grammar.ts`, render the D9 step lines, the tier
+- [x] T025 [US1] In `apps/server/src/dm/prompts/step-grammar.ts`, render the D9 step lines, the tier
       list from `DifficultySchema` with DCs, and the derivation rule. Drop the old modifier sentence.
-- [ ] T026 [US1] In `apps/server/src/dm/prompts/interpret.ts`, update `EXAMPLE_OUTPUT` (keep
+- [x] T026 [US1] In `apps/server/src/dm/prompts/interpret.ts`, update `EXAMPLE_OUTPUT` (keep
       `say: null` and `reveals`) and bump `PROMPT_VERSION` from `dm.interpret-v10` to
       `dm.interpret-v11`. Bump `prompts/adjudicate.ts` from `dm.adjudicate-v7` to
       `dm.adjudicate-v8`. If `main` has moved past either, go one past `main` and record it.
-- [ ] T027 [US2] In `apps/server/src/dm/nodes/resolve.ts`, apply plan D7 to `case "check"` and
+- [x] T027 [US2] In `apps/server/src/dm/nodes/resolve.ts`, apply plan D7 to `case "check"` and
       `case "attack"`, and pass the engine combatants to `checkPlan`.
-- [ ] T028 [US3] In `apps/server/src/dm/gates/plan-gate.ts`, add the `combatants` input, the
+- [x] T028 [US3] In `apps/server/src/dm/gates/plan-gate.ts`, add the `combatants` input, the
       `STAT_UNDEFINED` group refusal and `circumstance.reason` in `stepTexts` (plan D8).
-- [ ] T029 In `apps/server/src/dm/resume.ts`, re-parse resumed readings and rulings and skip a
+- [x] T029 In `apps/server/src/dm/resume.ts`, re-parse resumed readings and rulings and skip a
       failing plan (plan D10).
-- [ ] T030 Update `checkStep()` and `attackStep()` in `apps/server/test/dm/world.ts` and the steps
+- [x] T030 Update `checkStep()` and `attackStep()` in `apps/server/test/dm/world.ts` and the steps
       in `plan-reason-fixtures.ts` to the new shapes.
-- [ ] T031 [US3] In `apps/server/test/dm/interpret.test.ts`, add: a check with `dc`, with
+- [x] T031 [US3] In `apps/server/test/dm/interpret.test.ts`, add: a check with `dc`, with
       `expression` and with `mode` is rejected; an attack with `targetAc`, with `expression`, with a
       null `attackerId` and with a damage effect in `onHit` is rejected; an attack with empty
       `onHit` parses; `circumstance` defaults to null; an unknown tier is rejected.
-- [ ] T032 [US3] In `apps/server/test/dm/plan-gate.test.ts`, add `STAT_UNDEFINED` cases: an unknown
+- [x] T032 [US3] In `apps/server/test/dm/plan-gate.test.ts`, add `STAT_UNDEFINED` cases: an unknown
       attack name, a combatant with no stats, a missing ability modifier; a joining combatant is
       skipped; a contradicting `circumstance.reason` is refused `REASON_CONTRADICTS_STATE`.
-- [ ] T033 In `apps/server/test/dm/interpret-prompt.test.ts`, assert the new version strings, the
+- [x] T033 In `apps/server/test/dm/interpret-prompt.test.ts`, assert the new version strings, the
       tier list and the derivation rule, and that no grammar line shows `dc`, `targetAc` or a d20
       expression.
-- [ ] T034 In `apps/server/test/dm/resume.test.ts`, add: an old-shape paused reading is skipped.
-- [ ] T035 Update `first-stage.test.ts`, `rules-terms.test.ts`, `presence-effect.test.ts`,
+- [x] T034 In `apps/server/test/dm/resume.test.ts`, add: an old-shape paused reading is skipped.
+- [x] T035 Update `first-stage.test.ts`, `rules-terms.test.ts`, `presence-effect.test.ts`,
       `runner.test.ts`, `adjudicate.integration.test.ts` and `beat.integration.test.ts` to the new
       step shapes. Edit `interpret-capture.test.ts` and `stakes.test.ts` only if they go red.
-- [ ] T036 Amend `specs/031-dm-runtime/contracts/nodes.md`, `resolve.md` and
+- [x] T036 Amend `specs/031-dm-runtime/contracts/nodes.md`, `resolve.md` and
       `specs/058-roll-reason-plan-gate/contracts/plan-reason-gate.md`, each marked "Amended by
       specs/082-engine-derived-numbers".
-- [ ] T037 Run `pnpm ci:check` (unit suites). Run the DB suites; list each failure that a JSON
+- [x] T037 Run `pnpm ci:check` (unit suites). Run the DB suites; list each failure that a JSON
       script still on the old shape causes, for Phase 4.
 
 ## Phase 4: Scripts, fixtures and integration tests (card AC #5; US5)

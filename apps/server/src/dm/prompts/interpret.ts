@@ -19,7 +19,7 @@ import {
 } from "./common.js";
 import { STEP_GRAMMAR } from "./step-grammar.js";
 
-export const PROMPT_VERSION = "dm.interpret-v10";
+export const PROMPT_VERSION = "dm.interpret-v11";
 
 /** One complete minimal reading: a check step with empty effect lists. */
 export const EXAMPLE_OUTPUT = {
@@ -41,9 +41,8 @@ export const EXAMPLE_OUTPUT = {
           kind: "ability-check",
           ability: "wis",
           skill: "survival",
-          expression: "1d20+3",
-          mode: "normal",
-          dc: 12,
+          difficulty: "medium",
+          circumstance: null,
           autoFail: null,
           onSuccess: [],
           onFailure: [],
