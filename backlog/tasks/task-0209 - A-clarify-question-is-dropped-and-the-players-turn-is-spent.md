@@ -34,10 +34,12 @@ Spec: specs/073-clarify-keeps-turn
 <!-- AC:BEGIN -->
 - [ ] #1 A clarify reading holds the turn (no turn.advance) until the player answers, with a test replaying seq 172-176
 - [ ] #2 The narration or fallback shows the clarify question itself, with a test
-- [ ] #3 Spec phase: A clarify holds the turn (card AC #1, merge condition; US1)
+- [x] #3 Spec phase: A clarify holds the turn (card AC #1, merge condition; US1)
 - [ ] #4 Spec phase: The player sees the question (card AC #2; US2)
 - [ ] #5 Spec phase: Wiki upkeep
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
