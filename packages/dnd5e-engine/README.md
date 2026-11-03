@@ -37,3 +37,10 @@ enforce this.
 
 See `specs/026-dnd5e-engine/contracts/`: `engine-api.md`, `commands.md`,
 `events.md`, `refusals.md`, `boundary-rule.md`.
+
+## Stats and derived rolls (spec 082)
+
+A combatant may carry `stats` (ability modifiers, proficiency bonus, save and skill totals, attack
+entries, spellcasting ability). `check.roll` with `difficulty` and no `expression`, and `attack.roll`
+with `attack`, derive the modifier, to-hit, DC and roll mode from those stats and the SRD conditions
+(`src/derive.ts`). A missing stat refuses `STAT_UNDEFINED`. Explicit `expression` and `dc` stay valid.

@@ -1,7 +1,7 @@
 {
   "v": 1,
   "name": "greyhollow-plan-approach",
-  "dice": [8, 15],
+  "dice": [6, 15],
   "calls": [
     {
       "purpose": "dm.director",
@@ -109,9 +109,8 @@
                   "kind": "ability-check",
                   "ability": "dex",
                   "skill": "stealth",
-                  "expression": "1d20",
-                  "mode": "normal",
-                  "dc": 12,
+                  "difficulty": "medium",
+                  "circumstance": null,
                   "autoFail": null,
                   "onSuccess": [],
                   "onFailure": [],
@@ -132,9 +131,8 @@
                   "kind": "ability-check",
                   "ability": "dex",
                   "skill": "stealth",
-                  "expression": "1d20",
-                  "mode": "normal",
-                  "dc": 12,
+                  "difficulty": "easy",
+                  "circumstance": null,
                   "autoFail": null,
                   "onSuccess": [],
                   "onFailure": [],
@@ -155,9 +153,8 @@
                   "kind": "ability-check",
                   "ability": "cha",
                   "skill": "persuasion",
-                  "expression": "1d20",
-                  "mode": "normal",
-                  "dc": 13,
+                  "difficulty": "easy",
+                  "circumstance": null,
                   "autoFail": null,
                   "onSuccess": [],
                   "onFailure": [],
@@ -176,25 +173,9 @@
                   "reason": "Kestrel attacks Snag on Tamsin's signal",
                   "attackerId": "kestrel",
                   "targetId": "snag",
-                  "expression": "1d20+5",
-                  "mode": "normal",
-                  "targetAc": null,
-                  "onHit": [
-                    {
-                      "effect": "damage",
-                      "targetId": "snag",
-                      "components": [
-                        {
-                          "amount": {
-                            "kind": "roll",
-                            "expression": "1d6+3"
-                          },
-                          "damageType": "piercing"
-                        }
-                      ],
-                      "defenses": null
-                    }
-                  ]
+                  "attack": "Shortbow",
+                  "circumstance": null,
+                  "onHit": []
                 }
               ]
             }

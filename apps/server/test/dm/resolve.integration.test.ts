@@ -227,14 +227,26 @@ describe.skipIf(!reachable)("resolve (database)", () => {
   });
 
   it("names the seqs each submission appended; a refusal names none", async () => {
-    const w = await createWorld({ dice: [10] });
+    const w = await createWorld({ dice: [10, 4] });
     await startScene(w);
     const id = await commitAction(w, "Tamsin swings at Kestrel.");
     // An engine refusal that passes the plan gate: both ids are S0 combatants.
     const out = await run(w, [
-      reading(id, [attackStep("kestrel", { expression: "not dice" })], {
-        intent: "attack",
-      }),
+      reading(
+        id,
+        [
+          attackStep("kestrel"),
+          {
+            step: "roll",
+            reason: "A bad roll.",
+            expression: "not dice",
+            mode: "normal",
+          },
+        ],
+        {
+          intent: "attack",
+        },
+      ),
     ]);
     const refused = out.submissions.find((x) => x.result === "refused");
     expect(refused?.seqs).toEqual([]);
@@ -430,9 +442,8 @@ describe.skipIf(!reachable)("resolve (database)", () => {
           kind: "ability-check",
           ability: "str",
           skill: "athletics",
-          expression: "1d20+4",
-          mode: "normal",
-          dc: 12,
+          difficulty: "medium",
+          circumstance: null,
           autoFail: null,
           reason: `Tamsin forces the stuck shutter [${jobId}#1]`,
         },
@@ -578,9 +589,13 @@ describe.skipIf(!reachable)("resolve (database)", () => {
       const out = await run(
         w,
         [
-          reading(null, [attackStep("tamsin", { attackerId: "snag" })], {
-            intent: "attack",
-          }),
+          reading(
+            null,
+            [attackStep("tamsin", { attackerId: "snag", attack: "Scimitar" })],
+            {
+              intent: "attack",
+            },
+          ),
         ],
         {
           director: { tableMode: { to: "free", reason: "The goblins flee." } },
@@ -604,9 +619,13 @@ describe.skipIf(!reachable)("resolve (database)", () => {
       const out = await run(
         w,
         [
-          reading(null, [attackStep("pell", { attackerId: "snag" })], {
-            intent: "attack",
-          }),
+          reading(
+            null,
+            [attackStep("pell", { attackerId: "snag", attack: "Scimitar" })],
+            {
+              intent: "attack",
+            },
+          ),
         ],
         { job: { ...nextJob(), trigger: "npc-turn" } },
       );
@@ -885,6 +904,7 @@ describe.skipIf(!reachable)("resolve (database)", () => {
               [
                 attackStep("tamsin", {
                   attackerId: "snag",
+                  attack: "Scimitar",
                   reason: BAD_REASON,
                 }),
               ],
@@ -2085,7 +2105,7 @@ describe.skipIf(!reachable)("resolve turn-moved guard (spec 049)", () => {
     });
 
     it("margin -2 applies onSuccess then onCost", async () => {
-      const w = await createWorld({ dice: [6] });
+      const w = await createWorld({ dice: [8] });
       await startScene(w);
       const id = await commitAction(w, "Tamsin forces the shutter.");
       await run(w, [reading(id, [stepWith()])]);
@@ -2125,7 +2145,9 @@ describe.skipIf(!reachable)("resolve turn-moved guard (spec 049)", () => {
       });
       await startScene(w);
       const id = await commitAction(w, "Tamsin forces the shutter.");
-      await run(w, [reading(id, [stepWith({ dc: 30 })])]);
+      await run(w, [
+        reading(id, [stepWith({ difficulty: "nearly-impossible" })]),
+      ]);
       const checks = (await readRows(w)).filter(
         (r) => r.type === "check.resolved",
       );

@@ -236,9 +236,8 @@ export const checkStep = (over: Record<string, unknown> = {}) => ({
   kind: "ability-check",
   ability: "str",
   skill: "athletics",
-  expression: "1d20+4",
-  mode: "normal",
-  dc: 12,
+  difficulty: "medium",
+  circumstance: null,
   autoFail: null,
   onSuccess: [],
   onFailure: [],
@@ -262,22 +261,9 @@ export const attackStep = (
   reason: "Tamsin swings her longsword",
   attackerId: "tamsin",
   targetId,
-  expression: "1d20+5",
-  mode: "normal",
-  targetAc: null,
-  onHit: [
-    {
-      effect: "damage",
-      targetId,
-      components: [
-        {
-          amount: { kind: "roll", expression: "1d8+3" },
-          damageType: "slashing",
-        },
-      ],
-      defenses: null,
-    },
-  ],
+  attack: "Longsword",
+  circumstance: null,
+  onHit: [],
   ...over,
 });
 

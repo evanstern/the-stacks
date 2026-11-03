@@ -38,9 +38,8 @@ const checkStep = {
   kind: "ability-check",
   ability: "dex",
   skill: "sleight-of-hand",
-  expression: "1d20+5",
-  mode: "normal",
-  dc: 15,
+  difficulty: "medium",
+  circumstance: null,
   autoFail: null,
   onSuccess: [],
   onFailure: [],
@@ -151,15 +150,77 @@ describe("interpret", () => {
 
 describe("step schema (AC #5)", () => {
   it("has no field for a total, an applied amount or a verdict", () => {
-    const parsed = StepSchema.parse({
-      ...checkStep,
-      total: 99,
-      outcome: "success",
-      applied: 7,
+    for (const extra of [
+      { total: 99 },
+      { outcome: "success" },
+      { applied: 7 },
+    ]) {
+      expect(StepSchema.safeParse({ ...checkStep, ...extra }).success).toBe(
+        false,
+      );
+    }
+  });
+
+  it("refuses a model-written number on a check step (spec 082)", () => {
+    for (const extra of [
+      { dc: 12 },
+      { expression: "1d20+5" },
+      { mode: "normal" },
+    ]) {
+      expect(StepSchema.safeParse({ ...checkStep, ...extra }).success).toBe(
+        false,
+      );
+    }
+    expect(
+      StepSchema.safeParse({ ...checkStep, difficulty: "trivial" }).success,
+    ).toBe(false);
+  });
+
+  it("defaults circumstance to null", () => {
+    const { circumstance: _, ...rest } = checkStep;
+    expect(StepSchema.parse(rest)).toMatchObject({ circumstance: null });
+  });
+
+  describe("attack step (spec 082)", () => {
+    const atk = {
+      step: "attack",
+      reason: "Tamsin swings",
+      attackerId: "tamsin",
+      targetId: "goblin-1",
+      attack: "Longsword",
+      circumstance: null,
+      onHit: [],
+    };
+    const damage = {
+      effect: "damage",
+      targetId: "goblin-1",
+      components: [
+        { amount: { kind: "roll", expression: "1d8" }, damageType: "slashing" },
+      ],
+      defenses: null,
+    };
+    it("parses with an empty onHit", () => {
+      expect(StepSchema.safeParse(atk).success).toBe(true);
     });
-    expect(parsed).not.toHaveProperty("total");
-    expect(parsed).not.toHaveProperty("outcome");
-    expect(parsed).not.toHaveProperty("applied");
+    it("refuses targetAc, expression, mode and a null attackerId", () => {
+      for (const extra of [
+        { targetAc: 12 },
+        { expression: "1d20+5" },
+        { mode: "normal" },
+        { attackerId: null },
+      ]) {
+        expect(StepSchema.safeParse({ ...atk, ...extra }).success).toBe(false);
+      }
+    });
+    it("refuses a damage effect in onHit", () => {
+      const r = InterpretReadingSchema.safeParse(
+        reading("act-lockpick", {
+          intent: "attack",
+          steps: [{ ...atk, onHit: [damage] }],
+        }),
+      );
+      expect(r.success).toBe(false);
+    });
   });
 });
 

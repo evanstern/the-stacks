@@ -282,3 +282,16 @@ source `"hp-zero"`.
   `pact`, the pact pool is null or its level differs).
 - `spell-slot.restore` refuses when `expended < count` (`SLOT_NOT_EXPENDED`); it never
   restores past max.
+
+## Amended by specs/082-engine-derived-numbers (TASK-0104)
+
+`attack.roll`: `expression` is optional; new optional `attack: string` names an entry in the attacker's
+`stats.attacks`. Exactly one of `expression` and `attack`, else `INVALID_COMMAND`. With `attack`, the
+attacker is non-null, the roll is `1d20+toHit` (minus 2 per exhaustion level) at a mode folded from
+`mode` and the SRD conditions of attacker and target, and an unknown attack or missing stats refuses
+`STAT_UNDEFINED` before any die. `check.roll`: `expression` and `dc` are optional; new optional
+`difficulty` (`very-easy` 5, `easy` 10, `medium` 15, `hard` 20, `very-hard` 25, `nearly-impossible` 30).
+Exactly one of `dc` and `difficulty`, else `INVALID_COMMAND`. Without `expression`, a named combatant's
+modifier is derived from `stats` (`STAT_UNDEFINED` when it cannot be) and the mode is folded from
+conditions; a null combatant rolls flat `1d20`. An explicit `expression` keeps the old behaviour (no
+condition folding). `combatant.add`'s `CombatantInit` gains optional `stats`.

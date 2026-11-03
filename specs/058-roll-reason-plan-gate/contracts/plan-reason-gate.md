@@ -90,3 +90,12 @@ regardless of combatant state." A pulled attack target starts no encounter and r
 disposition (spec 075 OQ-1 (a)).
 
 Amended by spec 078: `arriving` also holds the Director's legal arrivals, and the id check does not treat an arriving id as absent.
+
+## Amended by specs/082-engine-derived-numbers (TASK-0104)
+
+- `circumstance.reason` on a check or attack step is a model-written text. The reason check
+  covers it, field `circumstance.reason`.
+- New rule: for each check with a combatant and each attack, `checkModifier` or `findAttack` over
+  the engine combatant must succeed. Joining combatants are skipped. A failure refuses the group
+  with `STAT_UNDEFINED` and a `PlanFailure` (`reason` `stat-undefined`, `field` `ability`, `skill`
+  or `attack`). The stat check runs after the id walk and before the reason check.

@@ -1,3 +1,12 @@
+import {
+  attackModeSources,
+  checkModeSources,
+  checkModifier,
+  DIFFICULTY_DC,
+  d20Expression,
+  findAttack,
+  foldMode,
+} from "../derive.js";
 import { hasPlainD20, parseDiceExpression, rollExpression } from "../dice.js";
 import type { Handler } from "../handler.js";
 import type { EngineEvent, OutcomeBand } from "../schema/events.js";
@@ -80,9 +89,19 @@ export const handleAttackRoll: Handler<"attack.roll"> = (
   command,
   rng,
 ) => {
-  const parsed = parseDiceExpression(command.expression);
-  if (!parsed.ok) return refuse(parsed.code, parsed.message);
-  if (!hasPlainD20(parsed.terms)) return d20Required(command.expression);
+  if ((command.expression === undefined) === (command.attack === undefined)) {
+    return refuse(
+      "INVALID_COMMAND",
+      "attack.roll needs exactly one of expression and attack",
+    );
+  }
+  if (command.expression !== undefined) {
+    const parsed = parseDiceExpression(command.expression);
+    if (!parsed.ok) return refuse(parsed.code, parsed.message);
+    if (!hasPlainD20(parsed.terms)) return d20Required(command.expression);
+  } else if (command.attackerId === null) {
+    return refuse("INVALID_COMMAND", "a derived attack needs an attacker");
+  }
   const named = checkNamed(state, [command.targetId, command.attackerId]);
   if (named) return named;
   const unable = actorUnable(state, command.attackerId, "attacker");
@@ -117,10 +136,33 @@ export const handleAttackRoll: Handler<"attack.roll"> = (
       { combatantId: command.targetId },
     );
   }
+  let expression = command.expression ?? "";
+  let mode = command.mode;
+  if (command.attack !== undefined) {
+    const attacker = state.combatants[command.attackerId as string];
+    const entry = attacker ? findAttack(attacker, command.attack) : null;
+    if (!attacker || !entry || !entry.ok) {
+      return refuse(
+        "STAT_UNDEFINED",
+        `cannot derive attack "${command.attack}" for "${command.attackerId}"`,
+        {
+          combatantId: command.attackerId,
+          missing: entry && !entry.ok ? entry.missing : "stats",
+        },
+      );
+    }
+    const exhaustion =
+      attacker.conditions.find((i) => i.condition === "exhaustion")?.level ?? 0;
+    expression = d20Expression(entry.value.toHit - 2 * exhaustion);
+    mode = foldMode(
+      command.mode,
+      attackModeSources(attacker, target, entry.value),
+    );
+  }
   const rolled = rollExpression(
-    command.expression,
+    expression,
     {
-      mode: command.mode,
+      mode,
       critical: false,
       purpose: "attack",
       combatantId: command.attackerId,
@@ -152,6 +194,7 @@ export const handleAttackRoll: Handler<"attack.roll"> = (
       total: rolled.total,
       natural,
       outcome,
+      ...(command.attack !== undefined ? { attack: command.attack } : {}),
       ...(command.reaction ? { reaction: true } : {}),
     },
   ];
@@ -200,14 +243,48 @@ export function bandOf(input: {
 }
 
 export const handleCheckRoll: Handler<"check.roll"> = (state, command, rng) => {
-  const parsed = parseDiceExpression(command.expression);
-  if (!parsed.ok) return refuse(parsed.code, parsed.message);
-  if (!hasPlainD20(parsed.terms)) return d20Required(command.expression);
+  if ((command.dc === undefined) === (command.difficulty === undefined)) {
+    return refuse(
+      "INVALID_COMMAND",
+      "check.roll needs exactly one of dc and difficulty",
+    );
+  }
+  const dc =
+    command.dc ??
+    DIFFICULTY_DC[command.difficulty as keyof typeof DIFFICULTY_DC];
+  if (command.expression !== undefined) {
+    const parsed = parseDiceExpression(command.expression);
+    if (!parsed.ok) return refuse(parsed.code, parsed.message);
+    if (!hasPlainD20(parsed.terms)) return d20Required(command.expression);
+  }
   const named = checkNamed(state, [command.combatantId]);
   if (named) return named;
   if (command.kind === "ability-check") {
     const unable = actorUnable(state, command.combatantId, "checker");
     if (unable) return unable;
+  }
+  let expression = command.expression ?? "1d20";
+  let mode = command.mode;
+  if (command.expression === undefined && command.combatantId !== null) {
+    const checker = state.combatants[command.combatantId] as Combatant;
+    const mod = checkModifier(
+      checker,
+      command.kind,
+      command.ability,
+      command.skill,
+    );
+    if (!mod.ok) {
+      return refuse(
+        "STAT_UNDEFINED",
+        `cannot derive the modifier for "${command.combatantId}"`,
+        { combatantId: command.combatantId, missing: mod.missing },
+      );
+    }
+    expression = d20Expression(mod.value);
+    mode = foldMode(
+      command.mode,
+      checkModeSources(checker, command.kind, command.ability),
+    );
   }
   const base = {
     type: "check.resolved" as const,
@@ -217,7 +294,10 @@ export const handleCheckRoll: Handler<"check.roll"> = (state, command, rng) => {
     kind: command.kind,
     ability: command.ability,
     skill: command.skill,
-    dc: command.dc,
+    dc,
+    ...(command.difficulty !== undefined
+      ? { difficulty: command.difficulty }
+      : {}),
   };
   if (command.autoFail && command.autoSuccess) {
     return refuse(
@@ -260,9 +340,9 @@ export const handleCheckRoll: Handler<"check.roll"> = (state, command, rng) => {
     };
   }
   const rolled = rollExpression(
-    command.expression,
+    expression,
     {
-      mode: command.mode,
+      mode,
       critical: false,
       purpose: command.kind === "saving-throw" ? "save" : "check",
       combatantId: command.combatantId,
@@ -273,7 +353,7 @@ export const handleCheckRoll: Handler<"check.roll"> = (state, command, rng) => {
   if (!rolled.ok) return refuse(rolled.code, rolled.message);
   const result = bandOf({
     total: rolled.total,
-    dc: command.dc,
+    dc,
     natural: rolled.event.natural,
     kind: command.kind,
     houseRules: command.houseRules ?? { outcomeBands: false, naturals: false },

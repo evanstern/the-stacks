@@ -5,7 +5,11 @@ import type {
 import type { TurnCheckpoint } from "./jobs.js";
 import type { Ruling } from "./nodes/adjudicate.js";
 import type { Submission } from "./nodes/resolve.js";
-import type { InterpretReading } from "./nodes/schemas.js";
+import {
+  type InterpretReading,
+  InterpretReadingSchema,
+  StepSchema,
+} from "./nodes/schemas.js";
 
 /**
  * Resume classification (specs/057-human-dm-roll-resume contracts/turn-resume.md).
@@ -106,6 +110,14 @@ export function findResumedPlans(
       turn.checkpoint.adjudicate?.rulings.find(
         (r) => r.actionId === actionId,
       ) ?? null;
+    // Spec 082 D10: a checkpoint written before the step contract changed is
+    // dropped, so the action is interpreted again.
+    if (
+      !InterpretReadingSchema.safeParse(reading).success ||
+      (ruling !== null && !StepSchema.array().safeParse(ruling.steps).success)
+    ) {
+      continue;
+    }
     plans.push({
       actionId,
       fromJobId: turn.jobId,

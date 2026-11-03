@@ -259,3 +259,10 @@ value. `0d6`, `1d0` and a keep `n` of 0 are `INVALID_DICE_EXPRESSION`.
   success/failure or an adjusted damage amount (orchestrator ruling 2026-10-25, research R8).
   `resolve` builds commands; `narrate` and `audit` read the ledger fields
   (`reason`, faces, `total`, `before`, `after`) and never call `execute` themselves.
+
+## Amended by specs/082-engine-derived-numbers (TASK-0104)
+
+New exports: `derive.ts` (`checkModifier`, `findAttack`, `firstMeleeAttack`, `checkModeSources`,
+`attackModeSources`, `foldMode`, `d20Expression`, `spellSaveDc`, `spellAttackBonus`, `DIFFICULTY_DC`,
+`DifficultySchema`), `CombatantStatsSchema`, `AttackEntrySchema`, `AbilitySchema`, `AmountSchema`,
+`SKILL_ABILITY`. `Combatant` gains optional `stats`.
