@@ -39,20 +39,14 @@ Spec: specs/085-combat-audit-pass-rate
 - [ ] #6 Spec phase: Wiki re-ground
 <!-- AC:END -->
 
-
-
-
-
-
-
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
 Claimed 2026-11-03 by M3 runbook B (docs/design/m3-runbook-b-resolution-quality.md). Worktree .worktrees/task-0214, branch task-0214-combat-audit-pass-rate, cut from origin/main d59c369a. Spec number 085 claimed with a stub. Spine #19 (last).
 
 Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5 (spec 085 authoring, C1; triage of run 1 refusals against merged upstream fixes)
+
+spec-bridge sync: Only the on-turn actor acts (US1; FR-001 to FR-004): 0/10 · Feelings, endings and the goal note (US2–US4; FR-005 to FR-010): 0/8 · Replay run 1 (US5; card AC #2, FR-011, FR-013): 0/2 · Wiki re-ground: 0/6
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
