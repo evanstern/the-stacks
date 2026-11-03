@@ -27,20 +27,20 @@ the reactor's turn start.
 **Independent test**: `packages/dnd5e-engine/test/commands/reactions.test.ts`, `coverage.test.ts`
 and `replay.test.ts` pass.
 
-- [ ] T001 [US1] In `packages/dnd5e-engine/src/schema/state.ts`, add the optional
+- [x] T001 [US1] In `packages/dnd5e-engine/src/schema/state.ts`, add the optional
       `reactionsSpent` to `EncounterSchema` (plan D1).
-- [ ] T002 [US1] In `src/schema/commands.ts`, `src/schema/events.ts` and `src/schema/refusals.ts`,
+- [x] T002 [US1] In `src/schema/commands.ts`, `src/schema/events.ts` and `src/schema/refusals.ts`,
       add `attack.roll.reaction`, `attack.resolved.reaction` and `REACTION_SPENT` (plan D1, D2).
-- [ ] T003 [US1] In `src/commands/attacks.ts`, apply plan D1 to `handleAttackRoll`. Refuse before
+- [x] T003 [US1] In `src/commands/attacks.ts`, apply plan D1 to `handleAttackRoll`. Refuse before
       any draw. Emit the spend as `encounter.changed` after `attack.resolved`.
-- [ ] T004 [US1] In `src/commands/encounter.ts`, apply plan D1 to `handleTurnAdvance` and
+- [x] T004 [US1] In `src/commands/encounter.ts`, apply plan D1 to `handleTurnAdvance` and
       `handleInitiativeLeave`.
-- [ ] T005 [US1] Add one bullet to `packages/dnd5e-engine/README.md` (plan D1).
-- [ ] T006 [P] [US1] Create `test/commands/reactions.test.ts` with the plan "Tests" engine cases.
+- [x] T005 [US1] Add one bullet to `packages/dnd5e-engine/README.md` (plan D1).
+- [x] T006 [P] [US1] Create `test/commands/reactions.test.ts` with the plan "Tests" engine cases.
       Use `expectRefusedBeforeDraw` for each refusal.
-- [ ] T007 Amend `specs/026-dnd5e-engine/contracts/engine-api.md`, `commands.md`, `events.md` and
+- [x] T007 Amend `specs/026-dnd5e-engine/contracts/engine-api.md`, `commands.md`, `events.md` and
       `refusals.md` (plan "Contracts"). Mark each change "Amended by spec 079 (TASK-0208)".
-- [ ] T008 Run `pnpm ci:check`. Commit as `TASK-0208 phase 1: the engine owns reactions`.
+- [x] T008 Run `pnpm ci:check`. Commit as `TASK-0208 phase 1: the engine owns reactions`.
 
 ## Phase 2: A move away draws the engine's reaction (card AC #1 and #2, merge condition; US1, US2)
 

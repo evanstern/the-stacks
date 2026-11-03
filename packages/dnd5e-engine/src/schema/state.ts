@@ -233,6 +233,8 @@ export const EncounterSchema = z
     round: z.number().int().min(1),
     turnIndex: z.number().int().min(0),
     order: z.array(InitiativeEntrySchema).min(1),
+    // Combatants whose Reaction is spent until the start of their next turn (SRD 5.2.1 p. 10).
+    reactionsSpent: z.array(CombatantIdSchema).optional(),
   })
   .superRefine((e, ctx) => {
     if (e.turnIndex >= e.order.length) {

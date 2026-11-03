@@ -53,6 +53,7 @@ z.object({
   ac: z.number().int(), acSource: z.enum(["command", "record"]),
   total: z.number().int(), natural: z.number().int(),
   outcome: z.enum(["hit", "miss", "critical-hit"]),
+  reaction: z.boolean().optional(),       // Amended by spec 079 (TASK-0208): present and true only on a reaction attack
 });
 
 z.object({
@@ -96,7 +97,7 @@ the dice terms show the doubled `count` (a `2d6` crit shows `count: 4` and four 
 | `hit-dice.changed` | one pool's `remaining` | `{ die, remaining }` | `{ die, remaining }` | `combatantId` |
 | `spell-slots.changed` | one slot's `expended` | `{ pool, level, expended }` | `{ pool, level, expended }` | `combatantId` |
 | `encounter.started` | `encounter` | `null` | `Encounter` | — |
-| `encounter.changed` | `encounter` | `Encounter` | `Encounter` | `combatantId` (the joiner) |
+| `encounter.changed` | `encounter` | `Encounter` | `Encounter` | `combatantId` (the joiner, the leaver, the reactor that spent its Reaction, or the incoming combatant whose Reaction reset). Amended by spec 079 (TASK-0208): `Encounter.reactionsSpent` rides `before` and `after` |
 | `turn.advanced` | `encounter.round`, `encounter.turnIndex` | `{ round, turnIndex, combatantId }` | `{ round, turnIndex, combatantId }` | `skipped: Id[]` (dead combatants passed over) |
 | `encounter.ended` | `encounter` | `Encounter` | `null` | — |
 
