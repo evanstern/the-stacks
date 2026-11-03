@@ -35,7 +35,10 @@ Spec: specs/074-player-agency
 - [ ] #5 Interpret steps carry no volitional act for a PC that its player did not declare, with a test
 - [ ] #6 Spec phase: Rule source, Director, interpret, playtest auditor (card AC #3, #4, #5; US1, US4)
 - [ ] #7 Spec phase: Facts, narrate, audit (card AC #1, #2; US2, US3)
+- [ ] #8 Spec phase: Wiki (re-ground)
 <!-- AC:END -->
+
+
 
 
 
