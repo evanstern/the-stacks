@@ -1,10 +1,10 @@
 ---
 id: TASK-0211
 title: Casting a spell spends no slot and uses model-written healing dice
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-11-02 23:19'
-updated_date: '2026-11-03 08:02'
+updated_date: '2026-11-03 08:49'
 labels:
   - dm
   - rules
@@ -30,19 +30,31 @@ Related: TASK-0104 (engine-derived modifiers and DCs; the same model-written-num
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 A spell step spends a slot of its level via the engine, and a cast with no slot left is refused, with a test replaying seq 204-210
-- [ ] #2 A named SRD spell's dice come from its SRD record (Cure Wounds 2d8 + modifier), not a model expression, with a test
-- [ ] #3 Narration never states a slot was spent unless the engine spent it
+- [x] #1 A spell step spends a slot of its level via the engine, and a cast with no slot left is refused, with a test replaying seq 204-210
+- [x] #2 A named SRD spell's dice come from its SRD record (Cure Wounds 2d8 + modifier), not a model expression, with a test
+- [x] #3 Narration never states a slot was spent unless the engine spent it
 <!-- AC:END -->
 
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
 Split with TASK-0105 (spec 083 OQ-1 a, 2026-11-03): 0105 delivers AC #2 (Cure Wounds 2d8 + modifier from the SRD record) and the slot spend with NO_SLOT_AVAILABLE refusal. 0211 keeps the seq 204-210 replay test (AC #1) and AC #3 (narration never states a slot was spent unless the engine spent it).
+
+Claimed 2026-11-03 by M3 runbook B (docs/design/m3-runbook-b-resolution-quality.md). Worktree .worktrees/task-0211, branch task-0211-spell-slot-narration, cut from origin/main ff1eb0ed. No spec dir: signed escape line covers this task. Spine #16. Most of the card delivered by TASK-0105 (#124); remaining AC #1 replay and AC #3 under a card-ACs-drive line (see runbook amendment).
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (E5 implementation: AC #1 replay, AC #3 guard)
+
+AC #2 delivered by TASK-0105 (#124). AC #1: seq 204-210 replay in spells.integration.test.ts. AC #3: deterministic audit check (blocking ledger-mismatch when prose claims a slot spend with no spell-slot spend fact in the beat; ponytail: per-caster matching). narrate-v15, audit-v10. Gates on the final tree, two full runs: green.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+A spell spends its slot through the engine and is refused with none left (TASK-0105); Cure Wounds uses its SRD dice (TASK-0105); narration can no longer claim a spent slot the engine did not spend (deterministic audit check). Escape line E5.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
-- [ ] #1 All tests and checks run green
-- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
+- [x] #1 All tests and checks run green
+- [x] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->

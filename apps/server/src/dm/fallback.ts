@@ -181,6 +181,8 @@ function changeSentence(c: FactChange): string | null {
       }
       if (c.after === "unconscious") return `${target} falls unconscious.`;
       return null;
+    case "spell-slot":
+      return null;
     case "death-saves":
       return c.failed
         ? `${target} slips closer to death.`
