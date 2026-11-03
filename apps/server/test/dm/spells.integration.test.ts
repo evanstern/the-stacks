@@ -151,6 +151,47 @@ describe.skipIf(!reachable)("spells through the engine (database)", () => {
     expect(await nonInit(w)).toHaveLength(2);
   });
 
+  // Run 1 seq 204-210 (rows are not in the repo; shape built from the engine's events):
+  // Kestrel at 0 HP, Odo casts Cure Wounds, spends a 1st-level slot, she wakes, and a cast
+  // with no slot left is refused.
+  it("replays run 1 seq 204-210: a 0 HP revive spends the last slot, then a cast is refused", async () => {
+    const w = await createWorld({ dice: [4, 5, 4, 5, 1, 1] });
+    await startScene(w);
+    await downKestrel(w);
+    const first = await commitParty(w, "Odo mends Kestrel once.");
+    const cast = (n: number) =>
+      spellStep("kestrel", {
+        spellId: "cure-wounds",
+        slotLevel: 1,
+        reason: `Odo mends Kestrel, cast ${n}`,
+      });
+    await run(w, [spellReading(first, [cast(1)])]);
+    expect((await events(w, "spell-slots.changed")).at(-1)).toMatchObject({
+      combatantId: "odo",
+      after: { level: 1, expended: 1 },
+    });
+    await downKestrel(w); // back to 0 HP, as at seq 204
+    const second = await commitParty(w, "Odo mends Kestrel again, longer.");
+    await run(w, [spellReading(second, [cast(2)])]);
+    expect((await events(w, "spell-slots.changed")).at(-1)).toMatchObject({
+      after: { level: 1, expended: 2 },
+    });
+    expect((await w.projections()).engine.combatants.kestrel?.lifeState).toBe(
+      "conscious",
+    );
+    await downKestrel(w);
+    const third = await commitParty(w, "Odo mends Kestrel a third time.");
+    const out = await run(w, [spellReading(third, [cast(3)])]);
+    expect(out.actionResults[0]).toMatchObject({
+      outcome: "refused",
+      refusalCode: "NO_SLOT_AVAILABLE",
+    });
+    expect(await events(w, "spell-slots.changed")).toHaveLength(2);
+    expect(
+      (await w.projections()).engine.combatants.kestrel?.lifeState,
+    ).not.toBe("conscious");
+  });
+
   it("bless is refused SPELL_UNRESOLVED with no dice row", async () => {
     const w = await createWorld({ dice: [] });
     await startScene(w);

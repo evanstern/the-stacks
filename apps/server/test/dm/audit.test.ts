@@ -126,6 +126,29 @@ function check(prose: string, f = facts(), state: ClaimState = claimState()) {
 }
 
 describe("deterministicChecks", () => {
+  describe("spell-slot claims (TASK-0211 AC #3)", () => {
+    const claim =
+      "Odo spends his last first-level slot and light floods the wound.";
+    const spend = action({
+      changes: [
+        { kind: "spell-slot", target: "Odo", pool: "standard", level: 1 },
+      ],
+    });
+    it("fails prose that says a slot was spent when the engine spent none", () => {
+      const r = check(claim);
+      expect(r.pass).toBe(false);
+      expect(r.issues[0]?.kind).toBe("ledger-mismatch");
+    });
+    it("passes the same prose when the engine spent a slot", () => {
+      expect(check(claim, facts([spend])).pass).toBe(true);
+    });
+    it("ignores a slot that is not a spell slot", () => {
+      expect(check("Ana uses the slot in the door to peer through.").pass).toBe(
+        true,
+      );
+    });
+  });
+
   it("passes a clean narration", () => {
     expect(check(CLEAN)).toEqual({ pass: true, issues: [] });
   });

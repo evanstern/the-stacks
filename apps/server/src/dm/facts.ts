@@ -105,6 +105,12 @@ export type FactChange =
       condition: string;
     }
   | {
+      kind: "spell-slot";
+      target: string;
+      pool: string;
+      level: number;
+    }
+  | {
       kind: "death-saves";
       target: string;
       /** The tally after the save. */
@@ -376,6 +382,18 @@ export function collectFacts(
         op: "removed",
         condition: c.condition,
       });
+    } else if (row.type === "spell-slots.changed") {
+      const b = row.before as { pool: string; level: number; expended: number };
+      const a = row.after as { expended: number };
+      // Only a spend counts; a rest restoring slots is not one.
+      if (a.expended > b.expended) {
+        out.changes.push({
+          kind: "spell-slot",
+          target,
+          pool: b.pool,
+          level: b.level,
+        });
+      }
     }
   }
   return out;
