@@ -1,10 +1,10 @@
 ---
 id: TASK-0234
 title: Runbook B playtest scenario
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-11-03 10:47'
-updated_date: '2026-11-03 11:29'
+updated_date: '2026-11-03 12:38'
 labels:
   - playtest
   - dm
@@ -27,9 +27,9 @@ Rows (from the runbook): undeclared method (0205, 0113); clarify question (0209)
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 The checklist has one row per runbook B 'Last step' bullet plus the standing and revisit rows, in checklist.mjs format
-- [ ] #2 A DM_FAKE_SCRIPT rehearsal of the scenario runs end to end on a worktree stack, with its log under docs/playtests/
-- [ ] #3 The scenario's hosted-only rows (0203 AC #2, 0204 AC #2, 0214 AC #1) are named so the playtest can tick those cards
+- [x] #1 The checklist has one row per runbook B 'Last step' bullet plus the standing and revisit rows, in checklist.mjs format
+- [x] #2 A DM_FAKE_SCRIPT rehearsal of the scenario runs end to end on a worktree stack, with its log under docs/playtests/
+- [x] #3 The scenario's hosted-only rows (0203 AC #2, 0204 AC #2, 0214 AC #1) are named so the playtest can tick those cards
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -38,10 +38,18 @@ Rows (from the runbook): undeclared method (0205, 0113); clarify question (0209)
 Claimed 2026-11-03 by M3 runbook B (docs/design/m3-runbook-b-resolution-quality.md). Worktree .worktrees/task-0234, branch task-0234-runbook-b-scenario, cut from origin/main 08cdf8eb. No spec dir: signed escape line covers this task. Runbook B Last step. Under the TASK-0195 convention (card ACs drive, as TASK-0195's E3 did).
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (scenario authoring and rehearsal)
+
+Shipped 1c27ba7d: docs/playtests/scenarios/runbook-b-reed-camp.md (21 rows), apps/server/dm-scripts/runbook-b-reed-camp.json, docs/playtests/2026-11-03-runbook-b-scenario-rehearsal.md. Rehearsal ran end to end on the worktree stack with DM_FAKE_SCRIPT. Seed greyhollow-ford-reed-camp reused unchanged. Gates green. Follow-ups carded for the playtest-run skill (.claude/ is outside implementer scope).
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Runbook B's playtest scenario: a 21-row checklist aimed at every runbook B fix (plus hosted-only, revisit and standing rows), a rehearsal setup script, and a local rehearsal log. Ready for the operator to play (C7).
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
-- [ ] #1 All tests and checks run green
-- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
+- [x] #1 All tests and checks run green
+- [x] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
