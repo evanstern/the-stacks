@@ -34,18 +34,18 @@ name.
 
 ## Phase 2: The chronicle and the run 1 seq 40–45 replay (card AC #1, #2, #3; merge condition)
 
-- [ ] T010 In `apps/server/src/dm/prompts/chronicle.ts`, apply plan D5. Run
+- [x] T010 In `apps/server/src/dm/prompts/chronicle.ts`, apply plan D5. Run
       `narration-quality-repro.test.ts` and `player-facing-prompts.test.ts`; fix any assertion
       that expects an absent actor in the chronicle state.
-- [ ] T011 Create `apps/server/test/dm/chronicle-prompt.test.ts` with spec Story 3 scenarios 1–3.
-- [ ] T012 Create `apps/server/test/dm/scripts/reveal-snag.json` from `shoot-snag.json` (plan D8).
+- [x] T011 Create `apps/server/test/dm/chronicle-prompt.test.ts` with spec Story 3 scenarios 1–3.
+- [x] T012 Create `apps/server/test/dm/scripts/reveal-snag.json` from `shoot-snag.json` (plan D8).
       Take the reveal text from `docs/playtests/2026-11-02-runbook-a-playtest.md` finding 6.
-- [ ] T013 Create `apps/server/test/dm/revealed-npc.integration.test.ts` with the three plan D8
+- [x] T013 Create `apps/server/test/dm/revealed-npc.integration.test.ts` with the three plan D8
       cases. Declare Kestrel's action through Kestrel's player.
-- [ ] T014 Run the DB suites with `REQUIRE_DATABASE=1` on the worktree stack (dispatch rules).
-- [ ] T015 Run both plan D9 mutation guards. Record each failing test name in the commit message.
+- [x] T014 Run the DB suites with `REQUIRE_DATABASE=1` on the worktree stack (dispatch rules).
+- [x] T015 Run both plan D9 mutation guards. Record each failing test name in the commit message.
       Restore both changes.
-- [ ] T016 Run `pnpm ci:check`.
+- [x] T016 Run `pnpm ci:check`.
 
 ## Phase 3: Wiki re-ground
 
