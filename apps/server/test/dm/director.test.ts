@@ -261,6 +261,73 @@ describe("legalizeDirector (director.md legality table)", () => {
   });
 });
 
+describe("legalizeDirector arrivals (spec 078)", () => {
+  const offstage = {
+    ...freeProjections,
+    scenePresence: {
+      ...freeProjections.scenePresence,
+      snag: {
+        presence: "absent" as const,
+        reason: "removed" as const,
+        seq: 12,
+      },
+      pell: {
+        presence: "absent" as const,
+        reason: "removed" as const,
+        seq: 13,
+      },
+    },
+  };
+  const arrivalsOf = (arrivals?: string[], over = {}) =>
+    legalizeDirector(model(arrivals ? { arrivals } : {}), {
+      ...input({ projections: offstage }),
+      ...over,
+    });
+
+  it("keeps a legal arrival", () => {
+    const out = arrivalsOf(["snag", "pell"]);
+    expect(out.arrivals).toEqual(["snag", "pell"]);
+    expect(out.overrides).toEqual([]);
+  });
+
+  it("drops present, unknown and duplicate ids with one override", () => {
+    const out = arrivalsOf(["snag", "snag", "wenna", "ghoul-9"]);
+    expect(out.arrivals).toEqual(["snag"]);
+    expect(out.overrides.filter((o) => o.decision === "arrivals")).toHaveLength(
+      1,
+    );
+  });
+
+  it("drops a yielded NPC", () => {
+    const yielded = {
+      ...offstage,
+      scenePresence: {
+        ...offstage.scenePresence,
+        snag: {
+          presence: "yielded" as const,
+          reason: "conceded" as const,
+          seq: 14,
+        },
+      },
+    };
+    const out = legalizeDirector(
+      model({ arrivals: ["snag"] }),
+      input({ projections: yielded }),
+    );
+    expect(out.arrivals).toEqual([]);
+  });
+
+  it("drops all on scene start", () => {
+    const out = arrivalsOf(["snag"], { trigger: "scene-start" });
+    expect(out.arrivals).toEqual([]);
+    expect(out.overrides.map((o) => o.decision)).toContain("arrivals");
+  });
+
+  it("reads an omitted field as []", () => {
+    expect(arrivalsOf().arrivals).toEqual([]);
+  });
+});
+
 describe("director node", () => {
   it("makes one dm.director call and applies legality", async () => {
     const script = loadDmScript({

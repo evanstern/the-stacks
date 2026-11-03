@@ -16,7 +16,7 @@ sources:
   - apps/server/src/dm/audit-words.ts
   - specs/034-narration-quality/contracts/audit-criteria.md
 size_budget_exempt: TASK-0113 adds the agency checks and reflex facts to the one narration-and-audit pipeline; it does not split without a TASK of its own (sibling notes dm-runtime and playtest-harness carry the same exemption)
-verified_against: 9782af9dd01a8cb7cd5781c2c0c5e7df57b1c61b
+verified_against: c0adccde134403fcca53e24c27be8afa854492ee
 ---
 
 # DM narration quality
@@ -93,7 +93,7 @@ flag.
 
 ## Prompt versions
 
-`dm.react-v2` (talk path, purpose `dm.narrate`), `dm.narrate-v9` (specs/074: the agency rule and reflex lines; specs/073 made the clarify question the one either-or ending allowed, voiced in the fallback), `dm.audit-v5` (specs/074: two agency checks), `dm.director-v5`, `dm.chronicle-v3`, `dm.companion-v7`, `dm.interpret-v6`, `dm.adjudicate-v4`. The agency rule (`agencyRule`, `doctrine.ts`) renders into narrate and audit. Facts carry `involuntary` reflexes (`deriveInvoluntary`, specs/074): a stagger on a critical hit, a heavy-hit reaction, a flinch on a failed save, a flinch on a foe's miss; narrate lists each as a `Reflex:` line. Narrate v5 (spec 051) says a fact or the state sections may name a character dead or unconscious, and a dead, unconscious, stable or absent character does not act or speak. (For companion: v3 on the
+`dm.react-v2` (talk path, purpose `dm.narrate`), `dm.narrate-v9` (specs/074: the agency rule and reflex lines; specs/073 made the clarify question the one either-or ending allowed, voiced in the fallback), `dm.audit-v5` (specs/074: two agency checks), `dm.director-v6`, `dm.chronicle-v4`, `dm.companion-v7`, `dm.interpret-v6`, `dm.adjudicate-v4`. The agency rule (`agencyRule`, `doctrine.ts`) renders into narrate and audit. Facts carry `involuntary` reflexes (`deriveInvoluntary`, specs/074): a stagger on a critical hit, a heavy-hit reaction, a flinch on a failed save, a flinch on a foe's miss; narrate lists each as a `Reflex:` line. Narrate v5 (spec 051) says a fact or the state sections may name a character dead or unconscious, and a dead, unconscious, stable or absent character does not act or speak. (For companion: v3 on the
 snapshot branch added the `seat` state view; v4 added the react trigger and the withdraw and
 revise decisions; companion v5 is both together; companion v6 (TASK-0189) adds the "Post that triggered you" section naming the speaking PC and whom the post addressed; see [[dm-runtime]]). The snapshot bumped narrate, audit,
 director, interpret, adjudicate and chronicle too. Narrate v6 (TASK-0182, specs/064) adds the rule "A not-yet-attempted step has not happened. Stop before it; never show it start."; `FactAction.followUps` render as `not yet attempted: <text>` lines, and `withholdRefusedInputs` drops a refused follow-up. Interpret v5 and director v4 came in the same task. Narrate v7 and audit v4 (TASK-0193, specs/071) add the `Turn:` and `Next:` lines (from `NarrationFacts.turn`, set only in turn mode) and the rule that only the Turn actor acts in the beat; audit definition 6 treats showing the Next actor act as `invented-mechanics`. A monster turn also renders `planned:`, `held:` and a no-rules-effect line from `FactNpcTurn.plan`. The presence effect bumped interpret and adjudicate to `dm.interpret-v4` and `dm.adjudicate-v4`.

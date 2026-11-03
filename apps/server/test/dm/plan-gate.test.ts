@@ -242,6 +242,24 @@ describe("checkPlan: absent actors", () => {
     });
   });
 
+  it("passes an attack on an absent NPC that is arriving, pulling it (spec 078)", () => {
+    const f = greyhollowFight();
+    f.projections.scenePresence.pell = {
+      presence: "absent",
+      reason: "removed",
+      seq: 12,
+    };
+    const v = checkPlan({
+      snapshot: buildSnapshot(f.projections, f.seed),
+      readings: [read("a1", [attackStep("pell")])] as InterpretReading[],
+      rulings: [],
+      joining: [],
+      arriving: ["pell"],
+      resumed: [],
+    });
+    expect(v).toEqual([{ actionId: "a1", ok: true, pull: ["pell"] }]);
+  });
+
   it("lets an arrived presence effect name an absent actor", () => {
     const v = run(away("goblin-3"), [
       read("a1", [
