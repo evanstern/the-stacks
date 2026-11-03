@@ -244,6 +244,8 @@ Rows the scenario must exercise:
 - **Revisit rows** (TASK-0216): record whether a talk-turn reveal stays absent, or narration calls an offstage NPC gone.
 - **Parse** (0203): no first-attempt invalid-json on dm.audit or dm.chronicle over 10+ turns.
 
+Shipped (TASK-0234): checklist `docs/playtests/scenarios/runbook-b-reed-camp.md`, script `apps/server/dm-scripts/runbook-b-reed-camp.json`, seed `greyhollow-ford-reed-camp` (unchanged), rehearsal `docs/playtests/2026-11-03-runbook-b-scenario-rehearsal.md`.
+
 Then **stop for the operator to play it** (checkpoint C7).
 
 ## Operator checkpoints
