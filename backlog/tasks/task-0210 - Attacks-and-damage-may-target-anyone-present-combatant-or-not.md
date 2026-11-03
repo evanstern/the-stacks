@@ -40,18 +40,14 @@ Spec: specs/075-attack-anyone
 - [ ] #6 Spec phase: Wiki re-ground (card AC #3)
 <!-- AC:END -->
 
-
-
-
-
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
 Claimed 2026-11-02 by M3 runbook B (docs/design/m3-runbook-b-resolution-quality.md). Worktree .worktrees/task-0210, branch task-0210-attack-anyone, cut from origin/main b756b68f. Spec number 075 claimed with a stub. Spine #4.
 
 Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5 (spec 075 authoring, C1)
+
+spec-bridge sync: The gate, its unit tests and the contract (card AC #1, #2, #3): 0/7 · The DB tests and the run 1 seq 45 replay (card AC #1, #2; merge condition): 0/6 · Wiki re-ground (card AC #3): 0/6
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
