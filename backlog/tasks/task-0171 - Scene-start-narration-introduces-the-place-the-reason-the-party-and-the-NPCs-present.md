@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-10-28 19:39'
-updated_date: '2026-11-03 03:44'
+updated_date: '2026-11-03 08:55'
 labels:
   - dm
   - narration
@@ -59,6 +59,8 @@ Spec 076 (c5bfc692). Defaults taken: OQ-2 (a) scene-start fallback names everyon
 OPERATOR RULING 2026-11-02 on spec 076 OQ-1 (in chat, answering what 'who plays them' means for the opening): "The opening should name the characters, not the players". The opening names every party character; it names no player. No user lookup, no display names reach the model. Spec 076 is amended to match before its phase 2 builds; runbook B's scenario row reads 'names the party characters and Wenna'.
 
 Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5 (spec 076 amendment for OQ-1 ruling, C1)
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 076 phases 1-2, with seam check)
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
