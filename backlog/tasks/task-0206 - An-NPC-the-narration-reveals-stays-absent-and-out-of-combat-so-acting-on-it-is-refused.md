@@ -27,6 +27,8 @@ Outcome: when the DM puts an NPC on screen, the state agrees. The NPC becomes pr
 Why: runbook A playtest run 1 (2026-11-02, session 9296c653). The reed-camp seed starts Pell and Snag absent (seq 11-12, scene-presence removed). The Director then revealed both (seq 40: 'a goblin perched on a mud bank … Snag', 'lashed to the post … Pell'), but no event set either present and no encounter started. Kestrel's 'I take aim and shoot at Snag' (seq 45) was refused by the plan gate: UNKNOWN_COMBATANT, targetId snag, not-a-combatant. Snag is in the seed's reed-camp encounter (goblin-warrior). The chronicle then wrote 'Pell Marsh and Snag have since departed' (seq 51), read from the stale absent state. The operator's reading: the DM's idea of who is in the area, and who is in combat, is wrong, which limits valid targets.
 
 Related: TASK-0194 (non-combatant targets, merged: it pulls present non-combatants into checks, but not absent NPCs or attacks), TASK-0142 (seed presence), TASK-0145 (Director legality over actor state), TASK-0172 (knowledge ledger), TASK-0201 (objects).
+
+Spec: specs/078-revealed-npc-present
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
