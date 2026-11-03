@@ -98,3 +98,8 @@ together.
 lines plus one node line, for `director`, `interpret`, `narrate`, `audit`, `auditor`). Each node
 renders it outside the doctrine cap, so a cap never drops it. The `hero-is-theirs` row above covers
 every party member, AI companions included.
+
+Amended 2026-11-02 (TASK-0113, OQ-1 ruling): the reflex line of the agency rule names five reflex
+triggers: a stagger on a critical hit, a heavy-hit reaction, a flinch on a failed save, a flinch on
+a foe's miss, and no more. A dodge, a twist that times the blow and a chosen step aside stay
+choices, never reflexes.

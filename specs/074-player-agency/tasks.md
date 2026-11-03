@@ -91,12 +91,12 @@ report if another file is needed. No paid model run; tests use the fake gateway.
       the new miss line, a scene-start narrate user prompt holds the opening line, and facts with a
       `stagger` or an `avoid` render a `Reflex:` line in both user prompts. Replace the assertion on
       "beyond their declared action" with the new definition text. Keep TASK-0209's assertions.
-- [ ] T022 Amend `specs/034-narration-quality/contracts/audit-criteria.md` (the two checks,
+- [x] T022 Amend `specs/034-narration-quality/contracts/audit-criteria.md` (the two checks,
       definition 1, `dm.audit-v5`) and `specs/034-narration-quality/contracts/narration-facts.md`
       (`involuntary` with the five triggers, `band`, the rule lines, `dm.narrate-v9`). Amend
       `specs/031-dm-runtime/contracts/doctrine.md` (the agency-rule paragraph names the foe's-miss
       flinch).
-- [ ] T023 Run `pnpm ci:check`.
+- [x] T023 Run `pnpm ci:check`.
 
 ## Phase 3: Wiki (re-ground)
 
