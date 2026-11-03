@@ -14,23 +14,23 @@ ends with `pnpm ci:check` green and one commit led by `TASK-0127:`. DB suites ru
 
 ## Phase 1: Engine bands, naturals and auto-success (card AC #2, #4, #7; US1, US2)
 
-- [ ] T001 [US2] In `packages/dnd5e-engine/src/schema/commands.ts`, add `houseRules`
+- [x] T001 [US2] In `packages/dnd5e-engine/src/schema/commands.ts`, add `houseRules`
       (`outcomeBands`, `naturals`, default both false) and `autoSuccess` (`{ reason }` or null,
       default null) to `check.roll` (plan D2).
-- [ ] T002 [US1] In `packages/dnd5e-engine/src/schema/events.ts`, add `OutcomeBand` and the optional
+- [x] T002 [US1] In `packages/dnd5e-engine/src/schema/events.ts`, add `OutcomeBand` and the optional
       `margin` and `band` fields to `check.resolved` (plan D2, R3).
-- [ ] T003 [US1] In `packages/dnd5e-engine/src/commands/attacks.ts`, add the pure `bandOf` and use
+- [x] T003 [US1] In `packages/dnd5e-engine/src/commands/attacks.ts`, add the pure `bandOf` and use
       it in `handleCheckRoll`. Refuse `autoSuccess` beside `autoFail` with `INVALID_COMMAND`. An
       auto-success emits one `check.resolved` and no `dice.rolled` (plan D2 rules 1–7).
-- [ ] T004 [US1] Export `OutcomeBand` and `bandOf` from `packages/dnd5e-engine/src/index.ts`.
-- [ ] T005 [US1] In `packages/dnd5e-engine/test/commands/attacks.test.ts`, add scripted-dice
+- [x] T004 [US1] Export `OutcomeBand` and `bandOf` from `packages/dnd5e-engine/src/index.ts`.
+- [x] T005 [US1] In `packages/dnd5e-engine/test/commands/attacks.test.ts`, add scripted-dice
       tests: margins 0, −1, −2, −3, −4, −5 with bands on; the same with bands off; a saving throw at
       margin −2 and −6 with bands on (band `failure`); natural 20 below the DC and natural 1 above it,
       naturals on and off; natural 1 at margin −6 with bands on (`severe-failure`); `autoSuccess`;
       `autoSuccess` with `autoFail` refused; `autoFail` band and null margin; no `houseRules` gives
       SRD behaviour.
-- [ ] T006 Update `packages/dnd5e-engine/README.md` with one paragraph on bands and the flags.
-- [ ] T007 Run `pnpm ci:check`.
+- [x] T006 Update `packages/dnd5e-engine/README.md` with one paragraph on bands and the flags.
+- [x] T007 Run `pnpm ci:check`.
 
 ## Phase 2: Step contract, prompts, table rules, plan gate, fixtures (card AC #1, #3; US1, US2)
 
