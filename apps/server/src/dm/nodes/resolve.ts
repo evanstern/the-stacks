@@ -89,6 +89,11 @@ export interface ResolveOutput {
     outcome: ActionOutcome;
     batchIds: string[];
     refusalCode: string | null;
+    /**
+     * Batches `pullIn` wrote for this action (a joiner's initiative roll). Kept apart
+     * from `batchIds`, which decide the outcome: a pull never makes an action "applied".
+     */
+    pullBatchIds?: string[];
   }[];
   appendedRows: StoredEvent[];
   nextJob:
@@ -1213,9 +1218,10 @@ async function resolveAction(
 ): Promise<ResolveOutput["actionResults"][number]> {
   const { steps, clarify } = actionGroupSteps(reading, ruling);
   const planRefused = verdict !== undefined && !verdict.ok;
-  if (verdict?.ok && !clarify) {
-    await pullIn(run, ctx, `act:${item.actionId}`, verdict.pull ?? []);
-  }
+  const pullBatchIds =
+    verdict?.ok && !clarify
+      ? await pullIn(run, ctx, `act:${item.actionId}`, verdict.pull ?? [])
+      : [];
   const chain: ChainResult =
     planRefused || clarify
       ? { batchIds: [], awaiting: false, firstRefusal: null }
@@ -1268,7 +1274,13 @@ async function resolveAction(
       refusalCode: null,
     };
   }
-  return { actionId: item.actionId, outcome, batchIds, refusalCode };
+  return {
+    actionId: item.actionId,
+    outcome,
+    batchIds,
+    refusalCode,
+    ...(pullBatchIds.length > 0 ? { pullBatchIds } : {}),
+  };
 }
 
 export const resolve: Node<"resolve"> = async (ctx) => {

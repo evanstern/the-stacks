@@ -137,6 +137,10 @@ export function factEntries(facts: NarrationFacts): string[] {
     for (const c of facts.npcTurn.changes)
       out.push(`  change: ${describeChange(c)}`);
   }
+  for (const st of facts.pulled ?? []) {
+    out.push(`Joined the fight: ${st.name}`);
+    for (const r of st.rolls) out.push(rollEntry(r));
+  }
   for (const st of facts.settled ?? []) {
     out.push(`Downed turn: ${st.name}`);
     for (const r of st.rolls) out.push(rollEntry(r));

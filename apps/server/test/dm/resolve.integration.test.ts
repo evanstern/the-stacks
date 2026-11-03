@@ -1,8 +1,13 @@
 import { mechanicsProposal } from "@the-stacks/session-model";
 import { afterAll, describe, expect, it } from "vitest";
-import { collectFacts, renderDiceLines } from "../../src/dm/facts.js";
+import {
+  buildNarrationFacts,
+  collectFacts,
+  renderDiceLines,
+} from "../../src/dm/facts.js";
 import type { ResolveOutput } from "../../src/dm/nodes/resolve.js";
 import { loadSeed } from "../../src/dm/seed/load.js";
+import { playerFacingSeed } from "../../src/dm/seed/views.js";
 import { diffSnapshots } from "../../src/dm/snapshot/index.js";
 import { expectedDiceLines } from "../../src/playtest/auditor/checks.js";
 import {
@@ -662,6 +667,63 @@ describe.skipIf(!reachable)("resolve (database)", () => {
       expect(
         shipped.filter((l) => l.includes("Pell Marsh joins the fight")),
       ).toEqual(initLine);
+    });
+
+    it("TASK-0213: a PC attack on a present non-combatant renders the joiner's initiative line once", async () => {
+      const w = await inTurnMode([...initDice(TAMSIN_FIRST), 16, 15, 4]);
+      const id = await commitAction(w, "Tamsin strikes at Pell.");
+      freshCheckpoint(w);
+      const { result, ctx } = await w.runResolve({
+        readings: [reading(id, [attackStep("pell")])] as never,
+        job: nextJob(),
+      });
+      if (!result.ok) throw new Error(result.error.message);
+      const out = result.output as ResolveOutput;
+      const p = await w.projections();
+      const init = p.ledger.find(
+        (l) =>
+          l.kind === "roll" &&
+          l.roll.combatantId === "pell" &&
+          l.roll.purpose === "initiative",
+      );
+      expect(init).toBeDefined();
+      const [res] = out.actionResults;
+      // The pull rides its own field: the outcome and batchIds stay the action's.
+      expect(res?.outcome).toBe("applied");
+      expect(res?.pullBatchIds).toContain(init?.batchId);
+      expect(res?.batchIds).not.toContain(init?.batchId);
+
+      const { assemble: assembled, director } = ctx.results;
+      if (!assembled || !director) throw new Error("missing results");
+      const facts = buildNarrationFacts({
+        trigger: "action",
+        seed: playerFacingSeed(ctx.seed),
+        beatNpcIds: [],
+        projections: p,
+        beat: assembled.beat,
+        director,
+        adjudicate: null,
+        resolve: out,
+        presentNpcIds: [],
+        modeBefore: "turn",
+        appendedRows: out.appendedRows,
+        clarify: [],
+      } as never);
+      const joined = renderDiceLines(facts).filter((l) =>
+        l.includes("Pell Marsh joins the fight"),
+      );
+      expect(joined).toHaveLength(1);
+    });
+
+    it("TASK-0213: a plan-refused action stays refused and reports no pull", async () => {
+      const w = await inTurnMode([...initDice(TAMSIN_FIRST), 10]);
+      const id = await commitAction(w, "Tamsin bargains with Pell.");
+      freshCheckpoint(w);
+      const out = await run(w, [reading(id, [attackStep("ghoul-9")])], {
+        job: nextJob(),
+      });
+      expect(out.actionResults[0]).toMatchObject({ outcome: "refused" });
+      expect(out.actionResults[0]?.pullBatchIds).toBeUndefined();
     });
 
     it("tracker advances and the scene end follow the action, in order", async () => {
