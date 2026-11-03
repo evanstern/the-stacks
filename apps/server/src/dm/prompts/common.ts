@@ -63,6 +63,18 @@ export function joinSections(sections: readonly string[]): string {
   return sections.filter((s) => s !== "").join("\n\n");
 }
 
+/** Spec 080 D2: the current beat's discoverable clues as `<beatId>#<n>: text (found with ability skill)`. No DC. */
+export function clueEntries(seed: SceneSeed, beatId: string | null): string[] {
+  const beat = seed.beats.find((b) => b.id === beatId);
+  if (!beat) return [];
+  return beat.clues.map((c, i) => {
+    const how = c.check
+      ? ` (found with ${[c.check.ability, c.check.skill].filter(Boolean).join(" ")})`
+      : "";
+    return `${beat.id}#${i + 1}: ${c.text}${how}`;
+  });
+}
+
 /** Goal, location, present NPCs, active encounter: most important first. */
 export function seedEntries(
   seed: SceneSeed,

@@ -279,6 +279,7 @@ Then **stop for the operator to play it** (checkpoint C7).
 | 2026-11-02 | (ruling) | — | — | — | Spec 076 OQ-1, operator: "The opening should name the characters, not the players". |
 | 2026-11-02 | TASK-0208 | #117 | 38b8e737 | opus (spec 079), sonnet x3, haiku (stopped) | Engine reactions, `STEP_ACTOR_MISMATCH`. Cards TASK-0218, 0219. Spec 081 (0207) carded TASK-0220. |
 | 2026-11-02 | TASK-0127 | (this PR) | (at merge) | sonnet x3 (spec 070 by opus in runbook A) | Built the merged spec 070. Seam check: no seam changed meaning; deviations in `specs/070-stakes-before-dice/deviations.md`. Nat 20/nat 1 on by default. interpret-v8, adjudicate-v6, narrate-v11, audit-v7. |
+| 2026-11-03 | TASK-0170 | (this PR) | (at merge) | opus (spec 080), sonnet x3 | Delta on spec 070. A check declares its success outcome and may reveal one beat clue; the seed now names goblin feet. Claw-marks fixture reconstructed. Card TASK-0221 (revisit). interpret-v9, adjudicate-v7, narrate-v12, audit-v8. |
 
 ## Later runbooks (order on record; each gets its own runbook and sign-off)
 

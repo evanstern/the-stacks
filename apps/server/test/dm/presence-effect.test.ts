@@ -30,7 +30,7 @@ const check = (over: Record<string, unknown> = {}) => ({
   onSuccess: [],
   onFailure: [],
   stakes: {
-    success: null,
+    success: "The attempt works as intended.",
     cost: "It works, at a small price.",
     failure: "The attempt comes to nothing.",
     severe: "It goes badly wrong.",

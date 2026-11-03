@@ -280,6 +280,51 @@ describe("player-facing prompts (card AC #1)", () => {
     }
   });
 
+  it("a success carries only the named clue to narrate, no other DM-only seed text (spec 080)", () => {
+    const base = facts({
+      trigger: "commit",
+      beatId: "ferry-house",
+      beatNpcIds: [],
+      action: true,
+    });
+    const [clue1, clue2] =
+      SEED.beats.find((b) => b.id === "ferry-house")?.clues ?? [];
+    const withRoll = (revealed: string | null): NarrationFacts => ({
+      ...base,
+      actions: base.actions.map((a) => ({
+        ...a,
+        rolls: [
+          {
+            name: "Tamsin",
+            reason: "Tamsin looks for what made the marks",
+            expression: "1d20+3",
+            shown: "20",
+            total: 23,
+            against: { kind: "DC" as const, value: 12 },
+            outcome: "success" as const,
+            autoFail: false,
+            target: null,
+            band: "success" as const,
+            margin: 11,
+            consequence: "Tamsin reads the prints.",
+            revealed,
+          },
+        ],
+      })),
+    });
+    const p = narrate(withRoll(clue1?.text ?? null));
+    const text = `${p.system}\n${p.user}`;
+    expect(text).toContain(`learned (settled): ${clue1?.text}`);
+    expect(text).not.toContain(clue2?.text ?? "unreachable");
+    // The named clue is DM-only seed text too; it is the one entry allowed through.
+    for (const secret of dmOnlySeedText(SEED)) {
+      if (clue1 && secret.includes(clue1.text)) continue;
+      expect(text).not.toContain(secret);
+    }
+    const none = narrate(withRoll(null));
+    expect(`${none.system}\n${none.user}`).not.toContain("learned (settled)");
+  });
+
   it("carries the snapshot sections in the narrate, audit and chronicle prompts", () => {
     const by = (n: string) => prompts.find((p) => p.name === n)?.text ?? "";
     expect(by("narrate the-keeper action")).toContain(

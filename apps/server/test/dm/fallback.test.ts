@@ -211,6 +211,36 @@ describe("factualSummary: one sentence per fact", () => {
     }
   });
 
+  it("ships the success outcome and the learned fact, dropping text that fails the claim check (spec 080)", () => {
+    const at = (consequence: string | null, revealed: string | null) =>
+      action({
+        rolls: [roll("success", { band: "success", consequence, revealed })],
+        outcomes: ["success"],
+      });
+    expect(
+      sum(
+        facts({
+          actions: [
+            at("Ana reads the prints.", "The prints are goblin feet, splayed."),
+          ],
+        }),
+      ),
+    ).toBe(
+      "Ana picks the lock. Ana pulls it off. Ana reads the prints. The prints are goblin feet, splayed.",
+    );
+    // A system word or a death claim is dropped; the other sentence still ships.
+    expect(
+      sum(
+        facts({
+          actions: [at("The dice favour her.", "Ana is dead.")],
+        }),
+      ),
+    ).toBe("Ana picks the lock. Ana pulls it off.");
+    expect(
+      sum(facts({ actions: [at("Ana reads the prints.", "Ana is dead.")] })),
+    ).toBe("Ana picks the lock. Ana pulls it off. Ana reads the prints.");
+  });
+
   it("hit, critical hit and miss outcome sentences", () => {
     for (const [o, line] of [
       ["hit", "Ana strikes home."],
