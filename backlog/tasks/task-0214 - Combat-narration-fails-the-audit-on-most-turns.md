@@ -39,14 +39,6 @@ Spec: specs/085-combat-audit-pass-rate
 - [x] #6 Spec phase: Wiki re-ground
 <!-- AC:END -->
 
-
-
-
-
-
-
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -61,6 +53,8 @@ Spec 085 (58a523af). Triage: seq 103 dice-lines FIXED (0213); 161 wrong subject 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 085 phases 1-2, with seam check)
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 085 phases 3-4, plus the pre-audit block test skipped in phase 1)
+
+spec-bridge sync: Only the on-turn actor acts (US1; FR-001 to FR-004): 10/10 · Feelings, endings and the goal note (US2–US4; FR-005 to FR-010): 8/8 · Replay run 1 (US5; card AC #2, FR-011, FR-013): 2/2 · Wiki re-ground: 6/6 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
