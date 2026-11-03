@@ -44,3 +44,12 @@ A combatant may carry `stats` (ability modifiers, proficiency bonus, save and sk
 entries, spellcasting ability). `check.roll` with `difficulty` and no `expression`, and `attack.roll`
 with `attack`, derive the modifier, to-hit, DC and roll mode from those stats and the SRD conditions
 (`src/derive.ts`). A missing stat refuses `STAT_UNDEFINED`. Explicit `expression` and `dc` stay valid.
+
+## Spells (spec 083)
+
+`spell.cast` resolves one spell by SRD id from the engine's `SPELLS` table (`src/spells.ts`):
+slot spend, spell attack or the target's save at the caster's DC, then damage (half on a save
+where the SRD says so), healing (dice plus the spellcasting modifier) or a condition. The table
+holds six spells (`fire-bolt`, `sacred-flame`, `inflict-wounds`, `ray-of-sickness`,
+`cure-wounds`, `healing-word`); any other id refuses `SPELL_UNRESOLVED`. The engine imports no
+SRD data: `apps/server/test/dm/spell-mechanics.test.ts` checks each entry against the SRD record.

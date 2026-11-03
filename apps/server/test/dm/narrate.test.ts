@@ -218,6 +218,48 @@ describe("narrate", () => {
     expect(prompt.system).toMatch(/NO digits/);
   });
 
+  it("lists the first beat's present NPCs at scene start, whatever the Director's beat", async () => {
+    const { ctx } = await setup(["x", "x", "x", "x"]);
+    const ids = async (trigger: "scene-start" | "commit", beatId: string) => {
+      const out = await narrate({
+        ...ctx,
+        job: { ...ctx.job, trigger },
+        results: {
+          ...ctx.results,
+          director: {
+            ...director,
+            pacing: { ...director.pacing, beatId },
+          },
+        },
+      });
+      if (!out.ok) throw new Error("narrate failed");
+      return out.output.facts.presentNpcs.map((n) => n.id);
+    };
+    expect(await ids("scene-start", "ferry-house")).toEqual(["wenna"]);
+    expect(await ids("scene-start", "reed-camp")).toEqual(["wenna"]);
+    const gone = await narrate({
+      ...ctx,
+      job: { ...ctx.job, trigger: "scene-start" },
+      results: {
+        ...ctx.results,
+        resolve: {
+          ...resolved,
+          snapshot: {
+            ...ctx.results.resolve?.snapshot,
+            actors: (ctx.results.resolve?.snapshot.actors ?? []).map((a) =>
+              a.id === "wenna" ? { ...a, presence: "absent" as const } : a,
+            ),
+          },
+        },
+      },
+    });
+    if (!gone.ok) throw new Error("narrate failed");
+    expect(gone.output.facts.presentNpcs).toEqual([]);
+    const commit = await ids("commit", "ferry-house");
+    const beat = ctx.seed.beats.find((b) => b.id === "ferry-house");
+    expect(commit).toEqual((beat?.npcIds ?? []).filter((id) => id === "wenna"));
+  });
+
   it("includes the previous text and issues when regenerating", async () => {
     const { ctx, assembled, snapshot } = await setup(["x"]);
     const out = await narrate(ctx);
@@ -314,7 +356,7 @@ describe("narrate", () => {
       facts,
       prior: null,
     });
-    expect(NARRATE_VERSION).toBe("dm.narrate-v14");
+    expect(NARRATE_VERSION).toBe("dm.narrate-v16");
     expect(prompt.system).toContain(
       "A roll's band and outcome are settled. A success means the attempted task happens. Deliver the outcome and any learned fact plainly in the prose; invent no other.",
     );
@@ -698,7 +740,7 @@ describe("narrate", () => {
       snapshot,
       prose: "Prose.",
     });
-    expect(AUDIT_VERSION).toBe("dm.audit-v9");
+    expect(AUDIT_VERSION).toBe("dm.audit-v10");
     expect(p.system).toContain("6. The actor on the Turn line acts");
     expect(p.system).toContain("7. A roll's band and consequence are decided.");
     expect(p.system).toContain(

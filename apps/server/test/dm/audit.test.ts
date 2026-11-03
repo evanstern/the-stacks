@@ -126,6 +126,29 @@ function check(prose: string, f = facts(), state: ClaimState = claimState()) {
 }
 
 describe("deterministicChecks", () => {
+  describe("spell-slot claims (TASK-0211 AC #3)", () => {
+    const claim =
+      "Odo spends his last first-level slot and light floods the wound.";
+    const spend = action({
+      changes: [
+        { kind: "spell-slot", target: "Odo", pool: "standard", level: 1 },
+      ],
+    });
+    it("fails prose that says a slot was spent when the engine spent none", () => {
+      const r = check(claim);
+      expect(r.pass).toBe(false);
+      expect(r.issues[0]?.kind).toBe("ledger-mismatch");
+    });
+    it("passes the same prose when the engine spent a slot", () => {
+      expect(check(claim, facts([spend])).pass).toBe(true);
+    });
+    it("ignores a slot that is not a spell slot", () => {
+      expect(check("Ana uses the slot in the door to peer through.").pass).toBe(
+        true,
+      );
+    });
+  });
+
   it("passes a clean narration", () => {
     expect(check(CLEAN)).toEqual({ pass: true, issues: [] });
   });
@@ -318,6 +341,36 @@ const SEED_PARTY: NarrationFacts["party"] = [
   { characterId: "odo", name: "Brother Odo", controller: "ai-companion" },
   { characterId: "kestrel", name: "Kestrel", controller: "ai-companion" },
 ];
+
+describe("literal stock ending (TASK-0204)", () => {
+  const literal = (prose: string, f = facts()) =>
+    check(prose, f).issues.some((i) =>
+      i.detail.startsWith('The prose ends on "What do you do?".'),
+    );
+
+  it("fails narration that ends on the literal question", () => {
+    expect(literal(`${CLEAN} What do you do?`)).toBe(true);
+    expect(literal(`${CLEAN} "What do you all do?"`)).toBe(true);
+    expect(literal(`${CLEAN} What do you two do?`)).toBe(true);
+  });
+
+  it("passes a named-character question and the phrase mid-prose", () => {
+    expect(literal(`${CLEAN} What does Tamsin do?`)).toBe(false);
+    expect(literal(`What do you do? ${CLEAN}`)).toBe(false);
+  });
+
+  it("a clarify question never ends on the literal phrase", () => {
+    const q = "Kestrel's player decides what Kestrel does. What do you do?";
+    const f = { ...facts(), clarify: [{ actionId: "a1", question: q }] };
+    expect(literal(`${CLEAN} ${q}`, f)).toBe(true);
+  });
+
+  it("covers the scene-start opening path", () => {
+    const f = { ...facts(), trigger: "scene-start" as const };
+    expect(literal(`${CLEAN} What do you do?`, f)).toBe(true);
+    expect(literal(`${CLEAN} What does Tamsin do?`, f)).toBe(false);
+  });
+});
 
 describe("detailNamesPartyMember (party-name filter, E2)", () => {
   const cases: [string, string, boolean][] = [

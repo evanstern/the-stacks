@@ -169,3 +169,9 @@ reads `failure`. An auto-fail row carries band `failure`; an auto-success row ca
 
 `check.resolved` gains optional `difficulty`. `attack.resolved` gains optional `attack` (the entry
 name). `combatant.added`'s `after` carries optional `stats`. `v` stays 1; old rows parse.
+
+## Amended by specs/083-spells-by-srd-id (TASK-0105)
+
+`attack.resolved` and `check.resolved` gain optional `spellId` (the SRD spell id of a `spell.cast`).
+`hp.changed` gains optional `half: true` (the damage was halved, rounded down, before defenses).
+`v` stays 1; old rows parse. `spell.cast` emits only existing event types.

@@ -161,6 +161,29 @@ describe("factualSummary: one sentence per fact", () => {
     );
   });
 
+  it("scene-start names the party and the present NPCs after the framing", () => {
+    const f = facts({
+      trigger: "scene-start",
+      party: [
+        { characterId: "a", name: "Ana", controller: "human" },
+        { characterId: "b", name: "Bram", controller: "ai-companion" },
+      ],
+      presentNpcs: [
+        { id: "w", name: "Wenna Marsh", voice: "", want: "", detail: "" },
+      ],
+    });
+    expect(sum(f)).toBe(
+      "Cold air drifts from the vault door. Ana and Bram are here. Wenna Marsh is here too.",
+    );
+    expect(
+      deterministicChecks(
+        f,
+        { prose: sum(f), diceLines: [] },
+        claimStateFor(f, ["Ana", "Bram"]),
+      ).issues,
+    ).toEqual([]);
+  });
+
   it("an applied action with a roll gives the reason and the outcome", () => {
     const a = action({ rolls: [roll("success")], outcomes: ["success"] });
     expect(sum(facts({ actions: [a] }))).toBe(
@@ -255,6 +278,53 @@ describe("factualSummary: one sentence per fact", () => {
         `Ana swings at the guard. ${line}`,
       );
     }
+  });
+
+  it("pins the sentences of a spell.cast batch per delivery (spec 083 T028)", () => {
+    const dmg: FactChange = {
+      kind: "hp",
+      target: "Guard",
+      direction: "damage",
+      amount: 6,
+      damageType: "fire",
+      before: 9,
+      after: 3,
+    };
+    const attack = action({
+      rolls: [roll("hit", { reason: "Ana hurls a bolt of fire" })],
+      outcomes: ["hit"],
+      changes: [dmg],
+    });
+    const save = action({
+      rolls: [
+        roll("failure", {
+          name: "Guard",
+          reason: "Guard resists a flame Ana calls down",
+        }),
+      ],
+      outcomes: ["failure"],
+      changes: [dmg],
+    });
+    const heal = action({
+      changes: [
+        {
+          kind: "hp",
+          target: "Bram",
+          direction: "heal",
+          amount: 8,
+          damageType: null,
+          before: 0,
+          after: 8,
+        },
+      ],
+    });
+    expect(
+      [attack, save, heal].map((a) => sum(facts({ actions: [a] }))),
+    ).toEqual([
+      "Ana hurls a bolt of fire. Ana strikes home. Guard is wounded.",
+      "Guard resists a flame Ana calls down. Guard comes up short. Guard is wounded.",
+      "Ana goes ahead with it. Bram is healed.",
+    ]);
   });
 
   it("drops a reason that holds a system word or a contradicting verb", () => {

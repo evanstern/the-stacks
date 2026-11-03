@@ -245,6 +245,19 @@ export const EngineCommandSchema = z.discriminatedUnion("type", [
     reason: Reason,
   }),
   z.object({
+    // Spec 083: one spell by SRD id; the engine resolves attack, save, dice and effects.
+    type: z.literal("spell.cast"),
+    casterId: Id,
+    spellId: z.string().regex(/^[a-z0-9]+(-[a-z0-9]+)*$/),
+    targetId: Id,
+    slotLevel: SlotLevel.nullable(),
+    casterLevel: z.number().int().min(1).max(20),
+    houseRules: z
+      .object({ outcomeBands: z.boolean(), naturals: z.boolean() })
+      .optional(),
+    reason: Reason,
+  }),
+  z.object({
     type: z.literal("spell-slot.restore"),
     targetId: Id,
     pool: z.enum(["standard", "pact"]),

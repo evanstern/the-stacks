@@ -18,7 +18,8 @@ sources:
   - packages/dnd5e-engine/test/purity.test.ts
   - packages/dnd5e-engine/test/coverage.test.ts
   - specs/026-dnd5e-engine/spec.md
-verified_against: ed3949ce7a0aa83c9dd732137ab346ad1df8b7e0
+verified_against: 7440e7041ff0ca7ca70b9e7ea72d8b63b46e3bcb
+size_budget_exempt: TASK-0105 adds the spell.cast paragraph to the one engine-command note; the note sat within 40 chars of the 8000 budget before it, and the engine commands do not split without a TASK of its own
 ---
 
 # 5e engine
@@ -40,7 +41,7 @@ against `EngineCommandSchema` (`INVALID_COMMAND`), then dispatches by `command.t
 handler map (`roll`, `combatant.add/remove`, `damage.apply`, `healing.apply`, `temp-hp.grant`,
 `death-save.roll`, `stabilize`, `attack.roll`, `check.roll`, `condition.apply/remove`,
 `exhaustion.adjust`, `initiative.roll/join/leave`, `turn.advance`, `encounter.end`,
-`rest.short/long`, `spell-slot.expend/restore`). Each handler lives in `src/commands/`.
+`rest.short/long`, `spell-slot.expend/restore`, `spell.cast`). Each handler lives in `src/commands/`.
 `evolve` applies one event; `replay(events, state)`
 folds many. Replaying all events from `emptyState()` reproduces state.
 
@@ -111,6 +112,8 @@ leaver and the incoming combatant. `encounter.end` drops the encounter, and with
 ## Stats and derived rolls
 
 Spec 082. A `Combatant` may carry `stats`; `src/derive.ts` derives rolls from them. `check.roll` takes `dc` or a `difficulty` tier; `attack.roll` takes `expression` or an `attack` entry name. A missing stat refuses `STAT_UNDEFINED`.
+
+**Spells** (spec 083, TASK-0105). `spell.cast` (`src/commands/spells.ts`) resolves six SRD spells (`fire-bolt`, `sacred-flame`, `inflict-wounds`, `ray-of-sickness`, `cure-wounds`, `healing-word`) from the engine-held `SPELLS` table (`src/spells.ts`; no SRD import, a server test checks it against the records, [[srd-data]]). It rolls the attack or save (`spellcastingModifier`, `spellSaveDc`), damage (half on a save, rounded down before defenses), healing and conditions, and spends the slot (`slotExpendEvent`; `NO_SLOT_AVAILABLE`). An unknown spell or bad slot level refuses `SPELL_UNRESOLVED`.
 
 ## Boundary rule
 

@@ -114,6 +114,23 @@ describe("scene seed (AC #13)", () => {
     expect(readFileSync(SEED_PATH, "utf8")).toBe(readFileSync(spec, "utf8"));
   });
 
+  it("requires opening.premise and names it when missing", () => {
+    const issues = issuesFor((s) => {
+      delete s.opening.premise;
+    });
+    expect(issues.join(" ")).toContain("opening.premise");
+  });
+
+  it("gives every shipped seed a premise with no DM-only string", () => {
+    for (const seed of listSeeds()) {
+      expect(seed.opening.premise.length).toBeGreaterThan(0);
+      for (const s of dmOnlySeedText(seed)) {
+        expect(seed.opening.premise).not.toContain(s);
+      }
+      expect(playerFacingSeed(seed).openingPremise).toBe(seed.opening.premise);
+    }
+  });
+
   it("says original plus SRD in its license header", () => {
     expect(raw().license.kind).toBe("original-plus-srd");
     expect(raw().license.note).toContain("SRD 5.2.1");

@@ -179,6 +179,15 @@ export const StepSchema = z.discriminatedUnion("step", [
     circumstance: CircumstanceSchema,
     onHit: z.array(EffectSchema).max(4),
   }),
+  // Spec 083 D4: the engine resolves the spell's attack, save, dice and effects.
+  z.strictObject({
+    step: z.literal("spell"),
+    reason: Reason,
+    casterId: CombatantIdSchema,
+    spellId: z.string().regex(/^[a-z0-9]+(-[a-z0-9]+)*$/),
+    slotLevel: z.number().int().min(1).max(9).nullable(),
+    targetId: CombatantIdSchema,
+  }),
   z.object({
     step: z.literal("effect"),
     reason: Reason,

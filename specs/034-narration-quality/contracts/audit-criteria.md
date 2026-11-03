@@ -225,3 +225,10 @@ Amended by specs/080-declared-outcome. Audit is `dm.audit-v8`. Criterion 2 also 
 `ledger-mismatch` when the prose does not deliver a roll's settled outcome or learned fact: a
 success whose prose leaves the task undone or the learned fact unnamed. The rest of the system
 prompt is unchanged.
+
+## Deterministic checks (amendment, spec 076, TASK-0171)
+
+At scene start only, `deterministicChecks` blocks (kind `other`) an opening that does not name
+every party member and every present NPC, case-sensitive and whole-word (full or given name),
+before its closing question. It also blocks an opening that holds the word "player" or "AI
+companion". Audit prompt text is unchanged (`dm.audit-v10`).

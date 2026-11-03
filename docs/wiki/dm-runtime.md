@@ -41,7 +41,7 @@ sources:
   - apps/server/seeds/greyhollow-ford-trio.json
   - biome.json
 size_budget_exempt: both notes sat within 30 chars of the 8000 budget before TASK-0180; the talk path got its own note (dm-talk-triggers) and only a pointer line lands here; the rest is one pipeline each, not splittable without a TASK of its own
-verified_against: ed3949ce7a0aa83c9dd732137ab346ad1df8b7e0
+verified_against: a64dcee87d062d661ddd1f6262a3f6596dee2ba1
 ---
 
 # DM runtime
@@ -62,7 +62,7 @@ async function `(TurnContext) => NodeResult`.
    records ([[srd-data]]). `AssembleOutput.resumed` holds the plans of actions whose paused turn's proposal is now approved (`resume.ts`, TASK-0168, specs/057); the checkpoint freezes them.
 2. **director** - `dm.director`. Decides scene-level changes (set the scene, trackers, table
    mode, encounter setup), whether the beat resolves or **holds** for companions, and the optional `arrivals` list (offstage seed NPCs now on screen, `dm.director-v6`). `legalizeDirector` keeps only offstage seed NPCs and drops all arrivals on scene start.
-3. **interpret** - `dm.interpret`. Reads each action into steps (check, attack, move, effect, roll; `dm.interpret-v11`; a check step names a `difficulty` tier, an attack step names the `attack` entry, and either may carry a `circumstance` (mode plus reason); the model writes no expression, DC, AC or hit damage (spec 082); a monster reading may set `say`, its spoken line, kept apart from rules notes and carried into the facts as `says:`; every check step declares `stakes`, a consequence per outcome band, success included, before the roll, and may set `reveals`, one clue of the beat's `Discoverable clues` section) and
+3. **interpret** - `dm.interpret`. Reads each action into steps (check, attack, spell, move, effect, roll; `dm.interpret-v12`, `dm.adjudicate-v9`; a spell step names the caster, the SRD spell id, the slot level (null for a cantrip) and one target, no numbers, spec 083; a check step names a `difficulty` tier, an attack step names the `attack` entry, and either may carry a `circumstance` (mode plus reason); the model writes no expression, DC, AC or hit damage (spec 082); a monster reading may set `say`, its spoken line, kept apart from rules notes and carried into the facts as `says:`; every check step declares `stakes`, a consequence per outcome band, success included, before the roll, and may set `reveals`, one clue of the beat's `Discoverable clues` section) and
    flags `needsAdjudication`. Resumed actions are not read again; their stored readings rejoin in beat order.
 4. **adjudicate** - `dm.adjudicate`, only when an interpret reading asks. May call `retrieve`
    ([[retrieval]]) for rules text and returns a ruling. Resumed readings keep their stored ruling.
@@ -87,6 +87,8 @@ state for the companion (`seat` view); the state at `throughSeq` for the chronic
 view). An over-cap snapshot fails the turn with `state-overflow` ([[dm-failure-and-gates]]).
 
 ## Resolve: the only writer
+
+Spec 083: `case "spell"` submits one `spell.cast` with the caster's level from the seed (`casterLevel`) and the table's house rules; the engine rolls and applies every spell number and spends the slot. The seed lists Odo's `cure-wounds` beside his other spells.
 
 `nodes/resolve.ts` submits every gameplay write through `gate.submit` as `ai:dm`
 (`companion.ts` and `chronicle.ts` also call it). It picks each next step from **engine events alone**: a `check.roll` or `attack.roll`

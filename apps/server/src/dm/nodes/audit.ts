@@ -38,6 +38,10 @@ import { composeText, narrateAttempt } from "./narrate.js";
 
 export const MAX_NARRATION_ATTEMPTS = 3;
 
+/** A spend verb followed, in the same sentence, by a spell slot ("spell slot", "<ordinal>-level slot", "last slot"). */
+const SLOT_SPEND_CLAIM =
+  /\b(?:spends?|spent|expends?|expended|burns?|burned|burnt|uses?|used|drains?|drained)\b[^.!?\n]*?\b(?:spell[- ]?slots?|(?:first|second|third|fourth|fifth|\w+)[- ]level slots?|last slot)\b/i;
+
 export const AUDIT_ISSUE_KINDS = [
   "ledger-mismatch",
   "invented-mechanics",
@@ -102,6 +106,27 @@ export function detailNamesPartyMember(
       `(?<![\\p{L}\\p{N}_-])${body}(?![\\p{L}\\p{N}_-])`,
       "iu",
     ).test(detail);
+  });
+}
+
+/** The prose before its closing question: the text up to the last sentence end before a final "?". */
+export function beforeClosingQuestion(prose: string): string {
+  const t = prose.trim();
+  if (!t.endsWith("?")) return t;
+  const head = t.slice(0, -1);
+  const ends = [...head.matchAll(/[.!?](?=\s)/g)];
+  const last = ends[ends.length - 1];
+  return last?.index === undefined ? "" : head.slice(0, last.index + 1);
+}
+
+/** True when `text` holds `name`'s full or given name as a whole, case-sensitive word. */
+export function namesCharacter(text: string, name: string): boolean {
+  return nameTerms(name).some((term) => {
+    const body = term.split(/\s+/).map(escapeRe).join("\\s+");
+    return new RegExp(
+      `(?<![\\p{L}\\p{N}_-])${body}(?![\\p{L}\\p{N}_-])`,
+      "u",
+    ).test(text);
   });
 }
 
@@ -291,6 +316,39 @@ export function deterministicChecks(
         );
       }
     }
+    // spec 076 FR-012: every party member and present NPC is named before the closing question.
+    const before = beforeClosingQuestion(prose);
+    for (const who of [...facts.party, ...facts.presentNpcs]) {
+      if (!namesCharacter(before, who.name)) {
+        add(
+          "other",
+          `The opening does not name ${who.name} before its closing question. Name every party member and every present character.`,
+        );
+      }
+    }
+    // FR-016: the opening names characters, not the players or their controllers.
+    if (/\b(players?|AI companions?)\b/i.test(prose)) {
+      add(
+        "other",
+        "The opening names a player or a controller. Name the characters, not the players.",
+      );
+    }
+  }
+
+  // TASK-0211 AC #3: prose may say a slot was spent only when the engine spent one.
+  // ponytail: any spend this beat clears the check, not one per named caster;
+  // add per-caster matching if a two-caster beat shows a wrong-caster claim passing.
+  const spentSlot = [
+    ...facts.actions.flatMap((a) => a.changes),
+    ...(facts.npcTurn?.changes ?? []),
+    ...(facts.pulled ?? []).flatMap((x) => x.changes),
+  ].some((c) => c.kind === "spell-slot");
+  const slotClaim = SLOT_SPEND_CLAIM.exec(prose);
+  if (slotClaim && !spentSlot) {
+    add(
+      "ledger-mismatch",
+      `The prose says a spell slot was spent ("${slotClaim[0].slice(0, 60)}"), and the engine spent none this turn.`,
+    );
   }
 
   const words = wordCount(prose);
@@ -319,6 +377,15 @@ export function deterministicChecks(
     add(
       "doctrine",
       `The prose offers an option menu: ${quoted}. Ask one open question instead.`,
+    );
+  }
+  // The literal stock ending is the doctrine's wrong example (end-on-demand).
+  if (
+    /\bwhat do you(?: all| two)? do\?["'\u201d\u2019]*$/i.test(prose.trim())
+  ) {
+    add(
+      "doctrine",
+      'The prose ends on "What do you do?". End on a moment that demands a response.',
     );
   }
   if (facts.clarify.length > 0 && !prose.trim().endsWith("?")) {

@@ -25,7 +25,7 @@ import {
   transcriptEntries,
 } from "./common.js";
 
-export const PROMPT_VERSION = "dm.narrate-v14";
+export const PROMPT_VERSION = "dm.narrate-v16";
 
 const RULES = [
   "You narrate the result of one beat of a tabletop role-playing session. The facts below are TRUE and already decided by the rules engine. Retell them as story.",
@@ -179,6 +179,8 @@ function describeChange(
       return `${c.target} is now ${c.after}`;
     case "condition":
       return `${c.target} ${c.op === "applied" ? "gains" : "loses"} ${c.condition}`;
+    case "spell-slot":
+      return `${c.target} spends a level ${c.level} spell slot`;
     case "death-saves":
       return c.failed
         ? `${c.target} fails a death saving throw`
@@ -216,6 +218,44 @@ export function characterSections(snapshot: ActorSnapshot): string[] {
   ];
 }
 
+/**
+ * The scene-start opening section (spec 076): place, premise, goal, framing,
+ * each party character and each NPC present at the first beat. It names
+ * characters only: no player, no controller. Empty for every other trigger.
+ */
+export function openingSection(
+  seed: PlayerSeedView,
+  facts: NarrationFacts,
+): string {
+  if (facts.trigger !== "scene-start") return "";
+  const loc = seed.location;
+  const party = facts.party.map((m) => {
+    const c = seed.characters.find((x) => x.characterId === m.characterId);
+    return c
+      ? `- ${m.name}, ${c.identity.class}. Looks: ${c.portrayal.appearance}`
+      : `- ${m.name}`;
+  });
+  const present = facts.presentNpcs.map((n) => {
+    const v = seed.npcs.find((x) => x.id === n.id);
+    return v ? `- ${n.name}, ${v.role}. Looks: ${v.appearance}` : `- ${n.name}`;
+  });
+  return [
+    "## Opening",
+    "Open the scene. This is the first narration the players see.",
+    `Location: ${loc.name}. ${loc.features.join(" ")} Mood: ${loc.mood} ${loc.senses.join(" ")}`,
+    `Why the party is here: ${seed.openingPremise}`,
+    `Goal: ${seed.goalStatement}`,
+    `Framing: ${seed.openingFraming}`,
+    ...(party.length > 0 ? ["Party:", ...party] : []),
+    ...(present.length > 0 ? ["Present at the start:", ...present] : []),
+    "Introduce the place, why the party is here and what they are there to do. Name every party member and every character present listed above before you ask anything. A present character may be heard, glimpsed or expected rather than seen.",
+    "Name the characters only. Never say who plays a character or how it is played.",
+    "The opening shows the place and what the party finds. It never moves, leads or voices a party member.",
+    "This opening may run to about one hundred sixty words, never more than one hundred eighty.",
+    'End on one short open question to the party, in your own words. Never end with "What do you do?".',
+  ].join("\n");
+}
+
 export interface NarratePromptInput {
   seed: PlayerSeedView;
   roster: readonly RosterEntry[];
@@ -241,14 +281,6 @@ export function buildNarratePrompt(input: NarratePromptInput): {
   const npcs = facts.presentNpcs.map(
     (n) => `${n.name}: voice ${n.voice}; wants ${n.want}; detail ${n.detail}`,
   );
-  const scene =
-    facts.trigger === "scene-start"
-      ? [
-          `Open the scene. Framing: ${seed.openingFraming}`,
-          "The opening shows the place and what the party finds. It never moves, leads or voices a party member.",
-          `Location: ${seed.location.name}. Mood: ${seed.location.mood}`,
-        ]
-      : [];
   const prior = input.prior
     ? [
         "Your previous text was rejected. Write it again and fix every issue.",
@@ -257,7 +289,7 @@ export function buildNarratePrompt(input: NarratePromptInput): {
       ]
     : [];
   const user = joinSections([
-    scene.join("\n"),
+    openingSection(seed, facts),
     ...characterSections(input.snapshot),
     section("Facts", factEntries(facts), CAPS.facts, "end"),
     `Pacing: ${facts.director.pacing.tension}. Private note: ${facts.director.goalNote}`,

@@ -266,3 +266,8 @@ New exports: `derive.ts` (`checkModifier`, `findAttack`, `firstMeleeAttack`, `ch
 `attackModeSources`, `foldMode`, `d20Expression`, `spellSaveDc`, `spellAttackBonus`, `DIFFICULTY_DC`,
 `DifficultySchema`), `CombatantStatsSchema`, `AttackEntrySchema`, `AbilitySchema`, `AmountSchema`,
 `SKILL_ABILITY`. `Combatant` gains optional `stats`.
+
+## Amended by specs/083-spells-by-srd-id (TASK-0105)
+
+New exports: `SPELLS`, `SpellMechanicsSchema`, `SpellMechanics`, `spellDice`, `spellcastingModifier`.
+`spellSaveDc` and `spellAttackBonus` now use `spellcastingModifier`.

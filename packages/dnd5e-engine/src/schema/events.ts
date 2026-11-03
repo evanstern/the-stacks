@@ -104,6 +104,8 @@ export const EngineEventSchema = z.discriminatedUnion("type", [
     outcome: z.enum(["hit", "miss", "critical-hit"]),
     reaction: z.boolean().optional(),
     attack: z.string().optional(),
+    // Spec 083: the SRD spell id of a spell.cast attack.
+    spellId: z.string().optional(),
   }),
   z.object({
     type: z.literal("check.resolved"),
@@ -123,6 +125,8 @@ export const EngineEventSchema = z.discriminatedUnion("type", [
     // Spec 070: optional so v1 rows written before it still parse.
     margin: Int.nullable().optional(),
     band: OutcomeBand.optional(),
+    // Spec 083: the SRD spell id of a spell.cast save.
+    spellId: z.string().optional(),
   }),
   z.object({
     type: z.literal("rest.completed"),
@@ -159,6 +163,8 @@ export const EngineEventSchema = z.discriminatedUnion("type", [
     components: z.array(DamageComponentResultSchema).nullable(),
     defensesSource: z.enum(["command", "record"]).nullable(),
     critical: z.boolean(),
+    // Spec 083: damage was halved (a successful save) before defenses.
+    half: z.literal(true).optional(),
     rollIndex: Int.nullable(),
     before: HpPair,
     after: HpPair,

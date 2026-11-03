@@ -27,6 +27,8 @@ function commandTypes(): string[] {
 const PLAN_GATE_ONLY = [
   "REASON_CONTRADICTS_STATE",
   "STEP_ACTOR_MISMATCH",
+  "SPELL_UNKNOWN",
+  "SPELL_NOT_PREPARED",
 ] as const;
 
 describe("coverage meta-test", () => {

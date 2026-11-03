@@ -711,6 +711,29 @@ async function runSteps(
         }
         break;
       }
+      case "spell": {
+        // Spec 083 D5: the engine rolls and applies every spell number.
+        const { outcomeBands, naturals } = run.ctx.seed.tableRules;
+        const caster = run.ctx.seed.characters.find(
+          (c) => c.identity.combatant.id === step.casterId,
+        );
+        const sub = await run.mech(
+          key,
+          {
+            type: "spell.cast",
+            casterId: step.casterId,
+            spellId: step.spellId,
+            targetId: step.targetId,
+            slotLevel: step.slotLevel,
+            casterLevel: caster?.identity.level ?? 1,
+            houseRules: { outcomeBands, naturals },
+          },
+          step.reason,
+          actionId,
+        );
+        take(sub);
+        break;
+      }
       case "attack": {
         const sub = await run.mech(
           key,
@@ -1406,6 +1429,16 @@ export const resolve: Node<"resolve"> = async (ctx) => {
       resumed: (assembled.resumed ?? []).map((plan) => plan.actionId),
       actors: actionActors(assembled),
       combatants: assembled.projections.engine.combatants,
+      spellLists: new Map(
+        ctx.seed.characters.map((c) => [
+          c.identity.combatant.id,
+          c.identity.spells,
+        ]),
+      ),
+      srdSpell: (id) => {
+        const rec = ctx.deps.srd.getById("spell", id);
+        return rec ? { level: rec.level } : undefined;
+      },
     });
     const verdictFor = (actionId: string | null) =>
       run.planGate.find((v) => v.actionId === actionId);

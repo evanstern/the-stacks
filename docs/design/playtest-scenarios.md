@@ -30,6 +30,7 @@ Every scenario checklist carries these rows until their card is Done. Drop a row
 | id | item | source |
 |----|------|--------|
 | S-sneak-attack | Sneak Attack is off (attack damage comes from the attack entry only, spec 082). Record whether a rogue's attack would have qualified, and TASK-0225's status. | TASK-0225 |
+| S-spells-refused | Spells the engine cannot resolve yet are refused (spec 083). Record which spells a player tried that were refused (Bless and Guidance especially), and the status of TASK-0226 to 0229. | TASK-0226, 0227, 0228, 0229 |
 
 ## Rule for runbook authors
 

@@ -16,7 +16,7 @@ function targetDead(id: string): RefusalResult {
   });
 }
 
-function appliedEvent(
+export function appliedEvent(
   c: Combatant,
   reason: string,
   instance: Omit<ConditionInstance, "instanceId">,

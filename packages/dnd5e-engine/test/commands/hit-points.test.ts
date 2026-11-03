@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import type { DamageType, DefenseSet } from "../../src/index.js";
+import { damageEvents } from "../../src/commands/hit-points.js";
+import {
+  type DamageType,
+  type DefenseSet,
+  type EngineEvent,
+  scriptedRng,
+} from "../../src/index.js";
 import {
   expectOk,
   expectRefusedBeforeDraw,
@@ -614,5 +620,35 @@ describe("temp-hp.grant", () => {
       ),
       "INVALID_DICE_EXPRESSION",
     );
+  });
+});
+
+describe("damage halving (spec 083)", () => {
+  const halve = (defenses: DefenseSet, value: number) => {
+    const target = makeCombatant({ defenses });
+    const events: EngineEvent[] = [];
+    const refusal = damageEvents(
+      target,
+      [fixed(value, "fire")] as never,
+      { critical: false, half: true, reason: "x" },
+      events,
+      scriptedRng([]),
+    );
+    expect(refusal).toBeNull();
+    return events[0];
+  };
+  it("an odd amount rounds down (9 -> 4)", () => {
+    expect(halve(none, 9)).toMatchObject({
+      amount: 4,
+      rawAmount: 4,
+      half: true,
+    });
+  });
+  it("half then resistance (9 -> 4 -> 2)", () => {
+    expect(halve({ ...none, resistances: ["fire"] }, 9)).toMatchObject({
+      amount: 2,
+      rawAmount: 4,
+      half: true,
+    });
   });
 });

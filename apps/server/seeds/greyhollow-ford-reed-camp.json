@@ -317,7 +317,8 @@
           "sacred-flame",
           "guidance",
           "healing-word",
-          "bless"
+          "bless",
+          "cure-wounds"
         ]
       },
       "portrayal": {
@@ -478,6 +479,7 @@
     }
   ],
   "opening": {
-    "framing": "The party reaches the end of the causeway as the light goes amber. Wenna Marsh keeps close with her boathook, and smoke from the goblins' reed-camp rises ahead."
+    "framing": "The party reaches the end of the causeway as the light goes amber. Wenna Marsh keeps close with her boathook, and smoke from the goblins' reed-camp rises ahead.",
+    "premise": "The party has followed whoever silenced the ferry bell down the causeway from Greyhollow Ford. They mean to have the ferry crossing again before full dark."
   }
 }

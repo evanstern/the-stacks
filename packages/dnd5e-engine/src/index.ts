@@ -11,6 +11,7 @@ export {
   firstMeleeAttack,
   foldMode,
   spellAttackBonus,
+  spellcastingModifier,
   spellSaveDc,
 } from "./derive.js";
 export type { DiceParseResult, DiceTerm } from "./dice.js";
@@ -62,3 +63,5 @@ export {
   SkillSchema,
 } from "./schema/state.js";
 export { activeCombatant, conditionsOf } from "./selectors.js";
+export type { SpellMechanics } from "./spells.js";
+export { SPELLS, SpellMechanicsSchema, spellDice } from "./spells.js";

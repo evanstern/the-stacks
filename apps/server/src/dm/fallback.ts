@@ -181,6 +181,8 @@ function changeSentence(c: FactChange): string | null {
       }
       if (c.after === "unconscious") return `${target} falls unconscious.`;
       return null;
+    case "spell-slot":
+      return null;
     case "death-saves":
       return c.failed
         ? `${target} slips closer to death.`
@@ -272,6 +274,23 @@ export function factualSummary(
   const out: string[] = [];
   if (facts.trigger === "scene-start" && facts.setting.openingFraming) {
     out.push(facts.setting.openingFraming);
+    // spec 076 OQ-2 (a): name everyone the opening must name.
+    const list = (xs: { name: string }[]): string => {
+      const n = xs.map((x) => spellDigits(x.name));
+      return n.length > 1
+        ? `${n.slice(0, -1).join(", ")} and ${n[n.length - 1]}`
+        : (n[0] ?? "");
+    };
+    if (facts.party.length > 0) {
+      out.push(
+        `${list(facts.party)} ${facts.party.length > 1 ? "are" : "is"} here.`,
+      );
+    }
+    if (facts.presentNpcs.length > 0) {
+      out.push(
+        `${list(facts.presentNpcs)} ${facts.presentNpcs.length > 1 ? "are" : "is"} here too.`,
+      );
+    }
   }
 
   const holdIds = new Set(facts.clarify.map((c) => c.actionId));

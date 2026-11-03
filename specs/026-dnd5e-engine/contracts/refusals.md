@@ -60,3 +60,9 @@ export const RefusalSchema = z.object({
 | 29 | `REACTION_SPENT` | An `attack.roll` with `reaction: true` whose attacker already spent its Reaction this round cycle. Raised before any die. Amended by spec 079 (TASK-0208) | `attack.roll` |
 
 | 31 | `STAT_UNDEFINED` | A derived `check.roll` or `attack.roll` whose combatant has no `stats`, no ability modifier, or no attack entry of that name. Raised before any die. Amended by specs/082-engine-derived-numbers (TASK-0104) | `attack.roll`, `check.roll` |
+
+## Amended by specs/083-spells-by-srd-id (TASK-0105)
+
+| 32 | `SPELL_UNRESOLVED` | `spell.cast` names a spell with no engine mechanics, a cantrip with a slot level, or a leveled spell cast below its level. Raised before any die | `spell.cast` |
+| 33 | `SPELL_UNKNOWN` | The DM plan gate found no SRD record for the spell id. Plan gate only; `execute` never returns it | none (the DM plan gate) |
+| 34 | `SPELL_NOT_PREPARED` | The DM plan gate found the spell absent from the caster's spell list. Plan gate only; `execute` never returns it | none (the DM plan gate) |

@@ -15,7 +15,7 @@ sources:
   - apps/server/src/dm/snapshot/build.ts
   - packages/session-model/src/gate/proposals.ts
   - packages/session-model/src/gate/plan.ts
-verified_against: ed3949ce7a0aa83c9dd732137ab346ad1df8b7e0
+verified_against: 9d2c6fae
 ---
 
 # Seed NPC presence
@@ -31,7 +31,7 @@ the DM pipeline is in [[dm-runtime]].
 `SceneSeedSchema` (`seed/schema.ts`) gives the scene `tableRules` (`outcomeBands`, `naturals` default true; `groupChecks` default false, spec 070) and every beat a required `presence`: a record from NPC
 id to `ScenePresenceSchema` (`present`, `yielded`, `absent`). There is no default, so a seed
 without it fails to load. `SeedNpc.identity` gains `aliases` (up to 6 strings of up to 60
-characters, default empty). `SeedCharacter.identity` gains required `class` (up to 40 characters) and `level` (1 to 20); the three seeds set them. Scene start copies both onto each `director:party:<id>` row's `after` (TASK-0164; `PartyMemberSchema` holds them as optional fields). `greyhollow-ford.json` declares all three NPCs in all three beats
+characters, default empty). Spec 083: the plan gate reads each character's `identity.spells` as the prepared list, and `resolve` reads `identity.level` as the spell `casterLevel`; Odo's list adds `cure-wounds`. `SeedCharacter.identity` gains required `class` (up to 40 characters) and `level` (1 to 20); the three seeds set them. Scene start copies both onto each `director:party:<id>` row's `after` (TASK-0164; `PartyMemberSchema` holds them as optional fields). `greyhollow-ford.json` declares all three NPCs in all three beats
 and aliases "the keeper" (`wenna`), "the boy" (`pell`) and "the goblin leader" (`snag`).
 Since spec 080, beat clue text is also the learned fact: a check step's `reveals` (`<beatId>#<n>`) names one clue, and resolve copies its text (`clueFor`) onto the submission. The ferry-house footprint clue names goblin feet.
 `greyhollow-ford-duo.json` (TASK-0163, `specs/054-two-player-alpha-kit/`) is the same scene with
@@ -87,7 +87,8 @@ Resolve builds these proposals, as it does every `scene-presence` proposal. Seed
 
 - `assemble` builds S0 first, then sets `presentNpcIds` to the seed NPCs (in seed order) whose
   snapshot actor does not read `absent`. It no longer collects `beats[].npcIds`.
-- `narrate` filters the beat's NPC ids, or `presentNpcIds` when no seed beat matches,
+- At scene start `narrate` takes the NPC ids from `seed.beats[0].presence` (every NPC not declared `absent`), not the Director's beat (spec 076; a loft NPC such as Wenna reaches the opening). Seeds also carry a required `opening.premise` (why the party is here), which the opening prompt reads.
+- Otherwise `narrate` filters the beat's NPC ids, or `presentNpcIds` when no seed beat matches,
   against the S1 snapshot and drops each actor that reads `absent`. It then withholds refused
   rulings, `goalNote` text and a monster `say` line ([[output-claim-gate]]; spec 081); this does not touch the NPC list.
 - `buildSnapshot` adds `identity.aliases` to the NPC actor's `aliases`

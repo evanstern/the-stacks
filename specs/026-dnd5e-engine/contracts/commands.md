@@ -295,3 +295,14 @@ Exactly one of `dc` and `difficulty`, else `INVALID_COMMAND`. Without `expressio
 modifier is derived from `stats` (`STAT_UNDEFINED` when it cannot be) and the mode is folded from
 conditions; a null combatant rolls flat `1d20`. An explicit `expression` keeps the old behaviour (no
 condition folding). `combatant.add`'s `CombatantInit` gains optional `stats`.
+
+## Amended by specs/083-spells-by-srd-id (TASK-0105)
+
+New command `spell.cast`: `casterId`, `spellId` (SRD id grammar), `targetId`, `slotLevel` (1..9 or
+`null` for a cantrip), `casterLevel` (1..20), optional `houseRules`, `reason`. The engine looks the
+spell up in its `SPELLS` table and resolves it in one result: spend the slot (the `spell-slot.expend`
+rules, standard pool else pact), roll the spell attack or the target's save at the caster's spell DC,
+then apply damage (half on a save when the table says so), healing (dice plus the spellcasting
+modifier) or a condition. Every refusal comes before any die. Refusals: `SPELL_UNRESOLVED`,
+`UNKNOWN_COMBATANT`, `TARGET_DEAD`, `ACTOR_UNABLE`, `STAT_UNDEFINED`, `SLOT_LEVEL_UNAVAILABLE`,
+`NO_SLOT_AVAILABLE`, `TARGET_AC_UNKNOWN`.
