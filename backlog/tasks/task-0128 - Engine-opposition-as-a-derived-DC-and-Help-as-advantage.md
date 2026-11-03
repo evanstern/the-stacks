@@ -30,11 +30,13 @@ Spec: specs/084-opposition-and-help
 - [ ] #2 A Help action grants advantage on the ally's next matching check and expires per SRD 5.2.1, with a test
 - [ ] #3 Interpret emits opposition and help as step kinds, and a schema test covers both
 - [x] #4 Spec phase: Seam check [orchestrator]
-- [ ] #5 Spec phase: Engine (card AC #1, #2; US1, US2)
+- [x] #5 Spec phase: Engine (card AC #1, #2; US1, US2)
 - [ ] #6 Spec phase: Step contract, prompts, plan gate and resolve (card AC #1, #3; US1, US3)
 - [ ] #7 Spec phase: Narration facts and end-to-end test (card AC #1–#3; US1, US2, US4)
 - [ ] #8 Spec phase: Re-ground (wiki)
 <!-- AC:END -->
+
+
 
 
 
