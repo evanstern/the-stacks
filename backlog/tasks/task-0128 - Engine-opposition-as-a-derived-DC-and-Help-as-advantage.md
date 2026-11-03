@@ -44,6 +44,8 @@ Claimed 2026-11-03 by M3 runbook B (docs/design/m3-runbook-b-resolution-quality.
 Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5 (spec 084 authoring, C1)
 
 spec-bridge sync: Seam check [orchestrator]: 0/1 · Engine (card AC #1, #2; US1, US2): 0/15 · Step contract, prompts, plan gate and resolve (card AC #1, #3; US1, US3): 0/11 · Narration facts and end-to-end test (card AC #1–#3; US1, US2, US4): 0/5 · Re-ground (wiki): 0/7
+
+Spec 084 (d781547f). Defaults (a) taken: OQ-1 opposition as a check difficulty variant {opposedBy, rule}; OQ-2 the formula for every opponent, stat-block escape DCs added to TASK-0224; OQ-3 an assist lasts until used, replaced, or an encounter ends; OQ-4 an assist fact in facts/narrate/fallback (fallback order: after 0204, before 0214); OQ-5 group checks carded; OQ-6 commit order. Held behind 0105 (merged #124); now unblocked.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
