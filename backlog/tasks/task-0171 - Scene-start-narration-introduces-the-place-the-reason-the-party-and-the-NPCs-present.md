@@ -45,14 +45,6 @@ Spec: specs/076-scene-start-intros
 - [x] #9 Spec phase: Wiki re-ground
 <!-- AC:END -->
 
-
-
-
-
-
-
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -74,6 +66,8 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (
 Seam check (phases 1-2): no seam changed meaning; narrate-v16; see deviations.md.
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 076 phase 4, wiki)
+
+spec-bridge sync: The opening premise (card AC #1; US1): 5/5 · The opening prompt (card AC #2, #5; US1, US2, US4): 5/5 · The name check, the fallback and the scripts (card AC #3, #4; US2, US3): 8/8 · Wiki re-ground: 5/5 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
