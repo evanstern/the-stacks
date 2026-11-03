@@ -491,6 +491,8 @@ describe("assemble: resume (specs/057)", () => {
           batchId: null,
           proposalId: "prop-roll",
           outcome: null,
+          band: null,
+          stakes: null,
           seqs: [],
         },
       ],

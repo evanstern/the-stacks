@@ -65,27 +65,27 @@ ends with `pnpm ci:check` green and one commit led by `TASK-0127:`. DB suites ru
 
 ## Phase 3: Resolve by band and the free retry (card AC #2, #3, #5; US1, US2, US3)
 
-- [ ] T022 [US1] Create `apps/server/src/dm/stakes.ts` with `effectsForBand`, `isFreeRetry` and
+- [x] T022 [US1] Create `apps/server/src/dm/stakes.ts` with `effectsForBand`, `isFreeRetry` and
       `consequenceFor` (plan D4).
-- [ ] T023 [US1] Create `apps/server/test/dm/stakes.test.ts`: each band's effect order; free retry
+- [x] T023 [US1] Create `apps/server/test/dm/stakes.test.ts`: each band's effect order; free retry
       true and false for each FR-014 condition (combatant, ability, skill, `newRisk`, `autoFail`,
       saving throw, earlier scene); `consequenceFor` per band.
-- [ ] T024 [US1] In `apps/server/src/dm/nodes/resolve.ts` `case "check"`, send `houseRules` from
+- [x] T024 [US1] In `apps/server/src/dm/nodes/resolve.ts` `case "check"`, send `houseRules` from
       `ctx.seed.tableRules`, send `autoSuccess` on a free retry, and apply `effectsForBand`. Add
       `band` and `stakes` to `Submission`. Fill `band` in `findLanded` and `outcomeOf`. Walk
       `onCost` and `onSevere` in `presenceTargets`.
-- [ ] T025 [US1] In `apps/server/src/dm/resume.ts` `refreshSubmission`, fill `band` from the
+- [x] T025 [US1] In `apps/server/src/dm/resume.ts` `refreshSubmission`, fill `band` from the
       approved batch.
-- [ ] T026 [US2] In `apps/server/test/dm/resolve.integration.test.ts`, add: margin −2 applies
+- [x] T026 [US2] In `apps/server/test/dm/resolve.integration.test.ts`, add: margin −2 applies
       `onSuccess` then `onCost`; margin −6 applies `onFailure` then `onSevere`; bands off applies
       only `onFailure`; naturals off on a seed override resolves a natural 20 by total (card AC #3).
-- [ ] T027 [US3] In `apps/server/test/dm/resolve.integration.test.ts`, add the free retry: a failed
+- [x] T027 [US3] In `apps/server/test/dm/resolve.integration.test.ts`, add the free retry: a failed
       check, then the same check with `newRisk: null`, gives one `check.resolved` with band
       `success`, no new `dice.rolled` row, and the success effects (card AC #5). A second case with
       `newRisk` set rolls.
-- [ ] T028 In `apps/server/test/dm/resume.test.ts`, assert a refreshed approved check carries its
+- [x] T028 In `apps/server/test/dm/resume.test.ts`, assert a refreshed approved check carries its
       band.
-- [ ] T029 Run `pnpm ci:check` and the DB suites with `REQUIRE_DATABASE=1`.
+- [x] T029 Run `pnpm ci:check` and the DB suites with `REQUIRE_DATABASE=1`.
 
 ## Phase 4: Facts, narration, audit, fallback, ledger view (card AC #2, #6; US1, US4)
 

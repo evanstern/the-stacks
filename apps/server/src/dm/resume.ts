@@ -127,6 +127,7 @@ export function refreshSubmission(
   if (view?.status !== "approved") return s;
   const batchId = view.decided?.batchId ?? null;
   let outcome: string | null = null;
+  let band: string | null = null;
   if (batchId !== null) {
     for (const r of p.ledger) {
       if (
@@ -137,8 +138,9 @@ export function refreshSubmission(
           r.outcome.type === "attack.resolved")
       ) {
         outcome = r.outcome.outcome;
+        band = "band" in r.outcome ? (r.outcome.band ?? null) : null;
       }
     }
   }
-  return { ...s, result: "applied", batchId, outcome, seqs: [] };
+  return { ...s, result: "applied", batchId, outcome, band, seqs: [] };
 }
