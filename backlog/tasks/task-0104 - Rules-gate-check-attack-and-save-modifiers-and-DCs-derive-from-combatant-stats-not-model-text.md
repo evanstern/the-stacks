@@ -25,6 +25,8 @@ Outcome: when the DM runtime resolves a check, attack or save, the engine comput
 Why: operator requirement 2026-10-26 (TASK-0102 card): rules with definitions must be deterministically defined and resolvable, and the AI must not invent them. Today interpret and adjudicate emit a free dice expression ('1d20+3') and a numeric dc on each check and attack step (apps/server/src/dm/nodes/schemas.ts StepSchema). The engine parses the expression, but the modifier and the DC are model-chosen. Found by the TASK-0102 gate audit (specs/033-director-robustness, rules-terms section).
 
 Scope: the source of stats is the scene seed's combatant records (apps/server/src/dm/seed/schema.ts), which already carry abilities and skills. TASK-0058 (m-4) later moves the source to the codex PC entity; this card does not build sheets. Engine-owned numbers per TASK-0042 R8.
+
+Spec: specs/082-engine-derived-numbers
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
