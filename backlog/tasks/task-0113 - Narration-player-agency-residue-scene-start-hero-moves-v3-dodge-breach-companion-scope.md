@@ -38,16 +38,6 @@ Spec: specs/074-player-agency
 - [x] #8 Spec phase: Facts, narrate, audit (card AC #1, #2; US2, US3; OQ-1 ruling)
 <!-- AC:END -->
 
-
-
-
-
-
-
-
-
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -82,6 +72,8 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (
 Spec 074 OQ-4 default taken (orchestrator, flagged to the operator): seq 82 'twists just enough' is a twist with intent (breach). If the operator rules it a flinch, drop 'just enough' from INTENT_MARKERS.
 
 Dispatch: tier=haiku pinned=cc/claude-haiku-5-5 served=claude-haiku-5-5 (spec 074 phase 3, wiki)
+
+spec-bridge sync: Rule source, Director, interpret, playtest auditor (card AC #3, #4, #5; US1, US4): 12/12 · Facts, narrate, audit (card AC #1, #2; US2, US3; OQ-1 ruling): 12/12 · Wiki (re-ground): 6/6 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
