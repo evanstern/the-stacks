@@ -4,7 +4,7 @@ title: A talk NPC turn that falls back says '<name> speaks up' instead of the li
 status: In Progress
 assignee: []
 created_date: '2026-11-02 23:04'
-updated_date: '2026-11-03 03:19'
+updated_date: '2026-11-03 03:20'
 labels:
   - dm
   - narration
@@ -40,6 +40,8 @@ Spec: specs/081-talk-fallback-line
 
 <!-- SECTION:NOTES:BEGIN -->
 Claimed 2026-11-02 by M3 runbook B (docs/design/m3-runbook-b-resolution-quality.md). Worktree .worktrees/task-0207, branch task-0207-talk-fallback-line, cut from origin/main b79489e2. Spec number 081 claimed with a stub. Spine #10.
+
+Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5 (spec 081 authoring, C1)
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
