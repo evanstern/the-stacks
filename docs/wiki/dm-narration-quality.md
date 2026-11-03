@@ -16,7 +16,7 @@ sources:
   - apps/server/src/dm/audit-words.ts
   - specs/034-narration-quality/contracts/audit-criteria.md
 size_budget_exempt: TASK-0113 adds the agency checks and reflex facts to the one narration-and-audit pipeline; it does not split without a TASK of its own (sibling notes dm-runtime and playtest-harness carry the same exemption)
-verified_against: f4726f9060fe3cdf0068926f26aec5ef734fee79
+verified_against: f660e9ba1d4b2d220b6b0aaf8ee94650002cb2ad
 ---
 
 # DM narration quality
@@ -44,7 +44,7 @@ with rolls and changes, `npcTurn`, director pacing, `modeChange`, present NPCs, 
 and turn changes, plus a `presence` fact from each `scene-presence.changed` row: name, new presence and reason; the name falls back to the seed NPC name) and `setting` (`locationName`, `openingFraming`). `party` stays for the audit's
 party-name filter and the fallback. The `npcNames` field is gone (TASK-0140): the world list
 now comes from the snapshot. A roll fact carries its `target`, and since spec 070 its `band`, `margin` and `consequence` (declared stakes text, by batch, every band since spec 080) and, on a success band, `revealed` (the clue text) when the check row has a band; a free retry reads `no roll needed: success`. The fallback voices the band, the consequence and the learned fact when `reasonSpeakable` passes each. `settled` holds the death saves rolled for combatants the turn passed (`FactSettled`; a `death-saves` change; the fallback says "holds on" or "slips closer to death"), and a turn with only settled facts is narrated. The talk path builds facts with `trigger: "talk"` and no actions, so the checks refuse digits and dice language ([[dm-talk-triggers]]). The talk path builds facts with `trigger: "talk"` and no actions ([[dm-talk-triggers]]). `factEntries` renders
-the facts for the prompt; `renderDiceLines` still renders every number. The narrate prompt renders a presence fact as `Event: <name> is now <presence> (<reason>)`, and the fallback says the actor arrives, leaves, flees, is removed, surrenders or concedes.
+the facts for the prompt; `renderDiceLines` still renders every number, including a joiner's initiative roll from `facts.pulled` (TASK-0213; the narrate prompt lists it as `Joined the fight`). The narrate prompt renders a presence fact as `Event: <name> is now <presence> (<reason>)`, and the fallback says the actor arrives, leaves, flees, is removed, surrenders or concedes.
 
 ## State sections from the snapshot
 
