@@ -38,7 +38,10 @@ Spec: specs/079-engine-opportunity-attack
 - [ ] #3 The fallback names the attacker as the subject of an attack's outcome ('The pot-helm goblin strikes home'), with a test replaying seq 154-161
 - [ ] #4 Narration never shows a followUp ('not yet attempted') as done, in a later beat either
 - [ ] #5 Spec phase: The engine owns reactions (card AC #1, engine part; US1 scenarios 3 and 4)
+- [ ] #6 Spec phase: A move away draws the engine's reaction (card AC #1 and #2, merge condition; US1, US2)
 <!-- AC:END -->
+
+
 
 
 
