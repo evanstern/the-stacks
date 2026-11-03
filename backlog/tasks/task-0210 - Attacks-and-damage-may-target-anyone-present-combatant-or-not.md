@@ -36,7 +36,10 @@ Spec: specs/075-attack-anyone
 - [ ] #2 An absent actor is still refused, with a test
 - [ ] #3 The spec 068 contract amendment and wiki notes record the reversal and cite this ruling
 - [ ] #4 Spec phase: The gate, its unit tests and the contract (card AC #1, #2, #3)
+- [ ] #5 Spec phase: The DB tests and the run 1 seq 45 replay (card AC #1, #2; merge condition)
 <!-- AC:END -->
+
+
 
 
 
