@@ -3,8 +3,9 @@
 **Input**: `specs/082-engine-derived-numbers/` (spec.md, plan.md), TASK-0104.
 
 **Prerequisites**: TASK-0127 (spec 070) and TASK-0170 (spec 080) have merged into `main`, and
-`main` is merged into this branch. The operator has ruled OQ-1 to OQ-7; the tasks below implement
-each at (a).
+`main` is merged into this branch. The operator ruled OQ-1 to OQ-7 at (a) on 2026-11-02; the tasks
+below implement each at (a). OQ-1's Sneak Attack is TASK-0225; OQ-2, OQ-3, OQ-7 are TASK-0222,
+TASK-0223, TASK-0224.
 
 **Dispatch**: one phase is one implementer dispatch (sonnet), re-grounded from this spec dir and the
 branch commits. Tasks marked **[orchestrator]** are run by the orchestrator. Each implementer phase
@@ -18,10 +19,12 @@ Phase 4 closes the full gate.
 
 ## Phase 0: Seam check [orchestrator]
 
-- [ ] T001 [orchestrator] Merge `origin/main` into the branch. Read the merged check step in
+- [x] T001 [orchestrator] Merge `origin/main` into the branch. Read the merged check step in
       `apps/server/src/dm/nodes/schemas.ts`, `specs/070-stakes-before-dice/deviations.md` and spec
       080's merged plan. Record any field rename or moved seam in a new
       `specs/082-engine-derived-numbers/deviations.md`, and amend plan.md D6 or D7 if a seam moved.
+      Done 2026-11-03: seams moved, none changed meaning; plan R3, R9, R10, R14, D3, D6, D7, D8
+      and the Phase 3 file list amended.
 
 ## Phase 1: Engine derivation (card AC #1, #2, #4, #5; US1, US2, US3, US4)
 
@@ -88,13 +91,15 @@ Phase 4 closes the full gate.
 ## Phase 3: Step contract, prompts, resolve and plan gate (card AC #1–#4; US1, US2, US3)
 
 - [ ] T024 [US1] In `apps/server/src/dm/nodes/schemas.ts`, apply plan D6 to the check and attack
-      steps: strict objects, `difficulty`, `circumstance`, `attack`, non-null `attackerId`, and the
-      `onHit` damage refusal.
+      steps: strict objects, `difficulty`, `circumstance`, `attack`, non-null `attackerId`. Add the
+      `onHit` damage refusal to the shared `requireAbilityStakes` helper (renamed `refineSteps`).
+      Keep spec 080's `reveals` and the spec 070 stakes fields.
 - [ ] T025 [US1] In `apps/server/src/dm/prompts/step-grammar.ts`, render the D9 step lines, the tier
       list from `DifficultySchema` with DCs, and the derivation rule. Drop the old modifier sentence.
-- [ ] T026 [US1] In `apps/server/src/dm/prompts/interpret.ts`, update `EXAMPLE_OUTPUT` and bump
-      `PROMPT_VERSION` one past `main`. Bump `PROMPT_VERSION` in `prompts/adjudicate.ts` one past
-      `main`.
+- [ ] T026 [US1] In `apps/server/src/dm/prompts/interpret.ts`, update `EXAMPLE_OUTPUT` (keep
+      `say: null` and `reveals`) and bump `PROMPT_VERSION` from `dm.interpret-v10` to
+      `dm.interpret-v11`. Bump `prompts/adjudicate.ts` from `dm.adjudicate-v7` to
+      `dm.adjudicate-v8`. If `main` has moved past either, go one past `main` and record it.
 - [ ] T027 [US2] In `apps/server/src/dm/nodes/resolve.ts`, apply plan D7 to `case "check"` and
       `case "attack"`, and pass the engine combatants to `checkPlan`.
 - [ ] T028 [US3] In `apps/server/src/dm/gates/plan-gate.ts`, add the `combatants` input, the
@@ -114,8 +119,9 @@ Phase 4 closes the full gate.
       tier list and the derivation rule, and that no grammar line shows `dc`, `targetAc` or a d20
       expression.
 - [ ] T034 In `apps/server/test/dm/resume.test.ts`, add: an old-shape paused reading is skipped.
-- [ ] T035 Update `first-stage.test.ts`, `rules-terms.test.ts`, `presence-effect.test.ts` and
-      `runner.test.ts` to the new step shapes.
+- [ ] T035 Update `first-stage.test.ts`, `rules-terms.test.ts`, `presence-effect.test.ts`,
+      `runner.test.ts`, `adjudicate.integration.test.ts` and `beat.integration.test.ts` to the new
+      step shapes. Edit `interpret-capture.test.ts` and `stakes.test.ts` only if they go red.
 - [ ] T036 Amend `specs/031-dm-runtime/contracts/nodes.md`, `resolve.md` and
       `specs/058-roll-reason-plan-gate/contracts/plan-reason-gate.md`, each marked "Amended by
       specs/082-engine-derived-numbers".

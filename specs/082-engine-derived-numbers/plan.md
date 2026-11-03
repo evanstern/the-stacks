@@ -3,8 +3,9 @@
 **Branch**: `task-0104-engine-derived-numbers` | **Date**: 2026-11-03 | **Spec**: [spec.md](spec.md)
 
 **Input**: `specs/082-engine-derived-numbers/spec.md`, TASK-0104 and its research notes, runbook B
-(`docs/design/m3-runbook-b-resolution-quality.md`, lane B3, spine #13, re-split R3). This plan
-assumes OQ-1 to OQ-7 at (a). It builds after TASK-0127 (spec 070) and TASK-0170 (spec 080) merge.
+(`docs/design/m3-runbook-b-resolution-quality.md`, lane B3, spine #13, re-split R3). The operator
+ruled OQ-1 to OQ-7 at (a) on 2026-11-02. It builds on merged TASK-0127 (spec 070), TASK-0170
+(spec 080) and TASK-0207 (spec 081). The T001 seam check is in `deviations.md`.
 
 Research, design and contracts live in this file, as in specs 064, 070 and 079. No separate
 research.md, data-model.md or quickstart.md.
@@ -74,8 +75,8 @@ Against `.specify/memory/constitution.md` 2.0.0. Re-checked after design: unchan
   skill and save totals equal mod + k × pb except two Stealth totals (giant-frog, shambling-mound);
   storing totals, not proficiency flags, derives both exactly.
 - **R3 — Seed attack ranges.** Seed attacks carry no range. Every shipped seed attack name is an
-  SRD weapon by name (Longsword, Light Crossbow, Mace, Shortbow, Shortsword;
-  `getByName("equipment", name)`), whose `rangeType` gives the range. A thrown melee weapon keeps
+  SRD weapon by name (Longsword, Light crossbow, Mace, Shortbow, Shortsword;
+  `getByName("equipment", name)`, which lowercases through `normalizeName`), whose `rangeType` gives the range. A thrown melee weapon keeps
   `melee`. The loader refuses a seed attack that is no SRD weapon (spec FR-011); a homebrew attack
   needs a seed field later (TASK-0058).
 - **R4 — Spellcasting ability.** The SRD class record has `spellcastingAbility` (cleric `wis`). The
@@ -125,11 +126,20 @@ Against `.specify/memory/constitution.md` 2.0.0. Re-checked after design: unchan
   Tier DCs are 5, 10, 15 and so on, so no old DC of 12 or 13 survives. Each migrated check picks the
   tier that keeps the scripted outcome and spec 070 band. Where no tier does, the scripted die
   changes. Any test asserting a dice line or a DC changes with it.
+
+  Re-checked at T001 against the scripts after specs 070, 080 and 081 merged: the same 21 files,
+  and each row above holds. Those specs added stakes, `onCost`, `onSevere`, `newRisk` and
+  `reveals` to each check and changed no expression, DC or mode. Ledger fixtures with `dc` on
+  `check.resolved` rows (`stakes-capture-*`, `claw-marks-*`, `playtest/fixtures/doctored/`) are
+  engine rows and are not migrated.
 - **R10 — Dice-count shifts.** A derived mode can draw a second d20 where the script drew one. Every
   attack on a downed PC (lifeState `unconscious` carries the `unconscious` condition,
   `hit-points.ts`) and every attack by or on a prone, restrained or poisoned combatant now rolls with
   a mode. The migration lists each such roll and inserts the extra scripted die. This is the main
-  source of migration effort.
+  source of migration effort. At T001 the scripts' only condition effects are Pell's `restrained`
+  removal (`free-pell.json`, `runbook-a-reed-camp.json`) and Tamsin's `prone`
+  (`human-dm-roll-chain.json`, with no later attack on her); the downed-PC attacks remain the
+  likely shifts.
 - **R11 — `downed-seat.json`.** Its Snag attack drops Tamsin (13 HP) with a fixed 13 damage in
   `onHit`, which the attack step no longer allows. The migrated script scripts a natural 20: the
   critical Scimitar deals `2d6+2`, and dice 6 and 5 give 13.
@@ -140,8 +150,8 @@ Against `.specify/memory/constitution.md` 2.0.0. Re-checked after design: unchan
 - **R13 — Plan gate inputs.** `checkPlan` sees S0 (`ActorSnapshot`), which carries no stats. It
   gains the engine combatants (`assembled.projections.engine.combatants`). Joining combatants (the
   Director's opening adds them this turn) are skipped, as their ids are today.
-- **R14 — Prompt versions.** On main today: interpret-v7, adjudicate-v5. Spec 070 bumps to v8 and v6;
-  0170 may bump again. This card bumps one past `main` at build time.
+- **R14 — Prompt versions.** On main at T001: interpret-v10, adjudicate-v7, narrate-v13, audit-v9.
+  This card bumps interpret to v11 and adjudicate to v8. Narrate and audit are not touched.
 
 ## Design
 
@@ -202,15 +212,19 @@ Frightened, prone-by-range and the 5-foot proxy carry `ponytail:` comments (OQ-6
 Refusal enum gains `STAT_UNDEFINED`. `check.resolved` gains `difficulty: DifficultySchema.optional()`;
 `attack.resolved` gains `attack: z.string().optional()`.
 
-`handleCheckRoll` order, before any draw:
+`handleCheckRoll` order, before any draw (merged spec 070 order, with derivation in the
+expression parse's slot):
 1. Exactly one of `difficulty` and `dc`, else `INVALID_COMMAND`. DC = `DIFFICULTY_DC[difficulty]`
    or `dc`.
-2. Existing named, dead and unable checks.
-3. With `expression`: parse it and roll with `command.mode`, as today (no condition folding).
-4. Without: `combatantId` null → `1d20` at `command.mode`. Else `checkModifier`; `{ok:false}` →
-   `STAT_UNDEFINED` with `{ combatantId, missing }`. Roll `d20Expression(mod)` at
-   `foldMode(command.mode, checkModeSources(...))`.
-5. Spec 070's auto-fail, auto-success, margin and band follow, using this DC.
+2. With `expression`: parse it and require a plain d20, as today. Its roll uses `command.mode`
+   (no condition folding).
+3. Existing named and unable checks.
+4. Without `expression`: `combatantId` null → `1d20` at `command.mode`. Else `checkModifier`;
+   `{ok:false}` → `STAT_UNDEFINED` with `{ combatantId, missing }`. The roll is
+   `d20Expression(mod)` at `foldMode(command.mode, checkModeSources(...))`.
+5. Spec 070's `check.resolved` base (now with the resolved DC and `difficulty`), the
+   `autoFail`+`autoSuccess` refusal, the auto paths, the roll, and `bandOf({ total, dc, natural,
+   kind, houseRules })` follow unchanged.
 
 `handleAttackRoll`: exactly one of `attack` and `expression`, else `INVALID_COMMAND`. With `attack`:
 `attackerId` non-null (else `INVALID_COMMAND`), `findAttack` (else `STAT_UNDEFINED`), roll
@@ -249,15 +263,24 @@ const Circumstance = z.object({ mode: z.enum(["advantage","disadvantage"]), reas
 //   (spec 070 and 0170 fields unchanged)
 // attack step: z.strictObject; removes expression, targetAc, mode; attackerId non-null; adds
 //   attack: z.string().min(1).max(60), circumstance: Circumstance,
-//   onHit: z.array(EffectSchema).max(4)   (min 1 dropped; superRefine refuses effect "damage")
+//   onHit: z.array(EffectSchema).max(4)   (min 1 dropped)
+// spec 080's reveals, stakes (success required), onCost, onSevere, newRisk stay as merged.
 ```
+
+The `onHit` damage refusal joins spec 070's shared `requireAbilityStakes(steps, ctx, base)`
+helper (renamed `refineSteps`), so `InterpretReadingSchema` and `AdjudicateModelOutput` both
+enforce it. The discriminated-union options stay plain strict objects.
 
 `Step` type follows. `first-stage.ts` compares kind, ability and skill only, so it needs no change.
 
 ### D7 — Resolve (`apps/server/src/dm/nodes/resolve.ts`)
 
 - `case "check"`: submit `{ type: "check.roll", combatantId, kind, ability, skill, difficulty, mode:
-  circumstance?.mode ?? "normal", autoFail, ...spec 070 fields }`. No expression, no DC.
+  circumstance?.mode ?? "normal", autoFail, houseRules, autoSuccess }`. No expression, no DC. Keep
+  as merged: `houseRules` from `seed.tableRules`, `autoSuccess` from `isFreeRetry(step,
+  fresh.ledger)`, `step.stakes` as `run.mech`'s fifth argument, the spec 080 `sub.reveals` /
+  `sub.revealedText` / `dm.reveals.unknown` block, and `effectsForBand(step, sub.band ??
+  sub.outcome)`.
 - `case "attack"`: submit `{ type: "attack.roll", attackerId, targetId, attack: step.attack, mode:
   circumstance?.mode ?? "normal", targetAc: null }`. On `hit` or `critical-hit`, read the attacker's
   entry (fresh projections, `findAttack`) and submit `damage.apply` at key `${key}:dmg` with its
@@ -271,7 +294,8 @@ const Circumstance = z.object({ mode: z.enum(["advantage","disadvantage"]), reas
 check with a non-null combatant and each attack, skipping joining ids: `checkModifier` or
 `findAttack` → `{ok:false}` refuses the group with code `STAT_UNDEFINED` and a `PlanFailure`
 (`field` `ability`, `skill` or `attack`; `reason: "stat-undefined"`). `stepTexts` adds
-`circumstance.reason` when non-null. `STAT_UNDEFINED` is an engine code, so the coverage meta-test
+`circumstance.reason` when non-null, beside spec 070's `stakeTexts`. `stepIds`'s `attack` case
+drops its null-`attackerId` guard (dead after FR-014). `STAT_UNDEFINED` is an engine code, so the coverage meta-test
 needs no `PLAN_GATE_ONLY` entry. Resolve passes `assembled.projections.engine.combatants`.
 
 ### D9 — Prompts
@@ -335,6 +359,9 @@ Every path below is the full list. A build that needs another file stops and ame
 - `apps/server/test/dm/interpret-prompt.test.ts`
 - `apps/server/test/dm/plan-gate.test.ts`
 - `apps/server/test/dm/first-stage.test.ts`
+- `apps/server/test/dm/adjudicate.integration.test.ts`, `beat.integration.test.ts` (hand-built
+  check steps)
+- `apps/server/test/dm/interpret-capture.test.ts`, `stakes.test.ts` (edit only if red)
 - `apps/server/test/dm/rules-terms.test.ts`
 - `apps/server/test/dm/presence-effect.test.ts`
 - `apps/server/test/dm/runner.test.ts`
@@ -391,14 +418,16 @@ fields), `first-stage.ts`, `snapshot/` (the sheet render already shows attack na
 
 ## Overlap
 
-- **TASK-0127 (spec 070)** edits the check step, `handleCheckRoll`, `case "check"`, `stepTexts`
-  and the fixtures. This card builds on its merged shape. Re-check its deviations.md and merged
-  `stakes.ts` before Phase 3; the band rule is untouched.
-- **TASK-0170 (spec 080)** edits the check step (`stakes.success`), `facts.ts`, `narrate.ts` and
-  `audit.ts`. Re-read its merged `schemas.ts` before Phase 3 and adapt D6 to it.
+- **TASK-0127 (spec 070), merged**: the check step, `handleCheckRoll`, `case "check"`,
+  `stepTexts` and the fixtures. Checked at T001; D3, D6, D7 and D8 follow its merged shape. The
+  band rule is untouched.
+- **TASK-0170 (spec 080), merged**: `stakes.success` required, `reveals`, `facts.ts`,
+  `narrate.ts`, `audit.ts`. Checked at T001; D6 keeps every field.
+- **TASK-0207 (spec 081), merged**: the reading's `say`, `fallback.ts`, `narrate.ts`. No seam with
+  this card.
 - **TASK-0208 (spec 079, merged)**: D5 replaces `meleeAttackOf`. Its tests move to `seed-stats` and
   `reactions` with the same expected numbers.
-- **TASK-0207, 0105, 0128, 0211** later edit `schemas.ts` and `resolve.ts`. Each rebases on this
+- **TASK-0105, 0128, 0211** later edit `schemas.ts` and `resolve.ts`. Each rebases on this
   card.
 
 ## Risks
@@ -406,7 +435,8 @@ fields), `first-stage.ts`, `snapshot/` (the sheet render already shows attack na
 - **Strict steps.** A model that still writes `dc` or `expression` now fails the parse and costs one
   repair re-ask. The prompt bump and the example remove the old fields; watch `invalid-output` on
   the next playtest.
-- **Lost class damage (OQ-1).** Sneak Attack and similar bonuses stop applying until TASK-0058.
+- **Lost class damage (OQ-1).** Sneak Attack and similar bonuses stop applying until TASK-0225
+  (after TASK-0058). The standing S-sneak-attack playtest row tracks it.
 - **Dice-count shifts (R10).** Condition-derived modes change how many scripted dice each roll
   draws. Phase 4 walks every script once and records each change in deviations.md.
 - **Live sessions (OQ-4).** A hosted session started before deploy refuses derived rolls until a new

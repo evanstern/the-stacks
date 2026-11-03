@@ -5,8 +5,9 @@
 **Created**: 2026-11-03
 
 **Status**: Draft. Spec only (M3 runbook B, lane B3, spine #13, re-split R3). Builds after TASK-0127
-(spec 070) and TASK-0170 (spec 080) merge. Open questions OQ-1 to OQ-7 carry a recommended default
-(a). This spec, plan.md and tasks.md are written against each (a).
+(spec 070) and TASK-0170 (spec 080) merge. The operator ruled OQ-1 to OQ-7 at (a) on 2026-11-02 (see Open questions).
+This spec, plan.md and tasks.md are written against each (a). The Phase 0 seam check (T001) ran
+against merged specs 070, 080 and 081; `deviations.md` records each moved seam.
 
 **Input**: TASK-0104. "When the DM runtime resolves a check, attack or save, the engine computes the
 roll's modifier from the combatant's stats and the DC or AC from the target's stats or an
@@ -41,25 +42,28 @@ questions below are scope edges the card leaves open; each has a default.
 2. **TASK-0127 (spec 070)** lands first. Its D1 step contract adds `stakes`, `onCost`, `onSevere`
    and `newRisk` to the check step. Its engine computes `margin = total − DC` and the band. This
    card supplies that DC from the model's difficulty tier; the band rule is unchanged.
-3. **TASK-0170 (spec 080)** lands first. It makes `stakes.success` required and carries the applied
-   outcome as fact. This spec assumes 0170 leaves `expression`, `mode`, `dc` and the attack step
-   alone. Where 0170's merged shape differs, the build follows 0170 and records it.
+3. **TASK-0170 (spec 080)** lands first. It makes `stakes.success` required, adds `reveals`, and
+   carries the applied outcome as fact. Merged 0170 left `expression`, `mode`, `dc` and the attack
+   step alone (T001, `deviations.md`).
 4. **TASK-0104 (this card)** removes every model-written number from check and attack steps.
 5. **Later consumers**: TASK-0105 (spells) reads the caster's spell attack bonus and spell save DC
    from the functions this card exports. TASK-0128 adds an opposition DC derived from the opponent's
    stats beside the tier. TASK-0058 (m-4) later replaces the seed as the PC stats source.
 
-### The check step after spec 070 (the shape this card starts from)
+### The check step after specs 070 and 080 (the shape this card starts from)
 
 ```
 { step: "check", reason, combatantId: id|null, kind: "ability-check"|"saving-throw",
   ability, skill: skill|null, expression: str, mode: roll mode, dc: int,
   autoFail: {reason}|null, onSuccess: [effect], onFailure: [effect],
-  stakes: {success, cost, failure, severe}, onCost: [effect], onSevere: [effect],
-  newRisk: str|null }
+  stakes: {success: str, cost: str|null, failure: str, severe: str|null},
+  reveals: clue ref|null, onCost: [effect], onSevere: [effect], newRisk: str|null }
 ```
 
-The attack step is unchanged by 070 and 0208:
+`stakes.success` is required (spec 080). An ability check needs `cost` and `severe`
+(`requireAbilityStakes`, spec 070). Spec 081's `say` is a reading field, not a step field.
+
+The attack step is unchanged by 070, 080, 081 and 0208:
 `{ step: "attack", reason, attackerId: id|null, targetId, expression, mode, targetAc: int|null, onHit: [effect] }`.
 
 ### What this card removes and adds
@@ -69,7 +73,7 @@ The attack step is unchanged by 070 and 0208:
 | `check` | `expression` (the modifier), `dc`, `mode` | `difficulty` (a tier), `circumstance` (`{mode, reason}` or null) |
 | `attack` | `expression` (the to-hit), `targetAc`, `mode`, damage effects in `onHit`, a null `attackerId` | `attack` (an attack name from the attacker's stats), `circumstance` |
 
-Every spec 070 and 0170 field stays.
+Every spec 070 and 080 field stays, `reveals` included.
 
 ## Background: what happens today
 
@@ -343,39 +347,45 @@ harness integration test.
 
 - **OQ-1 — Attack damage.** (a) Damage comes from the attack entry; `onHit` refuses damage effects.
   Class features with extra damage (Kestrel's Sneak Attack) stop applying until sheets carry them
-  (TASK-0058). (b) Keep model-written damage in `onHit`; derive only the to-hit. **Default (a)**:
-  it matches spec 079's reaction path and the rule that no number is model-written.
+  (TASK-0058). (b) Keep model-written damage in `onHit`; derive only the to-hit. **Resolved (a),
+  operator 2026-11-02**: "I'm okay with stats-only as long as the rule for Sneak Attack is
+  something that's going to come later. I don't want to miss it, and I think there's a better time
+  to handle it (when we handle other abilities, maybe) but I do not want to lose it either".
+  Sneak Attack is carded as TASK-0225 (m-4, after TASK-0058). Each playtest scenario carries a
+  standing S-sneak-attack row (`docs/design/playtest-scenarios.md`) until TASK-0225 is Done.
 - **OQ-2 — Condition auto-fail and auto-crit.** SRD paralyzed, petrified, stunned and unconscious
   make Strength and Dexterity saves fail, and a melee hit on a paralyzed or unconscious target is a
   critical hit. (a) Out of scope here; card a follow-up (it changes R8's "the engine does not
-  derive automatic failure"). (b) Include now. **Default (a).**
+  derive automatic failure"). (b) Include now. **Resolved (a), carded as TASK-0222.**
 - **OQ-3 — Other model-written dice.** The `roll` step's expression, and the `Amount` of damage and
   heal effects in effect steps and check effect lists, stay model-written. (a) Out of scope; card a
   follow-up for environmental damage and healing amounts (spell amounts are TASK-0105). (b) Include.
-  **Default (a).**
+  **Resolved (a), carded as TASK-0223.**
 - **OQ-4 — Sessions started before this card.** Their combatants have no stats. (a) Refuse with
   `STAT_UNDEFINED`; the operator starts a new scene. (b) Add a `combatant.stats` backfill command.
-  **Default (a)**: hosted dev sessions are short-lived.
+  **Resolved (a), default accepted**: hosted dev sessions are short-lived.
 - **OQ-5 — Paused plans from before this card.** (a) Resume drops a reading that fails the new step
   schema; the action is interpreted again, and an already approved roll stays on the ledger. (b) A
-  legacy-step branch in resolve. **Default (a)**: it only bites across one deploy.
+  legacy-step branch in resolve. **Resolved (a), default accepted**: it only bites across one
+  deploy.
 - **OQ-6 — Proxies without positions.** (a) Frightened applies with no line-of-sight test; prone uses
   the entry's range as the 5-foot proxy (`melee-or-ranged` counts as melee); grappled is not
-  derived. (b) Derive none of the position-dependent rules. **Default (a)**, each proxy marked
-  `ponytail:` in code.
+  derived. (b) Derive none of the position-dependent rules. **Resolved (a), default accepted**,
+  each proxy marked `ponytail:` in code.
 - **OQ-7 — Saves a monster feature calls.** An SRD monster feature can name its own save DC (for
   example a breath weapon). (a) The model still picks the tier nearest the narrated effect; card a
   follow-up that reads feature DCs from the record (beside TASK-0105's spell DCs). (b) Add a
-  `feature` field to the check step now. **Default (a)**: no shipped seed monster has a save
-  feature.
+  `feature` field to the check step now. **Resolved (a), carded as TASK-0224**: no shipped seed
+  monster has a save feature.
 
 ## Assumptions
 
-- TASK-0127 (spec 070) and TASK-0170 (spec 080) have merged. Prompt versions bump one past whatever
-  is on `main` at build time.
+- TASK-0127 (spec 070), TASK-0170 (spec 080) and TASK-0207 (spec 081) have merged. Main is at
+  interpret-v10 and adjudicate-v7; this card bumps them to v11 and v8. If another card bumps
+  either first, the build goes one past `main` and records it in `deviations.md`.
 - The seed's `identity` stats are operator-authored sheet data, not model output. TASK-0058 later
   moves the source to the codex PC entity; only the stats builder changes then.
 - No migration: stats ride the existing `combatant.added` JSON payload; new event fields are
   optional.
-- Every shipped seed attack is an SRD weapon by name (Longsword, Light Crossbow, Mace, Shortbow,
-  Shortsword), and every shipped encounter monster has an SRD attack action.
+- Every shipped seed attack is an SRD weapon by name (Longsword, Light crossbow, Mace, Shortbow,
+  Shortsword; `getByName` matches case-insensitively), and every shipped encounter monster has an SRD attack action.
