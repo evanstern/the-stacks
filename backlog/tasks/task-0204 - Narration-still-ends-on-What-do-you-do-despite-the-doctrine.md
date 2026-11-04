@@ -4,7 +4,7 @@ title: Narration still ends on "What do you do?" despite the doctrine
 status: In Progress
 assignee: []
 created_date: '2026-11-02 20:30'
-updated_date: '2026-11-03 09:37'
+updated_date: '2026-11-04 03:15'
 labels:
   - dm
   - narration
@@ -40,6 +40,8 @@ Claimed 2026-11-03 by M3 runbook B (docs/design/m3-runbook-b-resolution-quality.
 Dispatch: tier=haiku pinned=cc/claude-haiku-5-5 served=claude-haiku-5-5 (E4 implementation)
 
 AC #1: deterministic blocking check in nodes/audit.ts (final sentence is the literal 'What do you do?', incl. 'all'/'two' forms); no exemption. Orchestrator review found TASK-0205's otherPlayerQuestion ended on the banned phrase; it now asks 'What does <Declarer> do instead?'. Gates on the final tree green. AC #2 (hosted 10+ turns) ticks at the runbook B playtest; card stays In Progress until then (runbook rule).
+
+Playtest ceiling (runbook B playtest, 2026-11-03), operator's words: "Play it, ceiling $100".
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
