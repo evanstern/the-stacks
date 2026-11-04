@@ -4,7 +4,7 @@ title: Haiku dm.audit and dm.chronicle return invalid-json on the first attempt
 status: In Progress
 assignee: []
 created_date: '2026-11-02 19:42'
-updated_date: '2026-11-02 23:47'
+updated_date: '2026-11-04 03:15'
 labels:
   - dm
   - playtest
@@ -43,6 +43,8 @@ Claimed 2026-11-02 by M3 runbook B (docs/design/m3-runbook-b-resolution-quality.
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (E1 implementation)
 
 AC #1 cause (2f9b45c4): confirmed from code, the parser accepted only a bare object or a whole-reply fence; prose around the object, a fence wrapped in prose, or an unclosed think block (stripThink skips those by spec 063 contract) threw. Which shape the 9router haiku route sends is inferred, not confirmed (no reply text in the ledger). Fix: strict parse, then the single top-level object by a string-aware scan; ambiguous output still rejected. Each unparsable attempt now logs dm.call.invalid-json with a bounded head/tail excerpt, so the next hosted run shows the real shape. AC #2 waits for runbook B's playtest.
+
+Playtest ceiling (runbook B playtest, 2026-11-03), operator's words: "Play it, ceiling $100".
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
