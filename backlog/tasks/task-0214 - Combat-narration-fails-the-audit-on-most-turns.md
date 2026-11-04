@@ -4,7 +4,7 @@ title: Combat narration fails the audit on most turns
 status: In Progress
 assignee: []
 created_date: '2026-11-02 23:22'
-updated_date: '2026-11-03 11:23'
+updated_date: '2026-11-04 03:15'
 labels:
   - dm
   - narration
@@ -57,6 +57,8 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (
 spec-bridge sync: Only the on-turn actor acts (US1; FR-001 to FR-004): 10/10 · Feelings, endings and the goal note (US2–US4; FR-005 to FR-010): 8/8 · Replay run 1 (US5; card AC #2, FR-011, FR-013): 2/2 · Wiki re-ground: 6/6 — status In Progress → Done
 
 AC #2: combat-audit-replay.test.ts replays seq 103, 126, 131, 161, 196 (rebuilt from the playtest log). Pre-audit block proven in audit.test.ts (no dm.audit call on an off-turn-act attempt). Gates on the final tree, two full runs: green. AC #1 (70%+ first-attempt pass on a hosted 15+ combat-turn run) ticks at the runbook B playtest; card stays In Progress until then.
+
+Playtest ceiling (runbook B playtest, 2026-11-03), operator's words: "Play it, ceiling $100".
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
