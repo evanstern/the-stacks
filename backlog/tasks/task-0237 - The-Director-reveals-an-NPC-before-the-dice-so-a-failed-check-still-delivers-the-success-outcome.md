@@ -27,6 +27,8 @@ Outcome: a reveal that depends on a check happens only when the check's band all
 Why: runbook B playtest run 1 (2026-11-03, session 729a6c5c, seq 43-51). Kestrel: 'I look and listen across the reeds for anything moving.' The Director ran before the dice, set arrivals [pell] and wrote the goal note 'Reward the scan with one true thing: Pell alive at the post'. Interpret declared the check's success outcome as 'She spots Pell alive…' and its failure outcome as 'The reeds and dusk give up nothing clear'. Kestrel rolled 3+3 = 6 vs DC 15, severe failure. The narration delivered the severe outcome (the lookout turns) AND revealed Pell: 'Yet the reeds give one mercy first … Pell, alive', and seq 46 set Pell present. The audit passed it (no ledger-mismatch). Spec 078 (TASK-0206) put arrivals on the Director, which runs before resolve; spec 070/080 (TASK-0127, 0170) fix outcomes before the roll. The two collide when a reveal is the check's stake.
 
 Related: TASK-0206 (arrivals), TASK-0170 (declared outcome), TASK-0221 (lexical delivery check revisit), TASK-0113 (Director must not decide what the dice decide).
+
+Spec: specs/089-reveal-waits-for-dice
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
