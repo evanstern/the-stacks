@@ -180,6 +180,8 @@ export interface NarrationFacts {
   npcTurn: FactNpcTurn | null;
   /** Whose beat this is and who acts after it; set only in turn mode (spec 071). */
   turn?: { actor: string; next: string | null; offTurn?: string[] };
+  /** Party actions held for an off-turn companion's turn (TASK-0244); omitted when none. */
+  held?: { name: string; text: string }[];
   /** Rolls from NPCs an action pulled into the scene (TASK-0213); omitted when none. */
   pulled?: FactSettled[];
   /** Settled death-save turns (TASK-0112); omitted when settling rolled nothing. */
@@ -723,6 +725,7 @@ export function buildNarrationFacts(input: BuildFactsInput): NarrationFacts {
       revealedByBatch.set(s.batchId, s.revealedText);
   }
   const actions: FactAction[] = [];
+  const held: { name: string; text: string }[] = [];
   for (const item of input.beat) {
     const result = input.resolve.actionResults.find(
       (r) => r.actionId === item.actionId,
@@ -731,6 +734,10 @@ export function buildNarrationFacts(input: BuildFactsInput): NarrationFacts {
     let outcome: FactAction["outcome"];
     let refusalCode: string | null = null;
     if (result) {
+      if (result.outcome === "held") {
+        held.push({ name: nameOf(result.heldFor ?? null), text: item.text });
+        continue;
+      }
       if (result.outcome === "awaiting-dm") continue;
       outcome = result.outcome;
       refusalCode = result.refusalCode;
@@ -798,6 +805,14 @@ export function buildNarrationFacts(input: BuildFactsInput): NarrationFacts {
         ...a.rolls.map((r) => r.name),
       ]),
       ...(npcTurn?.rolls.map((r) => r.name) ?? []),
+      // TASK-0244: every actor a ran group's steps name is on turn.
+      ...input.resolve.actionResults.flatMap((r) =>
+        r.outcome === "applied" ||
+        r.outcome === "refused" ||
+        r.outcome === "no-effect"
+          ? (r.stepActors ?? []).map(nameOf)
+          : [],
+      ),
     ]);
     const offTurn = (p.encounter?.order ?? [])
       .filter((o) => {
@@ -895,6 +910,7 @@ export function buildNarrationFacts(input: BuildFactsInput): NarrationFacts {
     actions,
     npcTurn,
     ...(turn ? { turn } : {}),
+    ...(held.length > 0 ? { held } : {}),
     ...(pulled.length > 0 ? { pulled } : {}),
     ...(settled.length > 0 ? { settled } : {}),
     ...(openFollowUps.length > 0 ? { openFollowUps } : {}),

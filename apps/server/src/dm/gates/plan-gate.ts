@@ -40,7 +40,8 @@ export type PlanFailureReason =
   | "stat-undefined"
   | "spell-unknown"
   | "spell-not-prepared"
-  | "spell-unresolved";
+  | "spell-unresolved"
+  | "off-turn";
 
 export interface PlanFailure {
   stepIndex: number;
@@ -65,6 +66,12 @@ export type ReasonRefusalCode = typeof REASON_REFUSAL_CODE;
  */
 export const ACTOR_REFUSAL_CODE =
   "STEP_ACTOR_MISMATCH" as const satisfies RefusalCode;
+
+/**
+ * The plan-gate literal of a party group held for an off-turn AI companion
+ * (TASK-0244). Not a `RefusalCode`; it never reaches an event.
+ */
+export const TURN_HELD_CODE = "TURN_HELD" as const;
 
 /**
  * The refusal code of a group whose step the stats cannot derive (spec 082 D8):
@@ -118,6 +125,13 @@ export type PlanVerdict =
       ok: false;
       code: typeof STAT_REFUSAL_CODE | SpellRefusalCode;
       failure: PlanFailure;
+    }
+  | {
+      actionId: string | null;
+      ok: false;
+      code: typeof TURN_HELD_CODE;
+      /** The off-turn companion's combatant id. */
+      heldFor: string;
     };
 
 export interface PlanInput {
@@ -419,6 +433,67 @@ function foreignActor(
   return null;
 }
 
+/** The distinct actor ids a plan's steps name, in step order (TASK-0244). */
+export function stepActors(steps: readonly Step[]): string[] {
+  const out: string[] = [];
+  for (const step of steps) {
+    const id =
+      step.step === "attack"
+        ? step.attackerId
+        : step.step === "spell"
+          ? step.casterId
+          : step.step === "help"
+            ? step.helperId
+            : step.step === "move"
+              ? step.combatantId
+              : null;
+    if (id !== null && !out.includes(id)) out.push(id);
+  }
+  return out;
+}
+
+/**
+ * TASK-0244: in turn mode a party group naming an off-turn AI companion is
+ * held (the companion is the only actor) or refused (mixed actors).
+ * ponytail: only AI companions are held (OQ-2); a human PC named off turn
+ * still acts. Extend the off-turn set to human party members when a playtest
+ * shows it.
+ */
+function heldFor(
+  steps: readonly Step[],
+  snapshot: ActorSnapshot,
+  ownActors: ReadonlySet<string>,
+): { held: string } | { offTurn: PlanFailure } | null {
+  const enc = snapshot.stage.encounter;
+  if (snapshot.stage.tableMode.mode !== "turn" || !enc) return null;
+  const order = new Set(enc.order);
+  const offTurn = new Set<string>();
+  for (const a of snapshot.actors) {
+    const id = a.combatantId;
+    if (
+      a.kind === "party" &&
+      a.controller.kind === "ai-companion" &&
+      a.lifeState === "conscious" &&
+      id &&
+      (order.has(a.id) || order.has(id)) &&
+      (id !== enc.activeCombatantId || ownActors.has(id))
+    ) {
+      offTurn.add(id);
+    }
+  }
+  const named = stepActors(steps);
+  if (!named.some((id) => offTurn.has(id))) return null;
+  const only = named[0];
+  if (named.length === 1 && only !== undefined) return { held: only };
+  const stepIndex = steps.findIndex((s) =>
+    stepActors([s]).some((id) => offTurn.has(id)),
+  );
+  const id = named.find((n) => offTurn.has(n)) ?? "";
+  return {
+    offTurn: { stepIndex, field: "actor", id, reason: "off-turn" },
+  };
+}
+
 /** Spec 082 D8: the first check or attack whose number the stats cannot derive. */
 function statGap(
   steps: readonly Step[],
@@ -646,6 +721,33 @@ export function checkPlan(input: PlanInput): PlanVerdict[] {
         failure: actorFailure,
       });
       continue;
+    }
+    // TASK-0244: a party group naming an off-turn AI companion waits or is refused.
+    if (actionId !== null && input.actors?.get(actionId) === null) {
+      const own = new Set<string>();
+      for (const k of groups.keys()) {
+        const o = k === null ? null : input.actors.get(k);
+        if (o) own.add(o);
+      }
+      const h = heldFor(steps, snapshot, own);
+      if (h && "held" in h) {
+        verdicts.push({
+          actionId,
+          ok: false,
+          code: TURN_HELD_CODE,
+          heldFor: h.held,
+        });
+        continue;
+      }
+      if (h) {
+        verdicts.push({
+          actionId,
+          ok: false,
+          code: ACTOR_REFUSAL_CODE,
+          failure: h.offTurn,
+        });
+        continue;
+      }
     }
     for (const [stepIndex, step] of steps.entries()) {
       for (const { field, id, presenceReason } of stepIds(step)) {

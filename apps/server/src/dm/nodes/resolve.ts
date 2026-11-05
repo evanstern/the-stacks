@@ -25,6 +25,8 @@ import {
   encounterToStart,
   joiningCombatants,
   type PlanVerdict,
+  stepActors,
+  TURN_HELD_CODE,
 } from "../gates/plan-gate.js";
 import type { TurnCheckpoint } from "../jobs.js";
 import type { Node, NodeError, TurnContext } from "../pipeline/context.js";
@@ -85,7 +87,12 @@ export interface Submission {
   seqs: number[];
 }
 
-export type ActionOutcome = "applied" | "refused" | "no-effect" | "awaiting-dm";
+export type ActionOutcome =
+  | "applied"
+  | "refused"
+  | "no-effect"
+  | "awaiting-dm"
+  | "held";
 
 export interface ResolveOutput {
   submissions: Submission[];
@@ -99,10 +106,14 @@ export interface ResolveOutput {
      * from `batchIds`, which decide the outcome: a pull never makes an action "applied".
      */
     pullBatchIds?: string[];
+    /** TASK-0244: a `held` group waits for this companion's combatant id. */
+    heldFor?: string;
+    /** TASK-0244: the combatant ids the group's steps name (a group that ran). */
+    stepActors?: string[];
   }[];
   appendedRows: StoredEvent[];
   nextJob:
-    | { kind: "turn"; trigger: "npc-turn" }
+    | { kind: "turn"; trigger: "npc-turn" | "held" }
     | {
         kind: "companion";
         companions: string[];
@@ -1293,6 +1304,16 @@ async function resolveAction(
   verdict: PlanVerdict | undefined,
 ): Promise<ResolveOutput["actionResults"][number]> {
   const { steps, clarify } = actionGroupSteps(reading, ruling);
+  // TASK-0244: a held group runs no step and writes no row; it stays committed.
+  if (verdict && !verdict.ok && verdict.code === TURN_HELD_CODE) {
+    return {
+      actionId: item.actionId,
+      outcome: "held",
+      batchIds: [],
+      refusalCode: null,
+      heldFor: verdict.heldFor,
+    };
+  }
   const planRefused = verdict !== undefined && !verdict.ok;
   const pullBatchIds =
     verdict?.ok && !clarify
@@ -1356,6 +1377,9 @@ async function resolveAction(
     batchIds,
     refusalCode,
     ...(pullBatchIds.length > 0 ? { pullBatchIds } : {}),
+    ...(!planRefused && stepActors(steps).length > 0
+      ? { stepActors: stepActors(steps) }
+      : {}),
   };
 }
 
@@ -1572,9 +1596,21 @@ export const resolve: Node<"resolve"> = async (ctx) => {
                 !clarifyHeld.has(b.actionId) &&
                 actionResults.some(
                   (r) =>
-                    r.actionId === b.actionId && r.outcome !== "awaiting-dm",
+                    r.actionId === b.actionId &&
+                    r.outcome !== "awaiting-dm" &&
+                    r.outcome !== "held",
                 ),
-            );
+            ) ||
+            // TASK-0244: a released held group ends the companion's turn.
+            (mode.activeActor.startsWith("ai:companion:") &&
+              activeAtStart !== null &&
+              actionResults.some(
+                (r) =>
+                  (r.outcome === "applied" ||
+                    r.outcome === "refused" ||
+                    r.outcome === "no-effect") &&
+                  r.stepActors?.includes(activeAtStart),
+              ));
           if (done) {
             // One "turn moved" guard (specs/049-turn-floor R7, with spec 048).
             const fresh = await ctx.deps.loadProjections(ctx.job.sessionId);
@@ -1645,11 +1681,28 @@ export const resolve: Node<"resolve"> = async (ctx) => {
       tm.activeActor.startsWith("ai:companion:") &&
       tm.activeCharacterId
     ) {
-      nextJob = {
-        kind: "companion",
-        companions: [tm.activeCharacterId],
-        reason: "turn",
-      };
+      // TASK-0244: a held group waits for this companion. Its turn job releases it.
+      // ponytail: a floor pass or a human mode row (floor.ts, enqueue.ts) still
+      // queues the companion job; R1 then holds the group again because the
+      // companion has its own action, so it waits a round. Read the newest
+      // checkpoint's held verdicts in the companion job when a playtest shows it.
+      // ponytail: a held group is interpreted again each beat (R3). Cache its
+      // reading in the checkpoint when the token cost shows in a playtest.
+      const activeNow = (await ctx.deps.loadProjections(ctx.job.sessionId))
+        .encounter?.activeCombatantId;
+      if (
+        activeNow !== undefined &&
+        actionResults.some(
+          (r) => r.outcome === "held" && r.heldFor === activeNow,
+        )
+      ) {
+        nextJob = { kind: "turn", trigger: "held" };
+      } else
+        nextJob = {
+          kind: "companion",
+          companions: [tm.activeCharacterId],
+          reason: "turn",
+        };
     }
   } else if (
     !hold &&

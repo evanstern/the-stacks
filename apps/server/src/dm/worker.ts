@@ -416,7 +416,7 @@ export function createDmWorker(deps: DmWorkerDeps): DmWorker {
         await enqueueTurn(
           db,
           job.sessionId,
-          "npc-turn",
+          esc.trigger,
           latest.lastSeq || null,
         );
       } else if (esc?.kind === "companion") {

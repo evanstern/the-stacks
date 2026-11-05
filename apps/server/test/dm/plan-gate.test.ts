@@ -1455,3 +1455,82 @@ describe("askUndeclared: help (spec 084 D12)", () => {
     expect(r.asked).toEqual([]);
   });
 });
+
+describe("checkPlan turn hold (TASK-0244)", () => {
+  const party = new Map<string, string | null>([["p1", null]]);
+  const cure = { spellId: "cure-wounds", slotLevel: 1 };
+  const tamsinCast = () =>
+    read("p1", [spellStep("tamsin", { ...cure, casterId: "tamsin" })]);
+  const odoSpell = () => read("p1", [spellStep("tamsin", cure)]);
+  const codeOf = (v: ReturnType<typeof checkPlan>) =>
+    (v[0] as { code?: string }).code;
+  const withActive = (
+    active: string,
+    patch: (s: typeof snapshot) => void = () => {},
+  ) => {
+    const s = structuredClone(snapshot);
+    if (s.stage.encounter) s.stage.encounter.activeCombatantId = active;
+    patch(s);
+    return s;
+  };
+  const held = (s: typeof snapshot, extra = {}) =>
+    plan([odoSpell()], { snapshot: s, actors: party, ...extra });
+
+  it("holds a party action whose only actor is an off-turn companion", () => {
+    expect(held(snapshot)[0]).toEqual({
+      actionId: "p1",
+      ok: false,
+      code: "TURN_HELD",
+      heldFor: "odo",
+    });
+  });
+  it("holds when the companion is active but has its own group", () => {
+    const s = withActive("odo");
+    const v = plan([odoSpell(), read("a1", [attackStep("goblin-2")])], {
+      snapshot: s,
+      actors: new Map<string, string | null>([
+        ["p1", null],
+        ["a1", "odo"],
+      ]),
+    });
+    expect(v.find((x) => x.actionId === "p1")).toMatchObject({
+      code: "TURN_HELD",
+    });
+  });
+  it("does not hold the active companion with no own group", () => {
+    expect(codeOf(held(withActive("odo")))).not.toBe("TURN_HELD");
+  });
+  it("does not hold in free mode", () => {
+    const s = withActive("snag", (x) => {
+      x.stage.tableMode = { mode: "free" };
+    });
+    expect(codeOf(held(s))).not.toBe("TURN_HELD");
+  });
+  it("does not hold a downed companion", () => {
+    const s = withActive("snag", (x) => {
+      const a = x.actors.find((y) => y.combatantId === "odo");
+      if (a) a.lifeState = "unconscious";
+    });
+    expect(codeOf(held(s))).not.toBe("TURN_HELD");
+  });
+  it("refuses a companion mixed with another actor", () => {
+    const v = plan([odoSpell()], {
+      snapshot,
+      actors: party,
+    });
+    expect(v[0]).toMatchObject({ code: "TURN_HELD" });
+    const mixed = plan(
+      [read("p1", [spellStep("tamsin", cure), attackStep("goblin-2")])],
+      { snapshot, actors: party },
+    );
+    expect(mixed[0]).toMatchObject({
+      ok: false,
+      code: "STEP_ACTOR_MISMATCH",
+      failure: { reason: "off-turn" },
+    });
+  });
+  it("leaves a human-only party group unchanged", () => {
+    const v = plan([tamsinCast()], { snapshot, actors: party });
+    expect(codeOf(v)).not.toBe("TURN_HELD");
+  });
+});

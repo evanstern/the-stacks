@@ -261,3 +261,16 @@ the `success` band and falls back from a null `severe` to `failure`. No effect o
 - A `check` step with an opposition `difficulty` submits `check.roll` with `opposition: { opponentId, rule }`
   and no `difficulty`. A tier string submits `difficulty` as before.
 - `help` submits one `help.grant` with `helperId` and `assist`, with the step's `reason`. No effects follow.
+
+## Amended by specs/087-companion-own-turn (TASK-0244)
+
+- `ActionOutcome` gains `held`. A group with the `TURN_HELD` verdict returns `{ outcome: "held", heldFor }`
+  before any pull, step or `action.resolve` submission. It writes no row and stays committed, so every later
+  beat reads and gates it again.
+- A result for a group that ran carries `stepActors?: string[]`: the combatant ids its steps name.
+- Turn advance: a `held` result never counts as the active character's finished action. Release clause: with a
+  companion active, an `applied`, `refused` or `no-effect` result whose `stepActors` include the combatant
+  active at start also ends the turn.
+- `nextJob`: when the turn advances to an AI companion and a result in this beat is `held` for that
+  combatant, `nextJob` is `{ kind: "turn", trigger: "held" }` in place of the companion job. That beat
+  resolves the held group as the companion's turn action.

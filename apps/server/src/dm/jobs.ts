@@ -55,6 +55,7 @@ export const TurnTriggerSchema = z.enum([
   "scene-start", // POST /dm/sessions/:id/start
   "manual", // POST /dm/sessions/:id/turn
   "reconcile", // worker start found an unanswered commit (FR-008)
+  "held", // a turn job ended with an AI companion active whose party action was held (TASK-0244)
   "talk", // an in-character post the world may react to (specs/065)
 ]);
 export type TurnTrigger = z.infer<typeof TurnTriggerSchema>;
