@@ -4,7 +4,7 @@ title: An encounter monster can't be acted on before its encounter starts
 status: In Progress
 assignee: []
 created_date: '2026-11-05 03:56'
-updated_date: '2026-11-05 07:43'
+updated_date: '2026-11-05 07:59'
 labels:
   - dm
   - playtest
@@ -31,14 +31,14 @@ Spec: specs/088-pre-encounter-monster
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 A revealed encounter monster is a snapshot actor interpret can name by its combatantId (or the gate maps a display name to it), with a test replaying seq 52-58
-- [ ] #2 Acting on it before the encounter starts resolves (pull-in or encounter start per the Director), and the opposition check rolls, with a test
-- [ ] #3 When the plan gate refuses an action, the narration does not voice the refused attempt's outcome as if it resolved, with a test
-- [ ] #4 Spec phase: Seam check (no source change)
-- [ ] #5 Spec phase: Monster arrivals, runnable encounters and the interpret section (card AC #1, #2)
-- [ ] #6 Spec phase: A refused action is not narrated as done (card AC #3)
-- [ ] #7 Spec phase: The run 1 replays (merge condition; card AC #1, #2, #3)
-- [ ] #8 Spec phase: Wiki re-ground
+- [x] #1 A revealed encounter monster is a snapshot actor interpret can name by its combatantId (or the gate maps a display name to it), with a test replaying seq 52-58
+- [x] #2 Acting on it before the encounter starts resolves (pull-in or encounter start per the Director), and the opposition check rolls, with a test
+- [x] #3 When the plan gate refuses an action, the narration does not voice the refused attempt's outcome as if it resolved, with a test
+- [x] #4 Spec phase: Seam check (no source change)
+- [x] #5 Spec phase: Monster arrivals, runnable encounters and the interpret section (card AC #1, #2)
+- [x] #6 Spec phase: A refused action is not narrated as done (card AC #3)
+- [x] #7 Spec phase: The run 1 replays (merge condition; card AC #1, #2, #3)
+- [x] #8 Spec phase: Wiki re-ground
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -53,6 +53,10 @@ Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5 (spec 0
 Spec 088 (072a4054). Reuses spec 078 arrivals: the Director may arrive a not-yet-appeared encounter monster (free mode); resolve adds it as a combatant before actions run; the plan gate accepts it via joining; held by combatantId afterwards (snapshot/build.ts untouched). Encounter startability becomes 'has the encounter run', so an early monster does not block reed-camp. Seq 73-92: interpret gets an 'Arriving this beat' section. AC #3: refused fact line says it did not happen; narrate rule; fallback adds no change line. Defaults (a) on OQ-1..OQ-4; the (b) alternatives are carded as one revisit task.
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 088 phases 1-3, grouped). Seam check: no seam moved. director-v9, interpret-v15, narrate-v21. Fix: a seed NPC that is also an encounter monster (snag) stays on the 078 path.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 088 phases 4-5, grouped: replays and wiki)
+
+Spec 088 built (tasks.md all ticked). Replays seq 52-58 and 73-92 (unseen, arrived earlier, one-beat) roll the opposed check with no UNKNOWN_COMBATANT; control keeps the refusal and narrates 'it did not happen'. Mutation guard D10 #2 (fresh load before encounter start) is not killable: the arrivals loop's existing duplicate-add skip already covers it; recorded in the commit. Seq 73-92 refused id stays inferred (plan R2). Orchestrator re-ran REQUIRE_DATABASE=1 ci:check on the final tree: green (1838 passed).
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
