@@ -3,10 +3,10 @@ id: TASK-0237
 title: >-
   The Director reveals an NPC before the dice, so a failed check still delivers
   the success outcome
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-11-05 03:53'
-updated_date: '2026-11-05 03:58'
+updated_date: '2026-11-05 05:13'
 labels:
   - dm
   - rules
@@ -40,6 +40,8 @@ Related: TASK-0206 (arrivals), TASK-0170 (declared outcome), TASK-0221 (lexical 
 
 <!-- SECTION:NOTES:BEGIN -->
 Run 1 again (seq 63-72): the goal note promised the leader clue before Kestrel's Perception (severe failure, 9 vs DC 15). This time the audit caught it on attempt 2 (ledger-mismatch, actor Kestrel) and the fallback told the severe outcome. So the audit backstop works sometimes; the Director pre-deciding the outcome is the source.
+
+Claimed 2026-11-05 by M3 runbook B2 (docs/design/m3-runbook-b2-playtest-fixes.md, PR #132). Worktree .worktrees/task-0237, branch task-0237-reveal-waits-for-dice, cut from origin/main 8128fb3a. Spec number 089 claimed with a stub.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
