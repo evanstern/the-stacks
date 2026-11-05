@@ -86,20 +86,20 @@ and one commit led by `TASK-0238:`. Edit only the hunks plan D1 to D7 name.
 
 ## Phase 5: Wiki re-ground
 
-- [ ] T026 Run `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/1.0.1/gates/cli.mjs
+- [x] T026 Run `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/1.0.1/gates/cli.mjs
       freshness . docs/wiki` and list the stale notes.
-- [ ] T027 Review and update `docs/wiki/seed-npc-presence.md` (monster arrivals beside NPC
+- [x] T027 Review and update `docs/wiki/seed-npc-presence.md` (monster arrivals beside NPC
       arrivals; the fresh load), `dm-failure-and-gates.md` (`joining` now holds monster arrivals;
       the run-encounter rule; the refused fact line) and `actor-snapshot.md` (rule 4 holds an
       arrived monster; `build.ts` unchanged). Re-pin each.
-- [ ] T028 Review `docs/wiki/presence.md`. It lists no touched source, so change only a stale
+- [x] T028 Review `docs/wiki/presence.md`. It lists no touched source, so change only a stale
       claim about encounter monsters, and say so in the commit body.
-- [ ] T029 Re-pin every other stale note listing a touched source: `dm-runtime.md`,
+- [x] T029 Re-pin every other stale note listing a touched source: `dm-runtime.md`,
       `dm-turn-jobs.md`, `party-panel.md`, `turn-floor.md`, `output-claim-gate.md`,
       `dm-narration-quality.md` (the narrate version, the refused rule) and `dm-talk-triggers.md`
       (`legalEscalation`). Verify each claim the diff touches before re-pinning.
-- [ ] T030 Update `docs/wiki/CAPSULES.md` and `INDEX.md` for every changed note description.
-- [ ] T031 Run the freshness gate (prints `OK`) and
+- [x] T030 Update `docs/wiki/CAPSULES.md` and `INDEX.md` for every changed note description.
+- [x] T031 Run the freshness gate (prints `OK`) and
       `node ~/.claude/plugins/cache/praxisflux/spec-bridge/1.0.1/gates/cli.mjs check .` (exits 0).
       Commit `TASK-0238: wiki re-ground`.
 
