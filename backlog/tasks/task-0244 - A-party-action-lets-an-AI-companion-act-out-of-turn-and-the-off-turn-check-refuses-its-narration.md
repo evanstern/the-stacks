@@ -3,10 +3,10 @@ id: TASK-0244
 title: >-
   A party action lets an AI companion act out of turn, and the off-turn check
   refuses its narration
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-11-05 04:22'
-updated_date: '2026-11-05 07:15'
+updated_date: '2026-11-05 07:21'
 labels:
   - dm
   - rules
@@ -55,10 +55,18 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 087 phases 3-4, grouped: replay and wiki)
 
 Spec 087 built (tasks.md all ticked). AC #1: companion-own-turn.integration.test.ts holds the party cast for Odo's turn and Odo acts once in round 2 (initiative scripted Tamsin then Odo, a simplification of the seq 206-230 order); mixed-actor party action refused off-turn. AC #2: step actors are on turn in the off-turn list (facts test).
+
+spec-bridge sync: Hold or refuse in the plan gate and resolve (US1; FR-001 to FR-005): 5/5 · Facts and the waiting line (US1, US2; FR-006 to FR-010): 4/4 · Replay seq 206-230 and contracts (US1; card AC #1, FR-011): 2/2 · Wiki re-ground: 3/3 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Merged PR #137 (d66a15ce), runbook B2 spine #4. All spec 087 tasks complete (Hold or refuse 5/5 · Facts and the waiting line 4/4 · Replay and contracts 2/2 · Wiki 3/3). Derived Done by spec-bridge sync. A party action whose only actor is an off-turn AI companion is held for its turn (held trigger); mixed-actor refused off-turn; step actors are on turn; narrate-v20. Human-PC case carded TASK-0248.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
-- [ ] #1 All tests and checks run green
-- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
+- [x] #1 All tests and checks run green
+- [x] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
