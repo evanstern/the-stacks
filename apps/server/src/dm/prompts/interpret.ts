@@ -2,6 +2,7 @@
  * DM-craft doctrine adapted from tabletop-dm (https://github.com/bradbushSFAI/tabletop-dm, commit fe2c29b), Copyright (c) 2026 Brad Bush, used under the MIT License. See apps/server/src/dm/doctrine/NOTICE.md.
  */
 import { agencyRule, renderDoctrine } from "../doctrine/doctrine.js";
+import { arrivingMonsters } from "../gates/plan-gate.js";
 import type { AssembleOutput } from "../nodes/assemble.js";
 import type { DirectorNodeOutput } from "../nodes/director.js";
 import type { TurnContext } from "../pipeline/context.js";
@@ -19,7 +20,7 @@ import {
 } from "./common.js";
 import { STEP_GRAMMAR } from "./step-grammar.js";
 
-export const PROMPT_VERSION = "dm.interpret-v14";
+export const PROMPT_VERSION = "dm.interpret-v15";
 
 /** One complete minimal reading: a check step with empty effect lists. */
 export const EXAMPLE_OUTPUT = {
@@ -115,6 +116,20 @@ export function buildInterpretPrompt(input: {
       "end",
     ),
     dmStateSection(assembled.snapshot, ctx.seed, false),
+    section(
+      "Arriving this beat",
+      arrivingMonsters(
+        ctx.seed,
+        assembled.projections,
+        director,
+        ctx.job.trigger,
+      ).map(
+        (m) =>
+          `${m.id} "${m.name}" (monster; joins the scene before any step runs; name it by this id)`,
+      ),
+      300,
+      "end",
+    ),
     section(
       "Recent transcript",
       transcriptEntries(assembled.transcriptTail),

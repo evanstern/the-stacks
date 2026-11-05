@@ -189,6 +189,79 @@ export function joiningCombatants(
 }
 
 /**
+ * An encounter has run when it is active (an order holds one of its monsters)
+ * or a logged `encounter.started` row's order held one (spec 088 D1). A monster
+ * added alone, before the start, does not make it run.
+ */
+export function encounterRan(
+  projections: SessionProjections,
+  enc: EncounterSeed,
+): boolean {
+  const ids = new Set(enc.monsters.map((m) => m.combatantId));
+  const orderHolds = (order: unknown): boolean =>
+    Array.isArray(order) &&
+    order.some((o) =>
+      ids.has((o as { combatantId?: string } | null)?.combatantId ?? ""),
+    );
+  if (projections.encounter && orderHolds(projections.encounter.order)) {
+    return true;
+  }
+  return projections.ledger.some(
+    (r) =>
+      r.kind === "change" &&
+      r.type === "encounter.started" &&
+      orderHolds((r.after as { order?: unknown } | null)?.order),
+  );
+}
+
+/** Spec 088 D1: encounter monsters of an unrun encounter that are not combatants yet, in seed order. */
+export function unseenMonsters(
+  projections: SessionProjections,
+  seed: SceneSeed,
+): { id: string; name: string; encounterId: string }[] {
+  const npcIds = new Set(seed.npcs.map((n) => n.id));
+  const out: { id: string; name: string; encounterId: string }[] = [];
+  for (const e of seed.encounters) {
+    if (encounterRan(projections, e)) continue;
+    for (const m of e.monsters) {
+      if (projections.engine.combatants[m.combatantId]) continue;
+      if (npcIds.has(m.combatantId)) continue;
+      out.push({
+        id: m.combatantId,
+        name: m.name ?? m.srdMonsterId,
+        encounterId: e.id,
+      });
+    }
+  }
+  return out;
+}
+
+/**
+ * Spec 088 D1: every monster id arriving this beat: the Director's monster
+ * arrivals, then the encounter start's joiners, once each, with seed names.
+ */
+export function arrivingMonsters(
+  seed: SceneSeed,
+  projections: SessionProjections,
+  director: Pick<DirectorNodeOutput, "tableMode" | "arrivals">,
+  trigger: string,
+): { id: string; name: string }[] {
+  const all = new Map(
+    seed.encounters.flatMap((e) =>
+      e.monsters.map((m) => [m.combatantId, m.name ?? m.srdMonsterId] as const),
+    ),
+  );
+  const ids = [
+    ...(director.arrivals ?? []).filter((id) => all.has(id)),
+    ...joiningCombatants(
+      encounterToStart(seed, director, trigger),
+      projections.engine.combatants,
+    ),
+  ];
+  return [...new Set(ids)].map((id) => ({ id, name: all.get(id) as string }));
+}
+
+/**
  * The seed NPC ids an encounter start marks `arrived`: the encounter beat
  * declares them `present` and the logged presence is not `present`. Mirrors
  * the encounter-start branch of `seedPresence` (nodes/resolve.ts).

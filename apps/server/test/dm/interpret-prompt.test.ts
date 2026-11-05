@@ -70,8 +70,37 @@ const NARRATIVE =
 
 describe("interpret and adjudicate prompts", () => {
   it("bumps the prompt versions", () => {
-    expect(INTERPRET_VERSION).toBe("dm.interpret-v14");
+    expect(INTERPRET_VERSION).toBe("dm.interpret-v15");
     expect(ADJUDICATE_VERSION).toBe("dm.adjudicate-v10");
+  });
+
+  it("lists arriving monsters, and only then (spec 088)", async () => {
+    const { interpret } = await prompts();
+    expect(interpret.user).not.toContain("Arriving this beat");
+    const ctx = makeCtx({
+      deps: {
+        loadProjections: async () =>
+          projectDm(freeEventsThrough("action.committed")),
+      },
+    });
+    const assembled = await assemble(ctx);
+    if (!assembled.ok) throw new Error("assemble failed");
+    const arrival = buildInterpretPrompt({
+      ctx,
+      assembled: assembled.output,
+      director: { ...director, arrivals: ["goblin-3"] },
+    });
+    expect(arrival.user).toContain("Arriving this beat");
+    expect(arrival.user).toContain('goblin-3 "Goblin lookout" (monster;');
+    const start = buildInterpretPrompt({
+      ctx,
+      assembled: assembled.output,
+      director: {
+        ...director,
+        tableMode: { to: "turn", encounterId: "reed-camp", reason: "x" },
+      },
+    });
+    expect(start.user).toContain('goblin-3 "Goblin lookout"');
   });
 
   it("states the attack name and the ability-check stakes (TASK-0203)", async () => {

@@ -34,19 +34,19 @@ and one commit led by `TASK-0238:`. Edit only the hunks plan D1 to D7 name.
 
 ## Phase 2: Monster arrivals, runnable encounters and the interpret section (card AC #1, #2)
 
-- [ ] T006 In `apps/server/src/dm/gates/plan-gate.ts`, add `encounterRan`, `unseenMonsters` and
+- [x] T006 In `apps/server/src/dm/gates/plan-gate.ts`, add `encounterRan`, `unseenMonsters` and
       `arrivingMonsters` (plan D1).
-- [ ] T007 In `apps/server/src/dm/nodes/director.ts`, apply plan D2: the runnable rule, the
+- [x] T007 In `apps/server/src/dm/nodes/director.ts`, apply plan D2: the runnable rule, the
       monster arrival legality and its override, and the `unseenMonsters` prompt input.
-- [ ] T008 In `apps/server/src/dm/talk-turn.ts`, make `legalEscalation` use `encounterRan`
+- [x] T008 In `apps/server/src/dm/talk-turn.ts`, make `legalEscalation` use `encounterRan`
       (plan D2).
-- [ ] T009 In `apps/server/src/dm/prompts/director.ts`, apply plan D3 hunks 1-4.
-- [ ] T010 In `apps/server/src/dm/nodes/resolve.ts`, apply plan D4: monster arrivals as keyed
+- [x] T009 In `apps/server/src/dm/prompts/director.ts`, apply plan D3 hunks 1-4.
+- [x] T010 In `apps/server/src/dm/nodes/resolve.ts`, apply plan D4: monster arrivals as keyed
       `combatant.add` opening moves, one fresh projections load after the arrivals group, and
       `joining` from `arrivingMonsters`.
-- [ ] T011 In `apps/server/src/dm/prompts/interpret.ts`, apply plan D5: the version bump and the
+- [x] T011 In `apps/server/src/dm/prompts/interpret.ts`, apply plan D5: the version bump and the
       "Arriving this beat" section.
-- [ ] T012 Append the monster arrivals amendment to `specs/031-dm-runtime/contracts/director.md`
+- [x] T012 Append the monster arrivals amendment to `specs/031-dm-runtime/contracts/director.md`
       (plan D7).
 - [ ] T013 Edit `apps/server/test/dm/director.test.ts`, `plan-gate.test.ts`,
       `interpret-prompt.test.ts` and `talk-turn.integration.test.ts` per plan D8. Cover both
