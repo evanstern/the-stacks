@@ -4,7 +4,7 @@ title: 'Design round: MUD-inspired minimalist table UX'
 status: In Progress
 assignee: []
 created_date: '2026-11-05 03:37'
-updated_date: '2026-11-05 03:39'
+updated_date: '2026-11-05 03:43'
 labels:
   - design
   - ux
@@ -34,6 +34,9 @@ Research what modern MUD clients (Mudlet, web clients, MUD-adjacent text games) 
 Long-running design worktree: /Users/evanstern/projects/the-stacks/.worktrees/mud-ux on branch task-0236-mud-ux. Vault branch: docs/research/MUD-Client-UX. Mockups: docs/design/mud-ux/round-N/.
 
 Phase 2 binding constraints (every round is checked against these): no modals (slide-out panel component, inline expansion, or autocomplete dropdown only; TASK-0028 decision). Daylight palette, CSS custom properties, light and dark, WCAG AA. Chat is a view over the session event log; a VTT can drive the same events (decision-0013). Talk and actions are distinct (decision-0016) and TASK-0188 one-chat-stream rules hold: quiet ring, DM confirm row with 👍, @dm read-only answers, ai:dm never declares a player action. DM-only text never reaches a player. Library content never appears on the Table. Real copy from the greyhollow-ford-duo scenario. Self-contained HTML, no external fonts or CDNs. Mobile at 390px must work. Screen-reader use is a first-class case (MUD heritage).
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5[1m]
+Research embed done: fb4cba36, branch gate OK. Limitation: sources are search-result summaries, not full-page reads; gaps listed in _grounding.md.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
