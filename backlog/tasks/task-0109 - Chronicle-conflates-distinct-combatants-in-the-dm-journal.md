@@ -4,7 +4,7 @@ title: Chronicle conflates distinct combatants in the dm journal
 status: To Do
 assignee: []
 created_date: '2026-10-26 19:15'
-updated_date: '2026-11-05 03:53'
+updated_date: '2026-11-05 04:16'
 labels:
   - dm
   - chronicle
@@ -36,6 +36,8 @@ Run 3 evidence (2026-11-02, session e8e8326d, seq 220): the chronicle called Sna
 Runbook B playtest run 1 (2026-11-03, session 729a6c5c, seq 41): the chronicle says 'Wenna Marsh revealed the true concern' for clawed prints Kestrel found (seq 40). Attribution, not combatant merging, but the same journal-accuracy family.
 
 Run 1 seq 55: the chronicle calls Pell Wenna's 'son'; the seed and seq 13 say grandson.
+
+Run 1 seq 201: chronicle says 'Brother Odo cast Cure Wounds on her' after Tamsin only asked in talk (seq 196); nothing was cast.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
