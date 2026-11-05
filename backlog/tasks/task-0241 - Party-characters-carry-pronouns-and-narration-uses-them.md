@@ -4,6 +4,7 @@ title: 'Party characters carry pronouns, and narration uses them'
 status: To Do
 assignee: []
 created_date: '2026-11-05 04:03'
+updated_date: '2026-11-05 04:22'
 labels:
   - dm
   - narration
@@ -29,6 +30,12 @@ Why: runbook B playtest run 1 (2026-11-03, session 729a6c5c, seq 131): the narra
 - [ ] #1 The seed character and NPC schema carry an optional pronouns field, the shipped seeds fill it, and the player-facing seed views pass it to narrate and companion prompts, with a test
 - [ ] #2 With no pronouns set, the narrate prompt instructs the narrator to use the character's name (or they/them), never to guess, with a prompt test
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Run 1 seq 220: Kestrel 'he/him' three more times.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
