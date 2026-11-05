@@ -360,7 +360,30 @@ describe("narrate", () => {
       facts,
       prior: null,
     });
-    expect(NARRATE_VERSION).toBe("dm.narrate-v20");
+    expect(NARRATE_VERSION).toBe("dm.narrate-v21");
+    expect(prompt.system).toContain(
+      "A refused action did not happen: no roll and no result. Never show it succeed, fail or land, and never show anyone react to its result.",
+    );
+    expect(
+      factEntries({
+        ...facts,
+        actions: [
+          {
+            actionId: "a9",
+            characterName: "Odo",
+            text: "parleys",
+            outcome: "refused",
+            refusalCode: "UNKNOWN_COMBATANT",
+            rolls: [],
+            outcomes: [],
+            changes: [],
+            followUps: [],
+          },
+        ],
+      }),
+    ).toContain(
+      'Action a9 by Odo: "parleys" -> refused (refused: UNKNOWN_COMBATANT): it did not happen; nothing was rolled and nothing changed',
+    );
     expect(prompt.system).toContain(
       "A roll's band and outcome are settled. A success means the attempted task happens. Deliver the outcome and any learned fact plainly in the prose; invent no other.",
     );

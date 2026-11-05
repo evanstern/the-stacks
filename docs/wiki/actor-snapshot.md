@@ -10,7 +10,7 @@ sources:
   - apps/server/src/dm/snapshot/render.ts
   - apps/server/src/dm/snapshot/index.ts
   - specs/040-actor-snapshot/contracts/actor-snapshot.md
-verified_against: 7440e7041ff0ca7ca70b9e7ea72d8b63b46e3bcb
+verified_against: 62af1658a4a9b0c21bc234b4f8ed13abb78144ea
 ---
 
 # Actor snapshot
@@ -39,7 +39,7 @@ session-model types only, never a value; narrate's import closure includes it.
 copy the seed character's sheet numbers. Combatant state copies the engine combatant. A seed NPC
 whose `identity.combatant` names an engine combatant (or, when unset, a combatant whose id equals the NPC id) and that combatant are **one actor**: the
 NPC id and name, the combatant's state, the engine name in `aliases`. Every other combatant is a
-`monster` actor. Order: party, encounter order, remaining combatants by id, then seed NPCs with
+`monster` actor, including a monster a Director arrival added before its encounter starts (spec 088; `build.ts` is unchanged). Order: party, encounter order, remaining combatants by id, then seed NPCs with
 no combatant. With a null seed the build adds no NPC and no sheet. `presence` is the `scenePresence` projection entry keyed by actor `id` (party: character id;
 NPC: NPC id; monster: combatant id; `presenceOf` in `build.ts`). No entry means `present`, and an
 entry that matches no actor is ignored. Two actors with the same id

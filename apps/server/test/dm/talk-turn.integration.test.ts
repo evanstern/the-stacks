@@ -393,6 +393,18 @@ describe.skipIf(!reachable)("talk turn (database)", () => {
     const seed = w.ctx().seed;
     expect(legalEscalation(seed, free, "reed-camp")).toBe(true);
     expect(legalEscalation(seed, free, "no-such-fight")).toBe(false);
+    // spec 088: a monster arrival alone does not make the encounter run
+    const withLookout = {
+      ...free,
+      engine: {
+        ...free.engine,
+        combatants: {
+          ...free.engine.combatants,
+          "goblin-3": Object.values(free.engine.combatants)[0],
+        },
+      },
+    } as never;
+    expect(legalEscalation(seed, withLookout, "reed-camp")).toBe(true);
     await say(w, "Wenna, draw steel! They are in the reeds!");
     await drainAll(worker);
     // started: turn mode, monsters are combatants

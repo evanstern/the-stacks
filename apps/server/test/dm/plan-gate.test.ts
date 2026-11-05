@@ -5,9 +5,11 @@ import { describe, expect, it } from "vitest";
 import { SYSTEM_WORDS } from "../../src/dm/fallback.js";
 import { cutPlans } from "../../src/dm/first-stage.js";
 import {
+  arrivingMonsters,
   arrivingNpcs,
   askUndeclared,
   checkPlan,
+  encounterRan,
   encounterToStart,
   joiningCombatants,
   MANNER_SKILLS,
@@ -1532,5 +1534,75 @@ describe("checkPlan turn hold (TASK-0244)", () => {
   it("leaves a human-only party group unchanged", () => {
     const v = plan([tamsinCast()], { snapshot, actors: party });
     expect(codeOf(v)).not.toBe("TURN_HELD");
+  });
+});
+
+describe("monster arrivals (spec 088)", () => {
+  const duo = greyhollowDuo();
+  const reedCamp = duo.seed.encounters.find((e) => e.id === "reed-camp");
+  const opp = (id: string) =>
+    read("a1", [
+      checkStep({ difficulty: { opposedBy: id, rule: "influence" } }),
+    ]);
+  const duoPlan = (id: string, joining: string[]) =>
+    checkPlan({
+      snapshot: buildSnapshot(duo.projections, duo.seed),
+      readings: [opp(id)],
+      rulings: [],
+      combatants: {},
+      joining,
+      arriving: [],
+      resumed: [],
+    })[0];
+
+  it("refuses goblin-lookout not-in-snapshot and passes goblin-3 via joining", () => {
+    const refused = duoPlan("goblin-lookout", ["goblin-3"]);
+    expect(refused?.ok).toBe(false);
+    expect(refused).toMatchObject({
+      failure: { reason: "not-in-snapshot" },
+    });
+    expect(duoPlan("goblin-3", ["goblin-3"])?.ok).toBe(true);
+  });
+
+  it("lists arrivals then joiners once", () => {
+    const out = arrivingMonsters(
+      duo.seed,
+      duo.projections,
+      {
+        arrivals: ["goblin-3", "snag"],
+        tableMode: { to: "turn", encounterId: "reed-camp", reason: "x" },
+      },
+      "commit",
+    );
+    const ids = out.map((m) => m.id);
+    expect(ids[0]).toBe("goblin-3");
+    expect(new Set(ids).size).toBe(ids.length);
+    expect(ids).toContain("goblin-4");
+    expect(out[0]?.name).toBe("Goblin lookout");
+  });
+
+  it("leaves a seed NPC that is also a monster to the 078 path", () => {
+    const out = arrivingMonsters(
+      duo.seed,
+      duo.projections,
+      { arrivals: ["snag"], tableMode: { to: "stay" } },
+      "commit",
+    );
+    expect(out).toEqual([]);
+  });
+
+  it("encounterRan: active order and a logged start", () => {
+    if (!reedCamp) throw new Error("no reed-camp");
+    expect(encounterRan(duo.projections, reedCamp)).toBe(false);
+    const p = structuredClone(duo.projections);
+    p.ledger.push({
+      kind: "change",
+      type: "encounter.started",
+      after: { order: [{ combatantId: "snag" }] },
+    } as never);
+    expect(encounterRan(p, reedCamp)).toBe(true);
+    const q = structuredClone(duo.projections);
+    q.encounter = { round: 1, order: [{ combatantId: "goblin-3" }] } as never;
+    expect(encounterRan(q, reedCamp)).toBe(true);
   });
 });

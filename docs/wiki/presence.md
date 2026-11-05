@@ -14,7 +14,7 @@ sources:
   - apps/server/src/dm/nodes/assemble.ts
   - packages/session-model/src/events/presence.ts
   - apps/web/app/play/presence.ts
-verified_against: 112801aa27a89d4fb6e57036e4ad10466e7c062f
+verified_against: 62af1658a4a9b0c21bc234b4f8ed13abb78144ea
 ---
 
 # Presence
@@ -76,7 +76,7 @@ queues a turn. The playtest harness injects a reader that names the scripted sea
 `project()` folds the latest marker into `SessionProjections.presence`. The `assemble` node
 turns it into `AssembleOutput.presence`: `present`, `absent` (human party controllers missing
 from the marker) and `seq`, or `null` before any marker ([[dm-runtime]]). No Director prompt
-text uses it yet. The Director may also name offstage seed NPCs now on screen in its optional `arrivals` field (`dm.director-v7`); resolve logs those as `arrived` rows ([[seed-npc-presence]]).
+text uses it yet. The Director may also name offstage seed NPCs now on screen in its optional `arrivals` field (`dm.director-v9`); resolve logs those as `arrived` rows. In free mode the field also takes an unseen encounter monster, which resolve adds as a combatant instead ([[seed-npc-presence]]).
 
 A `talk` turn records the same marker and stores `presenceSeq` in its result (TASK-0180); the react prompt reads present NPCs from the snapshot, not the marker.
 

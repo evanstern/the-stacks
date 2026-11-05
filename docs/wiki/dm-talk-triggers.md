@@ -13,7 +13,7 @@ sources:
   - apps/server/src/dm/pipeline/context.ts
   - apps/server/src/dm/nodes/schemas.ts
   - apps/server/dm-scripts/greyhollow-talk.json
-verified_against: 112801aa27a89d4fb6e57036e4ad10466e7c062f
+verified_against: 62af1658a4a9b0c21bc234b4f8ed13abb78144ea
 ---
 
 # DM talk triggers
@@ -49,7 +49,7 @@ full pipeline.
    ([[dm-narration-quality]]), a DM-only seed text substring check and a present-speaker check.
    One regenerate; a second refusal records `none`.
 6. `escalate` runs resolve's opening move through a synthetic Director output when
-   `legalEscalation` holds (free mode, no running encounter, encounter unstarted); else `scene`.
+   `legalEscalation` holds (free mode, no running encounter, encounter not yet run: `encounterRan`, spec 088); else `scene`.
 7. `submitNarration` ships one row with no action ids. The worker stores `jobs.result.talk`
    (`posts`, `codeTriggers`, `modelTriggers`, `outcome`, `reason`), queues the companion `prompt`
    job (none at the cap), a chronicle job, and after an escalation the first `npc-turn`.

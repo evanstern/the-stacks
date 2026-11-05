@@ -892,6 +892,40 @@ describe("facts v2: party, events, target, setting (run-5 rows)", () => {
     });
   });
 
+  it("a refused action carries no follow-ups and renders 'it did not happen' (spec 088)", () => {
+    const item = {
+      actionId: "pa1",
+      committedSeq: 57,
+      actor: "user:1",
+      characterId: null,
+      scope: "party" as const,
+      text: "Odo parleys with the lookout.",
+      status: "committed" as const,
+    };
+    const f = build(
+      58,
+      56,
+      "free",
+      {
+        actionResults: [
+          {
+            actionId: "pa1",
+            batchIds: [],
+            outcome: "refused",
+            refusalCode: "UNKNOWN_COMBATANT",
+          },
+        ] as never,
+      },
+      { beat: [item], followUps: { pa1: ["Hail the camp."] } },
+    );
+    expect(f.actions[0]?.followUps).toEqual([]);
+    const lines = factEntries(f).join("\n");
+    expect(lines).toContain(
+      "refused (refused: UNKNOWN_COMBATANT): it did not happen; nothing was rolled and nothing changed",
+    );
+    expect(lines).not.toContain("not yet attempted");
+  });
+
   it("renders no-effect, on-hold and event lines", () => {
     const base = build(58, 39, "free");
     const act = {

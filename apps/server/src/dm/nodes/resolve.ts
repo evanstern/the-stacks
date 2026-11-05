@@ -20,10 +20,10 @@ import {
 import type { Gate } from "../../gate/index.js";
 import { clarifyHolds } from "../first-stage.js";
 import {
+  arrivingMonsters,
   arrivingNpcs,
   checkPlan,
   encounterToStart,
-  joiningCombatants,
   type PlanVerdict,
   stepActors,
   TURN_HELD_CODE,
@@ -1088,7 +1088,23 @@ async function directorOpening(
   let arrived = 0;
   for (const id of director.arrivals ?? []) {
     const npc = seed.npcs.find((n) => n.id === id);
-    if (!npc) continue;
+    if (!npc) {
+      // Spec 088: an unseen encounter monster arrives as a combatant.
+      const m = seed.encounters
+        .flatMap((e) => e.monsters)
+        .find((x) => x.combatantId === id);
+      if (!m || p.engine.combatants[id]) continue;
+      const rec = deps.srd.getById("monster", m.srdMonsterId);
+      if (!rec) throw stop("internal", `no SRD monster ${m.srdMonsterId}`);
+      arrived += 1;
+      await run.mech(
+        `director:arrival:${id}`,
+        { type: "combatant.add", combatant: combatantFromSrd(rec, id, m.name) },
+        `${m.name ?? rec.name} comes into view`,
+        null,
+      );
+      continue;
+    }
     arrived += 1;
     await run.submit(`director:arrival:${id}`, "scene-presence", () => ({
       kind: "scene-presence",
@@ -1099,6 +1115,8 @@ async function directorOpening(
       visibility: "public",
     }));
   }
+  // One fresh load after the arrivals group (spec 078, 088).
+  const fresh = arrived > 0 ? await deps.loadProjections(ctx.job.sessionId) : p;
 
   // table mode
   const tm = director.tableMode;
@@ -1106,7 +1124,7 @@ async function directorOpening(
     const enc = encounterToStart(seed, director, ctx.job.trigger);
     if (enc) {
       for (const m of enc.monsters) {
-        if (p.engine.combatants[m.combatantId]) continue;
+        if (fresh.engine.combatants[m.combatantId]) continue;
         const rec = deps.srd.getById("monster", m.srdMonsterId);
         if (!rec) throw stop("internal", `no SRD monster ${m.srdMonsterId}`);
         await run.mech(
@@ -1122,7 +1140,7 @@ async function directorOpening(
       await seedPresence(
         run,
         ctx,
-        arrived > 0 ? await deps.loadProjections(ctx.job.sessionId) : p,
+        fresh,
         "encounter-start",
         seed.beats.find((b) => b.encounterId === enc.id),
       );
@@ -1459,10 +1477,12 @@ export const resolve: Node<"resolve"> = async (ctx) => {
       snapshot: assembled.snapshot,
       readings: planReadings,
       rulings: planRulings,
-      joining: joiningCombatants(
-        startingEncounter,
-        assembled.projections.engine.combatants,
-      ),
+      joining: arrivingMonsters(
+        ctx.seed,
+        assembled.projections,
+        director,
+        ctx.job.trigger,
+      ).map((m) => m.id),
       arriving: [
         ...new Set([
           ...arrivingNpcs(

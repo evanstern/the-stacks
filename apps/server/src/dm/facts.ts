@@ -758,7 +758,9 @@ export function buildNarrationFacts(input: BuildFactsInput): NarrationFacts {
       outcome,
       refusalCode,
       ...c,
-      followUps: input.followUps?.[item.actionId] ?? [],
+      // Spec 088 D6: a refused action did not happen, so nothing waits on it.
+      followUps:
+        outcome === "refused" ? [] : (input.followUps?.[item.actionId] ?? []),
     });
   }
 

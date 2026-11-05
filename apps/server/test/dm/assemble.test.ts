@@ -288,6 +288,7 @@ describe("assemble: S0", () => {
       aiCompanions: [],
       runnableEncounterIds: [],
       offstageNpcs: [],
+      unseenMonsters: [],
     });
     const state = /## State\n([\s\S]*?)(\n\n##|$)/.exec(prompt.user);
     expect(state?.[1]).toContain("Table mode: free");
@@ -309,6 +310,7 @@ describe("director offstage NPCs (spec 078)", () => {
       aiCompanions: [],
       runnableEncounterIds: [],
       offstageNpcs: ["NPC snag (Snag, goblin)"],
+      unseenMonsters: [],
     });
     expect(prompt.user).toContain("## Offstage NPCs\nNPC snag (Snag, goblin)");
     expect(prompt.system).toContain("Name in arrivals each offstage NPC");
@@ -336,8 +338,9 @@ describe("prompt caps (SC-007)", () => {
       aiCompanions: [],
       runnableEncounterIds: [],
       offstageNpcs: [],
+      unseenMonsters: [],
     });
-    expect(DIRECTOR_VERSION).toBe("dm.director-v8");
+    expect(DIRECTOR_VERSION).toBe("dm.director-v9");
     expect(prompt.system).toContain(
       "`goalNote` is its own top-level key, always written (an empty string when you have no note), never inside `pacing`.",
     );

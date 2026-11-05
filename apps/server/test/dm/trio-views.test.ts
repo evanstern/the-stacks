@@ -75,6 +75,7 @@ describe("trio director", () => {
       aiCompanions: aiCompanionIds(projections),
       runnableEncounterIds: [],
       offstageNpcs: [],
+      unseenMonsters: [],
     });
     expect(user).not.toContain("## AI companions in the party");
   });

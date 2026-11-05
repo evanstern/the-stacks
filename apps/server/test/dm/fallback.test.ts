@@ -374,6 +374,23 @@ describe("factualSummary: one sentence per fact", () => {
     ).toBe("The party cannot do that here.");
   });
 
+  it("a refused action gives one sentence and no change line (spec 088)", () => {
+    const changes: FactChange[] = [
+      {
+        kind: "hp",
+        target: "Guard",
+        direction: "damage",
+        amount: 4,
+        damageType: null,
+        before: 9,
+        after: 5,
+      } as FactChange,
+    ];
+    expect(
+      sum(facts({ actions: [action({ outcome: "refused", changes })] })),
+    ).toBe("Ana cannot do that here.");
+  });
+
   it("changes", () => {
     const changes: FactChange[] = [
       {
@@ -769,13 +786,15 @@ describe("factualSummary: property", () => {
             condition: pick(["poisoned", "unconscious", "prone"]),
           });
         }
+        const outcome = pick(["applied", "refused", "no-effect"] as const);
         return action({
           actionId: `a${k}`,
           characterName: rnd(4) === 0 ? null : pick(names),
-          outcome: pick(["applied", "refused", "no-effect"] as const),
+          outcome,
           rolls: outs.map((o) => roll(o, { reason: pick(reasons) })),
           outcomes: outs,
-          changes,
+          // A refused action holds no change (spec 088): none to cover.
+          changes: outcome === "refused" ? [] : changes,
         });
       });
       const events: FactEvent[] = [];
