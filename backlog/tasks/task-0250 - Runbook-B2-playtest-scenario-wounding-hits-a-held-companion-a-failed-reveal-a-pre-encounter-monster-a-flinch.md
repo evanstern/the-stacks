@@ -3,10 +3,10 @@ id: TASK-0250
 title: >-
   Runbook B2 playtest scenario: wounding hits, a held companion, a failed
   reveal, a pre-encounter monster, a flinch
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-11-05 08:19'
-updated_date: '2026-11-05 10:01'
+updated_date: '2026-11-05 10:11'
 labels:
   - playtest
 milestone: m-3
@@ -43,8 +43,14 @@ B2 scenario shipped: checklist runbook-b2-reed-camp.md (12 rows), script runbook
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (E3 implementation)
 <!-- SECTION:NOTES:END -->
 
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Merged PR #140 (53d119ea), runbook B2 spine #7, escape E3. Checklist runbook-b2-reed-camp (12 rows), rehearsal script, local DM_FAKE_SCRIPT rehearsal log. Seed unchanged. Next: the operator plays it (C7).
+<!-- SECTION:FINAL_SUMMARY:END -->
+
 ## Definition of Done
 <!-- DOD:BEGIN -->
-- [ ] #1 All tests and checks run green
-- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
+- [x] #1 All tests and checks run green
+- [x] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
