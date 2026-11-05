@@ -1,9 +1,10 @@
 ---
 id: TASK-0236
 title: 'Design round: MUD-inspired minimalist table UX'
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-11-05 03:37'
+updated_date: '2026-11-05 03:38'
 labels:
   - design
   - ux
@@ -26,6 +27,12 @@ Research what modern MUD clients (Mudlet, web clients, MUD-adjacent text games) 
 - [ ] #3 Round-1 mockups: comparable directions over the same real table states, rendered and verified
 - [ ] #4 Operator selection recorded as a decision record
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Long-running design worktree: /Users/evanstern/projects/the-stacks/.worktrees/mud-ux on branch task-0236-mud-ux. Vault branch: docs/research/MUD-Client-UX. Mockups: docs/design/mud-ux/round-N/.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
