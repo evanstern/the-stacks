@@ -149,6 +149,8 @@ A named backup is never auto-pruned.
 
 Every deploy also backs up the database before it migrates.
 
+The deploy streams `pg_dump` to the backup file, so dump size is not limited by a buffer (TASK-0251).
+
 ## Restore
 
 Choose a backup file from `/home/stacks/dev/backups/`.

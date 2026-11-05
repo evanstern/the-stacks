@@ -8,12 +8,50 @@ import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
 import {
+  backupFailureMessage,
   deployDecision,
   driftVerdict,
   healthMatches,
   renderDevEnv,
   tagsToPrune,
 } from "./deploy-lib.mjs";
+
+// --- backupFailureMessage (TASK-0251) ---
+
+test("backupFailureMessage names ENOBUFS when stderr is empty", () => {
+  const error = Object.assign(new Error("spawnSync docker ENOBUFS"), {
+    code: "ENOBUFS",
+  });
+  assert.equal(
+    backupFailureMessage({ error, status: null, signal: null, stderr: "" }),
+    "backup failed: ENOBUFS",
+  );
+});
+
+test("backupFailureMessage combines stderr with the exit status", () => {
+  assert.equal(
+    backupFailureMessage({ status: 1, stderr: "pg_dump: error\n" }),
+    "backup failed: pg_dump: error (exit status 1)",
+  );
+});
+
+test("backupFailureMessage reports only the exit status when stderr is empty", () => {
+  assert.equal(
+    backupFailureMessage({ status: 2, stderr: "" }),
+    "backup failed: exit status 2",
+  );
+});
+
+test("backupFailureMessage reports the signal when there is no status", () => {
+  assert.equal(
+    backupFailureMessage({ status: null, signal: "SIGKILL", stderr: "" }),
+    "backup failed: signal SIGKILL",
+  );
+});
+
+test("backupFailureMessage says unknown when nothing is given", () => {
+  assert.equal(backupFailureMessage({}), "backup failed: unknown");
+});
 
 // --- deployDecision (research R2) ---
 

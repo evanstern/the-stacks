@@ -7,8 +7,10 @@
 import { spawnSync } from "node:child_process";
 import { randomBytes } from "node:crypto";
 import {
+  closeSync,
   existsSync,
   mkdirSync,
+  openSync,
   readdirSync,
   readFileSync,
   unlinkSync,
@@ -17,6 +19,7 @@ import {
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
+  backupFailureMessage,
   deployDecision,
   driftVerdict,
   healthMatches,
@@ -134,28 +137,38 @@ function backup({ label } = {}) {
     : `${utcStamp()}-${(getPrevCommit() ?? "unknown").slice(0, 7)}.dump`;
   const file = path.join(BACKUPS_DIR, name);
   const creds = parseEnvKeys(readFileSync(DEV_ENV_FILE, "utf8"));
-  const result = spawnSync(
-    "docker",
-    [
-      "compose",
-      ...composeArgs(),
-      "exec",
-      "-T",
-      "db",
-      "pg_dump",
-      "-Fc",
-      "-U",
-      creds.POSTGRES_USER,
-      creds.POSTGRES_DB,
-    ],
-    { cwd: ROOT },
-  );
-  if (result.status !== 0) {
-    throw new Error(
-      `backup failed: ${(result.stderr ?? "").toString().trim()}`,
+  // pg_dump streams straight into the file, so dump size is not capped by
+  // spawnSync's stdout maxBuffer (TASK-0251).
+  const fd = openSync(file, "w", 0o600);
+  let result;
+  try {
+    result = spawnSync(
+      "docker",
+      [
+        "compose",
+        ...composeArgs(),
+        "exec",
+        "-T",
+        "db",
+        "pg_dump",
+        "-Fc",
+        "-U",
+        creds.POSTGRES_USER,
+        creds.POSTGRES_DB,
+      ],
+      { cwd: ROOT, stdio: ["ignore", fd, "pipe"] },
     );
+  } finally {
+    closeSync(fd);
   }
-  writeFileSync(file, result.stdout, { mode: 0o600 });
+  if (result.error || result.status !== 0) {
+    try {
+      unlinkSync(file);
+    } catch (err) {
+      if (err.code !== "ENOENT") throw err;
+    }
+    throw new Error(backupFailureMessage(result));
+  }
   return file;
 }
 
