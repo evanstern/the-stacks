@@ -126,3 +126,14 @@ Amendment (TASK-0188, decision-0028 §8; operator ruling 2026-11-02: "All (a), a
 
 The accessible names "Message type", "Channel", "Scope", "Declare", "Comment on this action",
 "Approve", "Object" and "Suggest an alternative" no longer appear in a player's view.
+
+**Amendment (TASK-0236).** Spec `specs/090-table-margin`. Operator ruling R2 (a), 2026-11-05. The change is layout plus additive surfaces. No modal anywhere.
+
+| Surface | Change |
+|---|---|
+| Layout | The stream column and the `Margin` sit in one flex row. Below the stream, above the composer, sit `MiniStrip` and `StatusStrip`. The turn-order strip no longer sits under the header. |
+| `Margin` (new, `components/margin.tsx`) | An `aside` named "Table state", 15 rem wide, hidden at the `narrow:` breakpoint. Sections: "Party" (name and vitals), "Turn order" (the `TurnOrder` list, turn mode only; otherwise "Not in combat."), "Conditions" (or "Conditions: none."). |
+| `MiniStrip` (new, `components/mini-strip.tsx`) | One line shown only at `narrow:`: other members' HP and the first three in turn order. |
+| `StatusStrip` (new, `components/status-strip.tsx`) | One line above the composer: the viewer's character, HP, AC, conditions and whose turn it is. |
+
+Accessible names added: "Table state". The "Turn order" list keeps its name.

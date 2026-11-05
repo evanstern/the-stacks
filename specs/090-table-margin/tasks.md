@@ -45,15 +45,15 @@ Browser checks use Brave.
 **Independent test**: `contrast.test.mjs`, `no-dialog.test.mjs`, `play-surfaces.test.mjs` and the
 wiki freshness gate pass.
 
-- [ ] T007 Add every new token pair to `apps/web/test/contrast.test.mjs` (plan D9). Fix any failing
+- [x] T007 Add every new token pair to `apps/web/test/contrast.test.mjs` (plan D9). Fix any failing
       pair in `apps/web/app/app.css`, keeping both dark blocks byte-identical. List the pairs in the
       commit message.
-- [ ] T008 Confirm `apps/web/test/no-dialog.test.mjs` and `play-surfaces.test.mjs` scan the new files;
+- [x] T008 Confirm `apps/web/test/no-dialog.test.mjs` and `play-surfaces.test.mjs` scan the new files;
       extend their globs if they do not.
-- [ ] T009 Append the two amendment blocks in plan "Contract amendments" to their contract files.
-- [ ] T010 Run `/grounding-wiki:wiki-update` for the notes in plan "Files", and add one sentence for
+- [x] T009 Append the two amendment blocks in plan "Contract amendments" to their contract files.
+- [x] T010 Run `/grounding-wiki:wiki-update` for the notes in plan "Files", and add one sentence for
       TASK-0236 (spec 090) to `docs/wiki/CAPSULES.md` and the `docs/wiki/INDEX.md` state paragraph.
-- [ ] T011 Run the wiki freshness gate (`OK`) and `pnpm ci:check`. Commit as
+- [x] T011 Run the wiki freshness gate (`OK`) and `pnpm ci:check`. Commit as
       `TASK-0236 phase 2: contrast, contract amendments and wiki`.
 
 ## Phase 3: Verification **[orchestrator]**
