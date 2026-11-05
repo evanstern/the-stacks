@@ -71,4 +71,4 @@
 
 | Date | Task | PR | Merge | Dispatches | Notes |
 |---|---|---|---|---|---|
-| 2026-11-05 | TASK-0236 | — | — | phase 1 dispatched | |
+| 2026-11-05 | TASK-0236 | (pending) | — | spec opus; phases 1-2 sonnet; phase 3 orchestrator | live check in the app browser pane, not Brave (see evidence) |

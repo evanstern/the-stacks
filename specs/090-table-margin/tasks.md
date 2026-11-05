@@ -58,11 +58,11 @@ wiki freshness gate pass.
 
 ## Phase 3: Verification **[orchestrator]**
 
-- [ ] T012 **[orchestrator]** Run the plan D10 live check in two Brave windows on a worktree stack
+- [x] T012 **[orchestrator]** Run the plan D10 live check in two Brave windows on a worktree stack
       (`pnpm env:up`). Record each listed state at 1280 and 390 px, light and dark. Confirm no modal in
       any shot.
-- [ ] T013 **[orchestrator]** Commit shots and notes under `specs/090-table-margin/evidence/`.
-- [ ] T014 **[orchestrator]** Record the dispatch lines on the card, run the spec-bridge check
+- [x] T013 **[orchestrator]** Commit shots and notes under `specs/090-table-margin/evidence/`.
+- [x] T014 **[orchestrator]** Record the dispatch lines on the card, run the spec-bridge check
       (exit 0) and `pnpm ci:check`.
 
 ## Dependencies
