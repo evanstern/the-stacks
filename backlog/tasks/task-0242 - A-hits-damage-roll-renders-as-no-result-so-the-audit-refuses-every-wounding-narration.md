@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-11-05 04:07'
-updated_date: '2026-11-05 05:13'
+updated_date: '2026-11-05 05:15'
 labels:
   - dm
   - narration
@@ -42,6 +42,8 @@ Related: TASK-0104 (spec 082), TASK-0214 (audit pass rate).
 Narrowed by run 1 seq 172-192: a PC's hit (Tamsin on Snag, seq 176-183) rendered its damage and passed the audit on attempt 1. The 'no result' line hits NPC-turn hits only (seq 163-170 goblin-4, seq 185-192 lookout): the NPC turn's ':dmg' submission reaches npcTurn facts with no outcome. Look at the npcTurn roll path in facts.ts, not the PC action path.
 
 Claimed 2026-11-05 by M3 runbook B2 (docs/design/m3-runbook-b2-playtest-fixes.md, PR #132). Worktree .worktrees/task-0242, branch task-0242-npc-hit-damage-line, cut from origin/main 8128fb3a. No spec dir: signed escape line E1 covers this task.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (E1 implementation)
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
