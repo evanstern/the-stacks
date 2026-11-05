@@ -6,6 +6,7 @@ title: >-
 status: To Do
 assignee: []
 created_date: '2026-11-05 04:07'
+updated_date: '2026-11-05 04:10'
 labels:
   - dm
   - narration
@@ -34,6 +35,12 @@ Related: TASK-0104 (spec 082), TASK-0214 (audit pass rate).
 - [ ] #1 A damage roll's fact line states the damage dealt (amount and target), not 'no result', with a facts test replaying seq 163-166
 - [ ] #2 A narration showing that wound passes the audit, with a scripted-audit test over seq 163-170
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Narrowed by run 1 seq 172-192: a PC's hit (Tamsin on Snag, seq 176-183) rendered its damage and passed the audit on attempt 1. The 'no result' line hits NPC-turn hits only (seq 163-170 goblin-4, seq 185-192 lookout): the NPC turn's ':dmg' submission reaches npcTurn facts with no outcome. Look at the npcTurn roll path in facts.ts, not the PC action path.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
