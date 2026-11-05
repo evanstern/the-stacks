@@ -1,10 +1,10 @@
 ---
 id: TASK-0240
 title: The narration audit refuses a reflex flinch the operator ruled allowed
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-11-05 04:00'
-updated_date: '2026-11-05 05:29'
+updated_date: '2026-11-05 05:42'
 labels:
   - dm
   - narration
@@ -43,8 +43,14 @@ Reflex flinch allowed: audit-v13 prompt rule + namesOnlyReflex downgrade in llmI
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (E2 implementation)
 <!-- SECTION:NOTES:END -->
 
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Merged PR #134 (fed4dee3), runbook B2 spine #2, escape E2. The audit prompt (audit-v13) states a listed reflex, including a flinch on a foe's miss, is never player-agency; namesOnlyReflex downgrades a reflex-only player-agency issue to advisory in code. A chosen dodge or timed twist still blocks. Replay of seq 100-106 attempt 2.
+<!-- SECTION:FINAL_SUMMARY:END -->
+
 ## Definition of Done
 <!-- DOD:BEGIN -->
-- [ ] #1 All tests and checks run green
-- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
+- [x] #1 All tests and checks run green
+- [x] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
