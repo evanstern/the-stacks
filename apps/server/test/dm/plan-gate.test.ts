@@ -1581,6 +1581,16 @@ describe("monster arrivals (spec 088)", () => {
     expect(out[0]?.name).toBe("Goblin lookout");
   });
 
+  it("leaves a seed NPC that is also a monster to the 078 path", () => {
+    const out = arrivingMonsters(
+      duo.seed,
+      duo.projections,
+      { arrivals: ["snag"], tableMode: { to: "stay" } },
+      "commit",
+    );
+    expect(out).toEqual([]);
+  });
+
   it("encounterRan: active order and a logged start", () => {
     if (!reedCamp) throw new Error("no reed-camp");
     expect(encounterRan(duo.projections, reedCamp)).toBe(false);

@@ -252,7 +252,10 @@ export function arrivingMonsters(
     ),
   );
   const ids = [
-    ...(director.arrivals ?? []).filter((id) => all.has(id)),
+    // A seed NPC that is also an encounter monster arrives by the 078 path.
+    ...(director.arrivals ?? []).filter(
+      (id) => all.has(id) && !seed.npcs.some((n) => n.id === id),
+    ),
     ...joiningCombatants(
       encounterToStart(seed, director, trigger),
       projections.engine.combatants,
