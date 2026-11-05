@@ -22,6 +22,7 @@ import {
   PASSIVE_ONLY,
   SPEECH_VERBS,
   TURN_ACT_VERBS,
+  TURN_READY_PHRASE,
   TURN_ORDER_PHRASE,
   UNCONSCIOUS_RECORDED,
   UNCONSCIOUS_WORDS,
@@ -721,7 +722,7 @@ const TURN_ACT_FORMS = new Set(TURN_ACT_VERBS.flatMap(verbForms));
 
 /**
  * Names an off-turn actor shown taking a turn action (strike, shoot, cast,
- * throw, charge). Same walk as `actIssues`, with a different actor filter and
+ * throw, charge) or readying for the next one (TASK-0246). Same walk as `actIssues`, with a different actor filter and
  * verb list. Words, looks and flinches pass.
  * ponytail: unique aliases only ("the goblin" with three goblins is skipped);
  * upgrade to the group-noun resolver when a playtest shows a shared-noun breach passing.
@@ -757,8 +758,11 @@ export function offTurnActs(
           break;
         const between = narr.slice(o.end, t.start).replace(/’/g, "'");
         if (NEGATION_RE.test(between)) break;
-        if (!TURN_ACT_FORMS.has(t.w)) continue;
-        const matched = truncate(text.slice(o.start, t.end));
+        const ready = TURN_READY_PHRASE.exec(narr.slice(t.start, segEnd));
+        if (!TURN_ACT_FORMS.has(t.w) && !ready) continue;
+        const matched = truncate(
+          text.slice(o.start, ready ? t.start + ready[0].length : t.end),
+        );
         const key = `${actor.id}|${matched}`;
         if (!seen.has(key)) {
           seen.add(key);

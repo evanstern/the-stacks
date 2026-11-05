@@ -7,7 +7,7 @@ import type { ActorSnapshot } from "../snapshot/index.js";
 import { CAPS, capEntries, joinSections, section } from "./common.js";
 import { characterSections, factEntries, TURN_RULE } from "./narrate.js";
 
-export const PROMPT_VERSION = "dm.audit-v13";
+export const PROMPT_VERSION = "dm.audit-v14";
 
 const OUTPUT_SHAPE = [
   "Reply with ONE JSON object and nothing else:",

@@ -815,7 +815,11 @@ describe("audit loop", () => {
 });
 
 describe("off-turn act blocks before dm.audit (TASK-0214)", () => {
-  it("refuses the attempt in code and records no dm.audit call for it", async () => {
+  it.each([
+    ["Guard hurls a spear at Ana."],
+    ["Guard draws back for another try."],
+    ["Guard shifts its grip on the spear."],
+  ])("refuses the attempt in code and records no dm.audit call for it: %s", async (line) => {
     // One dm.audit response only: a call on attempt 1 would consume it and pass the off-turn prose.
     const scripted = createScriptedDm(
       loadDmScript({
@@ -823,7 +827,7 @@ describe("off-turn act blocks before dm.audit (TASK-0214)", () => {
         name: "audit",
         dice: [],
         calls: [
-          text("dm.narrate", `${CLEAN} Guard hurls a spear at Ana.`),
+          text("dm.narrate", `${CLEAN} ${line}`),
           text("dm.narrate", CLEAN),
           json("dm.audit", PASS),
         ],
