@@ -4,7 +4,7 @@ title: Combat narration fails the audit on most turns
 status: In Progress
 assignee: []
 created_date: '2026-11-02 23:22'
-updated_date: '2026-11-04 03:15'
+updated_date: '2026-11-05 03:58'
 labels:
   - dm
   - narration
@@ -59,6 +59,8 @@ spec-bridge sync: Only the on-turn actor acts (US1; FR-001 to FR-004): 10/10 · 
 AC #2: combat-audit-replay.test.ts replays seq 103, 126, 131, 161, 196 (rebuilt from the playtest log). Pre-audit block proven in audit.test.ts (no dm.audit call on an off-turn-act attempt). Gates on the final tree, two full runs: green. AC #1 (70%+ first-attempt pass on a hosted 15+ combat-turn run) ticks at the runbook B playtest; card stays In Progress until then.
 
 Playtest ceiling (runbook B playtest, 2026-11-03), operator's words: "Play it, ceiling $100".
+
+Runbook B playtest run 1 seq 71: fallback after 3 attempts (two 'dies' claim-check blocks, one success-on-severe ledger-mismatch). 91 s turn. Counting for AC #1 continues.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
