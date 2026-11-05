@@ -6,6 +6,7 @@ title: >-
 status: To Do
 assignee: []
 created_date: '2026-11-05 03:53'
+updated_date: '2026-11-05 03:58'
 labels:
   - dm
   - rules
@@ -34,6 +35,12 @@ Related: TASK-0206 (arrivals), TASK-0170 (declared outcome), TASK-0221 (lexical 
 - [ ] #2 The Director's goal note does not promise a result the turn's dice will decide (prompt rule plus test), or arrivals that depend on a check wait for resolve
 - [ ] #3 The audit flags prose that delivers a success outcome on a failure band (ledger-mismatch), with a test
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Run 1 again (seq 63-72): the goal note promised the leader clue before Kestrel's Perception (severe failure, 9 vs DC 15). This time the audit caught it on attempt 2 (ledger-mismatch, actor Kestrel) and the fallback told the severe outcome. So the audit backstop works sometimes; the Director pre-deciding the outcome is the source.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
