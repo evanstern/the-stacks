@@ -1,10 +1,10 @@
 ---
 id: TASK-0238
 title: An encounter monster can't be acted on before its encounter starts
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-11-05 03:56'
-updated_date: '2026-11-05 03:58'
+updated_date: '2026-11-05 05:13'
 labels:
   - dm
   - playtest
@@ -38,6 +38,8 @@ Related: TASK-0206, TASK-0210, TASK-0128, TASK-0201 (objects as targets).
 
 <!-- SECTION:NOTES:BEGIN -->
 Run 1 seq 73-92: Odo's second parley (coin to the lookout) refused UNKNOWN_COMBATANT although the Director started the reed-camp encounter in the same beat (seq 90: goblin-3 'Goblin lookout' became a combatant). Same-beat encounter start does not make the monsters nameable for that beat's plan gate. Spec 078 fixed this for seed NPCs (arriving ids not absent) but not for encounter monsters. The narration voiced the refused coin toss (seq 94).
+
+Claimed 2026-11-05 by M3 runbook B2 (docs/design/m3-runbook-b2-playtest-fixes.md, PR #132). Worktree .worktrees/task-0238, branch task-0238-pre-encounter-monster, cut from origin/main 8128fb3a. Spec number 088 claimed with a stub.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
