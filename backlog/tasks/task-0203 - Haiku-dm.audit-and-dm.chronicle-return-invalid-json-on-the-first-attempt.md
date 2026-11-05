@@ -4,7 +4,7 @@ title: Haiku dm.audit and dm.chronicle return invalid-json on the first attempt
 status: In Progress
 assignee: []
 created_date: '2026-11-02 19:42'
-updated_date: '2026-11-05 04:01'
+updated_date: '2026-11-05 04:08'
 labels:
   - dm
   - playtest
@@ -51,6 +51,8 @@ Runbook B playtest run 1 (2026-11-03, session 729a6c5c, seq 28): dm.chronicle-v4
 Run 1 seq 40: dm.audit-v12 invalid-json on attempt 1 (139 tokens), ok on attempt 2. 2 of 8 first-attempt audit/chronicle calls failed to parse so far.
 
 Run 1 seq 96-124: three more dm.audit invalid-json on attempt 1, all recovered on attempt 2.
+
+Run 1 seq 133-170: dm.audit and dm.companion invalid-json on attempt 1, both recovered. Total so far: 8 first-attempt parse failures.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
