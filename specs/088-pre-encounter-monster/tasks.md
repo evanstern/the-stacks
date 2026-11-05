@@ -56,15 +56,15 @@ and one commit led by `TASK-0238:`. Edit only the hunks plan D1 to D7 name.
 
 ## Phase 3: A refused action is not narrated as done (card AC #3)
 
-- [ ] T015 In `apps/server/src/dm/facts.ts`, give a refused action `followUps: []` (plan D6).
-- [ ] T016 In `apps/server/src/dm/prompts/narrate.ts`, apply plan D6: the version bump, the refused
+- [x] T015 In `apps/server/src/dm/facts.ts`, give a refused action `followUps: []` (plan D6).
+- [x] T016 In `apps/server/src/dm/prompts/narrate.ts`, apply plan D6: the version bump, the refused
       fact line, and the SYSTEM rule.
-- [ ] T017 In `apps/server/src/dm/fallback.ts`, skip `changeSentences` for a refused action
+- [x] T017 In `apps/server/src/dm/fallback.ts`, skip `changeSentences` for a refused action
       (plan D6).
-- [ ] T018 Edit `apps/server/test/dm/facts.test.ts`, `narrate.test.ts` and `fallback.test.ts` per
+- [x] T018 Edit `apps/server/test/dm/facts.test.ts`, `narrate.test.ts` and `fallback.test.ts` per
       plan D8. One test builds facts for a refused action with follow-ups and asserts the rendered
       entries hold "it did not happen" and no "not yet attempted" line.
-- [ ] T019 Run `pnpm ci:check`. Commit `TASK-0238: a refused action did not happen`.
+- [x] T019 Run `pnpm ci:check`. Commit `TASK-0238: a refused action did not happen`.
 
 ## Phase 4: The run 1 replays (merge condition; card AC #1, #2, #3)
 

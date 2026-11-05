@@ -311,7 +311,7 @@ export function factualSummary(
       if (sentences.length > 0) out.push(...sentences);
       else out.push(`${name} goes ahead with it.`);
     }
-    out.push(...changeSentences(a.changes));
+    if (a.outcome !== "refused") out.push(...changeSentences(a.changes));
   }
 
   if (facts.npcTurn) {

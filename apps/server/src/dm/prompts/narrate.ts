@@ -25,7 +25,7 @@ import {
   transcriptEntries,
 } from "./common.js";
 
-export const PROMPT_VERSION = "dm.narrate-v20";
+export const PROMPT_VERSION = "dm.narrate-v21";
 
 /** One turn rule, shared by the narrate and audit prompts (TASK-0214). */
 export const TURN_RULE =
@@ -39,6 +39,7 @@ const RULES = [
   agencyRule("narrate"),
   "Every other character is part of the world. Give NPCs and monsters words, looks and feelings.",
   "No rules effect means nothing was rolled. The attempt still happens; show what the world does with it. Never grant a hit, a wound, a condition, a death or a hidden discovery without a fact.",
+  "A refused action did not happen: no roll and no result. Never show it succeed, fail or land, and never show anyone react to its result.",
   "When a foe's attack misses a party member, its grab fails, or a party member succeeds on a save against it, tell it from the foe's side: the blow goes wide, glances off armour, finds only air. On a miss listed under Reflex, the party member may flinch. The flinch never causes the miss. Never show the party member choosing a defence: no dodge, no duck, no twist that times the blow, no step aside. Never show a wound unless a fact records damage.",
   "A roll's band and outcome are settled. A success means the attempted task happens. Deliver the outcome and any learned fact plainly in the prose; invent no other. A success at a cost succeeds and the consequence lands. A severe failure fails worse than a plain failure. A free retry with no roll succeeds.",
   "When an intent is unclear, describe the moment, then end with the Unclear intent question exactly as written.",
@@ -121,7 +122,7 @@ export function factEntries(facts: NarrationFacts): string[] {
     const onHold = facts.clarify.some((c) => c.actionId === a.actionId);
     if (a.outcome === "refused") {
       out.push(
-        `${head}refused${a.refusalCode ? ` (refused: ${a.refusalCode})` : ""}`,
+        `${head}refused${a.refusalCode ? ` (refused: ${a.refusalCode})` : ""}: it did not happen; nothing was rolled and nothing changed`,
       );
     } else if (onHold) {
       out.push(`${head}on hold (the intent is unclear; nothing happened yet)`);
