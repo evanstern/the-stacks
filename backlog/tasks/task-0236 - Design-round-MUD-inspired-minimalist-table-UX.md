@@ -68,6 +68,8 @@ Phase 1 note: ci:check fails only at server adjudicate integration tests without
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5[1m] (spec 090 phase 2, 4cfff877)
 
 Phase 3 (orchestrator): live check at 1280/390, light/dark, evidence in specs/090-table-margin/evidence/ (app browser pane, not Brave). Merged origin/main (b7ccccc1); party-panel re-pinned RE-PIN-ONLY after reading main's resolve.ts diff. Full ci:check with DB on the merged tree: 11/11, server 1859 passed.
+
+spec-bridge sync: Margin, mini-strip, status strip (US1, US2; FR-001 to FR-005; R2): 6/6 · Contrast, no-dialog, contract amendments and wiki (FR-021, FR-022; SC-003, SC-007): 5/5 · Verification **[orchestrator]**: 3/3 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
