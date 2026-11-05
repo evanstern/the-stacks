@@ -4,7 +4,7 @@ title: Combat narration fails the audit on most turns
 status: In Progress
 assignee: []
 created_date: '2026-11-02 23:22'
-updated_date: '2026-11-05 04:08'
+updated_date: '2026-11-05 04:33'
 labels:
   - dm
   - narration
@@ -65,6 +65,8 @@ Runbook B playtest run 1 seq 71: fallback after 3 attempts (two 'dies' claim-che
 Run 1 combat so far (seq 96-124): 1 of 4 combat narrations passed on attempt 1. Refusals: off-turn actor shown acting (caught by the model audit, not the code check: 'turning its head' and 'draws back for another try' are not in the strike/shoot/cast verbs), Odo's dodge, and a false refusal of a reflex flinch (TASK-0239).
 
 Run 1 combat through seq 170: combat narrations 9, first-attempt passes 4 (lookout, pot-helm goblin, Odo's parley, Snag's talk). Fallbacks: goblin-4 x2, Kestrel's Help. A systematic cause found: damage rolls render 'no result' (TASK-0242).
+
+AC #1 measured, runbook B playtest run 1 (session 729a6c5c, seq 94-313): 23 combat narrations; 10 passed on attempt 1 (43%), 5 after a regenerate, 8 fallbacks. AC #1 (70%) NOT met. Main causes carded: TASK-0242 (NPC-hit damage 'no result'), TASK-0244 (companion out of turn), TASK-0240 (flinch false block); the off-turn code check misses non-attack verbs ('turns its head', 'shifts its grip', 'watches') that the model audit still blocks.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
