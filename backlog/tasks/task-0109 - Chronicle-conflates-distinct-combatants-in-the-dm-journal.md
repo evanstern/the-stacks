@@ -4,7 +4,7 @@ title: Chronicle conflates distinct combatants in the dm journal
 status: To Do
 assignee: []
 created_date: '2026-10-26 19:15'
-updated_date: '2026-11-02 04:54'
+updated_date: '2026-11-05 03:51'
 labels:
   - dm
   - chronicle
@@ -32,6 +32,8 @@ Evidence: TASK-0106 verification run 20261026T183818Z (specs/034-narration-quali
 
 <!-- SECTION:NOTES:BEGIN -->
 Run 3 evidence (2026-11-02, session e8e8326d, seq 220): the chronicle called Snag 'the ferryman' (Snag is the goblin leader); seq 195 also mixed up which goblin acts next. Same family as this card's conflation.
+
+Runbook B playtest run 1 (2026-11-03, session 729a6c5c, seq 41): the chronicle says 'Wenna Marsh revealed the true concern' for clawed prints Kestrel found (seq 40). Attribution, not combatant merging, but the same journal-accuracy family.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
