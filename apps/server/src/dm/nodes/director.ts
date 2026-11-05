@@ -74,7 +74,7 @@ export function runnableEncounterIds(
 const TEXT_CAP = 300;
 
 /** Cuts text to the cap at the last space before it; a spaceless run is cut hard. */
-function capText(text: string): string {
+export function capText(text: string): string {
   if (text.length <= TEXT_CAP) return text;
   const head = text.slice(0, TEXT_CAP);
   const space = head.lastIndexOf(" ");

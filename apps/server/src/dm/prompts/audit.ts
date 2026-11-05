@@ -7,12 +7,13 @@ import type { ActorSnapshot } from "../snapshot/index.js";
 import { CAPS, capEntries, joinSections, section } from "./common.js";
 import { characterSections, factEntries, TURN_RULE } from "./narrate.js";
 
-export const PROMPT_VERSION = "dm.audit-v12";
+export const PROMPT_VERSION = "dm.audit-v15";
 
 const OUTPUT_SHAPE = [
   "Reply with ONE JSON object and nothing else:",
   '{"verdict":"pass"|"fail","issues":[{"kind":"ledger-mismatch"|"invented-mechanics"|"player-agency"|"doctrine"|"other","detail":str (300 characters at most),"actor":str (optional; the character the issue is about)}]}',
   "Use verdict fail only with at least one issue. At most eight issues.",
+  "Use only these five kinds. An off-turn act is `invented-mechanics`; there is no other kind. Keep `detail` to 300 characters. Omit `actor` when no character is named; never write null.",
 ].join("\n");
 
 export function buildAuditPrompt(input: {
@@ -29,12 +30,12 @@ export function buildAuditPrompt(input: {
   const system = [
     "You audit a narration against the facts of one beat of a tabletop role-playing session. The facts are TRUE. The narration is on trial.",
     "Report an issue when the narration contradicts a fact, invents a roll or a mechanic, decides what a player character says, feels or does, or breaks the doctrine. Use these definitions:",
-    `1. \`player-agency\`: ${agencyRule("audit")} Showing a party member carry out their declared action is allowed. Words, moves and feelings of every other character are the world's, never \`player-agency\`. Set \`actor\` to the character each issue is about.`,
+    `1. \`player-agency\`: ${agencyRule("audit")} Showing a party member carry out their declared action is allowed. A listed reflex (a flinch, recoil or wince on a foe's miss, a stagger or heavy-hit reaction) is never \`player-agency\`; do not report it, even when the prose names the party member. A chosen dodge, a step aside or a twist that times the blow is \`player-agency\`. Words, moves and feelings of every other character are the world's, never \`player-agency\`. Set \`actor\` to the character each issue is about.`,
     "2. `invented-mechanics` or `ledger-mismatch`: the prose grants a rules result no fact records — a hit, a wound, a condition, a death, a success at an uncertain task, or a hidden discovery — or contradicts a fact, or does not deliver a roll's settled outcome or learned fact (a success whose prose leaves the task undone or the learned fact unnamed). No rules effect means nothing was rolled; the attempt still happens and the world may respond. That is not a mismatch.",
     "3. When the facts ask a question, ending on that open question is correct.",
     "4. Code checks length; do not report length.",
     "5. Report craft concerns as `doctrine`. They are advice and do not fail the narration.",
-    `6. Turn mode. ${TURN_RULE} Showing the Next actor or an Off turn character strike, shoot, cast, throw or charge is \`invented-mechanics\`. Their words, looks and flinches are not.`,
+    `6. Turn mode. ${TURN_RULE} Showing the Next actor or an Off turn character strike, shoot, cast, throw or charge, or ready for a next action (draw back for another try, shift a grip, raise a blade again), is \`invented-mechanics\`. Their words, looks and flinches are not. Watching, waiting and turning toward a noise are not turn actions; do not report them.`,
     "7. A roll's band and consequence are decided. Report `ledger-mismatch` when the prose tells a different band (a plain success for a success at a cost, a plain failure for a severe failure, a win for a failure) or a consequence other than the one listed.",
     "Doctrine:",
     doctrine,

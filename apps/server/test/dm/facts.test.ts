@@ -210,6 +210,67 @@ describe("dice-line renderer", () => {
     ]);
   });
 
+  it("TASK-0242: an NPC hit's separate damage submission states damage dealt (run 1 seq 163-166)", () => {
+    const rows = [
+      ...attackRows("hit", 13),
+      roll(3, "b2", 0, {
+        reason: "Goblin by the fire stabs: damage",
+        expression: "1d4+2",
+        purpose: "damage",
+        combatantId: "goblin",
+        faces: [2],
+        mod: 2,
+        natural: null,
+      }),
+      hpRow(4, "b2", 1, "ana", 13, 9),
+    ];
+    const c = collectFacts(rows, nameOf, new Map([[4, "piercing"]]));
+    expect(c.rolls[1]?.damage?.dealt).toEqual({
+      amount: 4,
+      type: "piercing",
+      target: "Ana",
+    });
+    const f = {
+      npcTurn: {
+        name: "Goblin",
+        rolls: c.rolls,
+        outcomes: c.outcomes,
+        changes: c.changes,
+      },
+      actions: [],
+      events: [],
+      rulings: [],
+      clarify: [],
+      presentNpcs: [],
+      party: [],
+      director: {
+        goalNote: "",
+        sceneEnded: false,
+        pacing: { tension: "high", spotlight: null, beatId: null },
+      },
+    } as unknown as NarrationFacts;
+    const text = factEntries(f).join("\n");
+    expect(text).toContain("damage dealt: 4 piercing to Ana");
+    expect(text).not.toContain("no result");
+  });
+
+  it("TASK-0242: a damage roll with no hp row never invents damage", () => {
+    const rows = [
+      roll(3, "b2", 0, {
+        reason: "Goblin stabs: damage",
+        expression: "1d4+2",
+        purpose: "damage",
+        combatantId: "goblin",
+        faces: [2],
+        mod: 2,
+        natural: null,
+      }),
+    ];
+    expect(collectFacts(rows, nameOf).rolls[0]?.damage).toEqual({
+      dealt: null,
+    });
+  });
+
   it("renders a critical hit", () => {
     const c = collectFacts(attackRows("critical-hit", 20), nameOf);
     expect(c.rolls.map(renderRollLine)).toEqual([

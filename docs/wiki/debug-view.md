@@ -37,7 +37,7 @@ sources:
   - apps/web/app/debug/use-debug-session.ts
   - apps/web/app/debug/waiting.ts
   - apps/web/app/routes/play-debug.tsx
-verified_against: a64dcee87d062d661ddd1f6262a3f6596dee2ba1
+verified_against: da173eaa7e314723c52253f0ebe17488e9480ee1
 ---
 
 # Debug view API
@@ -87,9 +87,8 @@ submission as "unknown".
 
 `dm_model_calls` ([[database-schema]]) gets one row as each model attempt ends, so a running
 turn's calls show before the job finishes. It also holds attempts `jobs.result.calls` omits
-(`outcome: "aborted"`; `"truncated"` (TASK-0192); lower `jobAttempt` after a reclaim). `totals` has `all`, `byPurpose` and
-`byModel` (key `<provider>/<model>`, or `unknown`). A null token count adds 0; a null cost adds
-nothing and counts in `unpricedCalls`. Sum cost from the ledger, never from `calls`.
+(`outcome: "aborted"`; lower `jobAttempt` after a reclaim). Outcomes add `truncated`, `schema-mismatch`. `totals` has `all`, `byPurpose` and
+`byModel` (key `<provider>/<model>`, or `unknown`). A null token count adds 0; a null cost adds nothing, counts in `unpricedCalls`. Sum cost from the ledger, not `calls`.
 
 ## The debug page
 

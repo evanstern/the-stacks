@@ -1,0 +1,2 @@
+ALTER TABLE "dm_model_calls" DROP CONSTRAINT "dm_model_calls_outcome_valid";--> statement-breakpoint
+ALTER TABLE "dm_model_calls" ADD CONSTRAINT "dm_model_calls_outcome_valid" CHECK ("dm_model_calls"."outcome" IN ('ok', 'invalid-json', 'schema-mismatch', 'truncated', 'error', 'aborted'));

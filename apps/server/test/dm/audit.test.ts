@@ -815,61 +815,68 @@ describe("audit loop", () => {
 });
 
 describe("off-turn act blocks before dm.audit (TASK-0214)", () => {
-  it("refuses the attempt in code and records no dm.audit call for it", async () => {
-    // One dm.audit response only: a call on attempt 1 would consume it and pass the off-turn prose.
-    const scripted = createScriptedDm(
-      loadDmScript({
-        v: 1,
-        name: "audit",
-        dice: [],
-        calls: [
-          text("dm.narrate", `${CLEAN} Guard hurls a spear at Ana.`),
-          text("dm.narrate", CLEAN),
-          json("dm.audit", PASS),
-        ],
-      }),
-    );
-    const gateway = createGateway({
-      config: scripted.aiConfig,
-      sink: memorySink(),
-      adapters: { fake: () => scripted.provider },
-    });
-    const events = freeEventsThrough("action.resolved");
-    const base = makeCtx({
-      deps: { gateway, loadProjections: async () => projectDm(events) },
-    });
-    const assembled = await assemble(base);
-    if (!assembled.ok) throw new Error("assemble failed");
-    const resolve: ResolveOutput = {
-      ...resolved,
-      snapshot: claimState().snapshot,
-    };
-    const ctx0 = {
-      ...base,
-      results: { assemble: assembled.output, director, resolve },
-    };
-    const narrated = await narrate(ctx0);
-    if (!narrated.ok) throw new Error("narrate failed");
-    const withTurn = {
-      ...narrated.output,
-      facts: {
-        ...narrated.output.facts,
-        turn: { actor: "Ana", next: null, offTurn: ["Guard"] },
-      },
-    };
-    const out = await audit({
-      ...ctx0,
-      results: { ...ctx0.results, narrate: withTurn },
-    });
-    if (!out.ok) throw new Error("audit failed");
-    const r = out.output.record;
-    expect(r.attempts[0]?.llm).toEqual({ skipped: true });
-    expect(r.attempts[0]?.deterministic.issues[0]?.kind).toBe(
-      "invented-mechanics",
-    );
-    expect(r.final).toBe("passed-after-regenerate");
-    expect(r.attempts).toHaveLength(2);
-    expect(scripted.remaining().calls["dm.audit"]).toBe(0);
-    expect(out.calls.filter((c) => c.purpose === "dm.audit")).toHaveLength(1);
-  });
+  it.each([
+    ["Guard hurls a spear at Ana."],
+    ["Guard draws back for another try."],
+    ["Guard shifts its grip on the spear."],
+  ])(
+    "refuses the attempt in code and records no dm.audit call for it: %s",
+    async (line) => {
+      // One dm.audit response only: a call on attempt 1 would consume it and pass the off-turn prose.
+      const scripted = createScriptedDm(
+        loadDmScript({
+          v: 1,
+          name: "audit",
+          dice: [],
+          calls: [
+            text("dm.narrate", `${CLEAN} ${line}`),
+            text("dm.narrate", CLEAN),
+            json("dm.audit", PASS),
+          ],
+        }),
+      );
+      const gateway = createGateway({
+        config: scripted.aiConfig,
+        sink: memorySink(),
+        adapters: { fake: () => scripted.provider },
+      });
+      const events = freeEventsThrough("action.resolved");
+      const base = makeCtx({
+        deps: { gateway, loadProjections: async () => projectDm(events) },
+      });
+      const assembled = await assemble(base);
+      if (!assembled.ok) throw new Error("assemble failed");
+      const resolve: ResolveOutput = {
+        ...resolved,
+        snapshot: claimState().snapshot,
+      };
+      const ctx0 = {
+        ...base,
+        results: { assemble: assembled.output, director, resolve },
+      };
+      const narrated = await narrate(ctx0);
+      if (!narrated.ok) throw new Error("narrate failed");
+      const withTurn = {
+        ...narrated.output,
+        facts: {
+          ...narrated.output.facts,
+          turn: { actor: "Ana", next: null, offTurn: ["Guard"] },
+        },
+      };
+      const out = await audit({
+        ...ctx0,
+        results: { ...ctx0.results, narrate: withTurn },
+      });
+      if (!out.ok) throw new Error("audit failed");
+      const r = out.output.record;
+      expect(r.attempts[0]?.llm).toEqual({ skipped: true });
+      expect(r.attempts[0]?.deterministic.issues[0]?.kind).toBe(
+        "invented-mechanics",
+      );
+      expect(r.final).toBe("passed-after-regenerate");
+      expect(r.attempts).toHaveLength(2);
+      expect(scripted.remaining().calls["dm.audit"]).toBe(0);
+      expect(out.calls.filter((c) => c.purpose === "dm.audit")).toHaveLength(1);
+    },
+  );
 });

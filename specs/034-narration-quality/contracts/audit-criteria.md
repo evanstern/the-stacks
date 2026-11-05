@@ -248,3 +248,16 @@ companion". Audit prompt text is unchanged (`dm.audit-v10`).
   the deterministic check stays as the backstop.
 - `withholdRefusedInputs` also blanks a `goalNote` that states a count (`hasCountClaim`) and records a
   non-blocking `doctrine` issue on attempt 1.
+
+## Amendment 2026-11-05 (specs/086-schema-outcome-coercions, TASK-0203): `normalizeAudit`
+
+The `dm.audit` call passes `normalizeAudit` to `callJson`. It runs before the schema, on every
+attempt, and returns a copy. It coerces three shapes and nothing else:
+
+- A string issue `kind` outside `AUDIT_ISSUE_KINDS` becomes `other`. The original kind prefixes the
+  detail as `[kind] `. A non-string kind is not coerced.
+- A string `detail` over 300 characters is cut at the last space at or before 300 (`capText`), or at
+  300 when it has no space. The prefix is added first, then the cut. An empty detail is not coerced.
+- An `actor` equal to `null` is removed. An `actor` over 80 characters is not coerced.
+
+`other` never blocks. TASK-0214's off-turn code check still blocks before the call.

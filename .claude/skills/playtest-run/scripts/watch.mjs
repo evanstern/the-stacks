@@ -55,10 +55,11 @@ for (const j of fresh) {
   const cost = cs.reduce((s, c) => s + (c.costUsd ?? 0), 0);
   const bad = cs.filter((c) => c.outcome !== "ok");
   const invalid = cs.filter((c) => c.outcome === "invalid-json").length;
+  const schema = cs.filter((c) => c.outcome === "schema-mismatch").length;
   const retries = cs.filter((c) => c.callAttempt > 1).length;
   const trig = j.input?.trigger ? ` trigger=${j.input.trigger}` : "";
   console.log(`\n[${j.kind}${trig}] job ${j.id.slice(0, 8)} ${j.status.toUpperCase()} ${secs(j.startedAt, j.finishedAt)}s attempts=${j.attempts}`);
-  console.log(`  calls=${cs.length} not-ok=${bad.length} invalid-json=${invalid} retries=${retries} cost=${usd(cost)}`);
+  console.log(`  calls=${cs.length} not-ok=${bad.length} invalid-json=${invalid} schema=${schema} retries=${retries} cost=${usd(cost)}`);
   if (j.error) console.log(`  error: ${j.error}`);
   const f = j.result?.failure; if (f) console.log(`  failure: ${JSON.stringify(f).slice(0, 300)}`);
   const seqs = [...(j.result?.checkpoint?.narration?.seqs ?? []), ...(j.result?.checkpoint?.submissions ?? []).flatMap((s) => s.seqs ?? [])];
