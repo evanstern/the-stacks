@@ -4,7 +4,7 @@ title: 'Design round: MUD-inspired minimalist table UX'
 status: In Progress
 assignee: []
 created_date: '2026-11-05 03:37'
-updated_date: '2026-11-05 03:43'
+updated_date: '2026-11-05 03:46'
 labels:
   - design
   - ux
@@ -37,6 +37,9 @@ Phase 2 binding constraints (every round is checked against these): no modals (s
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5[1m]
 Research embed done: fb4cba36, branch gate OK. Limitation: sources are search-result summaries, not full-page reads; gaps listed in _grounding.md.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5[1m]
+Analysis done: 0e918e5f, analysis gate OK. Thesis: adopt MUD architecture (stream + server-pushed state panels), reject command grammar, map is a peer panel with text parity. Candidate directions: Scroll, Margin, Split, Board.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
