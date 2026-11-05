@@ -5,9 +5,8 @@
 **Created**: 2026-11-05
 
 **Status**: Draft, written against an accepted decision. The direction and OQ1 to OQ4 are ruled
-(`docs/design/mud-ux/decision.md`, 2026-11-04). Two frozen-contract changes need an operator ruling
-before the phases that use them start: **R1** and **R2** under "Frozen-contract items". Each carries
-a recommended default and a fallback that ships without it.
+(`docs/design/mud-ux/decision.md`, 2026-11-04). The operator ruled both frozen-contract changes
+**(a) accept** on 2026-11-05: **R1** and **R2** under "Frozen-contract items".
 
 **Input**: TASK-0236. Decision record: `docs/design/mud-ux/decision.md` ("the decision" below).
 Layout and states: `docs/design/mud-ux/round-1/b-margin.html`. Click-to-draft:
@@ -59,7 +58,7 @@ The decision's sequencing note splits the work. This spec is the first half.
 | Glossary: non-combatant NPC names and player-safe facts | nowhere on the client (066 recorded the same gap); `PlayerSeedView.npcs` on the server | **Missing → R1** |
 | Action economy (action, bonus, move) for the status strip | the engine tracks reactions only (`reactionsSpent`) | **Missing; not taken** (Non-goals) |
 
-## Frozen-contract items (red: each needs an operator ruling)
+## Frozen-contract items (ruled 2026-11-05: R1 (a), R2 (a))
 
 **R1 — `SceneSchema` gains three optional fields; the seed location gains `ways`.**
 Contracts: `specs/028-session-model/contracts/session-events.md` (`scene.changed`, `SceneSchema`),
@@ -73,7 +72,7 @@ Contracts: `specs/028-session-model/contracts/session-events.md` (`scene.changed
   joins `PlayerSeedView.location`.
 - At scene start the Director fills `description` from the player-facing location features, `ways`
   from the seed, and `cast` from `PlayerSeedView.npcs`. No DM-only seed field is read.
-- Options: **(a) recommended: accept the additive optional fields** (the spec 072 party precedent).
+- **Ruled (a), operator 2026-11-05.** Options were: **(a) accept the additive optional fields** (the spec 072 party precedent).
   (b) Reject. The fallback then ships: room blocks show the name only, with no description and no
   ways on; nouns and Tab completion cover party members and combatants only. US5 shrinks to that.
 
@@ -85,7 +84,7 @@ Contracts: `specs/030-play-route/contracts/ui-surfaces.md` (Layout, Components, 
   in the mini-strip at 390 px. Its list keeps the accessible name "Turn order".
 - New surfaces: the margin, the status strip, the mini-strip, the filter chips, room blocks, roll
   rows, parity lines, noun expansions and the command dropdown. The "Forbidden" list is unchanged.
-- Options: **(a) recommended: accept**; the change is layout plus additive surfaces. (b) Reject. The
+- **Ruled (a), operator 2026-11-05.** Options were: **(a) accept**; the change is layout plus additive surfaces. (b) Reject. The
   strip then stays under the header, and the margin shows party and conditions only.
 
 ## User Scenarios & Testing *(mandatory)*

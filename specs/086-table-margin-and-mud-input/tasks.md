@@ -3,7 +3,7 @@
 **Input**: `specs/086-table-margin-and-mud-input/` (spec.md, plan.md), `docs/design/mud-ux/decision.md`.
 Plan research R1 to R8 and design D1 to D10 settle every choice; read them before a phase.
 
-**Prerequisites**: TASK-0199 (spec 066) is merged. R1 and R2 are ruled. Phase 1 needs R1 (a);
+**Prerequisites**: TASK-0199 (spec 066) is merged. R1 (a) and R2 (a) were ruled by the operator on 2026-11-05. Phase 1 needs R1 (a);
 Phase 2 needs R2 (a). Under a (b) ruling, use the fallback the plan names in D2 or D4.
 
 **Dispatch**: each phase is one sonnet implementer dispatch. Phases run in order. Tasks marked
