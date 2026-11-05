@@ -4,7 +4,7 @@ title: 'Design round: MUD-inspired minimalist table UX'
 status: In Progress
 assignee: []
 created_date: '2026-11-05 03:37'
-updated_date: '2026-11-05 05:30'
+updated_date: '2026-11-05 05:31'
 labels:
   - design
   - ux
@@ -59,6 +59,8 @@ Operator selection 2026-11-04: B Margin plus C's click-to-draft — 'a slide-out
 
 Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=cc/claude-opus-5-5[1m] (spec authoring, per standing ruling)
 Spec 086 authored (5c75d95e) and linked. Two red contract items await operator ruling: R1 SceneSchema gains optional description/ways/cast (rec. accept); R2 turn-order strip moves into the margin (rec. accept). Ten settled judgment calls are listed in spec.md 'Decision gaps settled here' (history derived from own talk rows since contract 030 forbids localStorage; /roll dropped; monster nouns show no HP/AC). Action economy is a Non-goal (engine tracks reactions only).
+
+Operator ruling 2026-11-05: R1 (a) accept and R2 (a) accept ('Accept R1 and R2'). Recorded in spec.md and tasks.md. Spec 086 is implementation-ready once TASK-0199 (spec 066) merges.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
