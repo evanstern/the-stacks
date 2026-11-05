@@ -4,6 +4,7 @@ title: Dice lines hide the dropped die on advantage and disadvantage
 status: To Do
 assignee: []
 created_date: '2026-11-05 04:15'
+updated_date: '2026-11-05 04:38'
 labels:
   - dm
   - narration
@@ -30,6 +31,12 @@ Why: runbook B playtest run 1 (2026-11-03, session 729a6c5c, seq 175, 183). Tams
 - [ ] #2 The play-route ledger view shows the same, with a web test
 - [ ] #3 The auditor's dice-lines check accepts the new form, with a test
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Run 1 seq 349: a critical hit's damage line reads '1d8+2 → 7+4 = 13' (no 2d8, the doubled die looks like a modifier) then 'takes 4 piercing (4→0 HP)'. Same family: dice lines do not show how the engine rolled.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
