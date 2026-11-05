@@ -102,19 +102,19 @@ normalizer edge cases.
 **Independent test**: `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/1.0.1/gates/cli.mjs
 freshness . docs/wiki` prints `OK`.
 
-- [ ] T022 Run `/grounding-wiki:wiki-update`. Review `ai-gateway.md` (NEEDS-REVIEW): the gateway
+- [x] T022 Run `/grounding-wiki:wiki-update`. Review `ai-gateway.md` (NEEDS-REVIEW): the gateway
       is unchanged; confirm no outcome claim there and re-pin.
-- [ ] T023 Review `database-schema.md` (NEEDS-REVIEW): the CHECK list with `schema-mismatch` and
+- [x] T023 Review `database-schema.md` (NEEDS-REVIEW): the CHECK list with `schema-mismatch` and
       its migration number.
-- [ ] T024 Review `migrations.md` (NEEDS-REVIEW): add the new migration to `sources` and its row.
-- [ ] T025 Review `dm-runtime.md` (NEEDS-REVIEW): the outcome split, both log events, the audit
+- [x] T024 Review `migrations.md` (NEEDS-REVIEW): add the new migration to `sources` and its row.
+- [x] T025 Review `dm-runtime.md` (NEEDS-REVIEW): the outcome split, both log events, the audit
       and chronicle normalizers, the new interpret and director versions.
-- [ ] T026 Re-pin `dm-failure-and-gates.md`, `dm-turn-jobs.md`, `debug-view.md` and
+- [x] T026 Re-pin `dm-failure-and-gates.md`, `dm-turn-jobs.md`, `debug-view.md` and
       `dm-narration-quality.md` after checking their outcome, log-event and prompt-version
       claims against the diff.
-- [ ] T027 Update `docs/wiki/CAPSULES.md` and `docs/wiki/INDEX.md` for every changed note
+- [x] T027 Update `docs/wiki/CAPSULES.md` and `docs/wiki/INDEX.md` for every changed note
       summary, and add one TASK-0203 sentence to the INDEX state paragraph.
-- [ ] T028 Run the freshness gate, the spec-bridge check and `pnpm ci:check`. Commit as
+- [x] T028 Run the freshness gate, the spec-bridge check and `pnpm ci:check`. Commit as
       `TASK-0203 phase 4: wiki re-ground`.
 
 ## After merge (orchestrator, not a phase)
