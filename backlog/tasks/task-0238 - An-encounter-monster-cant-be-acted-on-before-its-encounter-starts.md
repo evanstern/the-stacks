@@ -4,7 +4,7 @@ title: An encounter monster can't be acted on before its encounter starts
 status: In Progress
 assignee: []
 created_date: '2026-11-05 03:56'
-updated_date: '2026-11-05 05:13'
+updated_date: '2026-11-05 06:51'
 labels:
   - dm
   - playtest
@@ -34,6 +34,11 @@ Spec: specs/088-pre-encounter-monster
 - [ ] #1 A revealed encounter monster is a snapshot actor interpret can name by its combatantId (or the gate maps a display name to it), with a test replaying seq 52-58
 - [ ] #2 Acting on it before the encounter starts resolves (pull-in or encounter start per the Director), and the opposition check rolls, with a test
 - [ ] #3 When the plan gate refuses an action, the narration does not voice the refused attempt's outcome as if it resolved, with a test
+- [ ] #4 Spec phase: Seam check (no source change)
+- [ ] #5 Spec phase: Monster arrivals, runnable encounters and the interpret section (card AC #1, #2)
+- [ ] #6 Spec phase: A refused action is not narrated as done (card AC #3)
+- [ ] #7 Spec phase: The run 1 replays (merge condition; card AC #1, #2, #3)
+- [ ] #8 Spec phase: Wiki re-ground
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -42,6 +47,10 @@ Spec: specs/088-pre-encounter-monster
 Run 1 seq 73-92: Odo's second parley (coin to the lookout) refused UNKNOWN_COMBATANT although the Director started the reed-camp encounter in the same beat (seq 90: goblin-3 'Goblin lookout' became a combatant). Same-beat encounter start does not make the monsters nameable for that beat's plan gate. Spec 078 fixed this for seed NPCs (arriving ids not absent) but not for encounter monsters. The narration voiced the refused coin toss (seq 94).
 
 Claimed 2026-11-05 by M3 runbook B2 (docs/design/m3-runbook-b2-playtest-fixes.md, PR #132). Worktree .worktrees/task-0238, branch task-0238-pre-encounter-monster, cut from origin/main 8128fb3a. Spec number 088 claimed with a stub.
+
+Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5 (spec 088 authoring, C1)
+
+Spec 088 (072a4054). Reuses spec 078 arrivals: the Director may arrive a not-yet-appeared encounter monster (free mode); resolve adds it as a combatant before actions run; the plan gate accepts it via joining; held by combatantId afterwards (snapshot/build.ts untouched). Encounter startability becomes 'has the encounter run', so an early monster does not block reed-camp. Seq 73-92: interpret gets an 'Arriving this beat' section. AC #3: refused fact line says it did not happen; narrate rule; fallback adds no change line. Defaults (a) on OQ-1..OQ-4; the (b) alternatives are carded as one revisit task.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
