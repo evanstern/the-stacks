@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-11-05 04:22'
-updated_date: '2026-11-05 06:42'
+updated_date: '2026-11-05 07:03'
 labels:
   - dm
   - rules
@@ -49,6 +49,8 @@ Claimed 2026-11-05 by M3 runbook B2 (docs/design/m3-runbook-b2-playtest-fixes.md
 Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5 (spec 087 authoring, C1)
 
 Spec 087 (ef631484). A party action whose only actor is an off-turn AI companion is held (stays committed, a Waiting: fact line) and released as that companion's turn action via a new 'held' job trigger; a mixed-actor party action naming an off-turn companion is refused STEP_ACTOR_MISMATCH (off-turn). Any actor a step names is on turn for the off-turn list. Defaults (a): OQ-1 hold, refuse only mixed; OQ-2 human PCs unchanged (carded separately); OQ-3 the hold lapses if the companion drops or the encounter ends; OQ-4 refuse, never split; OQ-5 the waiting line repeats. Footprint adds jobs.ts, worker.ts, prompts/narrate.ts; drops floor-state.ts.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 087 phases 1-2, grouped). narrate-v20. One existing test (opposition-and-help, unused assist) re-scripted: its party help named Kestrel off turn; Kestrel is an unseated, so AI-companion, character in that world, so the hold is correct (orchestrator verified).
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
