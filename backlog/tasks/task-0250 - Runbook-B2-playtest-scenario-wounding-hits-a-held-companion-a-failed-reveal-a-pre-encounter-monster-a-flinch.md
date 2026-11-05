@@ -3,9 +3,10 @@ id: TASK-0250
 title: >-
   Runbook B2 playtest scenario: wounding hits, a held companion, a failed
   reveal, a pre-encounter monster, a flinch
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-11-05 08:19'
+updated_date: '2026-11-05 10:01'
 labels:
   - playtest
 milestone: m-3
@@ -27,10 +28,20 @@ Related: TASK-0234 (runbook B scenario), TASK-0195.
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Checklist docs/playtests/scenarios/runbook-b2-<name>.md has one row per runbook B2 'Last step' bullet plus the standing and revisit rows, in the checklist.mjs format
-- [ ] #2 Script apps/server/dm-scripts/runbook-b2-<name>.json sets up the scene for rehearsal only
-- [ ] #3 A local DM_FAKE_SCRIPT rehearsal log under docs/playtests/ shows the scenario runs end to end
+- [x] #1 Checklist docs/playtests/scenarios/runbook-b2-<name>.md has one row per runbook B2 'Last step' bullet plus the standing and revisit rows, in the checklist.mjs format
+- [x] #2 Script apps/server/dm-scripts/runbook-b2-<name>.json sets up the scene for rehearsal only
+- [x] #3 A local DM_FAKE_SCRIPT rehearsal log under docs/playtests/ shows the scenario runs end to end
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Claimed 2026-11-05 by M3 runbook B2 (docs/design/m3-runbook-b2-playtest-fixes.md, spine #7). Worktree .worktrees/task-0250, branch task-0250-b2-scenario, cut from origin/main 430df14e. No spec dir: signed escape line E3 covers this task.
+
+B2 scenario shipped: checklist runbook-b2-reed-camp.md (12 rows), script runbook-b2-reed-camp.json, rehearsal log 2026-11-05; code sha 1e040bb3
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (E3 implementation)
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->

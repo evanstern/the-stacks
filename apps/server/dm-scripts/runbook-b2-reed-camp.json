@@ -1,0 +1,1287 @@
+{
+  "v": 1,
+  "name": "runbook-b2-reed-camp",
+  "dice": [
+    4, 17, 20, 1, 15, 12, 10, 8, 6, 12, 5, 14, 4, 15, 4, 3, 16, 3, 5, 6, 9, 9,
+    9, 9
+  ],
+  "calls": [
+    {
+      "purpose": "dm.director",
+      "respond": {
+        "type": "json",
+        "value": {
+          "beat": {
+            "decision": "resolve"
+          },
+          "tableMode": {
+            "to": "stay"
+          },
+          "trackers": [],
+          "scene": {
+            "status": "continue"
+          },
+          "pacing": {
+            "tension": "low",
+            "spotlight": null,
+            "beatId": "causeway-edge"
+          },
+          "goalNote": "Open at the end of the causeway; the camp is one beat away.",
+          "companionPrompts": []
+        }
+      },
+      "note": "S1 scene start"
+    },
+    {
+      "purpose": "dm.narrate",
+      "respond": {
+        "type": "text",
+        "value": "The party reaches the end of the causeway as the light goes amber, on the trail of whoever silenced the ferry bell. Tamsin Vale, Brother Odo and Kestrel mean to have the ferry crossing again before full dark. Wenna Marsh keeps close with her boathook, and smoke from the goblins' reed-camp curls up from the reeds ahead. The next move is yours."
+      },
+      "note": "S1 opening (names characters, not players)"
+    },
+    {
+      "purpose": "dm.audit",
+      "respond": {
+        "type": "json",
+        "value": {
+          "verdict": "pass",
+          "issues": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.director",
+      "respond": {
+        "type": "json",
+        "value": {
+          "beat": {
+            "decision": "resolve"
+          },
+          "tableMode": {
+            "to": "stay"
+          },
+          "trackers": [],
+          "scene": {
+            "status": "continue"
+          },
+          "pacing": {
+            "tension": "low",
+            "spotlight": null,
+            "beatId": "causeway-edge"
+          },
+          "goalNote": "Let the party look the camp over.",
+          "companionPrompts": [],
+          "arrivals": ["pell"]
+        }
+      },
+      "note": "S1 T1 failed reveal: arrivals named, band fails, Pell stays unrevealed (0237)"
+    },
+    {
+      "purpose": "dm.interpret",
+      "respond": {
+        "type": "json",
+        "value": {
+          "readings": [
+            {
+              "actionId": "act-scan",
+              "intent": "check",
+              "uncertain": true,
+              "needsAdjudication": false,
+              "rulesQuestion": null,
+              "clarify": null,
+              "steps": [
+                {
+                  "step": "check",
+                  "reason": "Kestrel scans the reeds",
+                  "combatantId": "kestrel",
+                  "kind": "ability-check",
+                  "ability": "wis",
+                  "skill": "perception",
+                  "difficulty": "medium",
+                  "circumstance": null,
+                  "autoFail": null,
+                  "onSuccess": [],
+                  "onFailure": [],
+                  "stakes": {
+                    "success": "She sees Pell tied to a post.",
+                    "cost": "She sees him, but a reed rattles.",
+                    "failure": "She sees only reeds and smoke.",
+                    "severe": "A reed snaps loud underfoot."
+                  },
+                  "onCost": [],
+                  "onSevere": [],
+                  "newRisk": null
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "note": "S1 T1 failed reveal: arrivals named, band fails, Pell stays unrevealed (0237)"
+    },
+    {
+      "purpose": "dm.narrate",
+      "respond": {
+        "type": "text",
+        "value": "Kestrel holds still and scans the reeds. She finds only smoke and a wall of rustling stalks."
+      },
+      "note": "S1 T1 failed reveal: arrivals named, band fails, Pell stays unrevealed (0237)"
+    },
+    {
+      "purpose": "dm.audit",
+      "respond": {
+        "type": "json",
+        "value": {
+          "verdict": "pass",
+          "issues": []
+        }
+      },
+      "note": "S1 T1 failed reveal: arrivals named, band fails, Pell stays unrevealed (0237)"
+    },
+    {
+      "purpose": "dm.director",
+      "respond": {
+        "type": "json",
+        "value": {
+          "beat": {
+            "decision": "resolve"
+          },
+          "tableMode": {
+            "to": "stay"
+          },
+          "trackers": [],
+          "scene": {
+            "status": "continue"
+          },
+          "pacing": {
+            "tension": "low",
+            "spotlight": null,
+            "beatId": "causeway-edge"
+          },
+          "goalNote": "Let the parley play out.",
+          "companionPrompts": [],
+          "arrivals": ["goblin-3"]
+        }
+      },
+      "note": "S1 T2 pre-encounter parley with the lookout; the opposed check rolls (0238)"
+    },
+    {
+      "purpose": "dm.interpret",
+      "respond": {
+        "type": "json",
+        "value": {
+          "readings": [
+            {
+              "actionId": "act-parley",
+              "intent": "check",
+              "uncertain": true,
+              "needsAdjudication": false,
+              "rulesQuestion": null,
+              "clarify": null,
+              "steps": [
+                {
+                  "step": "check",
+                  "reason": "Tamsin calls to the lookout and talks him down",
+                  "combatantId": "tamsin",
+                  "kind": "ability-check",
+                  "ability": "cha",
+                  "skill": "persuasion",
+                  "difficulty": {
+                    "opposedBy": "goblin-3",
+                    "rule": "influence"
+                  },
+                  "circumstance": null,
+                  "autoFail": null,
+                  "onSuccess": [],
+                  "onFailure": [],
+                  "stakes": {
+                    "success": "The lookout listens.",
+                    "cost": "The lookout listens, warily.",
+                    "failure": "The lookout sneers.",
+                    "severe": "The lookout shouts the alarm."
+                  },
+                  "onCost": [],
+                  "onSevere": [],
+                  "newRisk": null
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "note": "S1 T2 pre-encounter parley with the lookout; the opposed check rolls (0238)"
+    },
+    {
+      "purpose": "dm.narrate",
+      "respond": {
+        "type": "text",
+        "value": "Tamsin calls across the water. The lookout lowers his spear a little and listens."
+      },
+      "note": "S1 T2 pre-encounter parley with the lookout; the opposed check rolls (0238)"
+    },
+    {
+      "purpose": "dm.audit",
+      "respond": {
+        "type": "json",
+        "value": {
+          "verdict": "pass",
+          "issues": []
+        }
+      },
+      "note": "S1 T2 pre-encounter parley with the lookout; the opposed check rolls (0238)"
+    },
+    {
+      "purpose": "dm.director",
+      "respond": {
+        "type": "json",
+        "value": {
+          "beat": {
+            "decision": "resolve"
+          },
+          "tableMode": {
+            "to": "stay"
+          },
+          "trackers": [],
+          "scene": {
+            "status": "continue"
+          },
+          "pacing": {
+            "tension": "low",
+            "spotlight": null,
+            "beatId": "causeway-edge"
+          },
+          "goalNote": "Open at the end of the causeway; the camp is one beat away.",
+          "companionPrompts": []
+        }
+      },
+      "note": "S2 scene start"
+    },
+    {
+      "purpose": "dm.narrate",
+      "respond": {
+        "type": "text",
+        "value": "The party reaches the end of the causeway as the light goes amber, on the trail of whoever silenced the ferry bell. Tamsin Vale, Brother Odo and Kestrel mean to have the ferry crossing again before full dark. Wenna Marsh keeps close with her boathook, and smoke from the goblins' reed-camp curls up from the reeds ahead. The next move is yours."
+      },
+      "note": "S2 opening"
+    },
+    {
+      "purpose": "dm.audit",
+      "respond": {
+        "type": "json",
+        "value": {
+          "verdict": "pass",
+          "issues": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.director",
+      "respond": {
+        "type": "json",
+        "value": {
+          "beat": {
+            "decision": "resolve"
+          },
+          "tableMode": {
+            "to": "turn",
+            "encounterId": "reed-camp",
+            "reason": "The goblins spring up as the party reaches the island."
+          },
+          "trackers": [],
+          "scene": {
+            "status": "continue"
+          },
+          "pacing": {
+            "tension": "high",
+            "spotlight": null,
+            "beatId": "reed-camp"
+          },
+          "goalNote": "Run the camp fight.",
+          "companionPrompts": []
+        }
+      },
+      "note": "S2 rush: turn mode, initiative"
+    },
+    {
+      "purpose": "dm.interpret",
+      "respond": {
+        "type": "json",
+        "value": {
+          "readings": [
+            {
+              "actionId": "act-rush",
+              "intent": "move",
+              "uncertain": true,
+              "needsAdjudication": false,
+              "rulesQuestion": null,
+              "clarify": null,
+              "steps": [
+                {
+                  "step": "none",
+                  "reason": "Moving along the posts needs no roll."
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "note": "S2 rush: turn mode, initiative"
+    },
+    {
+      "purpose": "dm.narrate",
+      "respond": {
+        "type": "text",
+        "value": "Tamsin charges along the posts and the goblins spring up around the fire as the party spreads out behind her."
+      },
+      "note": "S2 rush: turn mode, initiative"
+    },
+    {
+      "purpose": "dm.audit",
+      "respond": {
+        "type": "json",
+        "value": {
+          "verdict": "pass",
+          "issues": []
+        }
+      },
+      "note": "S2 rush: turn mode, initiative"
+    },
+    {
+      "purpose": "dm.director",
+      "respond": {
+        "type": "json",
+        "value": {
+          "beat": {
+            "decision": "resolve"
+          },
+          "tableMode": {
+            "to": "stay"
+          },
+          "trackers": [],
+          "scene": {
+            "status": "continue"
+          },
+          "pacing": {
+            "tension": "high",
+            "spotlight": null,
+            "beatId": "reed-camp"
+          },
+          "goalNote": "Tamsin takes the fight to the goblin in the pot-helm.",
+          "companionPrompts": []
+        }
+      },
+      "note": "S2 Tamsin strikes goblin-2 (round 1, Tamsin's turn)"
+    },
+    {
+      "purpose": "dm.interpret",
+      "respond": {
+        "type": "json",
+        "value": {
+          "readings": [
+            {
+              "actionId": "act-strike",
+              "intent": "attack",
+              "uncertain": true,
+              "needsAdjudication": false,
+              "rulesQuestion": null,
+              "clarify": null,
+              "steps": [
+                {
+                  "step": "attack",
+                  "reason": "Tamsin swings her longsword at the goblin in the pot-helm",
+                  "attackerId": "tamsin",
+                  "targetId": "goblin-2",
+                  "attack": "Longsword",
+                  "circumstance": null,
+                  "onHit": []
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "note": "S2 Tamsin strikes goblin-2 (round 1, Tamsin's turn)"
+    },
+    {
+      "purpose": "dm.narrate",
+      "respond": {
+        "type": "text",
+        "value": "Tamsin's longsword bites into the goblin in the pot-helm, who reels back snarling."
+      },
+      "note": "S2 Tamsin strikes goblin-2 (round 1, Tamsin's turn)"
+    },
+    {
+      "purpose": "dm.audit",
+      "respond": {
+        "type": "json",
+        "value": {
+          "verdict": "pass",
+          "issues": []
+        }
+      },
+      "note": "S2 Tamsin strikes goblin-2 (round 1, Tamsin's turn)"
+    },
+    {
+      "purpose": "dm.director",
+      "respond": {
+        "type": "json",
+        "value": {
+          "beat": {
+            "decision": "resolve"
+          },
+          "tableMode": {
+            "to": "stay"
+          },
+          "trackers": [],
+          "scene": {
+            "status": "continue"
+          },
+          "pacing": {
+            "tension": "high",
+            "spotlight": null,
+            "beatId": "reed-camp"
+          },
+          "goalNote": "Hold the cast for Odo's turn.",
+          "companionPrompts": []
+        }
+      },
+      "note": "S2 party action on Kestrel's turn: held for Odo (0244); a held turn makes no narrate or audit call"
+    },
+    {
+      "purpose": "dm.interpret",
+      "respond": {
+        "type": "json",
+        "value": {
+          "readings": [
+            {
+              "actionId": "act-cast",
+              "intent": "spell",
+              "uncertain": true,
+              "needsAdjudication": false,
+              "rulesQuestion": null,
+              "clarify": null,
+              "steps": [
+                {
+                  "step": "spell",
+                  "reason": "Odo mends Tamsin",
+                  "casterId": "odo",
+                  "spellId": "cure-wounds",
+                  "slotLevel": 1,
+                  "targetId": "tamsin"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "note": "S2 held (0244)"
+    },
+    {
+      "purpose": "dm.director",
+      "respond": {
+        "type": "json",
+        "value": {
+          "beat": {
+            "decision": "resolve"
+          },
+          "tableMode": {
+            "to": "stay"
+          },
+          "trackers": [],
+          "scene": {
+            "status": "continue"
+          },
+          "pacing": {
+            "tension": "high",
+            "spotlight": null,
+            "beatId": "reed-camp"
+          },
+          "goalNote": "snag acts.",
+          "companionPrompts": []
+        }
+      },
+      "note": "S2 NPC turn snag: hit #1 (0242); the cast stays held"
+    },
+    {
+      "purpose": "dm.interpret",
+      "respond": {
+        "type": "json",
+        "value": {
+          "readings": [
+            {
+              "actionId": "act-cast",
+              "intent": "spell",
+              "uncertain": true,
+              "needsAdjudication": false,
+              "rulesQuestion": null,
+              "clarify": null,
+              "steps": [
+                {
+                  "step": "spell",
+                  "reason": "Odo mends Tamsin",
+                  "casterId": "odo",
+                  "spellId": "cure-wounds",
+                  "slotLevel": 1,
+                  "targetId": "tamsin"
+                }
+              ]
+            },
+            {
+              "actionId": null,
+              "intent": "attack",
+              "uncertain": true,
+              "needsAdjudication": false,
+              "rulesQuestion": null,
+              "clarify": null,
+              "steps": [
+                {
+                  "step": "attack",
+                  "reason": "Snag slashes his notched scimitar at Tamsin",
+                  "attackerId": "snag",
+                  "targetId": "tamsin",
+                  "attack": "Scimitar",
+                  "circumstance": null,
+                  "onHit": []
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "note": "S2 NPC turn snag: hit #1 (0242); the cast stays held"
+    },
+    {
+      "purpose": "dm.narrate",
+      "respond": {
+        "type": "text",
+        "value": "Snag lunges with the notched scimitar and cuts Tamsin across the forearm, sing-songing at her as she grunts."
+      },
+      "note": "S2 NPC turn snag: hit #1 (0242); the cast stays held"
+    },
+    {
+      "purpose": "dm.audit",
+      "respond": {
+        "type": "json",
+        "value": {
+          "verdict": "pass",
+          "issues": []
+        }
+      },
+      "note": "S2 NPC turn snag: hit #1 (0242); the cast stays held"
+    },
+    {
+      "purpose": "dm.director",
+      "respond": {
+        "type": "json",
+        "value": {
+          "beat": {
+            "decision": "resolve"
+          },
+          "tableMode": {
+            "to": "stay"
+          },
+          "trackers": [],
+          "scene": {
+            "status": "continue"
+          },
+          "pacing": {
+            "tension": "high",
+            "spotlight": null,
+            "beatId": "reed-camp"
+          },
+          "goalNote": "goblin-2 acts.",
+          "companionPrompts": []
+        }
+      },
+      "note": "S2 NPC turn goblin-2: hit #2 (0242)"
+    },
+    {
+      "purpose": "dm.interpret",
+      "respond": {
+        "type": "json",
+        "value": {
+          "readings": [
+            {
+              "actionId": "act-cast",
+              "intent": "spell",
+              "uncertain": true,
+              "needsAdjudication": false,
+              "rulesQuestion": null,
+              "clarify": null,
+              "steps": [
+                {
+                  "step": "spell",
+                  "reason": "Odo mends Tamsin",
+                  "casterId": "odo",
+                  "spellId": "cure-wounds",
+                  "slotLevel": 1,
+                  "targetId": "tamsin"
+                }
+              ]
+            },
+            {
+              "actionId": null,
+              "intent": "attack",
+              "uncertain": true,
+              "needsAdjudication": false,
+              "rulesQuestion": null,
+              "clarify": null,
+              "steps": [
+                {
+                  "step": "attack",
+                  "reason": "The goblin in the pot-helm slashes at Kestrel",
+                  "attackerId": "goblin-2",
+                  "targetId": "kestrel",
+                  "attack": "Scimitar",
+                  "circumstance": null,
+                  "onHit": []
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "note": "S2 NPC turn goblin-2: hit #2 (0242)"
+    },
+    {
+      "purpose": "dm.narrate",
+      "respond": {
+        "type": "text",
+        "value": "The goblin in the pot-helm slashes at Kestrel and the blade scores her shoulder."
+      },
+      "note": "S2 NPC turn goblin-2: hit #2 (0242)"
+    },
+    {
+      "purpose": "dm.audit",
+      "respond": {
+        "type": "json",
+        "value": {
+          "verdict": "pass",
+          "issues": []
+        }
+      },
+      "note": "S2 NPC turn goblin-2: hit #2 (0242)"
+    },
+    {
+      "purpose": "dm.director",
+      "respond": {
+        "type": "json",
+        "value": {
+          "beat": {
+            "decision": "resolve"
+          },
+          "tableMode": {
+            "to": "stay"
+          },
+          "trackers": [],
+          "scene": {
+            "status": "continue"
+          },
+          "pacing": {
+            "tension": "high",
+            "spotlight": null,
+            "beatId": "reed-camp"
+          },
+          "goalNote": "goblin-3 acts.",
+          "companionPrompts": []
+        }
+      },
+      "note": "S2 NPC turn goblin-3: a miss; the narration carries a flinch (0240)"
+    },
+    {
+      "purpose": "dm.interpret",
+      "respond": {
+        "type": "json",
+        "value": {
+          "readings": [
+            {
+              "actionId": "act-cast",
+              "intent": "spell",
+              "uncertain": true,
+              "needsAdjudication": false,
+              "rulesQuestion": null,
+              "clarify": null,
+              "steps": [
+                {
+                  "step": "spell",
+                  "reason": "Odo mends Tamsin",
+                  "casterId": "odo",
+                  "spellId": "cure-wounds",
+                  "slotLevel": 1,
+                  "targetId": "tamsin"
+                }
+              ]
+            },
+            {
+              "actionId": null,
+              "intent": "attack",
+              "uncertain": true,
+              "needsAdjudication": false,
+              "rulesQuestion": null,
+              "clarify": null,
+              "steps": [
+                {
+                  "step": "attack",
+                  "reason": "The goblin lookout stabs at Tamsin",
+                  "attackerId": "goblin-3",
+                  "targetId": "tamsin",
+                  "attack": "Dagger",
+                  "circumstance": null,
+                  "onHit": []
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "note": "S2 NPC turn goblin-3: a miss; the narration carries a flinch (0240)"
+    },
+    {
+      "purpose": "dm.narrate",
+      "respond": {
+        "type": "text",
+        "value": "The goblin lookout stabs at Tamsin, but she flinches back and the dagger skids off her shield."
+      },
+      "note": "S2 NPC turn goblin-3: a miss; the narration carries a flinch (0240)"
+    },
+    {
+      "purpose": "dm.audit",
+      "respond": {
+        "type": "json",
+        "value": {
+          "verdict": "pass",
+          "issues": []
+        }
+      },
+      "note": "S2 NPC turn goblin-3: a miss; the narration carries a flinch (0240)"
+    },
+    {
+      "purpose": "dm.director",
+      "respond": {
+        "type": "json",
+        "value": {
+          "beat": {
+            "decision": "resolve"
+          },
+          "tableMode": {
+            "to": "stay"
+          },
+          "trackers": [],
+          "scene": {
+            "status": "continue"
+          },
+          "pacing": {
+            "tension": "high",
+            "spotlight": null,
+            "beatId": "reed-camp"
+          },
+          "goalNote": "goblin-4 acts.",
+          "companionPrompts": []
+        }
+      },
+      "note": "S2 NPC turn goblin-4: hit #3 (0242)"
+    },
+    {
+      "purpose": "dm.interpret",
+      "respond": {
+        "type": "json",
+        "value": {
+          "readings": [
+            {
+              "actionId": "act-cast",
+              "intent": "spell",
+              "uncertain": true,
+              "needsAdjudication": false,
+              "rulesQuestion": null,
+              "clarify": null,
+              "steps": [
+                {
+                  "step": "spell",
+                  "reason": "Odo mends Tamsin",
+                  "casterId": "odo",
+                  "spellId": "cure-wounds",
+                  "slotLevel": 1,
+                  "targetId": "tamsin"
+                }
+              ]
+            },
+            {
+              "actionId": null,
+              "intent": "attack",
+              "uncertain": true,
+              "needsAdjudication": false,
+              "rulesQuestion": null,
+              "clarify": null,
+              "steps": [
+                {
+                  "step": "attack",
+                  "reason": "The goblin by the fire throws a dagger at Tamsin",
+                  "attackerId": "goblin-4",
+                  "targetId": "tamsin",
+                  "attack": "Dagger",
+                  "circumstance": null,
+                  "onHit": []
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "note": "S2 NPC turn goblin-4: hit #3 (0242)"
+    },
+    {
+      "purpose": "dm.narrate",
+      "respond": {
+        "type": "text",
+        "value": "The goblin by the fire flings a dagger and it nicks Tamsin's leg."
+      },
+      "note": "S2 NPC turn goblin-4: hit #3 (0242)"
+    },
+    {
+      "purpose": "dm.audit",
+      "respond": {
+        "type": "json",
+        "value": {
+          "verdict": "pass",
+          "issues": []
+        }
+      },
+      "note": "S2 NPC turn goblin-4: hit #3 (0242)"
+    },
+    {
+      "purpose": "dm.director",
+      "respond": {
+        "type": "json",
+        "value": {
+          "beat": {
+            "decision": "resolve"
+          },
+          "tableMode": {
+            "to": "stay"
+          },
+          "trackers": [],
+          "scene": {
+            "status": "continue"
+          },
+          "pacing": {
+            "tension": "high",
+            "spotlight": null,
+            "beatId": "reed-camp"
+          },
+          "goalNote": "Odo's held prayer lands.",
+          "companionPrompts": []
+        }
+      },
+      "note": "S2 Odo's own turn: the held cast resolves once (0244)"
+    },
+    {
+      "purpose": "dm.interpret",
+      "respond": {
+        "type": "json",
+        "value": {
+          "readings": [
+            {
+              "actionId": "act-cast",
+              "intent": "spell",
+              "uncertain": true,
+              "needsAdjudication": false,
+              "rulesQuestion": null,
+              "clarify": null,
+              "steps": [
+                {
+                  "step": "spell",
+                  "reason": "Odo mends Tamsin",
+                  "casterId": "odo",
+                  "spellId": "cure-wounds",
+                  "slotLevel": 1,
+                  "targetId": "tamsin"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "note": "S2 Odo's own turn: the held cast resolves once (0244)"
+    },
+    {
+      "purpose": "dm.narrate",
+      "respond": {
+        "type": "text",
+        "value": "Brother Odo lays a hand on Tamsin's shoulder and murmurs a prayer; warmth runs through her wounds."
+      },
+      "note": "S2 Odo's own turn: the held cast resolves once (0244)"
+    },
+    {
+      "purpose": "dm.audit",
+      "respond": {
+        "type": "json",
+        "value": {
+          "verdict": "pass",
+          "issues": []
+        }
+      },
+      "note": "S2 Odo's own turn: the held cast resolves once (0244)"
+    },
+    {
+      "purpose": "dm.chronicle",
+      "respond": {
+        "type": "json",
+        "value": {
+          "entries": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.chronicle",
+      "respond": {
+        "type": "json",
+        "value": {
+          "entries": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.chronicle",
+      "respond": {
+        "type": "json",
+        "value": {
+          "entries": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.chronicle",
+      "respond": {
+        "type": "json",
+        "value": {
+          "entries": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.chronicle",
+      "respond": {
+        "type": "json",
+        "value": {
+          "entries": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.chronicle",
+      "respond": {
+        "type": "json",
+        "value": {
+          "entries": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.chronicle",
+      "respond": {
+        "type": "json",
+        "value": {
+          "entries": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.chronicle",
+      "respond": {
+        "type": "json",
+        "value": {
+          "entries": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.chronicle",
+      "respond": {
+        "type": "json",
+        "value": {
+          "entries": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.chronicle",
+      "respond": {
+        "type": "json",
+        "value": {
+          "entries": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.chronicle",
+      "respond": {
+        "type": "json",
+        "value": {
+          "entries": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.chronicle",
+      "respond": {
+        "type": "json",
+        "value": {
+          "entries": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.chronicle",
+      "respond": {
+        "type": "json",
+        "value": {
+          "entries": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.chronicle",
+      "respond": {
+        "type": "json",
+        "value": {
+          "entries": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.chronicle",
+      "respond": {
+        "type": "json",
+        "value": {
+          "entries": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.chronicle",
+      "respond": {
+        "type": "json",
+        "value": {
+          "entries": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.chronicle",
+      "respond": {
+        "type": "json",
+        "value": {
+          "entries": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.chronicle",
+      "respond": {
+        "type": "json",
+        "value": {
+          "entries": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.chronicle",
+      "respond": {
+        "type": "json",
+        "value": {
+          "entries": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.chronicle",
+      "respond": {
+        "type": "json",
+        "value": {
+          "entries": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.chronicle",
+      "respond": {
+        "type": "json",
+        "value": {
+          "entries": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.chronicle",
+      "respond": {
+        "type": "json",
+        "value": {
+          "entries": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.chronicle",
+      "respond": {
+        "type": "json",
+        "value": {
+          "entries": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.chronicle",
+      "respond": {
+        "type": "json",
+        "value": {
+          "entries": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.chronicle",
+      "respond": {
+        "type": "json",
+        "value": {
+          "entries": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.chronicle",
+      "respond": {
+        "type": "json",
+        "value": {
+          "entries": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.chronicle",
+      "respond": {
+        "type": "json",
+        "value": {
+          "entries": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.chronicle",
+      "respond": {
+        "type": "json",
+        "value": {
+          "entries": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.chronicle",
+      "respond": {
+        "type": "json",
+        "value": {
+          "entries": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.chronicle",
+      "respond": {
+        "type": "json",
+        "value": {
+          "entries": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.chronicle",
+      "respond": {
+        "type": "json",
+        "value": {
+          "entries": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.chronicle",
+      "respond": {
+        "type": "json",
+        "value": {
+          "entries": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.chronicle",
+      "respond": {
+        "type": "json",
+        "value": {
+          "entries": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.chronicle",
+      "respond": {
+        "type": "json",
+        "value": {
+          "entries": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.chronicle",
+      "respond": {
+        "type": "json",
+        "value": {
+          "entries": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.chronicle",
+      "respond": {
+        "type": "json",
+        "value": {
+          "entries": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.chronicle",
+      "respond": {
+        "type": "json",
+        "value": {
+          "entries": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.chronicle",
+      "respond": {
+        "type": "json",
+        "value": {
+          "entries": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.chronicle",
+      "respond": {
+        "type": "json",
+        "value": {
+          "entries": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.chronicle",
+      "respond": {
+        "type": "json",
+        "value": {
+          "entries": []
+        }
+      }
+    }
+  ]
+}
