@@ -4,7 +4,7 @@ title: 'Design round: MUD-inspired minimalist table UX'
 status: In Progress
 assignee: []
 created_date: '2026-11-05 03:37'
-updated_date: '2026-11-05 03:46'
+updated_date: '2026-11-05 03:54'
 labels:
   - design
   - ux
@@ -22,9 +22,9 @@ Research what modern MUD clients (Mudlet, web clients, MUD-adjacent text games) 
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Vault branch MUD-Client-UX passes the branch gate
-- [ ] #2 Vault analysis note draws VTT implications from the corpus
-- [ ] #3 Round-1 mockups: comparable directions over the same real table states, rendered and verified
+- [x] #1 Vault branch MUD-Client-UX passes the branch gate
+- [x] #2 Vault analysis note draws VTT implications from the corpus
+- [x] #3 Round-1 mockups: comparable directions over the same real table states, rendered and verified
 - [ ] #4 Operator selection recorded as a decision record
 <!-- AC:END -->
 
@@ -40,6 +40,9 @@ Research embed done: fb4cba36, branch gate OK. Limitation: sources are search-re
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5[1m]
 Analysis done: 0e918e5f, analysis gate OK. Thesis: adopt MUD architecture (stream + server-pushed state panels), reject command grammar, map is a peer panel with text parity. Candidate directions: Scroll, Margin, Split, Board.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5[1m]
+Round 1 (caa45005): docs/design/mud-ux/round-1/. Four directions on one axis (how much screen the stream owns): A Scroll (stream is the table), B Margin (stream plus slim state margin, map slide-out), C Split (docked map beside stream, click-to-draft), D Board (map and panels dominate, stream is a log; the too-far bound). Same 8 states, greyhollow-ford-duo copy, shots at 1280/390 for states 3 and 7. Known gaps: no contrast checker run (AA rests on sibling token pairs; dark map text unmeasured). Asked operator: pick a direction (or hybrid) and answer OQ1–OQ4.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
