@@ -48,11 +48,11 @@ and one commit led by `TASK-0238:`. Edit only the hunks plan D1 to D7 name.
       "Arriving this beat" section.
 - [x] T012 Append the monster arrivals amendment to `specs/031-dm-runtime/contracts/director.md`
       (plan D7).
-- [ ] T013 Edit `apps/server/test/dm/director.test.ts`, `plan-gate.test.ts`,
+- [x] T013 Edit `apps/server/test/dm/director.test.ts`, `plan-gate.test.ts`,
       `interpret-prompt.test.ts` and `talk-turn.integration.test.ts` per plan D8. Cover both
       refused-id shapes: `goblin-lookout` refused `not-in-snapshot`, `goblin-3` passed via
       `joining`.
-- [ ] T014 Run `pnpm ci:check`. Commit `TASK-0238: monster arrivals and the interpret section`.
+- [x] T014 Run `pnpm ci:check`. Commit `TASK-0238: monster arrivals and the interpret section`.
 
 ## Phase 3: A refused action is not narrated as done (card AC #3)
 
@@ -68,20 +68,20 @@ and one commit led by `TASK-0238:`. Edit only the hunks plan D1 to D7 name.
 
 ## Phase 4: The run 1 replays (merge condition; card AC #1, #2, #3)
 
-- [ ] T020 Bring up the worktree stack: `pnpm env:up`, migrate both databases by hand, restart the
+- [x] T020 Bring up the worktree stack: `pnpm env:up`, migrate both databases by hand, restart the
       app. Read `TEST_DATABASE_URL` with `sed` from `.env`; never `source` it.
-- [ ] T021 Write `apps/server/test/dm/scripts/parley-lookout.json` for plan D9's variants: the duo
+- [x] T021 Write `apps/server/test/dm/scripts/parley-lookout.json` for plan D9's variants: the duo
       seed, the influence-opposed Persuasion reading on `goblin-3`, and the coin-toss reading.
-- [ ] T022 Write `apps/server/test/dm/pre-encounter-monster.integration.test.ts` with plan D9
+- [x] T022 Write `apps/server/test/dm/pre-encounter-monster.integration.test.ts` with plan D9
       variants 1-4: seq 52-58 (free-mode arrival), seq 73-92 unseen (same-beat encounter start),
       seq 73-92 arrived earlier, and the control. Each variant asserts zero `UNKNOWN_COMBATANT`
       verdicts except the control. Variants 1-3 assert the opposed `check.resolved` row.
-- [ ] T023 Run the plan D10 mutation guards by hand. Record each failing test name in the commit
+- [x] T023 Run the plan D10 mutation guards by hand. Record each failing test name in the commit
       body. Restore the code.
-- [ ] T024 Run `REQUIRE_DATABASE=1` for the new test and `revealed-npc.integration.test.ts`,
+- [x] T024 Run `REQUIRE_DATABASE=1` for the new test and `revealed-npc.integration.test.ts`,
       `opposition-and-help.integration.test.ts`, `attack-anyone.integration.test.ts` and
       `talk-turn.integration.test.ts`. Re-run a 5 s timeout once and report it (TASK-0154).
-- [ ] T025 Run `pnpm ci:check`. Commit `TASK-0238: run 1 seq 52-58 and 73-92 replays`. Leave the
+- [x] T025 Run `pnpm ci:check`. Commit `TASK-0238: run 1 seq 52-58 and 73-92 replays`. Leave the
       stack up.
 
 ## Phase 5: Wiki re-ground
