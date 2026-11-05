@@ -39,6 +39,8 @@ Related: TASK-0113 (spec 074), TASK-0214 (audit pass rate).
 Claimed 2026-11-05 by M3 runbook B2 (docs/design/m3-runbook-b2-playtest-fixes.md, PR #132). Worktree .worktrees/task-0240, branch task-0240-reflex-flinch-audit, cut from origin/main 8128fb3a. No spec dir: signed escape line E2 covers this task.
 
 Reflex flinch allowed: audit-v13 prompt rule + namesOnlyReflex downgrade in llmIssueBlocksFor; tests in combat-audit-replay.test.ts; wiki dm-narration-quality re-pinned. Shas 640c4be4, 795d79f9, cfc1654f.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (E2 implementation)
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
