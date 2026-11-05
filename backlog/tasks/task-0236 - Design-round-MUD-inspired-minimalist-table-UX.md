@@ -4,7 +4,7 @@ title: 'Design round: MUD-inspired minimalist table UX'
 status: In Progress
 assignee: []
 created_date: '2026-11-05 03:37'
-updated_date: '2026-11-05 05:31'
+updated_date: '2026-11-05 05:52'
 labels:
   - design
   - ux
@@ -20,9 +20,9 @@ ordinal: 222000
 <!-- SECTION:DESCRIPTION:BEGIN -->
 Research what modern MUD clients (Mudlet, web clients, MUD-adjacent text games) do well in UX, file it as a research-vault branch, then produce rounds of comparable mockups for the-stacks table view. End: operator-selected direction plus decision record; spec follows. The end goal stays a virtual table top; MUD minimalism is an input, not the target.
 
-Selected 2026-11-04: Margin layout plus click-to-draft (docs/design/mud-ux/decision.md); built by spec 086. Prerequisite: TASK-0199 (spec 066) merges first.
+Selected 2026-11-04: Margin layout plus click-to-draft (docs/design/mud-ux/decision.md). Split 2026-11-05 (operator: 'Build independent half now'): this task builds spec 090 (margin, mini-strip, status strip), which does not need TASK-0199. The 066-dependent half is TASK-0247 (spec 091). Spec renumbered 086 → 090 after a collision with the runbook B2 lane.
 
-Spec: specs/086-table-margin-and-mud-input
+Spec: specs/090-table-margin
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
@@ -31,13 +31,12 @@ Spec: specs/086-table-margin-and-mud-input
 - [x] #2 Vault analysis note draws VTT implications from the corpus
 - [x] #3 Round-1 mockups: comparable directions over the same real table states, rendered and verified
 - [x] #4 Operator selection recorded as a decision record
-- [ ] #5 Spec phase: Scene fields and seed ways (US5, US6; FR-008, FR-017; R1)
-- [ ] #6 Spec phase: Margin, mini-strip, status strip (US1, US2; FR-001 to FR-005; R2)
-- [ ] #7 Spec phase: Stream items, roll rows, rules lines, room blocks, chips (US3, US6; FR-006 to FR-011)
-- [ ] #8 Spec phase: Composer, glossary, nouns and the draft path (US4, US5; FR-012 to FR-020)
-- [ ] #9 Spec phase: Contrast, contracts and wiki (FR-021, FR-022; SC-003, SC-007)
-- [ ] #10 Spec phase: Verification **[orchestrator]**
+- [ ] #5 Spec phase: Margin, mini-strip, status strip (US1, US2; FR-001 to FR-005; R2)
+- [ ] #6 Spec phase: Contrast, no-dialog, contract amendments and wiki (FR-021, FR-022; SC-003, SC-007)
+- [ ] #7 Spec phase: Verification **[orchestrator]**
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
