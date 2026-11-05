@@ -1,7 +1,7 @@
 ---
 id: TASK-0236
 title: 'Design round: MUD-inspired minimalist table UX'
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-11-05 03:37'
 updated_date: '2026-11-05 14:45'
@@ -69,6 +69,12 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-
 
 Phase 3 (orchestrator): live check at 1280/390, light/dark, evidence in specs/090-table-margin/evidence/ (app browser pane, not Brave). Merged origin/main (b7ccccc1); party-panel re-pinned RE-PIN-ONLY after reading main's resolve.ts diff. Full ci:check with DB on the merged tree: 11/11, server 1859 passed.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Margin, mini-strip, status strip (US1, US2; FR-001 to FR-005; R2): 6/6 · Contrast, no-dialog, contract amendments and wiki (FR-021, FR-022; SC-003, SC-007): 5/5 · Verification **[orchestrator]**: 3/3). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
