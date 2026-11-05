@@ -25,6 +25,8 @@ Outcome: a seed encounter's monsters (goblin-2/3/4 in reed-camp) can be targeted
 Why: runbook B playtest run 1 (2026-11-03, session 729a6c5c, seq 52-60). The narration put 'the lookout by the fire' on screen (seq 51). Odo declared a parley with it. Interpret made a Persuasion check opposed by 'goblin-lookout' (influence rule, TASK-0128). The plan gate refused the whole action: UNKNOWN_COMBATANT, field difficulty.opposedBy, id goblin-lookout, reason not-in-snapshot. The seed's lookout is encounter monster goblin-3 ('Goblin lookout'); encounter monsters are not snapshot actors until the encounter starts, so there was no id interpret could name. The narration then voiced the parley's failure anyway (seq 60) though nothing resolved. TASK-0206 makes seed NPCs present on a reveal, and TASK-0210 pulls present non-combatants in, but neither covers encounter monsters.
 
 Related: TASK-0206, TASK-0210, TASK-0128, TASK-0201 (objects as targets).
+
+Spec: specs/088-pre-encounter-monster
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
