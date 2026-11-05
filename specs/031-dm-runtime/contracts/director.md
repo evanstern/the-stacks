@@ -133,3 +133,5 @@ The Director prompt is `dm.director-v9`.
 ## Amendment: dependent arrivals (spec 089, TASK-0237)
 
 - An `arrivals` id that a check's stake text names is legal as before, but resolve lands it only when the check's applied band delivers a text naming it. The Director does not decide the roll's result.
+
+The Director prompt is `dm.director-v10`. The `goalNote` shape text says the note states no result a roll this beat could decide: no thing found, person reached or fact learned. The arrivals rule says a reveal a roll decides is the roll's, not the Director's. The narrate node backs the rule: `withholdRefusedInputs` blanks the note on a beat where any check failed, with a `doctrine` advisory.

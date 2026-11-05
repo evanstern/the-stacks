@@ -74,17 +74,17 @@ failed.
 **Independent test**: `reveal-waits.test.ts`, `narrate.test.ts`, `assemble.test.ts` and
 `director.test.ts` pass with the new cases.
 
-- [ ] T013 [US2] In `apps/server/src/dm/prompts/director.ts`, apply plan D4 and bump
+- [x] T013 [US2] In `apps/server/src/dm/prompts/director.ts`, apply plan D4 and bump
       `PROMPT_VERSION` to the next version.
-- [ ] T014 [US2] In `apps/server/src/dm/nodes/narrate.ts`, apply plan D5 in `withholdRefusedInputs`.
-- [ ] T015 [US2] Extend `apps/server/test/dm/reveal-waits.test.ts`: replay seq 63-72 (plan
+- [x] T014 [US2] In `apps/server/src/dm/nodes/narrate.ts`, apply plan D5 in `withholdRefusedInputs`.
+- [x] T015 [US2] Extend `apps/server/test/dm/reveal-waits.test.ts`: replay seq 63-72 (plan
       "Replays"), the note withheld with the doctrine advisory; a success beat keeps the note;
       seq 43-51's note "Reward the scan with one true thing: Pell alive at the post" is withheld on
       the severe failure.
-- [ ] T016 [US2] Update the director version pin in `apps/server/test/dm/assemble.test.ts`, and any
+- [x] T016 [US2] Update the director version pin in `apps/server/test/dm/assemble.test.ts`, and any
       pinned prompt text in `apps/server/test/dm/director.test.ts`. Assert the new goalNote and
       arrivals sentences are in the built prompt.
-- [ ] T017 [US2] Append the goalNote amendment to `specs/031-dm-runtime/contracts/director.md`.
+- [x] T017 [US2] Append the goalNote amendment to `specs/031-dm-runtime/contracts/director.md`.
       Commit as `TASK-0237 phase 3: the goal note promises no dice result`.
 
 ## Phase 4: The audit flags a success told on a failure band (US3; FR-008 to FR-011)

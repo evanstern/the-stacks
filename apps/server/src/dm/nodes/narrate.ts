@@ -98,7 +98,23 @@ export function withholdRefusedInputs(
       detail: `Withheld goalNote: it states a count ("${facts.director.goalNote.slice(0, 60)}").`,
     });
   }
-  const goalNote = refusedNote || countNote ? "" : facts.director.goalNote;
+  // TASK-0237: the note is written before the dice; a failed check may have falsified it.
+  const failedCheck =
+    !refusedNote &&
+    !countNote &&
+    Boolean(facts.director.goalNote) &&
+    facts.actions.some((a) =>
+      a.rolls.some((r) => r.band === "failure" || r.band === "severe-failure"),
+    );
+  if (failedCheck) {
+    withheld.push({
+      kind: "doctrine",
+      detail:
+        "Withheld goalNote: a check this beat failed, and the note was written before the dice.",
+    });
+  }
+  const goalNote =
+    refusedNote || countNote || failedCheck ? "" : facts.director.goalNote;
   return {
     facts: {
       ...facts,
