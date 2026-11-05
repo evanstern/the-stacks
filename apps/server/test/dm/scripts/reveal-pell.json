@@ -1,0 +1,92 @@
+{
+  "v": 1,
+  "name": "reveal-pell",
+  "dice": [3],
+  "calls": [
+    {
+      "purpose": "dm.director",
+      "respond": {
+        "type": "json",
+        "value": {
+          "beat": {
+            "decision": "resolve"
+          },
+          "tableMode": {
+            "to": "stay"
+          },
+          "trackers": [],
+          "scene": {
+            "status": "continue"
+          },
+          "pacing": {
+            "tension": "low",
+            "spotlight": null,
+            "beatId": "ferry-house"
+          },
+          "goalNote": "Reward the scan with one true thing: Pell alive at the post",
+          "companionPrompts": [],
+          "arrivals": ["pell"]
+        }
+      }
+    },
+    {
+      "purpose": "dm.interpret",
+      "respond": {
+        "type": "json",
+        "value": {
+          "readings": [
+            {
+              "actionId": "act-listen",
+              "intent": "check",
+              "uncertain": true,
+              "needsAdjudication": false,
+              "rulesQuestion": null,
+              "clarify": null,
+              "steps": [
+                {
+                  "step": "check",
+                  "reason": "Tamsin scans the reeds for the lookout post",
+                  "combatantId": "tamsin",
+                  "kind": "ability-check",
+                  "ability": "wis",
+                  "skill": "perception",
+                  "difficulty": "medium",
+                  "circumstance": null,
+                  "autoFail": null,
+                  "onSuccess": [],
+                  "onFailure": [],
+                  "stakes": {
+                    "success": "She spots Pell alive at the post",
+                    "cost": "She sees Pell, but the lookout turns her way",
+                    "failure": "The reeds and dusk give up nothing clear",
+                    "severe": "The lookout turns and sees her instead"
+                  },
+                  "onCost": [],
+                  "onSevere": [],
+                  "newRisk": null
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "purpose": "dm.narrate",
+      "respond": {
+        "type": "text",
+        "value": "Tamsin scans the reeds. The dusk gives up nothing clear."
+      }
+    },
+    {
+      "purpose": "dm.audit",
+      "respond": {
+        "type": "json",
+        "value": {
+          "verdict": "pass",
+          "issues": []
+        }
+      }
+    }
+  ]
+}

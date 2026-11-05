@@ -8,6 +8,7 @@ import {
   type ClaimIssue,
   type ClaimState,
   checkClaims,
+  namedActorIds,
   offTurnActs,
 } from "../../src/dm/claims.js";
 import { buildSnapshot } from "../../src/dm/snapshot/index.js";
@@ -554,5 +555,19 @@ describe("offTurnActs (TASK-0214)", () => {
     expect(acts("The goblin hurls a spear.")).toEqual([]);
     const s = state({ life: { odo: "dead" } });
     expect(acts("Brother Odo looses an arrow at Snag.", s)).toEqual([]);
+  });
+});
+
+describe("namedActorIds (spec 089 D1)", () => {
+  it("finds a unique alias, once, in order", () => {
+    const { snapshot } = state();
+    expect(
+      namedActorIds(snapshot, "Pell is bound. Pell! Tamsin sees Pell."),
+    ).toEqual(["pell", "tamsin"]);
+  });
+  it("skips a shared noun and a description with no alias", () => {
+    const { snapshot } = state();
+    expect(namedActorIds(snapshot, "the goblin waits")).toEqual([]);
+    expect(namedActorIds(snapshot, "a small figure at the post")).toEqual([]);
   });
 });

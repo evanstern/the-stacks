@@ -274,3 +274,10 @@ the `success` band and falls back from a null `severe` to `failure`. No effect o
 - `nextJob`: when the turn advances to an AI companion and a result in this beat is `held` for that
   combatant, `nextJob` is `{ kind: "turn", trigger: "held" }` in place of the companion job. That beat
   resolves the held group as the companion's turn action.
+
+## Amendment: held arrivals (spec 089, TASK-0237)
+
+- `splitArrivals` divides `director.arrivals` into `unconditional` and `dependent`. An arrival is dependent when a check step in this beat's readings or rulings declares a stake text that names it (a snapshot alias; a monster's seed name). A hold beat has no checks, so every arrival is unconditional.
+- The plan gate's `arriving` input and the opening arrivals group take `unconditional` only.
+- `landHeldArrivals` runs after the NPC group and before the closing moves. It lands a dependent arrival, with the same key `director:arrival:<id>` and the same proposal as an unconditional one, only when `bandTexts(stakes, band)` of a landed check names it. Otherwise it logs `dm.arrival.held` `{ jobId, npcId }` and writes no row.
+- A refused or awaiting check has no band, so its arrival is held.

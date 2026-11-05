@@ -780,6 +780,21 @@ export function offTurnActs(
   return issues;
 }
 
+/**
+ * The actor ids a text names by a unique snapshot alias, in order, once each (spec 089 D1).
+ * ponytail: unique aliases only; a description with no alias ("a small figure") names no one;
+ * upgrade to an interpret field (spec 089 OQ-1 b) when a playtest shows a descriptive reveal slipping through.
+ */
+export function namedActorIds(snapshot: ActorSnapshot, text: string): string[] {
+  const ctx = new Context(snapshot, null);
+  const ids: string[] = [];
+  for (const o of ctx.occurrences(text)) {
+    const id = o.ids[0] as string;
+    if (o.unique && !ids.includes(id)) ids.push(id);
+  }
+  return ids;
+}
+
 // ---------------------------------------------------------------------------
 
 export function checkClaims(state: ClaimState, text: string): ClaimResult {

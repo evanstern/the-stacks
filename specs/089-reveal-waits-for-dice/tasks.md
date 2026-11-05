@@ -44,25 +44,25 @@ report.
 **Independent test**: `stakes.test.ts`, `claims.test.ts`, `reveal-waits.test.ts` and
 `reveal-waits.integration.test.ts` pass; `revealed-npc.integration.test.ts` passes unchanged.
 
-- [ ] T005 [US1] In `apps/server/src/dm/claims.ts`, add and export `namedActorIds` (plan D1), with
+- [x] T005 [US1] In `apps/server/src/dm/claims.ts`, add and export `namedActorIds` (plan D1), with
       its `ponytail:` comment.
-- [ ] T006 [US1] In `apps/server/src/dm/stakes.ts`, add and export `bandTexts` (plan D2).
-- [ ] T007 [US1] In `apps/server/src/dm/nodes/resolve.ts`, apply plan D3: export `splitArrivals`;
+- [x] T006 [US1] In `apps/server/src/dm/stakes.ts`, add and export `bandTexts` (plan D2).
+- [x] T007 [US1] In `apps/server/src/dm/nodes/resolve.ts`, apply plan D3: export `splitArrivals`;
       feed `unconditional` to the plan gate's `arriving` and to `directorOpening`; add
       `landHeldArrivals` after the NPC group, before `directorClosing`.
-- [ ] T008 [P] [US1] Extend `apps/server/test/dm/stakes.test.ts`: `bandTexts` for each band, a null
+- [x] T008 [P] [US1] Extend `apps/server/test/dm/stakes.test.ts`: `bandTexts` for each band, a null
       severe, an unknown band, null stakes.
-- [ ] T009 [P] [US1] Extend `apps/server/test/dm/claims.test.ts`: `namedActorIds` finds "Pell" and
+- [x] T009 [P] [US1] Extend `apps/server/test/dm/claims.test.ts`: `namedActorIds` finds "Pell" and
       "the boy", skips a shared noun, returns `[]` for "a small figure".
-- [ ] T010 [US1] Create `apps/server/test/dm/reveal-waits.test.ts` with `splitArrivals` cases: a
+- [x] T010 [US1] Create `apps/server/test/dm/reveal-waits.test.ts` with `splitArrivals` cases: a
       success text naming Pell (dependent), no check (unconditional), a hold beat (unconditional),
       a ruling's check (dependent).
-- [ ] T011 [US1] Create `apps/server/test/dm/scripts/reveal-pell.json` and
+- [x] T011 [US1] Create `apps/server/test/dm/scripts/reveal-pell.json` and
       `apps/server/test/dm/reveal-waits.integration.test.ts`, replaying seq 43-51 per plan
       "Replays": severe failure writes no Pell `scene-presence` row and logs `dm.arrival.held`;
       success writes one public `arrived` row after `check.resolved`; a failure text naming Pell
       lands it on `failure`; an unconditional arrival lands first as spec 078.
-- [ ] T012 [US1] Append the resolve and director amendments to
+- [x] T012 [US1] Append the resolve and director amendments to
       `specs/031-dm-runtime/contracts/resolve.md` and `director.md` (held arrivals). Commit as
       `TASK-0237 phase 2: dependent arrivals wait for the band`.
 
