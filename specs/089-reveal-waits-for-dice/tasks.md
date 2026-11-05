@@ -94,22 +94,22 @@ failed.
 **Independent test**: `facts.test.ts`, `claims.test.ts`, `audit.test.ts`, `narrate.test.ts` and
 `reveal-waits.test.ts` pass with the new cases.
 
-- [ ] T018 [US3] In `apps/server/src/dm/facts.ts`, apply plan D6 (`unmetSuccess`, both
+- [x] T018 [US3] In `apps/server/src/dm/facts.ts`, apply plan D6 (`unmetSuccess`, both
       `collectFacts` sites).
-- [ ] T019 [US3] In `apps/server/src/dm/claims.ts`, apply plan D7: the `"reveal"` kind and
+- [x] T019 [US3] In `apps/server/src/dm/claims.ts`, apply plan D7: the `"reveal"` kind and
       `unmetReveals`, with its `ponytail:` comment.
-- [ ] T020 [US3] In `apps/server/src/dm/nodes/audit.ts`, call `unmetReveals` in
+- [x] T020 [US3] In `apps/server/src/dm/nodes/audit.ts`, call `unmetReveals` in
       `deterministicChecks` (plan D8).
-- [ ] T021 [US3] In `apps/server/src/dm/prompts/audit.ts`, add the unmet section and the rule 7
+- [x] T021 [US3] In `apps/server/src/dm/prompts/audit.ts`, add the unmet section and the rule 7
       sentence (plan D8). Bump `PROMPT_VERSION` to the next version.
-- [ ] T022 [P] [US3] Extend `apps/server/test/dm/facts.test.ts`: `unmetSuccess` set on `failure`
+- [x] T022 [P] [US3] Extend `apps/server/test/dm/facts.test.ts`: `unmetSuccess` set on `failure`
       and `severe-failure`, null on `success` and `success-at-cost`.
-- [ ] T023 [P] [US3] Extend `apps/server/test/dm/claims.test.ts`: `unmetReveals` reports the seq 51
+- [x] T023 [P] [US3] Extend `apps/server/test/dm/claims.test.ts`: `unmetReveals` reports the seq 51
       prose; passes "no sign of Pell", "Where is Pell?", a quoted "Pell!", and Pell present in S1.
-- [ ] T024 [US3] Extend `apps/server/test/dm/audit.test.ts`: the seq 51 prose blocks as
+- [x] T024 [US3] Extend `apps/server/test/dm/audit.test.ts`: the seq 51 prose blocks as
       `ledger-mismatch` and skips the `dm.audit` call. Extend `reveal-waits.test.ts`: the seq 63-72
       audit prompt lists the unmet success.
-- [ ] T025 [US3] Update the audit version pin and the rule 7 string in
+- [x] T025 [US3] Update the audit version pin and the rule 7 string in
       `apps/server/test/dm/narrate.test.ts`. Append the audit amendment to
       `specs/031-dm-runtime/contracts/audit.md`. Commit as
       `TASK-0237 phase 4: the audit flags a success told on a failure band`.

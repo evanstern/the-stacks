@@ -10,6 +10,7 @@ import {
   checkClaims,
   namedActorIds,
   offTurnActs,
+  unmetReveals,
 } from "../../src/dm/claims.js";
 import { buildSnapshot } from "../../src/dm/snapshot/index.js";
 import type {
@@ -569,5 +570,35 @@ describe("namedActorIds (spec 089 D1)", () => {
     const { snapshot } = state();
     expect(namedActorIds(snapshot, "the goblin waits")).toEqual([]);
     expect(namedActorIds(snapshot, "a small figure at the post")).toEqual([]);
+  });
+});
+
+describe("unmetReveals (spec 089 D7)", () => {
+  const rolls = [
+    { unmet: "She spots Pell alive at the post", applied: ["Nothing clear."] },
+  ];
+  const gone = () => state({ presence: { pell: "absent" } });
+  const run = (text: string, st = gone()) => unmetReveals(st, text, rolls);
+  it("reports the seq 51 prose", () => {
+    const r = run(
+      "The lookout turns. Yet the reeds give one mercy first: Pell, alive at the post.",
+    );
+    expect(kinds(r)).toEqual(["reveal"]);
+    expect(r[0]?.actorIds).toEqual(["pell"]);
+  });
+  it("passes negation, a question, a quote and a present Pell", () => {
+    expect(run("There is no sign of Pell in the reeds.")).toEqual([]);
+    expect(run("Where is Pell?")).toEqual([]);
+    expect(run('A voice shouts "Pell!" across the water.')).toEqual([]);
+    expect(
+      run("Pell stands at the post.", state({ presence: { pell: "present" } })),
+    ).toEqual([]);
+  });
+  it("skips an NPC the applied text names", () => {
+    expect(
+      unmetReveals(gone(), "Pell waves.", [
+        { unmet: "Pell alive", applied: ["Pell is gone"] },
+      ]),
+    ).toEqual([]);
   });
 });

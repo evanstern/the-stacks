@@ -53,6 +53,8 @@ export interface FactRoll {
   margin?: number | null;
   /** Spec 070: the declared text for a success-at-cost, failure or severe-failure band. */
   consequence?: string | null;
+  /** Spec 089: the success text a failure or severe-failure band did not deliver; audit-only. */
+  unmetSuccess?: string | null;
   /** Spec 080: the clue text a success band reveals; null on any other band. */
   revealed?: string | null;
   /** Spec 070: a free retry resolved without a roll. */
@@ -243,6 +245,16 @@ interface Collected {
   changes: FactChange[];
 }
 
+/** Spec 089 D6: the success text a failed band leaves unmet. */
+function unmetFor(
+  stakes: FactStakes | undefined,
+  band: string | null,
+): string | null {
+  return band === "failure" || band === "severe-failure"
+    ? (stakes?.success ?? null)
+    : null;
+}
+
 /** Spec 080 D4: the clue text, only on a success band. */
 function revealedFor(
   byBatch: ReadonlyMap<string, string>,
@@ -287,6 +299,7 @@ export function collectFacts(
       let margin: number | null = null;
       let consequence: string | null = null;
       let revealed: string | null = null;
+      let unmetSuccess: string | null = null;
       if (link) {
         const o = link.outcome;
         if (o.type === "attack.resolved") {
@@ -301,6 +314,7 @@ export function collectFacts(
           margin = o.margin ?? null;
           consequence = consequenceFor(stakesByBatch.get(link.batchId), band);
           revealed = revealedFor(revealedByBatch, link.batchId, band);
+          unmetSuccess = unmetFor(stakesByBatch.get(link.batchId), band);
         }
       }
       const name = nameOf(row.roll.combatantId);
@@ -315,7 +329,7 @@ export function collectFacts(
         outcome,
         autoFail: false,
         target,
-        ...(band ? { band, margin, consequence, revealed } : {}),
+        ...(band ? { band, margin, consequence, revealed, unmetSuccess } : {}),
         ...(reaction ? { reaction: true } : {}),
       };
       if (!link && row.roll.purpose === "damage") {
@@ -350,6 +364,7 @@ export function collectFacts(
             margin: null,
             consequence: consequenceFor(stakesByBatch.get(o.batchId), e.band),
             revealed: revealedFor(revealedByBatch, o.batchId, e.band),
+            unmetSuccess: unmetFor(stakesByBatch.get(o.batchId), e.band),
           }
         : {}),
     });
@@ -960,4 +975,13 @@ export function nothingToNarrate(facts: NarrationFacts): boolean {
     (facts.settled?.length ?? 0) === 0 &&
     facts.clarify.length === 0
   );
+}
+
+/** Spec 089: every roll whose failed band left a success text unmet. */
+export function unmetRolls(facts: NarrationFacts): FactRoll[] {
+  return [
+    ...facts.actions.flatMap((a) => a.rolls),
+    ...(facts.npcTurn?.rolls ?? []),
+    ...(facts.pulled ?? []).flatMap((p) => p.rolls),
+  ].filter((r) => r.unmetSuccess);
 }

@@ -108,3 +108,7 @@ Shipping the narration and its flag is the last write of the turn. The record is
 `finishJob` (fenced).
 
 Amended by specs/034-narration-quality/contracts/audit-criteria.md.
+
+## Amendment 2026-11-05 (specs/089-reveal-waits-for-dice, TASK-0237): unmet success
+
+The audit prompt is `dm.audit-v16`. A `FactRoll` on a `failure` or `severe-failure` band carries `unmetSuccess`, the stake `success` text. Only the audit sees it: the prompt adds a section "Success outcomes that did not happen", and rule 7 says a listed outcome must not appear (`ledger-mismatch`). `deterministicChecks` also runs `unmetReveals`: prose that shows an absent NPC the unmet text names, outside negation, "no sign of", a question or a quote, blocks as `ledger-mismatch` ("Reveal: ...") and skips the `dm.audit` call.

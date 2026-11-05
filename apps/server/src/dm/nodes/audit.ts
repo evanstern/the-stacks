@@ -18,8 +18,13 @@ import {
   verbForms,
   wordCount,
 } from "../audit-words.js";
-import { type ClaimState, checkClaims, offTurnActs } from "../claims.js";
-import { type NarrationFacts, renderDiceLines } from "../facts.js";
+import {
+  type ClaimState,
+  checkClaims,
+  offTurnActs,
+  unmetReveals,
+} from "../claims.js";
+import { type NarrationFacts, renderDiceLines, unmetRolls } from "../facts.js";
 import { factualSummary, spellDigits } from "../fallback.js";
 import { callJson } from "../pipeline/call.js";
 import type {
@@ -269,6 +274,16 @@ export function deterministicChecks(
     for (const c of offTurnActs(state, prose, facts.turn.offTurn)) {
       add("invented-mechanics", c.detail);
     }
+  }
+
+  // TASK-0237: prose that shows an NPC a failed band's success named blocks before dm.audit.
+  const unmet = unmetRolls(facts).flatMap((r) =>
+    r.unmetSuccess
+      ? [{ unmet: r.unmetSuccess, applied: [r.consequence ?? ""] }]
+      : [],
+  );
+  for (const c of unmetReveals(state, prose, unmet)) {
+    add("ledger-mismatch", `Reveal: ${c.detail}`);
   }
 
   for (const a of facts.actions) {

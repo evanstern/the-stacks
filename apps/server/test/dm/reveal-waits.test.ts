@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { withholdRefusedInputs } from "../../src/dm/nodes/narrate.js";
 import { splitArrivals } from "../../src/dm/nodes/resolve.js";
 import type { Step } from "../../src/dm/nodes/schemas.js";
+import { buildAuditPrompt } from "../../src/dm/prompts/audit.js";
 import { buildSnapshot } from "../../src/dm/snapshot/index.js";
 import { greyhollowFight } from "./snapshot-fixtures.js";
 
@@ -71,5 +72,38 @@ describe("goal note withhold on a failed check", () => {
     );
     expect(r.facts.director.goalNote).toBe("Keep the post in view");
     expect(r.withheld).toEqual([]);
+  });
+});
+
+describe("audit prompt lists the unmet success (seq 63-72)", () => {
+  it("adds the section and rule text", () => {
+    const f = {
+      rulings: [],
+      actions: [
+        {
+          actionId: "a1",
+          followUps: [],
+          outcomes: [],
+          changes: [],
+          rolls: [
+            {
+              name: "Kestrel",
+              band: "severe-failure",
+              unmetSuccess: "She learns who holds command",
+            },
+          ],
+        },
+      ],
+      director: { goalNote: "" },
+      party: [],
+      clarify: [],
+      events: [],
+      presentNpcs: [],
+      npcTurn: null,
+    } as never;
+    const p = buildAuditPrompt({ facts: f, snapshot, prose: "Prose." });
+    expect(p.user).toContain("## Success outcomes that did not happen");
+    expect(p.user).toContain("Kestrel: She learns who holds command");
+    expect(p.system).toContain("listed as one that did not happen");
   });
 });

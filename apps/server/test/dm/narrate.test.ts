@@ -801,7 +801,7 @@ describe("narrate", () => {
       snapshot,
       prose: "Prose.",
     });
-    expect(AUDIT_VERSION).toBe("dm.audit-v15");
+    expect(AUDIT_VERSION).toBe("dm.audit-v16");
     expect(p.system).toContain(
       "Omit `actor` when no character is named; never write null.",
     );
@@ -814,6 +814,9 @@ describe("narrate", () => {
       "Watching, waiting and turning toward a noise are not turn actions",
     );
     expect(p.system).toContain("7. A roll's band and consequence are decided.");
+    expect(p.system).toContain(
+      "A success outcome listed as one that did not happen must not appear",
+    );
     expect(p.system).toContain(
       "does not deliver a roll's settled outcome or learned fact",
     );

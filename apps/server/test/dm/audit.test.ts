@@ -880,3 +880,35 @@ describe("off-turn act blocks before dm.audit (TASK-0214)", () => {
     },
   );
 });
+
+describe("unmet success reveal (TASK-0237)", () => {
+  const f = () =>
+    facts([
+      action({
+        rolls: [
+          {
+            ...roll(),
+            band: "severe-failure",
+            consequence: "The reeds give nothing.",
+            unmetSuccess: "Guard waits alive at the post",
+          },
+        ],
+      }),
+    ]);
+  const absent = () => {
+    const st = claimState();
+    for (const a of st.snapshot.actors) a.presence = "absent";
+    return st;
+  };
+  it("blocks the unmet NPC as ledger-mismatch, so dm.audit is skipped", () => {
+    const r = check(`${CLEAN} Guard stands at the post.`, f(), absent());
+    expect(r.pass).toBe(false);
+    expect(r.issues.some((i) => i.detail.startsWith("Reveal: "))).toBe(true);
+    expect(r.issues[0]?.kind).toBe("ledger-mismatch");
+  });
+  it("passes when the prose does not show them", () => {
+    expect(check(`${CLEAN} The reeds hold still.`, f(), absent()).pass).toBe(
+      true,
+    );
+  });
+});

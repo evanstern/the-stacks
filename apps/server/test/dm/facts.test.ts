@@ -445,6 +445,10 @@ describe("dice-line renderer", () => {
           stakes,
         );
         expect(c.rolls[0]).toMatchObject({ band, margin, consequence });
+        const failed = band === "failure" || band === "severe-failure";
+        expect(c.rolls[0]?.unmetSuccess).toBe(
+          failed ? "The attempt works as intended." : null,
+        );
         expect(renderRollLine(c.rolls[0] as never)).toContain(`: ${word}`);
       },
     );
