@@ -3,10 +3,10 @@ id: TASK-0237
 title: >-
   The Director reveals an NPC before the dice, so a failed check still delivers
   the success outcome
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-11-05 03:53'
-updated_date: '2026-11-05 08:32'
+updated_date: '2026-11-05 08:38'
 labels:
   - dm
   - rules
@@ -59,10 +59,18 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 089 phases 3-5, grouped: goal note, audit, wiki)
 
 Spec 089 built (all 5 phases). AC #1: arrivals named by a check's outcome text land only on a band whose text names them (reveal-waits.integration replays seq 43-51: severe failure, no Pell; success, Pell arrives). AC #2: both halves: arrivals wait for the band; director-v10 goal note states no dice result, and narrate drops the note on a failed-check beat (seq 63-72 replay). AC #3: unmetReveals blocks prose showing an absent NPC an unmet success named, as ledger-mismatch before the model audit; audit-v16 lists unmet successes. Orchestrator re-ran REQUIRE_DATABASE=1 ci:check on the final tree: green (1858 passed).
+
+spec-bridge sync: Seam check (no source edit): 4/4 · Dependent arrivals wait for the band: 8/8 · The goal note promises no dice result: 5/5 · The audit flags a success told on a failure band: 8/8 · Wiki re-pin: 5/5 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Merged PR #139 (5571839f), runbook B2 spine #6. All spec 089 tasks complete (Seam check 4/4 · Dependent arrivals 8/8 · Goal note 5/5 · Audit 8/8 · Wiki 5/5). Derived Done by spec-bridge sync. Arrivals a check's outcome names wait for the band; director-v10 goal note states no dice result and is dropped on a failed-check beat; unmetReveals blocks a success told on a failure band (audit-v16).
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
-- [ ] #1 All tests and checks run green
-- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
+- [x] #1 All tests and checks run green
+- [x] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
