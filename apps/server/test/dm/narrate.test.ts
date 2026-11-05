@@ -770,7 +770,7 @@ describe("narrate", () => {
       snapshot,
       prose: "Prose.",
     });
-    expect(AUDIT_VERSION).toBe("dm.audit-v12");
+    expect(AUDIT_VERSION).toBe("dm.audit-v13");
     expect(p.system).toContain(
       "6. Turn mode. Only the actors on the Turn line",
     );
