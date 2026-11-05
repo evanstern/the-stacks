@@ -1,6 +1,7 @@
 # Decision: MUD-inspired table layout (TASK-0236 design rounds)
 
-- **Status:** direction accepted by the operator, 2026-11-04. Open questions OQ1–OQ4 are not yet ruled.
+- **Status:** direction accepted by the operator, 2026-11-04. OQ1–OQ4 ruled the same day.
+- **Spec:** `specs/086-table-margin-and-mud-input/`
 - **Task:** TASK-0236 (Design round: MUD-inspired minimalist table UX)
 - **Research:** `docs/research/MUD-Client-UX/` (EMBED fb4cba36), analysis `Analysis-Table-View-Pattern-Adoption.md` (0e918e5f)
 - **Rounds:** [round 1](round-1/index.html) (caa45005)
@@ -47,11 +48,11 @@ The operator's words: "a slide-out map + the ability to interact with it."
 - DM-only text never reaches a player view.
 - The layout works at 1280px and 390px.
 
-## Open questions (operator to rule before the spec)
+## Open questions (all ruled 2026-11-04; the operator accepted the recommendations)
 
-- **OQ1:** Is the map a view derived from stream events (the MUD auto-mapper idea), or an authored surface the stream reports on? *Recommendation:* authored geometry, with token positions driven by events.
-- **OQ2:** Do the filter chips earn their place over one unfiltered stream? *Recommendation:* keep them, since they are cheap view filters.
-- **OQ3:** Is rules detail a per-player setting, or a per-row expansion only? *Recommendation:* per-row expansion first, and add the setting if playtests ask for it.
+- **OQ1:** Is the map a view derived from stream events (the MUD auto-mapper idea), or an authored surface the stream reports on? **Ruled:** authored geometry, with token positions driven by events.
+- **OQ2:** Do the filter chips earn their place over one unfiltered stream? **Ruled:** keep them, since they are cheap view filters.
+- **OQ3:** Is rules detail a per-player setting, or a per-row expansion only? **Ruled:** per-row expansion first, and add the setting if playtests ask for it.
 - **OQ4:** Does click-to-draft put text in the composer, or go straight to a confirm row? **Ruled by this selection:** it drafts into the composer.
 
 ## Sequencing note
