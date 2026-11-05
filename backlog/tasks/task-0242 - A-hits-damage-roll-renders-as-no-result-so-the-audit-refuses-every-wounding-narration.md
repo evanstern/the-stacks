@@ -3,10 +3,10 @@ id: TASK-0242
 title: >-
   A hit's damage roll renders as 'no result', so the audit refuses every
   wounding narration
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-11-05 04:07'
-updated_date: '2026-11-05 05:19'
+updated_date: '2026-11-05 05:30'
 labels:
   - dm
   - narration
@@ -48,8 +48,14 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (
 NPC hit damage roll now renders 'damage dealt: n type to target' (narrate-v19); facts + scripted-audit tests cover seq 163-170 and 185-192. Commits 99fc414e, a713cb6e
 <!-- SECTION:NOTES:END -->
 
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Merged PR #133 (bef9c4d5), runbook B2 spine #1, escape E1. An NPC hit's damage roll now states damage dealt (amount, type, target) from the same batch's hp.changed row; dealt null when the ledger has none. narrate-v19. Facts replay seq 163-166, scripted-audit replay seq 163-170 and 185-192.
+<!-- SECTION:FINAL_SUMMARY:END -->
+
 ## Definition of Done
 <!-- DOD:BEGIN -->
-- [ ] #1 All tests and checks run green
-- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
+- [x] #1 All tests and checks run green
+- [x] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
