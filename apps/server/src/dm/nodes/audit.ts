@@ -30,6 +30,7 @@ import type {
 import { buildAuditPrompt, PROMPT_VERSION } from "../prompts/audit.js";
 import { PURPOSE_OF } from "../purposes.js";
 import { nameTerms } from "../snapshot/aliases.js";
+import { capText } from "./director.js";
 import { composeText, narrateAttempt } from "./narrate.js";
 
 /**
@@ -74,6 +75,34 @@ export const AuditModelOutput = z
       .max(8),
   })
   .refine((o) => o.verdict === "pass" || o.issues.length > 0);
+
+/**
+ * Safe coercions for `dm.audit` replies (specs/086 D4): an unknown string kind
+ * becomes `other` with a `[kind]` detail prefix, a long detail is clipped to 300,
+ * a null actor is dropped. Copies; never mutates.
+ * ponytail: only the three card shapes are coerced; add a field only with a
+ * logged run shape.
+ */
+export function normalizeAudit(json: unknown): unknown {
+  const plain = (v: unknown): v is Record<string, unknown> =>
+    typeof v === "object" && v !== null && !Array.isArray(v);
+  if (!plain(json) || !Array.isArray(json.issues)) return json;
+  const issues = json.issues.map((raw: unknown) => {
+    if (!plain(raw)) return raw;
+    const i: Record<string, unknown> = { ...raw };
+    if (
+      typeof i.kind === "string" &&
+      !(AUDIT_ISSUE_KINDS as readonly string[]).includes(i.kind)
+    ) {
+      if (typeof i.detail === "string") i.detail = `[${i.kind}] ${i.detail}`;
+      i.kind = "other";
+    }
+    if (typeof i.detail === "string") i.detail = capText(i.detail);
+    if (i.actor === null) delete i.actor;
+    return i;
+  });
+  return { ...json, issues };
+}
 
 export interface RecordedIssue extends AuditIssue {
   blocking: boolean;
@@ -521,6 +550,7 @@ export const audit: Node<"audit"> = async (ctx) => {
         system: prompt.system,
         user: prompt.user,
         schema: AuditModelOutput,
+        normalize: normalizeAudit,
         signal: ctx.signal,
       });
       calls.push(...res.calls);

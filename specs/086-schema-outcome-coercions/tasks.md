@@ -61,16 +61,16 @@ cases; the migration applies on a fresh stack.
 **Independent test**: `schema-coercions.test.ts` passes one test per shape S1 to S8, plus the
 normalizer edge cases.
 
-- [ ] T010 [US2] In `apps/server/src/dm/nodes/director.ts`, export `capText`. Change nothing else.
-- [ ] T011 [US2] In `apps/server/src/dm/nodes/audit.ts`, add and export `normalizeAudit` (plan D4)
+- [x] T010 [US2] In `apps/server/src/dm/nodes/director.ts`, export `capText`. Change nothing else.
+- [x] T011 [US2] In `apps/server/src/dm/nodes/audit.ts`, add and export `normalizeAudit` (plan D4)
       and pass it as `normalize` in the `dm.audit` call. Add a `ponytail:` comment naming the
       ceiling: only the three card shapes are coerced; add a field only with a logged run shape.
-- [ ] T012 [US2] In `apps/server/src/dm/chronicle.ts`, add and export `normalizeChronicle`
+- [x] T012 [US2] In `apps/server/src/dm/chronicle.ts`, add and export `normalizeChronicle`
       (plan D5) and pass it as `normalize` in the `dm.chronicle` call.
-- [ ] T013 [US2, US3] Create `apps/server/test/dm/schema-coercions.test.ts`: one `callJson` test
+- [x] T013 [US2, US3] Create `apps/server/test/dm/schema-coercions.test.ts`: one `callJson` test
       per shape S1 to S8 with its wrapper, labeled "rebuilt from the TASK-0203 root-cause note";
       plus direct normalizer cases for every spec edge case.
-- [ ] T014 [US2] Amend `specs/034-narration-quality/contracts/audit-criteria.md` with
+- [x] T014 [US2] Amend `specs/034-narration-quality/contracts/audit-criteria.md` with
       `normalizeAudit`. Commit as `TASK-0203 phase 2: safe audit and chronicle coercions`.
 
 ## Phase 3: Prompts state the failed fields (US4; FR-010)
