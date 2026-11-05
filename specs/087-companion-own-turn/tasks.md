@@ -31,17 +31,17 @@ refused; the held group is released on the companion's turn.
 
 **Independent test**: `plan-gate.test.ts` passes with the new cases; existing resolve tests pass.
 
-- [ ] T001 [US1] In `apps/server/src/dm/gates/plan-gate.ts`, apply plan D1: `off-turn` reason,
+- [x] T001 [US1] In `apps/server/src/dm/gates/plan-gate.ts`, apply plan D1: `off-turn` reason,
       `TURN_HELD_CODE`, the held `PlanVerdict` variant, exported `stepActors`, the held/refused
       check in `checkPlan` after `foreignActor`, and the `ponytail:` comment.
-- [ ] T002 [US1] In `apps/server/src/dm/nodes/resolve.ts`, apply plan D2: the `held` outcome,
+- [x] T002 [US1] In `apps/server/src/dm/nodes/resolve.ts`, apply plan D2: the `held` outcome,
       `heldFor` and `stepActors` on action results, and the early return in `resolveAction`.
-- [ ] T003 [US1] In `apps/server/src/dm/nodes/resolve.ts`, apply plan D3: the `held` exclusion and
+- [x] T003 [US1] In `apps/server/src/dm/nodes/resolve.ts`, apply plan D3: the `held` exclusion and
       the release clause in the turn-advance test, the `held` next job, and both `ponytail:`
       comments.
-- [ ] T004 [US1] In `apps/server/src/dm/jobs.ts`, add the `held` trigger (plan D4). In
+- [x] T004 [US1] In `apps/server/src/dm/jobs.ts`, add the `held` trigger (plan D4). In
       `apps/server/src/dm/worker.ts`, enqueue `next.trigger`.
-- [ ] T005 [US1] In `apps/server/test/dm/plan-gate.test.ts`, add a `describe("checkPlan turn hold
+- [x] T005 [US1] In `apps/server/test/dm/plan-gate.test.ts`, add a `describe("checkPlan turn hold
       (TASK-0244)")` with: held for an off-turn companion caster; held when the companion is active
       but has its own character group; not held for the active companion with no own group; not
       held in free mode; not held for a downed companion; refused `STEP_ACTOR_MISMATCH` reason

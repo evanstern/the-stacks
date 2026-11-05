@@ -731,7 +731,8 @@ export function buildNarrationFacts(input: BuildFactsInput): NarrationFacts {
     let outcome: FactAction["outcome"];
     let refusalCode: string | null = null;
     if (result) {
-      if (result.outcome === "awaiting-dm") continue;
+      if (result.outcome === "awaiting-dm" || result.outcome === "held")
+        continue;
       outcome = result.outcome;
       refusalCode = result.refusalCode;
     } else if (view?.resolved) {
