@@ -4,7 +4,7 @@ title: Haiku dm.audit and dm.chronicle return invalid-json on the first attempt
 status: In Progress
 assignee: []
 created_date: '2026-11-02 19:42'
-updated_date: '2026-11-05 06:12'
+updated_date: '2026-11-05 06:17'
 labels:
   - dm
   - playtest
@@ -81,6 +81,8 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 086 phases 3-4, grouped: prompts and wiki)
 
 Spec 086 built (phases 1-4, tasks.md 28/28). AC #3 (schema-mismatch outcome, migration 0009) and AC #4 (four coercions, eight shape tests) met. audit-v15, director-v8, companion-v8, interpret-v14. AC #2 ticks at runbook B2's playtest (counts invalid-json and schema-mismatch on attempt 1, OQ-1).
+
+spec-bridge sync: all four spec 086 phases complete (9/9, 5/5, 7/7, 7/7). Merged PR #136 (5bf6f12e), runbook B2 spine #3. Card stays In Progress: AC #2 is hosted and ticks at the runbook B2 playtest (as in runbook B for hosted ACs).
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
