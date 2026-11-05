@@ -59,15 +59,15 @@ line.
 
 **Independent test**: `facts.test.ts` and `narrate.test.ts` pass with the new cases.
 
-- [ ] T006 [US2] In `apps/server/src/dm/facts.ts`, apply plan D5: `NarrationFacts.held`, the held
+- [x] T006 [US2] In `apps/server/src/dm/facts.ts`, apply plan D5: `NarrationFacts.held`, the held
       branch in the actions loop, and the step actors in `onTurn`.
-- [ ] T007 [US1] In `apps/server/src/dm/prompts/narrate.ts`, apply plan D6: the `Waiting:` line in
+- [x] T007 [US1] In `apps/server/src/dm/prompts/narrate.ts`, apply plan D6: the `Waiting:` line in
       `factEntries`, bump `PROMPT_VERSION`.
-- [ ] T008 [US2] In `apps/server/test/dm/facts.test.ts`, add the AC #2 cases (spec US2 scenarios
+- [x] T008 [US2] In `apps/server/test/dm/facts.test.ts`, add the AC #2 cases (spec US2 scenarios
       1-3): a party group with caster Odo and a healing roll on Tamsin leaves Brother Odo off
       `turn.offTurn`; a held group keeps Odo on it and yields one `held` entry and no action; a
       plan-refused group adds no step actor.
-- [ ] T009 [US1] In `apps/server/test/dm/narrate.test.ts`, update the version pin and assert the
+- [x] T009 [US1] In `apps/server/test/dm/narrate.test.ts`, update the version pin and assert the
       `Waiting:` line for a held entry.
 
 **Checkpoint**: `pnpm ci:check` green. Commit `TASK-0244 phase 2: step actors on turn, held

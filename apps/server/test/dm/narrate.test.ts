@@ -360,9 +360,17 @@ describe("narrate", () => {
       facts,
       prior: null,
     });
-    expect(NARRATE_VERSION).toBe("dm.narrate-v19");
+    expect(NARRATE_VERSION).toBe("dm.narrate-v20");
     expect(prompt.system).toContain(
       "A roll's band and outcome are settled. A success means the attempted task happens. Deliver the outcome and any learned fact plainly in the prose; invent no other.",
+    );
+    expect(
+      factEntries({
+        ...facts,
+        held: [{ name: "Brother Odo", text: "Odo casts Cure Wounds." }],
+      }),
+    ).toContain(
+      `Waiting: "Odo casts Cure Wounds." waits for Brother Odo's turn; nothing has happened yet.`,
     );
     const banded = factEntries({
       ...facts,
