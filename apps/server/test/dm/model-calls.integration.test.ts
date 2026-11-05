@@ -101,6 +101,20 @@ describe.skipIf(!reachable)("usage ledger (database)", () => {
     expect(row?.outcome).toBe("truncated");
   });
 
+  it("stores and reads back a schema-mismatch outcome", async () => {
+    const sessionId = randomUUID();
+    const jobId = await makeJob(sessionId);
+    await insertModelCall(
+      requireDb(),
+      { jobId, sessionId, jobKind: "turn", jobAttempt: 1 },
+      call({ outcome: "schema-mismatch" }),
+    );
+    const [row] = (
+      await listModelCalls(requireDb(), sessionId, { after: 0, limit: 10 })
+    ).rows;
+    expect(row?.outcome).toBe("schema-mismatch");
+  });
+
   it("pages by after, and totals cover the whole session with unpriced calls", async () => {
     const sessionId = randomUUID();
     const jobId = await makeJob(sessionId);

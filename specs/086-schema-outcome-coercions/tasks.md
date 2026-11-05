@@ -28,27 +28,27 @@ S1 to S4. If a task seems to need one, stop and report.
 **Independent test**: `call.test.ts` and `model-calls.integration.test.ts` pass with the new
 cases; the migration applies on a fresh stack.
 
-- [ ] T001 [US1] In `apps/server/src/dm/pipeline/context.ts`, add `"schema-mismatch"` to
+- [x] T001 [US1] In `apps/server/src/dm/pipeline/context.ts`, add `"schema-mismatch"` to
       `ModelCallRecord.outcome` (plan D1).
-- [ ] T002 [US1] In `apps/server/src/dm/pipeline/call.ts`, apply plan D1: `parseAgainst` returns
+- [x] T002 [US1] In `apps/server/src/dm/pipeline/call.ts`, apply plan D1: `parseAgainst` returns
       a failure kind; both `callJson` settle sites use it; `logInvalid` emits
       `dm.call.${kind}`. Update the TASK-0203 doc comment on `logInvalid`.
-- [ ] T003 [US1] In `apps/server/src/schema/dm-model-calls.ts`, add `'schema-mismatch'` to the
+- [x] T003 [US1] In `apps/server/src/schema/dm-model-calls.ts`, add `'schema-mismatch'` to the
       `dm_model_calls_outcome_valid` CHECK (plan D2).
-- [ ] T004 [US1] Run `pnpm env:up`, then `pnpm --filter @the-stacks/server db:generate`. Commit
+- [x] T004 [US1] Run `pnpm env:up`, then `pnpm --filter @the-stacks/server db:generate`. Commit
       the generated SQL, snapshot and `_journal.json` change unedited. Run
       `pnpm --filter @the-stacks/server db:migrate` on the fresh stack and confirm it applies.
-- [ ] T005 [P] [US1] In `apps/web/app/debug/api-types.ts`, add `"schema-mismatch"` to
+- [x] T005 [P] [US1] In `apps/web/app/debug/api-types.ts`, add `"schema-mismatch"` to
       `DebugModelCall.outcome` (plan D3).
-- [ ] T006 [P] [US1] In `.claude/skills/playtest-run/scripts/watch.mjs`, count and print
+- [x] T006 [P] [US1] In `.claude/skills/playtest-run/scripts/watch.mjs`, count and print
       `schema=<n>`. In `.claude/skills/playtest-run/SKILL.md`, flag `schema-mismatch` beside
       `invalid-json` (plan D3).
-- [ ] T007 [US1] Update `apps/server/test/dm/call.test.ts`: schema-failure expectations become
+- [x] T007 [US1] Update `apps/server/test/dm/call.test.ts`: schema-failure expectations become
       `schema-mismatch`; unparsable ones stay `invalid-json`. Add a `dm.call.schema-mismatch` log
       case and a truncated schema failure that settles `truncated`.
-- [ ] T008 [US1] Extend `apps/server/test/dm/model-calls.integration.test.ts`: store and read back
+- [x] T008 [US1] Extend `apps/server/test/dm/model-calls.integration.test.ts`: store and read back
       a `schema-mismatch` row.
-- [ ] T009 [US1] Amend `specs/031-dm-runtime/contracts/node-seam.md`,
+- [x] T009 [US1] Amend `specs/031-dm-runtime/contracts/node-seam.md`,
       `specs/037-debug-api/contracts/debug-api.md` and `specs/037-debug-api/data-model.md` with
       the new outcome. Commit as `TASK-0203 phase 1: schema-mismatch outcome and migration`.
 

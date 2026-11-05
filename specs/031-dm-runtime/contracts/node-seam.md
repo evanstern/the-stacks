@@ -69,7 +69,7 @@ export interface ModelCallRecord {
   purpose: DmPurpose;            // purposes.md; exactly one per call (AC #4)
   promptVersion: string;         // e.g. "dm.narrate-v1"
   attempt: number;               // 1, or 2 for the one JSON repair re-ask
-  outcome: "ok" | "invalid-json" | "error";
+  outcome: "ok" | "invalid-json" | "schema-mismatch" | "error"; // "schema-mismatch": TASK-0203 (reply parsed, schema failed)
   errorKind: ErrorKind | null;   // ai/types.ts
   // TASK-0116. From the gateway's usage record for the attempt; null when none arrived.
   provider: string | null;
