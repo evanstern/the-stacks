@@ -160,7 +160,7 @@ Starts after TASK-0242 has merged (spine #1; it edits the same `turn` block).
 - `factEntries`: after the `Off turn:` push, for each `facts.held` entry push
   `Waiting: "<text>" waits for <name>'s turn; nothing has happened yet.`
 - `PROMPT_VERSION` → the next narrate version (one past `origin/main` at Phase 2 start;
-  `dm.narrate-v19` at authoring). The audit prompt reads `factEntries`, so it shows the line with
+  `dm.narrate-v19` at authoring; shipped as `dm.narrate-v20`). The audit prompt reads `factEntries`, so it shows the line with
   no edit and no version bump.
 
 ## Replay (card AC #1)

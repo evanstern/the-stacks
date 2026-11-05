@@ -79,10 +79,10 @@ waiting line`.
 
 **Independent test**: `companion-own-turn.integration.test.ts` passes against the test database.
 
-- [ ] T010 [US1] Create `apps/server/test/dm/companion-own-turn.integration.test.ts` per the plan
+- [x] T010 [US1] Create `apps/server/test/dm/companion-own-turn.integration.test.ts` per the plan
       "Replay" table (steps 1-7 and the R3 case). Header names finding 40, seq 206-230, session
       `729a6c5c`, seed `greyhollow-ford`, and that rows are rebuilt from the log.
-- [ ] T011 Amend the four contract files the plan "Contracts" section lists.
+- [x] T011 Amend the four contract files the plan "Contracts" section lists.
 
 **Checkpoint**: `pnpm ci:check` green and the replay passes with `TEST_DATABASE_URL` set. Commit
 `TASK-0244 phase 3: replay seq 206-230; contract amendments`.

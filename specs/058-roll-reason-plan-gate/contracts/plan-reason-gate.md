@@ -127,3 +127,15 @@ Amended by spec 078: `arriving` also holds the Director's legal arrivals, and th
   Proficiency is left to the engine's `NOT_PROFICIENT` refusal.
 - `askUndeclared` treats a help step's `helperId` like an attacker: another human's PC as helper asks
   `otherPlayerQuestion(name, declarer)`. The ally or target does not.
+
+## Amended by specs/087-companion-own-turn (TASK-0244)
+
+- `PlanFailureReason` gains `off-turn`. In turn mode with an encounter, a party-scope group whose only step
+  actor is an off-turn, conscious AI companion gets the held verdict `{ ok: false, code: "TURN_HELD",
+  heldFor: <combatantId> }`. `TURN_HELD` is a plan-gate literal, never a `RefusalCode`, and writes no event.
+- A group that names an off-turn companion and any other actor is refused `STEP_ACTOR_MISMATCH` with reason
+  `off-turn`.
+- An AI companion is off turn when it is not the active combatant, or when it is active and has its own
+  character group in the same beat. A human party member named off turn still acts (OQ-2).
+- The pure helper `stepActors(steps)` returns the distinct `attackerId`, `casterId`, `helperId` and `move`
+  `combatantId` values in step order. Resolve reads it.
