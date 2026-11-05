@@ -1,0 +1,41 @@
+---
+id: TASK-0244
+title: >-
+  A party action lets an AI companion act out of turn, and the off-turn check
+  refuses its narration
+status: To Do
+assignee: []
+created_date: '2026-11-05 04:22'
+labels:
+  - dm
+  - rules
+  - playtest
+milestone: m-3
+dependencies: []
+references:
+  - docs/playtests/2026-11-03-runbook-b-playtest.md
+priority: high
+ordinal: 228000
+---
+
+## Description
+
+<!-- SECTION:DESCRIPTION:BEGIN -->
+Outcome: in turn order, a party action that names a companion's act (a spell, an attack) waits for the companion's turn or is refused with a reason; and when an actor legitimately acts in a beat, the off-turn list does not name them.
+
+Why: runbook B playtest run 1 (2026-11-03, session 729a6c5c, seq 206-241). During Kestrel's turn the operator declared a party action 'Odo casts Cure Wounds on Tamsin.' It committed (group sign-off), resolved in the next beat during goblin-2's turn — spending Odo's slot and healing Tamsin — before Odo's turn came up. Odo then took his own turn and cast Healing Word: two actions for Odo in round 2. The narration audit refused all 3 attempts ('Brother Odo is on the Next line and has not acted yet… The narration shows him casting Cure Wounds') because the off-turn list (TASK-0214) still named Odo; the fallback shipped after 102 s.
+
+Related: TASK-0214 (off-turn list), TASK-0205 (askUndeclared / party-scope rules), TASK-0208 (STEP_ACTOR_MISMATCH), TASK-0235.
+<!-- SECTION:DESCRIPTION:END -->
+
+## Acceptance Criteria
+<!-- AC:BEGIN -->
+- [ ] #1 In turn mode, a party action whose step's actor is a companion not currently active is held for that companion's turn or refused with a stated reason, with a test replaying seq 206-230
+- [ ] #2 The off-turn list excludes any actor with a resolved step in this beat, with a facts test
+<!-- AC:END -->
+
+## Definition of Done
+<!-- DOD:BEGIN -->
+- [ ] #1 All tests and checks run green
+- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
+<!-- DOD:END -->
