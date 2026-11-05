@@ -360,9 +360,17 @@ describe("narrate", () => {
       facts,
       prior: null,
     });
-    expect(NARRATE_VERSION).toBe("dm.narrate-v18");
+    expect(NARRATE_VERSION).toBe("dm.narrate-v20");
     expect(prompt.system).toContain(
       "A roll's band and outcome are settled. A success means the attempted task happens. Deliver the outcome and any learned fact plainly in the prose; invent no other.",
+    );
+    expect(
+      factEntries({
+        ...facts,
+        held: [{ name: "Brother Odo", text: "Odo casts Cure Wounds." }],
+      }),
+    ).toContain(
+      `Waiting: "Odo casts Cure Wounds." waits for Brother Odo's turn; nothing has happened yet.`,
     );
     const banded = factEntries({
       ...facts,
@@ -770,9 +778,17 @@ describe("narrate", () => {
       snapshot,
       prose: "Prose.",
     });
-    expect(AUDIT_VERSION).toBe("dm.audit-v12");
+    expect(AUDIT_VERSION).toBe("dm.audit-v15");
+    expect(p.system).toContain(
+      "Omit `actor` when no character is named; never write null.",
+    );
+    expect(p.system).toContain("An off-turn act is `invented-mechanics`");
     expect(p.system).toContain(
       "6. Turn mode. Only the actors on the Turn line",
+    );
+    expect(p.system).toContain("raise a blade again), is `invented-mechanics`");
+    expect(p.system).toContain(
+      "Watching, waiting and turning toward a noise are not turn actions",
     );
     expect(p.system).toContain("7. A roll's band and consequence are decided.");
     expect(p.system).toContain(

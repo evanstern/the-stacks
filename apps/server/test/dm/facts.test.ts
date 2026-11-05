@@ -210,6 +210,67 @@ describe("dice-line renderer", () => {
     ]);
   });
 
+  it("TASK-0242: an NPC hit's separate damage submission states damage dealt (run 1 seq 163-166)", () => {
+    const rows = [
+      ...attackRows("hit", 13),
+      roll(3, "b2", 0, {
+        reason: "Goblin by the fire stabs: damage",
+        expression: "1d4+2",
+        purpose: "damage",
+        combatantId: "goblin",
+        faces: [2],
+        mod: 2,
+        natural: null,
+      }),
+      hpRow(4, "b2", 1, "ana", 13, 9),
+    ];
+    const c = collectFacts(rows, nameOf, new Map([[4, "piercing"]]));
+    expect(c.rolls[1]?.damage?.dealt).toEqual({
+      amount: 4,
+      type: "piercing",
+      target: "Ana",
+    });
+    const f = {
+      npcTurn: {
+        name: "Goblin",
+        rolls: c.rolls,
+        outcomes: c.outcomes,
+        changes: c.changes,
+      },
+      actions: [],
+      events: [],
+      rulings: [],
+      clarify: [],
+      presentNpcs: [],
+      party: [],
+      director: {
+        goalNote: "",
+        sceneEnded: false,
+        pacing: { tension: "high", spotlight: null, beatId: null },
+      },
+    } as unknown as NarrationFacts;
+    const text = factEntries(f).join("\n");
+    expect(text).toContain("damage dealt: 4 piercing to Ana");
+    expect(text).not.toContain("no result");
+  });
+
+  it("TASK-0242: a damage roll with no hp row never invents damage", () => {
+    const rows = [
+      roll(3, "b2", 0, {
+        reason: "Goblin stabs: damage",
+        expression: "1d4+2",
+        purpose: "damage",
+        combatantId: "goblin",
+        faces: [2],
+        mod: 2,
+        natural: null,
+      }),
+    ];
+    expect(collectFacts(rows, nameOf).rolls[0]?.damage).toEqual({
+      dealt: null,
+    });
+  });
+
   it("renders a critical hit", () => {
     const c = collectFacts(attackRows("critical-hit", 20), nameOf);
     expect(c.rolls.map(renderRollLine)).toEqual([
@@ -694,6 +755,67 @@ describe("facts v2: party, events, target, setting (run-5 rows)", () => {
         { npcPlan: plan, turnActorId: "goblin-3" },
       );
       expect(g.turn?.offTurn ?? []).not.toContain(gone);
+    });
+
+    describe("step actors and held groups (TASK-0244)", () => {
+      const base = () =>
+        build(
+          58,
+          56,
+          "turn",
+          { npcTurn: npc },
+          { npcPlan: plan, turnActorId: "goblin-3" },
+        );
+      const standing = () => {
+        const name = base().turn?.offTurn?.[0] as string;
+        const id = projectDm(
+          fixture.transcript.filter((r) => r.seq <= 58),
+        ).encounter?.order.find((o) => o.name === name)?.combatantId as string;
+        return { name, id };
+      };
+      const item = {
+        actionId: "pa1",
+        committedSeq: 57,
+        actor: "user:1",
+        characterId: null,
+        scope: "party" as const,
+        text: "Odo casts Cure Wounds on Tamsin.",
+        status: "committed" as const,
+      };
+      const withResult = (r: Record<string, unknown>) =>
+        build(
+          58,
+          56,
+          "turn",
+          {
+            npcTurn: npc,
+            actionResults: [
+              { actionId: "pa1", batchIds: [], refusalCode: null, ...r },
+            ] as never,
+          },
+          { npcPlan: plan, turnActorId: "goblin-3", beat: [item] },
+        );
+
+      it("a step actor of a ran group is not off turn", () => {
+        const { name, id } = standing();
+        const f = withResult({ outcome: "applied", stepActors: [id] });
+        expect(f.turn?.offTurn ?? []).not.toContain(name);
+      });
+      it("a held group keeps its companion off turn, yields one held entry and no action", () => {
+        const { name, id } = standing();
+        const f = withResult({ outcome: "held", heldFor: id });
+        expect(f.held).toEqual([{ name, text: item.text }]);
+        expect(f.actions).toEqual([]);
+        expect(f.turn?.offTurn).toContain(name);
+      });
+      it("a plan-refused group adds no step actor", () => {
+        const { name } = standing();
+        const f = withResult({
+          outcome: "refused",
+          refusalCode: "STEP_ACTOR_MISMATCH",
+        });
+        expect(f.turn?.offTurn).toContain(name);
+      });
     });
 
     it("offTurn is absent in free mode", () => {

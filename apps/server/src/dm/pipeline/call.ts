@@ -123,7 +123,8 @@ const LOG_EDGE = 200;
 /**
  * TASK-0203: the ledger holds no text, so a recovered first-attempt failure
  * left no trace of the reply's shape. Log head and tail (200 chars each) of
- * every unparsable reply, one line per attempt.
+ * every rejected reply, one line per attempt. The event name carries the
+ * failure kind: `dm.call.invalid-json` (no JSON) or `dm.call.schema-mismatch`.
  */
 function logInvalid(
   deps: CallDeps,
@@ -131,10 +132,11 @@ function logInvalid(
   attempt: 1 | 2,
   collected: { text: string; outputTokens: number | null },
   issues: string,
+  kind: ParseFailureKind,
 ): void {
   const t = collected.text;
   deps.log?.({
-    event: "dm.call.invalid-json",
+    event: `dm.call.${kind}`,
     purpose: req.purpose,
     promptVersion: req.promptVersion,
     attempt,
@@ -276,23 +278,32 @@ function parseJsonLoose(body: string): unknown {
   }
 }
 
+type ParseFailureKind = "invalid-json" | "schema-mismatch";
+
 function parseAgainst<T>(
   text: string,
   schema: ZodType<T>,
   normalize?: (json: unknown) => unknown,
-): { ok: true; value: T } | { ok: false; issues: string } {
+):
+  | { ok: true; value: T }
+  | { ok: false; kind: ParseFailureKind; issues: string } {
   let json: unknown;
   const body = stripThink(text);
   if (body.trim() === "" && body !== text) {
     return {
       ok: false,
+      kind: "invalid-json",
       issues: "not valid JSON: the reply held only a think block",
     };
   }
   try {
     json = parseJsonLoose(body);
   } catch (error) {
-    return { ok: false, issues: `not valid JSON: ${(error as Error).message}` };
+    return {
+      ok: false,
+      kind: "invalid-json",
+      issues: `not valid JSON: ${(error as Error).message}`,
+    };
   }
   const parsed = schema.safeParse(normalize ? normalize(json) : json);
   if (parsed.success) return { ok: true, value: parsed.data };
@@ -300,7 +311,7 @@ function parseAgainst<T>(
     .slice(0, 8)
     .map((i) => `${i.path.join(".") || "(root)"}: ${i.message}`)
     .join("\n");
-  return { ok: false, issues };
+  return { ok: false, kind: "schema-mismatch", issues };
 }
 
 export async function callJson<T>(
@@ -317,12 +328,12 @@ export async function callJson<T>(
     await settle(deps, req, 1, "ok", null, first.usage, calls);
     return { ok: true, value: parsedFirst.value, calls };
   }
-  logInvalid(deps, req, 1, first, parsedFirst.issues);
+  logInvalid(deps, req, 1, first, parsedFirst.issues, parsedFirst.kind);
   await settle(
     deps,
     req,
     1,
-    first.usage?.truncated ? "truncated" : "invalid-json",
+    first.usage?.truncated ? "truncated" : parsedFirst.kind,
     null,
     first.usage,
     calls,
@@ -343,12 +354,12 @@ export async function callJson<T>(
     await settle(deps, req, 2, "ok", null, second.usage, calls);
     return { ok: true, value: parsedSecond.value, calls };
   }
-  logInvalid(deps, req, 2, second, parsedSecond.issues);
+  logInvalid(deps, req, 2, second, parsedSecond.issues, parsedSecond.kind);
   await settle(
     deps,
     req,
     2,
-    second.usage?.truncated ? "truncated" : "invalid-json",
+    second.usage?.truncated ? "truncated" : parsedSecond.kind,
     null,
     second.usage,
     calls,

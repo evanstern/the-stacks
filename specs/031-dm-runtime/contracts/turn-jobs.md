@@ -334,3 +334,10 @@ Amended by specs/065-talk-triggers.
   `director`.
 - `reconcileTurnJobs` skips a committed action with a later `action.withdrawn`.
 - No migration: kinds, statuses and indexes are unchanged.
+
+## Amendment 2026-11-05 (specs/087-companion-own-turn, TASK-0244): the `held` trigger
+
+`TurnTriggerSchema` gains `held`: a turn job queued because the turn reached an AI companion whose party
+action was held. The worker enqueues the `next.trigger` the resolve output names (`npc-turn` or `held`). The
+job runs the same pipeline; the plan gate no longer holds the group on the companion's own turn, so it
+resolves. No migration: `jobs.input` is JSON and no CHECK reads the trigger.

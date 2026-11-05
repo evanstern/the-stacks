@@ -143,8 +143,8 @@ describe("callJson", () => {
     expect(r.error.kind).toBe("invalid-output");
     expect(requests).toHaveLength(2);
     expect(r.calls.map((c) => c.outcome)).toEqual([
-      "invalid-json",
-      "invalid-json",
+      "schema-mismatch",
+      "schema-mismatch",
     ]);
   });
 
@@ -649,5 +649,39 @@ describe("loose parse (TASK-0203)", () => {
       head: "a".repeat(200),
       tail: "b".repeat(200),
     });
+  });
+
+  it("logs dm.call.schema-mismatch for a reply that parses but fails the schema", async () => {
+    const lines: Record<string, unknown>[] = [];
+    await callJson(
+      {
+        gateway: gatewayOf([text('{"n":"x"}'), text('{"n":1}')]).gateway,
+        log: (l) => lines.push(l),
+      },
+      req(),
+    );
+    expect(lines).toHaveLength(1);
+    expect(lines[0]).toMatchObject({
+      event: "dm.call.schema-mismatch",
+      attempt: 1,
+    });
+  });
+
+  it("records truncated for a truncated schema failure", async () => {
+    const calls: RecordedCall[] = [];
+    const { gateway } = usageGatewayOf([
+      { events: text('{"n":"x"}'), record: usageRecord({ truncated: true }) },
+      { events: text('{"n":1}'), record: usageRecord() },
+    ]);
+    await callJson(
+      {
+        gateway,
+        recordCall: async (c) => {
+          calls.push(c);
+        },
+      },
+      req(),
+    );
+    expect(calls.map((c) => c.outcome)).toEqual(["truncated", "ok"]);
   });
 });

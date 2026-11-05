@@ -123,14 +123,25 @@ describe.skipIf(!reachable)("opposition and help (database)", () => {
   });
 
   it("an unused assist ends at the start of Kestrel's next turn in an encounter", async () => {
-    const w = await createWorld({ dice: INIT });
+    const w = await createWorld({ dice: [1, 1, 20, 1, 1, 1, 1] });
     await startScene(w);
     await run(w, [], startReedCamp);
     const id = await commitParty(w, "act-help2", "Kestrel steadies Tamsin.");
-    await run(w, [reading(id, [helpStep()], { intent: "help" })]);
-    expect(await events(w, "assist.granted")).toHaveLength(1);
-    // The resolve run ends the action and advances the turn, so Kestrel's next
-    // turn-start (the assist's expiry point) arrives within the same run.
+    const out = await run(w, [reading(id, [helpStep()], { intent: "help" })]);
+    // Kestrel is on turn (TASK-0244: an off-turn companion's action is held).
+    expect(out.actionResults[0]?.outcome).toBe("applied");
+    // Run the DM's turn advances until the order comes round to Kestrel again.
+    for (let i = 0; i < 10; i++) {
+      if ((await events(w, "assist.ended")).length > 0) break;
+      await w.gate.submit(w.sessionId, { kind: "ai", actor: "ai:dm" }, {
+        kind: "mechanics",
+        command: { type: "turn.advance", reason: "next turn" },
+        actionId: null,
+        visibility: "public",
+        summary: null,
+        rationale: null,
+      } as never);
+    }
     expect(await events(w, "assist.ended")).toMatchObject([
       { combatantId: "tamsin", cause: "expired" },
     ]);

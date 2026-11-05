@@ -213,3 +213,12 @@ included; `pulled` and `settled` rolls do not count). It is absent when empty an
 `factEntries` pushes `Off turn: <names> (may speak, look or flinch; no strike, shot, cast, throw or
 charge).` after the `Next:` line. Narrate is `dm.narrate-v18`: it shares the exported `TURN_RULE` with
 audit, and it ends on a moment that demands a response, never on "What do you do?".
+
+## Amendment 2026-11-05 (specs/087-companion-own-turn, TASK-0244): held actions, step actors on turn
+
+`NarrationFacts.held?: { name: string; text: string }[]` lists each held party action: `name` is the
+companion it waits for, `text` the action text. A held result is never an Action. `factEntries` pushes
+`Waiting: "<text>" waits for <name>'s turn; nothing has happened yet.` after the `Off turn:` line. Every
+combatant a ran group's steps name (`stepActors` of an `applied`, `refused` or `no-effect` result) is on
+turn, so `turn.offTurn` omits it. A plan-refused group adds no step actor. Narrate is `dm.narrate-v20`. The
+audit prompt reads `factEntries`, so it shows the line with no version bump.

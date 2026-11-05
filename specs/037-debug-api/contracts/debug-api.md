@@ -110,7 +110,7 @@ interface ModelCallRecord {
   purpose: DmPurpose;
   promptVersion: string;
   attempt: number;                        // 1, or 2 for the JSON repair re-ask
-  outcome: "ok" | "invalid-json" | "truncated" | "error"; // "truncated": TASK-0192
+  outcome: "ok" | "invalid-json" | "schema-mismatch" | "truncated" | "error"; // "truncated": TASK-0192; "schema-mismatch": TASK-0203
   errorKind: ErrorKind | null;
   // New in TASK-0116. null when the gateway emitted no usage record for the call.
   provider: string | null;
@@ -202,7 +202,7 @@ interface DebugCall {
   purpose: DmPurpose;
   promptVersion: string;
   callAttempt: number;        // 1, or 2 for the JSON repair re-ask
-  outcome: "ok" | "invalid-json" | "truncated" | "error" | "aborted"; // "truncated": TASK-0192
+  outcome: "ok" | "invalid-json" | "schema-mismatch" | "truncated" | "error" | "aborted"; // "truncated": TASK-0192; "schema-mismatch": TASK-0203
   errorKind: ErrorKind | null;
   provider: string | null;
   model: string | null;

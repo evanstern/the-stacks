@@ -20,7 +20,7 @@ sources:
   - apps/server/src/dm/companion.ts
   - apps/server/src/dm/chronicle.ts
 size_budget_exempt: both notes sat within 30 chars of the 8000 budget before TASK-0180; the talk path got its own note (dm-talk-triggers) and only a pointer line lands here; the rest is one pipeline each, not splittable without a TASK of its own
-verified_against: 3a617d4a10e572a061aa5be87b3f9711fd7910ae
+verified_against: 112801aa27a89d4fb6e57036e4ad10466e7c062f
 ---
 
 # DM turn jobs
@@ -43,7 +43,7 @@ carries `firstReactionAt` and `notBefore` (ISO UTC; specs/036-companion-react).
 
 Payloads are Zod schemas in `dm/jobs.ts` (`TurnJobInput`, `FloorJobInput`, `CompanionJobInput`,
 `ChronicleJobInput`, all `v: 1`, each with `sessionId`). `TurnTriggerSchema`: `commit`,
-`approval`, `npc-turn`, `scene-start`, `manual`, `reconcile`, `talk` ([[dm-talk-triggers]]). `book` is null and `session_id` required (CHECK constraints).
+`approval`, `npc-turn`, `held` (TASK-0244: the turn reached an AI companion whose party action was held), `scene-start`, `manual`, `reconcile`, `talk` ([[dm-talk-triggers]]). `book` is null and `session_id` required (CHECK constraints).
 
 ## Enqueue
 
@@ -75,7 +75,7 @@ After a human DM approves an `ai:dm` proposal, the `approval` turn does not inte
 The beat is frozen at assemble and stored in the checkpoint. A commit landing mid-turn
 never joins the running beat. After a turn,
 the worker queues follow-up jobs: a companion job for an AI companion's turn, an `npc-turn`
-turn when the DM acts next, a companion `hold` job when the director held, and a chronicle job
+turn when the DM acts next (the worker enqueues the `next.trigger` resolve names: `npc-turn`, or `held` in place of the companion job when a held party action waits for the companion now active), a companion `hold` job when the director held, and a chronicle job
 when narration shipped. A failed turn queues nothing. An action awaiting a human DM's ruling is left out of every turn's beat.
 
 ## Resolve order
@@ -103,7 +103,7 @@ finishes the job `failed` with `failure.node = "presence"` and `jobs.error` `sto
 
 ## Calls, usage and the ledger
 
-Each `ModelCallRecord` in `jobs.result.calls` (outcome `ok`, `invalid-json`, `truncated`, `error`) carries provider, model, tokens, `costUsd` and `durationMs` ([[ai-gateway]]). As each attempt ends, the worker's `recordCall` seam inserts
+Each `ModelCallRecord` in `jobs.result.calls` (outcome `ok`, `invalid-json`, `schema-mismatch`, `truncated`, `error`) carries provider, model, tokens, `costUsd` and `durationMs` ([[ai-gateway]]). As each attempt ends, the worker's `recordCall` seam inserts
 one `dm_model_calls` row (`dm/model-calls.ts`; table in [[database-schema]]), bound to the job
 id, session id, kind and `jobs.attempts` of the claim. The ledger also holds attempts `calls` omits: an aborted attempt (`outcome: "aborted"`) and calls of a reclaimed attempt. So
 the ledger, not `calls`, is the cost authority. Every submission names the seqs the gate

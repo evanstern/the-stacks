@@ -59,6 +59,14 @@ export interface FactRoll {
   autoSuccess?: boolean;
   /** True for an opportunity attack (the attacker spent its reaction). */
   reaction?: boolean;
+  /**
+   * TASK-0242: set on a hit's damage roll (its own submission, no outcome row).
+   * `dealt` is the hit points the same batch took off the target; null when the
+   * ledger records none.
+   */
+  damage?: {
+    dealt: { amount: number; type: string | null; target: string } | null;
+  };
 }
 
 /** A reflex the dice allow the narrator to show (spec 074 D3). Never a choice. */
@@ -172,6 +180,8 @@ export interface NarrationFacts {
   npcTurn: FactNpcTurn | null;
   /** Whose beat this is and who acts after it; set only in turn mode (spec 071). */
   turn?: { actor: string; next: string | null; offTurn?: string[] };
+  /** Party actions held for an off-turn companion's turn (TASK-0244); omitted when none. */
+  held?: { name: string; text: string }[];
   /** Rolls from NPCs an action pulled into the scene (TASK-0213); omitted when none. */
   pulled?: FactSettled[];
   /** Settled death-save turns (TASK-0112); omitted when settling rolled nothing. */
@@ -258,6 +268,7 @@ export function collectFacts(
     (r): r is Extract<LedgerRow, { kind: "outcome" }> => r.kind === "outcome",
   );
   const claimed = new Set<number>();
+  const damageRolls = new Map<FactRoll, string>();
 
   for (const row of ordered) {
     if (row.kind === "roll") {
@@ -294,7 +305,7 @@ export function collectFacts(
       }
       const name = nameOf(row.roll.combatantId);
       if (outcome) out.outcomes.push(outcome);
-      out.rolls.push({
+      const fact: FactRoll = {
         name,
         reason: stripMarker(row.roll.reason),
         expression: row.roll.expression,
@@ -306,7 +317,12 @@ export function collectFacts(
         target,
         ...(band ? { band, margin, consequence, revealed } : {}),
         ...(reaction ? { reaction: true } : {}),
-      });
+      };
+      if (!link && row.roll.purpose === "damage") {
+        fact.damage = { dealt: null };
+        damageRolls.set(fact, row.batchId);
+      }
+      out.rolls.push(fact);
     }
   }
   // Check outcomes with no roll (auto-fail or a free retry).
@@ -356,6 +372,16 @@ export function collectFacts(
         before: b.current,
         after: a.current,
       });
+      const dmgRoll = [...damageRolls].find(
+        ([r, batch]) => batch === row.batchId && !r.damage?.dealt,
+      )?.[0];
+      if (dmgRoll?.damage && lost > 0) {
+        dmgRoll.damage.dealt = {
+          amount: lost,
+          type: damageTypeBySeq.get(row.seq) ?? null,
+          target,
+        };
+      }
     } else if (row.type === "life-state.changed") {
       out.changes.push({
         kind: "life-state",
@@ -699,6 +725,7 @@ export function buildNarrationFacts(input: BuildFactsInput): NarrationFacts {
       revealedByBatch.set(s.batchId, s.revealedText);
   }
   const actions: FactAction[] = [];
+  const held: { name: string; text: string }[] = [];
   for (const item of input.beat) {
     const result = input.resolve.actionResults.find(
       (r) => r.actionId === item.actionId,
@@ -707,6 +734,10 @@ export function buildNarrationFacts(input: BuildFactsInput): NarrationFacts {
     let outcome: FactAction["outcome"];
     let refusalCode: string | null = null;
     if (result) {
+      if (result.outcome === "held") {
+        held.push({ name: nameOf(result.heldFor ?? null), text: item.text });
+        continue;
+      }
       if (result.outcome === "awaiting-dm") continue;
       outcome = result.outcome;
       refusalCode = result.refusalCode;
@@ -774,6 +805,14 @@ export function buildNarrationFacts(input: BuildFactsInput): NarrationFacts {
         ...a.rolls.map((r) => r.name),
       ]),
       ...(npcTurn?.rolls.map((r) => r.name) ?? []),
+      // TASK-0244: every actor a ran group's steps name is on turn.
+      ...input.resolve.actionResults.flatMap((r) =>
+        r.outcome === "applied" ||
+        r.outcome === "refused" ||
+        r.outcome === "no-effect"
+          ? (r.stepActors ?? []).map(nameOf)
+          : [],
+      ),
     ]);
     const offTurn = (p.encounter?.order ?? [])
       .filter((o) => {
@@ -871,6 +910,7 @@ export function buildNarrationFacts(input: BuildFactsInput): NarrationFacts {
     actions,
     npcTurn,
     ...(turn ? { turn } : {}),
+    ...(held.length > 0 ? { held } : {}),
     ...(pulled.length > 0 ? { pulled } : {}),
     ...(settled.length > 0 ? { settled } : {}),
     ...(openFollowUps.length > 0 ? { openFollowUps } : {}),
