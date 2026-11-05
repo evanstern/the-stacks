@@ -4,7 +4,7 @@ title: Chronicle conflates distinct combatants in the dm journal
 status: To Do
 assignee: []
 created_date: '2026-10-26 19:15'
-updated_date: '2026-11-05 04:16'
+updated_date: '2026-11-05 04:38'
 labels:
   - dm
   - chronicle
@@ -38,6 +38,8 @@ Runbook B playtest run 1 (2026-11-03, session 729a6c5c, seq 41): the chronicle s
 Run 1 seq 55: the chronicle calls Pell Wenna's 'son'; the seed and seq 13 say grandson.
 
 Run 1 seq 201: chronicle says 'Brother Odo cast Cure Wounds on her' after Tamsin only asked in talk (seq 196); nothing was cast.
+
+Run 1 seq 330, 351: narration says 'Pell still bound' after he was freed (seq 216-220) and 'calling her brother's name'; the chronicle invents 'Pell Marsh was complicit in the scheme to silence the ferry bell' and calls him 'the ferryman'. The chronicle is writing motives the fiction never established.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
