@@ -143,7 +143,9 @@ export function namesOnlyReflex(detail: string): boolean {
     has(REFLEX_VERBS.flatMap((v) => [v, ...verbForms(v)])) &&
     !has(DEFENCE_VERBS.flatMap((v) => [v, ...verbForms(v)])) &&
     !has(INTENT_MARKERS) &&
-    !/\b(dodg\w*|tim(e|ed|es|ing)|step(s|ped|ping)?|never|(does|did) not|\w+n't)\b/i.test(detail)
+    !/\b(dodg\w*|tim(e|ed|es|ing)|step(s|ped|ping)?|never|(does|did) not|\w+n't)\b/i.test(
+      detail,
+    )
   );
 }
 
