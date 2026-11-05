@@ -1,10 +1,10 @@
 ---
 id: TASK-0204
 title: Narration still ends on "What do you do?" despite the doctrine
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-11-02 20:30'
-updated_date: '2026-11-04 03:15'
+updated_date: '2026-11-05 04:42'
 labels:
   - dm
   - narration
@@ -29,7 +29,7 @@ Where: dm/prompts/narrate.ts (v7) and the audit's blocking rule for the ending; 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
 - [x] #1 Narration never ends with the literal "What do you do?" (deterministic check or a blocking audit rule), with a test
-- [ ] #2 A hosted run of 10+ turns shows no narration ending on that question
+- [x] #2 A hosted run of 10+ turns shows no narration ending on that question
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -42,10 +42,18 @@ Dispatch: tier=haiku pinned=cc/claude-haiku-5-5 served=claude-haiku-5-5 (E4 impl
 AC #1: deterministic blocking check in nodes/audit.ts (final sentence is the literal 'What do you do?', incl. 'all'/'two' forms); no exemption. Orchestrator review found TASK-0205's otherPlayerQuestion ended on the banned phrase; it now asks 'What does <Declarer> do instead?'. Gates on the final tree green. AC #2 (hosted 10+ turns) ticks at the runbook B playtest; card stays In Progress until then (runbook rule).
 
 Playtest ceiling (runbook B playtest, 2026-11-03), operator's words: "Play it, ceiling $100".
+
+AC #2 met at runbook B playtest run 1 (2026-11-03, session 729a6c5c, hosted dev): 35 narrations over 37 turns, none ends on the literal 'What do you do?'. Evidence: docs/playtests/2026-11-03-runbook-b-playtest.md, row B-narration-ending.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Narration never ends on the literal 'What do you do?': a deterministic blocking audit check (no exemption), and TASK-0205's clarify question reworded to end on the declaring character. Verified on a hosted run of 37 turns (runbook B playtest run 1).
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
-- [ ] #1 All tests and checks run green
-- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
+- [x] #1 All tests and checks run green
+- [x] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->

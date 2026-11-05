@@ -4,7 +4,7 @@ title: Chronicle conflates distinct combatants in the dm journal
 status: To Do
 assignee: []
 created_date: '2026-10-26 19:15'
-updated_date: '2026-11-02 04:54'
+updated_date: '2026-11-05 04:38'
 labels:
   - dm
   - chronicle
@@ -32,6 +32,14 @@ Evidence: TASK-0106 verification run 20261026T183818Z (specs/034-narration-quali
 
 <!-- SECTION:NOTES:BEGIN -->
 Run 3 evidence (2026-11-02, session e8e8326d, seq 220): the chronicle called Snag 'the ferryman' (Snag is the goblin leader); seq 195 also mixed up which goblin acts next. Same family as this card's conflation.
+
+Runbook B playtest run 1 (2026-11-03, session 729a6c5c, seq 41): the chronicle says 'Wenna Marsh revealed the true concern' for clawed prints Kestrel found (seq 40). Attribution, not combatant merging, but the same journal-accuracy family.
+
+Run 1 seq 55: the chronicle calls Pell Wenna's 'son'; the seed and seq 13 say grandson.
+
+Run 1 seq 201: chronicle says 'Brother Odo cast Cure Wounds on her' after Tamsin only asked in talk (seq 196); nothing was cast.
+
+Run 1 seq 330, 351: narration says 'Pell still bound' after he was freed (seq 216-220) and 'calling her brother's name'; the chronicle invents 'Pell Marsh was complicit in the scheme to silence the ferry bell' and calls him 'the ferryman'. The chronicle is writing motives the fiction never established.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done

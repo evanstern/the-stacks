@@ -6,7 +6,7 @@ title: >-
 status: Done
 assignee: []
 created_date: '2026-11-02 22:42'
-updated_date: '2026-11-03 03:13'
+updated_date: '2026-11-05 04:42'
 labels:
   - dm
   - playtest
@@ -41,8 +41,6 @@ Spec: specs/078-revealed-npc-present
 - [x] #6 Spec phase: Wiki re-ground
 <!-- AC:END -->
 
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -62,6 +60,8 @@ Spine amendment: 0206 builds in parallel with 0205 (both touch plan-gate.ts in s
 Dispatch: tier=haiku pinned=cc/claude-haiku-5-5 served=claude-haiku-5-5 (spec 078 phase 3, wiki)
 
 spec-bridge sync: The Director's arrivals, resolve and the plan gate (card AC #1, #2): 9/9 · The chronicle and the run 1 seq 40–45 replay (card AC #1, #2, #3; merge condition): 7/7 · Wiki re-ground: 6/6 — status In Progress → Done
+
+Runbook B playtest run 1: the reveal path works (seq 46, 82 'arrived'). The B-revealed-npc row failed because the Director revealed Pell before the dice on a severe failure — a new defect, TASK-0237, not this card's AC. Pre-encounter targeting of encounter monsters is TASK-0238.
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary

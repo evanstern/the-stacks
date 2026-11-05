@@ -4,7 +4,7 @@ title: Runbook B playtest scenario
 status: Done
 assignee: []
 created_date: '2026-11-03 10:47'
-updated_date: '2026-11-03 12:38'
+updated_date: '2026-11-05 04:42'
 labels:
   - playtest
   - dm
@@ -40,6 +40,8 @@ Claimed 2026-11-03 by M3 runbook B (docs/design/m3-runbook-b-resolution-quality.
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (scenario authoring and rehearsal)
 
 Shipped 1c27ba7d: docs/playtests/scenarios/runbook-b-reed-camp.md (21 rows), apps/server/dm-scripts/runbook-b-reed-camp.json, docs/playtests/2026-11-03-runbook-b-scenario-rehearsal.md. Rehearsal ran end to end on the worktree stack with DM_FAKE_SCRIPT. Seed greyhollow-ford-reed-camp reused unchanged. Gates green. Follow-ups carded for the playtest-run skill (.claude/ is outside implementer scope).
+
+Played 2026-11-03 (session 729a6c5c, hosted dev, 37 turns, $4.73 of the $100 ceiling): every B-row got a verdict; checklist 33 pass, 7 fail, 2 blocked, 2 not reached (rolled forward from runbook A). Log: docs/playtests/2026-11-03-runbook-b-playtest.md.
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary

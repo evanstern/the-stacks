@@ -360,7 +360,7 @@ describe("narrate", () => {
       facts,
       prior: null,
     });
-    expect(NARRATE_VERSION).toBe("dm.narrate-v18");
+    expect(NARRATE_VERSION).toBe("dm.narrate-v19");
     expect(prompt.system).toContain(
       "A roll's band and outcome are settled. A success means the attempted task happens. Deliver the outcome and any learned fact plainly in the prose; invent no other.",
     );
@@ -770,7 +770,7 @@ describe("narrate", () => {
       snapshot,
       prose: "Prose.",
     });
-    expect(AUDIT_VERSION).toBe("dm.audit-v12");
+    expect(AUDIT_VERSION).toBe("dm.audit-v13");
     expect(p.system).toContain(
       "6. Turn mode. Only the actors on the Turn line",
     );

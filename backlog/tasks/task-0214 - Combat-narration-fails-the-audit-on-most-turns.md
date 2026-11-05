@@ -4,7 +4,7 @@ title: Combat narration fails the audit on most turns
 status: In Progress
 assignee: []
 created_date: '2026-11-02 23:22'
-updated_date: '2026-11-04 03:15'
+updated_date: '2026-11-05 04:42'
 labels:
   - dm
   - narration
@@ -59,6 +59,16 @@ spec-bridge sync: Only the on-turn actor acts (US1; FR-001 to FR-004): 10/10 · 
 AC #2: combat-audit-replay.test.ts replays seq 103, 126, 131, 161, 196 (rebuilt from the playtest log). Pre-audit block proven in audit.test.ts (no dm.audit call on an off-turn-act attempt). Gates on the final tree, two full runs: green. AC #1 (70%+ first-attempt pass on a hosted 15+ combat-turn run) ticks at the runbook B playtest; card stays In Progress until then.
 
 Playtest ceiling (runbook B playtest, 2026-11-03), operator's words: "Play it, ceiling $100".
+
+Runbook B playtest run 1 seq 71: fallback after 3 attempts (two 'dies' claim-check blocks, one success-on-severe ledger-mismatch). 91 s turn. Counting for AC #1 continues.
+
+Run 1 combat so far (seq 96-124): 1 of 4 combat narrations passed on attempt 1. Refusals: off-turn actor shown acting (caught by the model audit, not the code check: 'turning its head' and 'draws back for another try' are not in the strike/shoot/cast verbs), Odo's dodge, and a false refusal of a reflex flinch (TASK-0239).
+
+Run 1 combat through seq 170: combat narrations 9, first-attempt passes 4 (lookout, pot-helm goblin, Odo's parley, Snag's talk). Fallbacks: goblin-4 x2, Kestrel's Help. A systematic cause found: damage rolls render 'no result' (TASK-0242).
+
+AC #1 measured, runbook B playtest run 1 (session 729a6c5c, seq 94-313): 23 combat narrations; 10 passed on attempt 1 (43%), 5 after a regenerate, 8 fallbacks. AC #1 (70%) NOT met. Main causes carded: TASK-0242 (NPC-hit damage 'no result'), TASK-0244 (companion out of turn), TASK-0240 (flinch false block); the off-turn code check misses non-attack verbs ('turns its head', 'shifts its grip', 'watches') that the model audit still blocks.
+
+AC #1 NOT met at runbook B playtest run 1: 23 combat narrations, 43% first-attempt pass (whole run: 34 audited turns, 19 passed, 5 after regenerate, 10 fallbacks). Follow-ups carded: TASK-0240, 0242, 0244; off-turn non-attack verbs still reach the model audit. Card stays In Progress.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
