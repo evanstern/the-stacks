@@ -16,7 +16,7 @@ event and no projection reads it.
 | `purpose` | `text` | no | A `DmPurpose`. |
 | `prompt_version` | `text` | no | |
 | `call_attempt` | `integer` | no | Check: 1 or 2. |
-| `outcome` | `text` | no | Check: `ok`, `invalid-json`, `error`, `aborted`. |
+| `outcome` | `text` | no | Check: `ok`, `invalid-json`, `schema-mismatch` (TASK-0203, migration 0009), `truncated`, `error`, `aborted`. |
 | `error_kind` | `text` | yes | Gateway `ErrorKind`, or null. |
 | `provider` | `text` | yes | Null when the gateway made no usage record. |
 | `model` | `text` | yes | |

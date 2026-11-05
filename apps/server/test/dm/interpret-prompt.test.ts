@@ -70,8 +70,47 @@ const NARRATIVE =
 
 describe("interpret and adjudicate prompts", () => {
   it("bumps the prompt versions", () => {
-    expect(INTERPRET_VERSION).toBe("dm.interpret-v13");
+    expect(INTERPRET_VERSION).toBe("dm.interpret-v15");
     expect(ADJUDICATE_VERSION).toBe("dm.adjudicate-v10");
+  });
+
+  it("lists arriving monsters, and only then (spec 088)", async () => {
+    const { interpret } = await prompts();
+    expect(interpret.user).not.toContain("Arriving this beat");
+    const ctx = makeCtx({
+      deps: {
+        loadProjections: async () =>
+          projectDm(freeEventsThrough("action.committed")),
+      },
+    });
+    const assembled = await assemble(ctx);
+    if (!assembled.ok) throw new Error("assemble failed");
+    const arrival = buildInterpretPrompt({
+      ctx,
+      assembled: assembled.output,
+      director: { ...director, arrivals: ["goblin-3"] },
+    });
+    expect(arrival.user).toContain("Arriving this beat");
+    expect(arrival.user).toContain('goblin-3 "Goblin lookout" (monster;');
+    const start = buildInterpretPrompt({
+      ctx,
+      assembled: assembled.output,
+      director: {
+        ...director,
+        tableMode: { to: "turn", encounterId: "reed-camp", reason: "x" },
+      },
+    });
+    expect(start.user).toContain('goblin-3 "Goblin lookout"');
+  });
+
+  it("states the attack name and the ability-check stakes (TASK-0203)", async () => {
+    const { OUTPUT_SHAPE } = await import("../../src/dm/prompts/interpret.js");
+    expect(OUTPUT_SHAPE).toContain(
+      "Every attack step names `attack`, the attack's name from the attacker's list, on a monster turn too.",
+    );
+    expect(OUTPUT_SHAPE).toContain(
+      "writes `stakes.cost` and `stakes.severe` as text, never null",
+    );
   });
 
   it("renders a frightened monster's condition and AC from S0 (G6)", async () => {
@@ -301,6 +340,7 @@ describe("interpret and adjudicate prompts", () => {
       On a monster turn, put the words the monster speaks this beat in say: one short line, at most 200 characters, no quote marks. Otherwise set say null. Never put speech in followUps. Write each reason as what the actor does, with no rules note such as whether a roll is needed.
       Write the stakes of every check before the dice: one short consequence per outcome band. Write failure as something that happens. When failure would cost nothing, use a none step instead of a check. Write cost as a price the player pays while still getting the goal, and severe as a worse turn, not only a missed goal. Write no stakes text that tells the player's character what they think or do. Write stakes.success as the concrete outcome of this attempt: what happens to the task and the world when the roll succeeds, so a success always delivers what the player declared. When a success would show one listed discoverable clue, name the thing found in stakes.success and set reveals to that clue's reference, such as ford-crossing#1; otherwise set reveals null. Set newRisk only when a failed attempt has changed the situation so that a repeat is dangerous.
       Keep every field short. Write one sentence per reason, at most 500 characters. Write rulesQuestion at most 500 characters. Write clarify as one short question, at most 200 characters. Write at most 6 steps per reading and at most 4 effects per list. Write source at most 100 characters and expression at most 200 characters.
+      Every attack step names \`attack\`, the attack's name from the attacker's list, on a monster turn too. An ability check writes \`stakes.cost\` and \`stakes.severe\` as text, never null; only a saving throw sets them null.
       Example of one complete reading:
       {"readings":[{"actionId":"act-1","intent":"check","uncertain":true,"needsAdjudication":false,"rulesQuestion":null,"clarify":null,"followUps":[],"say":null,"steps":[{"step":"check","reason":"Ana searches the ford for tracks.","combatantId":"pc-ana","kind":"ability-check","ability":"wis","skill":"survival","difficulty":"medium","circumstance":null,"autoFail":null,"onSuccess":[],"onFailure":[],"stakes":{"success":"She finds fresh tracks leading north: three goblins passed here.","cost":"She finds the tracks, but the cold ford soaks her boots.","failure":"The trail goes cold and the light fades.","severe":"She loses the trail and wanders into the reeds, noisily."},"onCost":[],"onSevere":[],"newRisk":null,"reveals":"ford-crossing#1"}]}]}"
     `);

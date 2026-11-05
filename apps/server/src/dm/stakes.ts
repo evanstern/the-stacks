@@ -60,6 +60,25 @@ export function isFreeRetry(
   });
 }
 
+/** Spec 089 D2: the stake texts the applied band delivers, in order, null entries dropped. */
+export function bandTexts(
+  stakes: Stakes | null | undefined,
+  band: OutcomeBand | string | null,
+): string[] {
+  if (!stakes) return [];
+  const pick: (string | null | undefined)[] =
+    band === "success"
+      ? [stakes.success]
+      : band === "success-at-cost"
+        ? [stakes.success, stakes.cost]
+        : band === "failure"
+          ? [stakes.failure]
+          : band === "severe-failure"
+            ? [stakes.failure, stakes.severe ?? stakes.failure]
+            : [];
+  return [...new Set(pick.filter((t): t is string => !!t))];
+}
+
 /** Spec 080 D3: the declared text for the applied band, success included; null when none. */
 export function consequenceFor(
   stakes: Stakes | null | undefined,

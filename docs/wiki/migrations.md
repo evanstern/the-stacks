@@ -11,7 +11,8 @@ sources:
   - apps/server/drizzle/0006_fearless_jamie_braddock.sql
   - apps/server/drizzle/0007_aromatic_baron_zemo.sql
   - apps/server/drizzle/0008_bored_blade.sql
-verified_against: 4b9c7549af7e22e6be7c198f02743d124fa98e84
+  - apps/server/drizzle/0009_certain_rick_jones.sql
+verified_against: da173eaa7e314723c52253f0ebe17488e9480ee1
 ---
 
 # Migrations
@@ -64,7 +65,7 @@ partial unique indexes; see [[database-schema]] and [[dm-turn-jobs]]), and `0005
 indexes; generated, no hand-added SQL; see [[debug-view]]), and `0006_fearless_jamie_braddock.sql`
 (TASK-0114: the partial unique index `jobs_companion_react_queued_key`; regenerated after
 TASK-0116's 0005 merged first, which is the collision rule below at work), and `0007_aromatic_baron_zemo.sql`
-(TASK-0050: the `floor` job kind — `jobs_kind_valid` dropped and re-added with `floor`, `jobs_session_running_key` recreated to cover `floor`, and the new partial unique index `jobs_floor_queued_key`; generated, no hand-added SQL; see [[database-schema]] and [[dm-turn-jobs]]). and `0008_bored_blade.sql` (TASK-0192: `dm_model_calls_outcome_valid` dropped and re-added with `truncated`; see [[database-schema]]). Drizzle names each file with a random
+(TASK-0050: the `floor` job kind — `jobs_kind_valid` dropped and re-added with `floor`, `jobs_session_running_key` recreated to cover `floor`, and the new partial unique index `jobs_floor_queued_key`; generated, no hand-added SQL; see [[database-schema]] and [[dm-turn-jobs]]). and `0008_bored_blade.sql` (TASK-0192: `dm_model_calls_outcome_valid` dropped and re-added with `truncated`; see [[database-schema]]), and `0009_certain_rick_jones.sql` (TASK-0203: the same CHECK dropped and re-added with `schema-mismatch`; generated; see [[database-schema]]). Drizzle names each file with a random
 suffix; the committed SQL is the source of truth.
 
 **Collision rule.** Two branches that each generate the next migration produce the same number

@@ -288,6 +288,7 @@ describe("assemble: S0", () => {
       aiCompanions: [],
       runnableEncounterIds: [],
       offstageNpcs: [],
+      unseenMonsters: [],
     });
     const state = /## State\n([\s\S]*?)(\n\n##|$)/.exec(prompt.user);
     expect(state?.[1]).toContain("Table mode: free");
@@ -309,6 +310,7 @@ describe("director offstage NPCs (spec 078)", () => {
       aiCompanions: [],
       runnableEncounterIds: [],
       offstageNpcs: ["NPC snag (Snag, goblin)"],
+      unseenMonsters: [],
     });
     expect(prompt.user).toContain("## Offstage NPCs\nNPC snag (Snag, goblin)");
     expect(prompt.system).toContain("Name in arrivals each offstage NPC");
@@ -336,8 +338,18 @@ describe("prompt caps (SC-007)", () => {
       aiCompanions: [],
       runnableEncounterIds: [],
       offstageNpcs: [],
+      unseenMonsters: [],
     });
-    expect(DIRECTOR_VERSION).toBe("dm.director-v7");
+    expect(DIRECTOR_VERSION).toBe("dm.director-v10");
+    expect(prompt.system).toContain(
+      "`goalNote` is its own top-level key, always written (an empty string when you have no note), never inside `pacing`.",
+    );
+    expect(prompt.system).toContain(
+      "it states no result a roll this beat could decide",
+    );
+    expect(prompt.system).toContain(
+      "a reveal it would make is the roll's, not yours",
+    );
     expect(prompt.system).toContain(agencyRule("director"));
     expect(prompt.system).toContain(
       "names no party member's act, method, skill or reaction",

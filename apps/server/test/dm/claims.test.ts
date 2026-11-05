@@ -8,7 +8,9 @@ import {
   type ClaimIssue,
   type ClaimState,
   checkClaims,
+  namedActorIds,
   offTurnActs,
+  unmetReveals,
 } from "../../src/dm/claims.js";
 import { buildSnapshot } from "../../src/dm/snapshot/index.js";
 import type {
@@ -527,6 +529,18 @@ describe("offTurnActs (TASK-0214)", () => {
     expect(acts("Kestrel lunges at the goblin.")).toEqual(["kestrel"]);
   });
 
+  it("blocks readying for a next action (TASK-0246)", () => {
+    expect(acts("Kestrel draws back for another try.")).toEqual(["kestrel"]);
+    expect(acts("Brother Odo shifts his grip on the mace.")).toEqual(["odo"]);
+    expect(acts("Kestrel raises his blade again.")).toEqual(["kestrel"]);
+  });
+
+  it("passes perceptual and passive verbs (TASK-0246)", () => {
+    expect(acts("Kestrel watches the ford and waits.")).toEqual([]);
+    expect(acts("Brother Odo turns his head toward the noise.")).toEqual([]);
+    expect(acts("Kestrel shifts uneasily and draws a breath.")).toEqual([]);
+  });
+
   it("passes words, looks and flinches", () => {
     expect(acts("Brother Odo winces and mutters a prayer.")).toEqual([]);
     expect(acts("Kestrel flinches as the blow goes wide.")).toEqual([]);
@@ -542,5 +556,49 @@ describe("offTurnActs (TASK-0214)", () => {
     expect(acts("The goblin hurls a spear.")).toEqual([]);
     const s = state({ life: { odo: "dead" } });
     expect(acts("Brother Odo looses an arrow at Snag.", s)).toEqual([]);
+  });
+});
+
+describe("namedActorIds (spec 089 D1)", () => {
+  it("finds a unique alias, once, in order", () => {
+    const { snapshot } = state();
+    expect(
+      namedActorIds(snapshot, "Pell is bound. Pell! Tamsin sees Pell."),
+    ).toEqual(["pell", "tamsin"]);
+  });
+  it("skips a shared noun and a description with no alias", () => {
+    const { snapshot } = state();
+    expect(namedActorIds(snapshot, "the goblin waits")).toEqual([]);
+    expect(namedActorIds(snapshot, "a small figure at the post")).toEqual([]);
+  });
+});
+
+describe("unmetReveals (spec 089 D7)", () => {
+  const rolls = [
+    { unmet: "She spots Pell alive at the post", applied: ["Nothing clear."] },
+  ];
+  const gone = () => state({ presence: { pell: "absent" } });
+  const run = (text: string, st = gone()) => unmetReveals(st, text, rolls);
+  it("reports the seq 51 prose", () => {
+    const r = run(
+      "The lookout turns. Yet the reeds give one mercy first: Pell, alive at the post.",
+    );
+    expect(kinds(r)).toEqual(["reveal"]);
+    expect(r[0]?.actorIds).toEqual(["pell"]);
+  });
+  it("passes negation, a question, a quote and a present Pell", () => {
+    expect(run("There is no sign of Pell in the reeds.")).toEqual([]);
+    expect(run("Where is Pell?")).toEqual([]);
+    expect(run('A voice shouts "Pell!" across the water.')).toEqual([]);
+    expect(
+      run("Pell stands at the post.", state({ presence: { pell: "present" } })),
+    ).toEqual([]);
+  });
+  it("skips an NPC the applied text names", () => {
+    expect(
+      unmetReveals(gone(), "Pell waves.", [
+        { unmet: "Pell alive", applied: ["Pell is gone"] },
+      ]),
+    ).toEqual([]);
   });
 });

@@ -2,6 +2,7 @@ import type { LedgerRow } from "@the-stacks/session-model";
 import { describe, expect, it } from "vitest";
 import { loadSeed } from "../../src/dm/seed/load.js";
 import {
+  bandTexts,
   clueFor,
   consequenceFor,
   effectsForBand,
@@ -123,5 +124,22 @@ describe("clueFor", () => {
     expect(clueFor(seed, "nowhere#1")).toBeNull();
     expect(clueFor(seed, "ferry-house")).toBeNull();
     expect(clueFor(seed, null)).toBeNull();
+  });
+});
+
+describe("bandTexts (spec 089 D2)", () => {
+  const stakes = { success: "S", cost: "C", failure: "F", severe: "V" };
+  it("returns the texts each band delivers", () => {
+    expect(bandTexts(stakes, "success")).toEqual(["S"]);
+    expect(bandTexts(stakes, "success-at-cost")).toEqual(["S", "C"]);
+    expect(bandTexts(stakes, "failure")).toEqual(["F"]);
+    expect(bandTexts(stakes, "severe-failure")).toEqual(["F", "V"]);
+  });
+  it("falls back for a null severe, an unknown band and null stakes", () => {
+    expect(bandTexts({ ...stakes, severe: null }, "severe-failure")).toEqual([
+      "F",
+    ]);
+    expect(bandTexts(stakes, "weird")).toEqual([]);
+    expect(bandTexts(null, "success")).toEqual([]);
   });
 });

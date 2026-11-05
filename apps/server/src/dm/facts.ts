@@ -53,6 +53,8 @@ export interface FactRoll {
   margin?: number | null;
   /** Spec 070: the declared text for a success-at-cost, failure or severe-failure band. */
   consequence?: string | null;
+  /** Spec 089: the success text a failure or severe-failure band did not deliver; audit-only. */
+  unmetSuccess?: string | null;
   /** Spec 080: the clue text a success band reveals; null on any other band. */
   revealed?: string | null;
   /** Spec 070: a free retry resolved without a roll. */
@@ -180,6 +182,8 @@ export interface NarrationFacts {
   npcTurn: FactNpcTurn | null;
   /** Whose beat this is and who acts after it; set only in turn mode (spec 071). */
   turn?: { actor: string; next: string | null; offTurn?: string[] };
+  /** Party actions held for an off-turn companion's turn (TASK-0244); omitted when none. */
+  held?: { name: string; text: string }[];
   /** Rolls from NPCs an action pulled into the scene (TASK-0213); omitted when none. */
   pulled?: FactSettled[];
   /** Settled death-save turns (TASK-0112); omitted when settling rolled nothing. */
@@ -241,6 +245,16 @@ interface Collected {
   changes: FactChange[];
 }
 
+/** Spec 089 D6: the success text a failed band leaves unmet. */
+function unmetFor(
+  stakes: FactStakes | undefined,
+  band: string | null,
+): string | null {
+  return band === "failure" || band === "severe-failure"
+    ? (stakes?.success ?? null)
+    : null;
+}
+
 /** Spec 080 D4: the clue text, only on a success band. */
 function revealedFor(
   byBatch: ReadonlyMap<string, string>,
@@ -285,6 +299,7 @@ export function collectFacts(
       let margin: number | null = null;
       let consequence: string | null = null;
       let revealed: string | null = null;
+      let unmetSuccess: string | null = null;
       if (link) {
         const o = link.outcome;
         if (o.type === "attack.resolved") {
@@ -299,6 +314,7 @@ export function collectFacts(
           margin = o.margin ?? null;
           consequence = consequenceFor(stakesByBatch.get(link.batchId), band);
           revealed = revealedFor(revealedByBatch, link.batchId, band);
+          unmetSuccess = unmetFor(stakesByBatch.get(link.batchId), band);
         }
       }
       const name = nameOf(row.roll.combatantId);
@@ -313,7 +329,7 @@ export function collectFacts(
         outcome,
         autoFail: false,
         target,
-        ...(band ? { band, margin, consequence, revealed } : {}),
+        ...(band ? { band, margin, consequence, revealed, unmetSuccess } : {}),
         ...(reaction ? { reaction: true } : {}),
       };
       if (!link && row.roll.purpose === "damage") {
@@ -348,6 +364,7 @@ export function collectFacts(
             margin: null,
             consequence: consequenceFor(stakesByBatch.get(o.batchId), e.band),
             revealed: revealedFor(revealedByBatch, o.batchId, e.band),
+            unmetSuccess: unmetFor(stakesByBatch.get(o.batchId), e.band),
           }
         : {}),
     });
@@ -723,6 +740,7 @@ export function buildNarrationFacts(input: BuildFactsInput): NarrationFacts {
       revealedByBatch.set(s.batchId, s.revealedText);
   }
   const actions: FactAction[] = [];
+  const held: { name: string; text: string }[] = [];
   for (const item of input.beat) {
     const result = input.resolve.actionResults.find(
       (r) => r.actionId === item.actionId,
@@ -731,6 +749,10 @@ export function buildNarrationFacts(input: BuildFactsInput): NarrationFacts {
     let outcome: FactAction["outcome"];
     let refusalCode: string | null = null;
     if (result) {
+      if (result.outcome === "held") {
+        held.push({ name: nameOf(result.heldFor ?? null), text: item.text });
+        continue;
+      }
       if (result.outcome === "awaiting-dm") continue;
       outcome = result.outcome;
       refusalCode = result.refusalCode;
@@ -751,7 +773,9 @@ export function buildNarrationFacts(input: BuildFactsInput): NarrationFacts {
       outcome,
       refusalCode,
       ...c,
-      followUps: input.followUps?.[item.actionId] ?? [],
+      // Spec 088 D6: a refused action did not happen, so nothing waits on it.
+      followUps:
+        outcome === "refused" ? [] : (input.followUps?.[item.actionId] ?? []),
     });
   }
 
@@ -798,6 +822,14 @@ export function buildNarrationFacts(input: BuildFactsInput): NarrationFacts {
         ...a.rolls.map((r) => r.name),
       ]),
       ...(npcTurn?.rolls.map((r) => r.name) ?? []),
+      // TASK-0244: every actor a ran group's steps name is on turn.
+      ...input.resolve.actionResults.flatMap((r) =>
+        r.outcome === "applied" ||
+        r.outcome === "refused" ||
+        r.outcome === "no-effect"
+          ? (r.stepActors ?? []).map(nameOf)
+          : [],
+      ),
     ]);
     const offTurn = (p.encounter?.order ?? [])
       .filter((o) => {
@@ -895,6 +927,7 @@ export function buildNarrationFacts(input: BuildFactsInput): NarrationFacts {
     actions,
     npcTurn,
     ...(turn ? { turn } : {}),
+    ...(held.length > 0 ? { held } : {}),
     ...(pulled.length > 0 ? { pulled } : {}),
     ...(settled.length > 0 ? { settled } : {}),
     ...(openFollowUps.length > 0 ? { openFollowUps } : {}),
@@ -942,4 +975,13 @@ export function nothingToNarrate(facts: NarrationFacts): boolean {
     (facts.settled?.length ?? 0) === 0 &&
     facts.clarify.length === 0
   );
+}
+
+/** Spec 089: every roll whose failed band left a success text unmet. */
+export function unmetRolls(facts: NarrationFacts): FactRoll[] {
+  return [
+    ...facts.actions.flatMap((a) => a.rolls),
+    ...(facts.npcTurn?.rolls ?? []),
+    ...(facts.pulled ?? []).flatMap((p) => p.rolls),
+  ].filter((r) => r.unmetSuccess);
 }

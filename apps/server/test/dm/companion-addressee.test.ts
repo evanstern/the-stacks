@@ -30,7 +30,12 @@ const prompt = () =>
   });
 
 describe("companion prompt names the speaker (TASK-0189)", () => {
-  it("is v7", () => expect(PROMPT_VERSION).toBe("dm.companion-v7"));
+  it("is v8", () => expect(PROMPT_VERSION).toBe("dm.companion-v8"));
+
+  it("states that all four keys are written (TASK-0203)", () =>
+    expect(prompt().system).toContain(
+      "Write all four keys every time. Set `comment`, `say` or `act` to null when you have none; never leave a key out.",
+    ));
 
   it("names Tamsin as the speaker and Odo as addressed, not Wenna", () => {
     const { user } = prompt();

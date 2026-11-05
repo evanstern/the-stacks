@@ -5,7 +5,7 @@ import type {
   TranscriptEntry,
 } from "@the-stacks/session-model";
 import type { NarrationFacts } from "./facts.js";
-import { encounterToStart } from "./gates/plan-gate.js";
+import { encounterRan, encounterToStart } from "./gates/plan-gate.js";
 import type { AuditIssue } from "./nodes/audit.js";
 import { deterministicChecks } from "./nodes/audit.js";
 import type { DirectorNodeOutput } from "./nodes/director.js";
@@ -47,7 +47,7 @@ import {
 
 /**
  * Plan D5 / FR-011: the mode is free and `encounterToStart` finds the encounter
- * unstarted (no monster of it is a combatant) with no encounter running.
+ * unstarted (it has not run; spec 088) with no encounter running.
  */
 export function legalEscalation(
   seed: TurnContext["seed"],
@@ -60,10 +60,7 @@ export function legalEscalation(
     { tableMode: { to: "turn", encounterId, reason: "" } },
     "talk",
   );
-  return (
-    enc !== undefined &&
-    !enc.monsters.some((m) => p.engine.combatants[m.combatantId])
-  );
+  return enc !== undefined && !encounterRan(p, enc);
 }
 
 type TalkPost = Extract<TranscriptEntry, { kind: "talk" }>;

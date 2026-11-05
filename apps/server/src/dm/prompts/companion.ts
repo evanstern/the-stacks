@@ -15,7 +15,7 @@ import {
   transcriptEntries,
 } from "./common.js";
 
-export const PROMPT_VERSION = "dm.companion-v7";
+export const PROMPT_VERSION = "dm.companion-v8";
 
 const OUTPUT_SHAPE = [
   "Reply with ONE JSON object and nothing else:",
@@ -24,6 +24,7 @@ const OUTPUT_SHAPE = [
   ' "act":{"text":str (what you attempt, 400 characters at most),"commit":bool}|null,',
   ' "pending":[{"actionId":id of one of YOUR open actions,"decision":"commit"|"withdraw"|"revise","text":str (400 characters at most, required for revise)|null}]}',
   "pending holds one entry for each of your own open actions, up to 4. Decision commit puts the action to the table as declared. Decision withdraw closes the action: use it when a player objected and you agree. Decision revise withdraws the action and declares a new one with your text in its place. Leave text null unless the decision is revise. Leave pending empty when you have no open action. Do not declare a new act while you have an open action.",
+  "Write all four keys every time. Set `comment`, `say` or `act` to null when you have none; never leave a key out.",
 ].join("\n");
 
 const SYSTEM = [

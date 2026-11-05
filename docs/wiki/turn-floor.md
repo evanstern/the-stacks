@@ -19,7 +19,7 @@ sources:
   - apps/web/app/play/local-log.ts
   - apps/web/app/play/components/floor-controls.tsx
   - apps/web/app/play/components/turn-order.tsx
-verified_against: 3a617d4a10e572a061aa5be87b3f9711fd7910ae
+verified_against: ee5555fef74502e96badd67e43c1b285d964396b
 ---
 
 # Turn floor
@@ -48,7 +48,7 @@ Kind `floor` (migration 0007 adds it to `jobs_kind_valid`, recreates `jobs_sessi
 
 - **Turn jobs wait too** (TASK-0180): the claim's `notBefore` gate covers kind `turn`, for the coalesced `talk` turn ([[dm-turn-jobs]]); floor checks are unchanged.
 - **Arming** (`dm/enqueue.ts`): under an AI seat, and only with a presence reader, a turn-mode `table-mode.changed` row naming an absent human arms `absence`; `onPresenceChange` (wired to `presence.reader.onChange` in `index.ts`) arms it when the active human leaves; a declare or comment on an open multi-human party action arms or re-arms `stall`; a commit or withdrawal cancels it. `enqueueFloorCheck` inserts, or moves `notBefore`, `holder` and `stanceSeq` on the queued row.
-- **Follow-ups**: a turn-mode `table-mode.changed` row written by a human queues an `npc-turn` (`ai:dm` active) or a companion `turn` job (a companion active). Rows written by `ai:dm` queue none; the floor job queues its own.
+- **Follow-ups**: a turn-mode `table-mode.changed` row written by a human queues an `npc-turn` (`ai:dm` active) or a companion `turn` job (a companion active; a held party action for that companion queues a `turn` job with trigger `held` instead, TASK-0244). Rows written by `ai:dm` queue none; the floor job queues its own.
 - **Run** (`dm/floor.ts`, no model call, only `gate.submit` as `ai:dm`): acts only under an AI seat and only if the wait it was armed for still holds. `absence`: the same human is still absent, so it submits `floor` `end` for the current turn, then queues the next holder's follow-up. The proposal reason is `ABSENCE_PASS_REASON` (`gate/turn.ts`); `view-model.ts` shows that row as "<absent> is away; the turn passes to <holder>." ("your turn." for the new holder) instead of a bare "<name>'s turn" (TASK-0193). `stall`: the action is still an open party candidate, no comment arrived since `stanceSeq` and nobody present objects, so it submits `action.commit` with the stall override. Outcomes: `passed`, `committed`, `noop`, `skipped`, `refused`. The worker runs it as `runFloorJobFenced`.
 - **Reconcile**: at worker start `reconcileFloorJobs` arms `absence` for recently active turn-mode sessions whose holder is absent, and `stall` for open multi-human party actions with no queued `stall` (lookback `FLOOR_RECONCILE_LOOKBACK_MS`, 24 h).
 
