@@ -525,6 +525,63 @@ describe("run 1 seq 196: the goblin drops Kestrel (findings 25)", () => {
   });
 });
 
+describe("run B1 seq 100-106: the reflex flinch (finding 23, TASK-0240)", () => {
+  const f = facts({
+    npcTurn: npcTurn("Goblin by the fire", {
+      rolls: [
+        roll("Goblin by the fire", "Brother Odo", {
+          outcome: "miss",
+          total: 8,
+        }),
+      ],
+      outcomes: ["miss"],
+    }),
+    turn: {
+      actor: "Goblin by the fire",
+      next: "Snag",
+      offTurn: OFF("Goblin by the fire", "Brother Odo"),
+    },
+  });
+  const FLINCH = "Odo flinches at the near-miss.";
+  const flinchIssue = {
+    kind: "player-agency",
+    detail:
+      "Odo's flinch is shown as his choice, not as a reflex. The facts permit a reflex flinch.",
+    actor: "Brother Odo",
+  };
+  const dodgeIssue = {
+    kind: "player-agency",
+    detail: "Odo dodges the blow, stepping to where he stood a breath before.",
+    actor: "Brother Odo",
+  };
+  it("the audit prompt states a listed reflex is never player-agency", () => {
+    const { ap } = promptsHoldTurnRule(f);
+    expect(ap.system).toContain("is never `player-agency`");
+  });
+  it("attempt 2 passes when the audit reports only the flinch (AC #1)", async () => {
+    expect(passes(f, FLINCH)).toBe(true);
+    const out = await runAudit(f, FLINCH, [
+      text(FLINCH),
+      auditJson("fail", [flinchIssue]),
+    ]);
+    expect(out.output.record.final).toBe("passed");
+    expect(out.output.record.attempts).toHaveLength(1);
+    expect(out.output.shipped?.prose).toBe(FLINCH);
+  });
+  it("downgrades a reflex-only issue to advisory (AC #2)", () => {
+    expect(llmIssueBlocksFor(flinchIssue as never, PARTY)).toBe(false);
+  });
+  it("a chosen dodge still blocks", () => {
+    expect(llmIssueBlocksFor(dodgeIssue as never, PARTY)).toBe(true);
+    expect(
+      llmIssueBlocksFor(
+        { ...flinchIssue, detail: "Odo flinches aside just in time." } as never,
+        PARTY,
+      ),
+    ).toBe(true);
+  });
+});
+
 describe("TASK-0242: run 1 seq 163-170 and 185-192, NPC hit damage", () => {
   const hit = (name: string, amount: number, type: string, before: number) => {
     const after = before - amount;
