@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-11-05 03:53'
-updated_date: '2026-11-05 05:46'
+updated_date: '2026-11-05 08:19'
 labels:
   - dm
   - rules
@@ -53,6 +53,8 @@ Claimed 2026-11-05 by M3 runbook B2 (docs/design/m3-runbook-b2-playtest-fixes.md
 Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5 (spec 089 authoring, C1)
 
 Spec 089 (0395da39). Both halves of AC #2: an arrival a check's outcome text names waits for the band; the Director goal note states no dice result and narrate drops it on any failed-check beat. Defaults (a): OQ-1 detect by snapshot alias in outcome texts; OQ-2 drop on any failed check; OQ-3 only the audit sees the unmet success; OQ-4 settled at the seam check against 0238; OQ-5 a dm.arrival.held log event only. Implementation last of the fixes (after 0244, 0238, 0203, 0246).
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 089 phases 1-2, grouped). Seam check: OQ-4 (a), encounter-monster arrivals take the same rule (matched by seed name while unseen). director-v10 and audit-v16 next.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
