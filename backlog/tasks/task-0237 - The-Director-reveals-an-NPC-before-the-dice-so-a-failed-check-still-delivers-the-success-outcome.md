@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-11-05 03:53'
-updated_date: '2026-11-05 05:13'
+updated_date: '2026-11-05 05:46'
 labels:
   - dm
   - rules
@@ -36,6 +36,11 @@ Spec: specs/089-reveal-waits-for-dice
 - [ ] #1 When a check's declared outcome names a reveal, the reveal (arrivals or prose) happens only on a band whose outcome includes it, with a test replaying seq 43-51
 - [ ] #2 The Director's goal note does not promise a result the turn's dice will decide (prompt rule plus test), or arrivals that depend on a check wait for resolve
 - [ ] #3 The audit flags prose that delivers a success outcome on a failure band (ledger-mismatch), with a test
+- [ ] #4 Spec phase: Seam check (no source edit)
+- [ ] #5 Spec phase: Dependent arrivals wait for the band (US1; FR-001 to FR-005, FR-012)
+- [ ] #6 Spec phase: The goal note promises no dice result (US2; FR-006, FR-007)
+- [ ] #7 Spec phase: The audit flags a success told on a failure band (US3; FR-008 to FR-011)
+- [ ] #8 Spec phase: Wiki re-pin
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -44,6 +49,10 @@ Spec: specs/089-reveal-waits-for-dice
 Run 1 again (seq 63-72): the goal note promised the leader clue before Kestrel's Perception (severe failure, 9 vs DC 15). This time the audit caught it on attempt 2 (ledger-mismatch, actor Kestrel) and the fallback told the severe outcome. So the audit backstop works sometimes; the Director pre-deciding the outcome is the source.
 
 Claimed 2026-11-05 by M3 runbook B2 (docs/design/m3-runbook-b2-playtest-fixes.md, PR #132). Worktree .worktrees/task-0237, branch task-0237-reveal-waits-for-dice, cut from origin/main 8128fb3a. Spec number 089 claimed with a stub.
+
+Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5 (spec 089 authoring, C1)
+
+Spec 089 (0395da39). Both halves of AC #2: an arrival a check's outcome text names waits for the band; the Director goal note states no dice result and narrate drops it on any failed-check beat. Defaults (a): OQ-1 detect by snapshot alias in outcome texts; OQ-2 drop on any failed check; OQ-3 only the audit sees the unmet success; OQ-4 settled at the seam check against 0238; OQ-5 a dm.arrival.held log event only. Implementation last of the fixes (after 0244, 0238, 0203, 0246).
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
