@@ -4,6 +4,7 @@ import {
   DEFENCE_VERBS,
   DICE_LANGUAGE,
   EITHER_OR_END,
+  INTENT_MARKERS,
   LIST_LINE,
   MAX_WORDS,
   NEGATIVE_WORDS,
@@ -134,12 +135,26 @@ export function namesCharacter(text: string, name: string): boolean {
   });
 }
 
+/** True when `detail` names a listed reflex and no chosen defence, intent marker or timed blow. */
+export function namesOnlyReflex(detail: string): boolean {
+  const has = (words: readonly string[]) =>
+    words.some((w) => new RegExp(`\\b${escapeRe(w)}\\b`, "i").test(detail));
+  return (
+    has(REFLEX_VERBS.flatMap((v) => [v, ...verbForms(v)])) &&
+    !has(DEFENCE_VERBS.flatMap((v) => [v, ...verbForms(v)])) &&
+    !has(INTENT_MARKERS) &&
+    !/\b(dodg\w*|tim(e|ed|es|ing)|step(s|ped|ping)?|never|(does|did) not|\w+n't)\b/i.test(detail)
+  );
+}
+
 /** Whether one `dm.audit` issue blocks, given the party (the E2 filter). */
 export function llmIssueBlocksFor(
   issue: AuditIssue,
   party: NarrationFacts["party"],
 ): boolean {
   if (issue.kind !== "player-agency") return llmIssueBlocks(issue.kind);
+  // TASK-0240: a listed reflex is never player-agency (spec 074 OQ-1 ruling).
+  if (namesOnlyReflex(issue.detail)) return false;
   // TASK-0214: a named actor decides; an NPC's feelings never block.
   if (issue.actor) return detailNamesPartyMember(issue.actor, party);
   return detailNamesPartyMember(issue.detail, party);
