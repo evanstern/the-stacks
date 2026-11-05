@@ -107,7 +107,7 @@ Findings:
 | 4 | TASK-0244 companion acts in its own turn | sonnet | spec set | after 0242 merges (`facts.ts`); beside 0203 if disjoint |
 | 5 | TASK-0238 encounter monster before the encounter | sonnet | spec set | after 0244 merges |
 | 6 | TASK-0237 reveal waits for the dice | sonnet | spec set | after 0238 and 0203 merge |
-| 7 | B2 playtest scenario (new card at that step) | sonnet | escape E3 | after #6 merges |
+| 7 | TASK-0250 B2 playtest scenario | sonnet | escape E3 | after #6 merges |
 | 8 | TASK-0214 re-measure | — (playtest) | spec 085 (merged) | at the playtest |
 
 ### Proposed amendment A1 (for C0) — off-turn non-attack verbs
@@ -247,6 +247,15 @@ operator's own words first (C6).
 
 | Date | Task | PR | Merge | Dispatches | Notes |
 |---|---|---|---|---|---|
+| 2026-11-05 | (ruling) | — | — | — | C0 and C1 signed off: "Signed off, start". A1 carded as TASK-0246 with escape E4. |
+| 2026-11-05 | TASK-0242 | #133 | bef9c4d5 | sonnet | E1. An NPC hit's damage roll states damage dealt from the batch's hp.changed row. narrate-v19. |
+| 2026-11-05 | TASK-0240 | #134 | fed4dee3 | sonnet | E2. A reflex-only player-agency issue is advisory; audit rule names the flinch. audit-v13. Merged main in (0242), both sides kept. |
+| 2026-11-05 | TASK-0246 | #135 | a377997e | sonnet (one review fix) | E4 (A1). Off-turn readying phrases caught in code; perceptual verbs allowed. audit-v14. Review caught a version bump with no rule text. |
+| 2026-11-05 | TASK-0203 | #136 | 5bf6f12e | opus (spec 086), sonnet x3 | schema-mismatch outcome, migration 0009, four safe coercions, prompts state fields. audit-v15, director-v8, companion-v8, interpret-v14. AC #2 ticks at the playtest. |
+| 2026-11-05 | TASK-0244 | #137 | d66a15ce | opus (spec 087), sonnet x2 | An off-turn AI companion's party action is held for its turn (held trigger). narrate-v20. Human-PC case carded TASK-0248. |
+| 2026-11-05 | TASK-0238 | #138 | 6ab16240 | opus (spec 088), sonnet x2 | Director arrivals carry encounter monsters; startable until run; refused actions told as not done. director-v9, interpret-v15, narrate-v21. Revisit TASK-0249. |
+| 2026-11-05 | TASK-0237 | #139 | 5571839f | opus (spec 089), sonnet x2 | Arrivals a check names wait for the band; goal note states no dice result; unmetReveals. director-v10, audit-v16. |
+| 2026-11-05 | TASK-0250 | (this PR) | (at merge) | sonnet | B2 playtest scenario (E3). Stop for C6 and C7. |
 
 ## Later runbooks (order on record; each gets its own runbook and sign-off)
 
