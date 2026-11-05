@@ -1,10 +1,10 @@
 ---
 id: TASK-0238
 title: An encounter monster can't be acted on before its encounter starts
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-11-05 03:56'
-updated_date: '2026-11-05 07:59'
+updated_date: '2026-11-05 08:04'
 labels:
   - dm
   - playtest
@@ -57,10 +57,18 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 088 phases 4-5, grouped: replays and wiki)
 
 Spec 088 built (tasks.md all ticked). Replays seq 52-58 and 73-92 (unseen, arrived earlier, one-beat) roll the opposed check with no UNKNOWN_COMBATANT; control keeps the refusal and narrates 'it did not happen'. Mutation guard D10 #2 (fresh load before encounter start) is not killable: the arrivals loop's existing duplicate-add skip already covers it; recorded in the commit. Seq 73-92 refused id stays inferred (plan R2). Orchestrator re-ran REQUIRE_DATABASE=1 ci:check on the final tree: green (1838 passed).
+
+spec-bridge sync: Seam check (no source change): 5/5 · Monster arrivals, runnable encounters and the interpret section (card AC #1, #2): 9/9 · A refused action is not narrated as done (card AC #3): 5/5 · The run 1 replays (merge condition; card AC #1, #2, #3): 6/6 · Wiki re-ground: 6/6 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Merged PR #138 (6ab16240), runbook B2 spine #5. All spec 088 tasks complete (Seam check 5/5 · Monster arrivals 9/9 · Refused action not narrated 5/5 · Run 1 replays 6/6 · Wiki 6/6). Derived Done by spec-bridge sync. A revealed encounter monster arrives through the Director's arrivals and is nameable by combatantId; an encounter stays startable until it has run; a refused action is told as not done. Revisit TASK-0249.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
-- [ ] #1 All tests and checks run green
-- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
+- [x] #1 All tests and checks run green
+- [x] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
