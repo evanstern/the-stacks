@@ -4,7 +4,7 @@ title: Haiku dm.audit and dm.chronicle return invalid-json on the first attempt
 status: In Progress
 assignee: []
 created_date: '2026-11-02 19:42'
-updated_date: '2026-11-05 04:42'
+updated_date: '2026-11-05 04:48'
 labels:
   - dm
   - playtest
@@ -29,6 +29,8 @@ Where: apps/server/src/dm/pipeline/call.ts (callJson), the haiku purposes' promp
 <!-- AC:BEGIN -->
 - [x] #1 The cause of first-attempt invalid-json on the haiku purposes is identified and recorded
 - [ ] #2 A hosted run of 10+ turns shows no invalid-json on dm.audit or dm.chronicle attempt 1
+- [ ] #3 The model-call ledger records a schema mismatch as its own outcome, distinct from invalid-json, with a test
+- [ ] #4 Safe schema coercions (audit unknown kind to other, detail clipped to its cap, actor nullable, chronicle ids as strings) accept the run 1 reply shapes on attempt 1, with a test per shape from the vm-104 log
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -57,6 +59,8 @@ Run 1 seq 133-170: dm.audit and dm.companion invalid-json on attempt 1, both rec
 Run 1 through seq 313: 10 first-attempt invalid-json (dm.audit 7, dm.chronicle 2, dm.companion 1), all recovered on attempt 2. AC #2 NOT met.
 
 AC #2 NOT met at runbook B playtest run 1 (37 turns): 17 of 224 calls returned invalid-json on attempt 1 (dm.audit 12/51, dm.interpret 2/34, dm.chronicle 1/19, dm.companion 1/7, dm.director 1/35; narrate 0/61), all recovered on attempt 2. Not haiku-only. The 2f9b45c4 parser change did not cover the real shape; the dm.call.invalid-json log lines on vm-104 hold head/tail excerpts and are the next evidence (reading them needs a vm-104 command). Card stays In Progress.
+
+ROOT CAUSE CONFIRMED (runbook B playtest run 1, vm-104 log lines dm.call.invalid-json, 2026-11-04, with the operator's go). The replies parse as JSON (fenced or after an empty <think></think>); they fail the Zod schema, and callJson labels that 'invalid-json'. Of the 17 attempt-1 failures: dm.audit 'kind' not in the enum (model invents 'turn-mode', 8x, since TASK-0214's off-turn rule); dm.audit 'detail' over 300 chars (3x); dm.audit 'actor' null (1x); dm.companion missing 'comment'; dm.director 'goalNote' missing (written inside 'pacing'); dm.interpret NPC attack step missing 'attack' (TASK-0104) and stakes.severe null (TASK-0127); dm.chronicle sourceActionIds as numbers. The repair re-ask fixes each. Fix shape: name the schema outcome separately from invalid-json; make safe coercions (audit unknown kind → other, detail clipped, actor nullable, chronicle ids to strings); and state the enums and required fields in the prompts that produce them.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
