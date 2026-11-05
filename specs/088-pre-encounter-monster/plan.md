@@ -143,7 +143,7 @@ with `!encounterRan(p, enc)`. Free mode and no active encounter stay required.
 
 `apps/server/src/dm/prompts/director.ts`:
 
-1. Bump `PROMPT_VERSION` one past `main`.
+1. Bump `PROMPT_VERSION` to `dm.director-v9` (`main` holds v8).
 2. Output shape: `"arrivals":[id of an offstage NPC or an unseen encounter monster now on screen]`.
 3. The SYSTEM sentence on arrivals: "Name in arrivals each offstage NPC or unseen encounter monster
    the recent transcript or the beat to resolve shows on screen: seen, heard or met. Never name one
@@ -171,7 +171,7 @@ That list equals today's joiners plus the monster arrivals.
 
 `apps/server/src/dm/prompts/interpret.ts`:
 
-1. Bump `PROMPT_VERSION` one past `main`.
+1. Bump `PROMPT_VERSION` to `dm.interpret-v15` (`main` holds v14).
 2. After the State section, a section "Arriving this beat", cap 300, from `arrivingMonsters`:
    `goblin-3 "Goblin lookout" (monster; joins the scene before any step runs; name it by this id)`.
 
@@ -179,7 +179,7 @@ That list equals today's joiners plus the monster arrivals.
 
 - `apps/server/src/dm/facts.ts` `buildNarrationFacts`: a refused action gets `followUps: []`.
 - `apps/server/src/dm/prompts/narrate.ts`:
-  1. Bump `PROMPT_VERSION` one past `main`.
+  1. Bump `PROMPT_VERSION` to `dm.narrate-v21` (`main` holds v20).
   2. `factEntries`: the refused line becomes
      `refused (refused: <code>): it did not happen; nothing was rolled and nothing changed`.
   3. One SYSTEM line after the no-effect line: "A refused action did not happen: no roll and no
@@ -288,3 +288,7 @@ None. `ws-protocol.md` frame shapes, `specs/029-proposal-gate/contracts/` and
 ## Open questions
 
 - OQ-1 to OQ-4: see spec.md. Defaults (a) are designed above.
+
+## Seam check 2026-11-05: no change
+
+Re-read after merging `origin/main` (TASK-0244, 0242, 0203 all merged). Every seam D1 to D6 names holds: `PlanInput.joining` is fed by `joiningCombatants` in `resolve`; `directorOpening` keeps its arrivals loop, `arrived > 0` reload and encounter start; `factEntries` still prints the refused line and `followUps`; `buildNarrationFacts` still sets `followUps` per action (line ~761); the fallback refused branch still appends `changeSentences`; `runnableEncounterIds` and `legalEscalation` keep the "no monster is a combatant" test. Versions on `main`: director-v8, interpret-v14, narrate-v20. Targets: director-v9, interpret-v15, narrate-v21. The refused id at seq 73-92 is not recorded in the playtest log (R2).

@@ -13,22 +13,22 @@ and one commit led by `TASK-0238:`. Edit only the hunks plan D1 to D7 name.
 
 ## Phase 1: Seam check (no source change)
 
-- [ ] T001 Merge `origin/main` into the branch. Confirm TASK-0244 and TASK-0242 are merged
+- [x] T001 Merge `origin/main` into the branch. Confirm TASK-0244 and TASK-0242 are merged
       (`git log origin/main --oneline --grep TASK-0244`, then `--grep TASK-0242`). Stop and report
       if either is missing.
-- [ ] T002 Re-read the merged diffs of TASK-0244, TASK-0242 and TASK-0203 for
+- [x] T002 Re-read the merged diffs of TASK-0244, TASK-0242 and TASK-0203 for
       `gates/plan-gate.ts`, `nodes/resolve.ts`, `facts.ts`, `prompts/narrate.ts`,
       `prompts/interpret.ts`, `prompts/director.ts` and `talk-turn.ts`. List each hunk that moves a
       seam plan D1 to D6 names: `checkPlan`'s `joining` input, `directorOpening`'s arrivals loop and
       encounter start, `factEntries`' refused line, `buildNarrationFacts`' `followUps`, the
       fallback's refused branch, the interpret and director prompt sections.
-- [ ] T003 Read each prompt's current `PROMPT_VERSION` on `main` (director, interpret, narrate).
+- [x] T003 Read each prompt's current `PROMPT_VERSION` on `main` (director, interpret, narrate).
       Write the three target versions into plan.md D3, D5 and D6.
-- [ ] T004 Confirm plan R2 from `docs/playtests/2026-11-03-runbook-b-playtest.md` findings 16 and
+- [x] T004 Confirm plan R2 from `docs/playtests/2026-11-03-runbook-b-playtest.md` findings 16 and
       19: the refused id at seq 73-92 is not `goblin-3`. If it is `goblin-3`, stop and report: the
       plan gate seam differs from R2. If the log does not name the id, record that in plan.md R2
       and go on: T013 tests both shapes.
-- [ ] T005 Amend plan.md for every moved seam (file, function, hunk) and commit
+- [x] T005 Amend plan.md for every moved seam (file, function, hunk) and commit
       `TASK-0238: seam check`. With no moved seam, append a "Seam check 2026-11-xx: no change" line
       to plan.md and commit it.
 
