@@ -20,7 +20,7 @@ sources:
   - apps/server/src/dm/companion.ts
   - apps/server/src/dm/chronicle.ts
 size_budget_exempt: both notes sat within 30 chars of the 8000 budget before TASK-0180; the talk path got its own note (dm-talk-triggers) and only a pointer line lands here; the rest is one pipeline each, not splittable without a TASK of its own
-verified_against: 3a617d4a10e572a061aa5be87b3f9711fd7910ae
+verified_against: da173eaa7e314723c52253f0ebe17488e9480ee1
 ---
 
 # DM turn jobs
@@ -103,7 +103,7 @@ finishes the job `failed` with `failure.node = "presence"` and `jobs.error` `sto
 
 ## Calls, usage and the ledger
 
-Each `ModelCallRecord` in `jobs.result.calls` (outcome `ok`, `invalid-json`, `truncated`, `error`) carries provider, model, tokens, `costUsd` and `durationMs` ([[ai-gateway]]). As each attempt ends, the worker's `recordCall` seam inserts
+Each `ModelCallRecord` in `jobs.result.calls` (outcome `ok`, `invalid-json`, `schema-mismatch`, `truncated`, `error`) carries provider, model, tokens, `costUsd` and `durationMs` ([[ai-gateway]]). As each attempt ends, the worker's `recordCall` seam inserts
 one `dm_model_calls` row (`dm/model-calls.ts`; table in [[database-schema]]), bound to the job
 id, session id, kind and `jobs.attempts` of the claim. The ledger also holds attempts `calls` omits: an aborted attempt (`outcome: "aborted"`) and calls of a reclaimed attempt. So
 the ledger, not `calls`, is the cost authority. Every submission names the seqs the gate

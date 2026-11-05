@@ -4,7 +4,7 @@ title: Haiku dm.audit and dm.chronicle return invalid-json on the first attempt
 status: In Progress
 assignee: []
 created_date: '2026-11-02 19:42'
-updated_date: '2026-11-05 04:48'
+updated_date: '2026-11-05 06:12'
 labels:
   - dm
   - playtest
@@ -23,14 +23,20 @@ Outcome: dm.audit and dm.chronicle parse on their first attempt, so a turn does 
 Why: runbook A playtest run 1 (2026-11-02, session 9296c653, scene start): dm.audit-v4 and dm.chronicle-v3 (cc/claude-haiku-4-5) both returned invalid-json on attempt 1 and recovered on attempt 2. Alpha run 3 (2026-11-01) showed the same two purposes failing once each. The ledger holds no text, so the shape of the bad reply is unknown.
 
 Where: apps/server/src/dm/pipeline/call.ts (callJson), the haiku purposes' prompts, and the 9router cc/ haiku route. Candidates: a think block stripThink misses, prose around the JSON, or a code fence.
+
+Spec: specs/086-schema-outcome-coercions
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
 - [x] #1 The cause of first-attempt invalid-json on the haiku purposes is identified and recorded
 - [ ] #2 A hosted run of 10+ turns shows no invalid-json on dm.audit or dm.chronicle attempt 1
-- [ ] #3 The model-call ledger records a schema mismatch as its own outcome, distinct from invalid-json, with a test
-- [ ] #4 Safe schema coercions (audit unknown kind to other, detail clipped to its cap, actor nullable, chronicle ids as strings) accept the run 1 reply shapes on attempt 1, with a test per shape from the vm-104 log
+- [x] #3 The model-call ledger records a schema mismatch as its own outcome, distinct from invalid-json, with a test
+- [x] #4 Safe schema coercions (audit unknown kind to other, detail clipped to its cap, actor nullable, chronicle ids as strings) accept the run 1 reply shapes on attempt 1, with a test per shape from the vm-104 log
+- [x] #5 Spec phase: The schema-mismatch outcome (US1; FR-001 to FR-004; card AC #3)
+- [x] #6 Spec phase: Safe coercions (US2, US3; FR-005 to FR-009, FR-011; card AC #4)
+- [x] #7 Spec phase: Prompts state the failed fields (US4; FR-010)
+- [x] #8 Spec phase: Wiki re-ground
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -61,6 +67,20 @@ Run 1 through seq 313: 10 first-attempt invalid-json (dm.audit 7, dm.chronicle 2
 AC #2 NOT met at runbook B playtest run 1 (37 turns): 17 of 224 calls returned invalid-json on attempt 1 (dm.audit 12/51, dm.interpret 2/34, dm.chronicle 1/19, dm.companion 1/7, dm.director 1/35; narrate 0/61), all recovered on attempt 2. Not haiku-only. The 2f9b45c4 parser change did not cover the real shape; the dm.call.invalid-json log lines on vm-104 hold head/tail excerpts and are the next evidence (reading them needs a vm-104 command). Card stays In Progress.
 
 ROOT CAUSE CONFIRMED (runbook B playtest run 1, vm-104 log lines dm.call.invalid-json, 2026-11-04, with the operator's go). The replies parse as JSON (fenced or after an empty <think></think>); they fail the Zod schema, and callJson labels that 'invalid-json'. Of the 17 attempt-1 failures: dm.audit 'kind' not in the enum (model invents 'turn-mode', 8x, since TASK-0214's off-turn rule); dm.audit 'detail' over 300 chars (3x); dm.audit 'actor' null (1x); dm.companion missing 'comment'; dm.director 'goalNote' missing (written inside 'pacing'); dm.interpret NPC attack step missing 'attack' (TASK-0104) and stakes.severe null (TASK-0127); dm.chronicle sourceActionIds as numbers. The repair re-ask fixes each. Fix shape: name the schema outcome separately from invalid-json; make safe coercions (audit unknown kind → other, detail clipped, actor nullable, chronicle ids to strings); and state the enums and required fields in the prompts that produce them.
+
+Claimed 2026-11-05 by M3 runbook B2 (docs/design/m3-runbook-b2-playtest-fixes.md, PR #132). Worktree .worktrees/task-0203, branch task-0203-schema-outcome, cut from origin/main 8128fb3a. Spec number 086 claimed with a stub.
+
+Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5 (spec 086 authoring, C1)
+
+Spec 086 (1de87cbf). Coerced on attempt 1: audit unknown kind → other, detail clipped, actor nullable, chronicle numeric ids → strings. Still re-asked, now logged schema-mismatch: companion comment, director goalNote, interpret attack, stakes.severe null. Defaults taken: OQ-1 AC #2 counts schema-mismatch too; OQ-2 unknown kind → other (detail keeps a [turn-mode] prefix); OQ-3 stringify ids; OQ-4 two log events. Phase 1 (call.ts, schema, migration 0009) develops ahead; phases 2-3 wait for TASK-0240.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 086 phase 1: schema-mismatch outcome, migration 0009)
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 086 phase 2: safe coercions)
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 086 phases 3-4, grouped: prompts and wiki)
+
+Spec 086 built (phases 1-4, tasks.md 28/28). AC #3 (schema-mismatch outcome, migration 0009) and AC #4 (four coercions, eight shape tests) met. audit-v15, director-v8, companion-v8, interpret-v14. AC #2 ticks at runbook B2's playtest (counts invalid-json and schema-mismatch on attempt 1, OQ-1).
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done

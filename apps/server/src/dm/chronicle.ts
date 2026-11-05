@@ -34,6 +34,26 @@ export const ChronicleOutput = z.object({
     )
     .max(3),
 });
+/** Safe coercion (specs/086 D5): numeric `sourceActionIds` become decimal strings. */
+export function normalizeChronicle(json: unknown): unknown {
+  const plain = (v: unknown): v is Record<string, unknown> =>
+    typeof v === "object" && v !== null && !Array.isArray(v);
+  if (!plain(json) || !Array.isArray(json.entries)) return json;
+  const entries = json.entries.map((e: unknown) =>
+    plain(e) && Array.isArray(e.sourceActionIds)
+      ? {
+          ...e,
+          sourceActionIds: e.sourceActionIds.map((id: unknown) =>
+            typeof id === "number" && Number.isSafeInteger(id) && id >= 0
+              ? String(id)
+              : id,
+          ),
+        }
+      : e,
+  );
+  return { ...json, entries };
+}
+
 export type ChronicleOutput = z.infer<typeof ChronicleOutput>;
 
 export const CHRONICLE_PREFIX = "chron-";
@@ -137,6 +157,7 @@ export async function runChronicleJob(
     user: prompt.user,
     signal,
     schema: ChronicleOutput,
+    normalize: normalizeChronicle,
   });
   if (!result.ok) {
     deps.log({

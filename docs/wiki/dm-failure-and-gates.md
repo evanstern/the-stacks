@@ -14,7 +14,7 @@ sources:
   - apps/server/src/dm/prompts/step-grammar.ts
   - apps/server/src/dm/seed/schema.ts
   - specs/033-director-robustness/contracts/rules-terms.md
-verified_against: 3a617d4a10e572a061aa5be87b3f9711fd7910ae
+verified_against: da173eaa7e314723c52253f0ebe17488e9480ee1
 size_budget_exempt: TASK-0105 adds the spell rule and TASK-0128 the help and opposition rules (split card TASK-0231) to the one plan-gate note; the note sat within 40 chars of the 8000 budget before it, and the gate rules do not split without a TASK of its own
 ---
 
@@ -36,8 +36,8 @@ holds `view`, `tokens`, `cap`, `actors`, `compressed` and the `node`; the runner
 `dm.node.state-overflow`; [[actor-snapshot]]) or `seed` (the bad-seed
 path, `detail: null`). The turn's `presenceSeq` sits beside `failure`. An `invalid-output` detail holds `purpose`, `promptVersion`, `issues` and
 one `AttemptExcerpt` per attempt (`outputTokens`, `chars`, `issues`, `excerpt`). `excerptOf`
-(`pipeline/call.ts`; a capped attempt settles as `truncated`, not `invalid-json`, TASK-0192) bounds each excerpt: text up to 8,000 characters whole, else the first
-6,000, an elision marker, the last 2,000. A think-only reply fails with `not valid JSON: the reply held only a think block`; its excerpt keeps the raw think block (TASK-0181). The parser also accepts one top-level JSON object inside prose, a fence or an unclosed think block, and every unparsable attempt logs a `dm.call.invalid-json` line with a 200-char head and tail (TASK-0203). The `dm.turn.failed` log line carries the detail
+(`pipeline/call.ts`; a capped attempt settles as `truncated`, not `invalid-json`, TASK-0192; a parsed reply that fails the schema settles `schema-mismatch`, TASK-0203) bounds each excerpt: text up to 8,000 characters whole, else the first
+6,000, an elision marker, the last 2,000. A think-only reply fails with `not valid JSON: the reply held only a think block`; its excerpt keeps the raw think block (TASK-0181). The parser also accepts one top-level JSON object inside prose, a fence or an unclosed think block, and every unparsable attempt logs a `dm.call.invalid-json` line, and every schema failure a `dm.call.schema-mismatch` line, with a 200-char head and tail (TASK-0203). The `dm.turn.failed` log line carries the detail
 without `attempts`, because they hold model text. `jobs.error` stays a fixed string
 ([[dm-turn-jobs]]).
 
@@ -50,7 +50,7 @@ interpret and adjudicate schemas accept only closed lists derived from engine en
 `ConditionKeySchema`, `SkillSchema` (`nodes/schemas.ts`, derived from the engine's
 `condition.apply` and `check.roll` commands, thrown at load if not an enum), `AbilitySchema`
 and `DamageTypeSchema` ([[dnd5e-engine]]). The `presence` effect (`{effect, targetId, reason}`, strict, no `after` field) adds `PresenceReasonSchema` (`arrived`, `left`, `fled`, `removed`, `surrendered`, `conceded`; [[session-model]]) as a closed term; `step-grammar.ts` renders it too. The seed schema adds a required per-beat `presence` map and NPC `aliases` ([[seed-npc-presence]]). `prompts/step-grammar.ts` renders the same lists
-into the interpret and adjudicate prompts (`dm.interpret-v13`, `dm.adjudicate-v10`; v5 adds `followUps`, TASK-0182; v6 adds the agency rule, TASK-0113; v7 adds the `move` step, TASK-0208; v13 and v10 add the `help` step and the opposition `difficulty`, spec 084;v10 say), so no list is
+into the interpret and adjudicate prompts (`dm.interpret-v14`, `dm.adjudicate-v10`; v5 adds `followUps`, TASK-0182; v6 adds the agency rule, TASK-0113; v7 adds the `move` step, TASK-0208; v13 and v10 add the `help` step and the opposition `difficulty`, spec 084;v10 say), so no list is
 hand-typed; it is split from `prompts/common.ts` because narrate must import no engine value.
 The scene seed's character `skills` keys and clue `check.skill` use the same `SkillSchema`.
 A gate never maps, coerces or drops a term to pass output. The audit

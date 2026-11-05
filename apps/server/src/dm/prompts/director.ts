@@ -16,7 +16,7 @@ import {
   transcriptEntries,
 } from "./common.js";
 
-export const PROMPT_VERSION = "dm.director-v7";
+export const PROMPT_VERSION = "dm.director-v8";
 
 const OUTPUT_SHAPE = [
   "Reply with ONE JSON object and nothing else:",
@@ -28,6 +28,7 @@ const OUTPUT_SHAPE = [
   ' "goalNote":str (a private pacing note for the narrator, 300 characters at most; it names no party member\'s act, method, skill or reaction its player did not declare; it states no count of the fallen or the remaining, no morale condition and no encounter trigger),',
   ' "companionPrompts":[characterId],',
   ' "arrivals":[seed NPC id of an offstage NPC now on screen]}',
+  "Write every top-level key. `goalNote` is its own top-level key, always written (an empty string when you have no note), never inside `pacing`.",
 ].join("\n");
 
 const SYSTEM = [

@@ -58,6 +58,13 @@ C2, C6, C7 and C8 change the prompt. Any prompt change bumps `PROMPT_VERSION` to
 - State each cap in words next to its field.
 - Keep the doctrine and every user-prompt section as they are.
 
+## Amendment: goalNote sentence (spec 086, TASK-0203)
+
+`OUTPUT_SHAPE` ends with: "Write every top-level key. `goalNote` is its own top-level key, always
+written (an empty string when you have no note), never inside `pacing`." Version `dm.director-v8`.
+Run 1 showed the model nesting `goalNote` inside `pacing`. The prompt states the rule; code adds no
+new coercion.
+
 ## Out of scope
 
 - Loosening `InterpretOutput`, `AdjudicateModelOutput` or any step or effect schema. They carry
