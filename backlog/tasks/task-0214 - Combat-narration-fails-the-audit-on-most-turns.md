@@ -4,7 +4,7 @@ title: Combat narration fails the audit on most turns
 status: In Progress
 assignee: []
 created_date: '2026-11-02 23:22'
-updated_date: '2026-11-05 03:58'
+updated_date: '2026-11-05 04:01'
 labels:
   - dm
   - narration
@@ -61,6 +61,8 @@ AC #2: combat-audit-replay.test.ts replays seq 103, 126, 131, 161, 196 (rebuilt 
 Playtest ceiling (runbook B playtest, 2026-11-03), operator's words: "Play it, ceiling $100".
 
 Runbook B playtest run 1 seq 71: fallback after 3 attempts (two 'dies' claim-check blocks, one success-on-severe ledger-mismatch). 91 s turn. Counting for AC #1 continues.
+
+Run 1 combat so far (seq 96-124): 1 of 4 combat narrations passed on attempt 1. Refusals: off-turn actor shown acting (caught by the model audit, not the code check: 'turning its head' and 'draws back for another try' are not in the strike/shoot/cast verbs), Odo's dodge, and a false refusal of a reflex flinch (TASK-0239).
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
