@@ -34,7 +34,7 @@ export function buildAuditPrompt(input: {
     "3. When the facts ask a question, ending on that open question is correct.",
     "4. Code checks length; do not report length.",
     "5. Report craft concerns as `doctrine`. They are advice and do not fail the narration.",
-    `6. Turn mode. ${TURN_RULE} Showing the Next actor or an Off turn character strike, shoot, cast, throw or charge is \`invented-mechanics\`. Their words, looks and flinches are not.`,
+    `6. Turn mode. ${TURN_RULE} Showing the Next actor or an Off turn character strike, shoot, cast, throw or charge, or ready for a next action (draw back for another try, shift a grip, raise a blade again), is \`invented-mechanics\`. Their words, looks and flinches are not. Watching, waiting and turning toward a noise are not turn actions; do not report them.`,
     "7. A roll's band and consequence are decided. Report `ledger-mismatch` when the prose tells a different band (a plain success for a success at a cost, a plain failure for a severe failure, a win for a failure) or a consequence other than the one listed.",
     "Doctrine:",
     doctrine,

@@ -774,6 +774,10 @@ describe("narrate", () => {
     expect(p.system).toContain(
       "6. Turn mode. Only the actors on the Turn line",
     );
+    expect(p.system).toContain("raise a blade again), is `invented-mechanics`");
+    expect(p.system).toContain(
+      "Watching, waiting and turning toward a noise are not turn actions",
+    );
     expect(p.system).toContain("7. A roll's band and consequence are decided.");
     expect(p.system).toContain(
       "does not deliver a roll's settled outcome or learned fact",
