@@ -3,9 +3,10 @@ id: TASK-0246
 title: >-
   The off-turn code check misses non-attack verbs, so the model audit blocks
   them instead
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-11-05 05:12'
+updated_date: '2026-11-05 05:56'
 labels:
   - dm
   - narration
@@ -30,10 +31,20 @@ Related: TASK-0214 (spec 085), TASK-0240 (reflex list, same file).
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 The off-turn check blocks an off-turn actor shown readying or repositioning for its next action (e.g. 'draws back for another try', 'shifts its grip'), with a test per run 1 phrase
-- [ ] #2 A passive or perceptual verb (watches, waits, turns its head toward the noise) on an off-turn actor is allowed by the code check and the audit prompt states it is not a turn action, with a test
-- [ ] #3 A replay of the run 1 refusals that named these phrases passes or regenerates without a model-audit call, with a test
+- [x] #1 The off-turn check blocks an off-turn actor shown readying or repositioning for its next action (e.g. 'draws back for another try', 'shifts its grip'), with a test per run 1 phrase
+- [x] #2 A passive or perceptual verb (watches, waits, turns its head toward the noise) on an off-turn actor is allowed by the code check and the audit prompt states it is not a turn action, with a test
+- [x] #3 A replay of the run 1 refusals that named these phrases passes or regenerates without a model-audit call, with a test
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Claimed 2026-11-05 by M3 runbook B2 (docs/design/m3-runbook-b2-playtest-fixes.md, spine #2b, amendment A1). Worktree .worktrees/task-0246, branch task-0246-off-turn-verbs, cut from origin/main 9ead3268. No spec dir: signed escape line E4 covers this task.
+
+Off-turn check now catches readying phrases (TURN_READY_PHRASE), perceptual verbs pass, audit-v14, wiki re-pinned; code sha bc16aab5 + format
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (E4 implementation, plus one orchestrator-requested fix: rule 6 text)
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
