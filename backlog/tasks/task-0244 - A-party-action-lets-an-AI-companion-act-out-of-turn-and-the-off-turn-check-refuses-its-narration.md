@@ -3,9 +3,10 @@ id: TASK-0244
 title: >-
   A party action lets an AI companion act out of turn, and the off-turn check
   refuses its narration
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-11-05 04:22'
+updated_date: '2026-11-05 05:13'
 labels:
   - dm
   - rules
@@ -33,6 +34,12 @@ Related: TASK-0214 (off-turn list), TASK-0205 (askUndeclared / party-scope rules
 - [ ] #1 In turn mode, a party action whose step's actor is a companion not currently active is held for that companion's turn or refused with a stated reason, with a test replaying seq 206-230
 - [ ] #2 The off-turn list excludes any actor with a resolved step in this beat, with a facts test
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Claimed 2026-11-05 by M3 runbook B2 (docs/design/m3-runbook-b2-playtest-fixes.md, PR #132). Worktree .worktrees/task-0244, branch task-0244-companion-own-turn, cut from origin/main 8128fb3a. Spec number 087 claimed with a stub.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
