@@ -4,7 +4,7 @@ title: Haiku dm.audit and dm.chronicle return invalid-json on the first attempt
 status: In Progress
 assignee: []
 created_date: '2026-11-02 19:42'
-updated_date: '2026-11-05 05:32'
+updated_date: '2026-11-05 05:39'
 labels:
   - dm
   - playtest
@@ -73,6 +73,8 @@ Claimed 2026-11-05 by M3 runbook B2 (docs/design/m3-runbook-b2-playtest-fixes.md
 Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5 (spec 086 authoring, C1)
 
 Spec 086 (1de87cbf). Coerced on attempt 1: audit unknown kind → other, detail clipped, actor nullable, chronicle numeric ids → strings. Still re-asked, now logged schema-mismatch: companion comment, director goalNote, interpret attack, stakes.severe null. Defaults taken: OQ-1 AC #2 counts schema-mismatch too; OQ-2 unknown kind → other (detail keeps a [turn-mode] prefix); OQ-3 stringify ids; OQ-4 two log events. Phase 1 (call.ts, schema, migration 0009) develops ahead; phases 2-3 wait for TASK-0240.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 086 phase 1: schema-mismatch outcome, migration 0009)
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
