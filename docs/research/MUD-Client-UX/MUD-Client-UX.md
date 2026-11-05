@@ -5,7 +5,7 @@ tags: [mud, ux, text-games]
 type: moc
 created: 2026-11-04
 updated: 2026-11-04
-related: [[Desktop-MUD-Clients]], [[Web-and-Commercial-Clients]], [[Adjacent-Text-Games]], [[Command-Line-and-Input-Aids]], [[Output-Organization-Channels-and-Spam]], [[Status-Vitals-Map-and-Room-Blocks]], [[Protocols-GMCP-MSDP-MXP-MSSP]], [[Accessibility-and-Screen-Readers]], [[Onboarding-and-Design-Writing]]
+related: [[Analysis-Table-View-Pattern-Adoption]], [[Desktop-MUD-Clients]], [[Web-and-Commercial-Clients]], [[Adjacent-Text-Games]], [[Command-Line-and-Input-Aids]], [[Output-Organization-Channels-and-Spam]], [[Status-Vitals-Map-and-Room-Blocks]], [[Protocols-GMCP-MSDP-MXP-MSSP]], [[Accessibility-and-Screen-Readers]], [[Onboarding-and-Design-Writing]]
 ---
 
 # MUD Client UX
@@ -43,7 +43,7 @@ Out: any recommendation, the-stacks UI state, graphical MMO UI.
 
 ## Analyses
 
-_None yet._
+- [[Analysis-Table-View-Pattern-Adoption]] — adopt/adapt/reject calls for the-stacks table view, four UI directions
 
 ## Open questions
 
