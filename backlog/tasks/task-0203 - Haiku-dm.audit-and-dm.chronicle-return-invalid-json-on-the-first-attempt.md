@@ -4,7 +4,7 @@ title: Haiku dm.audit and dm.chronicle return invalid-json on the first attempt
 status: In Progress
 assignee: []
 created_date: '2026-11-02 19:42'
-updated_date: '2026-11-05 04:33'
+updated_date: '2026-11-05 04:42'
 labels:
   - dm
   - playtest
@@ -55,6 +55,8 @@ Run 1 seq 96-124: three more dm.audit invalid-json on attempt 1, all recovered o
 Run 1 seq 133-170: dm.audit and dm.companion invalid-json on attempt 1, both recovered. Total so far: 8 first-attempt parse failures.
 
 Run 1 through seq 313: 10 first-attempt invalid-json (dm.audit 7, dm.chronicle 2, dm.companion 1), all recovered on attempt 2. AC #2 NOT met.
+
+AC #2 NOT met at runbook B playtest run 1 (37 turns): 17 of 224 calls returned invalid-json on attempt 1 (dm.audit 12/51, dm.interpret 2/34, dm.chronicle 1/19, dm.companion 1/7, dm.director 1/35; narrate 0/61), all recovered on attempt 2. Not haiku-only. The 2f9b45c4 parser change did not cover the real shape; the dm.call.invalid-json log lines on vm-104 hold head/tail excerpts and are the next evidence (reading them needs a vm-104 command). Card stays In Progress.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
