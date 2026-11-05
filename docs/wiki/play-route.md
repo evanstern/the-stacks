@@ -1,6 +1,6 @@
 ---
 name: play-route
-description: The play route (TASK-0047, specs/030-play-route) - one shared TableView over a TableSource (live via useLiveTable, fixture via useFixtureTable), the pure modules behind it (view-model, authority, frames, reduce-frame, proposals), live writes as gate requests, the DM approvals and ledger slide-outs, the presence strip, sign-off rows, floor controls, turn-order strip and floor lines, the Debug link, scene panels, the Table mode (TASK-0165) and DM seat (TASK-0177) slide-outs and fixture routes.
+description: The play route (TASK-0047, specs/030-play-route) - one shared TableView over live or fixture sources, the pure modules behind it, live writes as gate requests, the DM approvals and ledger slide-outs, the presence strip, sign-off rows, floor controls, turn-order strip and floor lines, the table margin and strips (TASK-0236), the Debug link, scene panels, the Table mode (TASK-0165) and DM seat (TASK-0177) slide-outs and fixture routes.
 kind: component
 sources:
   - apps/web/app/routes/play.tsx
@@ -28,11 +28,16 @@ sources:
   - apps/web/app/play/components/table-header.tsx
   - apps/web/app/play/components/floor-controls.tsx
   - apps/web/app/play/components/turn-order.tsx
+  - apps/web/app/play/components/margin.tsx
+  - apps/web/app/play/components/mini-strip.tsx
+  - apps/web/app/play/components/status-strip.tsx
+  - apps/web/app/play/conditions.ts
   - apps/web/app/play/components/mode-badge.tsx
   - apps/web/app/play/components/commit-control.tsx
   - apps/web/app/play/components/table-mode-panel.tsx
   - apps/web/app/play/components/dm-seat-panel.tsx
-verified_against: 389d2e32895a3b2143ee05f72f8b421f236a8bf7
+verified_against: 3a78c328939cb7447322818749b9eeee35235b70
+size_budget_exempt: TASK-0236 adds the table margin paragraph to the one play-route note; the note sat near the 8000 budget and the view does not split without a TASK of its own
 ---
 
 # Play route
@@ -77,6 +82,8 @@ The operator's Start scene slide-out (TASK-0163, TASK-0167): the button gate, th
 ## Scene panels
 
 The Start scene and Change scene slide-outs are in [[scene-panels]]. `toTableViewModel` sets `sceneChange` only when `isDm`.
+
+Table margin (TASK-0236, specs/090-table-margin). `table-view.tsx` puts the stream and `Margin` (`components/margin.tsx`, an `aside` named "Table state", hidden at the `narrow:` breakpoint) in one flex row: party vitals (`vitals` from `party.ts`, [[party-panel]]), the "Turn order" list in turn mode (otherwise "Not in combat.") and conditions (`conditions.ts`). The turn-order strip no longer sits under the header ([[turn-floor]]). Between the stream and the composer, `MiniStrip` (only at `narrow:`: other members' HP and the first three in order) and `StatusStrip` (the viewer's character, HP, AC, conditions and whose turn it is) carry the same facts. All three hold no state and use only `text-muted-foreground` on `bg-card`.
 
 With a human DM, a check's roll approval re-proposes the same roll instead of narrating
 (TASK-0168, found in the TASK-0159 live check).

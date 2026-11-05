@@ -7,9 +7,10 @@ sources:
   - apps/web/app/play/components/party-panel.tsx
   - apps/web/app/play/components/table-header.tsx
   - apps/web/app/play/components/turn-order.tsx
+  - apps/web/app/play/components/margin.tsx
   - packages/session-model/src/events/party.ts
   - apps/server/src/dm/nodes/resolve.ts
-verified_against: ee5555fef74502e96badd67e43c1b285d964396b
+verified_against: b7ccccc1707210ceac13ab9a78af79dff07b3650
 ---
 
 # Party panel
@@ -27,6 +28,8 @@ list named "Party"; the viewer's own character carries the badge "Your character
 label "AI companion"; a null `classLevel` reads "Class and level not recorded".
 
 ## Initiative
+
+`party.ts`'s `vitals(row)` (moved out of `party-panel.tsx` by TASK-0236, specs/090) builds the one vitals line - class and level, HP with temp, AC - that this panel and the table margin ([[play-route]]) both show.
 
 A second list, named "Initiative", is `TurnOrder` ([[turn-floor]]) with `label="Initiative"` (its
 default is "Turn order"), fed from the table view model's `order`.

@@ -211,11 +211,23 @@ test("the strip and the floor line render with no modal markup", () => {
     <TableView source={floorSource(25, (f) => f.viewers.players[0])} />,
   );
   expect(html).toContain('aria-label="Turn order"');
+  expect(html).toContain('aria-label="Table state"');
+  expect(html).toContain('data-strip="status"');
   expect(html).toContain("Goblin");
   expect(html).toContain("The DM has the floor");
   expect(html).not.toContain("<dialog");
   expect(html).not.toContain("aria-modal");
   expect(html).not.toContain("confirm(");
+});
+
+test("the turn-order strip no longer sits under the header", () => {
+  const html = renderToStaticMarkup(
+    <TableView source={floorSource(25, (f) => f.viewers.players[0])} />,
+  );
+  expect(html.match(/aria-label="Turn order"/g)).toHaveLength(1);
+  expect(html.indexOf('aria-label="Turn order"')).toBeGreaterThan(
+    html.indexOf('aria-label="Table state"'),
+  );
 });
 
 test("a free-mode table renders no strip and no floor controls", () => {

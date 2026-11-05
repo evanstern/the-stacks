@@ -46,3 +46,5 @@ has the floor". Free-mode changes add nothing.
 "Action card" lines above leave the player view: a player no longer commits or comments from the
 card, so "Commits on your turn" and "Suggest an alternative" are not shown. The header controls,
 the turn-order strip and the floor lines are unchanged.
+
+**Amendment (TASK-0236).** Spec `specs/090-table-margin`. Operator ruling R2 (a), 2026-11-05. The turn-order strip no longer renders "Under the header". It renders in the `Margin` (desktop, section "Turn order") and in the `MiniStrip` (first three entries, 390 px). The list keeps the accessible name "Turn order" and its active, "next" and "you" marks. The header controls and the floor lines are unchanged.

@@ -4,10 +4,13 @@ import { Panel } from "~/components/panel";
 import { Composer } from "./components/composer.tsx";
 import { DM_SEAT_PANEL_ID, DmSeatPanel } from "./components/dm-seat-panel.tsx";
 import { LedgerList } from "./components/ledger-list.tsx";
+import { Margin } from "./components/margin.tsx";
+import { MiniStrip } from "./components/mini-strip.tsx";
 import { PARTY_PANEL_ID, PartyPanel } from "./components/party-panel.tsx";
 import { ProposalList } from "./components/proposal-list.tsx";
 import { SCENE_PANEL_ID, ScenePanel } from "./components/scene-panel.tsx";
 import { StartScenePanel } from "./components/start-scene-panel.tsx";
+import { StatusStrip } from "./components/status-strip.tsx";
 import {
   APPROVALS_PANEL_ID,
   LEDGER_PANEL_ID,
@@ -18,7 +21,7 @@ import {
   TableModePanel,
 } from "./components/table-mode-panel.tsx";
 import { Transcript } from "./components/transcript.tsx";
-import { TurnOrder } from "./components/turn-order.tsx";
+import { conditionText } from "./conditions.ts";
 import { dmSeatView } from "./dm-seat.ts";
 import { partyRows } from "./party.ts";
 import { presenceRows } from "./presence.ts";
@@ -55,6 +58,30 @@ export function TableView({
     () => partyRows(projected, source.presence),
     [projected, source.presence],
   );
+  const ownConditions = useMemo(
+    () =>
+      projected.party.find(
+        (m) =>
+          m.controller.kind === "player" &&
+          projected.viewer.role === "player" &&
+          m.controller.userId === projected.viewer.userId,
+      )?.combatant?.conditions ?? [],
+    [projected],
+  );
+  const conditionLines = useMemo(() => {
+    const src = projected.encounter
+      ? projected.encounter.order.map((o) => ({
+          name: o.name,
+          conditions: o.conditions,
+        }))
+      : projected.party.map((m) => ({
+          name: m.name,
+          conditions: m.combatant?.conditions ?? [],
+        }));
+    return src
+      .filter((c) => c.conditions.length > 0)
+      .map((c) => ({ name: c.name, text: conditionText(c.conditions) }));
+  }, [projected]);
   const [partyOpen, setPartyOpen] = useState(false);
   const [ledgerOpen, setLedgerOpen] = useState(false);
   const [approvalsOpen, setApprovalsOpen] = useState(false);
@@ -123,19 +150,29 @@ export function TableView({
         onSeat={canSeat ? () => setSeatOpen((was) => !was) : undefined}
         startNote={startNote}
       />
-      {model.mode.mode === "turn" && <TurnOrder order={model.mode.order} />}
       {model.hiddenCount > 0 && (
         <p className="border-b border-border bg-muted px-3 py-1 text-xs text-muted-foreground">
           {model.hiddenCount} entries not shown
         </p>
       )}
-      <div className="min-h-0 flex-1 overflow-y-auto p-3">
-        {!source.caughtUp ? (
-          <p className="text-sm text-muted-foreground">Loading history…</p>
-        ) : (
-          <Transcript items={model.transcript} commands={source.commands} />
-        )}
-        <div ref={endRef} />
+      <div className="flex min-h-0 flex-1">
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+          <div className="min-h-0 flex-1 overflow-y-auto p-3">
+            {!source.caughtUp ? (
+              <p className="text-sm text-muted-foreground">Loading history…</p>
+            ) : (
+              <Transcript items={model.transcript} commands={source.commands} />
+            )}
+            <div ref={endRef} />
+          </div>
+          <MiniStrip party={party} mode={model.mode} />
+          <StatusStrip
+            own={party.find((r) => r.isOwn) ?? null}
+            conditions={ownConditions}
+            mode={model.mode}
+          />
+        </div>
+        <Margin party={party} mode={model.mode} conditions={conditionLines} />
       </div>
       <Composer
         composer={model.composer}

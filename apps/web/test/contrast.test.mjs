@@ -109,3 +109,31 @@ for (const [name, tokens] of [
 test("the two dark blocks are byte-identical (SC-006)", () => {
   assert.deepEqual(mediaDark, themeDark);
 });
+
+// Spec 090 (TASK-0236): the margin, mini-strip and status strip use only
+// `text-muted-foreground` on `bg-card`; that pair must stay in TEXT_PAIRS.
+test("table-margin surfaces use only covered colour pairs (spec 090)", () => {
+  const files = ["margin", "mini-strip", "status-strip"];
+  const allowed = new Set([
+    "text-muted-foreground",
+    "bg-card",
+    "border-border",
+  ]);
+  for (const f of files) {
+    const src = readFileSync(
+      new URL(`../app/play/components/${f}.tsx`, import.meta.url),
+      "utf8",
+    );
+    for (const m of src.matchAll(
+      /\b(?:text|bg)-(?:muted-foreground|card|foreground|background|muted|primary|destructive|ok|proc|mark)\b/g,
+    )) {
+      assert.ok(
+        allowed.has(m[0]),
+        `${f}.tsx uses uncovered colour class ${m[0]}`,
+      );
+    }
+  }
+  assert.ok(
+    TEXT_PAIRS.some(([a, b]) => a === "muted-foreground" && b === "card"),
+  );
+});

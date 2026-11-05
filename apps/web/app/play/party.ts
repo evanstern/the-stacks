@@ -53,3 +53,12 @@ export function partyRows(
     };
   });
 }
+
+/** "Cleric 1 · HP 9/9 · AC 14": the one vitals wording for the Party panel and the margin. */
+export function vitals(row: PartyRow): string {
+  const hp = row.hp
+    ? `HP ${row.hp.current}/${row.hp.max}${row.hp.temp > 0 ? ` (+${row.hp.temp})` : ""}`
+    : "HP —";
+  const ac = row.ac !== null ? `AC ${row.ac}` : "AC —";
+  return `${row.classLevel ?? "Class and level not recorded"} · ${hp} · ${ac}`;
+}
