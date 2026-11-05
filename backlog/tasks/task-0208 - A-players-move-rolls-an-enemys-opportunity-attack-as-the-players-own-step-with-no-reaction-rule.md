@@ -6,7 +6,7 @@ title: >-
 status: Done
 assignee: []
 created_date: '2026-11-02 23:11'
-updated_date: '2026-11-03 03:57'
+updated_date: '2026-11-05 04:16'
 labels:
   - dm
   - rules
@@ -44,8 +44,6 @@ Spec: specs/079-engine-opportunity-attack
 - [x] #9 Spec phase: Wiki upkeep
 <!-- AC:END -->
 
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -69,6 +67,8 @@ Phase 5: haiku pass stopped after one note (prose judgment over 12 stale notes);
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 079 phase 5, wiki)
 
 spec-bridge sync: The engine owns reactions (card AC #1, engine part; US1 scenarios 3 and 4): 8/8 · A move away draws the engine's reaction (card AC #1 and #2, merge condition; US1, US2): 12/12 · The reader sees whose attack it was (card AC #2 and #3; US2 scenario 4, US3): 11/11 · A followUp stays undone in later beats (card AC #4; US4): 8/8 · Wiki upkeep: 5/5 — status In Progress → Done
+
+Runbook B playtest run 1 seq 195-200: 'I run to Pell and attempt to free him.' got a clarify on the freeing method with the dash parked as a followUp, so no move step and no reaction. Engine rule correct; the scenario row could not be exercised this way. Operator: 'No attack of opportunity made'.
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
