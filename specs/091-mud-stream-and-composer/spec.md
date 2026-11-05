@@ -1,14 +1,16 @@
-# Feature Specification: Table margin and MUD input baseline
+# Feature Specification: MUD stream and composer
 
-**Feature Branch**: `task-0236-mud-ux`
+**Feature Branch**: to be cut by the sweep for TASK-0247
 
 **Created**: 2026-11-05
 
-**Status**: Draft, written against an accepted decision. The direction and OQ1 to OQ4 are ruled
-(`docs/design/mud-ux/decision.md`, 2026-11-04). The operator ruled both frozen-contract changes
-**(a) accept** on 2026-11-05: **R1** and **R2** under "Frozen-contract items".
+**Status**: Draft, split out of the combined spec on 2026-11-05. The direction and OQ1 to OQ4 are
+ruled (`docs/design/mud-ux/decision.md`, 2026-11-04). The operator ruled both frozen-contract changes
+**(a) accept** on 2026-11-05: **R1** and **R2** under "Frozen-contract items". This spec holds the half
+that depends on spec 066.
 
-**Input**: TASK-0236. Decision record: `docs/design/mud-ux/decision.md` ("the decision" below).
+**Input**: TASK-0247. Decision record: `docs/design/mud-ux/decision.md` ("the decision" below). The
+first half is spec 090 (`specs/090-table-margin/`, TASK-0236): the margin, mini-strip and status strip.
 Layout and states: `docs/design/mud-ux/round-1/b-margin.html`. Click-to-draft:
 `docs/design/mud-ux/round-1/c-split.html`. Pattern rationale:
 `docs/research/MUD-Client-UX/Analysis-Table-View-Pattern-Adoption.md` ("the analysis").
@@ -19,13 +21,15 @@ open question.
 
 ## Scope
 
-The decision's sequencing note splits the work. This spec is the first half.
+The decision's sequencing note splits the work. The operator split it again on 2026-11-05. Spec 090
+holds the margin, mini-strip and status strip. This spec is the rest.
 
-- **In**: the Margin layout on today's table (party HP and AC, turn order, conditions; a 390 px
-  mini-strip); the MUD input baseline (Up/Down history, an `@`/`/` closed-command dropdown, Tab
-  completion of scene entities, clickable nouns with inline expansions, filter chips over one
-  stream, one-line roll rows, a status strip, room blocks with clickable ways on that draft into the
-  composer); screen-reader parity; a contrast check in light and dark.
+- **In**: R1 scene fields and seed ways; the stream (one-line roll rows, rules lines, room blocks with
+  clickable ways on that draft into the composer, filter chips over one stream); the MUD input baseline
+  (Up/Down history, an `@`/`/` closed-command dropdown, Tab completion of scene entities, clickable
+  nouns with inline expansions); screen-reader parity; a contrast check in light and dark for these
+  surfaces; the R1 contract amendments and the R2 surface additions these surfaces own.
+- **Out, built by spec 090**: the margin, the mini-strip, the status strip and the turn-order move.
 - **Out, a named dependency**: the slide-out interactive map. It needs map data from milestone M6:
   TASK-0070 (PixiJS table, grid, tokens) and TASK-0071 (the DM drives tokens). The map ships later
   on this layout. It opens from an **Open map** button in the margin, inside the project's one
@@ -37,7 +41,11 @@ The decision's sequencing note splits the work. This spec is the first half.
 - **TASK-0199 (spec 066, one chat stream) is merged.** This spec extends its composer (speaker chip,
   `@` mention dropdown, `((` and `/ooc`), its confirm row and its ring. A draft lands in that
   composer, and the ring → confirm → 👍 flow that follows a sent line is 066's.
-- R1 and R2 are ruled (see "Frozen-contract items"). Phases that need neither run first.
+- **Spec 090 (TASK-0236) is merged.** This spec edits `table-view.tsx` and reads the margin facts that
+  the parity lines mirror.
+- R1 (a) and R2 (a) were ruled by the operator on 2026-11-05 (see "Frozen-contract items").
+- **`apps/server/src/dm/nodes/resolve.ts` lanes must be clear before the scene-fields phase (Phase 1).**
+  Check the runbook for any open lane on that file before dispatch.
 
 ## Data the UI needs: where it comes from
 
@@ -76,65 +84,19 @@ Contracts: `specs/028-session-model/contracts/session-events.md` (`scene.changed
   (b) Reject. The fallback then ships: room blocks show the name only, with no description and no
   ways on; nouns and Tab completion cover party members and combatants only. US5 shrinks to that.
 
-**R2 — the play-route layout moves the turn-order strip and adds stream surfaces.**
-Contracts: `specs/030-play-route/contracts/ui-surfaces.md` (Layout, Components, Accessible names),
-`specs/049-turn-floor/contracts/ui-floor.md` ("Turn-order strip": "Under the header").
+**R2 — the play-route layout adds stream surfaces.** The turn-order move belongs to spec 090.
+Contracts: `specs/030-play-route/contracts/ui-surfaces.md` (Components, Accessible names).
 
-- The turn-order strip leaves its place under the header. It renders inside the margin on desktop and
-  in the mini-strip at 390 px. Its list keeps the accessible name "Turn order".
-- New surfaces: the margin, the status strip, the mini-strip, the filter chips, room blocks, roll
-  rows, parity lines, noun expansions and the command dropdown. The "Forbidden" list is unchanged.
-- **Ruled (a), operator 2026-11-05.** Options were: **(a) accept**; the change is layout plus additive surfaces. (b) Reject. The
-  strip then stays under the header, and the margin shows party and conditions only.
+- New surfaces here: the filter chips, room blocks, roll rows, parity lines, noun expansions and the
+  command dropdown. The "Forbidden" list is unchanged.
+- **Ruled (a), operator 2026-11-05.** Options were: **(a) accept**; the change is additive surfaces.
+  (b) Reject.
 
 ## User Scenarios & Testing *(mandatory)*
 
 Copy and states follow `b-margin.html` over the `greyhollow-ford-duo` seed (Kestrel and Tamsin are
 human, Brother Odo is an AI companion, Wenna Marsh is a present NPC, Snag leads the goblins).
 
-### User Story 1 - The margin keeps the party in view (Priority: P1)
-
-At 1280 px the stream owns most of the width. A slim right margin shows each party member's HP and
-AC, the turn order, and the conditions on each combatant. At 390 px the margin is gone and a
-persistent mini-strip above the composer shows the same facts in short form.
-
-**Why this priority**: it is the chosen layout, and every later surface sits in it.
-
-**Independent Test**: render the `turn-mode-combat` fixture at both widths; read the margin and the
-mini-strip text.
-
-**Acceptance Scenarios**:
-
-1. **Given** free play with no encounter, **When** Kestrel's player opens the table at 1280 px,
-   **Then** the margin lists Kestrel "Rogue 1 · HP 9/9 · AC 14", Tamsin and Brother Odo, and reads
-   "Not in combat. Conditions: none."
-2. **Given** an encounter where Kestrel acts first, **When** the margin renders, **Then** its "Turn
-   order" list names every combatant in order, marks Kestrel as active, flags the next entry "next"
-   and Kestrel's entry "you", and shows each combatant's conditions as words.
-3. **Given** the same state at 390 px, **When** the page renders, **Then** no margin shows, the
-   mini-strip above the composer reads "Tamsin Vale 13/13 · Brother Odo 10/10 · Order: Kestrel ›
-   Snag › Tamsin…", and nothing scrolls sideways.
-4. **Given** Kestrel takes 4 damage, **When** the `hp.changed` row arrives, **Then** the margin and
-   the status strip show HP 5/9 with no reload.
-
----
-
-### User Story 2 - The status strip says where I stand (Priority: P1)
-
-Above the composer a one-line status strip shows the viewer's own character: HP, AC, conditions,
-and whose turn it is.
-
-**Independent Test**: `status-strip` markup over a free and a turn fixture.
-
-**Acceptance Scenarios**:
-
-1. **Given** free play, **Then** the strip reads "Kestrel · HP 9/9 · AC 14 · Conditions: none ·
-   Turn: free play".
-2. **Given** turn mode on Kestrel's turn, **Then** it reads "… · Turn: Kestrel (you)".
-3. **Given** a viewer with no character (an observer or the DM), **Then** the strip shows only the
-   turn.
-
----
 
 ### User Story 3 - One stream, filtered and readable (Priority: P1)
 
@@ -242,23 +204,9 @@ Every fact the margin and the status strip show also appears as text in the stre
   panel carries no `ways`, `description` or `cast`.
 
 ## Requirements *(mandatory)*
-
 ### Functional Requirements
 
-**Layout**
-
-- **FR-001**: Above the `narrow:` breakpoint (more than 700 px) the table is a stream column and a
-  right margin. The margin is about 240 px wide and holds: a party list (name, class and level, HP,
-  AC per member), a "Turn order" list with conditions per combatant, or "Not in combat." with the
-  party's conditions. It scrolls on its own.
-- **FR-002**: At `narrow:` the margin does not render. A mini-strip above the composer shows each
-  other party member's HP, and the order as "Order: A › B › C…" (first three) in turn mode.
-- **FR-003**: A status strip directly above the composer shows the viewer's character name, HP, AC,
-  conditions and "Turn: free play" or "Turn: <name>" ("(you)" for the viewer). Every value is text.
-- **FR-004**: The turn-order strip under the header is removed; FR-001 and FR-002 carry it (R2).
-  The header's Party button and Party slide-out stay.
-- **FR-005**: Margin, mini-strip and status strip derive only from `project(events, viewer)` and
-  presence. They hold no state of their own.
+Requirement ids keep their numbers from the combined draft. FR-001 to FR-005 are in spec 090.
 
 **Stream**
 
@@ -373,6 +321,7 @@ The decision lists the baseline and its constraints. These readings fill what it
 ## Non-goals
 
 - The slide-out map, tokens, positions and the "Open map" button (TASK-0070, TASK-0071).
+- The margin, the mini-strip and the status strip (spec 090).
 - Action economy in the status strip (action, bonus, move). The engine tracks reactions only. The
   orchestrator should card it as engine work if wanted.
 - A per-player rules-detail setting (OQ3: per-row expansion first).
@@ -384,10 +333,9 @@ The decision lists the baseline and its constraints. These readings fill what it
 
 ### Measurable Outcomes
 
-- **SC-001**: At 1280 px and 390 px, in light and dark, the table shows party HP and AC, the turn
-  order and conditions without opening any panel, with 0 sideways scroll.
 - **SC-002**: For each fact the margin or the status strip shows in the combat fixture, a test finds
   the same fact as stream text: 100% parity.
+
 - **SC-003**: Every text and control pair on the new surfaces measures at least 4.5:1 (3:1 for
   control boundaries) in both themes.
 - **SC-004**: 0 sends happen from a draft click; the event log is unchanged after any number of
@@ -395,7 +343,11 @@ The decision lists the baseline and its constraints. These readings fill what it
 - **SC-005**: A player recalls her last line after a reload with 1 key press.
 - **SC-006**: A player view never renders a fact from a `dm`-visibility row, an NPC field outside
   `PlayerSeedView`, or a monster HP or AC number in a noun expansion.
+
 - **SC-007**: 0 `<dialog>`, `aria-modal` or `fixed inset-0` under `app/play/`.
+
+
+SC-001 (margin and status strip visible at both widths) is in spec 090.
 
 ## Assumptions
 

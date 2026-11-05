@@ -1,22 +1,20 @@
-# Implementation Plan: Table margin and MUD input baseline
+# Implementation Plan: MUD stream and composer
 
-**Branch**: `task-0236-mud-ux` (the sweep cuts the implementation branch) | **Date**: 2026-11-05 |
+**Branch**: to be cut by the sweep for TASK-0247 | **Date**: 2026-11-05 |
 **Spec**: [spec.md](spec.md)
 
-**Input**: `specs/086-table-margin-and-mud-input/spec.md`, `docs/design/mud-ux/decision.md`
+**Input**: `specs/091-mud-stream-and-composer/spec.md`, `docs/design/mud-ux/decision.md`
 (accepted 2026-11-04). This plan assumes R1 (a) and R2 (a). Each phase that needs one says so and
 names its fallback. Research and design are small, so they live here, as in spec 085: no separate
-research.md, data-model.md, contracts/ or quickstart.md.
+research.md, data-model.md, contracts/ or quickstart.md. The margin half is `specs/090-table-margin/`.
 
 ## Summary
 
-Split `TableView` into a stream column and a right margin. Move the party, turn order and conditions
-into the margin, with a mini-strip and a status strip above the composer. Turn the transcript into a
-derived stream of items: today's talk, narration, confirm and action rows, plus roll rows, rules
-lines and room blocks built from ledger rows the projection already holds. Add filter chips. Give the
-066 composer history, a command dropdown, Tab completion and one `draft(text)` entry point. Add an
-optional `description`, `ways` and `cast` to `SceneSchema` (R1), filled at scene start from the
-player-facing seed view, so room blocks, ways on and NPC nouns have data.
+Turn the transcript into a derived stream of items: today's talk, narration, confirm and action rows,
+plus roll rows, rules lines and room blocks built from ledger rows the projection already holds. Add
+filter chips. Give the 066 composer history, a command dropdown, Tab completion and one `draft(text)`
+entry point. Add an optional `description`, `ways` and `cast` to `SceneSchema` (R1), filled at scene
+start from the player-facing seed view, so room blocks, ways on and NPC nouns have data.
 
 ## Technical Context
 
@@ -32,8 +30,8 @@ No DB needed for any new test. No paid model run.
 **Constraints**: no modals; Daylight tokens; AA; 1280 and 390 px; `canSee` filters every row before
 the client folds it. Serial hotspots: `play/table-view.tsx`, `play/view-model.ts`,
 `play/components/composer.tsx`, `play/components/transcript.tsx` — the same files spec 066 edits.
-**Scale/Scope**: about 12 new web modules and components, 8 edited files, 2 server files, 4 seeds,
-about 12 test files, 6 contract amendments.
+**Scale/Scope**: about 8 new web modules and components, 5 edited files, 2 server files, 4 seeds,
+about 9 test files, 4 R1 contract amendments and one R2 amendment.
 
 ## Constitution Check
 
@@ -90,8 +88,6 @@ Against `.specify/memory/constitution.md` 2.0.0. Re-checked after design: unchan
 - **R5 — History without storage.** The 030 "Forbidden" list bans `localStorage` and
   `sessionStorage`; chat-ui's cookie rule covers small UI preferences only. The viewer's own `talk`
   rows are already in the projection after any reload (`actor === source.actor`). Spec gap 1.
-- **R6 — Breakpoint.** `narrow:` is `width <= 700px` (`app.css` line 138). The margin hides at
-  `narrow:`; the mini-strip shows only at `narrow:`.
 - **R7 — Live region today.** Nothing under `app/play/` sets `role="log"` or `aria-live`. The
   transcript `<ol>` becomes the log region.
 - **R8 — The 066 composer.** It owns the speaker chip, the `@` listbox, the `((`/`/ooc` flip and a
@@ -171,22 +167,6 @@ type StreamItem = { seq: number; category: Category; pinned: boolean } & (
 - `ponytail:` rows render at their own seq, so a batch's roll and its rules lines sit together. A
   per-batch merge is the upgrade if playtests find the stream noisy.
 
-### D4 — Margin, mini-strip, status strip (`apps/web/app/play/components/`, new)
-
-- `margin.tsx` — `Margin({ party, mode, conditions })`: an `<aside aria-label="Table state">`,
-  `hidden narrow:hidden` → `flex` above `narrow:`, width `w-60`, own scroll. Sections: "Party"
-  (`partyRows` from `party.ts`, one line per member, same `vitals` wording as `party-panel.tsx`;
-  move `vitals` to `party.ts` and import it in both), "Turn order" (`<TurnOrder order label="Turn
-  order">`, reused) or "Not in combat.", then "Conditions: …" per combatant with any.
-- `mini-strip.tsx` — `MiniStrip`: `narrow:flex` only. "Tamsin Vale 13/13 · Brother Odo 10/10"
-  (each other party member, full name) and, in turn mode, "Order: A › B › C…". A text line, not a list.
-- `status-strip.tsx` — `StatusStrip`: one line, all widths, directly above the composer (FR-003).
-- `conditions.ts` (new, pure): `conditionText(conditions)` → "none" or "prone, poisoned".
-  Shared by the margin, strips, nouns and rules lines.
-- `table-view.tsx`: wrap the stream column and `Margin` in a `flex` row. Remove the `TurnOrder` strip
-  under the header (R2). Render `MiniStrip` and `StatusStrip` between the stream and the composer.
-  Fallback under R2 (b): keep the strip under the header and leave "Turn order" out of the margin.
-
 ### D5 — Stream rendering and chips (`components/transcript.tsx`, `filter-chips.tsx` new)
 
 - `transcript.tsx` renders `StreamItem[]`. The `<ol>` gains `role="log" aria-live="polite"
@@ -243,24 +223,22 @@ case-insensitive. Tests cover the case rule ("snag" as a verb stays text), the l
 - Extend `duo-views.test.ts`: `openingScene(playerFacingSeed(duo))` parses with `SceneSchema`;
   `title`, `summary` and `location` equal today's values; `ways` has the three duo ways; `cast` has
   each seed NPC's four fields only; no string in the result contains any `dmOnlySeedText(duo)` entry.
-
 ### D9 — Contrast (`apps/web/test/contrast.test.mjs`)
 
-Add every new pair the surfaces use to `TEXT_PAIRS` / `NON_TEXT_PAIRS`. Expected new pairs: chip
-pressed `primary-foreground` on `primary`, chip `foreground` on `secondary`, margin
-`muted-foreground` on `card`, noun button `primary` on `background` and on `card`, roll ✓ `ok` on
-`card`, ✗ `destructive` on `card`, chip and listbox boundary `border` or `input` on `background`.
-Any pair below the bar gets a token change in `app.css` in both dark blocks, kept byte-identical.
-The implementer lists the final pairs in the phase commit.
+Add every new pair the stream, composer and noun surfaces use to `TEXT_PAIRS` / `NON_TEXT_PAIRS`.
+Expected new pairs: chip pressed `primary-foreground` on `primary`, chip `foreground` on `secondary`,
+noun button `primary` on `background` and on `card`, roll ✓ `ok` on `card`, ✗ `destructive` on `card`,
+chip and listbox boundary `border` or `input` on `background`. Any pair below the bar gets a token
+change in `app.css` in both dark blocks, kept byte-identical. The implementer lists the final pairs in
+the phase commit.
 
 ### D10 — Live check (orchestrator)
 
 Script mode (`DM_FAKE_SCRIPT=greyhollow-live` or the 066 script) on a worktree stack, two Brave
-windows (Kestrel, Tamsin). Record at 1280 and 390 px, light and dark: the margin, the mini-strip,
-the status strip, a room block with ways on, a way click drafting into the composer (no send), Up
-after reload, `/` and Tab dropdowns, a noun expansion, a roll row expanded, and each chip. Read the
-accessibility tree once for the `role="log"` region and the parity lines. Shots go in
-`specs/086-table-margin-and-mud-input/evidence/`.
+windows (Kestrel, Tamsin). Record at 1280 and 390 px, light and dark: a room block with ways on, a way
+click drafting into the composer (no send), Up after reload, `/` and Tab dropdowns, a noun expansion,
+a roll row expanded, and each chip. Read the accessibility tree once for the `role="log"` region and
+the parity lines. Shots go in `specs/091-mud-stream-and-composer/evidence/`.
 
 ## Files
 
@@ -272,24 +250,21 @@ accessibility tree once for the `role="log"` region and the parity lines. Shots 
 | `apps/server/src/dm/nodes/resolve.ts` (scene-start `after` only) | D2 | 1 |
 | `apps/server/seeds/greyhollow-ford*.json` (4) | D2 `ways` | 1 |
 | `apps/server/test/dm/seed.test.ts`, `duo-views.test.ts` | D8 | 1 |
-| `apps/web/app/play/conditions.ts`, `party.ts` (`vitals` moved) | D4 | 2 |
-| `apps/web/app/play/components/margin.tsx`, `mini-strip.tsx`, `status-strip.tsx` | D4 | 2 |
-| `apps/web/app/play/components/party-panel.tsx` | import `vitals` | 2 |
-| `apps/web/app/play/table-view.tsx` | D4 layout; D5 chips; D6 draft | 2, 3, 4 |
-| `apps/web/app/play/stream.ts`, `ledger-format.ts` (export helpers) | D3 | 3 |
-| `apps/web/app/play/components/transcript.tsx`, `room-block.tsx`, `roll-row.tsx`, `filter-chips.tsx` | D5 | 3 |
-| `apps/web/app/play/glossary.ts`, `components/noun-text.tsx` | D7, D5 nouns | 4 |
-| `apps/web/app/play/history.ts`, `commands.ts`, `components/composer.tsx` | D6 | 4 |
-| `apps/web/test/play/` new: `conditions`, `margin`, `status-strip`, `stream`, `filter-chips`, `roll-row`, `room-block`, `glossary`, `noun-text`, `history`; extended: `composer`, `table-view`, `turn-order`, `party-panel` | tests | 2–4 |
-| `apps/web/test/contrast.test.mjs` | D9 | 5 |
-| contract files in "Contract amendments" | amendment blocks | 5 |
-| `docs/wiki/play-route.md`, `party-panel.md`, `turn-floor.md`, `session-model.md`, `dm-runtime.md`, `seed-npc-presence.md`, `CAPSULES.md`, `INDEX.md` | re-ground | 5 |
+| `apps/web/app/play/table-view.tsx` | D5 chips; D6 draft | 2, 3 |
+| `apps/web/app/play/stream.ts`, `ledger-format.ts` (export helpers) | D3 | 2 |
+| `apps/web/app/play/components/transcript.tsx`, `room-block.tsx`, `roll-row.tsx`, `filter-chips.tsx` | D5 | 2 |
+| `apps/web/app/play/glossary.ts`, `components/noun-text.tsx` | D7, D5 nouns | 3 |
+| `apps/web/app/play/history.ts`, `commands.ts`, `components/composer.tsx` | D6 | 3 |
+| `apps/web/test/play/` new: `stream`, `filter-chips`, `roll-row`, `room-block`, `glossary`, `noun-text`, `history`; extended: `composer`, `table-view` | tests | 2, 3 |
+| `apps/web/test/contrast.test.mjs` | D9 | 4 |
+| contract files in "Contract amendments" | amendment blocks | 4 |
+| `docs/wiki/play-route.md`, `session-model.md`, `dm-runtime.md`, `seed-npc-presence.md`, `CAPSULES.md`, `INDEX.md` | re-ground | 4 |
 
 **Migrations**: none. **New runtime dependencies**: none.
 
 ## Contract amendments
 
-Each block is headed "**Amendment (TASK-0236).**" and cites the decision and the R1 or R2 ruling.
+Each block is headed "**Amendment (TASK-0247).**" and cites the decision and the R1 or R2 ruling.
 Existing text is not rewritten.
 
 | File | Ruling | What the block changes |
@@ -298,23 +273,22 @@ Existing text is not rewritten.
 | `specs/029-proposal-gate/contracts/proposals.md` | R1 | pointer: the `scene` proposal's `after` takes the widened `SceneSchema`; no rule change |
 | `specs/031-dm-runtime/contracts/scene-seed.md` | R1 | `location.ways`; `PlayerSeedView.location.ways` |
 | `specs/031-dm-runtime/contracts/director.md` | R1 | scene-start `scene` row: `description`, `ways`, `cast` from the player-facing view |
-| `specs/030-play-route/contracts/ui-surfaces.md` | R2 | layout diagram with the margin and strips; new components; accessible names ("Table state", "Turn order", "Table stream", "Filter the stream", "Help") |
-| `specs/049-turn-floor/contracts/ui-floor.md` | R2 | the turn-order strip renders in the margin and the mini-strip, not under the header |
+| `specs/030-play-route/contracts/ui-surfaces.md` | R2 | new stream components (filter chips, room blocks, roll rows, parity lines, noun expansions, command dropdown); accessible names ("Table stream", "Filter the stream", "Help"). Spec 090 owns the margin and strip entries in the same file |
 
 `ws-protocol.md`, the gate request kinds, `TalkV1` and `table-source.md`: unchanged.
 
 ## Phases
 
 1. Scene fields and seed `ways` (R1) — server and session model (sonnet).
-2. Margin, mini-strip, status strip (R2) — web (sonnet).
-3. Stream items, roll rows, rules lines, room blocks, chips — web (sonnet).
-4. Composer history, commands, Tab, glossary, nouns, the draft path — web (sonnet).
-5. Contrast, contract amendments, wiki re-ground (sonnet).
-6. Verification: Brave live check and shots **[orchestrator]**.
+2. Stream items, roll rows, rules lines, room blocks, chips — web (sonnet).
+3. Composer history, commands, Tab, glossary, nouns, the draft path — web (sonnet).
+4. Contrast, contract amendments, wiki re-ground (sonnet).
+5. Verification: Brave live check and shots **[orchestrator]**.
 
 ## Overlap
 
-- Spec 066 (TASK-0199) must merge first. Phases 3 and 4 edit the files it rewrites. Before Phase 2,
-  merge `origin/main` and re-read `composer.tsx`, `transcript.tsx` and `view-model.ts` as merged.
+- Spec 066 (TASK-0199) must merge first, and spec 090 (TASK-0236) must merge first. Phases 2 and 3
+  edit the files they rewrite. Before Phase 1, merge `origin/main` and re-read `composer.tsx`,
+  `transcript.tsx`, `table-view.tsx` and `view-model.ts` as merged.
 - Phase 1 touches `nodes/resolve.ts` in the scene-start branch only. Check the runbook for any open
-  lane on `resolve.ts` before dispatch.
+  lane on `resolve.ts` before dispatch. The lane must be clear.

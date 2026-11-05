@@ -1,4 +1,4 @@
-# Specification Quality Checklist: Table margin and MUD input baseline
+# Specification Quality Checklist: Table margin and status strip
 
 **Purpose**: Validate specification completeness and quality before proceeding to planning
 **Created**: 2026-11-05

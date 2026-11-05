@@ -1,7 +1,7 @@
 # Decision: MUD-inspired table layout (TASK-0236 design rounds)
 
 - **Status:** direction accepted by the operator, 2026-11-04. OQ1–OQ4 ruled the same day.
-- **Spec:** `specs/086-table-margin-and-mud-input/`
+- **Spec:** `specs/090-table-margin/` and `specs/091-mud-stream-and-composer/`
 - **Task:** TASK-0236 (Design round: MUD-inspired minimalist table UX)
 - **Research:** `docs/research/MUD-Client-UX/` (EMBED fb4cba36), analysis `Analysis-Table-View-Pattern-Adoption.md` (0e918e5f)
 - **Rounds:** [round 1](round-1/index.html) (caa45005)
