@@ -82,16 +82,16 @@ normalizer edge cases.
 **Independent test**: `narrate.test.ts`, `assemble.test.ts`, `companion-addressee.test.ts` and
 `interpret-prompt.test.ts` pass with the new versions and sentences.
 
-- [ ] T015 [US4] Re-read each `PROMPT_VERSION` on `main`. "Next version" is one past it.
-- [ ] T016 [P] [US4] `apps/server/src/dm/prompts/audit.ts`: add the plan D6 sentence; bump.
-- [ ] T017 [P] [US4] `apps/server/src/dm/prompts/director.ts`: add the plan D6 sentence; bump.
-- [ ] T018 [P] [US4] `apps/server/src/dm/prompts/companion.ts`: add the plan D6 sentence; bump.
-- [ ] T019 [P] [US4] `apps/server/src/dm/prompts/interpret.ts`: add the plan D6 sentence to
+- [x] T015 [US4] Re-read each `PROMPT_VERSION` on `main`. "Next version" is one past it.
+- [x] T016 [P] [US4] `apps/server/src/dm/prompts/audit.ts`: add the plan D6 sentence; bump.
+- [x] T017 [P] [US4] `apps/server/src/dm/prompts/director.ts`: add the plan D6 sentence; bump.
+- [x] T018 [P] [US4] `apps/server/src/dm/prompts/companion.ts`: add the plan D6 sentence; bump.
+- [x] T019 [P] [US4] `apps/server/src/dm/prompts/interpret.ts`: add the plan D6 sentence to
       `OUTPUT_SHAPE`; bump. Do not edit `step-grammar.ts`.
-- [ ] T020 [US4] Update the version pins and add one sentence assertion each in
+- [x] T020 [US4] Update the version pins and add one sentence assertion each in
       `apps/server/test/dm/narrate.test.ts` (audit), `assemble.test.ts` (director),
       `companion-addressee.test.ts` (companion) and `interpret-prompt.test.ts` (interpret).
-- [ ] T021 [US4] Amend `specs/033-director-robustness/contracts/director-output.md` and
+- [x] T021 [US4] Amend `specs/033-director-robustness/contracts/director-output.md` and
       `specs/031-dm-runtime/contracts/companions.md`. Commit as
       `TASK-0203 phase 3: prompts state enums and required fields`.
 

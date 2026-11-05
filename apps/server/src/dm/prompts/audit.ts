@@ -7,12 +7,13 @@ import type { ActorSnapshot } from "../snapshot/index.js";
 import { CAPS, capEntries, joinSections, section } from "./common.js";
 import { characterSections, factEntries, TURN_RULE } from "./narrate.js";
 
-export const PROMPT_VERSION = "dm.audit-v14";
+export const PROMPT_VERSION = "dm.audit-v15";
 
 const OUTPUT_SHAPE = [
   "Reply with ONE JSON object and nothing else:",
   '{"verdict":"pass"|"fail","issues":[{"kind":"ledger-mismatch"|"invented-mechanics"|"player-agency"|"doctrine"|"other","detail":str (300 characters at most),"actor":str (optional; the character the issue is about)}]}',
   "Use verdict fail only with at least one issue. At most eight issues.",
+  "Use only these five kinds. An off-turn act is `invented-mechanics`; there is no other kind. Keep `detail` to 300 characters. Omit `actor` when no character is named; never write null.",
 ].join("\n");
 
 export function buildAuditPrompt(input: {
