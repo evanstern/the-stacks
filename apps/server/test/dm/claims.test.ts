@@ -527,6 +527,18 @@ describe("offTurnActs (TASK-0214)", () => {
     expect(acts("Kestrel lunges at the goblin.")).toEqual(["kestrel"]);
   });
 
+  it("blocks readying for a next action (TASK-0246)", () => {
+    expect(acts("Kestrel draws back for another try.")).toEqual(["kestrel"]);
+    expect(acts("Brother Odo shifts his grip on the mace.")).toEqual(["odo"]);
+    expect(acts("Kestrel raises his blade again.")).toEqual(["kestrel"]);
+  });
+
+  it("passes perceptual and passive verbs (TASK-0246)", () => {
+    expect(acts("Kestrel watches the ford and waits.")).toEqual([]);
+    expect(acts("Brother Odo turns his head toward the noise.")).toEqual([]);
+    expect(acts("Kestrel shifts uneasily and draws a breath.")).toEqual([]);
+  });
+
   it("passes words, looks and flinches", () => {
     expect(acts("Brother Odo winces and mutters a prayer.")).toEqual([]);
     expect(acts("Kestrel flinches as the blow goes wide.")).toEqual([]);

@@ -291,6 +291,15 @@ export const TURN_ACT_VERBS: readonly string[] = [
   "cast",
 ];
 
+/**
+ * Readying or repositioning for the next action (TASK-0246): "draws back for another
+ * try", "shifts its grip", "raises its blade again". Matched at a token start, so a
+ * bare "shifts" or "draws a breath" passes. Perceptual verbs (watches, waits, turns its
+ * head) are deliberately absent: they are not turn actions.
+ */
+export const TURN_READY_PHRASE =
+  /^(?:draw(?:s|n|ing)?|drew)\s+back\b|^shift(?:s|ed|ing)?\s+(?:its|his|her|their)\s+(?:grip|stance|weight|footing)\b|^(?:raise|lift)(?:s|d|ing)?\s+(?:its|his|her|their)\s+[\p{L}-]+\s+again\b/iu;
+
 /** The literal stock ending "What do you do?" at the end of prose (TASK-0204, TASK-0214). */
 export const STOCK_ENDING =
   /\bwhat do you(?: all| two)? do\?["'\u201d\u2019]*$/i;

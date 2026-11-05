@@ -7,7 +7,7 @@ sources:
   - apps/server/src/dm/audit-words.ts
   - apps/server/src/dm/gates/plan-gate.ts
   - specs/051-output-claim-gate/contracts/claim-gate.md
-verified_against: b107176515076b2c01a604419d13b8d484b11cdc
+verified_against: 4938e7b26811bd11ff137c128880660b9ecab1b4
 ---
 
 # Output claim gate
@@ -32,7 +32,7 @@ named actor when no other name sits between. Pronouns and descriptions otherwise
 `dm.audit`. The word lists (`ACT_VERBS`, `SPEECH_VERBS`, negations, body parts, count patterns)
 live in `audit-words.ts`. Contract: `specs/051-output-claim-gate/contracts/claim-gate.md`.
 
-`offTurnActs(state, text, offTurn)` (TASK-0214, spec 085) is a second consumer of the same clause walk. It names an actor on `facts.turn.offTurn` shown as a clause subject taking a turn action (`TURN_ACT_VERBS`: attack, swing, strike, slash, stab, lunge, charge, fire, shoot, loose, throw, hurl, cast) within the four-token window, and returns `act` issues. It skips quoted speech, a negated act, "acts next", a barred actor and a shared group noun (unique aliases only). `deterministicChecks` calls it and blocks each hit as `invented-mechanics`.
+`offTurnActs(state, text, offTurn)` (TASK-0214, spec 085) is a second consumer of the same clause walk. It names an actor on `facts.turn.offTurn` shown as a clause subject taking a turn action (`TURN_ACT_VERBS`: attack, swing, strike, slash, stab, lunge, charge, fire, shoot, loose, throw, hurl, cast) or readying for the next one (`TURN_READY_PHRASE`, TASK-0246: "draws back", "shifts its grip", "raises its blade again") within the four-token window; perceptual verbs (watches, waits, turns its head) are not turn actions and pass. It returns `act` issues. It skips quoted speech, a negated act, "acts next", a barred actor and a shared group noun (unique aliases only). `deterministicChecks` calls it and blocks each hit as `invented-mechanics`.
 
 `withholdRefusedInputs(facts, state)` (`nodes/narrate.ts`) runs the checker once before the first
 model call on each `facts.rulings[].ruling` and on `facts.director.goalNote`, ignoring omission
