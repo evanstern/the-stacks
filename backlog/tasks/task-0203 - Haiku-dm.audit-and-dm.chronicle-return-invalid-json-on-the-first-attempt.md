@@ -4,7 +4,7 @@ title: Haiku dm.audit and dm.chronicle return invalid-json on the first attempt
 status: In Progress
 assignee: []
 created_date: '2026-11-02 19:42'
-updated_date: '2026-11-05 05:49'
+updated_date: '2026-11-05 06:12'
 labels:
   - dm
   - playtest
@@ -31,12 +31,12 @@ Spec: specs/086-schema-outcome-coercions
 <!-- AC:BEGIN -->
 - [x] #1 The cause of first-attempt invalid-json on the haiku purposes is identified and recorded
 - [ ] #2 A hosted run of 10+ turns shows no invalid-json on dm.audit or dm.chronicle attempt 1
-- [ ] #3 The model-call ledger records a schema mismatch as its own outcome, distinct from invalid-json, with a test
-- [ ] #4 Safe schema coercions (audit unknown kind to other, detail clipped to its cap, actor nullable, chronicle ids as strings) accept the run 1 reply shapes on attempt 1, with a test per shape from the vm-104 log
-- [ ] #5 Spec phase: The schema-mismatch outcome (US1; FR-001 to FR-004; card AC #3)
-- [ ] #6 Spec phase: Safe coercions (US2, US3; FR-005 to FR-009, FR-011; card AC #4)
-- [ ] #7 Spec phase: Prompts state the failed fields (US4; FR-010)
-- [ ] #8 Spec phase: Wiki re-ground
+- [x] #3 The model-call ledger records a schema mismatch as its own outcome, distinct from invalid-json, with a test
+- [x] #4 Safe schema coercions (audit unknown kind to other, detail clipped to its cap, actor nullable, chronicle ids as strings) accept the run 1 reply shapes on attempt 1, with a test per shape from the vm-104 log
+- [x] #5 Spec phase: The schema-mismatch outcome (US1; FR-001 to FR-004; card AC #3)
+- [x] #6 Spec phase: Safe coercions (US2, US3; FR-005 to FR-009, FR-011; card AC #4)
+- [x] #7 Spec phase: Prompts state the failed fields (US4; FR-010)
+- [x] #8 Spec phase: Wiki re-ground
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -77,6 +77,10 @@ Spec 086 (1de87cbf). Coerced on attempt 1: audit unknown kind → other, detail 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 086 phase 1: schema-mismatch outcome, migration 0009)
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 086 phase 2: safe coercions)
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 086 phases 3-4, grouped: prompts and wiki)
+
+Spec 086 built (phases 1-4, tasks.md 28/28). AC #3 (schema-mismatch outcome, migration 0009) and AC #4 (four coercions, eight shape tests) met. audit-v15, director-v8, companion-v8, interpret-v14. AC #2 ticks at runbook B2's playtest (counts invalid-json and schema-mismatch on attempt 1, OQ-1).
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
