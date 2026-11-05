@@ -4,7 +4,7 @@ title: The narration audit refuses a reflex flinch the operator ruled allowed
 status: In Progress
 assignee: []
 created_date: '2026-11-05 04:00'
-updated_date: '2026-11-05 05:13'
+updated_date: '2026-11-05 05:29'
 labels:
   - dm
   - narration
@@ -29,14 +29,16 @@ Related: TASK-0113 (spec 074), TASK-0214 (audit pass rate).
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 The audit prompt states that a listed reflex (including a flinch on a foe's miss) is never player-agency, and a test replays seq 100-106 attempt 2 with the scripted audit expecting pass
-- [ ] #2 A player-agency issue whose detail names only a listed reflex is downgraded to advisory in code, with a test
+- [x] #1 The audit prompt states that a listed reflex (including a flinch on a foe's miss) is never player-agency, and a test replays seq 100-106 attempt 2 with the scripted audit expecting pass
+- [x] #2 A player-agency issue whose detail names only a listed reflex is downgraded to advisory in code, with a test
 <!-- AC:END -->
 
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
 Claimed 2026-11-05 by M3 runbook B2 (docs/design/m3-runbook-b2-playtest-fixes.md, PR #132). Worktree .worktrees/task-0240, branch task-0240-reflex-flinch-audit, cut from origin/main 8128fb3a. No spec dir: signed escape line E2 covers this task.
+
+Reflex flinch allowed: audit-v13 prompt rule + namesOnlyReflex downgrade in llmIssueBlocksFor; tests in combat-audit-replay.test.ts; wiki dm-narration-quality re-pinned. Shas 640c4be4, 795d79f9, cfc1654f.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
