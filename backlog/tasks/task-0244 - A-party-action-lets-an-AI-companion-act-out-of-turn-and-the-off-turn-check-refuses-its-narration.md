@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-11-05 04:22'
-updated_date: '2026-11-05 05:13'
+updated_date: '2026-11-05 06:42'
 labels:
   - dm
   - rules
@@ -35,12 +35,20 @@ Spec: specs/087-companion-own-turn
 <!-- AC:BEGIN -->
 - [ ] #1 In turn mode, a party action whose step's actor is a companion not currently active is held for that companion's turn or refused with a stated reason, with a test replaying seq 206-230
 - [ ] #2 The off-turn list excludes any actor with a resolved step in this beat, with a facts test
+- [ ] #3 Spec phase: Hold or refuse in the plan gate and resolve (US1; FR-001 to FR-005)
+- [ ] #4 Spec phase: Facts and the waiting line (US1, US2; FR-006 to FR-010)
+- [ ] #5 Spec phase: Replay seq 206-230 and contracts (US1; card AC #1, FR-011)
+- [ ] #6 Spec phase: Wiki re-ground
 <!-- AC:END -->
 
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
 Claimed 2026-11-05 by M3 runbook B2 (docs/design/m3-runbook-b2-playtest-fixes.md, PR #132). Worktree .worktrees/task-0244, branch task-0244-companion-own-turn, cut from origin/main 8128fb3a. Spec number 087 claimed with a stub.
+
+Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5 (spec 087 authoring, C1)
+
+Spec 087 (ef631484). A party action whose only actor is an off-turn AI companion is held (stays committed, a Waiting: fact line) and released as that companion's turn action via a new 'held' job trigger; a mixed-actor party action naming an off-turn companion is refused STEP_ACTOR_MISMATCH (off-turn). Any actor a step names is on turn for the off-turn list. Defaults (a): OQ-1 hold, refuse only mixed; OQ-2 human PCs unchanged (carded separately); OQ-3 the hold lapses if the companion drops or the encounter ends; OQ-4 refuse, never split; OQ-5 the waiting line repeats. Footprint adds jobs.ts, worker.ts, prompts/narrate.ts; drops floor-state.ts.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
