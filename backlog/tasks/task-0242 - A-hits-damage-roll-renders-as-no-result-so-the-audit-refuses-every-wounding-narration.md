@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-11-05 04:07'
-updated_date: '2026-11-05 05:15'
+updated_date: '2026-11-05 05:19'
 labels:
   - dm
   - narration
@@ -32,8 +32,8 @@ Related: TASK-0104 (spec 082), TASK-0214 (audit pass rate).
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 A damage roll's fact line states the damage dealt (amount and target), not 'no result', with a facts test replaying seq 163-166
-- [ ] #2 A narration showing that wound passes the audit, with a scripted-audit test over seq 163-170
+- [x] #1 A damage roll's fact line states the damage dealt (amount and target), not 'no result', with a facts test replaying seq 163-166
+- [x] #2 A narration showing that wound passes the audit, with a scripted-audit test over seq 163-170
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -44,6 +44,8 @@ Narrowed by run 1 seq 172-192: a PC's hit (Tamsin on Snag, seq 176-183) rendered
 Claimed 2026-11-05 by M3 runbook B2 (docs/design/m3-runbook-b2-playtest-fixes.md, PR #132). Worktree .worktrees/task-0242, branch task-0242-npc-hit-damage-line, cut from origin/main 8128fb3a. No spec dir: signed escape line E1 covers this task.
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (E1 implementation)
+
+NPC hit damage roll now renders 'damage dealt: n type to target' (narrate-v19); facts + scripted-audit tests cover seq 163-170 and 185-192. Commits 99fc414e, a713cb6e
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
