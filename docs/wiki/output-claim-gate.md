@@ -7,7 +7,7 @@ sources:
   - apps/server/src/dm/audit-words.ts
   - apps/server/src/dm/gates/plan-gate.ts
   - specs/051-output-claim-gate/contracts/claim-gate.md
-verified_against: b107176515076b2c01a604419d13b8d484b11cdc
+verified_against: bc16aab5db5f6970b036283d9ba3d92e014f97f0
 ---
 
 # Output claim gate
