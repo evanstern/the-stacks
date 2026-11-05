@@ -3,9 +3,10 @@ id: TASK-0250
 title: >-
   Runbook B2 playtest scenario: wounding hits, a held companion, a failed
   reveal, a pre-encounter monster, a flinch
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-11-05 08:19'
+updated_date: '2026-11-05 08:38'
 labels:
   - playtest
 milestone: m-3
@@ -31,6 +32,12 @@ Related: TASK-0234 (runbook B scenario), TASK-0195.
 - [ ] #2 Script apps/server/dm-scripts/runbook-b2-<name>.json sets up the scene for rehearsal only
 - [ ] #3 A local DM_FAKE_SCRIPT rehearsal log under docs/playtests/ shows the scenario runs end to end
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Claimed 2026-11-05 by M3 runbook B2 (docs/design/m3-runbook-b2-playtest-fixes.md, spine #7). Worktree .worktrees/task-0250, branch task-0250-b2-scenario, cut from origin/main 430df14e. No spec dir: signed escape line E3 covers this task.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
