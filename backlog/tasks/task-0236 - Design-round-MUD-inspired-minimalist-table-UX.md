@@ -36,8 +36,6 @@ Spec: specs/090-table-margin
 - [ ] #7 Spec phase: Verification **[orchestrator]**
 <!-- AC:END -->
 
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -60,6 +58,9 @@ Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=cc/claude-opus-5-5[1m] 
 Spec 086 authored (5c75d95e) and linked. Two red contract items await operator ruling: R1 SceneSchema gains optional description/ways/cast (rec. accept); R2 turn-order strip moves into the margin (rec. accept). Ten settled judgment calls are listed in spec.md 'Decision gaps settled here' (history derived from own talk rows since contract 030 forbids localStorage; /roll dropped; monster nouns show no HP/AC). Action economy is a Non-goal (engine tracks reactions only).
 
 Operator ruling 2026-11-05: R1 (a) accept and R2 (a) accept ('Accept R1 and R2'). Recorded in spec.md and tasks.md. Spec 086 is implementation-ready once TASK-0199 (spec 066) merges.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5[1m] (spec split 090/091)
+The TASK-0199 dependency no longer applies (spec 090 does not need 066). The backlog CLI cannot clear a dependency, so it stays listed; ignore it.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
