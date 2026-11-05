@@ -121,14 +121,14 @@ failed.
 **Independent test**: `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/1.0.1/gates/cli.mjs freshness . docs/wiki`
 prints `OK`.
 
-- [ ] T026 Review `docs/wiki/dm-runtime.md` (NEEDS-REVIEW): held arrivals in the resolve order, the
+- [x] T026 Review `docs/wiki/dm-runtime.md` (NEEDS-REVIEW): held arrivals in the resolve order, the
       goalNote rule and the new `dm.director` version.
-- [ ] T027 Review `docs/wiki/seed-npc-presence.md` (NEEDS-REVIEW): the Director's arrivals split into
+- [x] T027 Review `docs/wiki/seed-npc-presence.md` (NEEDS-REVIEW): the Director's arrivals split into
       unconditional and dependent.
-- [ ] T028 Review `docs/wiki/dm-narration-quality.md` (NEEDS-REVIEW): `unmetSuccess`, the `reveal`
+- [x] T028 Review `docs/wiki/dm-narration-quality.md` (NEEDS-REVIEW): `unmetSuccess`, the `reveal`
       claim, the goal-note withhold, the new `dm.audit` version.
-- [ ] T029 Re-pin every other note that lists a touched file as a source (expected:
+- [x] T029 Re-pin every other note that lists a touched file as a source (expected:
       `output-claim-gate`, `dm-turn-jobs`, `turn-floor`, `party-panel`), honestly: review the diff
       against each note first.
-- [ ] T030 Update `docs/wiki/CAPSULES.md` and `docs/wiki/INDEX.md` (the state paragraph and the
+- [x] T030 Update `docs/wiki/CAPSULES.md` and `docs/wiki/INDEX.md` (the state paragraph and the
       changed note lines). Run the freshness gate. Commit as `TASK-0237 phase 5: wiki re-pin`.

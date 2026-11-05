@@ -15,7 +15,8 @@ sources:
   - apps/server/src/dm/snapshot/build.ts
   - packages/session-model/src/gate/proposals.ts
   - packages/session-model/src/gate/plan.ts
-verified_against: 62af1658a4a9b0c21bc234b4f8ed13abb78144ea
+size_budget_exempt: TASK-0237 adds the dependent-arrivals paragraph to the one arrivals note; the note sat 246 chars under the budget before it, and the arrival rules do not split without a TASK of its own
+verified_against: ee5555fef74502e96badd67e43c1b285d964396b
 ---
 
 # Seed NPC presence
@@ -77,6 +78,8 @@ declared value and the logged value (no entry means `present`):
 A declared `present` at scene start logs nothing, and a declared `absent` or `yielded` at
 encounter start logs nothing. Scene start drops every `arrivals` id, so only the seed declares an NPC on scene start. The Director's arrival rows log before the encounter-start group; the group then reloads projections before `seedPresence` when any arrival logged, so it reads the new presence. A row is skipped when the logged value already equals
 `REASON_TO_PRESENCE[reason]`.
+
+**Dependent arrivals** (spec 089, TASK-0237). `splitArrivals` in `nodes/resolve.ts` splits the Director's `arrivals` into `unconditional` and `dependent`: an id is dependent when a stake text of a check in this beat's readings or rulings names it (`namedActorIds`, a unique-alias match; a monster by its seed name). The opening loop and the plan gate's `arriving` take only `unconditional`. `landHeldArrivals` runs after the NPC group and lands a dependent arrival, same key `director:arrival:<id>`, only when `bandTexts` of the applied band name it; otherwise it logs `dm.arrival.held` and writes no row.
 
 **Monster arrivals** (spec 088, TASK-0238). In free mode the Director may also name an unseen encounter monster in `arrivals` (`unseenMonsters` in `gates/plan-gate.ts`: a monster of an encounter that has not run, not yet a combatant, not a seed NPC id). A monster has no actor to flip, so the arrivals loop in `directorOpening` writes a keyed `director:arrival:<id>` `combatant.add` opening move from the SRD record instead of a presence row. Any landed arrival (NPC or monster) triggers one fresh projections load, used by the encounter start's "already a combatant" skip and by `seedPresence`, so a monster added this beat is not added twice. `arrivingMonsters` lists the Director's monster arrivals then the encounter-start joiners; resolve passes it as the plan gate's `joining` ([[dm-failure-and-gates]]), and the interpret prompt's "Arriving this beat" section lists the same ids. A seed NPC id stays on the arrivals path above. Each row is submitted under the key
 `seed:presence:<moment>:<npcId>` with `actionId: null` and a note `Seed presence: <name>

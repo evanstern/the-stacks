@@ -7,7 +7,7 @@ sources:
   - apps/server/src/dm/audit-words.ts
   - apps/server/src/dm/gates/plan-gate.ts
   - specs/051-output-claim-gate/contracts/claim-gate.md
-verified_against: 62af1658a4a9b0c21bc234b4f8ed13abb78144ea
+verified_against: ee5555fef74502e96badd67e43c1b285d964396b
 ---
 
 # Output claim gate
@@ -36,7 +36,7 @@ live in `audit-words.ts`. Contract: `specs/051-output-claim-gate/contracts/claim
 
 `withholdRefusedInputs(facts, state)` (`nodes/narrate.ts`) runs the checker once before the first
 model call on each `facts.rulings[].ruling` and on `facts.director.goalNote`, ignoring omission
-claims. A refused ruling leaves the facts; a refused `goalNote`, or one that states a count (`hasCountClaim`, TASK-0214), becomes `""`. `NarrateOutput.withheld`
+claims. A refused ruling leaves the facts; a refused `goalNote`, or one that states a count (`hasCountClaim`, TASK-0214), becomes `""`; so does a note on a beat where any roll's band is `failure` or `severe-failure` (TASK-0237, the note was written before the dice; a `doctrine` advisory). `unmetReveals` (`claims.ts`, spec 089, claim kind `reveal`) blocks prose that shows an absent NPC a failed band's unmet success text names, outside negation, "no sign of", a question or a quote; `deterministicChecks` calls it as `ledger-mismatch` "Reveal: ...". `NarrateOutput.withheld`
 carries the refusals; the audit records them as non-blocking issues on attempt 1 only (in the
 `AuditAttempt` deterministic issues and the recorded issue list).
 
