@@ -92,12 +92,12 @@ waiting line`.
 **Goal**: the notes that pin the touched files describe the new behaviour and are re-pinned
 honestly.
 
-- [ ] T012 Run `/grounding-wiki:wiki-update`. Review, as NEEDS-REVIEW, `docs/wiki/turn-floor.md`,
+- [x] T012 Run `/grounding-wiki:wiki-update`. Review, as NEEDS-REVIEW, `docs/wiki/turn-floor.md`,
       `docs/wiki/dm-failure-and-gates.md` and `docs/wiki/dm-runtime.md` (runbook list), plus
       `docs/wiki/dm-turn-jobs.md` (the `held` trigger, `worker.ts`) and
       `docs/wiki/dm-narration-quality.md` (`facts.ts`, `prompts/narrate.ts`).
-- [ ] T013 Update `docs/wiki/CAPSULES.md` and `docs/wiki/INDEX.md` for the held party action.
-- [ ] T014 Run the grounding-wiki freshness gate and the spec-bridge check; both pass.
+- [x] T013 Update `docs/wiki/CAPSULES.md` and `docs/wiki/INDEX.md` for the held party action.
+- [x] T014 Run the grounding-wiki freshness gate and the spec-bridge check; both pass.
 
 **Checkpoint**: `pnpm ci:check` green, freshness `OK`. Commit `TASK-0244 phase 4: wiki re-ground`.
 
