@@ -16,7 +16,7 @@ sources:
   - apps/server/src/dm/audit-words.ts
   - specs/034-narration-quality/contracts/audit-criteria.md
 size_budget_exempt: TASK-0113 adds the agency checks and reflex facts to the one narration-and-audit pipeline; it does not split without a TASK of its own (sibling notes dm-runtime and playtest-harness carry the same exemption)
-verified_against: bc16aab5db5f6970b036283d9ba3d92e014f97f0
+verified_against: 242c84d4b57a185209b9d0913e4cf8eb6e36f1ef
 ---
 
 # DM narration quality
