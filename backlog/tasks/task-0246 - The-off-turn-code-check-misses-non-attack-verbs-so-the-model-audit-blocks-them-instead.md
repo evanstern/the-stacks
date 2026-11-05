@@ -3,10 +3,10 @@ id: TASK-0246
 title: >-
   The off-turn code check misses non-attack verbs, so the model audit blocks
   them instead
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-11-05 05:12'
-updated_date: '2026-11-05 05:56'
+updated_date: '2026-11-05 06:02'
 labels:
   - dm
   - narration
@@ -46,8 +46,14 @@ Off-turn check now catches readying phrases (TURN_READY_PHRASE), perceptual verb
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (E4 implementation, plus one orchestrator-requested fix: rule 6 text)
 <!-- SECTION:NOTES:END -->
 
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Merged PR #135 (a377997e), runbook B2 spine #2b (A1), escape E4. The off-turn code check catches readying for a next action (TURN_READY_PHRASE: draws back, shifts its grip, raises ... again) before the model audit; audit-v14 rule 6 names readying as invented-mechanics and says watching, waiting and turning toward a noise are not turn actions.
+<!-- SECTION:FINAL_SUMMARY:END -->
+
 ## Definition of Done
 <!-- DOD:BEGIN -->
-- [ ] #1 All tests and checks run green
-- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
+- [x] #1 All tests and checks run green
+- [x] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
