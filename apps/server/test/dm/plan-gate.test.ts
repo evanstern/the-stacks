@@ -5,9 +5,11 @@ import { describe, expect, it } from "vitest";
 import { SYSTEM_WORDS } from "../../src/dm/fallback.js";
 import { cutPlans } from "../../src/dm/first-stage.js";
 import {
+  arrivingMonsters,
   arrivingNpcs,
   askUndeclared,
   checkPlan,
+  encounterRan,
   encounterToStart,
   joiningCombatants,
   MANNER_SKILLS,
@@ -1453,5 +1455,154 @@ describe("askUndeclared: help (spec 084 D12)", () => {
     ]);
     expect(r.readings[0]?.clarify).toBeNull();
     expect(r.asked).toEqual([]);
+  });
+});
+
+describe("checkPlan turn hold (TASK-0244)", () => {
+  const party = new Map<string, string | null>([["p1", null]]);
+  const cure = { spellId: "cure-wounds", slotLevel: 1 };
+  const tamsinCast = () =>
+    read("p1", [spellStep("tamsin", { ...cure, casterId: "tamsin" })]);
+  const odoSpell = () => read("p1", [spellStep("tamsin", cure)]);
+  const codeOf = (v: ReturnType<typeof checkPlan>) =>
+    (v[0] as { code?: string }).code;
+  const withActive = (
+    active: string,
+    patch: (s: typeof snapshot) => void = () => {},
+  ) => {
+    const s = structuredClone(snapshot);
+    if (s.stage.encounter) s.stage.encounter.activeCombatantId = active;
+    patch(s);
+    return s;
+  };
+  const held = (s: typeof snapshot, extra = {}) =>
+    plan([odoSpell()], { snapshot: s, actors: party, ...extra });
+
+  it("holds a party action whose only actor is an off-turn companion", () => {
+    expect(held(snapshot)[0]).toEqual({
+      actionId: "p1",
+      ok: false,
+      code: "TURN_HELD",
+      heldFor: "odo",
+    });
+  });
+  it("holds when the companion is active but has its own group", () => {
+    const s = withActive("odo");
+    const v = plan([odoSpell(), read("a1", [attackStep("goblin-2")])], {
+      snapshot: s,
+      actors: new Map<string, string | null>([
+        ["p1", null],
+        ["a1", "odo"],
+      ]),
+    });
+    expect(v.find((x) => x.actionId === "p1")).toMatchObject({
+      code: "TURN_HELD",
+    });
+  });
+  it("does not hold the active companion with no own group", () => {
+    expect(codeOf(held(withActive("odo")))).not.toBe("TURN_HELD");
+  });
+  it("does not hold in free mode", () => {
+    const s = withActive("snag", (x) => {
+      x.stage.tableMode = { mode: "free" };
+    });
+    expect(codeOf(held(s))).not.toBe("TURN_HELD");
+  });
+  it("does not hold a downed companion", () => {
+    const s = withActive("snag", (x) => {
+      const a = x.actors.find((y) => y.combatantId === "odo");
+      if (a) a.lifeState = "unconscious";
+    });
+    expect(codeOf(held(s))).not.toBe("TURN_HELD");
+  });
+  it("refuses a companion mixed with another actor", () => {
+    const v = plan([odoSpell()], {
+      snapshot,
+      actors: party,
+    });
+    expect(v[0]).toMatchObject({ code: "TURN_HELD" });
+    const mixed = plan(
+      [read("p1", [spellStep("tamsin", cure), attackStep("goblin-2")])],
+      { snapshot, actors: party },
+    );
+    expect(mixed[0]).toMatchObject({
+      ok: false,
+      code: "STEP_ACTOR_MISMATCH",
+      failure: { reason: "off-turn" },
+    });
+  });
+  it("leaves a human-only party group unchanged", () => {
+    const v = plan([tamsinCast()], { snapshot, actors: party });
+    expect(codeOf(v)).not.toBe("TURN_HELD");
+  });
+});
+
+describe("monster arrivals (spec 088)", () => {
+  const duo = greyhollowDuo();
+  const reedCamp = duo.seed.encounters.find((e) => e.id === "reed-camp");
+  const opp = (id: string) =>
+    read("a1", [
+      checkStep({ difficulty: { opposedBy: id, rule: "influence" } }),
+    ]);
+  const duoPlan = (id: string, joining: string[]) =>
+    checkPlan({
+      snapshot: buildSnapshot(duo.projections, duo.seed),
+      readings: [opp(id)],
+      rulings: [],
+      combatants: {},
+      joining,
+      arriving: [],
+      resumed: [],
+    })[0];
+
+  it("refuses goblin-lookout not-in-snapshot and passes goblin-3 via joining", () => {
+    const refused = duoPlan("goblin-lookout", ["goblin-3"]);
+    expect(refused?.ok).toBe(false);
+    expect(refused).toMatchObject({
+      failure: { reason: "not-in-snapshot" },
+    });
+    expect(duoPlan("goblin-3", ["goblin-3"])?.ok).toBe(true);
+  });
+
+  it("lists arrivals then joiners once", () => {
+    const out = arrivingMonsters(
+      duo.seed,
+      duo.projections,
+      {
+        arrivals: ["goblin-3", "snag"],
+        tableMode: { to: "turn", encounterId: "reed-camp", reason: "x" },
+      },
+      "commit",
+    );
+    const ids = out.map((m) => m.id);
+    expect(ids[0]).toBe("goblin-3");
+    expect(new Set(ids).size).toBe(ids.length);
+    expect(ids).toContain("goblin-4");
+    expect(out[0]?.name).toBe("Goblin lookout");
+  });
+
+  it("leaves a seed NPC that is also a monster to the 078 path", () => {
+    const out = arrivingMonsters(
+      duo.seed,
+      duo.projections,
+      { arrivals: ["snag"], tableMode: { to: "stay" } },
+      "commit",
+    );
+    expect(out).toEqual([]);
+  });
+
+  it("encounterRan: active order and a logged start", () => {
+    if (!reedCamp) throw new Error("no reed-camp");
+    expect(encounterRan(duo.projections, reedCamp)).toBe(false);
+    const p = structuredClone(duo.projections);
+    p.ledger.push({
+      kind: "change",
+      type: "encounter.started",
+      after: { order: [{ combatantId: "snag" }] },
+    } as never);
+    expect(encounterRan(p, reedCamp)).toBe(true);
+    const q = structuredClone(duo.projections);
+    q.encounter = { round: 1, order: [{ combatantId: "goblin-3" }] } as never;
+    expect(encounterRan(q, reedCamp)).toBe(true);
   });
 });

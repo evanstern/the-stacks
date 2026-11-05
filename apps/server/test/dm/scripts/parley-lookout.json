@@ -1,0 +1,188 @@
+{
+  "v": 1,
+  "name": "parley-lookout",
+  "dice": [15],
+  "calls": [
+    {
+      "purpose": "dm.director",
+      "note": "turn A: free mode; the Director reports the lookout on screen (run 1 seq 52-58)",
+      "respond": {
+        "type": "json",
+        "value": {
+          "beat": {
+            "decision": "resolve"
+          },
+          "tableMode": {
+            "to": "stay"
+          },
+          "trackers": [],
+          "scene": {
+            "status": "continue"
+          },
+          "pacing": {
+            "tension": "low",
+            "spotlight": null,
+            "beatId": "ferry-house"
+          },
+          "goalNote": "Let the parley land.",
+          "companionPrompts": [],
+          "arrivals": ["goblin-3"]
+        }
+      }
+    },
+    {
+      "purpose": "dm.interpret",
+      "note": "turn A: the influence-opposed Persuasion reading on goblin-3 (run 1 seq 52-58)",
+      "respond": {
+        "type": "json",
+        "value": {
+          "readings": [
+            {
+              "actionId": "act-parley",
+              "intent": "check",
+              "uncertain": true,
+              "needsAdjudication": false,
+              "rulesQuestion": null,
+              "clarify": null,
+              "steps": [
+                {
+                  "step": "check",
+                  "reason": "Tamsin calls out to the lookout and talks him down",
+                  "combatantId": "tamsin",
+                  "kind": "ability-check",
+                  "ability": "cha",
+                  "skill": "persuasion",
+                  "difficulty": {
+                    "opposedBy": "goblin-3",
+                    "rule": "influence"
+                  },
+                  "circumstance": null,
+                  "autoFail": null,
+                  "onSuccess": [],
+                  "onFailure": [],
+                  "stakes": {
+                    "success": "The lookout listens.",
+                    "cost": "The lookout listens, warily.",
+                    "failure": "The lookout sneers.",
+                    "severe": "The lookout shouts the alarm."
+                  },
+                  "onCost": [],
+                  "onSevere": [],
+                  "newRisk": null
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "purpose": "dm.narrate",
+      "respond": {
+        "type": "text",
+        "value": "Tamsin calls across the water and the lookout lowers his spear to listen."
+      }
+    },
+    {
+      "purpose": "dm.audit",
+      "respond": {
+        "type": "json",
+        "value": {
+          "verdict": "pass",
+          "issues": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.director",
+      "note": "turn B: turn mode for reed-camp, no arrivals (run 1 seq 73-92)",
+      "respond": {
+        "type": "json",
+        "value": {
+          "beat": {
+            "decision": "resolve"
+          },
+          "tableMode": {
+            "to": "turn",
+            "encounterId": "reed-camp",
+            "reason": "The goblins spring up as the party reaches the island."
+          },
+          "trackers": [],
+          "scene": {
+            "status": "continue"
+          },
+          "pacing": {
+            "tension": "low",
+            "spotlight": null,
+            "beatId": "ferry-house"
+          },
+          "goalNote": "Let the parley land.",
+          "companionPrompts": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.interpret",
+      "note": "turn B: the coin-toss reading on goblin-3 (run 1 seq 73-92)",
+      "respond": {
+        "type": "json",
+        "value": {
+          "readings": [
+            {
+              "actionId": "act-coin",
+              "intent": "check",
+              "uncertain": true,
+              "needsAdjudication": false,
+              "rulesQuestion": null,
+              "clarify": null,
+              "steps": [
+                {
+                  "step": "check",
+                  "reason": "Tamsin tosses a coin to the lookout to buy a parley",
+                  "combatantId": "tamsin",
+                  "kind": "ability-check",
+                  "ability": "cha",
+                  "skill": "persuasion",
+                  "difficulty": {
+                    "opposedBy": "goblin-3",
+                    "rule": "influence"
+                  },
+                  "circumstance": null,
+                  "autoFail": null,
+                  "onSuccess": [],
+                  "onFailure": [],
+                  "stakes": {
+                    "success": "The lookout listens.",
+                    "cost": "The lookout listens, warily.",
+                    "failure": "The lookout sneers.",
+                    "severe": "The lookout shouts the alarm."
+                  },
+                  "onCost": [],
+                  "onSevere": [],
+                  "newRisk": null
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "purpose": "dm.narrate",
+      "respond": {
+        "type": "text",
+        "value": "Tamsin flips a coin to the lookout and asks for a moment to talk."
+      }
+    },
+    {
+      "purpose": "dm.audit",
+      "respond": {
+        "type": "json",
+        "value": {
+          "verdict": "pass",
+          "issues": []
+        }
+      }
+    }
+  ]
+}

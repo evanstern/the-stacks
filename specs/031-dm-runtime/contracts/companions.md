@@ -142,3 +142,11 @@ Doctrine: one journal line at every scene change; name new people and places onc
 facts go to `dm` entries.
 
 Amended by specs/034-narration-quality/contracts/player-facing-context.md.
+
+Amended by specs/086-schema-outcome-coercions (TASK-0203):
+
+- The companion prompt says: write all four keys every time; set `comment`, `say` or `act` to
+  null when you have none; never leave a key out. Version `dm.companion-v8`.
+- `dm.chronicle` passes `normalizeChronicle` (`chronicle.ts`) as `normalize`. It maps each
+  `sourceActionIds` element that is a non-negative safe integer to its string. Every other
+  element passes through unchanged.

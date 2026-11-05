@@ -524,3 +524,120 @@ describe("run 1 seq 196: the goblin drops Kestrel (findings 25)", () => {
     expect(prose.match(/falls unconscious/g)).toHaveLength(1);
   });
 });
+
+describe("run B1 seq 100-106: the reflex flinch (finding 23, TASK-0240)", () => {
+  const f = facts({
+    npcTurn: npcTurn("Goblin by the fire", {
+      rolls: [
+        roll("Goblin by the fire", "Brother Odo", {
+          outcome: "miss",
+          total: 8,
+        }),
+      ],
+      outcomes: ["miss"],
+    }),
+    turn: {
+      actor: "Goblin by the fire",
+      next: "Snag",
+      offTurn: OFF("Goblin by the fire", "Brother Odo"),
+    },
+  });
+  const FLINCH = "Odo flinches at the near-miss.";
+  const flinchIssue = {
+    kind: "player-agency",
+    detail:
+      "Odo's flinch is shown as his choice, not as a reflex. The facts permit a reflex flinch.",
+    actor: "Brother Odo",
+  };
+  const dodgeIssue = {
+    kind: "player-agency",
+    detail: "Odo dodges the blow, stepping to where he stood a breath before.",
+    actor: "Brother Odo",
+  };
+  it("the audit prompt states a listed reflex is never player-agency", () => {
+    const { ap } = promptsHoldTurnRule(f);
+    expect(ap.system).toContain("is never `player-agency`");
+  });
+  it("attempt 2 passes when the audit reports only the flinch (AC #1)", async () => {
+    expect(passes(f, FLINCH)).toBe(true);
+    const out = await runAudit(f, FLINCH, [
+      text(FLINCH),
+      auditJson("fail", [flinchIssue]),
+    ]);
+    expect(out.output.record.final).toBe("passed");
+    expect(out.output.record.attempts).toHaveLength(1);
+    expect(out.output.shipped?.prose).toBe(FLINCH);
+  });
+  it("downgrades a reflex-only issue to advisory (AC #2)", () => {
+    expect(llmIssueBlocksFor(flinchIssue as never, PARTY)).toBe(false);
+  });
+  it("a chosen dodge still blocks", () => {
+    expect(llmIssueBlocksFor(dodgeIssue as never, PARTY)).toBe(true);
+    expect(
+      llmIssueBlocksFor(
+        { ...flinchIssue, detail: "Odo flinches aside just in time." } as never,
+        PARTY,
+      ),
+    ).toBe(true);
+  });
+});
+
+describe("TASK-0242: run 1 seq 163-170 and 185-192, NPC hit damage", () => {
+  const hit = (name: string, amount: number, type: string, before: number) => {
+    const after = before - amount;
+    const dealt = { amount, type, target: "Tamsin Vale" };
+    return facts({
+      npcTurn: npcTurn(name, {
+        rolls: [
+          roll(name, "Tamsin Vale"),
+          roll(name, "Tamsin Vale", {
+            reason: `${name} attacks: damage`,
+            against: null,
+            outcome: null,
+            damage: { dealt },
+          }),
+        ],
+        outcomes: ["hit"],
+        changes: [
+          {
+            kind: "hp",
+            target: "Tamsin Vale",
+            direction: "damage",
+            amount,
+            damageType: type,
+            before,
+            after,
+          },
+        ],
+      }),
+      turn: { actor: name, next: "Snag", offTurn: OFF(name) },
+    });
+  };
+  const WOUND = "The blade bites Tamsin's side and she staggers, bleeding.";
+  for (const [name, amount, before] of [
+    ["Goblin by the fire", 4, 13],
+    ["Goblin lookout", 6, 9],
+  ] as const) {
+    const f = hit(name, amount, "piercing", before);
+    it(`${name}: the fact line states the damage, not 'no result'`, () => {
+      const np = buildNarratePrompt({
+        seed: SEED_VIEW,
+        roster: [],
+        assembled: { transcriptTail: [] } as unknown as AssembleOutput,
+        snapshot: SNAPSHOT,
+        facts: f,
+        prior: null,
+      });
+      expect(np.user).toContain(
+        `damage dealt: ${amount} piercing to Tamsin Vale`,
+      );
+      expect(np.user).not.toContain("no result");
+    });
+    it(`${name}: a wound narration passes the scripted audit`, async () => {
+      const out = await runAudit(f, WOUND, [text(WOUND), auditJson("pass")]);
+      expect(out.output.record.final).toBe("passed");
+      expect(out.output.shipped?.prose).toBe(WOUND);
+      expect(passes(f, WOUND)).toBe(true);
+    });
+  }
+});

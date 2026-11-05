@@ -9,7 +9,7 @@ sources:
   - apps/web/app/play/components/turn-order.tsx
   - packages/session-model/src/events/party.ts
   - apps/server/src/dm/nodes/resolve.ts
-verified_against: 3a617d4a10e572a061aa5be87b3f9711fd7910ae
+verified_against: 62af1658a4a9b0c21bc234b4f8ed13abb78144ea
 ---
 
 # Party panel

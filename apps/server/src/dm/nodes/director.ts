@@ -1,4 +1,5 @@
 import type { SessionProjections } from "@the-stacks/session-model";
+import { encounterRan, unseenMonsters } from "../gates/plan-gate.js";
 import { callJson } from "../pipeline/call.js";
 import type { Node } from "../pipeline/context.js";
 import { buildDirectorPrompt, PROMPT_VERSION } from "../prompts/director.js";
@@ -58,23 +59,20 @@ export function offstageNpcIds(
     .map((n) => n.id);
 }
 
-/** Seed encounters whose monsters are not yet in the engine state. */
+/** Seed encounters that have not run (spec 088: some monsters may already be combatants). */
 export function runnableEncounterIds(
   projections: SessionProjections,
   seed: SceneSeed,
 ): string[] {
   return seed.encounters
-    .filter(
-      (e) =>
-        !e.monsters.some((m) => projections.engine.combatants[m.combatantId]),
-    )
+    .filter((e) => !encounterRan(projections, e))
     .map((e) => e.id);
 }
 
 const TEXT_CAP = 300;
 
 /** Cuts text to the cap at the last space before it; a spaceless run is cut hard. */
-function capText(text: string): string {
+export function capText(text: string): string {
   if (text.length <= TEXT_CAP) return text;
   const head = text.slice(0, TEXT_CAP);
   const space = head.lastIndexOf(" ");
@@ -245,13 +243,26 @@ export function legalizeDirector(
 
   // arrivals
   const offstage = new Set(offstageNpcIds(projections, seed));
-  const arrivals = [...new Set(model.arrivals ?? [])].filter((id) =>
-    offstage.has(id),
+  const unseen = new Set(
+    free ? unseenMonsters(projections, seed).map((m) => m.id) : [],
   );
-  if (arrivals.length !== (model.arrivals ?? []).length) {
+  const monsterIds = new Set(
+    seed.encounters.flatMap((e) => e.monsters.map((m) => m.combatantId)),
+  );
+  const named = [...new Set(model.arrivals ?? [])];
+  const arrivals = named.filter((id) => offstage.has(id) || unseen.has(id));
+  const dropped = named.filter((id) => !arrivals.includes(id));
+  if (dropped.some((id) => !monsterIds.has(id))) {
     overrides.push({
       decision: "arrivals",
       reason: "an arrival named an NPC that is not offstage",
+    });
+  }
+  if (dropped.some((id) => monsterIds.has(id))) {
+    overrides.push({
+      decision: "arrivals",
+      reason:
+        "an arrival named a monster that is not unseen, or the table is in turn mode",
     });
   }
   out.arrivals = arrivals;
@@ -276,6 +287,9 @@ export const director: Node<"director"> = async (ctx) => {
       return `${id} (${m?.name ?? id})`;
     }),
     runnableEncounterIds: runnableEncounterIds(assembled.projections, ctx.seed),
+    unseenMonsters: unseenMonsters(assembled.projections, ctx.seed)
+      .filter(() => assembled.projections.tableMode.mode === "free")
+      .map((m) => `Monster ${m.id} (${m.name}, encounter ${m.encounterId})`),
     offstageNpcs: offstageNpcIds(assembled.projections, ctx.seed).map((id) => {
       const n = ctx.seed.npcs.find((x) => x.id === id);
       return `NPC ${id} (${n?.name ?? id}, ${n?.identity.role ?? "npc"})`;

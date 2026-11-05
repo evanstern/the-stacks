@@ -151,10 +151,18 @@ describe("legalizeDirector (director.md legality table)", () => {
     expect(out.overrides.map((o) => o.decision)).toEqual(["turn"]);
   });
 
-  it("overrides a turn into an encounter whose monsters already exist", () => {
-    // The fixture's combatants are not seed monsters; make the engine hold snag.
+  it("overrides a turn into an encounter that has already run (spec 088)", () => {
+    // A logged encounter.started row whose order held snag: the encounter ran.
     const projections = {
       ...freeProjections,
+      ledger: [
+        ...freeProjections.ledger,
+        {
+          kind: "change",
+          type: "encounter.started",
+          after: { order: [{ combatantId: "snag" }] },
+        },
+      ],
       engine: {
         ...freeProjections.engine,
         combatants: {
@@ -371,5 +379,62 @@ describe("director node", () => {
     expect(scripted.provider.chatCalls[0]?.request.system).toContain(
       "Director",
     );
+  });
+});
+
+describe("legalizeDirector monster arrivals (spec 088)", () => {
+  const goblin = seed.encounters
+    .find((e) => e.id === "reed-camp")
+    ?.monsters.find((m) => m.combatantId === "goblin-3");
+  const arrive = (ids: string[], projections = freeProjections) =>
+    legalizeDirector(model({ arrivals: ids }), input({ projections }));
+
+  it("keeps an unseen monster in free mode", () => {
+    const out = arrive(["goblin-3"]);
+    expect(out.arrivals).toEqual(["goblin-3"]);
+    expect(out.overrides).toEqual([]);
+  });
+
+  it("drops it in turn mode, and drops an unknown monster id", () => {
+    expect(arrive(["goblin-3"], turnProjections).arrivals).toEqual([]);
+    const out = arrive(["goblin-9"]);
+    expect(out.arrivals).toEqual([]);
+    expect(out.overrides.filter((o) => o.decision === "arrivals")).toHaveLength(
+      1,
+    );
+  });
+
+  it("drops a monster that is already a combatant", () => {
+    if (!goblin) throw new Error("fixture lacks goblin-3");
+    const p = structuredClone(freeProjections);
+    p.engine.combatants["goblin-3"] = {
+      ...Object.values(p.engine.combatants)[0],
+      id: "goblin-3",
+    } as never;
+    expect(arrive(["goblin-3"], p).arrivals).toEqual([]);
+  });
+
+  it("keeps reed-camp runnable with a monster added, not after it started", () => {
+    const p = structuredClone(freeProjections);
+    p.engine.combatants["goblin-3"] = {
+      ...Object.values(p.engine.combatants)[0],
+      id: "goblin-3",
+    } as never;
+    expect(runnableEncounterIds(p, seed)).toContain("reed-camp");
+    p.ledger.push({
+      kind: "change",
+      seq: 99,
+      actor: "ai:dm",
+      visibility: "public",
+      reason: "x",
+      type: "encounter.started",
+      subject: null,
+      before: null,
+      after: { order: [{ combatantId: "goblin-3" }] },
+      batchId: null,
+      index: null,
+      actionId: null,
+    } as never);
+    expect(runnableEncounterIds(p, seed)).not.toContain("reed-camp");
   });
 });
