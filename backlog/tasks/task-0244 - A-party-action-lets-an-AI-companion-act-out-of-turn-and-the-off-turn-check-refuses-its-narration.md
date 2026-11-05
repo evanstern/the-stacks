@@ -27,6 +27,8 @@ Outcome: in turn order, a party action that names a companion's act (a spell, an
 Why: runbook B playtest run 1 (2026-11-03, session 729a6c5c, seq 206-241). During Kestrel's turn the operator declared a party action 'Odo casts Cure Wounds on Tamsin.' It committed (group sign-off), resolved in the next beat during goblin-2's turn — spending Odo's slot and healing Tamsin — before Odo's turn came up. Odo then took his own turn and cast Healing Word: two actions for Odo in round 2. The narration audit refused all 3 attempts ('Brother Odo is on the Next line and has not acted yet… The narration shows him casting Cure Wounds') because the off-turn list (TASK-0214) still named Odo; the fallback shipped after 102 s.
 
 Related: TASK-0214 (off-turn list), TASK-0205 (askUndeclared / party-scope rules), TASK-0208 (STEP_ACTOR_MISMATCH), TASK-0235.
+
+Spec: specs/087-companion-own-turn
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
