@@ -24,17 +24,17 @@ Browser checks use Brave.
 **Independent test**: `margin`, `status-strip` and `table-view` markup tests pass over the
 `turn-mode-combat` and `free-mode-action` fixtures.
 
-- [ ] T001 [US1] Create `apps/web/app/play/conditions.ts` with `conditionText` (plan D4). Move
+- [x] T001 [US1] Create `apps/web/app/play/conditions.ts` with `conditionText` (plan D4). Move
       `vitals` from `components/party-panel.tsx` to `apps/web/app/play/party.ts` and import it back.
-- [ ] T002 [US1] Create `apps/web/app/play/components/margin.tsx` and `mini-strip.tsx` (plan D4),
+- [x] T002 [US1] Create `apps/web/app/play/components/margin.tsx` and `mini-strip.tsx` (plan D4),
       reusing `TurnOrder` with label "Turn order".
-- [ ] T003 [US2] Create `apps/web/app/play/components/status-strip.tsx` (FR-003, US2 copy).
-- [ ] T004 [US1] In `apps/web/app/play/table-view.tsx`, lay out the stream column and the margin,
+- [x] T003 [US2] Create `apps/web/app/play/components/status-strip.tsx` (FR-003, US2 copy).
+- [x] T004 [US1] In `apps/web/app/play/table-view.tsx`, lay out the stream column and the margin,
       remove the `TurnOrder` strip under the header, and render the mini-strip and the status strip
       above the composer.
-- [ ] T005 [P] [US1] Create `apps/web/test/play/conditions.test.mjs`, `margin.test.tsx` and
+- [x] T005 [P] [US1] Create `apps/web/test/play/conditions.test.mjs`, `margin.test.tsx` and
       `status-strip.test.tsx`: US1 scenarios 1–4 and US2 scenarios 1–3 as markup assertions.
-- [ ] T006 [US1] Update `apps/web/test/play/table-view.test.tsx` and `turn-order.test.tsx` for the
+- [x] T006 [US1] Update `apps/web/test/play/table-view.test.tsx` and `turn-order.test.tsx` for the
       moved strip; `party-panel.test.tsx` passes unchanged. Commit as
       `TASK-0236 phase 1: margin, mini-strip and status strip`.
 

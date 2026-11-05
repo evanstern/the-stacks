@@ -1,16 +1,8 @@
-import type { PartyRow } from "../party.ts";
+import { type PartyRow, vitals } from "../party.ts";
 import type { OrderEntry } from "../view-model.ts";
 import { TurnOrder } from "./turn-order.tsx";
 
 export const PARTY_PANEL_ID = "party-panel";
-
-function vitals(row: PartyRow): string {
-  const hp = row.hp
-    ? `HP ${row.hp.current}/${row.hp.max}${row.hp.temp > 0 ? ` (+${row.hp.temp})` : ""}`
-    : "HP —";
-  const ac = row.ac !== null ? `AC ${row.ac}` : "AC —";
-  return `${row.classLevel ?? "Class and level not recorded"} · ${hp} · ${ac}`;
-}
 
 /** The Party slide-out body: each character, who controls it, vitals, and the initiative order. */
 export function PartyPanel({
