@@ -4,7 +4,7 @@ title: 'Design round: MUD-inspired minimalist table UX'
 status: In Progress
 assignee: []
 created_date: '2026-11-05 03:37'
-updated_date: '2026-11-05 06:02'
+updated_date: '2026-11-05 06:06'
 labels:
   - design
   - ux
@@ -64,6 +64,8 @@ The TASK-0199 dependency no longer applies (spec 090 does not need 066). The bac
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5[1m] (spec 090 phase 1, 6780d59c)
 Phase 1 note: ci:check fails only at server adjudicate integration tests without a DB, the known TASK-0138 bug; verified with a stack in phase 3.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5[1m] (spec 090 phase 2, 4cfff877)
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
