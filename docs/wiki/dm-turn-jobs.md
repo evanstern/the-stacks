@@ -20,7 +20,7 @@ sources:
   - apps/server/src/dm/companion.ts
   - apps/server/src/dm/chronicle.ts
 size_budget_exempt: both notes sat within 30 chars of the 8000 budget before TASK-0180; the talk path got its own note (dm-talk-triggers) and only a pointer line lands here; the rest is one pipeline each, not splittable without a TASK of its own
-verified_against: 62af1658a4a9b0c21bc234b4f8ed13abb78144ea
+verified_against: ee5555fef74502e96badd67e43c1b285d964396b
 ---
 
 # DM turn jobs

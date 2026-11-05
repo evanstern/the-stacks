@@ -2,12 +2,12 @@
  * DM-craft doctrine adapted from tabletop-dm (https://github.com/bradbushSFAI/tabletop-dm, commit fe2c29b), Copyright (c) 2026 Brad Bush, used under the MIT License. See apps/server/src/dm/doctrine/NOTICE.md.
  */
 import { agencyRule, renderDoctrine } from "../doctrine/doctrine.js";
-import type { NarrationFacts } from "../facts.js";
+import { type NarrationFacts, unmetRolls } from "../facts.js";
 import type { ActorSnapshot } from "../snapshot/index.js";
 import { CAPS, capEntries, joinSections, section } from "./common.js";
 import { characterSections, factEntries, TURN_RULE } from "./narrate.js";
 
-export const PROMPT_VERSION = "dm.audit-v15";
+export const PROMPT_VERSION = "dm.audit-v16";
 
 const OUTPUT_SHAPE = [
   "Reply with ONE JSON object and nothing else:",
@@ -36,14 +36,18 @@ export function buildAuditPrompt(input: {
     "4. Code checks length; do not report length.",
     "5. Report craft concerns as `doctrine`. They are advice and do not fail the narration.",
     `6. Turn mode. ${TURN_RULE} Showing the Next actor or an Off turn character strike, shoot, cast, throw or charge, or ready for a next action (draw back for another try, shift a grip, raise a blade again), is \`invented-mechanics\`. Their words, looks and flinches are not. Watching, waiting and turning toward a noise are not turn actions; do not report them.`,
-    "7. A roll's band and consequence are decided. Report `ledger-mismatch` when the prose tells a different band (a plain success for a success at a cost, a plain failure for a severe failure, a win for a failure) or a consequence other than the one listed.",
+    "7. A roll's band and consequence are decided. Report `ledger-mismatch` when the prose tells a different band (a plain success for a success at a cost, a plain failure for a severe failure, a win for a failure) or a consequence other than the one listed. A success outcome listed as one that did not happen must not appear: showing it is `ledger-mismatch`.",
     "Doctrine:",
     doctrine,
     OUTPUT_SHAPE,
   ].join("\n\n");
+  const unmet = unmetRolls(input.facts).map(
+    (r) => `${r.name}: ${r.unmetSuccess}`,
+  );
   const user = joinSections([
     ...characterSections(input.snapshot),
     section("Facts", factEntries(input.facts), CAPS.facts, "end"),
+    section("Success outcomes that did not happen", unmet, CAPS.facts, "end"),
     `## Narration\n${input.prose}`,
   ]);
   return { system, user };

@@ -18,6 +18,7 @@ import {
   type TableMode,
 } from "@the-stacks/session-model";
 import type { Gate } from "../../gate/index.js";
+import { namedActorIds } from "../claims.js";
 import { clarifyHolds } from "../first-stage.js";
 import {
   arrivingMonsters,
@@ -40,7 +41,7 @@ import {
   diffSnapshots,
   type SnapshotDiff,
 } from "../snapshot/index.js";
-import { clueFor, effectsForBand, isFreeRetry } from "../stakes.js";
+import { bandTexts, clueFor, effectsForBand, isFreeRetry } from "../stakes.js";
 import type { AssembleOutput, BeatItem } from "./assemble.js";
 import type { AuditOutput } from "./audit.js";
 import type { DirectorNodeOutput } from "./director.js";
@@ -988,6 +989,117 @@ async function seedPresence(
   }
 }
 
+/** One Director arrival (spec 078, 088). True when it wrote a row. */
+async function arriveOne(
+  run: Run,
+  ctx: TurnContext,
+  p: SessionProjections,
+  id: string,
+): Promise<boolean> {
+  const { seed, deps } = ctx;
+  const npc = seed.npcs.find((n) => n.id === id);
+  if (!npc) {
+    // Spec 088: an unseen encounter monster arrives as a combatant.
+    const m = seed.encounters
+      .flatMap((e) => e.monsters)
+      .find((x) => x.combatantId === id);
+    if (!m || p.engine.combatants[id]) return false;
+    const rec = deps.srd.getById("monster", m.srdMonsterId);
+    if (!rec) throw stop("internal", `no SRD monster ${m.srdMonsterId}`);
+    await run.mech(
+      `director:arrival:${id}`,
+      { type: "combatant.add", combatant: combatantFromSrd(rec, id, m.name) },
+      `${m.name ?? rec.name} comes into view`,
+      null,
+    );
+    return true;
+  }
+  await run.submit(`director:arrival:${id}`, "scene-presence", () => ({
+    kind: "scene-presence",
+    ...note(`${npc.name} arrives`, "The Director reports the NPC on screen."),
+    actorId: id,
+    reason: "arrived",
+    actionId: null,
+    visibility: "public",
+  }));
+  return true;
+}
+
+/** Does text name the arrival id: a snapshot alias, or a not-yet-seen monster's seed name. */
+function textsName(
+  snapshot: ActorSnapshot,
+  seed: SceneSeed,
+  texts: readonly string[],
+  id: string,
+): boolean {
+  const text = texts.join(". ");
+  if (namedActorIds(snapshot, text).includes(id)) return true;
+  if (snapshot.actors.some((a) => a.id === id)) return false;
+  const m = seed.encounters
+    .flatMap((e) => e.monsters)
+    .find((x) => x.combatantId === id);
+  const name = m?.name?.trim();
+  if (!name) return false;
+  const esc = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return new RegExp(`(?<![\\p{L}\\p{N}_])${esc}(?![\\p{L}\\p{N}_])`, "iu").test(
+    text,
+  );
+}
+
+type CheckStepOf = Extract<Step, { step: "check" }>;
+
+/**
+ * Spec 089 D3: an arrival is dependent when a check this beat declares stake
+ * text that names it. The rest are unconditional (spec 078).
+ */
+export function splitArrivals(
+  arrivals: readonly string[],
+  steps: readonly Step[],
+  snapshot: ActorSnapshot,
+  seed: SceneSeed,
+): { unconditional: string[]; dependent: string[] } {
+  const stakeTexts = steps
+    .filter((s): s is CheckStepOf => s.step === "check")
+    .flatMap((s) =>
+      s.stakes
+        ? [s.stakes.success, s.stakes.cost, s.stakes.failure, s.stakes.severe]
+        : [],
+    )
+    .filter((t): t is string => !!t);
+  const unconditional: string[] = [];
+  const dependent: string[] = [];
+  for (const id of arrivals) {
+    (textsName(snapshot, seed, stakeTexts, id)
+      ? dependent
+      : unconditional
+    ).push(id);
+  }
+  return { unconditional, dependent };
+}
+
+/** Spec 089 D3: land each held arrival whose check's applied band names it; log the rest. */
+async function landHeldArrivals(
+  run: Run,
+  ctx: TurnContext,
+  snapshot: ActorSnapshot,
+  dependent: readonly string[],
+): Promise<void> {
+  if (dependent.length === 0) return;
+  const checks = run.submissions.filter((s) => s.stakes && s.band);
+  let p: SessionProjections | null = null;
+  for (const id of dependent) {
+    const lands = checks.some((s) =>
+      textsName(snapshot, ctx.seed, bandTexts(s.stakes, s.band), id),
+    );
+    if (!lands) {
+      ctx.deps.log({ event: "dm.arrival.held", jobId: ctx.job.id, npcId: id });
+      continue;
+    }
+    p ??= await ctx.deps.loadProjections(ctx.job.sessionId);
+    await arriveOne(run, ctx, p, id);
+  }
+}
+
 /**
  * Director opening moves (decision-0025 §4): the scene-start setup and the
  * `turn` table-mode decision. They run before any action group, because an
@@ -999,6 +1111,7 @@ async function directorOpening(
   assembled: AssembleOutput,
   director: DirectorNodeOutput,
   local: Local,
+  unconditional: readonly string[],
 ): Promise<void> {
   const { seed, deps } = ctx;
   const p = assembled.projections;
@@ -1085,35 +1198,10 @@ async function directorOpening(
   }
 
   // arrivals (spec 078): the Director's legal reveals, before any action group.
+  // Spec 089: only the unconditional ones; the rest wait for their check's band.
   let arrived = 0;
-  for (const id of director.arrivals ?? []) {
-    const npc = seed.npcs.find((n) => n.id === id);
-    if (!npc) {
-      // Spec 088: an unseen encounter monster arrives as a combatant.
-      const m = seed.encounters
-        .flatMap((e) => e.monsters)
-        .find((x) => x.combatantId === id);
-      if (!m || p.engine.combatants[id]) continue;
-      const rec = deps.srd.getById("monster", m.srdMonsterId);
-      if (!rec) throw stop("internal", `no SRD monster ${m.srdMonsterId}`);
-      arrived += 1;
-      await run.mech(
-        `director:arrival:${id}`,
-        { type: "combatant.add", combatant: combatantFromSrd(rec, id, m.name) },
-        `${m.name ?? rec.name} comes into view`,
-        null,
-      );
-      continue;
-    }
-    arrived += 1;
-    await run.submit(`director:arrival:${id}`, "scene-presence", () => ({
-      kind: "scene-presence",
-      ...note(`${npc.name} arrives`, "The Director reports the NPC on screen."),
-      actorId: id,
-      reason: "arrived",
-      actionId: null,
-      visibility: "public",
-    }));
+  for (const id of unconditional) {
+    if (await arriveOne(run, ctx, p, id)) arrived += 1;
   }
   // One fresh load after the arrivals group (spec 078, 088).
   const fresh = arrived > 0 ? await deps.loadProjections(ctx.job.sessionId) : p;
@@ -1468,6 +1556,15 @@ export const resolve: Node<"resolve"> = async (ctx) => {
     // accepts the ids this turn's encounter start adds (spec 045 SC-003).
     const planReadings = hold ? [] : (ctx.results.interpret?.readings ?? []);
     const planRulings = hold ? [] : (ctx.results.adjudicate?.rulings ?? []);
+    const { unconditional, dependent } = splitArrivals(
+      director.arrivals ?? [],
+      [
+        ...planReadings.flatMap((r) => r.steps),
+        ...planRulings.flatMap((r) => r.steps),
+      ],
+      assembled.snapshot,
+      ctx.seed,
+    );
     const startingEncounter = encounterToStart(
       ctx.seed,
       director,
@@ -1480,7 +1577,7 @@ export const resolve: Node<"resolve"> = async (ctx) => {
       joining: arrivingMonsters(
         ctx.seed,
         assembled.projections,
-        director,
+        { ...director, arrivals: unconditional },
         ctx.job.trigger,
       ).map((m) => m.id),
       arriving: [
@@ -1490,7 +1587,7 @@ export const resolve: Node<"resolve"> = async (ctx) => {
             startingEncounter,
             assembled.projections.scenePresence,
           ),
-          ...(director.arrivals ?? []),
+          ...unconditional,
         ]),
       ],
       resumed: (assembled.resumed ?? []).map((plan) => plan.actionId),
@@ -1512,7 +1609,7 @@ export const resolve: Node<"resolve"> = async (ctx) => {
 
     // Decision-0025 §4: opening moves, rulings, actions, NPC, closing moves,
     // turn advance. Hold runs the opening and closing moves only.
-    await directorOpening(run, ctx, assembled, director, local);
+    await directorOpening(run, ctx, assembled, director, local, unconditional);
 
     if (!hold) {
       const readings = ctx.results.interpret?.readings ?? [];
@@ -1586,6 +1683,8 @@ export const resolve: Node<"resolve"> = async (ctx) => {
         };
       }
     }
+
+    await landHeldArrivals(run, ctx, assembled.snapshot, dependent);
 
     // Closing moves. A scene-start job has none (its opening moves returned).
     if (ctx.job.trigger !== "scene-start") {

@@ -340,9 +340,15 @@ describe("prompt caps (SC-007)", () => {
       offstageNpcs: [],
       unseenMonsters: [],
     });
-    expect(DIRECTOR_VERSION).toBe("dm.director-v9");
+    expect(DIRECTOR_VERSION).toBe("dm.director-v10");
     expect(prompt.system).toContain(
       "`goalNote` is its own top-level key, always written (an empty string when you have no note), never inside `pacing`.",
+    );
+    expect(prompt.system).toContain(
+      "it states no result a roll this beat could decide",
+    );
+    expect(prompt.system).toContain(
+      "a reveal it would make is the roll's, not yours",
     );
     expect(prompt.system).toContain(agencyRule("director"));
     expect(prompt.system).toContain(

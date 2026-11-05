@@ -46,7 +46,8 @@ export type ClaimKind =
   | "death"
   | "down"
   | "omission"
-  | "count";
+  | "count"
+  | "reveal";
 
 export interface ClaimIssue {
   claim: ClaimKind;
@@ -773,6 +774,73 @@ export function offTurnActs(
             detail: `${ctx.displayName(actor)} is off turn and is shown taking a turn action ("${matched}").`,
           });
         }
+        break;
+      }
+    }
+  }
+  return issues;
+}
+
+/**
+ * The actor ids a text names by a unique snapshot alias, in order, once each (spec 089 D1).
+ * ponytail: unique aliases only; a description with no alias ("a small figure") names no one;
+ * upgrade to an interpret field (spec 089 OQ-1 b) when a playtest shows a descriptive reveal slipping through.
+ */
+export function namedActorIds(snapshot: ActorSnapshot, text: string): string[] {
+  const ctx = new Context(snapshot, null);
+  const ids: string[] = [];
+  for (const o of ctx.occurrences(text)) {
+    const id = o.ids[0] as string;
+    if (o.unique && !ids.includes(id)) ids.push(id);
+  }
+  return ids;
+}
+
+const NO_SIGN_RE = /\b(?:no sign of|nothing of|no trace of)\b/i;
+
+/**
+ * Spec 089 D7: prose that shows an absent NPC a failed band's unmet success named.
+ * Quotes, negation, "no sign of" and a question do not count.
+ * ponytail: actors only, alias match only; a clue reveal is left to the model audit.
+ */
+export function unmetReveals(
+  state: ClaimState,
+  text: string,
+  rolls: readonly { unmet: string; applied: readonly string[] }[],
+): ClaimIssue[] {
+  const ctx = new Context(state.snapshot, state.diff);
+  const narr = maskQuotes(text);
+  const occs = ctx.occurrences(narr);
+  const issues: ClaimIssue[] = [];
+  const seen = new Set<string>();
+  for (const r of rolls) {
+    const applied = new Set(
+      r.applied.flatMap((t) => namedActorIds(state.snapshot, t)),
+    );
+    for (const id of namedActorIds(state.snapshot, r.unmet)) {
+      const actor = ctx.actor(id);
+      if (applied.has(id) || seen.has(id) || actor?.presence !== "absent")
+        continue;
+      for (const c of clausesOf(narr)) {
+        const o = occs.find(
+          (x) =>
+            x.unique &&
+            x.ids[0] === id &&
+            x.start >= c.start &&
+            x.start < c.end,
+        );
+        if (!o) continue;
+        const before = narr.slice(c.start, o.start).replace(/’/g, "'");
+        if (NEGATION_RE.test(before) || NO_SIGN_RE.test(before)) continue;
+        if (narr[c.end] === "?") continue;
+        seen.add(id);
+        const matched = truncate(text.slice(o.start, o.end));
+        issues.push({
+          claim: "reveal",
+          actorIds: [id],
+          matched,
+          detail: `${ctx.displayName(actor)} is absent and the prose shows them, a success outcome the band did not deliver ("${matched}").`,
+        });
         break;
       }
     }
