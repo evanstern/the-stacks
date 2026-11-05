@@ -1,6 +1,9 @@
 # M3 runbook B2 — runbook B playtest fixes (milestone m-3) — sweep runbook (2026-11-05)
 
-- **Status:** draft — waits for operator sign-off (C0, C1).
+- **Status:** signed-off (operator, 2026-11-05, in chat, answering "Do you sign off on the runbook
+  B2 merge spine and amendment A1 (C0), with Opus for spec authoring (C1)?"): "Signed off, start".
+  C0 (spine, A1, tiers, E1-E3, lane-note defaults) and C1 are both granted. E4 was added when A1
+  was carded (TASK-0246), the same card-ACs-drive shape as E1 and E2; the operator was told.
 - **Milestone:** m-3, "The Table (multiplayer)" (`docs/design/milestones.md`, M3 section).
 - **Orchestrator:** this session plans, dispatches and gates. It never implements.
 - **Predecessor:** `docs/design/m3-runbook-b-resolution-quality.md` (implementation done
@@ -99,6 +102,7 @@ Findings:
 |---|---|---|---|---|
 | 1 | TASK-0242 NPC hit damage line | sonnet | escape E1 | yes |
 | 2 | TASK-0240 reflex flinch in the audit | sonnet | escape E2 | yes, beside 0242 (disjoint) |
+| 2b | TASK-0246 off-turn non-attack verbs (A1) | sonnet | escape E4 | after 0240 merges (`audit-words.ts`, `claims.ts`) |
 | 3 | TASK-0203 schema outcome and coercions | sonnet | spec set | `call.ts`/schema phase yes; prompt phases after 0240 merges |
 | 4 | TASK-0244 companion acts in its own turn | sonnet | spec set | after 0242 merges (`facts.ts`); beside 0203 if disjoint |
 | 5 | TASK-0238 encounter monster before the encounter | sonnet | spec set | after 0244 merges |
@@ -112,6 +116,8 @@ TASK-0214's notes record a cause no card holds: the off-turn code check misses n
 ("turns its head", "shifts its grip", "watches"), and the model audit still blocks them.
 Proposal: card it now, with ACs drawn from run 1, and slot it at spine #2b, after 0240
 (both edit `audit-words.ts`). Without it, 0214's re-measure likely misses 70% on a known cause.
+Granted at C0; carded as **TASK-0246** (sonnet, escape E4: card ACs drive). Default in its AC #2:
+a perceptual verb (watches, waits, turns its head toward a noise) is not a turn action.
 
 ### Lane notes
 
@@ -184,6 +190,7 @@ Proposal: card it now, with ACs drawn from run 1, and slot it at spine #2b, afte
 
 - **E1 — TASK-0242:** card ACs drive. A facts test replays seq 163-166; a scripted-audit test covers seq 163-170.
 - **E2 — TASK-0240:** card ACs drive. An audit-prompt rule plus a code downgrade; a test per AC.
+- **E4 — TASK-0246:** card ACs drive. A deterministic check per AC; a replay test over the run 1 phrases.
 - **E3 — B2 scenario:** the TASK-0195 convention drives (as TASK-0234 in runbook B).
 
 ## Task-specific merge conditions
