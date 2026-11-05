@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-11-05 08:19'
-updated_date: '2026-11-05 10:00'
+updated_date: '2026-11-05 10:01'
 labels:
   - playtest
 milestone: m-3
@@ -39,6 +39,8 @@ Related: TASK-0234 (runbook B scenario), TASK-0195.
 Claimed 2026-11-05 by M3 runbook B2 (docs/design/m3-runbook-b2-playtest-fixes.md, spine #7). Worktree .worktrees/task-0250, branch task-0250-b2-scenario, cut from origin/main 430df14e. No spec dir: signed escape line E3 covers this task.
 
 B2 scenario shipped: checklist runbook-b2-reed-camp.md (12 rows), script runbook-b2-reed-camp.json, rehearsal log 2026-11-05; code sha 1e040bb3
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (E3 implementation)
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
