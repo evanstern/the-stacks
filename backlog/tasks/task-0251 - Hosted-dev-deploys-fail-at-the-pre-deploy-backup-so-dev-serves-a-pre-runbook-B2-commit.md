@@ -3,10 +3,10 @@ id: TASK-0251
 title: >-
   Hosted dev deploys fail at the pre-deploy backup, so dev serves a
   pre-runbook-B2 commit
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-11-05 10:13'
-updated_date: '2026-11-05 14:44'
+updated_date: '2026-11-05 14:58'
 labels:
   - ops
   - hosted-dev
@@ -31,7 +31,7 @@ Related: TASK-0021 (hosted dev), TASK-0250 (the scenario that needs it), docs/op
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
 - [x] #1 The cause of the pre-deploy backup failure is identified and recorded
-- [ ] #2 A Deploy dev run on main succeeds and dev's health reports the current main commit
+- [x] #2 A Deploy dev run on main succeeds and dev's health reports the current main commit
 - [x] #3 The backup step reports pg_dump's stderr or exit code when it fails, with a test
 <!-- AC:END -->
 
@@ -47,8 +47,14 @@ Dispatch: tier=haiku pinned=cc/claude-haiku-5-5 served=claude-haiku-5-5 (impleme
 Fix: backup() streams pg_dump to the file through an fd (no stdout buffer); on error or nonzero status it removes the partial file and throws backupFailureMessage (stderr, else error code, else exit status, else signal). Five node:test cases. Orchestrator check: the same spawnSync fd pattern wrote 5 MB at status 0, mode 600 (the old buffered call fails at 1 MiB with ENOBUFS). AC #2 confirms on the first Deploy dev run after merge.
 <!-- SECTION:NOTES:END -->
 
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Merged PR #142 (087ecb7f). Cause: spawnSync buffered pg_dump under Node's 1 MiB maxBuffer; dumps over 1 MiB failed ENOBUFS with empty stderr. backup() now streams to the file via an fd and names the failure (backupFailureMessage). Confirmed: Deploy dev on 087ecb7f succeeded (2026-11-05T14:56Z) and /health reports status ok, commit 087ecb7f. No vm-104 command was run.
+<!-- SECTION:FINAL_SUMMARY:END -->
+
 ## Definition of Done
 <!-- DOD:BEGIN -->
-- [ ] #1 All tests and checks run green
-- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
+- [x] #1 All tests and checks run green
+- [x] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
