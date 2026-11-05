@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-11-05 03:53'
-updated_date: '2026-11-05 08:19'
+updated_date: '2026-11-05 08:32'
 labels:
   - dm
   - rules
@@ -33,14 +33,14 @@ Spec: specs/089-reveal-waits-for-dice
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 When a check's declared outcome names a reveal, the reveal (arrivals or prose) happens only on a band whose outcome includes it, with a test replaying seq 43-51
-- [ ] #2 The Director's goal note does not promise a result the turn's dice will decide (prompt rule plus test), or arrivals that depend on a check wait for resolve
-- [ ] #3 The audit flags prose that delivers a success outcome on a failure band (ledger-mismatch), with a test
-- [ ] #4 Spec phase: Seam check (no source edit)
-- [ ] #5 Spec phase: Dependent arrivals wait for the band (US1; FR-001 to FR-005, FR-012)
-- [ ] #6 Spec phase: The goal note promises no dice result (US2; FR-006, FR-007)
-- [ ] #7 Spec phase: The audit flags a success told on a failure band (US3; FR-008 to FR-011)
-- [ ] #8 Spec phase: Wiki re-pin
+- [x] #1 When a check's declared outcome names a reveal, the reveal (arrivals or prose) happens only on a band whose outcome includes it, with a test replaying seq 43-51
+- [x] #2 The Director's goal note does not promise a result the turn's dice will decide (prompt rule plus test), or arrivals that depend on a check wait for resolve
+- [x] #3 The audit flags prose that delivers a success outcome on a failure band (ledger-mismatch), with a test
+- [x] #4 Spec phase: Seam check (no source edit)
+- [x] #5 Spec phase: Dependent arrivals wait for the band (US1; FR-001 to FR-005, FR-012)
+- [x] #6 Spec phase: The goal note promises no dice result (US2; FR-006, FR-007)
+- [x] #7 Spec phase: The audit flags a success told on a failure band (US3; FR-008 to FR-011)
+- [x] #8 Spec phase: Wiki re-pin
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -55,6 +55,10 @@ Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5 (spec 0
 Spec 089 (0395da39). Both halves of AC #2: an arrival a check's outcome text names waits for the band; the Director goal note states no dice result and narrate drops it on any failed-check beat. Defaults (a): OQ-1 detect by snapshot alias in outcome texts; OQ-2 drop on any failed check; OQ-3 only the audit sees the unmet success; OQ-4 settled at the seam check against 0238; OQ-5 a dm.arrival.held log event only. Implementation last of the fixes (after 0244, 0238, 0203, 0246).
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 089 phases 1-2, grouped). Seam check: OQ-4 (a), encounter-monster arrivals take the same rule (matched by seed name while unseen). director-v10 and audit-v16 next.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 089 phases 3-5, grouped: goal note, audit, wiki)
+
+Spec 089 built (all 5 phases). AC #1: arrivals named by a check's outcome text land only on a band whose text names them (reveal-waits.integration replays seq 43-51: severe failure, no Pell; success, Pell arrives). AC #2: both halves: arrivals wait for the band; director-v10 goal note states no dice result, and narrate drops the note on a failed-check beat (seq 63-72 replay). AC #3: unmetReveals blocks prose showing an absent NPC an unmet success named, as ledger-mismatch before the model audit; audit-v16 lists unmet successes. Orchestrator re-ran REQUIRE_DATABASE=1 ci:check on the final tree: green (1858 passed).
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
