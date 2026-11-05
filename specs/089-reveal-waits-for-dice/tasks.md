@@ -23,17 +23,17 @@ report.
 
 **Independent test**: plan.md's "Seam check log" has a row per merged task, or "no seam moved".
 
-- [ ] T001 Re-read the merged diffs of TASK-0244 and TASK-0238 in `apps/server/src/dm/nodes/resolve.ts`:
+- [x] T001 Re-read the merged diffs of TASK-0244 and TASK-0238 in `apps/server/src/dm/nodes/resolve.ts`:
       the arrivals loop, `directorOpening`'s signature, the plan-gate `arriving` input, the order of
       the action and NPC groups. Record whether 0238 routes encounter monsters through `arrivals`
       (spec OQ-4).
-- [ ] T002 Re-read the merged diffs of TASK-0203 in `apps/server/src/dm/prompts/director.ts` and
+- [x] T002 Re-read the merged diffs of TASK-0203 in `apps/server/src/dm/prompts/director.ts` and
       `nodes/director.ts` (goalNote coercion), and of TASK-0240 and TASK-0203 in
       `prompts/audit.ts` and `nodes/audit.ts` (rule numbering, `deterministicChecks`). Note the
       current `dm.director` and `dm.audit` versions; "next version" means one past each.
-- [ ] T003 Re-read the merged diffs of TASK-0246 in `apps/server/src/dm/claims.ts` and
+- [x] T003 Re-read the merged diffs of TASK-0246 in `apps/server/src/dm/claims.ts` and
       `audit-words.ts`, and of TASK-0242, 0244 and 0238 in `facts.ts` (`FactRoll`, `collectFacts`).
-- [ ] T004 Amend plan.md D3 to D8 and the Files table where a seam moved; log each amendment in
+- [x] T004 Amend plan.md D3 to D8 and the Files table where a seam moved; log each amendment in
       "Seam check log". Amend this file's later tasks to match. Commit as
       `TASK-0237 phase 1: seam check against merged spine`.
 

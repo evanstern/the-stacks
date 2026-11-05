@@ -198,3 +198,12 @@ edited by an earlier spine task: `nodes/resolve.ts` (0244, 0238), `prompts/direc
 ## Seam check log
 
 Phase 1 appends one row per moved seam here: the merged task, the seam, and the amendment made.
+
+| Merged task | Seam | Amendment |
+|---|---|---|
+| TASK-0238 (OQ-4) | Encounter monsters ride `director.arrivals`. Resolve's arrivals loop adds an unseen monster by `combatant.add` (key `director:arrival:<id>`); `arrivingMonsters` reads `director.arrivals` for the plan gate's `joining`. | OQ-4 (a): the same dependent rule covers every arrival id. D3 amended: the loop body becomes `arriveOne` (NPC or monster), shared by the opening and `landHeldArrivals`. `splitArrivals` takes the seed; a monster is named by its seed `name` (a monster has no snapshot actor while unseen). The plan gate's `arrivingMonsters` call and `arriving` input both take `unconditional`. |
+| TASK-0244 | `directorOpening` gained no parameter; the plan-gate `arriving` input is unchanged in shape. | None. D3 adds the `unconditional` parameter as planned. |
+| TASK-0203 / TASK-0240 | `dm.director` is `dm.director-v9`; `dm.audit` is `dm.audit-v15`. Audit rule 7 is still rule 7. `deterministicChecks` exists in `nodes/audit.ts` and calls `offTurnActs`. | Next versions: `dm.director-v10`, `dm.audit-v16`. D4 and D8 unchanged. `dm.interpret` is v15 and `dm.narrate` is v21 (untouched). |
+| TASK-0246 | `offTurnActs` landed in `claims.ts` as D7 assumed. | None. |
+| TASK-0242 / 0244 / 0238 | `FactRoll` carries `consequence` and `revealed`; `collectFacts` has two roll sites. | None. D6 adds `unmetSuccess` beside `consequence`. |
+| TASK-0214 | `withholdRefusedInputs` already withholds the goal note on a count claim. | None. D5 adds a second withhold. |
