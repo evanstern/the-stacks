@@ -25,7 +25,7 @@ import {
   transcriptEntries,
 } from "./common.js";
 
-export const PROMPT_VERSION = "dm.narrate-v18";
+export const PROMPT_VERSION = "dm.narrate-v19";
 
 /** One turn rule, shared by the narrate and audit prompts (TASK-0214). */
 export const TURN_RULE =
@@ -57,7 +57,12 @@ function rollEntry(r: FactRoll): string {
     return `  reaction: ${r.name} strikes at ${r.target ?? "them"} as they pull away -> ${r.outcome ?? "no result"}`;
   }
   const target = r.target ? ` target ${r.target}` : "";
-  const word = outcomeWord(r) ?? "no result";
+  const dealt = r.damage?.dealt;
+  const word = r.damage
+    ? dealt
+      ? `damage dealt: ${dealt.amount}${dealt.type ? ` ${dealt.type}` : ""} to ${dealt.target}`
+      : "damage rolled; no hit points lost"
+    : (outcomeWord(r) ?? "no result");
   const noRoll = r.autoSuccess ? " (no roll needed; a free retry)" : "";
   const outcome = r.consequence ? `; outcome (settled): ${r.consequence}` : "";
   const learned = r.revealed ? `\n  learned (settled): ${r.revealed}` : "";

@@ -581,3 +581,63 @@ describe("run B1 seq 100-106: the reflex flinch (finding 23, TASK-0240)", () => 
     ).toBe(true);
   });
 });
+
+describe("TASK-0242: run 1 seq 163-170 and 185-192, NPC hit damage", () => {
+  const hit = (name: string, amount: number, type: string, before: number) => {
+    const after = before - amount;
+    const dealt = { amount, type, target: "Tamsin Vale" };
+    return facts({
+      npcTurn: npcTurn(name, {
+        rolls: [
+          roll(name, "Tamsin Vale"),
+          roll(name, "Tamsin Vale", {
+            reason: `${name} attacks: damage`,
+            against: null,
+            outcome: null,
+            damage: { dealt },
+          }),
+        ],
+        outcomes: ["hit"],
+        changes: [
+          {
+            kind: "hp",
+            target: "Tamsin Vale",
+            direction: "damage",
+            amount,
+            damageType: type,
+            before,
+            after,
+          },
+        ],
+      }),
+      turn: { actor: name, next: "Snag", offTurn: OFF(name) },
+    });
+  };
+  const WOUND = "The blade bites Tamsin's side and she staggers, bleeding.";
+  for (const [name, amount, before] of [
+    ["Goblin by the fire", 4, 13],
+    ["Goblin lookout", 6, 9],
+  ] as const) {
+    const f = hit(name, amount, "piercing", before);
+    it(`${name}: the fact line states the damage, not 'no result'`, () => {
+      const np = buildNarratePrompt({
+        seed: SEED_VIEW,
+        roster: [],
+        assembled: { transcriptTail: [] } as unknown as AssembleOutput,
+        snapshot: SNAPSHOT,
+        facts: f,
+        prior: null,
+      });
+      expect(np.user).toContain(
+        `damage dealt: ${amount} piercing to Tamsin Vale`,
+      );
+      expect(np.user).not.toContain("no result");
+    });
+    it(`${name}: a wound narration passes the scripted audit`, async () => {
+      const out = await runAudit(f, WOUND, [text(WOUND), auditJson("pass")]);
+      expect(out.output.record.final).toBe("passed");
+      expect(out.output.shipped?.prose).toBe(WOUND);
+      expect(passes(f, WOUND)).toBe(true);
+    });
+  }
+});
