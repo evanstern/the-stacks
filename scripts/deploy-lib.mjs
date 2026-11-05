@@ -17,6 +17,23 @@ export function deployDecision({ sha, mainHead, allowStale }) {
   return "deploy";
 }
 
+/**
+ * The `backup failed: …` line for a failed `pg_dump` (TASK-0251). Names the
+ * first of: stderr, `error.code`/`error.message`, exit status, signal.
+ */
+export function backupFailureMessage({ error, status, signal, stderr } = {}) {
+  const text = String(stderr ?? "").trim();
+  const exit = status == null ? null : `exit status ${status}`;
+  const detail =
+    text ||
+    error?.code ||
+    error?.message ||
+    exit ||
+    (signal ? `signal ${signal}` : null) ||
+    "unknown";
+  return `backup failed: ${detail}${text && exit ? ` (${exit})` : ""}`;
+}
+
 /** True only when `/health` reports both success and the deployed commit. */
 export function healthMatches(body, sha) {
   return Boolean(body) && body.status === "ok" && body.commit === sha;
