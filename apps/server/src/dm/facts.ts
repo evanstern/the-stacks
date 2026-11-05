@@ -59,6 +59,14 @@ export interface FactRoll {
   autoSuccess?: boolean;
   /** True for an opportunity attack (the attacker spent its reaction). */
   reaction?: boolean;
+  /**
+   * TASK-0242: set on a hit's damage roll (its own submission, no outcome row).
+   * `dealt` is the hit points the same batch took off the target; null when the
+   * ledger records none.
+   */
+  damage?: {
+    dealt: { amount: number; type: string | null; target: string } | null;
+  };
 }
 
 /** A reflex the dice allow the narrator to show (spec 074 D3). Never a choice. */
@@ -258,6 +266,7 @@ export function collectFacts(
     (r): r is Extract<LedgerRow, { kind: "outcome" }> => r.kind === "outcome",
   );
   const claimed = new Set<number>();
+  const damageRolls = new Map<FactRoll, string>();
 
   for (const row of ordered) {
     if (row.kind === "roll") {
@@ -294,7 +303,7 @@ export function collectFacts(
       }
       const name = nameOf(row.roll.combatantId);
       if (outcome) out.outcomes.push(outcome);
-      out.rolls.push({
+      const fact: FactRoll = {
         name,
         reason: stripMarker(row.roll.reason),
         expression: row.roll.expression,
@@ -306,7 +315,12 @@ export function collectFacts(
         target,
         ...(band ? { band, margin, consequence, revealed } : {}),
         ...(reaction ? { reaction: true } : {}),
-      });
+      };
+      if (!link && row.roll.purpose === "damage") {
+        fact.damage = { dealt: null };
+        damageRolls.set(fact, row.batchId);
+      }
+      out.rolls.push(fact);
     }
   }
   // Check outcomes with no roll (auto-fail or a free retry).
@@ -356,6 +370,16 @@ export function collectFacts(
         before: b.current,
         after: a.current,
       });
+      const dmgRoll = [...damageRolls].find(
+        ([r, batch]) => batch === row.batchId && !r.damage?.dealt,
+      )?.[0];
+      if (dmgRoll?.damage && lost > 0) {
+        dmgRoll.damage.dealt = {
+          amount: lost,
+          type: damageTypeBySeq.get(row.seq) ?? null,
+          target,
+        };
+      }
     } else if (row.type === "life-state.changed") {
       out.changes.push({
         kind: "life-state",
