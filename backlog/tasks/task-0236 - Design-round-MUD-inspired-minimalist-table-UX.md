@@ -4,7 +4,7 @@ title: 'Design round: MUD-inspired minimalist table UX'
 status: In Progress
 assignee: []
 created_date: '2026-11-05 03:37'
-updated_date: '2026-11-05 06:06'
+updated_date: '2026-11-05 14:39'
 labels:
   - design
   - ux
@@ -31,9 +31,9 @@ Spec: specs/090-table-margin
 - [x] #2 Vault analysis note draws VTT implications from the corpus
 - [x] #3 Round-1 mockups: comparable directions over the same real table states, rendered and verified
 - [x] #4 Operator selection recorded as a decision record
-- [ ] #5 Spec phase: Margin, mini-strip, status strip (US1, US2; FR-001 to FR-005; R2)
-- [ ] #6 Spec phase: Contrast, no-dialog, contract amendments and wiki (FR-021, FR-022; SC-003, SC-007)
-- [ ] #7 Spec phase: Verification **[orchestrator]**
+- [x] #5 Spec phase: Margin, mini-strip, status strip (US1, US2; FR-001 to FR-005; R2)
+- [x] #6 Spec phase: Contrast, no-dialog, contract amendments and wiki (FR-021, FR-022; SC-003, SC-007)
+- [x] #7 Spec phase: Verification **[orchestrator]**
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -66,6 +66,8 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-
 Phase 1 note: ci:check fails only at server adjudicate integration tests without a DB, the known TASK-0138 bug; verified with a stack in phase 3.
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5[1m] (spec 090 phase 2, 4cfff877)
+
+Phase 3 (orchestrator): live check at 1280/390, light/dark, evidence in specs/090-table-margin/evidence/ (app browser pane, not Brave). Merged origin/main (b7ccccc1); party-panel re-pinned RE-PIN-ONLY after reading main's resolve.ts diff. Full ci:check with DB on the merged tree: 11/11, server 1859 passed.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
