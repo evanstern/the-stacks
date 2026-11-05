@@ -4,7 +4,7 @@ title: An encounter monster can't be acted on before its encounter starts
 status: In Progress
 assignee: []
 created_date: '2026-11-05 03:56'
-updated_date: '2026-11-05 06:51'
+updated_date: '2026-11-05 07:43'
 labels:
   - dm
   - playtest
@@ -51,6 +51,8 @@ Claimed 2026-11-05 by M3 runbook B2 (docs/design/m3-runbook-b2-playtest-fixes.md
 Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5 (spec 088 authoring, C1)
 
 Spec 088 (072a4054). Reuses spec 078 arrivals: the Director may arrive a not-yet-appeared encounter monster (free mode); resolve adds it as a combatant before actions run; the plan gate accepts it via joining; held by combatantId afterwards (snapshot/build.ts untouched). Encounter startability becomes 'has the encounter run', so an early monster does not block reed-camp. Seq 73-92: interpret gets an 'Arriving this beat' section. AC #3: refused fact line says it did not happen; narrate rule; fallback adds no change line. Defaults (a) on OQ-1..OQ-4; the (b) alternatives are carded as one revisit task.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (spec 088 phases 1-3, grouped). Seam check: no seam moved. director-v9, interpret-v15, narrate-v21. Fix: a seed NPC that is also an encounter monster (snag) stays on the 078 path.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
