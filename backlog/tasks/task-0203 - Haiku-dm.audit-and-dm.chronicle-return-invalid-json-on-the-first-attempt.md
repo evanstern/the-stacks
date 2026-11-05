@@ -23,6 +23,8 @@ Outcome: dm.audit and dm.chronicle parse on their first attempt, so a turn does 
 Why: runbook A playtest run 1 (2026-11-02, session 9296c653, scene start): dm.audit-v4 and dm.chronicle-v3 (cc/claude-haiku-4-5) both returned invalid-json on attempt 1 and recovered on attempt 2. Alpha run 3 (2026-11-01) showed the same two purposes failing once each. The ledger holds no text, so the shape of the bad reply is unknown.
 
 Where: apps/server/src/dm/pipeline/call.ts (callJson), the haiku purposes' prompts, and the 9router cc/ haiku route. Candidates: a think block stripThink misses, prose around the JSON, or a code fence.
+
+Spec: specs/086-schema-outcome-coercions
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
