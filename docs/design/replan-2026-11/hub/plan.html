@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Plan — Replan 2026-11</title>
+<link rel="stylesheet" href="hub.css">
+</head>
+<body>
+<main>
+<h1>Plan: foundations first, lanes in parallel behind frozen contracts</h1>
+<p class="lede">Sequence by shared foundations, not by goal. Freeze each seam contract before any lane builds against it — a frozen contract is what makes two lanes safe in parallel. Every milestone ends in a demo and, where play is involved, a hosted playtest.</p>
+<p class="src"><a href="../plan-of-action.md">plan-of-action.md</a> §1–§7</p>
+
+<h2>Workstreams</h2>
+<div class="tbl-wrap"><table>
+<thead><tr><th>Id</th><th>Workstream</th><th>Foundation</th><th>Label</th><th>Id</th><th>Workstream</th><th>Label</th></tr></thead>
+<tbody>
+<tr><td>WS-INT</td><td>Intent vocabulary and planner</td><td>F2</td><td><code>ws:intent</code></td><td>WS-TBL</td><td>Table UX: stream, composer, combat, channels</td><td><code>ws:table-ux</code></td></tr>
+<tr><td>WS-SPC</td><td>Spatial model</td><td>F1</td><td><code>ws:space</code></td><td>WS-SHT</td><td>Sheet and character creation</td><td><code>ws:sheet</code></td></tr>
+<tr><td>WS-NAR</td><td>Narration around facts, DM runtime</td><td>F5</td><td><code>ws:narration</code></td><td>WS-DMC</td><td>Human-DM console</td><td><code>ws:dm-console</code></td></tr>
+<tr><td>WS-COD</td><td>Codex and campaign records</td><td>F3</td><td><code>ws:codex</code></td><td>WS-NBK</td><td>Notebook and editors</td><td><code>ws:notebook</code></td></tr>
+<tr><td>WS-MEM</td><td>Memory and continuity</td><td>F4</td><td><code>ws:memory</code></td><td>WS-GEN</td><td>Generators</td><td><code>ws:generators</code></td></tr>
+<tr><td>WS-ENG</td><td>Engine rules coverage</td><td>K2</td><td><code>ws:engine</code></td><td>WS-BRD</td><td>Board (VTT)</td><td><code>ws:board</code></td></tr>
+<tr><td></td><td></td><td></td><td></td><td>WS-PLT / WS-TLS</td><td>Platform, release / playtest and dev tooling</td><td><code>ws:platform</code>, <code>ws:tooling</code></td></tr>
+</tbody></table></div>
+
+<h2 id="graph">Dependency graph</h2>
+<figure>
+<div class="diagram" id="dep"></div>
+<figcaption>Columns run left to right in dependency order. Teal-bordered nodes are <b>frozen contracts</b>; hover one to see every lane it unblocks. Hover any node to trace it.</figcaption>
+</figure>
+
+<h3>Seams that make parallel lanes safe</h3>
+<div class="tbl-wrap"><table>
+<thead><tr><th>Parallel lanes</th><th>Safe once</th><th>Why</th></tr></thead>
+<tbody>
+<tr><td>WS-INT ∥ WS-SPC ∥ WS-NAR (gateway)</td><td>CP-1</td><td>Disjoint packages; planner reads <code>space</code> only through <code>SpaceView</code>.</td></tr>
+<tr><td>WS-TBL ∥ WS-INT (planner, gate)</td><td>N-01 frozen (CP-4)</td><td>The UI emits Intents and renders <code>project()</code> rows; it never calls the planner. Fixture tables stand in.</td></tr>
+<tr><td>WS-COD ∥ WS-INT, WS-TBL, WS-NAR</td><td>CP-1</td><td>The codex is a new plane; it touches the DM runtime only at <code>compile()</code> (0060), after the model freezes.</td></tr>
+<tr><td>WS-SHT ∥ WS-DMC ∥ WS-TBL</td><td>N-01 frozen + 0058 merged</td><td>Each surface emits Intents and reads projections; none reads another's state.</td></tr>
+<tr><td>WS-NBK ∥ WS-BRD</td><td>0057 + N-06 merged</td><td>Notebook writes codex versions; board reads space projections. Only shared object: the <code>map</code> entity, owned by 0068.</td></tr>
+<tr><td>WS-MEM ∥ WS-BRD, WS-GEN</td><td>N-14 + N-15 merged</td><td>Memory reads events and codex; writes only chronicle drafts through the gate.</td></tr>
+<tr><td>WS-ENG ∥ everything</td><td>Always, per card</td><td>Engine is pure and boundary-linted; each card adds one rule with golden-dice tests.</td></tr>
+</tbody></table></div>
+<div class="callout warn"><p><b>Serial-only points:</b> <code>session-model</code> catalog edits and the <code>gate/proposals.ts</code> union merge one PR at a time. Sweeps still merge serially.</p></div>
+
+<h2 id="ladder">Milestone ladder</h2>
+<figure class="diagram">
+<svg viewBox="0 0 1200 470" role="img" aria-label="Milestone calendar with lane-weeks and ±50% range" id="gantt"></svg>
+<figcaption>Bars place each milestone by this hub's reading of the plan §5 overlap notes, which sums to about 25 weeks; the plan's own V1 total is ~29 weeks, drawn as the violet line. Whiskers show lane-weeks ±50%. MVP ≈ 15 weeks; V1 ≈ 29 weeks.</figcaption>
+</figure>
+<div class="tbl-wrap"><table>
+<thead><tr><th>Milestone</th><th>Goals</th><th>Lane-weeks (±50%)</th><th>Lanes</th><th>Calendar</th><th>Demo</th><th>Exit criteria (abridged)</th></tr></thead>
+<tbody id="ms"></tbody></table></div>
+
+<h2 id="frozen">Frozen in-flight work</h2>
+<div class="tbl-wrap"><table>
+<thead><tr><th>Item</th><th>State found</th><th>Disposition</th></tr></thead>
+<tbody>
+<tr><td><b>M3 runbook B and B2</b></td><td>Both swept; B2 playtest 2026-11-06 (71% combat audit pass). Runbook C never started.</td><td><span class="badge b-keep">close</span> Mark complete. Do not open C; its cards re-home. Remove the <code>sweep-m3-runbook-b</code> worktree after confirming no unmerged commits.</td></tr>
+<tr><td><b>TASK-0186</b> playtest-run skill</td><td>In Progress; in use.</td><td><span class="badge b-keep">keep</span> Absorb 0196, 0235. Finish in R1 as WS-TLS.</td></tr>
+<tr><td><b>TASK-0199</b> one chat stream (spec 066)</td><td>To Do, 0/61 tasks; written against <code>action.declare {text}</code>.</td><td><span class="badge b-ext">rewrite</span> Quiet ring for exploration only (P-04), on the Intent <code>declared</code> state. Amend spec 066 after CP-4.</td></tr>
+<tr><td><b>TASK-0203</b> haiku invalid JSON</td><td>In Progress; free-form JSON with tight caps.</td><td><span class="badge b-v">merge</span> Into N-08 structured output; keep vm-104 log shapes as fixtures.</td></tr>
+<tr><td><b>TASK-0247</b> MUD stream (spec 091)</td><td>To Do, 0/28 tasks; depends on 0199.</td><td><span class="badge b-ext">rewrite</span> Keep stream, roll rows, composer. Clickable nouns draft Intent pills. Absorbs 7 cards. Amend spec 091 after CP-4.</td></tr>
+<tr><td>Stale worktrees under <code>.claude/worktrees/</code></td><td>Parked branches.</td><td><span class="badge b-warn">verify</span> Check each with <code>gh api</code>; remove merged; list unmerged for you.</td></tr>
+</tbody></table></div>
+
+<h2 id="checkpoints">Approval checkpoints</h2>
+<div class="tbl-wrap"><table>
+<thead><tr><th>#</th><th>Checkpoint</th><th>You approve</th><th>Artifact</th></tr></thead>
+<tbody>
+<tr style="background:var(--mark)"><td><b>CP-1</b></td><td>Ratify decisions</td><td>P-01…P-21 — <a href="decisions.html">decisions page</a></td><td>Rulings column; decision records</td></tr>
+<tr style="background:var(--mark)"><td><b>CP-2</b></td><td>Constitution</td><td>3.0.0 rewrite — <a href="decisions.html#constitution">principle map</a></td><td>Constitution diff</td></tr>
+<tr style="background:var(--mark)"><td><b>CP-3</b></td><td>Board rework</td><td>Apply map; archive m-1…m-9; create r-1…r-8 — <a href="board.html">board page</a></td><td>Branch board commit</td></tr>
+<tr><td>CP-4</td><td>Intent contract freeze</td><td>N-01 schema, kinds, text grammar</td><td>N-01 spec + decision</td></tr>
+<tr><td>CP-5</td><td>R1 runbook sign-off</td><td>Lanes, merge spine, tiers</td><td>R1 runbook</td></tr>
+<tr><td>CP-6</td><td>Codex model freeze</td><td>0056 kinds, links, visibility, provenance</td><td>0056 spec + decision</td></tr>
+<tr><td>CP-7</td><td>R1 playtest gate</td><td>R1 exit criteria met</td><td>Playtest log</td></tr>
+<tr><td>CP-8</td><td>UI design rounds</td><td>Sheet drawer, DM console, notebook directions</td><td>Design decisions</td></tr>
+<tr><td>CP-9</td><td>R2 + R3 runbooks</td><td>Lanes and merge spine</td><td>Runbooks</td></tr>
+<tr><td>CP-10</td><td>R2 playtest gate</td><td>R2 exit criteria</td><td>Playtest log</td></tr>
+<tr><td>CP-11</td><td>R3 playtest gate</td><td>TASK-0053 passes</td><td>Playtest log</td></tr>
+<tr><td>CP-12</td><td>R4 demo — MVP complete</td><td>All four goals at MVP depth</td><td>Demo log; retrospective</td></tr>
+<tr><td>CP-13</td><td>Board design round</td><td>Layout and gestures (0070)</td><td>Design decision</td></tr>
+<tr><td>CP-14</td><td>R5–R7 runbooks</td><td>Per milestone</td><td>Runbooks</td></tr>
+<tr><td>CP-15</td><td>Adapter trigger review</td><td>Did P-07 fire?</td><td>Note on TASK-0072</td></tr>
+<tr><td>CP-16</td><td>Release 1.0</td><td>Tag, README, publish</td><td>TASK-0082</td></tr>
+</tbody></table></div>
+<p class="src"><a href="../plan-of-action.md">plan-of-action.md</a> §6, §7</p>
+</main>
+<footer><a href="index.html">← Back to the briefing</a></footer>
+<script src="hub.js"></script>
+<script>
+const C = { color: "var(--primary)", fill: "var(--mark)" }, D = {}, M = { color: "var(--warn)", fill: "var(--warn-s)" };
+const n = (id, label, sub, s) => ({ id, label, sub, ...s });
+layered(document.getElementById("dep"), [
+  { title: "Checkpoint", nodes: [n("CP1", "CP-1…3", "ratify, constitution, board", M)] },
+  { title: "Frozen contracts", nodes: [n("INTc", "N-01 Intent contract", "frozen at CP-4", C), n("SPC0", "N-05 zones + space", "SpaceView", C), n("GW", "N-08 structured output", "", D), n("CODc", "0056 codex-model", "frozen at CP-6", C)] },
+  { title: "R1–R2 core", nodes: [n("PLN", "N-02 planner", "", D), n("INTP", "N-04 interpret → Intents", "", D), n("ENC", "N-09 encounter machine", "", D), n("COD", "0057 store, N-14, 0060…", "codex + records", D)] },
+  { title: "R1–R3 lanes", nodes: [n("GATE", "N-03 gate Intents", "", D), n("TBL", "0247, 0199, N-10…12", "table + combat UX", D), n("SHT", "N-17, N-18", "sheet, creation", D), n("DMC", "0078, N-19", "DM console", D), n("CH", "N-16, N-20", "channels, onboarding", D), n("SNAP", "N-15 snapshots", "", D), n("ENG1", "0222–0224, 0215", "engine", D)] },
+  { title: "R1 / R4–R5", nodes: [n("NAR", "0245 + N-07", "fact sheet, prose slots", D), n("NBK", "0059, N-22…25", "notebook", D), n("BRD", "0068–0070, N-26/27", "board", D), n("MEM", "0083–0085, N-31", "memory", D)] },
+  { title: "R6–R8", nodes: [n("GEN", "N-28…30, 0061/62", "generators", D), n("REL", "R8 release", "", M)] },
+], [
+  ["CP1", "INTc"], ["CP1", "SPC0"], ["CP1", "GW"], ["CP1", "CODc"], ["INTc", "PLN"], ["SPC0", "PLN"], ["PLN", "GATE"], ["INTc", "INTP"], ["INTc", "TBL"],
+  ["GATE", "NAR"], ["GW", "NAR"], ["SPC0", "ENC"], ["PLN", "ENG1"], ["CODc", "COD"], ["COD", "SNAP"], ["INTc", "SHT"], ["COD", "SHT"], ["INTc", "DMC"], ["COD", "DMC"],
+  ["INTc", "CH"], ["COD", "NBK"], ["SPC0", "BRD"], ["INTc", "BRD"], ["NBK", "GEN"], ["BRD", "GEN"], ["COD", "MEM"], ["SNAP", "MEM"], ["MEM", "REL"], ["GEN", "REL"],
+], { width: 1260, nodeW: 195, nodeH: 44, gap: 10, label: "Workstream dependency graph" });
+
+// Milestone ladder (plan-of-action §5). start = calendar week offset implied by overlaps.
+const ms = [
+  ["R1", "Fast Table", "G1 G3", 14, 3, 0, 5, "4 goblins in the reed camp; facts < 1 s; narration streams after.", "p95 facts < 1 s; p50 first token < 10 s; 4v4 round < 60 s; audit loop deleted; schema fails < 1%; playtest gate."],
+  ["R2", "Living Codex", "G1 G4", 9, 2, 3, 4, "Greyhollow runs from codex; two sessions back to back; NPC remembers a secret.", "Seeds deleted; records exist; gate load flat at 5 000 events; reveals are events; playtest gate."],
+  ["R3", "Human Table", "G2 G3", 12, 3, 7, 4, "Three humans, AI DM run then human DM run.", "Invite → seated alone; human DM runs combat via console; table talk never reaches narrator; playtest gate."],
+  ["R4", "Notebook", "G4", 8, 2, 11, 4, "Human + AI co-author a 5-location adventure; AI DM plays it.", "Every MVP kind has an editor + lint; provenance shown; backup/restore; playtest gate."],
+  ["R5", "The Board", "G3 G2", 10, 2, 13, 5, "Cave fight on board and text at once; fog, darkvision, fireball.", "No unrevealed token reaches a client; every board fact in stream; 1440/1280 layouts; playtest gate."],
+  ["R6", "Generators", "G4 G1", 10, 3, 18, 4, "Generate a five-room dungeon, curate, play it on the board.", "No model-written numbers; seed reproduces; AI DM calls a generator mid-session."],
+  ["R7", "Campaign Memory", "G1 G2", 8, 2, 18, 4, "Three solo sessions with accurate recaps; chronicle proposes updates.", "Recap accuracy audited; turn context in budget at session 3."],
+  ["R8", "Release 1.0", "all", 6, 2, 22, 3, "A stranger self-hosts from public docs and plays a short campaign.", "Clean clone → first scene; engine + srd published; solo campaign playtest."],
+];
+document.getElementById("ms").innerHTML = ms.map(m => `<tr><td><b>${m[0]}</b> ${m[1]}</td><td>${m[2]}</td><td>${m[3]} (${m[3] / 2}–${m[3] * 1.5})</td><td>${m[4]}</td><td>${m[6]} wk</td><td>${m[7]}</td><td>${m[8]}</td></tr>`).join("");
+const svg = document.getElementById("gantt"), wk = 38, x0 = 210, rowH = 46;
+const T = (x, y, t, a = {}) => { const e = el("text", { x, y, "font-size": 14, ...a }, svg); e.textContent = t; return e; };
+for (let w = 0; w <= 30; w += 5) { el("line", { x1: x0 + w * wk, y1: 20, x2: x0 + w * wk, y2: 400, stroke: "var(--border)", "stroke-dasharray": "3 4" }, svg); T(x0 + w * wk - 6, 16, `wk ${w}`, { "font-size": 12, class: "mute" }); }
+ms.forEach((m, i) => {
+  const y = 30 + i * rowH, v1 = i >= 4;
+  T(10, y + 22, `${m[0]} ${m[1]}`, { "font-weight": 700 });
+  el("rect", { x: x0 + m[5] * wk, y, width: m[6] * wk, height: 30, rx: 6, fill: v1 ? "var(--violet-s)" : "var(--mark)", stroke: v1 ? "var(--violet)" : "var(--primary)", "stroke-width": 2 }, svg);
+  T(x0 + m[5] * wk + 8, y + 20, `${m[6]} wk · ${m[4]} lanes`, { "font-size": 12 });
+  // lane-week whisker on the right, scaled 1 lw = 8px
+  const bx = x0 + 31 * wk, s = 8;
+  el("line", { x1: bx + m[3] * 0.5 * s, y1: y + 15, x2: bx + m[3] * 1.5 * s, y2: y + 15, stroke: "var(--muted-fg)", "stroke-width": 2 }, svg);
+  el("circle", { cx: bx + m[3] * s, cy: y + 15, r: 5, fill: v1 ? "var(--violet)" : "var(--primary)" }, svg);
+  T(bx + m[3] * 1.5 * s + 6, y + 20, `${m[3]} lw`, { "font-size": 12, class: "mute" });
+});
+el("line", { x1: x0 + 15 * wk, y1: 24, x2: x0 + 15 * wk, y2: 420, stroke: "var(--primary)", "stroke-width": 3 }, svg); T(x0 + 15 * wk + 6, 440, "MVP ≈ wk 15", { "font-weight": 700 });
+el("line", { x1: x0 + 29 * wk, y1: 24, x2: x0 + 29 * wk, y2: 420, stroke: "var(--violet)", "stroke-width": 3 }, svg); T(x0 + 29 * wk - 150, 460, "V1 ≈ wk 29 (plan total)", { "font-weight": 700 });
+T(x0 + 31 * wk, 400, "lane-weeks, ±50% whisker", { "font-size": 12, class: "mute" });
+svg.setAttribute("viewBox", `0 0 ${x0 + 31 * wk + 230} 470`);
+</script>
+</body>
+</html>

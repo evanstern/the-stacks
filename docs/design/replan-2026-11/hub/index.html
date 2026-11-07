@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Replan 2026-11 — Morning briefing</title>
+<link rel="stylesheet" href="hub.css">
+</head>
+<body>
+<main>
+<p class="card kicker" style="display:inline-block;border:0;padding:0;background:none">Morning briefing · 2026-11-07</p>
+<h1>The board has 135 problems. Underneath them are five missing foundations.</h1>
+<p class="lede">You asked for the product plan reworked from the four end goals backward. The overnight run produced the research, the synthesis, a proposed constitution 3.0.0 and a board rework. Nothing binds until you rule at the checkpoints below.</p>
+
+<div class="callout">
+<p><b>Thesis.</b> Six weeks of AI-first work made one scene of good narration and no code for the codex, sheets, VTT, generators or human-DM tools. Most of the 135 open cards are symptoms of five missing foundations: a <b>spatial model (F1)</b>, a <b>typed Intent vocabulary with a deterministic planner (F2)</b>, a <b>campaign/codex data model (F3)</b> that also adds campaign, table and session records, <b>memory and continuity (F4)</b>, and <b>narration rendered around code facts (F5)</b>. Build those once and all four goals share them. Latency, not cost, is the binding constraint: median turns ran 28–39 s, and players leave at 30 s. So F2 and F5 come first.</p>
+</div>
+<p class="src"><a href="../wishlist.md">wishlist.md</a> §0, §2 · <a href="../research/decisions-digest.md">research/decisions-digest.md</a> §5 · <a href="../research/architecture-audit.md">research/architecture-audit.md</a> §3</p>
+
+<h2>Decisions waiting on you</h2>
+<p>Rule them in this order. CP-1 to CP-3 unblock everything else; CP-4 onward ride on the plan.</p>
+<div class="grid">
+  <a class="card link" href="decisions.html"><span class="kicker">CP-1 · first</span><h3>Ratify P-01 … P-21</h3><p>Twenty-one decisions, each with a recommendation. Approve, amend or reject each on paper.</p><span class="badge b-rec">21 recommendations</span></a>
+  <a class="card link" href="decisions.html#constitution"><span class="kicker">CP-2 · second</span><h3>Constitution 3.0.0</h3><p>Nine principles become thirteen. Five are new; two old ones fold into one.</p><span class="badge b-warn">major version</span></a>
+  <a class="card link" href="board.html"><span class="kicker">CP-3 · third</span><h3>Board rework</h3><p>Every open card gets an action. 40 new cards (32 deliverables, 8 epics). m-1…m-9 become R1…R8.</p><span class="badge">135 + 40 cards</span></a>
+  <a class="card link" href="plan.html#checkpoints"><span class="kicker">CP-4 … CP-16</span><h3>Later checkpoints</h3><p>Intent freeze, R1 runbook, codex freeze, design rounds, playtest gates, release.</p><span class="badge">13 more</span></a>
+</div>
+
+<h2>The ladder at a glance</h2>
+<p>Eight milestones replace m-1…m-9. R1–R4 make every goal real at minimal depth (MVP). R5–R8 deliver 1.0.</p>
+<div class="ladder">
+  <div class="rung"><b>R1</b>Fast Table<div class="g">G1 G3 · 14 lw</div></div>
+  <div class="rung"><b>R2</b>Living Codex<div class="g">G1 G4 · 9 lw</div></div>
+  <div class="rung"><b>R3</b>Human Table<div class="g">G2 G3 · 12 lw</div></div>
+  <div class="rung"><b>R4</b>Notebook<div class="g">G4 · 8 lw · MVP</div></div>
+  <div class="rung v1"><b>R5</b>The Board<div class="g">G3 G2 · 10 lw</div></div>
+  <div class="rung v1"><b>R6</b>Generators<div class="g">G4 G1 · 10 lw</div></div>
+  <div class="rung v1"><b>R7</b>Campaign Memory<div class="g">G1 G2 · 8 lw</div></div>
+  <div class="rung v1"><b>R8</b>Release 1.0<div class="g">all · 6 lw · V1</div></div>
+</div>
+<div class="legend"><span><span class="badge b-rec">teal</span> MVP (≈43 lane-weeks, ≈15 calendar weeks)</span><span><span class="badge b-v">violet</span> V1 (≈77 lane-weeks, ≈29 calendar weeks)</span><span>Sizing ±50%. A lane-week is one implementer lane on a written spec, plus review and merge.</span></div>
+<p class="src"><a href="../plan-of-action.md">plan-of-action.md</a> §5</p>
+
+<h2>What was done overnight</h2>
+<div class="tbl-wrap"><table>
+<thead><tr><th>Phase</th><th>Artifact</th><th>What it holds</th></tr></thead>
+<tbody>
+<tr><td>Discovery</td><td><a href="../research/architecture-audit.md">architecture-audit</a>, <a href="../research/board-inventory-a.md">board-inventory-a</a>, <a href="../research/board-inventory-b.md">-b</a>, <a href="../research/decisions-digest.md">decisions-digest</a></td><td>The code as built, every open card, every decision and playtest lesson.</td></tr>
+<tr><td>Discovery</td><td><a href="../research/table-ux-research.md">table-ux</a>, <a href="../research/vtt-research.md">vtt</a>, <a href="../research/campaign-tools-research.md">campaign-tools</a></td><td>Market and design research for goals G2–G4.</td></tr>
+<tr><td>Synthesis</td><td><a href="../wishlist.md">wishlist</a>, <a href="../target-architecture.md">target-architecture</a></td><td>Goals → features → capabilities → foundations; the target system.</td></tr>
+<tr><td>Plan</td><td><a href="../plan-of-action.md">plan-of-action</a>, <a href="../decisions-for-ratification.md">decisions-for-ratification</a>, <a href="../board-rework-map.md">board-rework-map</a></td><td>Workstreams, ladder, 16 checkpoints, 21 decisions, an action for every card.</td></tr>
+<tr><td>Constitution</td><td><a href="../../../../.specify/memory/constitution.md">.specify/memory/constitution.md</a></td><td>3.0.0, marked PROPOSED. 2.0.0 binds until CP-2.</td></tr>
+<tr><td>Board</td><td>Branch <code>replan-2026-11</code><span id="idmap"></span></td><td>Board application on the branch only. Root <code>main</code> is untouched.</td></tr>
+<tr><td>Hub</td><td>This site</td><td>Visual companion to the markdown sources above.</td></tr>
+</tbody></table></div>
+
+<div class="callout warn"><p><b>Frozen.</b> No sweeps or merges run until you approve the plan. Runbooks B and B2 are marked complete; runbook C never starts. See <a href="plan.html#frozen">frozen in-flight work</a>.</p></div>
+
+<h2>Pages</h2>
+<div class="grid">
+  <a class="card link" href="goals-to-architecture.html"><h3>Goals → architecture</h3><p>The backward map from four goals to five foundations and the packages that hold them.</p></a>
+  <a class="card link" href="play-ux.html"><h3>Play UX</h3><p>Wireframes: text table, docked board, combat turn, sheet, DM console, six channels.</p></a>
+  <a class="card link" href="vtt.html"><h3>VTT</h3><p>Build vs embed vs adapter, three views of one state, phases V0–V4.</p></a>
+  <a class="card link" href="campaign-tools.html"><h3>Campaign tools</h3><p>Codex model, reveal-as-event, the generator pipeline, the notebook.</p></a>
+  <a class="card link" href="architecture.html"><h3>Architecture</h3><p>Current vs target, the turn pipeline and its latency budget, the seams.</p></a>
+  <a class="card link" href="plan.html"><h3>Plan</h3><p>Workstreams, parallel lanes and their seam contracts, the milestone ladder.</p></a>
+  <a class="card link" href="board.html"><h3>Board</h3><p>Every open card's action, filterable. The 40 new cards.</p></a>
+  <a class="card link" href="decisions.html"><h3>Decisions</h3><p>P-01…P-21 and the constitution principle map, printable for marking.</p></a>
+</div>
+</main>
+<footer>Replan 2026-11 hub · static HTML, no build step · sources live beside this folder in <code>docs/design/replan-2026-11/</code>.</footer>
+<script src="hub.js"></script>
+<script>
+// Link the board id map once the board agent writes it.
+fetch("../board-id-map.md", { method: "HEAD" }).then(r => { if (r.ok) document.getElementById("idmap").innerHTML = ' · <a href="../board-id-map.md">board-id-map.md</a>'; }).catch(() => {});
+</script>
+</body>
+</html>
