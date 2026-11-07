@@ -6,7 +6,7 @@ title: >-
 status: To Do
 assignee: []
 created_date: '2026-11-05 05:48'
-updated_date: '2026-11-07 05:24'
+updated_date: '2026-11-07 05:25'
 labels:
   - web
   - ux
@@ -28,7 +28,9 @@ Intent: keep the spec 091 stream, roll rows and composer baseline. Clickable nou
 
 Source: docs/design/replan-2026-11/board-rework-map.md (rewrite row), plan-of-action.md §5, target-architecture.md, decisions-for-ratification.md.
 
-Prior scope (superseded): second half of the TASK-0236 table redesign (docs/design/mud-ux/decision.md): scene fields, room blocks, roll rows, rules lines, filter chips, and a MUD composer with one draft(text) path, built on spec 066. Spec: specs/091-mud-stream-and-composer.
+Prior scope (superseded): second half of the TASK-0236 table redesign (docs/design/mud-ux/decision.md): scene fields, room blocks, roll rows, rules lines, filter chips, and a MUD composer with one draft(text) path, built on spec 066.
+
+Spec: specs/091-mud-stream-and-composer
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Definition of Done
