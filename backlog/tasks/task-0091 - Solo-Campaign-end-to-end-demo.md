@@ -8,7 +8,8 @@ updated_date: '2026-11-07 05:17'
 labels:
   - solo
   - acceptance
-milestone: m-9
+  - 'ws:memory'
+milestone: m-17
 dependencies:
   - TASK-0088
   - TASK-0089
