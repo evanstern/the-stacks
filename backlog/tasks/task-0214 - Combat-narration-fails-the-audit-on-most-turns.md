@@ -4,7 +4,7 @@ title: Combat narration fails the audit on most turns
 status: Done
 assignee: []
 created_date: '2026-11-02 23:22'
-updated_date: '2026-11-07 03:11'
+updated_date: '2026-11-07 04:15'
 labels:
   - dm
   - narration
@@ -73,6 +73,8 @@ AC #1 NOT met at runbook B playtest run 1: 23 combat narrations, 43% first-attem
 Playtest ceiling (runbook B2 playtest, 2026-11-06), operator's words: "Play it, ceiling $100".
 
 AC #1 MET at runbook B2 playtest run 1 (2026-11-06, session bb4952dc, hosted dev 087ecb7f, $3.30 of the $100 ceiling): 17 combat narrations in turn mode, 12 passed the audit on attempt 1 (71%), 2 after a regenerate, 3 fallbacks (seq 107 off-turn readying phrases, TASK-0246; seq 138 unnamed death, TASK-0255; seq 163 fled lookout, TASK-0254). Whole run 19/25 (76%). Runbook B run 1 was 43%. The margin is narrow (12/17); the three fallback causes are carded.
+
+Runbook B2 playtest log merged as PR #143 (507f6304): docs/playtests/2026-11-06-runbook-b2-playtest.md.
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
