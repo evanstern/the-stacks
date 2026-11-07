@@ -4,14 +4,14 @@ title: EP-3 R3 Human Table
 status: To Do
 assignee: []
 created_date: '2026-11-07 05:08'
-updated_date: '2026-11-07 05:10'
+updated_date: '2026-11-07 05:11'
 labels:
   - replan-2026-11
   - epic
 milestone: m-12
 dependencies:
-  - TASK-0258
   - TASK-0058
+  - TASK-0093
 ordinal: 244000
 ---
 
