@@ -370,8 +370,9 @@ reproduce has not shipped.
 
 ### XIII. Plan Just-in-Time
 
-- Card the next milestone fully, with specs-ready deliverable cards.
-- Card every later milestone as epics only. List its expected deliverables in the epic.
+- Give every milestone one epic.
+- Give deliverable cards for the next two milestones full acceptance criteria (P-16).
+- Card later deliverables as stubs: title, outcome, milestone and dependencies. Add criteria at that milestone's planning.
 - Every deferral MUST be a card with an ordered place or a revisit trigger (decision-0020).
 - Fix a seam contract and freeze it before any lane builds against it.
 - Every milestone MUST end in a demo. A milestone with play MUST end in a hosted playtest gate.
