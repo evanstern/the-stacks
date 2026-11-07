@@ -4,12 +4,13 @@ title: Dice lines hide the dropped die on advantage and disadvantage
 status: To Do
 assignee: []
 created_date: '2026-11-05 04:15'
-updated_date: '2026-11-05 04:38'
+updated_date: '2026-11-07 05:18'
 labels:
   - dm
   - narration
   - web
   - playtest
+  - replan-2026-11
 milestone: m-3
 dependencies: []
 references:
@@ -36,6 +37,8 @@ Why: runbook B playtest run 1 (2026-11-03, session 729a6c5c, seq 175, 183). Tams
 
 <!-- SECTION:NOTES:BEGIN -->
 Run 1 seq 349: a critical hit's damage line reads '1d8+2 → 7+4 = 13' (no 2d8, the doubled die looks like a modifier) then 'takes 4 piercing (4→0 HP)'. Same family: dice lines do not show how the engine rolled.
+
+Merged into TASK-0247 by replan-2026-11. Show both d20s.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
