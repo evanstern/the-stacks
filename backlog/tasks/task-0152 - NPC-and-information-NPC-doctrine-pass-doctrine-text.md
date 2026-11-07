@@ -4,11 +4,13 @@ title: 'NPC and information: NPC doctrine pass (doctrine text)'
 status: To Do
 assignee: []
 created_date: '2026-10-27 03:59'
+updated_date: '2026-11-07 05:17'
 labels:
   - dm
   - npc
   - doctrine
-milestone: m-3
+  - 'ws:narration'
+milestone: m-11
 dependencies:
   - TASK-0148
   - TASK-0149
