@@ -6,11 +6,12 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-11-01 21:09'
-updated_date: '2026-11-01 21:33'
+updated_date: '2026-11-07 05:18'
 labels:
   - tooling
   - playtest
-milestone: m-3
+  - 'ws:tooling'
+milestone: m-10
 dependencies: []
 priority: medium
 ordinal: 173000
