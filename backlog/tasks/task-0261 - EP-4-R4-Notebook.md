@@ -4,11 +4,13 @@ title: EP-4 R4 Notebook
 status: To Do
 assignee: []
 created_date: '2026-11-07 05:08'
+updated_date: '2026-11-07 05:11'
 labels:
   - replan-2026-11
   - epic
 milestone: m-13
-dependencies: []
+dependencies:
+  - TASK-0059
 ordinal: 245000
 ---
 
