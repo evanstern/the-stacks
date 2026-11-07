@@ -4,11 +4,14 @@ title: EP-1 R1 Fast Table
 status: To Do
 assignee: []
 created_date: '2026-11-07 05:07'
+updated_date: '2026-11-07 05:10'
 labels:
   - replan-2026-11
   - epic
 milestone: m-10
-dependencies: []
+dependencies:
+  - TASK-0258
+  - TASK-0258
 ordinal: 242000
 ---
 
