@@ -4,13 +4,13 @@ title: 'Actor-state gate: Claim gate on companion `say` and public chronicle ent
 status: To Do
 assignee: []
 created_date: '2026-10-27 03:54'
+updated_date: '2026-11-07 05:17'
 labels:
   - dm
   - rules-gate
 milestone: m-3
 dependencies:
   - TASK-0143
-  - TASK-0109
 priority: medium
 ordinal: 131000
 ---
