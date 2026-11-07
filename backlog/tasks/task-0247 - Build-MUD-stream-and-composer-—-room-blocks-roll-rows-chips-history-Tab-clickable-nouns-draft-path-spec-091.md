@@ -6,7 +6,7 @@ title: >-
 status: To Do
 assignee: []
 created_date: '2026-11-05 05:48'
-updated_date: '2026-11-07 05:17'
+updated_date: '2026-11-07 05:18'
 labels:
   - web
   - ux
@@ -40,4 +40,6 @@ Merged from TASK-0132 (Show progress between Commit and the DM's narration) by r
 Merged from TASK-0133 (Render dice lines before and distinct from narration prose) by replan-2026-11: Roll rows render before prose.
 
 Merged from TASK-0162 (Play composer keeps a line's draft until its echo lands) by replan-2026-11: Composer keeps draft until echo.
+
+Merged from TASK-0169 (Roll lines name the ability, skill and roll mode of the check) by replan-2026-11: Roll rows name check and mode.
 <!-- SECTION:NOTES:END -->
