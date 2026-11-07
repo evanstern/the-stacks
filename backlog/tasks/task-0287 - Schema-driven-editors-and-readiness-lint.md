@@ -4,12 +4,14 @@ title: Schema-driven editors and readiness lint
 status: To Do
 assignee: []
 created_date: '2026-11-07 05:14'
+updated_date: '2026-11-07 05:15'
 labels:
   - 'ws:notebook'
   - replan-2026-11
   - ep-4
 milestone: m-13
-dependencies: []
+dependencies:
+  - TASK-0059
 ordinal: 271000
 ---
 
