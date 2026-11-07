@@ -10,7 +10,7 @@ labels:
   - epic
 milestone: m-11
 dependencies:
-  - TASK-0056
+  - TASK-0259
 ordinal: 243000
 ---
 
