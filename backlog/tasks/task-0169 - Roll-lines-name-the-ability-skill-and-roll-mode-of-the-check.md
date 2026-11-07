@@ -4,9 +4,11 @@ title: 'Roll lines name the ability, skill and roll mode of the check'
 status: To Do
 assignee: []
 created_date: '2026-10-28 19:14'
+updated_date: '2026-11-07 05:18'
 labels:
   - dm
   - web
+  - replan-2026-11
 milestone: m-3
 dependencies: []
 references:
@@ -31,6 +33,12 @@ Related: TASK-0128 makes Help grant advantage; TASK-0104 derives the modifier. T
 - [ ] #2 renderRollLine prints ability, skill in parentheses, and the roll mode when it is not normal, with a test
 - [ ] #3 Attack roll lines name the attack, unchanged otherwise, with a test
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Merged into TASK-0247 by replan-2026-11. Roll rows name check and mode.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
