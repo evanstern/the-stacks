@@ -4,10 +4,12 @@ title: 'SRD 5.2.1 data: species, backgrounds and feats'
 status: To Do
 assignee: []
 created_date: '2026-10-26 01:55'
+updated_date: '2026-11-07 05:17'
 labels:
   - srd
   - data
-milestone: m-5
+  - 'ws:engine'
+milestone: m-12
 dependencies:
   - TASK-0043
 priority: medium
@@ -28,6 +30,12 @@ Why: operator ruling 2026-10-25 at TASK-0043 plan checkpoint C2: these SRD 5.2.1
 - [ ] #2 Each record carries a source reference to its SRD 5.2.1 page and passes the TASK-0043 provenance and PDF verification checks.
 - [ ] #3 Each record has a compact lookup form within the TASK-0043 size bound.
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Re-homed by replan-2026-11. Species, backgrounds, feats gate character creation (TASK-0283).
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
