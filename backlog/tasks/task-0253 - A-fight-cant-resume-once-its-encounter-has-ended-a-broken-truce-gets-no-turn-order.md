@@ -6,10 +6,12 @@ title: >-
 status: To Do
 assignee: []
 created_date: '2026-11-07 03:07'
+updated_date: '2026-11-07 05:19'
 labels:
   - dm
   - rules
   - playtest
+  - replan-2026-11
 milestone: m-3
 dependencies: []
 references:
@@ -33,6 +35,12 @@ Related: TASK-0238 (spec 088 runnable rule), TASK-0194 (pull-in), TASK-0210 (att
 - [ ] #1 After an encounter ends, an attack on a present foe (or the Director's turn decision) restarts turn order over the foes still present and conscious, with fresh initiative, with a test replaying seq 193-205
 - [ ] #2 The restarted fight records as a new encounter run, so spec 088's has-run rule still blocks re-running the seed's opening setup
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Merged into TASK-0274 by replan-2026-11. Encounter resume.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
