@@ -4,11 +4,13 @@ title: 'Imported Mechanics: extraction review panel and milestone demo'
 status: To Do
 assignee: []
 created_date: '2026-10-25 20:18'
+updated_date: '2026-11-07 05:16'
 labels:
   - mechanics
   - ui
   - acceptance
-milestone: m-5
+  - deferred
+milestone: m-18
 dependencies:
   - TASK-0065
   - TASK-0066
@@ -32,6 +34,12 @@ Demo: import a book with a monster not in the SRD; the engine runs it in a fight
 - [ ] #4 Demo: the AI DM runs a fight with an imported non-SRD monster, and the ledger shows its stats came from the import.
 - [ ] #5 The demo record is committed under docs/.
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Deferred by replan-2026-11 to Later. P-21. Same trigger.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
