@@ -4,7 +4,7 @@ title: 'The Codex: content contracts for NPC, PC, location, encounter and item'
 status: To Do
 assignee: []
 created_date: '2026-10-25 20:13'
-updated_date: '2026-11-07 05:16'
+updated_date: '2026-11-07 05:18'
 labels:
   - codex
   - contracts
@@ -46,6 +46,8 @@ Why: architecture A5 and constitution II. The First Scene ran from a hand-author
 From decision-0025 (D17, TASK-0135, 2026-10-26): M3 tracks only minimal scene presence for seed NPCs (TASK-0142). NPC disposition beyond 'yielded' (attitude, loyalty) is untracked in M3 and belongs to the Codex NPC contract; research basis: docs/research/NPCs-Social-and-Information/ (TASK-0119).
 
 Rewritten by replan-2026-11. `@stacks/codex-model` per P-10; absorbs 0202. Frozen at CP-6.
+
+Merged from TASK-0202 (Seed-declared starting conditions on NPCs) by replan-2026-11: Starting conditions are NPC/encounter payload.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
