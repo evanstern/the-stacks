@@ -49,7 +49,7 @@
 <tr><td>Synthesis</td><td><a href="../wishlist.md">wishlist</a>, <a href="../target-architecture.md">target-architecture</a></td><td>Goals → features → capabilities → foundations; the target system.</td></tr>
 <tr><td>Plan</td><td><a href="../plan-of-action.md">plan-of-action</a>, <a href="../decisions-for-ratification.md">decisions-for-ratification</a>, <a href="../board-rework-map.md">board-rework-map</a></td><td>Workstreams, ladder, 16 checkpoints, 21 decisions, an action for every card.</td></tr>
 <tr><td>Constitution</td><td><a href="../../../../.specify/memory/constitution.md">.specify/memory/constitution.md</a></td><td>3.0.0, marked PROPOSED. 2.0.0 binds until CP-2.</td></tr>
-<tr><td>Board</td><td>Branch <code>replan-2026-11</code><span id="idmap"></span></td><td>Board application on the branch only. Root <code>main</code> is untouched.</td></tr>
+<tr><td>Board</td><td>Branch <code>replan-2026-11</code> · <a href="../board-id-map.md">board-id-map.md</a></td><td>Applied on the branch: 135 → 125 open cards (29 merged, 21 archived as closed, 40 new: epics TASK-0258–0265, deliverables TASK-0266–0297). Milestones R1–R8 = m-10–m-17, Later = m-18. Root <code>main</code> is untouched.</td></tr>
 <tr><td>Hub</td><td>This site</td><td>Visual companion to the markdown sources above.</td></tr>
 </tbody></table></div>
 
@@ -70,8 +70,6 @@
 <footer>Replan 2026-11 hub · static HTML, no build step · sources live beside this folder in <code>docs/design/replan-2026-11/</code>.</footer>
 <script src="hub.js"></script>
 <script>
-// Link the board id map once the board agent writes it.
-fetch("../board-id-map.md", { method: "HEAD" }).then(r => { if (r.ok) document.getElementById("idmap").innerHTML = ' · <a href="../board-id-map.md">board-id-map.md</a>'; }).catch(() => {});
 </script>
 </body>
 </html>
