@@ -4,11 +4,13 @@ title: House-rule group checks behind tableRules.groupChecks
 status: To Do
 assignee: []
 created_date: '2026-11-03 09:53'
+updated_date: '2026-11-07 05:18'
 labels:
   - engine
   - rules
   - dm
-milestone: m-3
+  - deferred
+milestone: m-18
 dependencies:
   - TASK-0128
 ordinal: 218000
@@ -24,6 +26,12 @@ Spec 084 (TASK-0128) OQ-5: SRD 5.2.1 has no group-check rule, so tableRules.grou
 <!-- AC:BEGIN -->
 - [ ] #1 With groupChecks on, a party-scope check rolls for each participant and resolves by the stated rule, with tests; off, behaviour is unchanged
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Deferred by replan-2026-11 to Later. Group checks; low value. Trigger: table-rules settings UI.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
