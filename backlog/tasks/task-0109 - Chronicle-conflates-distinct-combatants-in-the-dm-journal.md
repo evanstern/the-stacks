@@ -4,10 +4,11 @@ title: Chronicle conflates distinct combatants in the dm journal
 status: To Do
 assignee: []
 created_date: '2026-10-26 19:15'
-updated_date: '2026-11-05 04:38'
+updated_date: '2026-11-07 05:17'
 labels:
   - dm
   - chronicle
+  - replan-2026-11
 milestone: m-3
 dependencies: []
 priority: medium
@@ -40,6 +41,8 @@ Run 1 seq 55: the chronicle calls Pell Wenna's 'son'; the seed and seq 13 say gr
 Run 1 seq 201: chronicle says 'Brother Odo cast Cure Wounds on her' after Tamsin only asked in talk (seq 196); nothing was cast.
 
 Run 1 seq 330, 351: narration says 'Pell still bound' after he was freed (seq 216-220) and 'calling her brother's name'; the chronicle invents 'Pell Marsh was complicit in the scheme to silence the ferry bell' and calls him 'the ferryman'. The chronicle is writing motives the fiction never established.
+
+Merged into TASK-0084 by replan-2026-11. Chronicle keys entries on entity ids.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
