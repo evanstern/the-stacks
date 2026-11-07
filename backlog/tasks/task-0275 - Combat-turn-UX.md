@@ -4,7 +4,7 @@ title: Combat turn UX
 status: To Do
 assignee: []
 created_date: '2026-11-07 05:13'
-updated_date: '2026-11-07 05:14'
+updated_date: '2026-11-07 05:19'
 labels:
   - 'ws:table-ux'
   - replan-2026-11
@@ -32,6 +32,12 @@ Source: docs/design/replan-2026-11/board-rework-map.md (N-10).
 - [ ] #2 The action bar shows only legal actions for the active actor.
 - [ ] #3 An off-turn human action is refused with a visible reason.
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Merged from TASK-0248 (A party action can make a human player's character act out of turn) by replan-2026-11: Turn ownership is one rule in combat mode.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
