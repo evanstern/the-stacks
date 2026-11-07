@@ -43,30 +43,44 @@
 Answer each gate for this feature. A "no" MUST be justified in Complexity Tracking
 or the plan does not proceed.
 
-- [ ] **I. Agent-operable** — names the interface an agent uses to drive this
+- [ ] **I. Agent-operable** — names the Intent kinds an agent sends to drive this
       feature. No human-only path.
-- [ ] **II. Content contract** — any new codex entity declares a Zod schema with
-      identity, portrayal, and hooks, and passes portrayal-completeness.
-- [ ] **III. Data planes** — every piece of new state belongs to exactly one plane
+- [ ] **II. One Intent vocabulary** — every write is a typed Intent with a text
+      form; free text parses to Intents; the planner calls no model; no surface
+      calls the planner or engine directly.
+- [ ] **III. Event sourcing** — play changes are append-only typed events through
+      gate, planner and engine; versioned; hidden information carries visibility
+      and is filtered on the server.
+- [ ] **IV. Data planes** — every piece of new state belongs to exactly one plane
       (library, codex, session). Cross-plane access goes through a declared seam.
-- [ ] **IV. Event sourcing** — play state changes are append-only typed events,
-      server-validated, versioned, with visibility set where information is hidden.
-- [ ] **V. Citations** — any library-derived claim carries a source anchor, and
+- [ ] **V. Many views, one state** — every new view is a projection; its facts also
+      appear in the stream; geometry lives in `space`; exports are read-only.
+- [ ] **VI. Engine owns the numbers** — mechanics and positions live only in the
+      pure 5e engine; no model writes a number; scripted-dice tests ship.
+- [ ] **VII. Narration around facts** — code renders every fact row; the model
+      writes only prose slots from a fact sheet; fact rows never wait on prose.
+- [ ] **VIII. Campaign is data** — new content is a codex kind with a typed payload,
+      playable core, typed links, block visibility and versioned provenance; AI
+      output lands as a draft through the gate; assets store prompt, provider, seed.
+- [ ] **IX. UX quality bar** — states the latency budget it touches (fact rows
+      < 1 s p95, first token < 10 s p50); no modals; 1280 px and 390 px; keyboard
+      and screen-reader reachable; rulings show a "why".
+- [ ] **X. Citations** — any library-derived claim carries a source anchor, and
       retrieval changes ship fixture-based evals.
-- [ ] **VI. 5e engine boundary** — mechanics live only in the pure 5e engine
-      package; no model rolls or computes a number; engine changes ship
-      scripted-dice tests.
-- [ ] **VII. Structured first** — generated artifacts are validated data before
-      render; assets store prompt, provider, and seed.
-- [ ] **VIII. Operator-owned content** — ships no proprietary rulebook content;
+- [ ] **XI. Operator-owned content** — ships no proprietary rulebook content;
       shipped SRD data carries its attribution; reproduces no book text beyond
       cited quotes. NON-NEGOTIABLE.
-- [ ] **IX. Self-hostable** — works from `docker compose up`; model and image
-      access stay behind their seams; no new container without proven need.
+- [ ] **XII. Self-hostable** — works from `docker compose up`; model and image
+      access stay behind their seams; model output is structured; no new container
+      without proven need.
+- [ ] **XIII. Just-in-time** — the feature belongs to the current milestone; any
+      deferral is a card with an order or a trigger; seam contracts it builds on
+      are frozen.
 
 **Stack conformance** — the feature stays within the Architecture Constraints
-table (TypeScript, one Node process, Hono, React Router 8 SSR, PixiJS, Postgres,
-Drizzle, Zod). Any departure is an amendment, not a plan decision.
+table (TypeScript, one Node process, Hono, React Router 8, PixiJS for the board
+only, Postgres, Drizzle, Zod, the declared package seams). Any departure is an
+amendment, not a plan decision.
 
 ## Project Structure
 
