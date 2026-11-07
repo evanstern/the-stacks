@@ -4,11 +4,13 @@ title: Monster spellcasting through the engine
 status: To Do
 assignee: []
 created_date: '2026-11-03 08:01'
+updated_date: '2026-11-07 05:18'
 labels:
   - engine
   - rules
   - dm
-milestone: m-3
+  - 'ws:engine'
+milestone: m-12
 dependencies:
   - TASK-0105
   - TASK-0224
