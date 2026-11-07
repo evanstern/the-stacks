@@ -4,11 +4,12 @@ title: 'Maps and the Table View: portraits through the image-provider seam'
 status: To Do
 assignee: []
 created_date: '2026-10-25 20:18'
-updated_date: '2026-10-25 20:19'
+updated_date: '2026-11-07 05:16'
 labels:
   - media
   - ai
-milestone: m-6
+  - deferred
+milestone: m-18
 dependencies:
   - TASK-0067
 references:
@@ -32,6 +33,12 @@ Why: architecture A8 and constitution IX (one image-provider seam). Every asset 
 - [ ] #3 Each portrait stores its prompt, provider and seed beside the image.
 - [ ] #4 Generation runs as a job, and a fake provider covers tests.
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Deferred by replan-2026-11 to Later. Portraits; no goal needs them for 1.0.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
