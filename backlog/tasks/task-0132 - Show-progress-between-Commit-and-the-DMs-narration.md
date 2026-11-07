@@ -4,10 +4,11 @@ title: Show progress between Commit and the DM's narration
 status: To Do
 assignee: []
 created_date: '2026-10-27 02:44'
-updated_date: '2026-11-07 03:09'
+updated_date: '2026-11-07 05:17'
 labels:
   - web
   - dm
+  - replan-2026-11
 milestone: m-3
 dependencies: []
 references:
@@ -39,6 +40,8 @@ Two-browser alpha playtest 2026-10-28, run 2 item 2: a DM turn on hosted dev too
 Run 2 item 3 (same playtest): a failed turn is also invisible. Turn bb36c8a9 failed after 40 s (cause carded as TASK-0181), and the reconcile turn re-ran it; players saw neither the failure nor the retry. The indicator should cover running, failed and retrying.
 
 Runbook B2 playtest run 1 (2026-11-06, session bb4952dc, seq 115-121): a party action held for Odo's turn (TASK-0244, spec 087) shipped no narration on the commit turn or a manual DM turn, so the table saw nothing to say the action was waiting. The Waiting: fact line exists but no beat narrated it.
+
+Merged into TASK-0247 by replan-2026-11. Progress indicator between fact rows and narration.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
