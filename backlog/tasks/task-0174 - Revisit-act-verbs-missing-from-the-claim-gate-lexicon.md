@@ -4,9 +4,11 @@ title: 'Revisit: act verbs missing from the claim-gate lexicon'
 status: To Do
 assignee: []
 created_date: '2026-10-28 21:44'
+updated_date: '2026-11-07 05:18'
 labels:
   - rules-gate
   - revisit
+  - replan-2026-11
 dependencies:
   - TASK-0161
 priority: low
@@ -23,6 +25,12 @@ Revisit card (a maybe). TASK-0161 (spec 058) runs the spec 051 checkClaims on ro
 <!-- AC:BEGIN -->
 - [ ] #1 The trigger fired and a spec adds the missing verbs, or a decision record drops this card
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Closed (close-superseded) by replan-2026-11: TASK-0272 retires the lexical claim gate.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
