@@ -4,10 +4,12 @@ title: Runtime stacks come up with an unmigrated app database
 status: To Do
 assignee: []
 created_date: '2026-10-26 02:58'
-updated_date: '2026-10-27 10:12'
+updated_date: '2026-11-07 05:17'
 labels:
   - env
   - runtime
+  - 'ws:platform'
+milestone: m-10
 dependencies: []
 priority: high
 ordinal: 88000
