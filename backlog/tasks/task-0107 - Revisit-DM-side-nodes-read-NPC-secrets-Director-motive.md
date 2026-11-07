@@ -4,10 +4,11 @@ title: 'Revisit: DM-side nodes read NPC secrets (Director motive)'
 status: To Do
 assignee: []
 created_date: '2026-10-26 18:11'
-updated_date: '2026-11-02 05:22'
+updated_date: '2026-11-07 05:17'
 labels:
   - dm
   - revisit
+  - replan-2026-11
 dependencies: []
 priority: low
 ordinal: 97000
@@ -37,6 +38,8 @@ Context: TASK-0106 (specs/034-narration-quality) moved Snag's motive from portra
 ADOPTED 2026-10-26 by decision-0026 (D18, TASK-0119 analysis, card K3); operator ruling 'K3 now' puts it in m-3 Track C now (floats; runbook amendment 1). Outcome: the Director, Interpret, Adjudicate and the audit read NPC `knows`, `secrets` and `relationships`; no player-facing prompt can receive them or Director free text.
 
 Operator ruling 2026-11-02 (M3 planning, orchestrator session local_6a4a04a4): research, doctrine and low-priority revisits move out of m-3. Milestone cleared, revisit label added. Re-enter a milestone when its trigger fires.
+
+Merged into TASK-0060 by replan-2026-11. `compile()` DM view feeds DM-side nodes.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
