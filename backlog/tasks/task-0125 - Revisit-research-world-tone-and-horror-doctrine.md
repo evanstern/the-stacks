@@ -4,11 +4,13 @@ title: 'Revisit: research world, tone and horror doctrine'
 status: To Do
 assignee: []
 created_date: '2026-10-27 02:06'
+updated_date: '2026-11-07 05:17'
 labels:
   - research
   - dm
   - revisit
-milestone: m-9
+  - 'ws:memory'
+milestone: m-16
 dependencies: []
 priority: low
 ordinal: 112000
