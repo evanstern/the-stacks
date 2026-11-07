@@ -4,9 +4,11 @@ title: 'Actor-state gate: `dm.audit` receives the actor snapshot'
 status: To Do
 assignee: []
 created_date: '2026-10-27 03:54'
+updated_date: '2026-11-07 05:17'
 labels:
   - dm
   - rules-gate
+  - replan-2026-11
 milestone: m-3
 dependencies:
   - TASK-0140
@@ -29,6 +31,12 @@ Why: decision-0025 (D17, TASK-0135) — the actor-state rule gate; operator ruli
 - [ ] #2 A regression over F52 (M2 seq 307) shows the auditor's verdict follows recorded scene presence.
 - [ ] #3 Blocking derivation in code is unchanged.
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Closed (close-superseded) by replan-2026-11: TASK-0272: audit shrinks to leak/contradiction over the fact sheet.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
