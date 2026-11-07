@@ -4,6 +4,7 @@ title: Space package and zones in the engine
 status: To Do
 assignee: []
 created_date: '2026-11-07 05:13'
+updated_date: '2026-11-07 05:17'
 labels:
   - 'ws:space'
   - replan-2026-11
@@ -32,6 +33,12 @@ Source: docs/design/replan-2026-11/board-rework-map.md (N-05).
 - [ ] #3 Golden-dice tests cover OA triggers from leaving an engaged band.
 - [ ] #4 The package has no renderer or React dependency.
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Merged from TASK-0139 (Revisit: track position and range as actor state) by replan-2026-11: Positions and range are the zone model.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
