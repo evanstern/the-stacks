@@ -4,10 +4,12 @@ title: 'A kill''s narration does not name the death, so the turn falls back'
 status: To Do
 assignee: []
 created_date: '2026-11-07 03:09'
+updated_date: '2026-11-07 05:19'
 labels:
   - dm
   - narration
   - playtest
+  - replan-2026-11
 milestone: m-3
 dependencies: []
 references:
@@ -31,6 +33,12 @@ Related: TASK-0212 (fallback falls unconscious), TASK-0214 (pass rate), TASK-025
 - [ ] #1 A narrate fact line states a death in words ('X dies' / 'X is dead') and the narrate rule says to name it, with a test replaying seq 130-139
 - [ ] #2 A replay of seq 130-139 passes the code check on attempt 1 with the scripted narration
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Closed (close-superseded) by replan-2026-11: 0245: the death is a code fact row.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
