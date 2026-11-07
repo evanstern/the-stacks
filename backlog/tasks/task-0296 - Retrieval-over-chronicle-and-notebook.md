@@ -4,12 +4,15 @@ title: Retrieval over chronicle and notebook
 status: To Do
 assignee: []
 created_date: '2026-11-07 05:14'
+updated_date: '2026-11-07 05:15'
 labels:
   - 'ws:memory'
   - replan-2026-11
   - ep-7
 milestone: m-16
-dependencies: []
+dependencies:
+  - TASK-0280
+  - TASK-0084
 ordinal: 280000
 ---
 
