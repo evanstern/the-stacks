@@ -4,7 +4,7 @@ title: 'Maps and the Table View: PixiJS table with grid, tokens, fog and walls'
 status: To Do
 assignee: []
 created_date: '2026-10-25 20:18'
-updated_date: '2026-11-07 05:16'
+updated_date: '2026-11-07 05:18'
 labels:
   - table-view
   - ui
@@ -45,6 +45,8 @@ Why: decision-0013 (own table view first) and architecture A13. The view project
 
 <!-- SECTION:NOTES:BEGIN -->
 Rewritten by replan-2026-11. Board V1 per P-03/P-05: grid, tokens, draft gestures, ruler, room fog; absorbs 0239.
+
+Merged from TASK-0239 (Maps and the Table View: slide-out interactive map with click-to-draft) by replan-2026-11: Click-to-draft board.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
