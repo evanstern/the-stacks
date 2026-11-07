@@ -4,12 +4,14 @@ title: Projection snapshots
 status: To Do
 assignee: []
 created_date: '2026-11-07 05:13'
+updated_date: '2026-11-07 05:15'
 labels:
   - 'ws:memory'
   - replan-2026-11
   - ep-2
 milestone: m-11
-dependencies: []
+dependencies:
+  - TASK-0279
 ordinal: 264000
 ---
 
