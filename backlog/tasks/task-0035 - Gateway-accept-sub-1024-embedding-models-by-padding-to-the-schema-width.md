@@ -4,9 +4,12 @@ title: 'Gateway: accept sub-1024 embedding models by padding to the schema width
 status: To Do
 assignee: []
 created_date: '2026-09-29 21:44'
+updated_date: '2026-11-07 05:16'
 labels:
   - ai
   - bench
+  - deferred
+milestone: m-18
 dependencies: []
 priority: low
 ordinal: 26000
@@ -24,6 +27,12 @@ Found 2026-09-29 by TASK-0029's real benchmark run. The AI gateway rejects any e
 - [ ] #2 If padding: a 768-dim provider embeds through the gateway, rows store the true dim and a distinguishable model name, and retrieval filters by that name
 - [ ] #3 The TASK-0029 local matrix runs nomic-embed-text end to end and its results are committed
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Deferred by replan-2026-11 to Later. Trigger: a self-hoster's embedding model is not 1024-dim.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
