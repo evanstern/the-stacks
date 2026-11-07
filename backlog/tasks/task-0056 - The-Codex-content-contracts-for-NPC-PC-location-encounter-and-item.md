@@ -4,7 +4,7 @@ title: 'The Codex: content contracts for NPC, PC, location, encounter and item'
 status: To Do
 assignee: []
 created_date: '2026-10-25 20:13'
-updated_date: '2026-11-07 05:18'
+updated_date: '2026-11-07 05:24'
 labels:
   - codex
   - contracts
@@ -23,21 +23,22 @@ ordinal: 46000
 <!-- SECTION:DESCRIPTION:BEGIN -->
 REWRITTEN by replan-2026-11: `@stacks/codex-model` per P-10; absorbs 0202. Frozen at CP-6.
 
-Source: docs/design/replan-2026-11/board-rework-map.md. Acceptance criteria are refined at the milestone's planning (P-16).
+Intent: create `packages/codex-model` per target-architecture §4. It defines a generic entity base with a typed payload per MVP kind (pc, npc, location nested region to room, encounter, item, clue/secret, session), the link types, per-block visibility and append-only versions with provenance. Each kind has a playable core (A5 identity, portrayal, hooks) plus free prose blocks; a readiness lint gates 'ready for play', never saving. NPC and encounter payloads carry starting conditions (absorbed TASK-0202). `compile()` is built in TASK-0060. The model freezes at CP-6.
 
---- Previous description (superseded where it conflicts) ---
-Outcome: one shared Zod contract per codex entity type (NPC, PC, location, encounter, item), each with identity, portrayal and hooks, plus the portrayal-completeness lint.
+Source: docs/design/replan-2026-11/board-rework-map.md (rewrite row), plan-of-action.md §5, target-architecture.md, decisions-for-ratification.md.
 
-Why: architecture A5 and constitution II. The First Scene ran from a hand-authored scene seed; its playtests (TASK-0048, TASK-0053) show what an entity must hold for the AI DM to play it. Identity uses the 5e engine's record shapes (A10), so a codex NPC can enter a fight without translation.
+Prior scope (superseded): one Zod contract per entity type (NPC, PC, location, encounter, item) with identity, portrayal and hooks, a portrayal-completeness lint, and conversion of the M2 scene seed. NPC disposition beyond 'yielded' belongs here per decision-0025.
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Each entity type has one Zod contract with identity, portrayal and hooks sections, in a shared package.
-- [ ] #2 Identity sections reuse the 5e engine's record shapes for stats, AC and HP.
-- [ ] #3 Hooks declare typed edges to other entities, secrets and agendas.
-- [ ] #4 A portrayal-completeness lint runs in CI and fails on an entity missing required portrayal fields.
-- [ ] #5 The M2 scene seed fixture converts to valid codex entities, and a test proves it.
+- [ ] #1 packages/codex-model defines a generic entity base with a typed payload schema for every MVP kind.
+- [ ] #2 Playable-core identity sections reuse dnd5e-engine record shapes for stats, AC and HP.
+- [ ] #3 The package defines every target-architecture §4 link type and per-block visibility dm, party or pc:<id>[].
+- [ ] #4 Each version schema carries author, source, parent and a draft or curated status.
+- [ ] #5 NPC and encounter payloads carry starting conditions, and the Greyhollow seeds convert to valid entities in a test.
+- [ ] #6 A readiness lint blocks 'ready for play' for an entity missing playable-core fields and never blocks a save.
+- [ ] #7 A decision record freezes the model at CP-6 with CODEX_SCHEMA_VERSION per kind; boundary lint forbids app imports.
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -48,6 +49,8 @@ From decision-0025 (D17, TASK-0135, 2026-10-26): M3 tracks only minimal scene pr
 Rewritten by replan-2026-11. `@stacks/codex-model` per P-10; absorbs 0202. Frozen at CP-6.
 
 Merged from TASK-0202 (Seed-declared starting conditions on NPCs) by replan-2026-11: Starting conditions are NPC/encounter payload.
+
+AC re-authored by replan-2026-11.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
