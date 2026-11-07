@@ -4,12 +4,15 @@ title: Narration as prose slots; retire the audit loop
 status: To Do
 assignee: []
 created_date: '2026-11-07 05:13'
+updated_date: '2026-11-07 05:14'
 labels:
   - 'ws:narration'
   - replan-2026-11
   - ep-1
 milestone: m-10
-dependencies: []
+dependencies:
+  - TASK-0245
+  - TASK-0273
 ordinal: 256000
 ---
 
