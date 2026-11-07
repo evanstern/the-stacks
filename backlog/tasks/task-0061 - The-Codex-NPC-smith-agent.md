@@ -4,6 +4,7 @@ title: 'The Codex: NPC-smith agent'
 status: To Do
 assignee: []
 created_date: '2026-10-25 20:16'
+updated_date: '2026-11-07 05:16'
 labels:
   - codex
   - ai
@@ -11,7 +12,6 @@ labels:
 milestone: m-4
 dependencies:
   - TASK-0057
-  - TASK-0054
 references:
   - docs/design/architecture.md
 priority: medium
