@@ -38,6 +38,8 @@ Source: docs/design/replan-2026-11/board-rework-map.md (N-08).
 
 <!-- SECTION:NOTES:BEGIN -->
 Merged from TASK-0197 (Playtest watch shows a truncated= count beside invalid-json=) by replan-2026-11: Truncation observability.
+
+Merged from TASK-0203 (Haiku dm.audit and dm.chronicle return invalid-json on the first attempt) by replan-2026-11: Structured output; keep log shapes as fixtures.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
