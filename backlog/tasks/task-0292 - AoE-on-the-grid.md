@@ -4,12 +4,15 @@ title: AoE on the grid
 status: To Do
 assignee: []
 created_date: '2026-11-07 05:14'
+updated_date: '2026-11-07 05:15'
 labels:
   - 'ws:board'
   - replan-2026-11
   - ep-5
 milestone: m-14
-dependencies: []
+dependencies:
+  - TASK-0070
+  - TASK-0227
 ordinal: 276000
 ---
 
