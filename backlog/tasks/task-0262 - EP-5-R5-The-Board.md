@@ -4,11 +4,13 @@ title: EP-5 R5 The Board
 status: To Do
 assignee: []
 created_date: '2026-11-07 05:08'
+updated_date: '2026-11-07 05:11'
 labels:
   - replan-2026-11
   - epic
 milestone: m-14
-dependencies: []
+dependencies:
+  - TASK-0070
 ordinal: 246000
 ---
 
