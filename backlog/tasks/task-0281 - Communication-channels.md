@@ -4,12 +4,14 @@ title: Communication channels
 status: To Do
 assignee: []
 created_date: '2026-11-07 05:13'
+updated_date: '2026-11-07 05:15'
 labels:
   - 'ws:table-ux'
   - replan-2026-11
   - ep-3
 milestone: m-12
-dependencies: []
+dependencies:
+  - TASK-0266
 ordinal: 265000
 ---
 
