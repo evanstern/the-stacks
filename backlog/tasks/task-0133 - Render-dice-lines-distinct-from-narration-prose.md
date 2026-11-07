@@ -4,9 +4,10 @@ title: Render dice lines before and distinct from narration prose
 status: To Do
 assignee: []
 created_date: '2026-10-27 02:45'
-updated_date: '2026-10-28 19:14'
+updated_date: '2026-11-07 05:17'
 labels:
   - web
+  - replan-2026-11
 milestone: m-3
 dependencies: []
 references:
@@ -32,7 +33,11 @@ Widened 2026-10-28 (two-browser alpha playtest, item 1; operator approval): the 
 - [ ] #3 Each roll line renders above the narration prose its roll produced, with a test
 <!-- AC:END -->
 
+## Implementation Notes
 
+<!-- SECTION:NOTES:BEGIN -->
+Merged into TASK-0247 by replan-2026-11. Roll rows render before prose.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
