@@ -4,9 +4,11 @@ title: 'Objects as plan targets (doors, posts) without initiative'
 status: To Do
 assignee: []
 created_date: '2026-11-02 14:51'
+updated_date: '2026-11-07 05:18'
 labels:
   - dm
   - revisit
+  - replan-2026-11
 dependencies:
   - TASK-0194
 ordinal: 187000
@@ -25,6 +27,12 @@ Why: the operator's TASK-0194 ruling says objects join without initiative, but t
 - [ ] #1 The snapshot carries object ids a step can target
 - [ ] #2 An object target never enters initiative, with a test
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Merged into TASK-0271 by replan-2026-11. Objects are zone features and targets.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
