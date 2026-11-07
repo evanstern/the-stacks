@@ -6,7 +6,7 @@ title: >-
 status: To Do
 assignee: []
 created_date: '2026-11-02 06:46'
-updated_date: '2026-11-07 05:24'
+updated_date: '2026-11-07 05:25'
 labels:
   - web
   - dm
@@ -28,7 +28,9 @@ Intent: the play route keeps one composer and one Send button. In exploration an
 
 Source: docs/design/replan-2026-11/board-rework-map.md (rewrite row), plan-of-action.md §5, target-architecture.md, decisions-for-ratification.md.
 
-Prior scope (superseded): every deed waited for a 2 s + 8 s quiet ring and a 👍 confirm row (decision-0028, D20; TASK-0188 design), with `action.declare {text}` as the only write. Spec: specs/066-one-chat-stream.
+Prior scope (superseded): every deed waited for a 2 s + 8 s quiet ring and a 👍 confirm row (decision-0028, D20; TASK-0188 design), with `action.declare {text}` as the only write.
+
+Spec: specs/066-one-chat-stream
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Definition of Done
