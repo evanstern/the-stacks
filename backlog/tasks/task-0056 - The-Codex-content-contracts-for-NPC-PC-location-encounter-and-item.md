@@ -4,11 +4,12 @@ title: 'The Codex: content contracts for NPC, PC, location, encounter and item'
 status: To Do
 assignee: []
 created_date: '2026-10-25 20:13'
-updated_date: '2026-10-27 03:54'
+updated_date: '2026-11-07 05:16'
 labels:
   - codex
   - contracts
-milestone: m-4
+  - 'ws:codex'
+milestone: m-11
 dependencies:
   - TASK-0053
 references:
@@ -20,6 +21,11 @@ ordinal: 46000
 ## Description
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
+REWRITTEN by replan-2026-11: `@stacks/codex-model` per P-10; absorbs 0202. Frozen at CP-6.
+
+Source: docs/design/replan-2026-11/board-rework-map.md. Acceptance criteria are refined at the milestone's planning (P-16).
+
+--- Previous description (superseded where it conflicts) ---
 Outcome: one shared Zod contract per codex entity type (NPC, PC, location, encounter, item), each with identity, portrayal and hooks, plus the portrayal-completeness lint.
 
 Why: architecture A5 and constitution II. The First Scene ran from a hand-authored scene seed; its playtests (TASK-0048, TASK-0053) show what an entity must hold for the AI DM to play it. Identity uses the 5e engine's record shapes (A10), so a codex NPC can enter a fight without translation.
@@ -38,6 +44,8 @@ Why: architecture A5 and constitution II. The First Scene ran from a hand-author
 
 <!-- SECTION:NOTES:BEGIN -->
 From decision-0025 (D17, TASK-0135, 2026-10-26): M3 tracks only minimal scene presence for seed NPCs (TASK-0142). NPC disposition beyond 'yielded' (attitude, loyalty) is untracked in M3 and belongs to the Codex NPC contract; research basis: docs/research/NPCs-Social-and-Information/ (TASK-0119).
+
+Rewritten by replan-2026-11. `@stacks/codex-model` per P-10; absorbs 0202. Frozen at CP-6.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
