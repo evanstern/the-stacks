@@ -4,10 +4,12 @@ title: Seed-declared starting conditions on NPCs
 status: To Do
 assignee: []
 created_date: '2026-11-02 14:51'
+updated_date: '2026-11-07 05:18'
 labels:
   - dm
   - seed
   - revisit
+  - replan-2026-11
 dependencies:
   - TASK-0194
 ordinal: 188000
@@ -26,6 +28,12 @@ Why: spec 068 OQ-3 (operator accepted the default 2026-11-02). Pell is bound in 
 - [ ] #1 The seed schema accepts starting conditions on an NPC, and the shipped greyhollow seed gives Pell restrained
 - [ ] #2 Freeing Pell removes restrained with no refusal, with a test
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Merged into TASK-0056 by replan-2026-11. Starting conditions are NPC/encounter payload.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
