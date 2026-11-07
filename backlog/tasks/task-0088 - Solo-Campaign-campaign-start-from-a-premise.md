@@ -9,7 +9,8 @@ labels:
   - solo
   - dm
   - agent
-milestone: m-9
+  - 'ws:generators'
+milestone: m-16
 dependencies:
   - TASK-0086
 priority: medium
