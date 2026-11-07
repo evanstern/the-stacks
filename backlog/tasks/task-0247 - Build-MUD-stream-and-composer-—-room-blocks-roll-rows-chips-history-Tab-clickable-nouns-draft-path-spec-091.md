@@ -10,7 +10,8 @@ updated_date: '2026-11-07 05:19'
 labels:
   - web
   - ux
-milestone: m-3
+  - 'ws:table-ux'
+milestone: m-10
 dependencies:
   - TASK-0199
   - TASK-0236
@@ -21,6 +22,11 @@ ordinal: 231000
 ## Description
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
+REWRITTEN by replan-2026-11: Stream and composer emit Intent pills; absorbs 0132, 0133, 0162, 0169, 0187, 0190, 0243; amend spec 091.
+
+Source: docs/design/replan-2026-11/board-rework-map.md. Acceptance criteria are refined at the milestone's planning (P-16).
+
+--- Previous description (superseded where it conflicts) ---
 Second half of the TASK-0236 table redesign (docs/design/mud-ux/decision.md), split out 2026-11-05 by operator ruling 'Build independent half now'. Scene fields (R1: description, ways, cast), stream items (room blocks, roll rows, rules lines, filter chips), and the MUD composer (history, @ and / commands, Tab completion, clickable nouns, one draft(text) path the slide-out map TASK-0239 reuses). R1 (a) and R2 (a) ruled 2026-11-05. Lane: runbook C, after TASK-0199 (spec 066) merges; the spec lives on branch task-0236-mud-ux until TASK-0236 merges.
 
 Spec: specs/091-mud-stream-and-composer
@@ -48,4 +54,6 @@ Merged from TASK-0187 (Play route: cap the transcript at 1024 px, centered) by r
 Merged from TASK-0190 (Narration sets NPC dialogue apart from the prose) by replan-2026-11: Dialogue rows.
 
 Merged from TASK-0243 (Dice lines hide the dropped die on advantage and disadvantage) by replan-2026-11: Show both d20s.
+
+Rewritten by replan-2026-11. Stream and composer emit Intent pills; absorbs 0132, 0133, 0162, 0169, 0187, 0190, 0243; amend spec 091.
 <!-- SECTION:NOTES:END -->
