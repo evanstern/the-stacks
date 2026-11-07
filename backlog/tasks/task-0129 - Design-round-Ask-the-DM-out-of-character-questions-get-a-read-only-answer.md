@@ -4,10 +4,12 @@ title: 'Design round: Ask the DM, out-of-character questions get a read-only ans
 status: To Do
 assignee: []
 created_date: '2026-10-27 02:32'
+updated_date: '2026-11-07 05:17'
 labels:
   - dm
   - design-round
   - table
+  - replan-2026-11
 milestone: m-3
 dependencies: []
 priority: high
@@ -25,6 +27,12 @@ Outcome: a player can ask the DM an out-of-character question (can I reach the l
 - [ ] #1 A design-rounds decision record names the chosen channel and amends decision-0016
 - [ ] #2 A spec for the chosen channel exists, with a test plan proving an answer writes no game state and leaks no DM-only fact
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Closed (close-superseded) by replan-2026-11: TASK-0281 channels (`@dm`, `((`).
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
