@@ -4,7 +4,7 @@ title: 'Campaign, table and session records'
 status: To Do
 assignee: []
 created_date: '2026-11-07 05:13'
-updated_date: '2026-11-07 05:15'
+updated_date: '2026-11-07 05:18'
 labels:
   - 'ws:codex'
   - replan-2026-11
@@ -31,6 +31,12 @@ Source: docs/design/replan-2026-11/board-rework-map.md (N-14).
 - [ ] #2 Closing a session records its seq range.
 - [ ] #3 Existing tables migrate into records.
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Merged from TASK-0198 (Index or summary table for the /api/tables session list) by replan-2026-11: Table list reads session records.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
