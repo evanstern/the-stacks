@@ -1,10 +1,10 @@
 ---
 id: TASK-0214
 title: Combat narration fails the audit on most turns
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-11-02 23:22'
-updated_date: '2026-11-07 02:10'
+updated_date: '2026-11-07 03:11'
 labels:
   - dm
   - narration
@@ -31,7 +31,7 @@ Spec: specs/085-combat-audit-pass-rate
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 On a hosted run of 15+ combat turns, at least 70% of narrations pass the audit on attempt 1
+- [x] #1 On a hosted run of 15+ combat turns, at least 70% of narrations pass the audit on attempt 1
 - [x] #2 The narrate prompt or facts change is replay-tested against the run 1 refusals (seq 103, 126, 131, 161, 196)
 - [x] #3 Spec phase: Only the on-turn actor acts (US1; FR-001 to FR-004)
 - [x] #4 Spec phase: Feelings, endings and the goal note (US2–US4; FR-005 to FR-010)
@@ -71,10 +71,18 @@ AC #1 measured, runbook B playtest run 1 (session 729a6c5c, seq 94-313): 23 comb
 AC #1 NOT met at runbook B playtest run 1: 23 combat narrations, 43% first-attempt pass (whole run: 34 audited turns, 19 passed, 5 after regenerate, 10 fallbacks). Follow-ups carded: TASK-0240, 0242, 0244; off-turn non-attack verbs still reach the model audit. Card stays In Progress.
 
 Playtest ceiling (runbook B2 playtest, 2026-11-06), operator's words: "Play it, ceiling $100".
+
+AC #1 MET at runbook B2 playtest run 1 (2026-11-06, session bb4952dc, hosted dev 087ecb7f, $3.30 of the $100 ceiling): 17 combat narrations in turn mode, 12 passed the audit on attempt 1 (71%), 2 after a regenerate, 3 fallbacks (seq 107 off-turn readying phrases, TASK-0246; seq 138 unnamed death, TASK-0255; seq 163 fled lookout, TASK-0254). Whole run 19/25 (76%). Runbook B run 1 was 43%. The margin is narrow (12/17); the three fallback causes are carded.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Combat narration first-attempt audit pass reached 71% (12/17) on a hosted run (runbook B2 playtest, 2026-11-06), from 43% in runbook B. Delivered by spec 085 plus runbook B2's fixes (0242, 0240, 0246, 0203, 0244, 0238, 0237). Remaining fallback causes carded: TASK-0246 (evidence), TASK-0254, TASK-0255.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
-- [ ] #1 All tests and checks run green
-- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
+- [x] #1 All tests and checks run green
+- [x] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
