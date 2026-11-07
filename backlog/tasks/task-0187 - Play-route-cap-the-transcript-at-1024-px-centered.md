@@ -4,10 +4,12 @@ title: 'Play route: cap the transcript at 1024 px, centered'
 status: To Do
 assignee: []
 created_date: '2026-11-02 02:39'
+updated_date: '2026-11-07 05:18'
 labels:
   - web
   - ux
   - playtest
+  - replan-2026-11
 milestone: m-3
 dependencies: []
 priority: medium
@@ -32,6 +34,12 @@ References: docs/playtests (run 3 log, lands at wrap).
 - [ ] #2 The scroll area and its scrollbar still span the full width; the composer and header are unchanged
 - [ ] #3 At 390 px the transcript still fills the width with no horizontal scroll
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Merged into TASK-0247 by replan-2026-11. Column width.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
