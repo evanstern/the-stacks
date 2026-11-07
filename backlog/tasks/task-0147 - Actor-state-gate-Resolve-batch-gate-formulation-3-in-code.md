@@ -4,9 +4,11 @@ title: 'Actor-state gate: Resolve batch gate: formulation 3 in code'
 status: To Do
 assignee: []
 created_date: '2026-10-27 03:54'
+updated_date: '2026-11-07 05:17'
 labels:
   - dm
   - rules-gate
+  - replan-2026-11
 milestone: m-3
 dependencies:
   - TASK-0140
@@ -34,6 +36,12 @@ Why: decision-0025 (D17, TASK-0135) — the actor-state rule gate; operator ruli
 - [ ] #4 The gate compares effect target ids with the acting actor; it reads no prose.
 - [ ] #5 A refused batch writes nothing and the action resolves `refused` with a refusal code.
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Closed (close-superseded) by replan-2026-11: TASK-0267: planner owns batch legality.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
