@@ -4,11 +4,12 @@ title: 'Maps and the Table View: AI DM drives tokens and fog'
 status: To Do
 assignee: []
 created_date: '2026-10-25 20:18'
-updated_date: '2026-10-25 20:19'
+updated_date: '2026-11-07 05:16'
 labels:
   - table-view
   - dm
-milestone: m-6
+  - 'ws:board'
+milestone: m-15
 dependencies:
   - TASK-0070
 priority: medium
