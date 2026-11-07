@@ -4,12 +4,14 @@ title: Encounter state machine
 status: To Do
 assignee: []
 created_date: '2026-11-07 05:13'
+updated_date: '2026-11-07 05:14'
 labels:
   - 'ws:engine'
   - replan-2026-11
   - ep-1
 milestone: m-10
-dependencies: []
+dependencies:
+  - TASK-0270
 ordinal: 258000
 ---
 
