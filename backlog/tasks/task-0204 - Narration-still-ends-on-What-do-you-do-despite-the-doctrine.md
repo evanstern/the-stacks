@@ -4,7 +4,7 @@ title: Narration still ends on "What do you do?" despite the doctrine
 status: Done
 assignee: []
 created_date: '2026-11-02 20:30'
-updated_date: '2026-11-05 04:42'
+updated_date: '2026-11-07 03:09'
 labels:
   - dm
   - narration
@@ -44,6 +44,8 @@ AC #1: deterministic blocking check in nodes/audit.ts (final sentence is the lit
 Playtest ceiling (runbook B playtest, 2026-11-03), operator's words: "Play it, ceiling $100".
 
 AC #2 met at runbook B playtest run 1 (2026-11-03, session 729a6c5c, hosted dev): 35 narrations over 37 turns, none ends on the literal 'What do you do?'. Evidence: docs/playtests/2026-11-03-runbook-b-playtest.md, row B-narration-ending.
+
+Runbook B2 playtest run 1 (2026-11-06, session bb4952dc, seq 182): narration ended 'What does Tamsin do now that the goblin beneath her blade is already dead?', a direct question to the player in the stock-ending family. STOCK_ENDING matches only the literal 'What do you do?'. Evidence for TASK-0245 (the four-part reply structure ends on a stated ask, by design) rather than a reopen.
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
