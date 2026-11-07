@@ -4,12 +4,13 @@ title: 'Party characters carry pronouns, and narration uses them'
 status: To Do
 assignee: []
 created_date: '2026-11-05 04:03'
-updated_date: '2026-11-05 04:22'
+updated_date: '2026-11-07 05:18'
 labels:
   - dm
   - narration
   - seed
   - playtest
+  - replan-2026-11
 milestone: m-3
 dependencies: []
 references:
@@ -35,6 +36,8 @@ Why: runbook B playtest run 1 (2026-11-03, session 729a6c5c, seq 131): the narra
 
 <!-- SECTION:NOTES:BEGIN -->
 Run 1 seq 220: Kestrel 'he/him' three more times.
+
+Merged into TASK-0058 by replan-2026-11. Pronouns on the PC entity.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
