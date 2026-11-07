@@ -4,10 +4,12 @@ title: 'Revisit: exact pre-turn snapshot S0 across a reclaimed turn'
 status: To Do
 assignee: []
 created_date: '2026-10-27 04:10'
+updated_date: '2026-11-07 05:17'
 labels:
   - revisit
   - dm
   - rules-gate
+  - replan-2026-11
 dependencies: []
 priority: low
 ordinal: 140000
@@ -23,6 +25,12 @@ Trigger: revisit when TASK-0143 (claim gate) or TASK-0147 (resolve batch gate) n
 <!-- AC:BEGIN -->
 - [ ] #1 A decision states whether S0 is checkpointed at assemble and how a reclaimed turn's diff is computed
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Merged into TASK-0280 by replan-2026-11. Exact S0 comes from snapshots.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
