@@ -4,9 +4,11 @@ title: 'Revisit: landed-row marker can mis-match across a resolve-order deploy'
 status: To Do
 assignee: []
 created_date: '2026-10-27 09:28'
+updated_date: '2026-11-07 05:17'
 labels:
   - revisit
   - dm
+  - replan-2026-11
 dependencies: []
 ordinal: 143000
 ---
@@ -22,3 +24,9 @@ Trigger: a turn job checkpointed under the old resolve order resumes on new code
 - [ ] #1 All tests and checks run green
 - [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Closed (close-superseded) by replan-2026-11: TASK-0267 removes the resolve-order path.
+<!-- SECTION:NOTES:END -->
