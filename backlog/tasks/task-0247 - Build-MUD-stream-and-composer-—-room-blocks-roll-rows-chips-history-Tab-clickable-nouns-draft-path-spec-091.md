@@ -44,4 +44,6 @@ Merged from TASK-0162 (Play composer keeps a line's draft until its echo lands) 
 Merged from TASK-0169 (Roll lines name the ability, skill and roll mode of the check) by replan-2026-11: Roll rows name check and mode.
 
 Merged from TASK-0187 (Play route: cap the transcript at 1024 px, centered) by replan-2026-11: Column width.
+
+Merged from TASK-0190 (Narration sets NPC dialogue apart from the prose) by replan-2026-11: Dialogue rows.
 <!-- SECTION:NOTES:END -->
