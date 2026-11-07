@@ -9,7 +9,8 @@ labels:
   - codex
   - ai
   - agent
-milestone: m-4
+  - 'ws:generators'
+milestone: m-15
 dependencies:
   - TASK-0057
 references:
@@ -21,6 +22,11 @@ ordinal: 51000
 ## Description
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
+REWRITTEN by replan-2026-11: NPC generator on the TASK-0293 framework.
+
+Source: docs/design/replan-2026-11/board-rework-map.md. Acceptance criteria are refined at the milestone's planning (P-16).
+
+--- Previous description (superseded where it conflicts) ---
 Outcome: the operator asks for an NPC in plain words and gets a complete, linked, editable codex NPC, grounded in the campaign and the library.
 
 Why: operator goal 2 and vision use case 2. This is the codex milestone's first agent card. Its landing is the LangGraph revisit trigger (decision-0019), so it waits on TASK-0054's decision and follows it.
@@ -36,6 +42,12 @@ Why: operator goal 2 and vision use case 2. This is the codex milestone's first 
 - [ ] #6 The agent is built as TASK-0054's decision record directs.
 - [ ] #7 Every model call names a gateway purpose.
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Rewritten by replan-2026-11. NPC generator on the TASK-0293 framework.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
