@@ -6,10 +6,12 @@ title: >-
 status: To Do
 assignee: []
 created_date: '2026-11-05 06:51'
+updated_date: '2026-11-07 05:19'
 labels:
   - dm
   - playtest
   - revisit
+  - replan-2026-11
 milestone: m-3
 dependencies: []
 references:
@@ -35,6 +37,12 @@ Related: TASK-0238 (spec 088), TASK-0206 (spec 078), TASK-0210.
 <!-- AC:BEGIN -->
 - [ ] #1 Each of OQ-2, OQ-3 and OQ-4 is ruled keep or change from the runbook B2 playtest log, and each change is carded
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Closed (close-stale) by replan-2026-11: B2 playtest ruled "keep defaults".
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
