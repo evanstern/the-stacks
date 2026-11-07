@@ -4,6 +4,7 @@ title: Structured output in the gateway
 status: To Do
 assignee: []
 created_date: '2026-11-07 05:13'
+updated_date: '2026-11-07 05:18'
 labels:
   - 'ws:narration'
   - replan-2026-11
@@ -32,6 +33,12 @@ Source: docs/design/replan-2026-11/board-rework-map.md (N-08).
 - [ ] #3 The playtest watch shows a `truncated=` count.
 - [ ] #4 The vm-104 log shapes from TASK-0203 are regression fixtures.
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Merged from TASK-0197 (Playtest watch shows a truncated= count beside invalid-json=) by replan-2026-11: Truncation observability.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
