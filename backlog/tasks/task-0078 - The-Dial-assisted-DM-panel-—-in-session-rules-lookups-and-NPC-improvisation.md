@@ -4,11 +4,13 @@ title: 'The Dial: assisted-DM panel — in-session rules lookups and NPC improvi
 status: To Do
 assignee: []
 created_date: '2026-10-25 20:18'
+updated_date: '2026-11-07 05:16'
 labels:
   - dial
   - dm
   - ui
-milestone: m-7
+  - 'ws:dm-console'
+milestone: m-12
 dependencies:
   - TASK-0076
 references:
@@ -20,6 +22,11 @@ ordinal: 68000
 ## Description
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
+REWRITTEN by replan-2026-11: Proposal rows inbox (Accept / Edit inline / Reject / Narrate my own). Design round at CP-8.
+
+Source: docs/design/replan-2026-11/board-rework-map.md. Acceptance criteria are refined at the milestone's planning (P-16).
+
+--- Previous description (superseded where it conflicts) ---
 Outcome: a human DM asks rules questions and has any codex NPC speak, in the session, with answers and lines arriving as DM-only proposals.
 
 Why: operator goal 4. decision-0004 deferred in-session rules lookups as events to the assisted table; this card makes them events. NPC lines are proposals the DM sends, edits or discards (decision-0015).
@@ -33,6 +40,12 @@ Why: operator goal 4. decision-0004 deferred in-session rules lookups as events 
 - [ ] #4 The DM sends, edits or discards each proposed line.
 - [ ] #5 Citations in in-session answers are verified as in M1.
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Rewritten by replan-2026-11. Proposal rows inbox (Accept / Edit inline / Reject / Narrate my own). Design round at CP-8.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
