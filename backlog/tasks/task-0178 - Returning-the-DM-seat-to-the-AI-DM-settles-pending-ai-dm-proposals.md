@@ -4,11 +4,12 @@ title: 'Returning the DM seat to the AI DM settles pending ai:dm proposals'
 status: To Do
 assignee: []
 created_date: '2026-10-29 05:09'
-updated_date: '2026-10-29 05:10'
+updated_date: '2026-11-07 05:18'
 labels:
   - play-route
   - proposal-gate
-milestone: m-3
+  - 'ws:dm-console'
+milestone: m-12
 dependencies:
   - TASK-0177
 priority: medium
