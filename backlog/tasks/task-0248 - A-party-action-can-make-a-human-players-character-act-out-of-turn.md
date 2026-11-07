@@ -4,10 +4,12 @@ title: A party action can make a human player's character act out of turn
 status: To Do
 assignee: []
 created_date: '2026-11-05 06:42'
+updated_date: '2026-11-07 05:19'
 labels:
   - dm
   - rules
   - playtest
+  - replan-2026-11
 milestone: m-3
 dependencies: []
 references:
@@ -30,6 +32,12 @@ Related: TASK-0244 (spec 087), TASK-0205 (party scope), TASK-0199 (one chat stre
 - [ ] #1 In turn order, a party action whose step's actor is an off-turn human PC is held, refused with a reason, or confirmed by that player, per the operator's ruling, with a test
 - [ ] #2 No character resolves two turn actions in one round through a party action, with a test
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Merged into TASK-0275 by replan-2026-11. Turn ownership is one rule in combat mode.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
