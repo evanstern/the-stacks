@@ -4,10 +4,12 @@ title: 'Revisit: track position and range as actor state'
 status: To Do
 assignee: []
 created_date: '2026-10-27 03:40'
+updated_date: '2026-11-07 05:17'
 labels:
   - revisit
   - engine
   - rules-gate
+  - replan-2026-11
 dependencies: []
 priority: low
 ordinal: 126000
@@ -23,6 +25,12 @@ Trigger: revisit when maps land (M6) or when a captured run shows narration or a
 <!-- AC:BEGIN -->
 - [ ] #1 A decision record states which positional facts the engine tracks and which gates read them
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Merged into TASK-0270 by replan-2026-11. Positions and range are the zone model.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
