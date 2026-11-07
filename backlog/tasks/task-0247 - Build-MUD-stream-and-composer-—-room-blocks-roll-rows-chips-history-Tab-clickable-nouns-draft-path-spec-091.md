@@ -42,4 +42,6 @@ Merged from TASK-0133 (Render dice lines before and distinct from narration pros
 Merged from TASK-0162 (Play composer keeps a line's draft until its echo lands) by replan-2026-11: Composer keeps draft until echo.
 
 Merged from TASK-0169 (Roll lines name the ability, skill and roll mode of the check) by replan-2026-11: Roll rows name check and mode.
+
+Merged from TASK-0187 (Play route: cap the transcript at 1024 px, centered) by replan-2026-11: Column width.
 <!-- SECTION:NOTES:END -->
