@@ -4,11 +4,13 @@ title: Conditions that force an automatic save failure or an automatic critical 
 status: To Do
 assignee: []
 created_date: '2026-11-03 05:40'
+updated_date: '2026-11-07 05:18'
 labels:
   - dm
   - engine
   - rules
-milestone: m-3
+  - 'ws:engine'
+milestone: m-10
 dependencies:
   - TASK-0104
 ordinal: 208000
