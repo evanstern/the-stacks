@@ -4,12 +4,13 @@ title: 'Maps and the Table View: Universal VTT export'
 status: To Do
 assignee: []
 created_date: '2026-10-25 20:18'
-updated_date: '2026-10-25 20:19'
+updated_date: '2026-11-07 05:16'
 labels:
   - maps
   - vtt
   - export
-milestone: m-6
+  - 'ws:board'
+milestone: m-17
 dependencies:
   - TASK-0069
 priority: medium
