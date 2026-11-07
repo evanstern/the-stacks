@@ -4,7 +4,7 @@ title: Encounter state machine
 status: To Do
 assignee: []
 created_date: '2026-11-07 05:13'
-updated_date: '2026-11-07 05:14'
+updated_date: '2026-11-07 05:19'
 labels:
   - 'ws:engine'
   - replan-2026-11
@@ -31,6 +31,12 @@ Source: docs/design/replan-2026-11/board-rework-map.md (N-09).
 - [ ] #2 A fled combatant leaves the order and its zone.
 - [ ] #3 Joining mid-fight rolls initiative for the newcomer only.
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Merged from TASK-0253 (A fight can't resume once its encounter has ended: a broken truce gets no turn order) by replan-2026-11: Encounter resume.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
