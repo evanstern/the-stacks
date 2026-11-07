@@ -4,7 +4,7 @@ title: DM console
 status: To Do
 assignee: []
 created_date: '2026-11-07 05:13'
-updated_date: '2026-11-07 05:15'
+updated_date: '2026-11-07 05:18'
 labels:
   - 'ws:dm-console'
   - replan-2026-11
@@ -33,6 +33,12 @@ Source: docs/design/replan-2026-11/board-rework-map.md (N-19).
 - [ ] #1 A human DM runs a full combat using only console controls.
 - [ ] #2 DM notes show the compiled scene context.
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Merged from TASK-0166 (Revisit: human DM writes a scene with no seed) by replan-2026-11: Improvise a scene in the console.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
