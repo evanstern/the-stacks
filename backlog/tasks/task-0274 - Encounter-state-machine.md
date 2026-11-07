@@ -36,6 +36,8 @@ Source: docs/design/replan-2026-11/board-rework-map.md (N-09).
 
 <!-- SECTION:NOTES:BEGIN -->
 Merged from TASK-0253 (A fight can't resume once its encounter has ended: a broken truce gets no turn order) by replan-2026-11: Encounter resume.
+
+Merged from TASK-0254 (A combatant who fled keeps its turn and gets contradictory facts) by replan-2026-11: Fled combatant leaves the order.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
