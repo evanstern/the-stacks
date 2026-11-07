@@ -4,10 +4,12 @@ title: Offer a party member's opportunity attack to its player
 status: To Do
 assignee: []
 created_date: '2026-11-03 03:18'
+updated_date: '2026-11-07 05:18'
 labels:
   - dm
   - engine
   - rules
+  - replan-2026-11
 milestone: m-3
 dependencies:
   - TASK-0208
@@ -27,6 +29,12 @@ Why: spec 079 (TASK-0208) OQ-3 took default (a): the engine takes NPC reactions 
 - [ ] #1 A hostile leaving a party member's reach offers that player a reaction prompt; accepting rolls the engine's reaction attack, declining spends nothing, with a test
 - [ ] #2 An AI companion's reaction follows a stated rule, with a test
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Merged into TASK-0276 by replan-2026-11. OA offer is the reaction row.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
