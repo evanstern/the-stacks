@@ -4,12 +4,12 @@ title: 'Solo Campaign: multi-session playtest and auditor'
 status: To Do
 assignee: []
 created_date: '2026-10-25 20:19'
+updated_date: '2026-11-07 05:17'
 labels:
   - solo
   - test
 milestone: m-9
 dependencies:
-  - TASK-0087
   - TASK-0088
 priority: medium
 ordinal: 80000
