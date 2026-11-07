@@ -4,7 +4,7 @@ title: 'The Codex: PC sheets over the 5e engine'
 status: To Do
 assignee: []
 created_date: '2026-10-25 20:16'
-updated_date: '2026-11-07 05:18'
+updated_date: '2026-11-07 05:24'
 labels:
   - codex
   - engine
@@ -25,21 +25,20 @@ ordinal: 48000
 <!-- SECTION:DESCRIPTION:BEGIN -->
 REWRITTEN by replan-2026-11: PC as codex entity over the engine; absorbs 0241 (pronouns).
 
-Source: docs/design/replan-2026-11/board-rework-map.md. Acceptance criteria are refined at the milestone's planning (P-16).
+Intent: a player character is a codex `pc` entity (TASK-0056) whose mechanics are engine records. The engine derives and enforces the numbers; session events change them; a sheet projection folds both per viewer. The entity carries pronouns, and narration uses them (absorbed TASK-0241). The sheet drawer UI is N-17 (TASK-0282, R3); this card ships the entity and the projection it reads.
 
---- Previous description (superseded where it conflicts) ---
-Outcome: a player character's sheet is a codex PC entity whose mechanics the 5e engine computes and enforces. Players view their sheet; the engine updates it through session events.
+Source: docs/design/replan-2026-11/board-rework-map.md (rewrite row), plan-of-action.md §5, target-architecture.md, decisions-for-ratification.md.
 
-Why: the old Sheets milestone dissolved into M2 (engine) and M4 (sheets) by decision-0010. Sheets touch combat rules, so this card waits for the parked-rules decision (TASK-0055).
+Prior scope (superseded): a sheet as a codex PC entity viewed by players, waiting on the parked-rules decision (TASK-0055) per decision-0010.
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 A PC entity stores class, level, ability scores, proficiencies, equipment and spells as engine records.
-- [ ] #2 The engine derives AC, HP maximum, spell slots and modifiers from the PC entity, and tests cover each derivation.
-- [ ] #3 Session events change HP, conditions and slots; the sheet view reads them from projections.
-- [ ] #4 A player views their own PC sheet, and the DM views every sheet.
-- [ ] #5 Any rule adopted by TASK-0055 is reflected, or the card notes that none was adopted.
+- [ ] #1 A codex pc entity stores class, level, ability scores, proficiencies, equipment and spells as engine records.
+- [ ] #2 The engine derives AC, HP maximum, spell slots and modifiers from the entity, with a test per derivation.
+- [ ] #3 Session events change HP, conditions and slots, and the sheet projection folds them over the entity.
+- [ ] #4 The sheet projection gives a player only their own PC and gives the DM every PC, with a test.
+- [ ] #5 The pc entity carries pronouns, and the compiled context and fact sheet use them, with a test.
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -48,6 +47,8 @@ Why: the old Sheets milestone dissolved into M2 (engine) and M4 (sheets) by deci
 Rewritten by replan-2026-11. PC as codex entity over the engine; absorbs 0241 (pronouns).
 
 Merged from TASK-0241 (Party characters carry pronouns, and narration uses them) by replan-2026-11: Pronouns on the PC entity.
+
+AC re-authored by replan-2026-11.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
