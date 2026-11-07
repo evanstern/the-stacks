@@ -6,7 +6,7 @@ title: >-
 status: To Do
 assignee: []
 created_date: '2026-11-05 05:48'
-updated_date: '2026-11-07 05:18'
+updated_date: '2026-11-07 05:19'
 labels:
   - web
   - ux
@@ -46,4 +46,6 @@ Merged from TASK-0169 (Roll lines name the ability, skill and roll mode of the c
 Merged from TASK-0187 (Play route: cap the transcript at 1024 px, centered) by replan-2026-11: Column width.
 
 Merged from TASK-0190 (Narration sets NPC dialogue apart from the prose) by replan-2026-11: Dialogue rows.
+
+Merged from TASK-0243 (Dice lines hide the dropped die on advantage and disadvantage) by replan-2026-11: Show both d20s.
 <!-- SECTION:NOTES:END -->
