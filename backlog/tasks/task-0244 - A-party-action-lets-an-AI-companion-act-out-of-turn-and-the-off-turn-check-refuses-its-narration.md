@@ -6,7 +6,7 @@ title: >-
 status: Done
 assignee: []
 created_date: '2026-11-05 04:22'
-updated_date: '2026-11-05 07:21'
+updated_date: '2026-11-07 03:07'
 labels:
   - dm
   - rules
@@ -57,6 +57,8 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (
 Spec 087 built (tasks.md all ticked). AC #1: companion-own-turn.integration.test.ts holds the party cast for Odo's turn and Odo acts once in round 2 (initiative scripted Tamsin then Odo, a simplification of the seq 206-230 order); mixed-actor party action refused off-turn. AC #2: step actors are on turn in the off-turn list (facts test).
 
 spec-bridge sync: Hold or refuse in the plan gate and resolve (US1; FR-001 to FR-005): 5/5 · Facts and the waiting line (US1, US2; FR-006 to FR-010): 4/4 · Replay seq 206-230 and contracts (US1; card AC #1, FR-011): 2/2 · Wiki re-ground: 3/3 — status In Progress → Done
+
+Runbook B2 playtest run 1 (2026-11-06, session bb4952dc, seq 206-230): in free mode after the encounter ended, Odo acted on three beats in a row on his own authority; the party action 'Odo, get with the program! It's time to hit things.' (group sign-off) resolved no-effect. Spec 087 only governs turn mode. Root cause of the lost turn order carded TASK-0253.
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
