@@ -4,10 +4,12 @@ title: 'The table shows no life state: players can''t tell which foes are dead o
 status: To Do
 assignee: []
 created_date: '2026-11-07 03:00'
+updated_date: '2026-11-07 05:19'
 labels:
   - ux
   - web
   - playtest
+  - replan-2026-11
 milestone: m-3
 dependencies: []
 references:
@@ -36,6 +38,12 @@ Related: TASK-0236/spec 090 (table margin), TASK-0164 (party slide-out), TASK-02
 - [ ] #3 The stream carries a text line when a character's life state changes, for screen-reader parity (decision constraint)
 - [ ] #4 Hidden information holds: a foe's HP numbers are not shown to players unless a ruling says so
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Merged into TASK-0277 by replan-2026-11. Life state chips.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
