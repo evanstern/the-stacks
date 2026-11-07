@@ -6,12 +6,13 @@ title: >-
 status: To Do
 assignee: []
 created_date: '2026-11-02 06:46'
-updated_date: '2026-11-02 06:49'
+updated_date: '2026-11-07 05:18'
 labels:
   - web
   - dm
   - playtest
-milestone: m-3
+  - 'ws:table-ux'
+milestone: m-10
 dependencies:
   - TASK-0188
 priority: high
@@ -21,6 +22,11 @@ ordinal: 178000
 ## Description
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
+REWRITTEN by replan-2026-11: Quiet ring for exploration only (P-04), on the Intent `declared` state; amend spec 066.
+
+Source: docs/design/replan-2026-11/board-rework-map.md. Acceptance criteria are refined at the milestone's planning (P-16).
+
+--- Previous description (superseded where it conflicts) ---
 Outcome: the play route has one composer and one Send button. The AI DM reads the table after a visible quiet ring (2 s + 8 s, restarted by each in-character or @dm post) and either reacts (D19) or posts a confirm row that the player accepts with 👍. 👍 declares and commits the DM's wording in one step. @dm gets one read-only out-of-character answer. The sign-off UI leaves the player view.
 
 Why: alpha run 3 finding 2 (2026-11-01). Group sign-off had no teeth, and the Talk/Action split meant TASK-0180's talk path never ran. Design: TASK-0188, decision-0028 (D20, accepted 2026-11-02, operator ruling "All (a), amend").
@@ -45,3 +51,9 @@ Spec: specs/066-one-chat-stream
 - [ ] #5 Spec phase: Contract and wiki amendments (card AC #3)
 - [ ] #6 Spec phase: Verification **[orchestrator]**
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Rewritten by replan-2026-11. Quiet ring for exploration only (P-04), on the Intent `declared` state; amend spec 066.
+<!-- SECTION:NOTES:END -->
