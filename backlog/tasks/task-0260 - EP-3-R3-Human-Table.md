@@ -11,6 +11,7 @@ labels:
 milestone: m-12
 dependencies:
   - TASK-0258
+  - TASK-0058
 ordinal: 244000
 ---
 
