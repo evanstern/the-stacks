@@ -60,6 +60,8 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
 Build 2026-11-01: skill 22b3e787, rehearsal log 6fafff90, ~127k tokens. Local rehearsal (DM_FAKE_SCRIPT=greyhollow-talk) exercised freshness, checklist roll-forward, watch, triage search (matched TASK-0169, nothing created) and the auditor (--auditor fake, pass). ci:check green with REQUIRE_DATABASE=1; wiki freshness OK. AC #4 stays open: the hosted browser-pane fetch is untested until its first use on vm-104. Known limits: freshness reads Done dates from updated_date; a paid auditor ceiling is stated, not enforced.
 
 Merged from TASK-0196 (Playtest cost estimate: expected output from measured typical, cap only for upper bound) by replan-2026-11: Cost estimate.
+
+Merged from TASK-0235 (playtest-run skill: name runbook B's scenario, and party-scope actions in local-table) by replan-2026-11: Playtest skill scenarios.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
