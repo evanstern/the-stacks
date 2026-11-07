@@ -6,10 +6,12 @@ title: >-
 status: To Do
 assignee: []
 created_date: '2026-11-07 04:08'
+updated_date: '2026-11-07 05:19'
 labels:
   - dm
   - narration
   - playtest
+  - replan-2026-11
 milestone: m-3
 dependencies: []
 references:
@@ -33,6 +35,12 @@ Related: TASK-0213 (pull-in dice line, the last dice-lines fail), TASK-0104 (eng
 - [ ] #1 A narration whose facts hold an auto-success check ships that check's 'no roll needed' dice line, with a test replaying seq 183-191
 - [ ] #2 The deterministic auditor passes seq 191 and seq 215 on a replay of this session
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Closed (close-superseded) by replan-2026-11: 0245: a no-roll check renders a code fact row.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
