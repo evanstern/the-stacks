@@ -6,10 +6,11 @@ title: >-
 status: To Do
 assignee: []
 created_date: '2026-11-02 06:33'
-updated_date: '2026-11-02 16:31'
+updated_date: '2026-11-07 05:18'
 labels:
   - playtest
   - cost
+  - replan-2026-11
 milestone: m-3
 dependencies:
   - TASK-0192
@@ -36,6 +37,8 @@ Where: apps/server/src/dm/purposes.ts, the playtest budget estimate and test/pla
 
 <!-- SECTION:NOTES:BEGIN -->
 Operator, 2026-11-02: "our estimates are wildly over compensating"; 9router 7-day spend under $8 against estimates sized for far more. Supports measuring typical output.
+
+Merged into TASK-0186 by replan-2026-11. Cost estimate.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
