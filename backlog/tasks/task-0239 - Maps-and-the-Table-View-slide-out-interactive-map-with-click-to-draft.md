@@ -4,9 +4,11 @@ title: 'Maps and the Table View: slide-out interactive map with click-to-draft'
 status: To Do
 assignee: []
 created_date: '2026-11-05 03:59'
+updated_date: '2026-11-07 05:18'
 labels:
   - ux
   - maps
+  - replan-2026-11
 milestone: m-6
 dependencies:
   - TASK-0236
@@ -28,6 +30,12 @@ Ship the map chosen in TASK-0236 (docs/design/mud-ux/decision.md): the map lives
 - [ ] #3 Token positions update from session events
 - [ ] #4 Map facts have stream text parity for screen readers
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Merged into TASK-0070 by replan-2026-11. Click-to-draft board.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
