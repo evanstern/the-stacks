@@ -4,10 +4,12 @@ title: 'Revisit: a code check that narration never shows a followUp as done'
 status: To Do
 assignee: []
 created_date: '2026-11-03 10:46'
+updated_date: '2026-11-07 05:18'
 labels:
   - dm
   - narration
   - revisit
+  - replan-2026-11
 milestone: m-3
 dependencies:
   - TASK-0214
@@ -26,6 +28,12 @@ Why: spec 085 (TASK-0214) OQ-2 took default (a): TASK-0208 carries open followUp
 <!-- AC:BEGIN -->
 - [ ] #1 The runbook B playtest log records whether any followUp was shown as done
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Closed (close-superseded) by replan-2026-11: TASK-0272.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
