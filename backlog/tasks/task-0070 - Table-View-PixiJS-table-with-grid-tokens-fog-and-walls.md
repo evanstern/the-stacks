@@ -4,12 +4,13 @@ title: 'Maps and the Table View: PixiJS table with grid, tokens, fog and walls'
 status: To Do
 assignee: []
 created_date: '2026-10-25 20:18'
-updated_date: '2026-10-25 20:19'
+updated_date: '2026-11-07 05:16'
 labels:
   - table-view
   - ui
   - session
-milestone: m-6
+  - 'ws:board'
+milestone: m-14
 dependencies:
   - TASK-0069
 references:
@@ -21,6 +22,11 @@ ordinal: 60000
 ## Description
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
+REWRITTEN by replan-2026-11: Board V1 per P-03/P-05: grid, tokens, draft gestures, ruler, room fog; absorbs 0239.
+
+Source: docs/design/replan-2026-11/board-rework-map.md. Acceptance criteria are refined at the milestone's planning (P-16).
+
+--- Previous description (superseded where it conflicts) ---
 Outcome: the in-app table view shows the session's map with grid, tokens and fog of war. Walls block reveal. Token moves and reveals are session events.
 
 Why: decision-0013 (own table view first) and architecture A13. The view projects the log; hidden regions stay server-side until revealed (constitution IV).
@@ -34,6 +40,12 @@ Why: decision-0013 (own table view first) and architecture A13. The view project
 - [ ] #4 Walls block line-of-sight reveal, computed on the server from the MapPlan.
 - [ ] #5 Reconnect replays the log and restores the same map state.
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Rewritten by replan-2026-11. Board V1 per P-03/P-05: grid, tokens, draft gestures, ruler, room fog; absorbs 0239.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
