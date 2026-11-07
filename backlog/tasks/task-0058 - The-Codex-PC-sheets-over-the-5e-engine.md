@@ -4,11 +4,13 @@ title: 'The Codex: PC sheets over the 5e engine'
 status: To Do
 assignee: []
 created_date: '2026-10-25 20:16'
+updated_date: '2026-11-07 05:16'
 labels:
   - codex
   - engine
   - ui
-milestone: m-4
+  - 'ws:codex'
+milestone: m-11
 dependencies:
   - TASK-0057
   - TASK-0055
@@ -21,6 +23,11 @@ ordinal: 48000
 ## Description
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
+REWRITTEN by replan-2026-11: PC as codex entity over the engine; absorbs 0241 (pronouns).
+
+Source: docs/design/replan-2026-11/board-rework-map.md. Acceptance criteria are refined at the milestone's planning (P-16).
+
+--- Previous description (superseded where it conflicts) ---
 Outcome: a player character's sheet is a codex PC entity whose mechanics the 5e engine computes and enforces. Players view their sheet; the engine updates it through session events.
 
 Why: the old Sheets milestone dissolved into M2 (engine) and M4 (sheets) by decision-0010. Sheets touch combat rules, so this card waits for the parked-rules decision (TASK-0055).
@@ -34,6 +41,12 @@ Why: the old Sheets milestone dissolved into M2 (engine) and M4 (sheets) by deci
 - [ ] #4 A player views their own PC sheet, and the DM views every sheet.
 - [ ] #5 Any rule adopted by TASK-0055 is reflected, or the card notes that none was adopted.
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Rewritten by replan-2026-11. PC as codex entity over the engine; absorbs 0241 (pronouns).
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
