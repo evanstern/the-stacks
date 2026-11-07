@@ -4,12 +4,14 @@ title: 'Line of sight, vision and light'
 status: To Do
 assignee: []
 created_date: '2026-11-07 05:14'
+updated_date: '2026-11-07 05:15'
 labels:
   - 'ws:board'
   - replan-2026-11
   - ep-5
 milestone: m-14
-dependencies: []
+dependencies:
+  - TASK-0070
 ordinal: 275000
 ---
 
