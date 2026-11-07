@@ -4,11 +4,13 @@ title: Class features that add damage resolve through the engine (Sneak Attack f
 status: To Do
 assignee: []
 created_date: '2026-11-03 05:49'
+updated_date: '2026-11-07 05:18'
 labels:
   - engine
   - rules
   - dm
-milestone: m-4
+  - 'ws:engine'
+milestone: m-12
 dependencies:
   - TASK-0104
   - TASK-0058
