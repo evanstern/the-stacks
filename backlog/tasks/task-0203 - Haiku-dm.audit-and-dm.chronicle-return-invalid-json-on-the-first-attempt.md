@@ -4,7 +4,7 @@ title: Haiku dm.audit and dm.chronicle return invalid-json on the first attempt
 status: In Progress
 assignee: []
 created_date: '2026-11-02 19:42'
-updated_date: '2026-11-07 03:11'
+updated_date: '2026-11-07 04:15'
 labels:
   - dm
   - playtest
@@ -87,6 +87,8 @@ spec-bridge sync: all four spec 086 phases complete (9/9, 5/5, 7/7, 7/7). Merged
 Playtest ceiling (runbook B2 playtest, 2026-11-06), operator's words: "Play it, ceiling $100".
 
 AC #2 NOT met at runbook B2 playtest run 1 (2026-11-06, session bb4952dc): 1 dm.audit invalid-json on attempt 1 in 33 audit calls (seq 109-113), recovered; dm.chronicle 0/11. Zero schema-mismatch outcomes over 141 calls, so the coercions and prompt fields (spec 086) worked: attempt-1 failures fell from 17/224 (runbook B) to 3/141 (1 audit invalid-json, 2 interpret truncated, TASK-0256). The surviving invalid-json is a true parse failure; its dm.call.invalid-json log excerpt on vm-104 would show the shape (a vm-104 read needs the operator's go). Card stays In Progress.
+
+Runbook B2 playtest log merged as PR #143 (507f6304): docs/playtests/2026-11-06-runbook-b2-playtest.md.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
