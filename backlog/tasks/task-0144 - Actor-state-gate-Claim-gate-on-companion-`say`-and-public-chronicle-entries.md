@@ -8,6 +8,7 @@ updated_date: '2026-11-07 05:17'
 labels:
   - dm
   - rules-gate
+  - replan-2026-11
 milestone: m-3
 dependencies:
   - TASK-0143
@@ -29,6 +30,12 @@ Why: decision-0025 (D17, TASK-0135) — the actor-state rule gate; operator ruli
 - [ ] #2 Public chronicle entries pass the claim gate against the snapshot at `throughSeq`, with a test.
 - [ ] #3 DM-only chronicle entries are not gated and say so in the contract.
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Closed (close-superseded) by replan-2026-11: TASK-0272 retires the prose claim gate.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
