@@ -4,10 +4,12 @@ title: Revisit LangGraph adoption
 status: To Do
 assignee: []
 created_date: '2026-10-25 20:00'
+updated_date: '2026-11-07 05:16'
 labels:
   - revisit
   - ai
   - dm
+  - replan-2026-11
 milestone: m-4
 dependencies: []
 references:
@@ -36,6 +38,12 @@ Gate: the M4 milestone's first agent task waits on this card (docs/design/milest
 - [ ] #4 The record states whether the @langchain/core peer dependency is acceptable under decision-0007.
 - [ ] #5 If adopted, the record names the first node set to wrap and the migration plan.
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Closed (close-superseded) by replan-2026-11: P-18: no LangGraph.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
