@@ -4,7 +4,7 @@ title: Reactions and roll requests
 status: To Do
 assignee: []
 created_date: '2026-11-07 05:13'
-updated_date: '2026-11-07 05:14'
+updated_date: '2026-11-07 05:18'
 labels:
   - 'ws:table-ux'
   - replan-2026-11
@@ -32,6 +32,12 @@ Source: docs/design/replan-2026-11/board-rework-map.md (N-11).
 - [ ] #2 Timeout defaults to "let it go"; the timer extends per user.
 - [ ] #3 Only the addressed player can answer a roll request.
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Merged from TASK-0218 (Offer a party member's opportunity attack to its player) by replan-2026-11: OA offer is the reaction row.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
