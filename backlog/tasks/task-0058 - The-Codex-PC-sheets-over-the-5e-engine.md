@@ -4,7 +4,7 @@ title: 'The Codex: PC sheets over the 5e engine'
 status: To Do
 assignee: []
 created_date: '2026-10-25 20:16'
-updated_date: '2026-11-07 05:16'
+updated_date: '2026-11-07 05:18'
 labels:
   - codex
   - engine
@@ -46,6 +46,8 @@ Why: the old Sheets milestone dissolved into M2 (engine) and M4 (sheets) by deci
 
 <!-- SECTION:NOTES:BEGIN -->
 Rewritten by replan-2026-11. PC as codex entity over the engine; absorbs 0241 (pronouns).
+
+Merged from TASK-0241 (Party characters carry pronouns, and narration uses them) by replan-2026-11: Pronouns on the PC entity.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
