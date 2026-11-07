@@ -6,10 +6,11 @@ title: >-
 status: To Do
 assignee: []
 created_date: '2026-10-25 20:18'
-updated_date: '2026-10-25 20:19'
+updated_date: '2026-11-07 05:16'
 labels:
   - maps
-milestone: m-6
+  - 'ws:board'
+milestone: m-14
 dependencies:
   - TASK-0068
 priority: medium
