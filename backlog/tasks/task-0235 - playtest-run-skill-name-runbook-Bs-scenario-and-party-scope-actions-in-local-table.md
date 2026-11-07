@@ -6,10 +6,11 @@ title: >-
 status: To Do
 assignee: []
 created_date: '2026-11-03 12:38'
-updated_date: '2026-11-05 10:01'
+updated_date: '2026-11-07 05:18'
 labels:
   - playtest
   - tooling
+  - replan-2026-11
 milestone: m-3
 dependencies: []
 ordinal: 221000
@@ -31,6 +32,8 @@ From TASK-0234 (runbook B scenario). (1) .claude/skills/playtest-run/SKILL.md se
 
 <!-- SECTION:NOTES:BEGIN -->
 Runbook B2 rehearsal (TASK-0250, 2026-11-05) hit both gaps again: local-table.mjs act cannot declare a party-scope action (the rehearsal used a one-off copy reading scope from an env var), and SKILL.md section 8 names only runbook A's scenario; add runbook-b-reed-camp and runbook-b2-reed-camp.
+
+Merged into TASK-0186 by replan-2026-11. Playtest skill scenarios.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
