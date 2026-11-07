@@ -35,6 +35,8 @@ Why: operator ruling 2026-10-25 at TASK-0043 plan checkpoint C2: these SRD 5.2.1
 
 <!-- SECTION:NOTES:BEGIN -->
 Deferred by replan-2026-11 to Later. Glossary; trigger: a "why" expansion needs a missing entry. Absorbs 0137.
+
+Merged from TASK-0137 (Revisit: the rest of the SRD 5.2.1 Rules Glossary in packages/srd) by replan-2026-11: Same glossary scope.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
