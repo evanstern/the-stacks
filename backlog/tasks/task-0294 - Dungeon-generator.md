@@ -4,12 +4,15 @@ title: Dungeon generator
 status: To Do
 assignee: []
 created_date: '2026-11-07 05:14'
+updated_date: '2026-11-07 05:15'
 labels:
   - 'ws:generators'
   - replan-2026-11
   - ep-6
 milestone: m-15
-dependencies: []
+dependencies:
+  - TASK-0293
+  - TASK-0068
 ordinal: 278000
 ---
 
