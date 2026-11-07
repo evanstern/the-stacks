@@ -4,10 +4,12 @@ title: Narration sets NPC dialogue apart from the prose
 status: To Do
 assignee: []
 created_date: '2026-11-02 04:03'
+updated_date: '2026-11-07 05:18'
 labels:
   - web
   - ux
   - playtest
+  - replan-2026-11
 milestone: m-3
 dependencies: []
 priority: medium
@@ -34,6 +36,12 @@ References: docs/playtests/2026-11-01-two-browser-alpha-run-3.md (run 3, session
 - [ ] #2 The change works at 1280 px and 390 px with no modal
 - [ ] #3 A web test covers a narration with a quoted line
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Merged into TASK-0247 by replan-2026-11. Dialogue rows.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
