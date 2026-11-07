@@ -4,9 +4,11 @@ title: Play composer keeps a line's draft until its echo lands
 status: To Do
 assignee: []
 created_date: '2026-10-28 03:31'
+updated_date: '2026-11-07 05:17'
 labels:
   - play-route
   - web
+  - replan-2026-11
 dependencies:
   - TASK-0157
 ordinal: 149000
@@ -23,6 +25,12 @@ Outcome: a player never has to retype a line the gate refused. Today the play-ro
 - [ ] #1 A refused talk line's text is back in the composer with the refusal notice
 - [ ] #2 A line that lands clears the draft once, on its echo
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Merged into TASK-0247 by replan-2026-11. Composer keeps draft until echo.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
