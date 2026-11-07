@@ -4,10 +4,12 @@ title: 'Revisit: reveals in talk turns, and offstage NPCs in the narrate prompt'
 status: To Do
 assignee: []
 created_date: '2026-11-03 02:37'
+updated_date: '2026-11-07 05:18'
 labels:
   - dm
   - presence
   - revisit
+  - replan-2026-11
 milestone: m-3
 dependencies:
   - TASK-0206
@@ -26,6 +28,12 @@ Why: spec 078 (TASK-0206) OQ-3 and OQ-4 took default (a): talk-turn reveals are 
 <!-- AC:BEGIN -->
 - [ ] #1 The runbook B playtest log records whether either gap appeared
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Closed (close-superseded) by replan-2026-11: TASK-0272: arrivals are facts on the fact sheet.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
