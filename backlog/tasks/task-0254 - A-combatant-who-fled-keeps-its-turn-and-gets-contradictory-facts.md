@@ -4,10 +4,12 @@ title: A combatant who fled keeps its turn and gets contradictory facts
 status: To Do
 assignee: []
 created_date: '2026-11-07 03:09'
+updated_date: '2026-11-07 05:19'
 labels:
   - dm
   - rules
   - playtest
+  - replan-2026-11
 milestone: m-3
 dependencies: []
 references:
@@ -31,6 +33,12 @@ Related: TASK-0238 (spec 088 arrivals), TASK-0206 (presence), TASK-0253 (encount
 - [ ] #1 An absent combatant's turn is skipped (turn.advanced skipped list) or the combatant leaves the encounter, with a test replaying seq 40 and 161-164
 - [ ] #2 No NPC turn's facts state both a planned action and no rules effect, with a test
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Merged into TASK-0274 by replan-2026-11. Fled combatant leaves the order.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
