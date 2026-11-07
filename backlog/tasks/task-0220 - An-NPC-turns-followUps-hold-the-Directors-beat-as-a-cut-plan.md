@@ -4,8 +4,10 @@ title: An NPC turn's followUps hold the Director's beat as a cut plan
 status: To Do
 assignee: []
 created_date: '2026-11-03 03:51'
+updated_date: '2026-11-07 05:18'
 labels:
   - dm
+  - replan-2026-11
 milestone: m-3
 dependencies:
   - TASK-0207
@@ -24,6 +26,12 @@ Why: spec 081 (TASK-0207) OQ-3. runner.ts computes cutBeat from any reading with
 <!-- AC:BEGIN -->
 - [ ] #1 cutBeat counts only followUps from a party member's first-stage cut, not an NPC turn's reading, with a runner test
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Closed (close-superseded) by replan-2026-11: TASK-0267: no held cut plans.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
