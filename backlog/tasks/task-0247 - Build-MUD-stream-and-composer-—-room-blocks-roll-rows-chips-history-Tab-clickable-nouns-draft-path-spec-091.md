@@ -38,4 +38,6 @@ Spec: specs/091-mud-stream-and-composer
 Merged from TASK-0132 (Show progress between Commit and the DM's narration) by replan-2026-11: Progress indicator between fact rows and narration.
 
 Merged from TASK-0133 (Render dice lines before and distinct from narration prose) by replan-2026-11: Roll rows render before prose.
+
+Merged from TASK-0162 (Play composer keeps a line's draft until its echo lands) by replan-2026-11: Composer keeps draft until echo.
 <!-- SECTION:NOTES:END -->
