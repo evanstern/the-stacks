@@ -41,6 +41,8 @@ Why: continuity is what turns scenes into a campaign. The recap must come from t
 
 <!-- SECTION:NOTES:BEGIN -->
 Rewritten by replan-2026-11. Session continuity: recap, carry-over, chronicle write-back drafts; absorbs 0109.
+
+Merged from TASK-0109 (Chronicle conflates distinct combatants in the dm journal) by replan-2026-11: Chronicle keys entries on entity ids.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
