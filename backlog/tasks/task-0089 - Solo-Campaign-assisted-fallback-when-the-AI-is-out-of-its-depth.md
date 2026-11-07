@@ -8,7 +8,8 @@ updated_date: '2026-11-07 05:17'
 labels:
   - solo
   - dial
-milestone: m-9
+  - 'ws:dm-console'
+milestone: m-16
 dependencies: []
 priority: medium
 ordinal: 79000
