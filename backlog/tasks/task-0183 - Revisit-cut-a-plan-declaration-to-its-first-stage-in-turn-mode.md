@@ -4,10 +4,12 @@ title: 'Revisit: cut a plan declaration to its first stage in turn mode'
 status: To Do
 assignee: []
 created_date: '2026-10-30 03:54'
+updated_date: '2026-11-07 05:18'
 labels:
   - dm
   - director
   - revisit
+  - replan-2026-11
 dependencies:
   - TASK-0182
 priority: low
@@ -24,6 +26,12 @@ Revisit card (a maybe). TASK-0182 (spec 064, OQ-5 (a)) cuts a plan-approach-cont
 <!-- AC:BEGIN -->
 - [ ] #1 The trigger fired and a spec covers the turn-mode cut, or a decision record drops this card
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Closed (close-superseded) by replan-2026-11: TASK-0267: one Intent, one plan.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
