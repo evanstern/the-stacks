@@ -6,6 +6,7 @@ title: >-
 status: To Do
 assignee: []
 created_date: '2026-11-05 05:48'
+updated_date: '2026-11-07 05:17'
 labels:
   - web
   - ux
@@ -30,3 +31,9 @@ Spec: specs/091-mud-stream-and-composer
 - [ ] #1 All tests and checks run green
 - [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Merged from TASK-0132 (Show progress between Commit and the DM's narration) by replan-2026-11: Progress indicator between fact rows and narration.
+<!-- SECTION:NOTES:END -->
