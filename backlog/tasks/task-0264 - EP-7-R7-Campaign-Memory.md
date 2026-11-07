@@ -4,11 +4,14 @@ title: EP-7 R7 Campaign Memory
 status: To Do
 assignee: []
 created_date: '2026-11-07 05:08'
+updated_date: '2026-11-07 05:11'
 labels:
   - replan-2026-11
   - epic
 milestone: m-16
-dependencies: []
+dependencies:
+  - TASK-0259
+  - TASK-0084
 ordinal: 248000
 ---
 
