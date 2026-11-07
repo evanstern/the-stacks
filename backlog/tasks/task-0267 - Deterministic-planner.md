@@ -1,0 +1,38 @@
+---
+id: TASK-0267
+title: Deterministic planner
+status: To Do
+assignee: []
+created_date: '2026-11-07 05:13'
+labels:
+  - 'ws:intent'
+  - replan-2026-11
+  - ep-1
+milestone: m-10
+dependencies: []
+ordinal: 251000
+---
+
+## Description
+
+<!-- SECTION:DESCRIPTION:BEGIN -->
+Create `packages/planner` with `plan(state, space, intent)` returning commands, a refusal, or a ruling request. Port the deterministic half of `dm/nodes/resolve.ts` and `dm/gates/plan-gate.ts`. Cover checks, saves, contests, attacks, the six engine spells, dash, dodge, disengage, help, hide, move and resource kinds.
+
+Parent epic: TASK-0258.
+
+Source: docs/design/replan-2026-11/board-rework-map.md (N-02).
+<!-- SECTION:DESCRIPTION:END -->
+
+## Acceptance Criteria
+<!-- AC:BEGIN -->
+- [ ] #1 The planner makes no model call and no I/O (boundary lint).
+- [ ] #2 Golden tests cover each supported kind, each refusal code and each ruling request.
+- [ ] #3 Legality checks from TASK-0145 and TASK-0147 pass as planner tests.
+- [ ] #4 `resolve.ts` loses the ported code paths.
+<!-- AC:END -->
+
+## Definition of Done
+<!-- DOD:BEGIN -->
+- [ ] #1 All tests and checks run green
+- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
+<!-- DOD:END -->
