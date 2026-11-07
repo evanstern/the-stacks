@@ -4,12 +4,14 @@ title: 'Research branch 5: running combat'
 status: To Do
 assignee: []
 created_date: '2026-10-27 02:06'
-updated_date: '2026-11-02 05:22'
+updated_date: '2026-11-07 05:17'
 labels:
   - research
   - dm
   - doctrine
   - revisit
+  - 'ws:engine'
+milestone: m-12
 dependencies:
   - TASK-0121
   - TASK-0048
