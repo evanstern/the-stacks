@@ -4,11 +4,13 @@ title: 'Hosted dev: 9router and ollama bge-m3 on vm-104, dev wired to them'
 status: To Do
 assignee: []
 created_date: '2026-10-26 14:12'
-updated_date: '2026-10-26 14:51'
+updated_date: '2026-11-07 05:17'
 labels:
   - hosted-dev
   - ai
   - ops
+  - 'ws:platform'
+milestone: m-10
 dependencies: []
 priority: high
 ordinal: 91000
