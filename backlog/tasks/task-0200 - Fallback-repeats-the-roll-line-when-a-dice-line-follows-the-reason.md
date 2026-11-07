@@ -4,10 +4,12 @@ title: Fallback repeats the roll line when a dice line follows the reason
 status: To Do
 assignee: []
 created_date: '2026-11-02 08:18'
+updated_date: '2026-11-07 05:18'
 labels:
   - dm
   - narration
   - playtest
+  - replan-2026-11
 milestone: m-3
 dependencies:
   - TASK-0193
@@ -28,6 +30,12 @@ Where: apps/server/src/dm/fallback.ts. Candidate: drop the reason sentence when 
 <!-- AC:BEGIN -->
 - [ ] #1 A fallback whose reason restates the dice line prints the roll once, with a test
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Closed (close-superseded) by replan-2026-11: 0245: roll lines are code rows; no fallback path.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
