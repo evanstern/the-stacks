@@ -6,12 +6,14 @@ title: >-
 status: To Do
 assignee: []
 created_date: '2026-11-05 04:52'
+updated_date: '2026-11-07 05:19'
 labels:
   - dm
   - narration
   - playtest
   - design
-milestone: m-3
+  - 'ws:narration'
+milestone: m-10
 dependencies: []
 references:
   - docs/playtests/2026-11-03-runbook-b-playtest.md
@@ -22,6 +24,11 @@ ordinal: 229000
 ## Description
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
+REWRITTEN by replan-2026-11: Fact sheet, code-rendered fact rows and State line, four-part template.
+
+Source: docs/design/replan-2026-11/board-rework-map.md. Acceptance criteria are refined at the milestone's planning (P-16).
+
+--- Previous description (superseded where it conflicts) ---
 Outcome: every DM reply to a declared action is built in four parts, in order, and the player always ends knowing where things stand:
 1. Restate: the narrator paraphrases the declared action as attempted, in third person and in fiction ('Tamsin and the party set out along the timbers toward the reed camp'). The audit checks it matches the declaration.
 2. Describe: world building, the outcome the ledger settled, NPC words and looks (today's prose).
@@ -49,6 +56,12 @@ Related: TASK-0209 (clarify holds the turn), TASK-0204 (ending ban), TASK-0207 (
 - [ ] #4 A clarify reply shows the question as Ask and a State line saying nothing has happened yet, with a test replaying run 1 seq 15-20
 - [ ] #5 No State line contains 'What do you do?', with a test
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Rewritten by replan-2026-11. Fact sheet, code-rendered fact rows and State line, four-part template.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
