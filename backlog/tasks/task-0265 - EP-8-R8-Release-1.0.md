@@ -4,11 +4,19 @@ title: EP-8 R8 Release 1.0
 status: To Do
 assignee: []
 created_date: '2026-11-07 05:08'
+updated_date: '2026-11-07 05:11'
 labels:
   - replan-2026-11
   - epic
 milestone: m-17
-dependencies: []
+dependencies:
+  - TASK-0258
+  - TASK-0225
+  - TASK-0226
+  - TASK-0227
+  - TASK-0228
+  - TASK-0229
+  - TASK-0230
 ordinal: 249000
 ---
 
