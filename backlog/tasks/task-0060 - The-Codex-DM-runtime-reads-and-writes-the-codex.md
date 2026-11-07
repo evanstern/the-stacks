@@ -4,10 +4,12 @@ title: 'The Codex: DM runtime reads and writes the codex'
 status: To Do
 assignee: []
 created_date: '2026-10-25 20:16'
+updated_date: '2026-11-07 05:16'
 labels:
   - codex
   - dm
-milestone: m-4
+  - 'ws:codex'
+milestone: m-11
 dependencies:
   - TASK-0057
 references:
@@ -19,6 +21,11 @@ ordinal: 50000
 ## Description
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
+REWRITTEN by replan-2026-11: `compile()` replaces seeds; delete seed files and loader; absorbs 0107, 0108.
+
+Source: docs/design/replan-2026-11/board-rework-map.md. Acceptance criteria are refined at the milestone's planning (P-16).
+
+--- Previous description (superseded where it conflicts) ---
 Outcome: the DM runtime's assemble node loads codex neighbours for the scene, and chronicle proposes codex updates. Scenes start from codex entities instead of the M2 scene seed.
 
 Why: architecture A11 names codex neighbours as assemble input; M2 used a seed because the codex did not exist (decision-0009). Chronicle writes codex updates as proposals (decision-0017).
@@ -32,6 +39,12 @@ Why: architecture A11 names codex neighbours as assemble input; M2 used a seed b
 - [ ] #4 The scene seed loader is removed, and the M2 playtest harness runs from codex fixtures.
 - [ ] #5 A test proves the narrator plays an NPC from its portrayal section.
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Rewritten by replan-2026-11. `compile()` replaces seeds; delete seed files and loader; absorbs 0107, 0108.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
