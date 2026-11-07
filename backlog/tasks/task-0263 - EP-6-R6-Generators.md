@@ -4,11 +4,13 @@ title: EP-6 R6 Generators
 status: To Do
 assignee: []
 created_date: '2026-11-07 05:08'
+updated_date: '2026-11-07 05:11'
 labels:
   - replan-2026-11
   - epic
 milestone: m-15
-dependencies: []
+dependencies:
+  - TASK-0261
 ordinal: 247000
 ---
 
