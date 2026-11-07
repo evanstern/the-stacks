@@ -4,7 +4,7 @@ title: 'The Codex: DM runtime reads and writes the codex'
 status: To Do
 assignee: []
 created_date: '2026-10-25 20:16'
-updated_date: '2026-11-07 05:16'
+updated_date: '2026-11-07 05:17'
 labels:
   - codex
   - dm
@@ -44,6 +44,8 @@ Why: architecture A11 names codex neighbours as assemble input; M2 used a seed b
 
 <!-- SECTION:NOTES:BEGIN -->
 Rewritten by replan-2026-11. `compile()` replaces seeds; delete seed files and loader; absorbs 0107, 0108.
+
+Merged from TASK-0107 (Revisit: DM-side nodes read NPC secrets (Director motive)) by replan-2026-11: `compile()` DM view feeds DM-side nodes.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
