@@ -4,12 +4,14 @@ title: 'Campaign, table and session records'
 status: To Do
 assignee: []
 created_date: '2026-11-07 05:13'
+updated_date: '2026-11-07 05:15'
 labels:
   - 'ws:codex'
   - replan-2026-11
   - ep-2
 milestone: m-11
-dependencies: []
+dependencies:
+  - TASK-0056
 ordinal: 263000
 ---
 
