@@ -4,12 +4,13 @@ title: 'Maps and the Table View: MapPlan contract and map-planner agent'
 status: To Do
 assignee: []
 created_date: '2026-10-25 20:18'
-updated_date: '2026-10-25 20:19'
+updated_date: '2026-11-07 05:16'
 labels:
   - maps
   - ai
   - agent
-milestone: m-6
+  - 'ws:board'
+milestone: m-14
 dependencies:
   - TASK-0067
 references:
@@ -21,6 +22,11 @@ ordinal: 58000
 ## Description
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
+REWRITTEN by replan-2026-11: `map` entity + MapPlan contract mapped onto zones; the map-planner agent moves to TASK-0294.
+
+Source: docs/design/replan-2026-11/board-rework-map.md. Acceptance criteria are refined at the milestone's planning (P-16).
+
+--- Previous description (superseded where it conflicts) ---
 Outcome: the operator or the AI DM asks for a map in plain words and gets a Zod-validated MapPlan (rooms, walls, doors, terrain, furniture, grid dimensions), linked to a codex location.
 
 Why: architecture A8 and constitution VII (structured before styled). Grid, walls and fog stay correct by construction because the plan is data before pixels. The agent follows TASK-0054's framework decision.
@@ -34,6 +40,12 @@ Why: architecture A8 and constitution VII (structured before styled). Grid, wall
 - [ ] #4 The agent's output is a proposal that the operator accepts, edits or rejects.
 - [ ] #5 The plan stores its prompt, provider and seed (constitution VII).
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Rewritten by replan-2026-11. `map` entity + MapPlan contract mapped onto zones; the map-planner agent moves to TASK-0294.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
