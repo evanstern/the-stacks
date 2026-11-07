@@ -4,7 +4,7 @@ title: Projection snapshots
 status: To Do
 assignee: []
 created_date: '2026-11-07 05:13'
-updated_date: '2026-11-07 05:15'
+updated_date: '2026-11-07 05:17'
 labels:
   - 'ws:memory'
   - replan-2026-11
@@ -31,6 +31,12 @@ Source: docs/design/replan-2026-11/board-rework-map.md (N-15).
 - [ ] #2 Snapshot + tail fold equals a full fold (property test).
 - [ ] #3 The pre-turn snapshot is exact across a reclaimed turn.
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Merged from TASK-0153 (Revisit: exact pre-turn snapshot S0 across a reclaimed turn) by replan-2026-11: Exact S0 comes from snapshots.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
