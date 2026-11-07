@@ -1,0 +1,36 @@
+---
+id: TASK-0290
+title: AI co-author drafts and session prep
+status: To Do
+assignee: []
+created_date: '2026-11-07 05:14'
+labels:
+  - 'ws:notebook'
+  - replan-2026-11
+  - ep-4
+milestone: m-13
+dependencies: []
+ordinal: 274000
+---
+
+## Description
+
+<!-- SECTION:DESCRIPTION:BEGIN -->
+Ask the AI to draft or fill any entity from a prompt; the result is a draft proposal through the gate. Add the session prep template (Lazy DM eight steps) linked to entities.
+
+Parent epic: TASK-0261.
+
+Source: docs/design/replan-2026-11/board-rework-map.md (N-25).
+<!-- SECTION:DESCRIPTION:END -->
+
+## Acceptance Criteria
+<!-- AC:BEGIN -->
+- [ ] #1 An AI draft lands as `draft` and needs curation under `ask`.
+- [ ] #2 The prep template links each step to entities.
+<!-- AC:END -->
+
+## Definition of Done
+<!-- DOD:BEGIN -->
+- [ ] #1 All tests and checks run green
+- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
+<!-- DOD:END -->
