@@ -4,12 +4,15 @@ title: Block visibility and reveal from the notebook
 status: To Do
 assignee: []
 created_date: '2026-11-07 05:14'
+updated_date: '2026-11-07 05:15'
 labels:
   - 'ws:notebook'
   - replan-2026-11
   - ep-4
 milestone: m-13
-dependencies: []
+dependencies:
+  - TASK-0059
+  - TASK-0148
 ordinal: 272000
 ---
 
