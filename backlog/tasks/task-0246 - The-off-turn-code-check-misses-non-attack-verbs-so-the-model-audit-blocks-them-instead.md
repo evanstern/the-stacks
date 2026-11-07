@@ -6,7 +6,7 @@ title: >-
 status: Done
 assignee: []
 created_date: '2026-11-05 05:12'
-updated_date: '2026-11-05 06:02'
+updated_date: '2026-11-07 03:09'
 labels:
   - dm
   - narration
@@ -44,6 +44,8 @@ Claimed 2026-11-05 by M3 runbook B2 (docs/design/m3-runbook-b2-playtest-fixes.md
 Off-turn check now catches readying phrases (TURN_READY_PHRASE), perceptual verbs pass, audit-v14, wiki re-pinned; code sha bc16aab5 + format
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (E4 implementation, plus one orchestrator-requested fix: rule 6 text)
+
+Runbook B2 playtest run 1 (2026-11-06, session bb4952dc, seq 103-107): Kestrel's 'I stand firm' beat shipped the fallback after 3 refusals for the off-turn pot-helm goblin: 'shifts weight and chooses its moment', 'grip tightens on its blade' (both missed by TURN_READY_PHRASE, which knows only 'shifts its/his grip/stance/weight' and 'draws back'), then 'studying Kestrel and fixing its eyes on her' (a model-audit false positive: audit rule 6 says looking is not a turn action). Widen the phrase list (shift weight, grip tightens, choose its moment) and add a code downgrade for a perceptual-only off-turn issue, like TASK-0240's reflex downgrade.
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
