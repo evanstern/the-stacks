@@ -4,9 +4,11 @@ title: 'Actor-state gate: Director legality over actor state'
 status: To Do
 assignee: []
 created_date: '2026-10-27 03:54'
+updated_date: '2026-11-07 05:17'
 labels:
   - dm
   - rules-gate
+  - replan-2026-11
 milestone: m-3
 dependencies:
   - TASK-0140
@@ -32,6 +34,12 @@ Why: decision-0025 (D17, TASK-0135) — the actor-state rule gate; operator ruli
 - [ ] #3 The spotlight and companion prompts never name a downed or absent actor, with a test.
 - [ ] #4 A refused Director move is logged and does not block the turn.
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Closed (close-superseded) by replan-2026-11: TASK-0267: legality lives in the planner.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
