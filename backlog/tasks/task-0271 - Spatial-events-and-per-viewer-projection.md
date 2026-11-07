@@ -4,7 +4,7 @@ title: Spatial events and per-viewer projection
 status: To Do
 assignee: []
 created_date: '2026-11-07 05:13'
-updated_date: '2026-11-07 05:14'
+updated_date: '2026-11-07 05:18'
 labels:
   - 'ws:space'
   - replan-2026-11
@@ -31,6 +31,12 @@ Source: docs/design/replan-2026-11/board-rework-map.md (N-06).
 - [ ] #2 The AI context lists each actor's zone and who is in reach.
 - [ ] #3 A door or post is a valid Intent target.
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Merged from TASK-0201 (Objects as plan targets (doors, posts) without initiative) by replan-2026-11: Objects are zone features and targets.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
