@@ -4,10 +4,12 @@ title: 'The Codex: campaign storage, versioning, typed links and CRUD API'
 status: To Do
 assignee: []
 created_date: '2026-10-25 20:13'
+updated_date: '2026-11-07 05:16'
 labels:
   - codex
   - server
-milestone: m-4
+  - 'ws:codex'
+milestone: m-11
 dependencies:
   - TASK-0056
 references:
