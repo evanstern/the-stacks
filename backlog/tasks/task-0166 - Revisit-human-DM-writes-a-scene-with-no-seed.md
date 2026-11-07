@@ -4,9 +4,11 @@ title: 'Revisit: human DM writes a scene with no seed'
 status: To Do
 assignee: []
 created_date: '2026-10-28 07:53'
+updated_date: '2026-11-07 05:18'
 labels:
   - play-route
   - revisit
+  - replan-2026-11
 dependencies:
   - TASK-0159
 priority: low
@@ -23,6 +25,12 @@ Revisit card (a maybe). TASK-0159 (spec 055, DC-2, OQ-2 A) locks the scene id to
 <!-- AC:BEGIN -->
 - [ ] #1 The trigger fired and a spec covers unseeded human-DM scenes, or a decision record drops this card
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Merged into TASK-0284 by replan-2026-11. Improvise a scene in the console.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
