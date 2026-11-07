@@ -4,10 +4,13 @@ title: 'Revisit: windowed event fetch on the debug page for long sessions'
 status: To Do
 assignee: []
 created_date: '2026-10-27 04:34'
+updated_date: '2026-11-07 05:17'
 labels:
   - revisit
   - debug-view
   - web
+  - deferred
+milestone: m-18
 dependencies: []
 priority: low
 ordinal: 142000
@@ -23,6 +26,12 @@ Trigger: revisit when a play session's event log passes a few thousand rows, or 
 <!-- AC:BEGIN -->
 - [ ] #1 A decision picks a windowed fetch and fold strategy with a measured threshold
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Deferred by replan-2026-11 to Later. Trigger stays: debug page load time.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
