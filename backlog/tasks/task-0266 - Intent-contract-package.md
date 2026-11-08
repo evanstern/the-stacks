@@ -36,7 +36,10 @@ Spec: specs/092-intent-contract
 - [x] #3 A decision record freezes the schema with `INTENT_SCHEMA_VERSION = 1`.
 - [x] #4 Boundary lint forbids imports from apps into the package.
 - [ ] #5 Spec phase: Package skeleton, scalars, refs and boundary lint (FR-001–FR-004, FR-008, FR-017)
+- [ ] #6 Spec phase: Kinds, KIND_RULES, refusals and fixtures (FR-005–FR-010)
 <!-- AC:END -->
+
+
 
 
 
