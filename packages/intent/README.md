@@ -20,3 +20,14 @@ can ask to do, plus its canonical text form.
 ## CHANGELOG
 
 - 1.0 — initial contract (57 kinds, 13 groups).
+
+## Text form notes (gaps in contract §8.2, closed with the smallest token)
+
+The contract table does not give a form for these. Each is a candidate for the next minor amendment.
+
+- Explicit speech verbs, used under `/as` and inside nested bodies: `/say`, `/to @id`, `/ask`, `/ooc`, `/npc [@to] <text>`.
+- `roll_free` with envelope `text`, and `ruling` with envelope `text`: `text="…"` key. An untrimmed `reason`: `reason="…"` key.
+- A `@"dm"` quoted id is a literal actor id `dm`, not the DM seat.
+- `/reveal to=…`: a bare `party` is the keyword; a quoted `"party"` is a pc id.
+- `check`/`contest` with both `skill` and `ability`: trailing `ability=A` key (as the table lists).
+- `/rule <req> amend` lets `dc=`, `diff=`, `text=`, `reason=` precede the amended body.
