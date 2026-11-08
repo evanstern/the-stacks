@@ -30,16 +30,18 @@ Spec: specs/094-space-and-zones
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Engine `move` refuses blocked edges and over-speed moves.
+- [x] #1 Engine `move` refuses blocked edges and over-speed moves.
 - [ ] #2 Reach and range checks use bands without a grid.
 - [ ] #3 Golden-dice tests cover OA triggers from leaving an engaged band.
-- [ ] #4 The package has no renderer or React dependency.
+- [x] #4 The package has no renderer or React dependency.
 - [x] #5 Phase 1: packages/space, biome override, boundary fixtures (specs/094 tasks.md)
-- [ ] #6 Phase 2: engine placement, speed, space; space.define, combatant.place, move, movement.action
+- [x] #6 Phase 2: engine placement, speed, space; space.define, combatant.place, move, movement.action
 - [ ] #7 Phase 3: reach and range by band in attack.roll; SRD speed/reach/range in seeds
 - [ ] #8 Phase 4: provokers() with golden-dice opportunity-attack tests
 - [ ] #9 Phase 5: wiki re-ground (merge main first; new space note)
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
