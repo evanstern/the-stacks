@@ -35,7 +35,10 @@ Spec: specs/092-intent-contract
 - [x] #2 `parse(toText(i))` round-trips for every fixture.
 - [x] #3 A decision record freezes the schema with `INTENT_SCHEMA_VERSION = 1`.
 - [x] #4 Boundary lint forbids imports from apps into the package.
+- [ ] #5 Spec phase: Package skeleton, scalars, refs and boundary lint (FR-001–FR-004, FR-008, FR-017)
 <!-- AC:END -->
+
+
 
 ## Implementation Plan
 
