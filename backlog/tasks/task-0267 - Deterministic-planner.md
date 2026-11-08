@@ -4,7 +4,7 @@ title: Deterministic planner
 status: To Do
 assignee: []
 created_date: '2026-11-07 05:13'
-updated_date: '2026-11-07 05:14'
+updated_date: '2026-11-08 19:55'
 labels:
   - 'ws:intent'
   - replan-2026-11
@@ -31,8 +31,13 @@ Source: docs/design/replan-2026-11/board-rework-map.md (N-02).
 - [ ] #1 The planner makes no model call and no I/O (boundary lint).
 - [ ] #2 Golden tests cover each supported kind, each refusal code and each ruling request.
 - [ ] #3 Legality checks from TASK-0145 and TASK-0147 pass as planner tests.
-- [ ] #4 `resolve.ts` loses the ported code paths.
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+CP-5 ruling 2026-11-08 (docs/design/r1-fast-table-runbook.md) F1: AC #4 (resolve.ts loses ported paths) moved to TASK-0269. This task ships the pure package with golden tests only.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->

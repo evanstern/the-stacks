@@ -6,7 +6,7 @@ title: >-
 status: To Do
 assignee: []
 created_date: '2026-11-05 04:52'
-updated_date: '2026-11-07 05:24'
+updated_date: '2026-11-08 19:55'
 labels:
   - dm
   - narration
@@ -49,6 +49,8 @@ Prior scope (superseded): a four-part reply policed by the narrate prompt and th
 Rewritten by replan-2026-11. Fact sheet, code-rendered fact rows and State line, four-part template.
 
 AC re-authored by replan-2026-11.
+
+CP-5 ruling 2026-11-08 (docs/design/r1-fast-table-runbook.md) F4: may develop ahead of TASK-0268 against fixtures. Builds after TASK-0273. The spec states the fact-sheet input as settled engine events.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done

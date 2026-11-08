@@ -4,13 +4,14 @@ title: 'Doctrine pass: rewrite resolution doctrine against D14'
 status: To Do
 assignee: []
 created_date: '2026-10-27 02:33'
-updated_date: '2026-11-07 05:24'
+updated_date: '2026-11-08 19:55'
 labels:
   - dm
   - doctrine
   - narration
   - revisit
   - 'ws:narration'
+  - droppable
 milestone: m-10
 dependencies:
   - TASK-0127
@@ -54,4 +55,6 @@ Operator ruling 2026-11-02 (M3 planning, orchestrator session local_6a4a04a4): r
 Rewritten by replan-2026-11. Doctrine pass against the planner and fact sheet, not the audit.
 
 AC re-authored by replan-2026-11.
+
+CP-5 ruling 2026-11-08 (docs/design/r1-fast-table-runbook.md): droppable tail of R1. Revisit trigger: if the R1 playtest gate (CP-7) is ready before this card is built, move it to R2 (m-11) and keep AC #5 for the R2 playtest.
 <!-- SECTION:NOTES:END -->
