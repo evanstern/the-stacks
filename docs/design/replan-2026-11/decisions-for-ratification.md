@@ -3,33 +3,33 @@
 **Replan 2026-11, Synthesis.** Date 2026-11-07. Ratified at checkpoint **CP-1** ([plan-of-action.md](plan-of-action.md) §7).
 **Reads with:** [research/decisions-digest.md](research/decisions-digest.md), [wishlist.md](wishlist.md), [target-architecture.md](target-architecture.md).
 
-The operator was asleep during synthesis. Every open choice below is a recommendation, not a ruling. On ratification, each accepted P-nn becomes a decision record under `backlog/decisions/` (next free id) and the superseded records get a "superseded by" line.
+**Ruled 2026-11-07 (CP-1): the operator approved all 21 proposals as recommended.** On ratification, each accepted P-nn becomes a decision record under `backlog/decisions/` (next free id) and the superseded records get a "superseded by" line.
 
 ## Summary
 
 | Id | Question | Recommendation | Supersedes / amends | Ruling |
 |---|---|---|---|---|
-| P-01 | How do the four goals order? | Co-equal; ladder by shared foundations | supersedes 0009; vision "End goal ladder" | |
-| P-02 | VTT posture (VTT decision 1) | Hybrid, build-led | refines 0013 | |
-| P-03 | Map: accessory or peer surface? | Peer surface; zone view always, board docked at ≥1440 px | amends mud-ux "Margin" | |
-| P-04 | Quiet ring everywhere? (table-UX item) | Exploration only; explicit turns in combat | amends 0028; retires 0016 residue | |
-| P-05 | Board renderer (VTT decision 2) | PixiJS v8, client-only route | confirms A1 | |
-| P-06 | Grid policy (VTT decision 4) | Square only; SRD 5.2.1 movement; token-method AoE | new | |
-| P-07 | Adapter trigger (VTT decision 3) | Trigger-gated; Foundry first | amends 0013 (M6 adapter) | |
-| P-08 | Typed Intent + deterministic planner | Adopt; one vocabulary for every surface and both DMs | amends 0017, 0016 | |
-| P-09 | Spatial model | Zones first; grid is a finer resolution of one model; positions in the engine | new; closes TASK-0139 trigger | |
-| P-10 | Codex model | Generic entity + typed payload, typed links, block visibility, reveal-as-event, versions with provenance | refines A3/A5, 0026 | |
-| P-11 | Campaign, table and session records | Add first-class rows | amends decision-1 (implicit tables) | |
-| P-12 | Narration: audit after, or render around facts? | Render around a fact sheet; retire the regenerate/fallback audit loop | amends 0017, 0025 | |
-| P-13 | Memory model | Typed state for play facts; retrieval for recall; projection snapshots | amends 0026 (scope), M8 timing | |
-| P-14 | Latency as a product requirement | Fact rows < 1 s p95; first narration token < 10 s p50 | new | |
-| P-15 | Repo and package splits | Publish `dnd5e-engine` + `srd` at R8; no other split | amends 0010 boundary | |
-| P-16 | Carding depth | Epics for all milestones; deliverable cards only for the next two | amends 0020 | |
-| P-17 | Generators | Hybrid (code skeleton, LLM flesh, code validate); drafts through the gate as prep-time proposals | extends 0015 | |
-| P-18 | LangGraph | Stay on plain async nodes; close the revisit | confirms 0019; closes TASK-0054 | |
-| P-19 | Stack | Keep; add PixiJS only | confirms decision-1 item 1, 0008 | |
-| P-20 | Milestone ladder | R1–R8 replace m-1…m-9 | supersedes milestones.md ladder | |
-| P-21 | Imported mechanics (old M5) | Defer to Later | amends 0012 (M5 timing) | |
+| P-01 | How do the four goals order? | Co-equal; ladder by shared foundations | supersedes 0009; vision "End goal ladder" | Approved 2026-11-07 |
+| P-02 | VTT posture (VTT decision 1) | Hybrid, build-led | refines 0013 | Approved 2026-11-07 |
+| P-03 | Map: accessory or peer surface? | Peer surface; zone view always, board docked at ≥1440 px | amends mud-ux "Margin" | Approved 2026-11-07 |
+| P-04 | Quiet ring everywhere? (table-UX item) | Exploration only; explicit turns in combat | amends 0028; retires 0016 residue | Approved 2026-11-07 |
+| P-05 | Board renderer (VTT decision 2) | PixiJS v8, client-only route | confirms A1 | Approved 2026-11-07 |
+| P-06 | Grid policy (VTT decision 4) | Square only; SRD 5.2.1 movement; token-method AoE | new | Approved 2026-11-07 |
+| P-07 | Adapter trigger (VTT decision 3) | Trigger-gated; Foundry first | amends 0013 (M6 adapter) | Approved 2026-11-07 |
+| P-08 | Typed Intent + deterministic planner | Adopt; one vocabulary for every surface and both DMs | amends 0017, 0016 | Approved 2026-11-07 |
+| P-09 | Spatial model | Zones first; grid is a finer resolution of one model; positions in the engine | new; closes TASK-0139 trigger | Approved 2026-11-07 |
+| P-10 | Codex model | Generic entity + typed payload, typed links, block visibility, reveal-as-event, versions with provenance | refines A3/A5, 0026 | Approved 2026-11-07 |
+| P-11 | Campaign, table and session records | Add first-class rows | amends decision-1 (implicit tables) | Approved 2026-11-07 |
+| P-12 | Narration: audit after, or render around facts? | Render around a fact sheet; retire the regenerate/fallback audit loop | amends 0017, 0025 | Approved 2026-11-07 |
+| P-13 | Memory model | Typed state for play facts; retrieval for recall; projection snapshots | amends 0026 (scope), M8 timing | Approved 2026-11-07 |
+| P-14 | Latency as a product requirement | Fact rows < 1 s p95; first narration token < 10 s p50 | new | Approved 2026-11-07 |
+| P-15 | Repo and package splits | Publish `dnd5e-engine` + `srd` at R8; no other split | amends 0010 boundary | Approved 2026-11-07 |
+| P-16 | Carding depth | Epics for all milestones; deliverable cards only for the next two | amends 0020 | Approved 2026-11-07 |
+| P-17 | Generators | Hybrid (code skeleton, LLM flesh, code validate); drafts through the gate as prep-time proposals | extends 0015 | Approved 2026-11-07 |
+| P-18 | LangGraph | Stay on plain async nodes; close the revisit | confirms 0019; closes TASK-0054 | Approved 2026-11-07 |
+| P-19 | Stack | Keep; add PixiJS only | confirms decision-1 item 1, 0008 | Approved 2026-11-07 |
+| P-20 | Milestone ladder | R1–R8 replace m-1…m-9 | supersedes milestones.md ladder | Approved 2026-11-07 |
+| P-21 | Imported mechanics (old M5) | Defer to Later | amends 0012 (M5 timing) | Approved 2026-11-07 |
 
 ## Detail
 

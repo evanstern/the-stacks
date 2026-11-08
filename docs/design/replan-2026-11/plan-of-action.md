@@ -2,7 +2,7 @@
 
 **Replan 2026-11, Synthesis.** Date 2026-11-06.
 **Reads with:** [wishlist.md](wishlist.md), [target-architecture.md](target-architecture.md), [decisions-for-ratification.md](decisions-for-ratification.md) (P-nn), [board-rework-map.md](board-rework-map.md) (N-nn, EP-nn).
-**Status:** proposed. Nothing here binds until checkpoint CP-1 passes.
+**Status:** ratified 2026-11-07 at CP-1 (all of P-01…P-21 approved). CP-2 (constitution) and CP-3 (board) are next.
 
 ## 1. Sequencing principle
 
