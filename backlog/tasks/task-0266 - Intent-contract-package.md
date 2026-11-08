@@ -5,7 +5,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-11-07 05:13'
-updated_date: '2026-11-08 12:13'
+updated_date: '2026-11-08 20:08'
 labels:
   - 'ws:intent'
   - replan-2026-11
@@ -49,6 +49,9 @@ Spec specs/092-intent-contract (spec, plan, tasks, contracts/intent-schema.md). 
 Spec authored for CP-4. Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=cc/claude-opus-5-5
 
 CP-4 2026-11-08: operator ruled Q1–Q9 as recommended and froze the contract as v1 (decision-0030). AC #3 met by the decision record. Implementation (AC #1, #2, #4) follows per specs/092-intent-contract/tasks.md.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5
+Phases 1-2 done (529c762e, 8af1a7e1): 57 kinds, KIND_RULES, refusals, fixtures; 89 tests green. Open contract question: IntentBody excludes ruling and whisper (ponytail comment in kinds.ts), pending operator confirmation.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
