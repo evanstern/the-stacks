@@ -3,10 +3,10 @@ id: TASK-0231
 title: >-
   Split the dnd5e-engine and dm-failure-and-gates wiki notes under the size
   budget
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-11-03 08:28'
-updated_date: '2026-11-07 05:18'
+updated_date: '2026-11-08 20:15'
 labels:
   - wiki
   - docs
@@ -24,8 +24,17 @@ Spec 083 (TASK-0105) pushed both notes past the 8000-character budget (8582 and 
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 dnd5e-engine and dm-failure-and-gates each fit the 8000-character budget with no size_budget_exempt line, and the freshness gate passes
+- [x] #1 dnd5e-engine and dm-failure-and-gates each fit the 8000-character budget with no size_budget_exempt line, and the freshness gate passes
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Claimed 2026-11-08 by the R1 sweep (docs/design/r1-fast-table-runbook.md). Worktree .worktrees/task-0231, branch task-0231-wiki-split, cut from origin/main a8bda4ab. No spec dir: signed escape line covers this task.
+
+Dispatch: tier=haiku pinned=cc/claude-haiku-5-5 served=cc/claude-haiku-5-5
+Commit e71ba783: dnd5e-engine split into +derived-rolls, +reactions; dm-failure-and-gates split into +dm-plan-gate. Verbatim moves, pins kept. Orchestrator re-ran gates: freshness OK 60 notes, exit 0; plan prints nothing.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
