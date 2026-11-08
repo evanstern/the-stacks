@@ -31,3 +31,7 @@ recommended:
 - Additive kinds or fields are a minor bump. A breaking change needs a new major version and a decision record.
 - Spec 066 (TASK-0199) and spec 091 (TASK-0247) must be amended against this contract before their lanes start.
 - R1 lanes may build against the contract in parallel (plan-of-action §4 seams).
+
+## Amendments
+
+- **v1.1 (2026-11-08, operator C-CON):** adopted the seven text-form gaps found by the phase-4 property tests as additive forms (contract §8.2.1): explicit speech verbs, `text=`/`reason=` keys, quoted `@"dm"`, quoted `"party"`, trailing `ability=`, and leading keys on `/rule amend`. Rationale: the contract table gave no canonical form for them, so round-trip rule 3 could not hold for those Intents. The fix adds forms only. The schema is unchanged, so this is a minor bump (`INTENT_SCHEMA_MINOR = 1`) with no upcaster.

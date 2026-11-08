@@ -1,7 +1,7 @@
-# Contract: Intent schema v1
+# Contract: Intent schema v1.1
 
-**Status**: FROZEN 2026-11-08 at CP-4 (decision-0030). `INTENT_SCHEMA_VERSION = 1`,
-`INTENT_SCHEMA_MINOR = 0`. Change only per §10 Versioning.
+**Status**: FROZEN v1.1 (minor 1, 2026-11-08, operator C-CON); v1.0 frozen 2026-11-08 at CP-4
+(decision-0030). `INTENT_SCHEMA_VERSION = 1`, `INTENT_SCHEMA_MINOR = 1`. Change only per §10 Versioning.
 **Package**: `@the-stacks/intent` (`packages/intent`). Runtime dependency: `zod` only.
 **Sources**: target-architecture §2, §3, §6, §8; constitution 3.0.0 II; P-04, P-08, P-09.
 
@@ -379,6 +379,16 @@ ParseContext = {
 
 Mechanical kinds may end with ` -- <text>`. Speech and prose kinds take the body directly.
 
+#### 8.2.1 Text-form additions (v1.1, additive)
+
+1. Explicit speech verbs parse everywhere. They are the only speech forms under `/as` and inside nested bodies: `/say <text>`, `/to @<id> <text>`, `/ask <text>`, `/ooc <text>`, `/npc [@<to>] <text>`.
+2. `roll_free` and `ruling` with an envelope `text` write it as the key `text="…"`. Their ` -- <reason>` form then carries only `reason`.
+3. An untrimmed `reason` writes as the key `reason="…"`.
+4. `@"dm"` (quoted) is the literal actor id `dm`. Bare `@dm` is the DM seat.
+5. In `/reveal ... to=`, a bare `party` is the party keyword. A quoted `"party"` is a pc id.
+6. `check` and `contest` with both `skill` and `ability` write a trailing `ability=<A>` key.
+7. `/rule <requestId> amend` lets `dc=`, `diff=`, `text=` and `reason=` precede the amended body.
+
 ### 8.3 Round-trip rules
 
 1. `toText` is total over every schema-valid Intent. It never throws.
@@ -429,7 +439,7 @@ copied into this enum.
 
 ## 10. Versioning
 
-- `INTENT_SCHEMA_VERSION = 1` (major). `INTENT_SCHEMA_MINOR = 0`.
+- `INTENT_SCHEMA_VERSION = 1` (major). `INTENT_SCHEMA_MINOR = 1`.
 - **Minor (additive):** a new kind, a new optional param, a new alias, a new refusal code, a new
   `Source`. Bump `INTENT_SCHEMA_MINOR`. No decision record is needed. The CHANGELOG line in the
   package README is required.
@@ -440,6 +450,11 @@ copied into this enum.
 - Every consumer MUST tolerate an unknown `kind`: a projection renders `text` or the raw text
   form; the gate refuses it `INTENT_SCHEMA`.
 - A carrier stores the major version beside each stored Intent.
+
+**Changelog**
+
+- 1.1 (2026-11-08, operator C-CON): text-form additions §8.2.1. Schema unchanged.
+- 1.0 (2026-11-08, CP-4, decision-0030): initial contract, 57 kinds in 13 groups.
 
 ## 11. Exports
 
