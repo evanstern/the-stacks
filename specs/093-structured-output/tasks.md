@@ -52,30 +52,30 @@ The TASK-0203 shapes run through both paths.
 **Independent test**: `call.test.ts`, `call-schemas.test.ts`, `schema-coercions.test.ts` and the
 new S1 to S4 tool-mode cases pass.
 
-- [ ] T009 [US1] In `apps/server/src/dm/pipeline/call.ts`, add `outputSpecOf` with a `WeakMap`
+- [x] T009 [US1] In `apps/server/src/dm/pipeline/call.ts`, add `outputSpecOf` with a `WeakMap`
       cache. `collect()` takes an optional `output` and puts it on the chat request. `callJson`
       sends it on both attempts; `callText` sends none (plan D4).
-- [ ] T010 [US2] In `apps/server/src/dm/pipeline/call.ts`, add `truncated` to `Collected`.
+- [x] T010 [US2] In `apps/server/src/dm/pipeline/call.ts`, add `truncated` to `Collected`.
       Rename `logInvalid` to `logFailed`, emit `dm.call.truncated` with `parse` when truncated,
       and log a truncated `callText` attempt with `parse: null` (plan D5). Update the TASK-0203
       doc comment.
-- [ ] T011 [US1] Create `apps/server/test/dm/call-schemas.test.ts`. Convert every schema a DM
+- [x] T011 [US1] Create `apps/server/test/dm/call-schemas.test.ts`. Convert every schema a DM
       `callJson` site passes (`InterpretOutput`, `DirectorOutput`, `AdjudicateModelOutput`,
       `AuditModelOutput`, `ChronicleOutput`, `CompanionOutput`, `ReactOutput`) with the FR-006
       options. Assert no throw, `type: "object"` and no `$schema` key.
-- [ ] T012 [US1] In `apps/server/test/dm/call.test.ts`, assert both attempts carry the same
+- [x] T012 [US1] In `apps/server/test/dm/call.test.ts`, assert both attempts carry the same
       `output`, its name is `dm_audit` for `dm.audit`, and `callText` carries none.
-- [ ] T013 [US2] In `apps/server/test/dm/call.test.ts`, add the four US2 scenarios. Assert no
+- [x] T013 [US2] In `apps/server/test/dm/call.test.ts`, add the four US2 scenarios. Assert no
       `dm.call.invalid-json` line for a capped reply.
-- [ ] T014 [US4] Create `apps/server/test/dm/fixtures/task-0203-shapes.ts` with S1 to S8 (plan
+- [x] T014 [US4] Create `apps/server/test/dm/fixtures/task-0203-shapes.ts` with S1 to S8 (plan
       D7). Add S9 only if the OQ-6 excerpt is on the card.
-- [ ] T015 [US4] Rewrite `apps/server/test/dm/schema-coercions.test.ts` to iterate the fixture
+- [x] T015 [US4] Rewrite `apps/server/test/dm/schema-coercions.test.ts` to iterate the fixture
       module. Expected outcomes stay as today.
-- [ ] T016 [US4] In `apps/server/test/ai.openai-compatible.test.ts`, stream S1 to S4 as tool-call
+- [x] T016 [US4] In `apps/server/test/ai.openai-compatible.test.ts`, stream S1 to S4 as tool-call
       argument deltas through a real gateway and `callJson` with each shape's normalizer. Assert
       `ok` on attempt 1. Stream one capped argument stream and assert `truncated` plus
       `dm.call.truncated`.
-- [ ] T017 [US2] Amend `specs/031-dm-runtime/contracts/node-seam.md` ("Model calls") with the
+- [x] T017 [US2] Amend `specs/031-dm-runtime/contracts/node-seam.md` ("Model calls") with the
       output spec and the `dm.call.truncated` event (plan D9).
 
 ## Phase 3: Interpret cap, boot warning and env example (US1, US5; FR-010, FR-011, FR-014; plan D6)

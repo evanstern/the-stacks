@@ -8,6 +8,8 @@ import type {
   ProviderConfig,
 } from "../src/ai/types.js";
 import { memorySink } from "../src/ai/usage.js";
+import { callJson } from "../src/dm/pipeline/call.js";
+import { SHAPES } from "./dm/fixtures/task-0203-shapes.js";
 
 const CFG: ProviderConfig = {
   kind: "openai-compatible",
@@ -558,5 +560,96 @@ describe("OpenAiCompatibleProvider.chat structured output (TASK-0273)", () => {
       type: "done",
       usage: { truncated: true },
     });
+  });
+});
+
+describe("TASK-0203 shapes streamed as tool-call arguments (TASK-0273)", () => {
+  const gatewayFor = (chunks: unknown[], records: unknown[] = []) => {
+    const fetchDouble = vi
+      .fn()
+      .mockImplementation(async () =>
+        sseResponse([...chunks.map(sseChunk), "data: [DONE]\n\n"]),
+      );
+    const config: AiConfig = {
+      providers: { p: CFG },
+      purposes: {
+        "dm.audit": {
+          provider: "p",
+          model: "m",
+          op: "chat",
+          structured: "tool",
+        },
+        "dm.chronicle": {
+          provider: "p",
+          model: "m",
+          op: "chat",
+          structured: "tool",
+        },
+      },
+      prices: {},
+    };
+    return createGateway({
+      config,
+      sink: { record: (r) => records.push(r) },
+      fetch: fetchDouble as unknown as typeof fetch,
+      env: {},
+    });
+  };
+  // Split the reply into 3 argument fragments, as a router would.
+  const argChunks = (json: string, finish = "tool_calls") => {
+    const n = Math.ceil(json.length / 3);
+    const parts = [json.slice(0, n), json.slice(n, 2 * n), json.slice(2 * n)];
+    return [
+      ...parts.map((a) => ({
+        choices: [
+          { delta: { tool_calls: [{ index: 0, function: { arguments: a } }] } },
+        ],
+      })),
+      { choices: [{ delta: {}, finish_reason: finish }] },
+      { choices: [], usage: { prompt_tokens: 5, completion_tokens: 9 } },
+    ];
+  };
+
+  for (const shape of SHAPES.filter((s) => s.expect === "ok")) {
+    it(`${shape.id}: ok on attempt 1`, async () => {
+      const gateway = gatewayFor(argChunks(JSON.stringify(shape.reply)));
+      const r = await callJson(
+        { gateway },
+        {
+          purpose: shape.purpose,
+          promptVersion: "t",
+          system: "s",
+          user: "u",
+          schema: shape.schema,
+          normalize: shape.normalize,
+          signal: new AbortController().signal,
+        },
+      );
+      expect(r.calls.map((c) => c.outcome)).toEqual(["ok"]);
+      if (!r.ok) throw new Error("expected ok");
+      shape.check?.(r.value);
+    });
+  }
+
+  it("a capped argument stream records truncated and logs dm.call.truncated", async () => {
+    const shape = SHAPES[0] as (typeof SHAPES)[number];
+    const lines: Record<string, unknown>[] = [];
+    const gateway = gatewayFor(
+      argChunks(JSON.stringify(shape.reply).slice(0, 20), "length"),
+    );
+    const r = await callJson(
+      { gateway, log: (l) => lines.push(l) },
+      {
+        purpose: shape.purpose,
+        promptVersion: "t",
+        system: "s",
+        user: "u",
+        schema: shape.schema,
+        normalize: shape.normalize,
+        signal: new AbortController().signal,
+      },
+    );
+    expect(r.calls[0]?.outcome).toBe("truncated");
+    expect(lines[0]).toMatchObject({ event: "dm.call.truncated", attempt: 1 });
   });
 });
