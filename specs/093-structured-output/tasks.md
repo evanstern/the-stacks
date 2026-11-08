@@ -109,10 +109,10 @@ in `.env.example`. A unit test covers `unstructuredDmPurposes`.
 --state <tmp>.state` on a hand-built input with one truncated call prints all three. Paste the
 output in the commit body.
 
-- [ ] T024 [P] [US3] In `.claude/skills/playtest-run/scripts/watch.mjs`, add `truncated=<n>`
+- [x] T024 [P] [US3] In `.claude/skills/playtest-run/scripts/watch.mjs`, add `truncated=<n>`
       after `invalid-json=<n>`. After the spend line, print `attempt-1 failures f/n = p%`
       (OQ-2 counting rule) and `out-max <purpose>=<tokens>` per purpose.
-- [ ] T025 [P] [US3] In `.claude/skills/playtest-run/SKILL.md`, name `truncated` on line 72, flag
+- [x] T025 [P] [US3] In `.claude/skills/playtest-run/SKILL.md`, name `truncated` on line 72, flag
       it on line 74, and say AC #2 of TASK-0273 reads from the attempt-1 line.
 
 ## Phase 5: Wiki re-ground
