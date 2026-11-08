@@ -1,10 +1,10 @@
 ---
 id: TASK-0098
 title: Runtime stacks come up with an unmigrated app database
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-10-26 02:58'
-updated_date: '2026-11-07 05:17'
+updated_date: '2026-11-08 20:11'
 labels:
   - env
   - runtime
@@ -21,6 +21,8 @@ ordinal: 88000
 Outcome: pnpm env:up and pnpm env:main bring up a stack whose app database is migrated, with no manual db:migrate step.
 
 Why: reproduced 2026-10-26 with pnpm env:main. The main stack came up healthy (/health ok, database reachable) but had no tables (relation "users" does not exist) until db:migrate was run by hand from the host against localhost:5432 with the stack's POSTGRES_PASSWORD. An implementer reported the same gap for pnpm env:up during TASK-0043. A healthy check over an empty schema hides the gap. Raised in the M2 First Scene sweep; carded by operator ruling 2026-10-26. Outside M2 scope. Reference: specs/010-worktree-stacks/contracts/env-cli.md.
+
+Spec: specs/095-migrated-stacks
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
@@ -39,6 +41,8 @@ Finding 2026-10-26 (M2 sweep orchestrator, TASK-0048 stack): (1) The documented 
 Finding 2026-10-26 (M2 demo prep): apps/server/src/cli/create-operator.ts has the same precedence as migrate.ts (TEST_DATABASE_URL || config.databaseUrl). On a host worktree whose .env sets TEST_DATABASE_URL, 'pnpm --filter @the-stacks/server auth:create-operator' creates the operator in the TEST database, and the app has no operator. Workaround: pass the app DB URL as TEST_DATABASE_URL. The fix should give host CLIs an explicit target for the app DB.
 
 Observed 2026-10-27 (TASK-0049 Phase 3): on a worktree stack the app DB and the test DB use different credentials. Migrating the app DB needs the app container's DATABASE_URL with its host swapped to localhost:<db port>. The test-db credentials fail with CREATE SCHEMA drizzle.
+
+Claimed 2026-11-08 by the R1 sweep (docs/design/r1-fast-table-runbook.md). Worktree .worktrees/task-0098, branch task-0098-migrated-stacks, cut from origin/main a8bda4ab. Spec number 095 claimed with a stub.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
