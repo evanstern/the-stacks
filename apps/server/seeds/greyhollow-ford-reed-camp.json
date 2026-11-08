@@ -184,6 +184,7 @@
           "zeroHpRule": "death-saves",
           "initiativeBonus": 2,
           "conModifier": 2,
+          "speed": 30,
           "ac": 16,
           "hitDice": [
             {
@@ -268,6 +269,7 @@
           "zeroHpRule": "death-saves",
           "initiativeBonus": 0,
           "conModifier": 1,
+          "speed": 30,
           "ac": 16,
           "hitDice": [
             {
@@ -358,6 +360,7 @@
           "zeroHpRule": "death-saves",
           "initiativeBonus": 3,
           "conModifier": 1,
+          "speed": 30,
           "ac": 14,
           "hitDice": [
             {

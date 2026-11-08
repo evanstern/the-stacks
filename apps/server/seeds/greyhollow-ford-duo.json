@@ -135,6 +135,7 @@
           "zeroHpRule": "death-saves",
           "initiativeBonus": 2,
           "conModifier": 2,
+          "speed": 30,
           "ac": 16,
           "hitDice": [{ "die": 10, "total": 1 }]
         },
@@ -170,6 +171,7 @@
           "zeroHpRule": "death-saves",
           "initiativeBonus": 0,
           "conModifier": 1,
+          "speed": 30,
           "ac": 16,
           "hitDice": [{ "die": 8, "total": 1 }],
           "spellSlots": { "standard": { "1": 2 }, "pact": null }
@@ -205,6 +207,7 @@
           "zeroHpRule": "death-saves",
           "initiativeBonus": 3,
           "conModifier": 1,
+          "speed": 30,
           "ac": 14,
           "hitDice": [{ "die": 8, "total": 1 }]
         },

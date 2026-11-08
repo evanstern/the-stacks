@@ -62,12 +62,12 @@ with `pnpm ci:check` green and one commit led by `TASK-0270`.
 
 **Goal**: placed attacks check reach and range by band; seeds carry the numbers.
 
-- [ ] T025 [US2] Extend `AttackEntrySchema` in `src/schema/state.ts` with `reachFt` and `rangeFt` (FR-022).
-- [ ] T026 [US2] In `src/commands/attacks.ts`, add the band checks before any draw (FR-020, FR-021, FR-021a); a long-range use adds a disadvantage mode source.
-- [ ] T027 [US2] Extend `test/commands/attacks.test.ts`: each US2 scenario, `melee-or-ranged` both ways, explicit-expression skip, unplaced skip, `STAT_UNDEFINED` without `rangeFt`, refusals before draw (`expectRefusedBeforeDraw`).
-- [ ] T028 [US2] In `apps/server/src/dm/seed/combatants.ts`, map `speed`, `reachFt` and `rangeFt` (FR-025, plan "Server seed mapping").
-- [ ] T029 [US2] Add `speed` to each seed PC's `combatant` in `apps/server/seeds/*.json` (4 files).
-- [ ] T030 [US2] Extend `apps/server/test/dm/seed-stats.test.ts`: goblin speed 30, scimitar reach 5, shortbow 80/320; a PC weapon's range from SRD.
+- [x] T025 [US2] Extend `AttackEntrySchema` in `src/schema/state.ts` with `reachFt` and `rangeFt` (FR-022).
+- [x] T026 [US2] In `src/commands/attacks.ts`, add the band checks before any draw (FR-020, FR-021, FR-021a); a long-range use adds a disadvantage mode source.
+- [x] T027 [US2] Extend `test/commands/attacks.test.ts`: each US2 scenario, `melee-or-ranged` both ways, explicit-expression skip, unplaced skip, `STAT_UNDEFINED` without `rangeFt`, refusals before draw (`expectRefusedBeforeDraw`).
+- [x] T028 [US2] In `apps/server/src/dm/seed/combatants.ts`, map `speed`, `reachFt` and `rangeFt` (FR-025, plan "Server seed mapping").
+- [x] T029 [US2] Add `speed` to each seed PC's `combatant` in `apps/server/seeds/*.json` (4 files).
+- [x] T030 [US2] Extend `apps/server/test/dm/seed-stats.test.ts`: goblin speed 30, scimitar reach 5, shortbow 80/320; a PC weapon's range from SRD.
 
 **Checkpoint**: `pnpm ci:check` green; DB suites untouched (no DB change).
 

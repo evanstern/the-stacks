@@ -44,6 +44,8 @@ export const RefusalCodeSchema = z.enum([
   "MOVE_BLOCKED",
   "MOVE_OVER_SPEED",
   "MOVE_OFF_TURN",
+  "OUT_OF_REACH",
+  "OUT_OF_RANGE",
 ]);
 
 export const RefusalSchema = z.object({

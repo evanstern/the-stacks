@@ -1,3 +1,4 @@
+import { bandBetween, rangeOf, reachCovers } from "@the-stacks/space";
 import {
   attackAssists,
   attackModeSources,
@@ -16,7 +17,13 @@ import { hasPlainD20, parseDiceExpression, rollExpression } from "../dice.js";
 import type { Handler } from "../handler.js";
 import type { EngineEvent, OutcomeBand } from "../schema/events.js";
 import { type RefusalResult, refuse } from "../schema/refusals.js";
-import type { Assist, Combatant, EngineState } from "../schema/state.js";
+import type {
+  Assist,
+  AttackEntry,
+  Combatant,
+  EngineState,
+} from "../schema/state.js";
+import { spaceViewOf } from "../space.js";
 
 /** Spec 084: one `assist.ended` (used) per applied assist, held by `holderId`. */
 export function usedAssists(
@@ -106,6 +113,52 @@ export function actorUnable(
   });
 }
 
+/**
+ * Spec 094 FR-020..FR-022: band checks when both combatants are placed. Returns a refusal, or
+ * whether a long-range use adds a disadvantage source.
+ */
+function bandCheck(
+  state: EngineState,
+  attackerId: string,
+  targetId: string,
+  entry: AttackEntry,
+): RefusalResult | { long: boolean } {
+  const band = bandBetween(spaceViewOf(state), attackerId, targetId);
+  if (band === null) return { long: false };
+  if (
+    entry.range === "melee" ||
+    (entry.range === "melee-or-ranged" && band === "engaged")
+  ) {
+    if (!reachCovers(band, entry.reachFt ?? 5)) {
+      return refuse(
+        "OUT_OF_REACH",
+        `"${targetId}" is ${band}, beyond melee reach`,
+        {
+          attackerId,
+          targetId,
+          band,
+        },
+      );
+    }
+    return { long: false };
+  }
+  if (!entry.rangeFt) {
+    return refuse("STAT_UNDEFINED", `attack "${entry.name}" has no range`, {
+      combatantId: attackerId,
+      missing: "rangeFt",
+    });
+  }
+  const use = rangeOf(band, entry.rangeFt);
+  if (use === "out") {
+    return refuse("OUT_OF_RANGE", `"${targetId}" is ${band}, beyond range`, {
+      attackerId,
+      targetId,
+      band,
+    });
+  }
+  return { long: use === "long" };
+}
+
 export const handleAttackRoll: Handler<"attack.roll"> = (
   state,
   command,
@@ -174,6 +227,8 @@ export const handleAttackRoll: Handler<"attack.roll"> = (
         },
       );
     }
+    const placed = bandCheck(state, attacker.id, command.targetId, entry.value);
+    if ("refusal" in placed) return placed;
     const exhaustion =
       attacker.conditions.find((i) => i.condition === "exhaustion")?.level ?? 0;
     expression = d20Expression(entry.value.toHit - 2 * exhaustion);
@@ -182,6 +237,7 @@ export const handleAttackRoll: Handler<"attack.roll"> = (
     mode = foldMode(command.mode, [
       ...attackModeSources(attacker, target, entry.value),
       ...(applied.length ? (["advantage"] as ModeSource[]) : []),
+      ...(placed.long ? (["disadvantage"] as ModeSource[]) : []),
     ]);
   }
   const rolled = rollExpression(
