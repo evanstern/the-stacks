@@ -38,9 +38,11 @@ Spec: specs/092-intent-contract
 - [x] #5 Spec phase: Package skeleton, scalars, refs and boundary lint (FR-001–FR-004, FR-008, FR-017)
 - [x] #6 Spec phase: Kinds, KIND_RULES, refusals and fixtures (FR-005–FR-010)
 - [x] #7 Spec phase: Text form (FR-011–FR-015)
-- [ ] #8 Spec phase: Property, totality and latency tests (SC-002–SC-004)
+- [x] #8 Spec phase: Property, totality and latency tests (SC-002–SC-004)
 - [ ] #9 Spec phase: Freeze and close [orchestrator]
 <!-- AC:END -->
+
+
 
 
 
