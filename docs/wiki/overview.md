@@ -83,8 +83,8 @@ present-state code is in the sections above and the linked notes.
   model output required); XIII Plan Just-in-Time.
 - **Package seams.** Architecture Constraints name `srd`, `dnd5e-engine`, `space`,
   `intent`, `planner`, `session-model`, `codex-model`. Under `packages/` only `srd`,
-  `dnd5e-engine`, `session-model` and `shared` exist; `space`, `intent`, `planner` and
-  `codex-model` are planned. The board is PixiJS v8 on a client-only route.
+  `dnd5e-engine`, `session-model`, `intent` ([[intent-contract]]) and `shared` exist; `space`,
+  `planner` and `codex-model` are planned. The board is PixiJS v8 on a client-only route.
 - **DM runtime.** Turn jobs share the worker loop with ingestion ([[dm-runtime]]).
 - **VTT.** The own board is a projection of the event log (R5 The Board). External VTT
   adapters are trigger-gated (P-02, P-07), not scheduled.

@@ -10,7 +10,7 @@ sources:
   - tsconfig.base.json
   - apps/server/test/tsconfig.json
   - biome.json
-verified_against: 1dd5e874c5e7fec48888f245bf29a51c2fb0a38b
+verified_against: 82d3e37bc6f47f7d5a6368dcccc154a6ec2b2ae7
 ---
 
 # Monorepo and toolchain
@@ -47,7 +47,7 @@ depends on database reachability, which Turbo cannot hash), and runs against fre
 changes must bust the cached tasks' cache, since none of them appear in any task's input files.
 
 Root `tsconfig.json` has `"files": []` and a `references` array pointing at `packages/shared`,
-`packages/dnd5e-engine`, `packages/dnd5e-engine/test`, `packages/session-model`, `packages/session-model/test`, `packages/srd`, `packages/srd/test`,
+`packages/dnd5e-engine`, `packages/dnd5e-engine/test`, `packages/session-model`, `packages/session-model/test`, `packages/srd`, `packages/srd/test`, `packages/intent`, `packages/intent/test`,
 `apps/server`, `apps/server/test`, `apps/web` — it builds nothing itself, only orchestrates
 `tsc -b` across the eight ([[dnd5e-engine]] is the pure rules package and its test project;
 [[srd-data]] is the SRD data package and its test project; [[session-model]] is the pure session event package and its test project). Each workspace's own `tsconfig.json` extends `tsconfig.base.json`
@@ -75,7 +75,7 @@ scoped to `packages/dnd5e-engine/src/**`, also adds `noRestrictedGlobals` and de
 database, network, model, `node:*`, app-package imports and clock/network globals
 (constitution VI purity; see [[dnd5e-engine]]). The seventh, scoped to `packages/srd/**`, forbids
 importing the engine, server, or web app (the engine may import srd, never the reverse; see
-[[srd-data]]). The eighth, scoped to `packages/session-model/src/**`, applies the same purity denials as the engine (database, network, model, clock globals; see [[session-model]]), and the engine override also forbids importing `@the-stacks/session-model`. The ninth, scoped to `apps/server/src/dm/**`, forbids importing the log writers, ingestion, the library store, codex and ws ([[dm-runtime]]; `apps/server` now also depends on `@the-stacks/srd` and references it in its tsconfig) — see [[ci-pipeline]] for the fixture-backed check that proves these rules fire.
+[[srd-data]]). The eighth, scoped to `packages/session-model/src/**`, applies the same purity denials as the engine (database, network, model, clock globals; see [[session-model]]), and the engine override also forbids importing `@the-stacks/session-model`. The ninth, scoped to `apps/server/src/dm/**`, forbids importing the log writers, ingestion, the library store, codex and ws ([[dm-runtime]]; `apps/server` now also depends on `@the-stacks/srd` and references it in its tsconfig) — a tenth, scoped to `packages/intent/src/**`, applies the same purity denials (no node modules, workspace packages, network or clock globals; zod only, see [[intent-contract]]), and an eleventh turns off `noThenProperty` for `packages/intent/**` (a `then` Intent param is a real field) — see [[ci-pipeline]] for the fixture-backed check that proves these rules fire.
 
 ## Connections
 

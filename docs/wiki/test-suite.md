@@ -30,7 +30,7 @@ sources:
   - apps/server/test/tsconfig.json
   - apps/server/vitest.config.ts
   - tsconfig.json
-verified_against: 9a5fae22a747c0f4d800eaf5f9887fb4e1c7f7e1
+verified_against: 82d3e37bc6f47f7d5a6368dcccc154a6ec2b2ae7
 ---
 
 # Test suite

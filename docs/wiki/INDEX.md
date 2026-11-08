@@ -37,11 +37,14 @@ codex, system modules, or agents yet. `main` is now continuously deployed to a r
 ## Rules engine
 
 - [[dnd5e-engine]] — the pure 5e engine package: `execute(state, command, rng)` to events or a refusal, seeded/scripted RNG, roll ledger, refuse-before-draw, no-I/O boundary, the R8 arithmetic ruling, stats-derived check and attack rolls (`STAT_UNDEFINED`), `spell.cast` for six SRD spells (`SPELLS` table), opposition DCs and `help.grant` assists (advantage, `NOT_PROFICIENT`).
+- [[dnd5e-engine-derived-rolls]] — stats-derived check and attack rolls, `spell.cast` with the engine `SPELLS` table, opposition DCs and `help.grant` assists with their expiry rules (split from dnd5e-engine, TASK-0231).
+- [[dnd5e-engine-reactions]] — the `reactionsSpent` list, `attack.roll` with `reaction: true`, its refusals, and the commands that clear a Reaction (split from dnd5e-engine, TASK-0231).
 - [[srd-data]] — the SRD 5.2.1 data package: six Zod record kinds (rules text included), Open5e conversion pinned to a commit and checked against the PDF, provenance, id/name loader, 120-token compact form, attribution and `/about`, and the no-engine-import boundary.
 
 - [[dm-runtime]] — the AI DM: node pipeline, resolve as the only gate writer, digit-free audited narration, `dm.*` purposes, scene seed and doctrine (MIT NOTICE), companions, chronicle, the Director's `arrivals` field (spec 078), `/dm` routes (including `GET /dm/seeds`), the `dm/` import boundary.
 - [[dm-turn-jobs]] — DM jobs on the shared `jobs` queue: kinds, enqueue on commit/approval, the `held` turn trigger (TASK-0244), priority claim per session, fencing, beats, reclaim idempotence, reconcile.
 - [[dm-failure-and-gates]] — the failed-turn record in `jobs.result` with bounded model-output excerpts, and the closed rules-term lists (skills, conditions, damage types) with the plan gate's `STAT_UNDEFINED` rule; spell steps gated (`SPELL_UNKNOWN`, `SPELL_NOT_PREPARED`, `SPELL_UNRESOLVED`); help and opposition steps gated; a party action for an off-turn AI companion held (`TURN_HELD`, TASK-0244).
+- [[dm-plan-gate]] — the plan gate (`checkPlan`): id and text checks before resolve, the held party action (`TURN_HELD`), the `askUndeclared` clarify rules, and the help, opposition and spell gates (split from dm-failure-and-gates, TASK-0231).
 - [[actor-snapshot]] — the typed actor snapshot every DM prompt's state comes from (TASK-0140): build rules and the NPC-combatant join, aliases, the S0-to-S1 diff, the dm/seat/fiction views, token caps and the `state-overflow` failure.
 - [[dm-talk-triggers]] — in-character talk draws a world reaction (TASK-0180, specs/065): rule 7 enqueue, code triggers, the coalesced `talk` turn, one `react` call, escalation and the chain cap.
 - [[seed-npc-presence]] — seed NPC presence (TASK-0142, U8): the required per-beat `presence` map and its cross-checks, NPC aliases, the dm-visibility option on `scene-presence`, the seed-presence group in resolve, the Director's arrivals (spec 078; unseen monsters too, spec 088), NPC lists read from logged presence, and the at-least-one human-seat rule.
@@ -49,6 +52,7 @@ codex, system modules, or agents yet. `main` is now continuously deployed to a r
 - [[output-claim-gate]] — `checkClaims` (TASK-0143): the pure checker that refuses dead, downed or absent actors acting or speaking, wrong-actor deaths and drops, omitted deaths and wrong counts, and its audit, narrate and fallback callers.
 - [[debug-view]] — the operator debug API (TASK-0116): four read-only `/dm` routes (events, jobs, seed, calls), cursors, the job-to-seq link, the `dm_model_calls` ledger as cost authority; and the debug page built on it (TASK-0117, `play/:sessionId/debug`).
 - [[session-model]] — the session event catalog (talk/lifecycle/state-change/marker/record), mechanics envelope, `canSee`, the projection fold, fixtures, and the server append seam.
+- [[intent-contract]] — `@the-stacks/intent` (spec 092, TASK-0266): the pure Intent vocabulary (57 kinds, 13 groups), KIND_RULES, refusal codes and the canonical text form, contract v1.1.
 
 ## Server
 
