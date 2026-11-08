@@ -4,7 +4,7 @@ title: Space package and zones in the engine
 status: In Progress
 assignee: []
 created_date: '2026-11-07 05:13'
-updated_date: '2026-11-08 21:34'
+updated_date: '2026-11-08 21:39'
 labels:
   - 'ws:space'
   - replan-2026-11
@@ -38,7 +38,7 @@ Spec: specs/094-space-and-zones
 - [x] #6 Phase 2: engine placement, speed, space; space.define, combatant.place, move, movement.action
 - [x] #7 Phase 3: reach and range by band in attack.roll; SRD speed/reach/range in seeds
 - [x] #8 Phase 4: provokers() with golden-dice opportunity-attack tests
-- [ ] #9 Phase 5: wiki re-ground (merge main first; new space note)
+- [x] #9 Phase 5: wiki re-ground (merge main first; new space note)
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -56,6 +56,9 @@ Phases 1-2 done (980f28de, 4a2aa690): packages/space; engine space/placement/spe
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5 (phases 3-4)
 Phases 3 (5bb0de98) and 4 (426a317d) done: OUT_OF_REACH/OUT_OF_RANGE (44 codes), band checks in attack.roll, SRD speed/reach/range in seeds, 6 golden-dice OA tests. engine 381, space 28, session-model 839, server dm 945 pass; 5 adjudicate DB failures predate TASK-0138's fix (branch cut before #146), cleared by the phase 5 main merge.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5 (phase 5)
+Phase 5 done (eda32108 merge, c7a73935 wiki): new space note; 7 notes prose-updated, 5 re-pinned unchanged (orchestrator spot-checked seeds: only speed:30). pnpm ci:check exit 0 (DB suites skipped). Orchestrator re-ran freshness OK 62, plan empty. PR held: spine #5, behind 0273.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
