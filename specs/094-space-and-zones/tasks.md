@@ -20,18 +20,18 @@ with `pnpm ci:check` green and one commit led by `TASK-0270`.
 
 **Goal**: `@the-stacks/space` exists, is pure, and is boundary-checked.
 
-- [ ] T001 [US4] Create `packages/space/{package.json,tsconfig.json,vitest.config.ts,README.md}` per plan "packages/space layout". Runtime dependency `zod` only.
-- [ ] T002 [US4] Add `packages/space` and `packages/space/test` to root `tsconfig.json` references; run `pnpm install` to update `pnpm-lock.yaml`.
-- [ ] T003 [US4] Write `packages/space/src/schema.ts`: `ZoneIdSchema`, `ZoneSchema`, `EdgeSchema`, `SpaceSchema` (refinements and caps, FR-001–FR-004), `PlacementSchema`, `BandSchema`.
-- [ ] T004 [US2] Write `packages/space/src/graph.ts`: `path()` (Dijkstra, FR-005, lexicographic tie-break), `band()` (BFS, FR-006), `BAND_FEET` (FR-007).
-- [ ] T005 [US2] Write `packages/space/src/rules.ts`: `reachCovers()` (FR-008), `rangeOf()` (FR-009).
-- [ ] T006 [US4] Write `packages/space/src/view.ts` (`SpaceView`, `zoneOf`, `occupants`, `bandBetween`; FR-010) and `src/index.ts` (the spec's exports only).
-- [ ] T007 [P] [US4] Write `packages/space/test/schema.test.ts` and `test/view.test.ts`.
-- [ ] T008 [P] [US2] Write `packages/space/test/graph.test.ts`: costs, blocked edges, ties, bands, the seeded symmetry and brute-force minimality checks, and the 64-zone < 1 ms timing test (SC-005).
-- [ ] T009 [P] [US4] Write `packages/space/test/purity.test.ts`: sources import only `zod` or relative paths; `package.json` dependencies equal `["zod"]`.
-- [ ] T010 [US4] Add the `biome.json` override for `packages/space/src/**` per plan "Root and tooling".
-- [ ] T011 [US4] Add fixtures `fixtures/boundary-violations/packages/space/src/{bad-react,bad-pixi,bad-engine,bad-clock}.ts`; confirm `node scripts/check-boundaries.mjs` flags all four.
-- [ ] T012 [US4] Write the README band and edge-cost conventions (OQ-7, OQ-8), citing SRD 5.2.1 rule ids.
+- [x] T001 [US4] Create `packages/space/{package.json,tsconfig.json,vitest.config.ts,README.md}` per plan "packages/space layout". Runtime dependency `zod` only.
+- [x] T002 [US4] Add `packages/space` and `packages/space/test` to root `tsconfig.json` references; run `pnpm install` to update `pnpm-lock.yaml`.
+- [x] T003 [US4] Write `packages/space/src/schema.ts`: `ZoneIdSchema`, `ZoneSchema`, `EdgeSchema`, `SpaceSchema` (refinements and caps, FR-001–FR-004), `PlacementSchema`, `BandSchema`.
+- [x] T004 [US2] Write `packages/space/src/graph.ts`: `path()` (Dijkstra, FR-005, lexicographic tie-break), `band()` (BFS, FR-006), `BAND_FEET` (FR-007).
+- [x] T005 [US2] Write `packages/space/src/rules.ts`: `reachCovers()` (FR-008), `rangeOf()` (FR-009).
+- [x] T006 [US4] Write `packages/space/src/view.ts` (`SpaceView`, `zoneOf`, `occupants`, `bandBetween`; FR-010) and `src/index.ts` (the spec's exports only).
+- [x] T007 [P] [US4] Write `packages/space/test/schema.test.ts` and `test/view.test.ts`.
+- [x] T008 [P] [US2] Write `packages/space/test/graph.test.ts`: costs, blocked edges, ties, bands, the seeded symmetry and brute-force minimality checks, and the 64-zone < 1 ms timing test (SC-005).
+- [x] T009 [P] [US4] Write `packages/space/test/purity.test.ts`: sources import only `zod` or relative paths; `package.json` dependencies equal `["zod"]`.
+- [x] T010 [US4] Add the `biome.json` override for `packages/space/src/**` per plan "Root and tooling".
+- [x] T011 [US4] Add fixtures `fixtures/boundary-violations/packages/space/src/{bad-react,bad-pixi,bad-engine,bad-clock}.ts`; confirm `node scripts/check-boundaries.mjs` flags all four.
+- [x] T012 [US4] Write the README band and edge-cost conventions (OQ-7, OQ-8), citing SRD 5.2.1 rule ids.
 
 **Checkpoint**: `pnpm --filter @the-stacks/space test` and `pnpm ci:check` green.
 
