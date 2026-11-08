@@ -6,7 +6,7 @@ title: >-
 status: To Do
 assignee: []
 created_date: '2026-11-02 06:46'
-updated_date: '2026-11-07 05:25'
+updated_date: '2026-11-08 19:55'
 labels:
   - web
   - dm
@@ -56,4 +56,6 @@ Spec: specs/066-one-chat-stream
 Rewritten by replan-2026-11. Quiet ring for exploration only (P-04), on the Intent `declared` state; amend spec 066.
 
 AC re-authored by replan-2026-11.
+
+CP-5 ruling 2026-11-08 (docs/design/r1-fast-table-runbook.md) F2: this card owns the combat Enter-commit rule (AC #4); TASK-0275 builds on it.
 <!-- SECTION:NOTES:END -->
