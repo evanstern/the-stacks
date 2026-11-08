@@ -1,10 +1,10 @@
 ---
 id: TASK-0138
 title: adjudicate integration suite fails instead of skipping without a database
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-10-27 03:39'
-updated_date: '2026-11-07 05:17'
+updated_date: '2026-11-08 20:15'
 labels:
   - test
   - bug
@@ -24,15 +24,20 @@ Outcome: apps/server/test/dm/adjudicate.integration.test.ts skips without a reac
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 With no reachable database and REQUIRE_DATABASE unset, the suite reports skipped, not failed
-- [ ] #2 With REQUIRE_DATABASE=1 and no database, the suite fails loudly, as the other suites do
-- [ ] #3 The adjudicate describe block uses describe.skipIf(!reachable) like jobs.integration.test.ts (merged from TASK-0185)
+- [x] #1 With no reachable database and REQUIRE_DATABASE unset, the suite reports skipped, not failed
+- [x] #2 With REQUIRE_DATABASE=1 and no database, the suite fails loudly, as the other suites do
+- [x] #3 The adjudicate describe block uses describe.skipIf(!reachable) like jobs.integration.test.ts (merged from TASK-0185)
 <!-- AC:END -->
 
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
 2026-11-02: merged duplicate TASK-0185 into this card (same file, same missing no-DB skip; found again in TASK-0180 Phase 1, 2026-10-30). Its pattern criterion is added here as AC #3; its 'ci:check skips the 5 tests' criterion is covered by AC #1.
+
+Claimed 2026-11-08 by the R1 sweep (docs/design/r1-fast-table-runbook.md). Worktree .worktrees/task-0138, branch task-0138-adjudicate-skip, cut from origin/main a8bda4ab. No spec dir: signed escape line covers this task.
+
+Dispatch: tier=haiku pinned=cc/claude-haiku-5-5 served=cc/claude-haiku-5-5
+Commit f3e13959: describe.skipIf(!reachable). No DB: 5 skipped, 0 failed. AC #2 verified by orchestrator: REQUIRE_DATABASE=1 with no DB fails loudly (Test Files 1 failed).
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
