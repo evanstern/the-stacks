@@ -4,7 +4,7 @@ title: Runtime stacks come up with an unmigrated app database
 status: In Progress
 assignee: []
 created_date: '2026-10-26 02:58'
-updated_date: '2026-11-08 20:11'
+updated_date: '2026-11-08 20:38'
 labels:
   - env
   - runtime
@@ -31,6 +31,8 @@ Spec: specs/095-migrated-stacks
 - [ ] #2 pnpm env:main leaves the main stack's app database migrated to origin/main's latest migration.
 - [ ] #3 A test or scripted check fails when a stack comes up with an unmigrated app database.
 - [ ] #4 The env-cli contract documents where migration happens.
+- [ ] #5 Phase 1: migrate on up, verify, back off (specs/095 tasks.md T001-T010)
+- [ ] #6 Phase 2: wiki re-ground (specs/095 tasks.md T011-T015)
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -43,6 +45,9 @@ Finding 2026-10-26 (M2 demo prep): apps/server/src/cli/create-operator.ts has th
 Observed 2026-10-27 (TASK-0049 Phase 3): on a worktree stack the app DB and the test DB use different credentials. Migrating the app DB needs the app container's DATABASE_URL with its host swapped to localhost:<db port>. The test-db credentials fail with CREATE SCHEMA drizzle.
 
 Claimed 2026-11-08 by the R1 sweep (docs/design/r1-fast-table-runbook.md). Worktree .worktrees/task-0098, branch task-0098-migrated-stacks, cut from origin/main a8bda4ab. Spec number 095 claimed with a stub.
+
+Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=cc/claude-opus-5-5 (spec authoring, grant C1)
+Spec 095 committed (0300bd09). Phase ACs seeded from tasks.md. OQ1 (no explicit-target flag; document in-container create-operator) and OQ3 (/health unchanged) adopted as recommended. OQ2 (self-hoster docker compose up is unmigrated) carded separately.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
