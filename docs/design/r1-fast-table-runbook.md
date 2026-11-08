@@ -6,7 +6,8 @@ parallel within lanes. Merge serially. Treat merge conflicts as routine. Directi
 not re-litigate it. The ratified replan (`docs/design/replan-2026-11/`), constitution 3.0.0 and
 decision-0030 win. The board is the plan of record. This file carries ordering, doctrine and the log.
 
-- **Status:** draft — awaiting operator sign-off at CP-5 · operator sign-off on lanes: pending
+- **Status:** signed-off (operator, 2026-11-08, in chat, at CP-5: "Sign off, start"). The
+  operator ruled F1–F5 and the mis-homed cards as recommended (see "CP-5 rulings" below).
   <!-- Only the OPERATOR flips draft → signed-off. An executing session refuses a runbook whose
        status it cannot verify. -->
 - **Milestone:** R1 Fast Table, board id `m-10`, epic TASK-0258 (EP-1). Plan-of-action §5 R1.
@@ -56,6 +57,17 @@ decision-0030 win. The board is the plan of record. This file carries ordering, 
   them for the operator at sweep close. Never remove a worktree another session may hold.
 - **Queued (this runbook's scope):** 27 deliverable cards plus epic TASK-0258 (no PR). Order is the
   merge spine below.
+
+## CP-5 rulings (operator, 2026-11-08)
+
+- F1–F4 approved as recommended. The cards carry the edits (TASK-0267, 0269, 0199, 0275, 0215, 0245 notes).
+- F5: three new R1 cards. G1 = **TASK-0298** narration streams to clients (lane LN, after 0272).
+  G2 = **TASK-0299** companion and monster turns emit Intents (lane LI, after 0269).
+  G3 = **TASK-0300** CI latency gate on fixture tables (lane LZ, after 0268).
+- TASK-0037 is merged into TASK-0101 and archived. Its two AC live on 0101.
+- TASK-0098, 0138, 0101 and 0231 stay in R1. TASK-0130 carries label `droppable` and a revisit trigger.
+- Standing grants at sign-off: C1 (opus for spec authoring and the 066/091 amendments).
+  C-AMD, C-GATE, C-AUD, C-CON, C-OPUS, C5, C6, C9 and CP-7 still stop the sweep.
 
 ## Planning findings (for CP-5)
 
@@ -169,6 +181,9 @@ shares no source file with any task ahead of it still unmerged.
 | 22 | TASK-0277 targeting, zone chips | LT | sonnet | spec set | after #21 merges (composer, margin) |
 | 23 | TASK-0276 reactions, roll requests | LT | sonnet | spec set | after #20 merges |
 | 24 | TASK-0101 hosted dev AI (+0037) | LP | sonnet + orchestrator | escape E7 | any time; must merge before #26; C9 per command |
+| 24a | TASK-0300 CI latency gate (G3) | LZ | sonnet | spec set | after #13 merges |
+| 24b | TASK-0299 AI turns emit Intents (G2) | LI | sonnet | spec set | after #15 merges (`dm/companion.ts`, Director) |
+| 24c | TASK-0298 narration streams (G1) | LN | sonnet | spec set | after #14 merges (`call.ts`, `ws/protocol.ts`) |
 | 25 | TASK-0130 doctrine pass | LN | sonnet | spec set | after #14 merges; AC #5 ticks at CP-7 |
 | 26 | TASK-0278 scenario + latency | LZ | sonnet | spec set | metrics phase beside #8 on; scenario phase last |
 
@@ -404,7 +419,7 @@ Then **stop for CP-7** (the R1 playtest).
   the hosted stack. **Keep in R1.** Must merge before CP-7.
 - **TASK-0037 (dev runbook path):** two doc lines in the same files as TASK-0101 (AC #5 edits
   `docs/ops/dev-vm-104.md` and `hosted-dev`). Too small to carry its own review decision.
-  **Recommend: merge into TASK-0101** and close 0037 when 0101 merges.
+  **Ruled at CP-5: merged into TASK-0101; 0037 archived.**
 - **TASK-0231 (wiki split):** hygiene, but it cuts conflicts on two notes nine R1 cards re-pin.
   **Keep, first in the spine.**
 - **TASK-0130 (doctrine pass):** last in its lane; AC #5 needs a captured R1 run. **Keep in R1 as
@@ -412,14 +427,14 @@ Then **stop for CP-7** (the R1 playtest).
 
 ## Done means
 
-Every scoped card is Done by its own merged PR (0037 by 0101's, if merged; 0258 has no PR). Each
+Every scoped card is Done by its own merged PR (0037 is merged into 0101; 0258 has no PR). Each
 exit criterion maps to the cards that deliver it and is read from the CP-7 log:
 
 | R1 exit criterion | Delivered by | Read from |
 |---|---|---|
-| 1. p95 confirmed Intent → fact rows < 1 s, hosted | 0266, 0267, 0268, 0245; G3 (CI); 0101 (hosted) | 0278 metric, CP-7 log |
-| 2. p50 first narration token < 10 s | 0272, 0273; G1 (streaming) | 0278 metric, CP-7 log |
-| 3. 4v4 round < 60 s wall time | 0267, 0268, 0269, 0274, 0275, 0276; G2 (AI turns) | 0278 metric, CP-7 log |
+| 1. p95 confirmed Intent → fact rows < 1 s, hosted | 0266, 0267, 0268, 0245; 0300 (CI); 0101 (hosted) | 0278 metric, CP-7 log |
+| 2. p50 first narration token < 10 s | 0272, 0273; 0298 (streaming) | 0278 metric, CP-7 log |
+| 3. 4v4 round < 60 s wall time | 0267, 0268, 0269, 0274, 0275, 0276; 0299 (AI turns) | 0278 metric, CP-7 log |
 | 4. Zero audit-regenerate fallbacks; audit loop deleted | 0272, 0130 | code (no regenerate path), CP-7 log |
 | 5. Attempt-1 schema failures < 1% | 0273, 0269 | playtest watch, CP-7 log |
 | 6. Encounter ends, resumes, drops a fled combatant | 0274, 0215 | engine tests, CP-7 scenario rows |
