@@ -37,6 +37,13 @@ export const RefusalCodeSchema = z.enum([
   "SPELL_UNKNOWN",
   "SPELL_NOT_PREPARED",
   "NOT_PROFICIENT",
+  "SPACE_UNDEFINED",
+  "ZONE_UNKNOWN",
+  "ZONE_IN_USE",
+  "NOT_PLACED",
+  "MOVE_BLOCKED",
+  "MOVE_OVER_SPEED",
+  "MOVE_OFF_TURN",
 ]);
 
 export const RefusalSchema = z.object({

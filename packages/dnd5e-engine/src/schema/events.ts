@@ -1,3 +1,4 @@
+import { PlacementSchema, SpaceSchema, ZoneIdSchema } from "@the-stacks/space";
 import { z } from "zod";
 import { DifficultySchema, OppositionRuleSchema } from "../derive.js";
 import {
@@ -249,6 +250,31 @@ export const EngineEventSchema = z.discriminatedUnion("type", [
     combatantId: Id,
     before: SlotRef,
     after: SlotRef,
+  }),
+  z.object({
+    type: z.literal("space.defined"),
+    v: V,
+    reason: Reason,
+    before: SpaceSchema.nullable(),
+    after: SpaceSchema,
+  }),
+  z.object({
+    type: z.literal("combatant.placed"),
+    v: V,
+    reason: Reason,
+    combatantId: Id,
+    before: PlacementSchema.nullable(),
+    after: PlacementSchema.nullable(),
+  }),
+  z.object({
+    type: z.literal("combatant.moved"),
+    v: V,
+    reason: Reason,
+    combatantId: Id,
+    before: PlacementSchema,
+    after: PlacementSchema,
+    path: z.array(ZoneIdSchema).min(2),
+    feet: Int.min(0),
   }),
   z.object({
     type: z.literal("encounter.started"),

@@ -148,6 +148,9 @@ importers:
 
   packages/dnd5e-engine:
     dependencies:
+      '@the-stacks/space':
+        specifier: workspace:*
+        version: link:../space
       zod:
         specifier: ^4.6.5
         version: 4.6.5

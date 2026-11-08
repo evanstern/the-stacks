@@ -1,3 +1,4 @@
+import { PlacementSchema, SpaceSchema, ZoneIdSchema } from "@the-stacks/space";
 import { z } from "zod";
 import { DifficultySchema, OppositionRuleSchema } from "../derive.js";
 import {
@@ -78,6 +79,8 @@ const CombatantInit = z.object({
     })
     .default({ standard: {}, pact: null }),
   stats: CombatantStatsSchema.optional(),
+  placement: PlacementSchema.optional(),
+  speed: z.number().int().min(0).max(200).optional(),
 });
 
 export const EngineCommandSchema = z.discriminatedUnion("type", [
@@ -273,6 +276,31 @@ export const EngineCommandSchema = z.discriminatedUnion("type", [
       }),
       z.object({ kind: z.literal("attack"), targetId: Id }),
     ]),
+    reason: Reason,
+  }),
+  z.object({
+    // Spec 094: set or replace the scene's zone graph.
+    type: z.literal("space.define"),
+    space: SpaceSchema,
+    reason: Reason,
+  }),
+  z.object({
+    // Spec 094: DM placement, arrival, flight. No edge or speed check. null clears.
+    type: z.literal("combatant.place"),
+    combatantId: Id,
+    zoneId: ZoneIdSchema.nullable(),
+    reason: Reason,
+  }),
+  z.object({
+    type: z.literal("move"),
+    combatantId: Id,
+    toZoneId: ZoneIdSchema,
+    reason: Reason,
+  }),
+  z.object({
+    type: z.literal("movement.action"),
+    combatantId: Id,
+    action: z.enum(["dash", "disengage"]),
     reason: Reason,
   }),
   z.object({

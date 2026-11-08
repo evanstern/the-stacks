@@ -1,4 +1,16 @@
+export type {
+  Band,
+  Placement,
+  Space,
+  SpaceView,
+  Zone,
+} from "@the-stacks/space";
 export { bandOf } from "./commands/attacks.js";
+export {
+  effectiveSpeed,
+  movementLeft,
+  provokers,
+} from "./commands/move.js";
 export type {
   Derived,
   Difficulty,
@@ -77,5 +89,6 @@ export {
   SkillSchema,
 } from "./schema/state.js";
 export { activeCombatant, conditionsOf } from "./selectors.js";
+export { spaceViewOf } from "./space.js";
 export type { SpellMechanics } from "./spells.js";
 export { SPELLS, SpellMechanicsSchema, spellDice } from "./spells.js";

@@ -82,7 +82,7 @@ function incapacitatingKeys(c: Combatant): string[] {
 }
 
 /** True when the combatant is down (unconscious or stable) or holds an incapacitating condition. */
-function isUnable(c: Combatant): boolean {
+export function isUnable(c: Combatant): boolean {
   return (
     c.lifeState === "unconscious" ||
     c.lifeState === "stable" ||
@@ -93,7 +93,7 @@ function isUnable(c: Combatant): boolean {
 export function actorUnable(
   state: EngineState,
   id: string | null,
-  role: "attacker" | "checker" | "helper",
+  role: "attacker" | "checker" | "helper" | "mover",
 ): RefusalResult | null {
   if (id === null) return null;
   const c = state.combatants[id];

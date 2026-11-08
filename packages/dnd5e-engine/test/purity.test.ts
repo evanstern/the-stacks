@@ -41,7 +41,10 @@ describe("engine purity", () => {
     for (const file of files) {
       for (const spec of specifiers(readFileSync(file, "utf8"))) {
         const ok =
-          spec === "zod" || spec.startsWith("./") || spec.startsWith("../");
+          spec === "zod" ||
+          spec === "@the-stacks/space" ||
+          spec.startsWith("./") ||
+          spec.startsWith("../");
         expect(ok, `${path.relative(pkgDir, file)} imports "${spec}"`).toBe(
           true,
         );
@@ -67,10 +70,13 @@ describe("engine purity", () => {
     }
   });
 
-  it("declares zod as the only dependency", () => {
+  it("declares zod and the space package as its only dependencies", () => {
     const pkg = JSON.parse(
       readFileSync(path.join(pkgDir, "package.json"), "utf8"),
     );
-    expect(Object.keys(pkg.dependencies)).toEqual(["zod"]);
+    expect(Object.keys(pkg.dependencies).sort()).toEqual([
+      "@the-stacks/space",
+      "zod",
+    ]);
   });
 });

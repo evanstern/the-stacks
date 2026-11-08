@@ -41,18 +41,18 @@ with `pnpm ci:check` green and one commit led by `TASK-0270`.
 
 **Goal**: the engine holds a space and placements, and `move` refuses blocked and over-speed moves.
 
-- [ ] T013 [US1] Add `@the-stacks/space` to `packages/dnd5e-engine/package.json` dependencies and `tsconfig.json` references; allow the specifier in `test/purity.test.ts`; run `pnpm install`.
-- [ ] T014 [US1] Extend `src/schema/state.ts`: `Combatant.placement`, `Combatant.speed`, `Encounter.movement`, `EngineState.space` with its placement refinement (FR-012).
-- [ ] T015 [US1] Extend `src/schema/commands.ts` with `space.define`, `combatant.place`, `move`, `movement.action`, and `CombatantInit.placement`/`speed`.
-- [ ] T016 [US1] Extend `src/schema/events.ts` with `space.defined`, `combatant.placed`, `combatant.moved`; add the nine refusal codes to `src/schema/refusals.ts`.
-- [ ] T017 [US1] Add the three cases to `src/evolve.ts`.
-- [ ] T018 [US1] Write `src/commands/move.ts`: the four handlers, `effectiveSpeed`, `movementLeft` (FR-013, FR-014, FR-016–FR-019) in the check order of plan "Engine changes".
-- [ ] T019 [US1] Copy `placement` and `speed` in `src/commands/combatants.ts` `combatant.add` (FR-015).
-- [ ] T020 [US1] Write `src/space.ts` (`spaceViewOf`); register handlers in `src/execute.ts`; export new functions and re-export space types in `src/index.ts` (FR-024).
-- [ ] T021 [US1] Write `test/commands/move.test.ts`: every US1 scenario and every move-related edge case in spec.md, with `scriptedRng([])`; each new refusal code asserted by `expectRefusal`.
-- [ ] T022 [P] [US1] Extend `test/commands/combatants.test.ts` (placement on add, `ZONE_UNKNOWN`) and `test/replay.test.ts` (the three new events replay).
-- [ ] T023 [US1] Extend `packages/session-model/test/helpers.ts` `engineExamples()` to emit the three new event types; update counts in `test/catalog.test.ts` (mechanics 20 → 23, catalog 39 → 42).
-- [ ] T024 [US1] Add README bullets for the four commands in `packages/dnd5e-engine/README.md`.
+- [x] T013 [US1] Add `@the-stacks/space` to `packages/dnd5e-engine/package.json` dependencies and `tsconfig.json` references; allow the specifier in `test/purity.test.ts`; run `pnpm install`.
+- [x] T014 [US1] Extend `src/schema/state.ts`: `Combatant.placement`, `Combatant.speed`, `Encounter.movement`, `EngineState.space` with its placement refinement (FR-012).
+- [x] T015 [US1] Extend `src/schema/commands.ts` with `space.define`, `combatant.place`, `move`, `movement.action`, and `CombatantInit.placement`/`speed`.
+- [x] T016 [US1] Extend `src/schema/events.ts` with `space.defined`, `combatant.placed`, `combatant.moved`; add the nine refusal codes to `src/schema/refusals.ts`.
+- [x] T017 [US1] Add the three cases to `src/evolve.ts`.
+- [x] T018 [US1] Write `src/commands/move.ts`: the four handlers, `effectiveSpeed`, `movementLeft` (FR-013, FR-014, FR-016–FR-019) in the check order of plan "Engine changes".
+- [x] T019 [US1] Copy `placement` and `speed` in `src/commands/combatants.ts` `combatant.add` (FR-015).
+- [x] T020 [US1] Write `src/space.ts` (`spaceViewOf`); register handlers in `src/execute.ts`; export new functions and re-export space types in `src/index.ts` (FR-024).
+- [x] T021 [US1] Write `test/commands/move.test.ts`: every US1 scenario and every move-related edge case in spec.md, with `scriptedRng([])`; each new refusal code asserted by `expectRefusal`.
+- [x] T022 [P] [US1] Extend `test/commands/combatants.test.ts` (placement on add, `ZONE_UNKNOWN`) and `test/replay.test.ts` (the three new events replay).
+- [x] T023 [US1] Extend `packages/session-model/test/helpers.ts` `engineExamples()` to emit the three new event types; update counts in `test/catalog.test.ts` (mechanics 20 → 23, catalog 39 → 42).
+- [x] T024 [US1] Add README bullets for the four commands in `packages/dnd5e-engine/README.md`.
 
 **Checkpoint**: engine coverage meta-test green; session-model tests green; `pnpm ci:check` green.
 

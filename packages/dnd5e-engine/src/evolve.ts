@@ -126,6 +126,17 @@ export function evolve(state: EngineState, event: EngineEvent): EngineState {
           },
         };
       });
+    case "space.defined":
+      return { ...state, space: event.after };
+    case "combatant.placed":
+    case "combatant.moved":
+      return update(state, event.combatantId, (c) => {
+        if (event.after === null) {
+          const { placement: _gone, ...rest } = c;
+          return rest;
+        }
+        return { ...c, placement: event.after };
+      });
     case "encounter.started":
     case "encounter.changed":
       return { ...state, encounter: event.after };
