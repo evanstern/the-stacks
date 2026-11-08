@@ -77,8 +77,8 @@ with `pnpm ci:check` green and one commit led by `TASK-0270`.
 
 **Goal**: the engine names who may take an opportunity attack; golden-dice tests prove the flow.
 
-- [ ] T031 [US3] Add `provokers()` to `src/commands/move.ts` per FR-023, with the OQ-2 `ponytail:` comment; export it from `src/index.ts`.
-- [ ] T032 [US3] Write `test/commands/opportunity.test.ts`: every US3 scenario as a golden event list with scripted faces (hit, miss, drop to 0 then `ACTOR_UNABLE` move, disengage, spent Reaction, incapacitated, no melee entry, other zone).
+- [x] T031 [US3] Add `provokers()` to `src/commands/move.ts` per FR-023, with the OQ-2 `ponytail:` comment; export it from `src/index.ts`.
+- [x] T032 [US3] Write `test/commands/opportunity.test.ts`: every US3 scenario as a golden event list with scripted faces (hit, miss, drop to 0 then `ACTOR_UNABLE` move, disengage, spent Reaction, incapacitated, no melee entry, other zone).
 
 **Checkpoint**: `pnpm ci:check` green; every spec task in Phases 1–4 ticked.
 
