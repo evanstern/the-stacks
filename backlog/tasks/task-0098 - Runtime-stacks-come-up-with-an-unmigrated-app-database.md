@@ -4,7 +4,7 @@ title: Runtime stacks come up with an unmigrated app database
 status: In Progress
 assignee: []
 created_date: '2026-10-26 02:58'
-updated_date: '2026-11-08 20:38'
+updated_date: '2026-11-08 21:20'
 labels:
   - env
   - runtime
@@ -27,12 +27,12 @@ Spec: specs/095-migrated-stacks
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 pnpm env:up leaves the worktree's app database migrated to the branch's latest migration.
-- [ ] #2 pnpm env:main leaves the main stack's app database migrated to origin/main's latest migration.
-- [ ] #3 A test or scripted check fails when a stack comes up with an unmigrated app database.
-- [ ] #4 The env-cli contract documents where migration happens.
-- [ ] #5 Phase 1: migrate on up, verify, back off (specs/095 tasks.md T001-T010)
-- [ ] #6 Phase 2: wiki re-ground (specs/095 tasks.md T011-T015)
+- [x] #1 pnpm env:up leaves the worktree's app database migrated to the branch's latest migration.
+- [x] #2 pnpm env:main leaves the main stack's app database migrated to origin/main's latest migration.
+- [x] #3 A test or scripted check fails when a stack comes up with an unmigrated app database.
+- [x] #4 The env-cli contract documents where migration happens.
+- [x] #5 Phase 1: migrate on up, verify, back off (specs/095 tasks.md T001-T010)
+- [x] #6 Phase 2: wiki re-ground (specs/095 tasks.md T011-T015)
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -48,6 +48,9 @@ Claimed 2026-11-08 by the R1 sweep (docs/design/r1-fast-table-runbook.md). Workt
 
 Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=cc/claude-opus-5-5 (spec authoring, grant C1)
 Spec 095 committed (0300bd09). Phase ACs seeded from tasks.md. OQ1 (no explicit-target flag; document in-container create-operator) and OQ3 (/health unchanged) adopted as recommended. OQ2 (self-hoster docker compose up is unmigrated) carded separately.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5
+Phases 1-2 done (3510dac3, fb90d5de). env:up migrated both DBs to 10/10 journal entries; REQUIRE_DATABASE=1 pnpm ci:check exited 0 with nothing skipped (implementer). Orchestrator re-check: freshness OK 60 notes, plan empty, env:prune --check exit 0. PR held: spine #6, after 0266, 0273, 0270.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
