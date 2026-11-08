@@ -13,6 +13,7 @@ import {
   deriveIdentity,
   mainIdentity,
   mergeEnvFile,
+  migrationShortfall,
   parseEnvKeys,
   parseWorktreeList,
 } from "./env-lib.mjs";
@@ -168,6 +169,114 @@ async function runUp(toplevel, identity) {
     }
   }
 
+  // Migrate before the app starts (spec 095): the `build` stage image holds
+  // drizzle/ and scripts/migrate.ts; it runs on each stack's own network.
+  const image = `${project}-migrate`;
+  const built = spawnSync(
+    "docker",
+    ["build", "--target", "build", "-t", image, "."],
+    { cwd: toplevel, stdio: "inherit", env: envVars },
+  );
+  if (built.status !== 0) {
+    console.error(`${project}: migrate image build failed.`);
+    process.exit(1);
+  }
+  const migrateCmd = [
+    "node",
+    "--experimental-strip-types",
+    "scripts/migrate.ts",
+  ];
+  const journalText = readFileSync(
+    path.join(toplevel, "apps/server/drizzle/meta/_journal.json"),
+    "utf8",
+  );
+  const verify = (stack, files, label) => {
+    const count = spawnSync(
+      "docker",
+      [
+        "compose",
+        "-p",
+        stack,
+        ...files,
+        "exec",
+        "-T",
+        "db",
+        "sh",
+        "-c",
+        'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -tAc "select count(*) from drizzle.__drizzle_migrations"',
+      ],
+      { cwd: toplevel, encoding: "utf8", env: envVars },
+    );
+    const short = migrationShortfall(
+      journalText,
+      count.status === 0 ? count.stdout : "",
+    );
+    if (short) {
+      console.error(`${stack}: ${label} database is short: ${short}.`);
+      process.exit(1);
+    }
+  };
+
+  if (testProject) {
+    const migrated = spawnSync(
+      "docker",
+      [
+        "run",
+        "--rm",
+        "--network",
+        `${testProject}_default`,
+        "-w",
+        "/app/apps/server",
+        "-e",
+        "DATABASE_URL=postgres://stacks:stacks@db:5432/stacks",
+        "-e",
+        "TEST_DATABASE_URL=",
+        image,
+        ...migrateCmd,
+      ],
+      { cwd: toplevel, stdio: "inherit" },
+    );
+    if (migrated.status !== 0) {
+      console.error(`${testProject}: test database migration failed.`);
+      process.exit(1);
+    }
+    verify(testProject, ["-f", "docker-compose.test.yml"], "test");
+  }
+
+  const dbUp = spawnSync(
+    "docker",
+    ["compose", "-p", project, "up", "-d", "--wait", "db"],
+    { cwd: toplevel, stdio: "inherit", env: envVars },
+  );
+  if (dbUp.status !== 0) {
+    console.error(`${project}: docker compose up db failed.`);
+    process.exit(1);
+  }
+  // Docker reads `.env` itself; the host never parses the password.
+  const appMigrated = spawnSync(
+    "docker",
+    [
+      "run",
+      "--rm",
+      "--network",
+      `${project}_default`,
+      "--env-file",
+      ".env",
+      "-e",
+      "TEST_DATABASE_URL=",
+      "-w",
+      "/app/apps/server",
+      image,
+      ...migrateCmd,
+    ],
+    { cwd: toplevel, stdio: "inherit" },
+  );
+  if (appMigrated.status !== 0) {
+    console.error(`${project}: app database migration failed.`);
+    process.exit(1);
+  }
+  verify(project, [], "app");
+
   const result = spawnSync(
     "docker",
     ["compose", "-p", project, "up", "-d", "--build", "--wait"],
@@ -250,6 +359,9 @@ function down(isMain) {
     process.exit(1);
   }
   console.log(`${project}: down`);
+  spawnSync("docker", ["image", "rm", "-f", `${project}-migrate`], {
+    stdio: "ignore",
+  });
 
   if (isMain) {
     const rootPath = rootToplevel(process.cwd());
@@ -408,6 +520,9 @@ function prune(check) {
       console.error(`${orphan.project}: docker compose down failed.`);
       process.exit(1);
     }
+    spawnSync("docker", ["image", "rm", "-f", `${orphan.project}-migrate`], {
+      stdio: "ignore",
+    });
     console.log(`${orphan.project}: removed`);
   }
 }

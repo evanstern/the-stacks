@@ -14,6 +14,7 @@ import {
   deriveIdentity,
   mainIdentity,
   mergeEnvFile,
+  migrationShortfall,
   parseWorktreeList,
 } from "./env-lib.mjs";
 
@@ -343,4 +344,16 @@ test("parseWorktreeList reads absolute paths out of porcelain output", () => {
     "/repo/the-stacks",
     "/repo/the-stacks/.worktrees/task-1",
   ]);
+});
+
+test("migrationShortfall passes equal and extra counts, fails short and junk", () => {
+  const journal = JSON.stringify({ entries: [{}, {}, {}] });
+  assert.equal(migrationShortfall(journal, "3"), null);
+  assert.equal(migrationShortfall(journal, "4\n"), null);
+  assert.equal(migrationShortfall(journal, "2"), "2 of 3 migrations applied");
+  assert.equal(migrationShortfall(journal, ""), "0 of 3 migrations applied");
+  assert.equal(
+    migrationShortfall(journal, "ERROR: relation does not exist"),
+    "0 of 3 migrations applied",
+  );
 });

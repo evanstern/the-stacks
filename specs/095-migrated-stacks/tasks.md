@@ -19,22 +19,22 @@ Re-read `scripts/env.mjs` `runUp`, `down` and `prune` as merged.
 **Independent test**: `pnpm check:scripts` passes the new `migrationShortfall` cases. The new ingest
 backoff test passes. `pnpm check:env` passes the count assertion when Docker is reachable.
 
-- [ ] T001 [US3] In `scripts/env-lib.mjs`, add `migrationShortfall(journalText, appliedText)` (plan D2).
-- [ ] T002 [P] [US3] In `scripts/env-lib.test.mjs`, add cases: equal counts, short count, non-integer
+- [x] T001 [US3] In `scripts/env-lib.mjs`, add `migrationShortfall(journalText, appliedText)` (plan D2).
+- [x] T002 [P] [US3] In `scripts/env-lib.test.mjs`, add cases: equal counts, short count, non-integer
       applied text, applied above expected.
-- [ ] T003 [US1] [US2] In `scripts/env.mjs` `runUp`, add plan D1 steps 3 to 7. Each failure exits 1
+- [x] T003 [US1] [US2] In `scripts/env.mjs` `runUp`, add plan D1 steps 3 to 7. Each failure exits 1
       and names the stack and the database.
-- [ ] T004 [US1] In `scripts/env.mjs` `down` and `prune`, remove `<project>-migrate` (plan D3).
-- [ ] T005 [US1] In `scripts/env.test.mjs`, after `up`, assert both databases' migration counts equal
+- [x] T004 [US1] In `scripts/env.mjs` `down` and `prune`, remove `<project>-migrate` (plan D3).
+- [x] T005 [US1] In `scripts/env.test.mjs`, after `up`, assert both databases' migration counts equal
       the journal's entry count (plan D2 command).
-- [ ] T006 [US3] In `apps/server/src/library/ingest/worker.ts`, wait `POLL_MS` after a failed loop
+- [x] T006 [US3] In `apps/server/src/library/ingest/worker.ts`, wait `POLL_MS` after a failed loop
       iteration (plan D4).
-- [ ] T007 [P] [US3] Add `apps/server/test/library/worker.backoff.test.ts` (plan, Files touched).
-- [ ] T008 [P] In `apps/server/scripts/migrate.ts` and `apps/server/src/cli/create-operator.ts`, print
+- [x] T007 [P] [US3] Add `apps/server/test/library/worker.backoff.test.ts` (plan, Files touched).
+- [x] T008 [P] In `apps/server/scripts/migrate.ts` and `apps/server/src/cli/create-operator.ts`, print
       the target line (plan D5).
-- [ ] T009 Amend `specs/010-worktree-stacks/contracts/env-cli.md` and
+- [x] T009 Amend `specs/010-worktree-stacks/contracts/env-cli.md` and
       `specs/010-worktree-stacks/quickstart.md` (plan D6).
-- [ ] T010 Run `pnpm ci:check`. If Docker is reachable and no labeled stack runs, run `pnpm check:env`.
+- [x] T010 Run `pnpm ci:check`. If Docker is reachable and no labeled stack runs, run `pnpm check:env`.
       Otherwise, run `pnpm env:up` in this worktree, report both counts, and leave the stack up.
       Commit as `TASK-0098 phase 1: migrate stacks on up`.
 
