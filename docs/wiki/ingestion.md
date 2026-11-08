@@ -23,7 +23,7 @@ sources:
   - apps/server/src/bench/load/ingest.ts
   - apps/server/src/bench/load/stress.ts
   - specs/021-load-bench/tasks.md
-verified_against: 4af9ecbd6436d6529ceb61b058a9df75fb805925
+verified_against: 3510dac3caf968fc747fa0db592482e2b531cd7a
 ---
 
 # Ingestion
@@ -98,7 +98,7 @@ whose lease expired and later wakes up can't corrupt a job another worker reclai
 updates zero rows and `requireStage` throws `FencedOutError`, treated as "someone else owns this
 now", not a failure. A claim past `MAX_ATTEMPTS` (3) is immediately marked `failed`, upload file
 deleted right there. `startIngestWorker` runs one job at a time, polling every `POLL_MS` (2s) or
-on `nudge()`, and sweeps orphaned upload files/job dirs untouched 10+ minutes as a backstop.
+on `nudge()` (a failed one too), and sweeps orphaned uploads untouched 10+ minutes.
 
 **Embedding obligation** (`worker.ts`'s `embedChunks`, the `embed` stage). Batches of
 `EMBED_BATCH_SIZE` (256) chunks go through [[ai-gateway]]'s `embed()`, using the purpose named

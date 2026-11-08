@@ -45,15 +45,15 @@ backoff test passes. `pnpm check:env` passes the count assertion when Docker is 
 **Independent test**: `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/1.0.1/gates/cli.mjs
 freshness . docs/wiki` prints `OK`.
 
-- [ ] T011 NEEDS-REVIEW `docs/wiki/runtime-stacks.md`: add migrate-and-verify to `env up`/`env main`;
+- [x] T011 NEEDS-REVIEW `docs/wiki/runtime-stacks.md`: add migrate-and-verify to `env up`/`env main`;
       replace the TASK-0158 hand-migrate paragraph with a pointer to the automatic step.
-- [ ] T012 NEEDS-REVIEW `docs/wiki/migrations.md`: state that `env up` migrates both stack databases;
+- [x] T012 NEEDS-REVIEW `docs/wiki/migrations.md`: state that `env up` migrates both stack databases;
       note the host target line.
-- [ ] T013 NEEDS-REVIEW `docs/wiki/test-suite.md`: a fresh `env up` needs no hand migrate before
+- [x] T013 NEEDS-REVIEW `docs/wiki/test-suite.md`: a fresh `env up` needs no hand migrate before
       `REQUIRE_DATABASE=1` suites.
-- [ ] T014 Re-verify every other note whose `sources:` lists a Phase 1 file:
+- [x] T014 Re-verify every other note whose `sources:` lists a Phase 1 file:
       `configuration.md`, `operator-provisioning.md`, `ingestion.md`. Re-pin each honestly.
-- [ ] T015 Regenerate `docs/wiki/CAPSULES.md` if any `description:` changed; update
+- [x] T015 Regenerate `docs/wiki/CAPSULES.md` if any `description:` changed; update
       `docs/wiki/INDEX.md` to match. Run the freshness gate. Commit as `TASK-0098 phase 2: re-ground wiki`.
 
 **[orchestrator]** after merge: card OQ2 and OQ3 if the operator accepts them. Update

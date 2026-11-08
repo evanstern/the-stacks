@@ -86,11 +86,12 @@ exists to run.
 **Verified counts, run without a database configured** (`unset TEST_DATABASE_URL
 DATABASE_URL REQUIRE_DATABASE`, `pnpm install` + building `packages/shared` first so imports
 resolve): **9 test files pass, 3 skip** (the three integration files above), out of 12 — **48
-tests pass, 45 skip**, out of 93 (TASK-0095 added one gated case to `ws.subscribe.test.ts`, whose file still reports as passing because its other two tests run; TASK-0024 added `config.test.ts`'s 5 always-run cases and one `echo.test.ts` case; TASK-0028 added one `static.test.ts` case; a `favicon` case asserts `/favicon.ico` answers 204). A green run in this state proves the unit-level behavior only; every
+tests pass, 45 skip**, out of 93 (TASK-0095 added one gated case to `ws.subscribe.test.ts`, whose file still reports as passing because its other two tests run; TASK-0024 added `config.test.ts`'s 5 always-run cases and one `echo.test.ts` case; TASK-0028 added one `static.test.ts` case). A green run in this state proves the unit-level behavior only; every
 session-auth flow, every event-log write/read, and the entire WebSocket gateway (including
 [[replay-live-boundary]] and [[subscriber-registry]]) goes unverified. Anyone reading only a
 pass/fail summary, not the warning text, would not notice. With a reachable database and
 `REQUIRE_DATABASE=1` (as [[ci-pipeline]] runs it), all **93 tests pass, 0 skip**.
+`env up` migrates first ([[runtime-stacks]]).
 
 **`apps/server/vitest.config.ts`** (TASK-0024) sets `fileParallelism: false` for the whole
 package — every suite in this note's scope included — because [[ingestion]]'s integration

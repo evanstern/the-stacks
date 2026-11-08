@@ -5,7 +5,7 @@ kind: component
 sources:
   - apps/server/src/cli/create-operator.ts
   - apps/server/src/auth/provisioning.ts
-verified_against: 3c443e13c3bbd97340ff5d8d09a0e65cd8244bf0
+verified_against: 3510dac3caf968fc747fa0db592482e2b531cd7a
 ---
 
 # Operator Provisioning
@@ -44,7 +44,7 @@ copies of the same logic — `createOperator` calls `hasOperator` too, and treat
 false}` result (an existing operator, or a race) as the refusal case the CLI already prints for.
 Both paths resolve `DATABASE_URL`/`TEST_DATABASE_URL` on the **host** the same way
 [[migrations]] describes; inside the container, `TEST_DATABASE_URL` is blank so `DATABASE_URL`
-applies with no env var needed (see [[configuration]]).
+applies with no env var needed (see [[configuration]]). The host run prints a `target: <host>:<port>/<db>` line first (TASK-0098). To provision in a stack's app database, run `docker compose -p stacks-<env> exec app node dist/cli/create-operator.js`.
 
 Once no operator is found, the CLI hashes the password (`hashPassword`, see
 [[password-hashing]]) via `createOperator`, which inserts a `users` row with `role:

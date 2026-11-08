@@ -9,7 +9,7 @@ sources:
   - apps/server/scripts/migrate.ts
   - apps/server/src/cli/create-operator.ts
   - package.json
-verified_against: 4b9c7549af7e22e6be7c198f02743d124fa98e84
+verified_against: 3510dac3caf968fc747fa0db592482e2b531cd7a
 ---
 
 # Configuration
