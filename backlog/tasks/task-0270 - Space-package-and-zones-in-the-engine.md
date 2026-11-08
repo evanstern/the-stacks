@@ -4,7 +4,7 @@ title: Space package and zones in the engine
 status: In Progress
 assignee: []
 created_date: '2026-11-07 05:13'
-updated_date: '2026-11-08 21:18'
+updated_date: '2026-11-08 21:27'
 labels:
   - 'ws:space'
   - replan-2026-11
@@ -34,7 +34,7 @@ Spec: specs/094-space-and-zones
 - [ ] #2 Reach and range checks use bands without a grid.
 - [ ] #3 Golden-dice tests cover OA triggers from leaving an engaged band.
 - [ ] #4 The package has no renderer or React dependency.
-- [ ] #5 Phase 1: packages/space, biome override, boundary fixtures (specs/094 tasks.md)
+- [x] #5 Phase 1: packages/space, biome override, boundary fixtures (specs/094 tasks.md)
 - [ ] #6 Phase 2: engine placement, speed, space; space.define, combatant.place, move, movement.action
 - [ ] #7 Phase 3: reach and range by band in attack.roll; SRD speed/reach/range in seeds
 - [ ] #8 Phase 4: provokers() with golden-dice opportunity-attack tests
@@ -50,6 +50,9 @@ Claimed 2026-11-08 by the R1 sweep (docs/design/r1-fast-table-runbook.md). Workt
 
 Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=cc/claude-opus-5-5 (spec authoring, grant C1)
 Spec 094 committed (7c475539). Operator ruling 2026-11-08 (spec 094 OQs): OQ-10 engine events (combatant.*), OQ-1 same zone = engaged, OQ-2 only the origin zone provokes; OQ-3 and OQ-4 moved to TASK-0274.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5 (phases 1-2)
+Phases 1-2 done (980f28de, 4a2aa690): packages/space; engine space/placement/speed, space.define, combatant.place, move, movement.action; 7 refusal codes (OUT_OF_REACH, OUT_OF_RANGE move to Phase 3 with their tests). space 28, engine 367, session-model 839 tests pass; boundary 21/21.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
