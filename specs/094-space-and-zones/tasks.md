@@ -88,13 +88,13 @@ with `pnpm ci:check` green and one commit led by `TASK-0270`.
 
 **Goal**: the corpus describes the merged code and passes the freshness gate.
 
-- [ ] T033 Merge `origin/main` into the branch first, so the wiki edits land on TASK-0231's split engine notes.
-- [ ] T034 Write a new note `docs/wiki/space.md`: the package, schemas, bands, paths, rules, `SpaceView`, the boundary. Sources: `packages/space/**` files used.
-- [ ] T035 Review `docs/wiki/dnd5e-engine.md` and its split notes (`dnd5e-engine-reactions.md`, `dnd5e-engine-derived-rolls.md`): placement, speed, the four commands, band checks, `provokers`, new refusal codes. Add `src/commands/move.ts` and `src/space.ts` to sources.
-- [ ] T036 [P] Review `docs/wiki/monorepo-and-toolchain.md` (new package, references, boundary override), `docs/wiki/srd-data.md` (speed, reach, range mapping) and `docs/wiki/overview.md` (one sentence for TASK-0270).
-- [ ] T037 Update `docs/wiki/INDEX.md` and `docs/wiki/CAPSULES.md` for the new `space` note and the changed engine notes.
-- [ ] T038 Re-pin every touched note's `verified_against` honestly; run `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/1.0.1/gates/cli.mjs freshness . docs/wiki` until it prints `OK`.
-- [ ] T039 Run `node ~/.claude/plugins/cache/praxisflux/spec-bridge/1.0.1/gates/cli.mjs check .` and confirm exit 0.
+- [x] T033 Merge `origin/main` into the branch first, so the wiki edits land on TASK-0231's split engine notes.
+- [x] T034 Write a new note `docs/wiki/space.md`: the package, schemas, bands, paths, rules, `SpaceView`, the boundary. Sources: `packages/space/**` files used.
+- [x] T035 Review `docs/wiki/dnd5e-engine.md` and its split notes (`dnd5e-engine-reactions.md`, `dnd5e-engine-derived-rolls.md`): placement, speed, the four commands, band checks, `provokers`, new refusal codes. Add `src/commands/move.ts` and `src/space.ts` to sources.
+- [x] T036 [P] Review `docs/wiki/monorepo-and-toolchain.md` (new package, references, boundary override), `docs/wiki/srd-data.md` (speed, reach, range mapping) and `docs/wiki/overview.md` (one sentence for TASK-0270).
+- [x] T037 Update `docs/wiki/INDEX.md` and `docs/wiki/CAPSULES.md` for the new `space` note and the changed engine notes.
+- [x] T038 Re-pin every touched note's `verified_against` honestly; run `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/1.0.1/gates/cli.mjs freshness . docs/wiki` until it prints `OK`.
+- [x] T039 Run `node ~/.claude/plugins/cache/praxisflux/spec-bridge/1.0.1/gates/cli.mjs check .` and confirm exit 0.
 
 **Checkpoint**: freshness `OK`; spec-bridge exit 0; `pnpm ci:check` green.
 
