@@ -1,10 +1,10 @@
 ---
 id: TASK-0270
 title: Space package and zones in the engine
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-11-07 05:13'
-updated_date: '2026-11-07 05:17'
+updated_date: '2026-11-08 20:11'
 labels:
   - 'ws:space'
   - replan-2026-11
@@ -24,6 +24,8 @@ Prerequisite checkpoints: CP-1 (plan-of-action §7).
 Parent epic: TASK-0258.
 
 Source: docs/design/replan-2026-11/board-rework-map.md (N-05).
+
+Spec: specs/094-space-and-zones
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
@@ -38,6 +40,8 @@ Source: docs/design/replan-2026-11/board-rework-map.md (N-05).
 
 <!-- SECTION:NOTES:BEGIN -->
 Merged from TASK-0139 (Revisit: track position and range as actor state) by replan-2026-11: Positions and range are the zone model.
+
+Claimed 2026-11-08 by the R1 sweep (docs/design/r1-fast-table-runbook.md). Worktree .worktrees/task-0270, branch task-0270-space-zones, cut from origin/main a8bda4ab. Spec number 094 claimed with a stub.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
