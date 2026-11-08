@@ -1,10 +1,10 @@
 ---
 id: TASK-0138
 title: adjudicate integration suite fails instead of skipping without a database
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-10-27 03:39'
-updated_date: '2026-11-08 20:15'
+updated_date: '2026-11-08 20:26'
 labels:
   - test
   - bug
@@ -39,6 +39,12 @@ Claimed 2026-11-08 by the R1 sweep (docs/design/r1-fast-table-runbook.md). Workt
 Dispatch: tier=haiku pinned=cc/claude-haiku-5-5 served=cc/claude-haiku-5-5
 Commit f3e13959: describe.skipIf(!reachable). No DB: 5 skipped, 0 failed. AC #2 verified by orchestrator: REQUIRE_DATABASE=1 with no DB fails loudly (Test Files 1 failed).
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+adjudicate.integration.test.ts now uses describe.skipIf(!reachable), matching jobs.integration.test.ts. No DB: 5 skipped, 0 failed; REQUIRE_DATABASE=1 with no DB fails loudly. Merged in PR #146.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
