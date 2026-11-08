@@ -3,10 +3,10 @@ id: TASK-0231
 title: >-
   Split the dnd5e-engine and dm-failure-and-gates wiki notes under the size
   budget
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-11-03 08:28'
-updated_date: '2026-11-08 20:15'
+updated_date: '2026-11-08 20:21'
 labels:
   - wiki
   - docs
@@ -35,6 +35,12 @@ Claimed 2026-11-08 by the R1 sweep (docs/design/r1-fast-table-runbook.md). Workt
 Dispatch: tier=haiku pinned=cc/claude-haiku-5-5 served=cc/claude-haiku-5-5
 Commit e71ba783: dnd5e-engine split into +derived-rolls, +reactions; dm-failure-and-gates split into +dm-plan-gate. Verbatim moves, pins kept. Orchestrator re-ran gates: freshness OK 60 notes, exit 0; plan prints nothing.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Split dnd5e-engine (into +derived-rolls, +reactions) and dm-failure-and-gates (into +dm-plan-gate) by concept, verbatim, pins kept; both exemption lines dropped. Merged in PR #145 (f0d0b491). Freshness OK 60 notes.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
