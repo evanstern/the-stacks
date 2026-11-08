@@ -4,7 +4,7 @@ title: Structured output in the gateway
 status: In Progress
 assignee: []
 created_date: '2026-11-07 05:13'
-updated_date: '2026-11-08 20:10'
+updated_date: '2026-11-08 20:40'
 labels:
   - 'ws:narration'
   - replan-2026-11
@@ -34,6 +34,11 @@ Spec: specs/093-structured-output
 - [ ] #2 Attempt-1 schema failures are under 1% over the R1 playtest.
 - [ ] #3 The playtest watch shows a `truncated=` count.
 - [ ] #4 The vm-104 log shapes from TASK-0203 are regression fixtures.
+- [ ] #5 Phase 1: gateway structured mode (specs/093 tasks.md)
+- [ ] #6 Phase 2: callJson sends its schema; truncation logged apart
+- [ ] #7 Phase 3: interpret cap, boot warning, env example (needs OQ-3 C9 read or 8000 fallback)
+- [ ] #8 Phase 4: playtest watch counts
+- [ ] #9 Phase 5: wiki re-ground
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -46,6 +51,9 @@ Merged from TASK-0203 (Haiku dm.audit and dm.chronicle return invalid-json on th
 Merged from TASK-0256 (dm.interpret hits its output cap and truncates on attempt 1) by replan-2026-11: Interpret truncation.
 
 Claimed 2026-11-08 by the R1 sweep (docs/design/r1-fast-table-runbook.md). Worktree .worktrees/task-0273, branch task-0273-structured-output, cut from origin/main a8bda4ab. Spec number 093 claimed with a stub.
+
+Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5 (spec authoring, grant C1)
+Spec 093 committed (13993f3b). Phase ACs seeded. OQ-1, OQ-2, OQ-4, OQ-5 adopted as recommended. OQ-3 and OQ-6 wait on a read-only vm-104 query at C9; Phases 1-2 proceed meanwhile.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
