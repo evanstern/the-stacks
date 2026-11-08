@@ -4,7 +4,7 @@ title: Combat turn UX
 status: To Do
 assignee: []
 created_date: '2026-11-07 05:13'
-updated_date: '2026-11-07 05:19'
+updated_date: '2026-11-08 19:55'
 labels:
   - 'ws:table-ux'
   - replan-2026-11
@@ -37,6 +37,8 @@ Source: docs/design/replan-2026-11/board-rework-map.md (N-10).
 
 <!-- SECTION:NOTES:BEGIN -->
 Merged from TASK-0248 (A party action can make a human player's character act out of turn) by replan-2026-11: Turn ownership is one rule in combat mode.
+
+CP-5 ruling 2026-11-08 (docs/design/r1-fast-table-runbook.md) F2: TASK-0199 owns the combat Enter-commit rule. This task owns the banner, pips, action bar and off-turn refusal, and builds on 0199's rule.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
