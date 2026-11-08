@@ -5,7 +5,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-11-07 05:13'
-updated_date: '2026-11-08 04:37'
+updated_date: '2026-11-08 05:10'
 labels:
   - 'ws:intent'
   - replan-2026-11
@@ -25,6 +25,8 @@ Prerequisite checkpoints: CP-1 (plan-of-action §7).
 Parent epic: TASK-0258.
 
 Source: docs/design/replan-2026-11/board-rework-map.md (N-01).
+
+Spec: specs/092-intent-contract
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
@@ -34,6 +36,18 @@ Source: docs/design/replan-2026-11/board-rework-map.md (N-01).
 - [ ] #3 A decision record freezes the schema with `INTENT_SCHEMA_VERSION = 1`.
 - [ ] #4 Boundary lint forbids imports from apps into the package.
 <!-- AC:END -->
+
+## Implementation Plan
+
+<!-- SECTION:PLAN:BEGIN -->
+Spec specs/092-intent-contract (spec, plan, tasks, contracts/intent-schema.md). Freeze the contract at CP-4 (operator rules Q1-Q9). Then 4 sonnet phases: (1) skeleton, scalars, refs, boundary lint; (2) 57 kinds, KIND_RULES, refusals, fixtures; (3) parse/toText; (4) property, totality, latency tests. Phase 5 orchestrator: CP-4 decision record, card 066/091 amendments, wiki update.
+<!-- SECTION:PLAN:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Spec authored for CP-4. Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=cc/claude-opus-5-5
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
