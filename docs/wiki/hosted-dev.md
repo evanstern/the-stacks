@@ -10,7 +10,7 @@ sources:
   - .github/workflows/deploy-dev.yml
   - .github/workflows/drift-dev.yml
   - docs/ops/dev-vm-104.md
-verified_against: 4b9c7549af7e22e6be7c198f02743d124fa98e84
+verified_against: e1bbffdbdce3fceda71fda32ad1672ee0c17e88a
 ---
 
 # Hosted dev (vm-104)
@@ -31,7 +31,7 @@ cancel-in-progress: false }` queues overlapping runs instead of racing them.
 **The CLI.** `scripts/deploy-dev.mjs` (stdlib + Docker CLI, spawnSync style of
 `scripts/env.mjs`; see [[runtime-stacks]]) implements every verb; `scripts/deploy-lib.mjs` is
 its dependency-free pure logic (`deployDecision`, `healthMatches`, `driftVerdict`,
-`tagsToPrune`, `renderDevEnv`), unit-tested by `scripts/deploy-lib.test.mjs` under
+`tagsToPrune`, `renderDevEnv`, `backupFailureMessage`), unit-tested by `scripts/deploy-lib.test.mjs` under
 `check:scripts` — see [[ci-pipeline]] — without Docker or vm-104. The compose invocation
 layers `deploy/dev/compose.dev.yml` on top of the base `docker-compose.yml` (see
 [[compose-stack]]): a fixed `env_file` at `/home/stacks/dev/.env` in place of a checkout-local
@@ -53,8 +53,9 @@ so the host needs no pnpm install).
   the newest backups.
 - `drift`: no Docker — `driftVerdict` compares `main` HEAD to `/health`'s `commit`. An
   unreachable `dev` (`observed === null`) is always `"drift"`, never `"pending"`.
-- `backup [--name <label>]` / `restore <file> --yes`: `pg_dump -Fc` to
-  `/home/stacks/dev/backups/`, mode `0600`; `restore` requires `--yes`, stops `app`,
+- `backup [--name <label>]` / `restore <file> --yes`: `pg_dump -Fc` streamed straight into a
+  file in `/home/stacks/dev/backups/` (no stdout buffer cap, TASK-0251), mode `0600`; a failed
+  dump deletes the partial file and reports `backupFailureMessage`; `restore` requires `--yes`, stops `app`,
   `pg_restore --clean --if-exists`, restarts `app`, and re-verifies `/health`.
 - `init-secrets`: renders `/home/stacks/dev/.env` (mode `0600`) from `.env.example` plus a
   generated Postgres password (`renderDevEnv`); refuses if the file already exists.
@@ -63,8 +64,7 @@ so the host needs no pnpm install).
 
 A failed swap is not a blind revert: `deploy` rolls back to the previous commit's already-built
 image (no rebuild) and re-verifies `/health` against it, only then exiting 1. This costs a
-brief restart window, not zero downtime — restarting the previous `app` container takes a few
-seconds, observed as ~3s uptime immediately after rollback (TASK-0021 T011 proof) — but never
+brief restart window, not zero downtime (~3s uptime after rollback, TASK-0021 T011) but never
 leaves `dev` serving a commit that failed its own health check.
 
 ## Drift check
@@ -80,11 +80,9 @@ commit has had time to finish.
 `dev` is tailnet-only: `tailscale serve --bg --https=8443 http://127.0.0.1:3000`, run inside
 the shared `tailscale` Docker container on vm-104 (not this repo's compose stack), publishes
 `https://vm-104.tailb3c1b6.ts.net:8443` to tailnet devices only. `app` itself still binds only
-`127.0.0.1:3000` (see [[compose-stack]]) — the LAN and vm-104's other tailnet IPs can't reach
-it even if `serve` were misconfigured. **Gotcha:** the first HTTPS request after running
+`127.0.0.1:3000` (see [[compose-stack]]) — the LAN can't reach it even if `serve` were misconfigured. **Gotcha:** the first HTTPS request after running
 `serve` waits — observed ~30s (TASK-0021 T015) — for Tailscale to issue the certificate
-(`SetDNS`/ACME); a short client timeout (e.g. `curl`'s default or a 15s one) fails before
-issuance finishes. Retry rather than treat that first failure as a misconfiguration.
+(`SetDNS`/ACME); a short client timeout fails before issuance finishes. Retry rather than treat that first failure as a misconfiguration.
 
 ## Secrets and backups
 
@@ -122,8 +120,7 @@ Layers on [[compose-stack]] and [[container-image]] rather than redefining them.
 success signal is [[health-check]]'s `commit` field. Covered by [[ci-pipeline]]'s
 `check:scripts` via `scripts/deploy-lib.test.mjs`. First-operator provisioning is
 [[operator-provisioning]]'s CLI, run the same way `exec`'s "Inspect" commands are. Full
-runbook: `docs/ops/dev-vm-104.md` (deploy, rollback, backup, restore, inspect, create the
-first operator, two-player table, secrets, exposure, destroy, failure triage).
+runbook: `docs/ops/dev-vm-104.md`.
 
 ## Operational notes
 

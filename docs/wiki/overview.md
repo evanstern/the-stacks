@@ -1,25 +1,28 @@
 ---
 name: overview
-description: The system's shape at M0 (plus the planned 5e-only, proposal-gate, DM-runtime, VTT-adapter direction and the M2-M9 ladder) — one Node process serving an HTTP API, a WebSocket gateway, and a React SPA, over a single Postgres holding an append-only event log. Read this before any other note; it names the three data planes, the entry points, and which seams exist versus which are still empty.
+description: The system's shape — one Node process serving an HTTP API, a WebSocket gateway, and a React SPA, over a single Postgres holding an append-only event log; M0-M2 delivered, M3 table work partly built. Names the three data planes, entry points, route mount order, which seams exist, and the 2026-11 replan direction (constitution 3.0.0, R1-R8 ladder). Read first.
 kind: concept
 sources:
   - docs/design/architecture.md
   - docs/design/milestones.md
+  - docs/design/replan-2026-11/plan-of-action.md
+  - backlog/decisions/decision-0029 - D21-Replan-2026-11-co-equal-goals-foundations-first-ladder-R1-R8-Intent-vocabulary-zones-first-space-codex-model-narration-around-facts-P-01..P-21-supersedes-0009.md
   - .specify/memory/constitution.md
   - apps/server/src/index.ts
   - docker-compose.yml
   - docker-compose.test.yml
   - package.json
   - .github/workflows/ci.yml
-verified_against: 9bc934ea72b8c9fa57f4905eaa5f49104c9326a9
+verified_against: e1bbffdbdce3fceda71fda32ad1672ee0c17e88a
 ---
 
 # Overview
 
 the-stacks is a self-hosted tabletop RPG platform, built so an agent can sit at the table as
-a participant rather than as a bolted-on feature. At this commit the repository is at **M0,
-the walking skeleton**: every architectural seam exists and has been demonstrated end to
-end, but almost nothing is built on top of them yet.
+a participant rather than as a bolted-on feature. Milestones M0 to M2 are delivered
+(walking skeleton, the first AI-run scene) and M3, the multiplayer table, is partly built
+(`/api/tables`, seats, invitations). Every architectural seam has been demonstrated end to
+end; the codex plane and the board are not built.
 
 The shape is deliberately small. **One Node process** serves the HTTP API, the WebSocket
 gateway, and the built client. **One Postgres** holds relational data and the append-only
@@ -36,7 +39,7 @@ listener. One port carries the API, the client, and the socket. It also construc
 container, or process.
 
 Inside the app, routes are composed in `apps/server/src/app.ts` and mount in a specific
-order: `/health`, `/api/echo`, `/auth`, `/library`, `/dm` (operator-only DM controls), and then the web app's middleware
+order: `/health`, `/api/echo`, `/api/tables`, `/auth`, `/library`, `/dm` (operator-only DM controls), and then the web app's middleware
 **last** — static assets, then a full SSR render — so it can never shadow the routes above
 (see [[static-serving]]). `/ws` is not a Hono route at all — it is handled at the HTTP
 upgrade, before Hono routing, by [[websocket-gateway]].
@@ -46,7 +49,7 @@ State is divided into **three planes**, a constitutional rule rather than a conv
 | plane | what it holds | at this commit |
 |---|---|---|
 | library | imported reference content | storage ([[library-schema]]), ingestion ([[ingestion]], TASK-0024: upload → parse → chunk → store → embed), and a read path ([[rules-answerer]], TASK-0027: retrieve → answer → cite over SSE) all land |
-| codex | campaign entities | empty — planned for M4 (The Codex); M2 runs from a hand-authored scene seed |
+| codex | campaign entities | empty — planned as R2 Living Codex; scenes run from a hand-authored seed (`apps/server/src/dm/seed/`) |
 | session | what happened at the table | the event log, live; the AI DM ([[dm-runtime]], TASK-0046) writes to it only through the proposal gate |
 
 The session plane is populated at M0, as [[event-log]]; the library plane now has its storage
@@ -61,35 +64,35 @@ by default and served by the same container — SSR by default, with realtime an
 routes staying client-only, is fixed in the architecture's constraints table (amended
 TASK-0040, doc-0003 / decision-0008), along with Hono, `ws`, Drizzle, and Postgres 17.
 
-## Planned direction (design re-centre, 2026-10-25)
+## Planned direction (replan, 2026-11)
 
-Nothing in this section is built; it is the design the next milestones target
-(`docs/design/architecture.md`, decision-0009 to decision-0021). Present-state code is
-described in the sections above and in the linked notes.
+Constitution 3.0.0 (ratified 2026-11-07, decision-0029, replan PR #144) and
+`docs/design/replan-2026-11/plan-of-action.md` set the direction. Most of it is not built;
+present-state code is in the sections above and the linked notes.
 
-- **5e only.** The planned system-agnostic core and the Fate conformance module are dropped.
-  The engine now exists as a standalone package, [[dnd5e-engine]], not yet called by the
-  server. The typed session events and their projections exist as [[session-model]] (TASK-0044); the proposal gate and per-viewer live delivery are [[proposal-gate]] (TASK-0045). Constitution Principle VI (v2.0.0) now requires one pure 5e engine package with the entry
-  point `(state, command, rng) -> events | refusal`; it does no I/O and calls no model, and
-  the engine owns every number (dice, hit points, conditions, initiative, rests, slots).
-- **Proposal gate.** LLM output reaches the event log only as a typed proposal that passes
-  the gate and the engine (Principle IV). Each proposal kind runs `auto`, `ask` or `suggest`;
-  a refusal appends nothing; pending proposals are hidden information. It is implemented in
-  [[proposal-gate]] (TASK-0045): a human DM seat sees `dm` rows, and the write boundary is test-enforced.
-- **DM runtime.** Turn jobs run on the same worker loop as ingestion jobs (planned A11);
-  talk, action and table modes are planned in A12.
-- **VTT ports and adapters.** The in-app PixiJS table view and external VTTs (Foundry or
-  Owlbear) sit behind ports (planned A13), at M6.
-- **SRD baseline.** SRD 5.2.1 data (CC-BY-4.0, with exact attribution) may ship with the
-  engine; it is versioned read-only data, not a fourth plane. The data now exists as [[srd-data]]
-  (TASK-0043). Proprietary book content still
-  never ships (Principle VIII).
-- **Milestone ladder.** M0 and M1 stand. Next: M2 First Scene (AI-run vertical slice,
-  target 2026-11-24), M3 The Table (multiplayer), M4 The Codex, M5 Imported Mechanics, M6
-  Maps and the Table View, M7 The Dial = V1 (target 2027-03-23), M8 Memory and Pacing, M9
-  Solo Campaign (a sketch, re-planned at V1 by TASK-0087). Every milestone from M2 to M9 is
-  carded up front (decision-0020: TASK-0042 to TASK-0053 and TASK-0056 to TASK-0091), and
-  dropping a card needs a decision record. The 2026-09-21 ladder is superseded.
+- **Gate and engine.** Principle III (Event-Sourced Play) keeps the write boundary: model
+  output reaches the log only as a typed proposal that passes the gate and the engine, each
+  kind running `auto`, `ask` or `suggest`. Built as [[proposal-gate]] (TASK-0045). Principle VI
+  (5e Only; the Engine Owns the Numbers) requires one pure engine, `(state, command, rng) ->
+  events | refusal`, that owns every number, now including positions, reach, range and area
+  hits. Built as [[dnd5e-engine]], with [[session-model]] (TASK-0044) holding the typed
+  events and projections. SRD 5.2.1 (CC-BY-4.0) ships as read-only data, [[srd-data]]
+  (TASK-0043); Principle XI (Operator-Owned Content) keeps proprietary book content out.
+- **Other principles.** II One Intent Vocabulary; V Many Views, One State; VII Narration
+  Around Facts; VIII Campaign Is Data; IX UX Is a Quality Bar; XII Self-Hostable (structured
+  model output required); XIII Plan Just-in-Time.
+- **Package seams.** Architecture Constraints name `srd`, `dnd5e-engine`, `space`,
+  `intent`, `planner`, `session-model`, `codex-model`. Under `packages/` only `srd`,
+  `dnd5e-engine`, `session-model` and `shared` exist; `space`, `intent`, `planner` and
+  `codex-model` are planned. The board is PixiJS v8 on a client-only route.
+- **DM runtime.** Turn jobs share the worker loop with ingestion ([[dm-runtime]]).
+- **VTT.** The own board is a projection of the event log (R5 The Board). External VTT
+  adapters are trigger-gated (P-02, P-07), not scheduled.
+- **Milestone ladder.** The M-ladder (M2 to M9, carded up front by decision-0020) is
+  superseded by the R-ladder: R1 Fast Table, R2 Living Codex, R3 Human Table, R4 Notebook,
+  R5 The Board, R6 Generators, R7 Campaign Memory, R8 Release 1.0 (decision-0029). Carding
+  is just-in-time (Principle XIII). `docs/design/milestones.md` and `vision.md` still
+  describe the old ladder; they are not yet updated.
 
 ## Connections
 
