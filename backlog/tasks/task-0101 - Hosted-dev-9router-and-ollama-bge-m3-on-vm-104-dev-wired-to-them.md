@@ -4,7 +4,7 @@ title: 'Hosted dev: 9router and ollama bge-m3 on vm-104, dev wired to them'
 status: To Do
 assignee: []
 created_date: '2026-10-26 14:12'
-updated_date: '2026-11-07 05:17'
+updated_date: '2026-11-08 19:55'
 labels:
   - hosted-dev
   - ai
@@ -38,6 +38,8 @@ Every command that changes vm-104 needs the operator's go on its exact text. Sub
 - [ ] #3 Either 9router runs on vm-104 and serves the dm.* and answering models, or the card records the operator's decision to use CLIProxyAPI on port 8317 instead.
 - [x] #4 dev's AI_PROVIDERS, AI_PURPOSES and AI_PRICES name every purpose, and the server's boot log shows no unconfigured-purposes warning.
 - [ ] #5 The hosted-dev wiki note and the ops runbook describe the AI setup.
+- [ ] #6 Every docker compose command in docs/ops/dev-vm-104.md runs from the runner checkout path with --env-file /home/stacks/dev/.env (from TASK-0037).
+- [ ] #7 The hosted-dev wiki note states where the compose files live on vm-104 (from TASK-0037).
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -66,6 +68,8 @@ Caveat: the LAN path is plain HTTP, so the key crosses the LAN unencrypted. Deci
 (2) Ran gh run rerun 40339203227 (Deploy dev), which succeeded and recreated stacks-dev-app-1 at 181fda16.
 Verified from inside stacks-dev-app-1: 9router lists 4 models with the key, and the ollama embedding returns 1024 dims. The boot log shows only 'Server listening on port 3000', with no unconfigured-purposes warning. AC #4 is met.
 Still open: AC #2 (move stacks-ollama into the repo's deploy definition, pinned by digest) and AC #3 (record the decision: realm 9router on vm-103 over LAN HTTP, not CLIProxyAPI; the HTTP-on-LAN caveat stands). AC #5 is the docs.
+
+CP-5 ruling 2026-11-08 (docs/design/r1-fast-table-runbook.md): TASK-0037 merged into this card (two doc lines in the same files). Its two AC are added here.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
