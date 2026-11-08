@@ -58,10 +58,10 @@ flags the three new fixtures.
 
 ## Phase 5: Freeze and close [orchestrator]
 
-- [ ] T014 [orchestrator] Create the CP-4 decision with `backlog decision create`. It pins
+- [x] T014 [orchestrator] Create the CP-4 decision with `backlog decision create`. It pins
       `contracts/intent-schema.md` at its commit and states `INTENT_SCHEMA_VERSION = 1` (FR-018, AC #3).
-- [ ] T015 [orchestrator] Card the spec 066 and spec 091 amendments under TASK-0199 and TASK-0247
+- [x] T015 [orchestrator] Card the spec 066 and spec 091 amendments under TASK-0199 and TASK-0247
       (plan "Downstream amendments").
 - [x] T016 [orchestrator] Run `/grounding-wiki:wiki-update` if a note lists touched sources
       (`biome.json`). Add a wiki note for the package.
-- [ ] T017 [orchestrator] Tick TASK-0266 AC #1–#4. Record the `Dispatch:` line per phase.
+- [x] T017 [orchestrator] Tick TASK-0266 AC #1–#4. Record the `Dispatch:` line per phase.
