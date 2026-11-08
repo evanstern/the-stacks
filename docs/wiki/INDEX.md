@@ -52,6 +52,7 @@ codex, system modules, or agents yet. `main` is now continuously deployed to a r
 - [[output-claim-gate]] — `checkClaims` (TASK-0143): the pure checker that refuses dead, downed or absent actors acting or speaking, wrong-actor deaths and drops, omitted deaths and wrong counts, and its audit, narrate and fallback callers.
 - [[debug-view]] — the operator debug API (TASK-0116): four read-only `/dm` routes (events, jobs, seed, calls), cursors, the job-to-seq link, the `dm_model_calls` ledger as cost authority; and the debug page built on it (TASK-0117, `play/:sessionId/debug`).
 - [[session-model]] — the session event catalog (talk/lifecycle/state-change/marker/record), mechanics envelope, `canSee`, the projection fold, fixtures, and the server append seam.
+- [[intent-contract]] — `@the-stacks/intent` (spec 092, TASK-0266): the pure Intent vocabulary (57 kinds, 13 groups), KIND_RULES, refusal codes and the canonical text form, contract v1.1.
 
 ## Server
 
