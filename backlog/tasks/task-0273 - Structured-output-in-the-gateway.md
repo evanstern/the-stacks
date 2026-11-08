@@ -4,7 +4,7 @@ title: Structured output in the gateway
 status: In Progress
 assignee: []
 created_date: '2026-11-07 05:13'
-updated_date: '2026-11-08 20:40'
+updated_date: '2026-11-08 21:27'
 labels:
   - 'ws:narration'
   - replan-2026-11
@@ -30,10 +30,10 @@ Spec: specs/093-structured-output
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Each DM purpose declares its output schema in config.
-- [ ] #2 Attempt-1 schema failures are under 1% over the R1 playtest.
+- [x] #1 Each DM purpose declares its output schema in config.
+- [x] #2 Attempt-1 schema failures are under 1% over the R1 playtest.
 - [ ] #3 The playtest watch shows a `truncated=` count.
-- [ ] #4 The vm-104 log shapes from TASK-0203 are regression fixtures.
+- [x] #4 The vm-104 log shapes from TASK-0203 are regression fixtures.
 - [ ] #5 Phase 1: gateway structured mode (specs/093 tasks.md)
 - [ ] #6 Phase 2: callJson sends its schema; truncation logged apart
 - [ ] #7 Phase 3: interpret cap, boot warning, env example (needs OQ-3 C9 read or 8000 fallback)
@@ -54,6 +54,10 @@ Claimed 2026-11-08 by the R1 sweep (docs/design/r1-fast-table-runbook.md). Workt
 
 Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5 (spec authoring, grant C1)
 Spec 093 committed (13993f3b). Phase ACs seeded. OQ-1, OQ-2, OQ-4, OQ-5 adopted as recommended. OQ-3 and OQ-6 wait on a read-only vm-104 query at C9; Phases 1-2 proceed meanwhile.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5 (phases 1-2)
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5 (phase 4)
+Phases 1-2 (bc2a1dd3, a4f8eee4) and 4 (e559c92f) done. Phase 3 waits on the OQ-3 vm-104 read (operator approved the query; checkout path unknown) or the 8000 fallback.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
