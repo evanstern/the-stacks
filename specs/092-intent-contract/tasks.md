@@ -18,11 +18,11 @@ Tasks marked **[orchestrator]** are run by the orchestrator. Each implementer ph
 **Independent test**: `pnpm --filter @the-stacks/intent test` runs; `node scripts/check-boundaries.mjs`
 flags the three new fixtures.
 
-- [ ] T001 Create `packages/intent/` with `package.json`, `tsconfig.json`, `vitest.config.ts` and
+- [x] T001 Create `packages/intent/` with `package.json`, `tsconfig.json`, `vitest.config.ts` and
       `README.md`, following `packages/session-model`. Add the root `tsconfig` reference if the repo uses one.
-- [ ] T002 Create `src/version.ts`, `src/scalars.ts` and `src/refs.ts` per contract §1–§5.
-- [ ] T003 Create `test/engine-drift.test.ts` (plan "Test strategy").
-- [ ] T004 Add the `biome.json` override and three boundary fixtures (plan "Boundary lint").
+- [x] T002 Create `src/version.ts`, `src/scalars.ts` and `src/refs.ts` per contract §1–§5.
+- [x] T003 Create `test/engine-drift.test.ts` (plan "Test strategy").
+- [x] T004 Add the `biome.json` override and three boundary fixtures (plan "Boundary lint").
 
 ## Phase 2: Kinds, KIND_RULES, refusals and fixtures (FR-005–FR-010)
 
@@ -30,11 +30,11 @@ flags the three new fixtures.
 
 **Independent test**: `schema.test.ts` passes; the kind count test reads 57.
 
-- [ ] T005 Create `src/refusals.ts` per contract §9.
-- [ ] T006 Create `src/kinds.ts`: params schemas, `KIND_RULES`, `INTENT_GROUPS`, `IntentSchema`,
+- [x] T005 Create `src/refusals.ts` per contract §9.
+- [x] T006 Create `src/kinds.ts`: params schemas, `KIND_RULES`, `INTENT_GROUPS`, `IntentSchema`,
       the nested `Readyable`, `Predeclarable` and `IntentBody` rules, and the `MODEL_NUMBER` refinement.
-- [ ] T007 Create `src/fixtures/index.ts` with `VALID` (every kind) and `INVALID` (schema codes).
-- [ ] T008 Create `test/schema.test.ts`, including the count and coverage tests.
+- [x] T007 Create `src/fixtures/index.ts` with `VALID` (every kind) and `INVALID` (schema codes).
+- [x] T008 Create `test/schema.test.ts`, including the count and coverage tests.
 
 ## Phase 3: Text form (FR-011–FR-015)
 
