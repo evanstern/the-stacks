@@ -132,7 +132,7 @@
                 "patterns": [
                   {
                     "group": ["**/codex/**", "**/session/**"],
-                    "message": "library must not import codex or session directly \u2014 go through a declared seam module (constitution III)."
+                    "message": "library must not import codex or session directly — go through a declared seam module (constitution III)."
                   }
                 ]
               }
@@ -161,7 +161,7 @@
                       "**/codex/**",
                       "**/ws/**"
                     ],
-                    "message": "dm must not import the log writers, ingestion, the library store, codex or ws \u2014 session state is written only through the gate (constitution III)."
+                    "message": "dm must not import the log writers, ingestion, the library store, codex or ws — session state is written only through the gate (constitution III)."
                   }
                 ]
               }
@@ -184,7 +184,7 @@
                 "patterns": [
                   {
                     "group": ["**/library/**", "**/session/**"],
-                    "message": "codex must not import library or session directly \u2014 go through a declared seam module (constitution III)."
+                    "message": "codex must not import library or session directly — go through a declared seam module (constitution III)."
                   }
                 ]
               }
@@ -207,7 +207,7 @@
                 "patterns": [
                   {
                     "group": ["**/library/**", "**/codex/**"],
-                    "message": "session must not import library or codex directly \u2014 go through a declared seam module (constitution III)."
+                    "message": "session must not import library or codex directly — go through a declared seam module (constitution III)."
                   }
                 ]
               }
@@ -412,6 +412,119 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "packages/intent/src/**",
+        "fixtures/boundary-violations/packages/intent/**"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "pg": "the intent package is pure and client-importable: zod only, no app, workspace package, node module or clock (constitution II, IV).",
+                  "postgres": "the intent package is pure and client-importable: zod only, no app, workspace package, node module or clock (constitution II, IV).",
+                  "drizzle-orm": "the intent package is pure and client-importable: zod only, no app, workspace package, node module or clock (constitution II, IV).",
+                  "drizzle-kit": "the intent package is pure and client-importable: zod only, no app, workspace package, node module or clock (constitution II, IV).",
+                  "ws": "the intent package is pure and client-importable: zod only, no app, workspace package, node module or clock (constitution II, IV).",
+                  "hono": "the intent package is pure and client-importable: zod only, no app, workspace package, node module or clock (constitution II, IV).",
+                  "@hono/node-server": "the intent package is pure and client-importable: zod only, no app, workspace package, node module or clock (constitution II, IV).",
+                  "undici": "the intent package is pure and client-importable: zod only, no app, workspace package, node module or clock (constitution II, IV).",
+                  "busboy": "the intent package is pure and client-importable: zod only, no app, workspace package, node module or clock (constitution II, IV).",
+                  "yauzl": "the intent package is pure and client-importable: zod only, no app, workspace package, node module or clock (constitution II, IV).",
+                  "parse5": "the intent package is pure and client-importable: zod only, no app, workspace package, node module or clock (constitution II, IV).",
+                  "openai": "the intent package is pure and client-importable: zod only, no app, workspace package, node module or clock (constitution II, IV).",
+                  "@anthropic-ai/sdk": "the intent package is pure and client-importable: zod only, no app, workspace package, node module or clock (constitution II, IV).",
+                  "@the-stacks/server": "the intent package is pure and client-importable: zod only, no app, workspace package, node module or clock (constitution II, IV).",
+                  "@the-stacks/web": "the intent package is pure and client-importable: zod only, no app, workspace package, node module or clock (constitution II, IV).",
+                  "@the-stacks/dnd5e-engine": "the intent package is pure and client-importable: zod only, no app, workspace package, node module or clock (constitution II, IV).",
+                  "@the-stacks/session-model": "the intent package is pure and client-importable: zod only, no app, workspace package, node module or clock (constitution II, IV).",
+                  "@the-stacks/shared": "the intent package is pure and client-importable: zod only, no app, workspace package, node module or clock (constitution II, IV).",
+                  "@the-stacks/srd": "the intent package is pure and client-importable: zod only, no app, workspace package, node module or clock (constitution II, IV)."
+                },
+                "patterns": [
+                  {
+                    "group": ["node:*"],
+                    "message": "the intent package is pure and client-importable: zod only, no app, workspace package, node module or clock (constitution II, IV)."
+                  },
+                  {
+                    "group": [
+                      "fs",
+                      "fs/**",
+                      "http",
+                      "https",
+                      "http2",
+                      "net",
+                      "tls",
+                      "dgram",
+                      "dns",
+                      "child_process",
+                      "cluster",
+                      "worker_threads",
+                      "crypto",
+                      "os",
+                      "process",
+                      "timers",
+                      "timers/**",
+                      "perf_hooks",
+                      "readline",
+                      "stream"
+                    ],
+                    "message": "the intent package is pure and client-importable: zod only, no app, workspace package, node module or clock (constitution II, IV)."
+                  },
+                  {
+                    "group": ["drizzle-orm/**"],
+                    "message": "the intent package is pure and client-importable: zod only, no app, workspace package, node module or clock (constitution II, IV)."
+                  },
+                  {
+                    "group": ["@anthropic-ai/**"],
+                    "message": "the intent package is pure and client-importable: zod only, no app, workspace package, node module or clock (constitution II, IV)."
+                  },
+                  {
+                    "group": ["@ai-sdk/**"],
+                    "message": "the intent package is pure and client-importable: zod only, no app, workspace package, node module or clock (constitution II, IV)."
+                  },
+                  {
+                    "group": ["**/apps/**"],
+                    "message": "the intent package is pure and client-importable: zod only, no app, workspace package, node module or clock (constitution II, IV)."
+                  }
+                ]
+              }
+            },
+            "noRestrictedGlobals": {
+              "level": "error",
+              "options": {
+                "deniedGlobals": {
+                  "Date": "the intent package is pure and client-importable: zod only, no app, workspace package, node module or clock (constitution II, IV).",
+                  "performance": "the intent package is pure and client-importable: zod only, no app, workspace package, node module or clock (constitution II, IV).",
+                  "setTimeout": "the intent package is pure and client-importable: zod only, no app, workspace package, node module or clock (constitution II, IV).",
+                  "setInterval": "the intent package is pure and client-importable: zod only, no app, workspace package, node module or clock (constitution II, IV).",
+                  "setImmediate": "the intent package is pure and client-importable: zod only, no app, workspace package, node module or clock (constitution II, IV).",
+                  "fetch": "the intent package is pure and client-importable: zod only, no app, workspace package, node module or clock (constitution II, IV).",
+                  "WebSocket": "the intent package is pure and client-importable: zod only, no app, workspace package, node module or clock (constitution II, IV).",
+                  "XMLHttpRequest": "the intent package is pure and client-importable: zod only, no app, workspace package, node module or clock (constitution II, IV).",
+                  "process": "the intent package is pure and client-importable: zod only, no app, workspace package, node module or clock (constitution II, IV).",
+                  "crypto": "the intent package is pure and client-importable: zod only, no app, workspace package, node module or clock (constitution II, IV).",
+                  "require": "the intent package is pure and client-importable: zod only, no app, workspace package, node module or clock (constitution II, IV)."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["packages/intent/**"],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noThenProperty": "off"
           }
         }
       }
