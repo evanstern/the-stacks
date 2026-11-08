@@ -1,11 +1,11 @@
 ---
 id: TASK-0266
 title: Intent contract package
-status: In Progress
+status: Done
 assignee:
   - '@claude'
 created_date: '2026-11-07 05:13'
-updated_date: '2026-11-08 21:26'
+updated_date: '2026-11-08 21:32'
 labels:
   - 'ws:intent'
   - replan-2026-11
@@ -57,6 +57,12 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5 (close: v1.1, ci:check, wiki)
 AC #1 57 kinds with schemas and fixtures; AC #2 round-trip 57/57 plus seeded property tests; AC #4 boundary 20/20 fixtures flagged. pnpm ci:check exit 0 (DB suites skipped, REQUIRE_DATABASE unset). Contract v1.1 (operator C-CON). Orchestrator verified the 4 unchanged-prose re-pins: only biome.json changed under their sources (new intent rule block, \u2014 re-encoded).
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Package skeleton, scalars, refs and boundary lint (FR-001–FR-004, FR-008, FR-017): 4/4 · Kinds, KIND_RULES, refusals and fixtures (FR-005–FR-010): 4/4 · Text form (FR-011–FR-015): 3/3 · Property, totality and latency tests (SC-002–SC-004): 2/2 · Freeze and close [orchestrator]: 4/4). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
