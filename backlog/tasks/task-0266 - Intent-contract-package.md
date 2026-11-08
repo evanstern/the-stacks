@@ -1,9 +1,11 @@
 ---
 id: TASK-0266
 title: Intent contract package
-status: To Do
-assignee: []
+status: In Progress
+assignee:
+  - '@claude'
 created_date: '2026-11-07 05:13'
+updated_date: '2026-11-08 04:37'
 labels:
   - 'ws:intent'
   - replan-2026-11
