@@ -706,7 +706,7 @@ const atMostOneDc = (v: { dc?: unknown; difficulty?: unknown }) =>
   !(v.dc !== undefined && v.difficulty !== undefined);
 const AtMostOne = { message: "at most one of dc, difficulty" };
 
-const READYABLE_KINDS = [
+export const READYABLE_KINDS = [
   "attack",
   "cast",
   "dash",
@@ -721,7 +721,7 @@ const READYABLE_KINDS = [
   "move",
 ] as const satisfies readonly IntentKind[];
 
-const PREDECLARABLE_KINDS = [
+export const PREDECLARABLE_KINDS = [
   ...INTENT_KINDS.filter((k) => {
     const g = KIND_RULES[k].group;
     return (
@@ -732,7 +732,7 @@ const PREDECLARABLE_KINDS = [
 
 // ponytail: IntentBody excludes `ruling` (no recursion) and `whisper` (a body has no channel
 // to carry recipients). Contract §6.12 does not say; reported to the orchestrator.
-const BODY_KINDS = INTENT_KINDS.filter(
+export const BODY_KINDS = INTENT_KINDS.filter(
   (k) => k !== "ruling" && k !== "whisper",
 ) as readonly IntentKind[];
 

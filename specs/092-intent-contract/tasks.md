@@ -42,9 +42,9 @@ flags the three new fixtures.
 
 **Independent test**: `round-trip.test.ts` and `parse.test.ts` pass.
 
-- [ ] T009 Create `src/text/tokens.ts` (contract §8.1).
-- [ ] T010 Create `src/text/to-text.ts` and `src/text/parse.ts` (contract §8.2, §8.3).
-- [ ] T011 Add parse refusal inputs to `INVALID`. Create `test/round-trip.test.ts` and `test/parse.test.ts`,
+- [x] T009 Create `src/text/tokens.ts` (contract §8.1).
+- [x] T010 Create `src/text/to-text.ts` and `src/text/parse.ts` (contract §8.2, §8.3).
+- [x] T011 Add parse refusal inputs to `INVALID`. Create `test/round-trip.test.ts` and `test/parse.test.ts`,
       covering every edge case in spec "Edge Cases".
 
 ## Phase 4: Property, totality and latency tests (SC-002–SC-004)

@@ -20,4 +20,11 @@ export {
   TargetRefSchema,
 } from "./refs.js";
 export { IntentRefusalCodeSchema } from "./refusals.js";
+export {
+  type ParseContext,
+  type ParseRefusal,
+  type ParseResult,
+  parse,
+} from "./text/parse.js";
+export { toText } from "./text/to-text.js";
 export { INTENT_SCHEMA_MINOR, INTENT_SCHEMA_VERSION } from "./version.js";

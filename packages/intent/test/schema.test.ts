@@ -58,7 +58,7 @@ describe("valid fixtures", () => {
 });
 
 describe("invalid fixtures", () => {
-  for (const f of INVALID)
+  for (const f of INVALID.filter((x) => x.input !== undefined))
     it(`${f.code}: ${f.name}`, () => {
       const r = IntentSchema.safeParse(f.input);
       expect(r.success).toBe(false);
@@ -73,7 +73,7 @@ describe("invalid fixtures", () => {
       "MODEL_NUMBER",
     ] as const)
       expect(
-        INVALID.some((f) => f.code === c),
+        INVALID.some((f) => f.code === c && f.input !== undefined),
         c,
       ).toBe(true);
   });

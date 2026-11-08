@@ -359,13 +359,19 @@ export const VALID = Object.fromEntries(
   INTENT_KINDS.map((k) => [k, INPUTS[k].map((i) => IntentSchema.parse(i))]),
 ) as Record<IntentKind, Intent[]>;
 
-export type InvalidFixture = {
-  code: IntentRefusalCode;
-  name: string;
-  input: unknown;
-};
+/** A schema refusal carries `input` (an object); a parse refusal carries `text` (a line). */
+export type InvalidFixture =
+  | { code: IntentRefusalCode; name: string; input: unknown; text?: undefined }
+  | {
+      code: IntentRefusalCode;
+      name: string;
+      text: string;
+      /** The parse context's actor; defaults to a player `pc` (a DM seat for `/as`). */
+      actor?: Intent["actor"];
+      input?: undefined;
+    };
 
-/** Schema refusal codes. Parse refusal inputs join this list in Phase 3 (T011). */
+/** Schema refusals (`input`) and parse refusals (`text`). */
 export const INVALID: InvalidFixture[] = [
   { code: "INTENT_SCHEMA", name: "unknown kind", input: env("teleport") },
   {
@@ -501,5 +507,98 @@ export const INVALID: InvalidFixture[] = [
       targets: [a("g")],
       params: { roll: { kind: "initiative" }, dc: 12 },
     }),
+  },
+  // parse refusals (contract §9)
+  {
+    code: "PARSE_UNKNOWN_VERB",
+    name: "unknown verb",
+    text: "/teleport @goblin-1",
+  },
+  {
+    code: "PARSE_UNKNOWN_VERB",
+    name: "unknown verb is never speech",
+    text: "/",
+  },
+  { code: "PARSE_MISSING_ARGUMENT", name: "empty line", text: "   " },
+  {
+    code: "PARSE_MISSING_ARGUMENT",
+    name: "empty /w recipient list",
+    text: "/w",
+  },
+  {
+    code: "PARSE_MISSING_ARGUMENT",
+    name: "grapple without a target",
+    text: "/grapple",
+  },
+  {
+    code: "PARSE_MISSING_ARGUMENT",
+    name: "empty text after --",
+    text: "/dash --",
+  },
+  {
+    code: "PARSE_UNEXPECTED_TOKEN",
+    name: "dash takes no target",
+    text: "/dash @goblin-1",
+  },
+  {
+    code: "PARSE_UNEXPECTED_TOKEN",
+    name: "/as without a DM seat",
+    text: "/as @goblin-2 /dash",
+  },
+  {
+    code: "PARSE_UNEXPECTED_TOKEN",
+    name: "unknown key",
+    text: "/save dex bogus=1",
+  },
+  {
+    code: "PARSE_BAD_TARGET",
+    name: "bare name without a resolver",
+    text: "/grapple goblin",
+  },
+  { code: "PARSE_BAD_TARGET", name: "bad square", text: "/move sq:1" },
+  { code: "PARSE_BAD_VALUE", name: "ability out of enum", text: "/save luck" },
+  {
+    code: "PARSE_BAD_VALUE",
+    name: "dc is not a number",
+    text: "/save dex dc=high",
+  },
+  {
+    code: "PARSE_BAD_VALUE",
+    name: "+adv with +dis",
+    text: "/save dex +adv +dis",
+  },
+  { code: "PARSE_UNCLOSED", name: "unclosed ((", text: "((brb" },
+  {
+    code: "PARSE_UNCLOSED",
+    name: "unclosed quote",
+    text: '/attack @goblin-2 with "light crossbow',
+  },
+  {
+    code: "INTENT_SCHEMA",
+    name: "4001-character body",
+    text: "x".repeat(4001),
+  },
+  {
+    code: "INTENT_SCHEMA",
+    name: "nested ready",
+    text: '/ready "t" /ready "u" /dash',
+  },
+  {
+    code: "INTENT_SCHEMA",
+    name: "nested predeclare",
+    text: "/next /next /dash",
+  },
+  { code: "INTENT_SCHEMA", name: "dc out of range", text: "/save dex dc=41" },
+  {
+    code: "MODEL_NUMBER",
+    name: "ai:dm /dc with a number",
+    text: "/dc req-1 15",
+    actor: aiDm,
+  },
+  {
+    code: "MODEL_NUMBER",
+    name: "ai:dm /damage with a fixed amount",
+    text: "/damage @goblin-1 7 fire",
+    actor: aiDm,
   },
 ];
