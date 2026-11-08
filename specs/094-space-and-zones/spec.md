@@ -375,4 +375,4 @@ them always.
   (`space.defined`, `combatant.placed`, `combatant.moved`) so positions have one store
   (constitution V, VI) and replay through `evolve`. **Recommend:** amend the TASK-0271 card: it
   adds `zone.revealed` and the per-viewer projection; the other three arrive as mechanics rows
-  under `combatant.*` names. Operator ruling wanted before TASK-0271's spec is authored.
+  under `combatant.*` names. Operator ruling wanted before TASK-0271's spec is authored. **Ruled 2026-11-08 (operator): engine events, as recommended.** OQ-1 and OQ-2 adopted; OQ-3 and OQ-4 moved to TASK-0274 as AC.
