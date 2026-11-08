@@ -205,7 +205,7 @@ and `toText` returns the same canonical text.
 
 ## Open questions for the freeze
 
-Each question has a recommendation. The operator rules them at CP-4.
+**Ruled 2026-11-08 at CP-4:** the operator approved Q1–Q9 as recommended and froze the contract as v1 (decision-0030).
 
 1. **Q1 — `/help` collides.** The SRD Help action wants `/help`. Spec 091 FR-014 uses `/help` for the
    composer's inline help block. **Recommend:** `/help` is the Help action. The composer help block

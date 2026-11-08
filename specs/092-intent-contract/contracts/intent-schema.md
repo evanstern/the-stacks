@@ -1,7 +1,7 @@
 # Contract: Intent schema v1
 
-**Status**: Draft for the CP-4 freeze. On freeze, a decision record pins this file at
-`INTENT_SCHEMA_VERSION = 1`, `INTENT_SCHEMA_MINOR = 0`.
+**Status**: FROZEN 2026-11-08 at CP-4 (decision-0030). `INTENT_SCHEMA_VERSION = 1`,
+`INTENT_SCHEMA_MINOR = 0`. Change only per §10 Versioning.
 **Package**: `@the-stacks/intent` (`packages/intent`). Runtime dependency: `zod` only.
 **Sources**: target-architecture §2, §3, §6, §8; constitution 3.0.0 II; P-04, P-08, P-09.
 
