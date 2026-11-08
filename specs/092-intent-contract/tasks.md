@@ -53,8 +53,8 @@ flags the three new fixtures.
 
 **Independent test**: `property.test.ts` passes on three consecutive runs with logged seeds.
 
-- [ ] T012 Create `test/property.test.ts` with the seeded generator, totality and latency tests (plan).
-- [ ] T013 Fix any defect the property test finds in Phase 3 code. Add each failing case as a fixture.
+- [x] T012 Create `test/property.test.ts` with the seeded generator, totality and latency tests (plan).
+- [x] T013 Fix any defect the property test finds in Phase 3 code. Add each failing case as a fixture.
 
 ## Phase 5: Freeze and close [orchestrator]
 

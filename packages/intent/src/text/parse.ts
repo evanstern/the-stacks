@@ -64,6 +64,7 @@ class Args {
   pos: Tok[] = [];
   flags = new Set<string>();
   kvs = new Map<string, string>();
+  kvRaw = new Map<string, string>();
   constructor(toks: Tok[]) {
     for (const t of toks) {
       const kv = !isQuoted(t) && /^([A-Za-z][A-Za-z-]*)=/s.exec(t.raw);
@@ -73,6 +74,7 @@ class Args {
         const key = lc(kv[1] as string);
         if (this.kvs.has(key))
           refuse("PARSE_UNEXPECTED_TOKEN", `duplicate ${key}=`);
+        this.kvRaw.set(key, t.raw.slice(kv[0].length));
         this.kvs.set(key, unq(t.raw.slice(kv[0].length)));
       } else this.pos.push(t);
     }
@@ -587,11 +589,14 @@ const VERBS: Record<string, Handler> = {
   place: withTargets("move_token"),
   reveal: ({ rest, ctx }) => {
     const { a, text } = mech(rest);
+    const toRaw = a.kvRaw.get("to");
     const to = a.kv("to") ?? refuse("PARSE_MISSING_ARGUMENT", "missing to=");
     const block = a.kv("block");
     const field = a.kv("field");
     const t = targetsOf(a.pos.splice(0), ctx);
-    const list = to === "party" ? "party" : toIds(rest, to);
+    const list = /^party$/i.test(toRaw ?? "")
+      ? "party"
+      : (toRaw ?? to).split(",").map((x) => unq(x));
     return finish(a, mk("reveal", t, { to: list, block, field }, text));
   },
   rule: ({ rest, ctx }) => rule(rest, ctx),
@@ -613,13 +618,6 @@ const VERBS: Record<string, Handler> = {
 function finish(a: Args, b: Body): Body {
   a.done();
   return b;
-}
-
-/** `to=` list: bare `party` is the keyword; `"party"` quoted is a pc id. Re-reads the raw key. */
-function toIds(rest: string, val: string): string[] {
-  const m = /(?:^|\s)to=(\S+)/i.exec(rest);
-  const raw = m?.[1] ?? val;
-  return raw.split(",").map((x) => unq(x));
 }
 
 function amountOf(t: Tok): P {
@@ -667,8 +665,9 @@ function nestedHolder(
 
 /** `/rule <req> accept|reject [dc=|diff=] [text=] [-- reason]` and `/rule <req> amend ... <body>`. */
 function rule(rest: string, ctx: Ctx): Body {
-  const sc = scan(rest);
-  const second = sc.toks[1];
+  const probe = new Cur(rest);
+  probe.next();
+  const second = probe.next();
   if (second && !isQuoted(second) && lc(second.val) === "amend") {
     const cur = new Cur(rest);
     const requestId = (cur.next() as Tok).val;
@@ -698,6 +697,7 @@ function rule(rest: string, ctx: Ctx): Body {
       envText,
     );
   }
+  const sc = scan(rest);
   const a = new Args(sc.toks);
   const requestId = a.word("requestId");
   const decision = lc(a.word("decision"));

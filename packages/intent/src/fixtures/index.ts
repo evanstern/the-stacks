@@ -318,6 +318,13 @@ const INPUTS: Record<IntentKind, Base[]> = {
       targets: [z("vault")],
       params: { to: ["thorin", "mira-pc"], block: "b1", field: "dc" },
     }),
+    // property-test defect: a pc whose id is `party` must not read as the keyword
+    env("reveal", {
+      id: "i-reveal-3",
+      actor: dm,
+      targets: [e("lever")],
+      params: { to: ["party"] },
+    }),
   ],
   ruling: [
     env("ruling", {
@@ -339,6 +346,22 @@ const INPUTS: Record<IntentKind, Base[]> = {
           kind: "check",
           targets: [],
           params: { skill: "athletics", difficulty: "hard" },
+        },
+      },
+    }),
+    // property-test defect: an amended body whose text opens with a quote
+    env("ruling", {
+      id: "i-ruling-3",
+      actor: dm,
+      params: {
+        requestId: "req-2",
+        decision: "amend",
+        reason: "x -- y",
+        amend: {
+          kind: "npc_say",
+          targets: [a("wo")],
+          params: {},
+          text: '"quoted" start',
         },
       },
     }),
