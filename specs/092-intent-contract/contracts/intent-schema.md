@@ -251,7 +251,7 @@ All DM control kinds require seat D or A. A player emitting one is refused `DM_S
 | `pause` | `{ state: "on" \| "off" = "on" }` | — | 0 | gate (table state) | n/a |
 
 `RollAsk = { kind: "check", skill?: Skill, ability?: Ability } | { kind: "save", ability: Ability } | { kind: "death-save" } | { kind: "initiative" }`.
-`IntentBody` is a nested `{ kind, targets, params, text? }` with no envelope.
+`IntentBody` is a nested `{ kind, targets, params, text? }` with no envelope. Its `kind` MAY be any kind except `ruling` (no nested rulings) and `whisper` (a body has no channel). *Clarified 2026-11-08 at C-CON (operator); v1.0 unchanged.*
 
 **Model numbers (constitution VI).** An `ai:dm` Intent MUST NOT carry a literal number the
 model chose. The schema refuses, with `MODEL_NUMBER`, an `ai:dm` actor on: `set_dc` or
