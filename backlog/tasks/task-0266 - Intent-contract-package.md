@@ -5,7 +5,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-11-07 05:13'
-updated_date: '2026-11-08 20:08'
+updated_date: '2026-11-08 21:26'
 labels:
   - 'ws:intent'
   - replan-2026-11
@@ -31,10 +31,10 @@ Spec: specs/092-intent-contract
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Every kind in target-architecture §2 has a params schema and a fixture.
-- [ ] #2 `parse(toText(i))` round-trips for every fixture.
+- [x] #1 Every kind in target-architecture §2 has a params schema and a fixture.
+- [x] #2 `parse(toText(i))` round-trips for every fixture.
 - [x] #3 A decision record freezes the schema with `INTENT_SCHEMA_VERSION = 1`.
-- [ ] #4 Boundary lint forbids imports from apps into the package.
+- [x] #4 Boundary lint forbids imports from apps into the package.
 <!-- AC:END -->
 
 ## Implementation Plan
@@ -52,6 +52,10 @@ CP-4 2026-11-08: operator ruled Q1–Q9 as recommended and froze the contract as
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5
 Phases 1-2 done (529c762e, 8af1a7e1): 57 kinds, KIND_RULES, refusals, fixtures; 89 tests green. Open contract question: IntentBody excludes ruling and whisper (ponytail comment in kinds.ts), pending operator confirmation.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5 (phases 3-4)
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5 (close: v1.1, ci:check, wiki)
+AC #1 57 kinds with schemas and fixtures; AC #2 round-trip 57/57 plus seeded property tests; AC #4 boundary 20/20 fixtures flagged. pnpm ci:check exit 0 (DB suites skipped, REQUIRE_DATABASE unset). Contract v1.1 (operator C-CON). Orchestrator verified the 4 unchanged-prose re-pins: only biome.json changed under their sources (new intent rule block, \u2014 re-encoded).
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
