@@ -4,10 +4,11 @@ title: 'Chat sessions: persisted, switchable conversation history'
 status: To Do
 assignee: []
 created_date: '2026-09-30 02:01'
-updated_date: '2026-09-30 02:55'
+updated_date: '2026-11-07 05:16'
 labels:
   - ui
-milestone: m-1
+  - deferred
+milestone: m-18
 dependencies:
   - TASK-0028
 ordinal: 30000
@@ -39,4 +40,6 @@ Operator request 2026-09-29 (TASK-0028 design rounds): the operator keeps multip
 Operator rulings 2026-09-29 (TASK-0028 round 2): AI-generated titles from the first prompt; rename and delete ride this card as ACs rather than a separate task; per-session source selection lives here because POST /library/ask searches the whole library today.
 
 Decision record: docs/design/chat-ui/decision.md (branch task-0028-chat-ui, 179d4a5). Session list column per round-2/a2-daylight.html; per-session source checkboxes live in the TASK-0028 Sources slide-out panel (round-3/p-sources-panel.html). Reuse the slide-out panel component; no modals.
+
+Deferred by replan-2026-11 to Later. Rules-chat history; `ask_dm` covers the table. Trigger: operator asks.
 <!-- SECTION:NOTES:END -->

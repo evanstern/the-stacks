@@ -4,10 +4,12 @@ title: NPCs learn what the party tells and shows them during play
 status: To Do
 assignee: []
 created_date: '2026-10-28 19:40'
+updated_date: '2026-11-07 05:18'
 labels:
   - dm
   - rules
-milestone: m-3
+  - 'ws:memory'
+milestone: m-11
 dependencies:
   - TASK-0172
 references:

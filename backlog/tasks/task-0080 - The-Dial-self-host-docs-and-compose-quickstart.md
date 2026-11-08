@@ -4,11 +4,13 @@ title: 'The Dial: self-host docs and compose quickstart'
 status: To Do
 assignee: []
 created_date: '2026-10-25 20:18'
+updated_date: '2026-11-07 05:16'
 labels:
   - release
   - docs
   - infra
-milestone: m-7
+  - 'ws:platform'
+milestone: m-17
 dependencies:
   - TASK-0076
 priority: medium

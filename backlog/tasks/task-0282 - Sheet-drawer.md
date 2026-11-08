@@ -1,0 +1,41 @@
+---
+id: TASK-0282
+title: Sheet drawer
+status: To Do
+assignee: []
+created_date: '2026-11-07 05:13'
+updated_date: '2026-11-07 05:15'
+labels:
+  - 'ws:sheet'
+  - replan-2026-11
+  - ep-3
+milestone: m-12
+dependencies:
+  - TASK-0266
+  - TASK-0058
+ordinal: 266000
+---
+
+## Description
+
+<!-- SECTION:DESCRIPTION:BEGIN -->
+Build the sheet drawer as an action surface with Actions, Spells, Inventory, Features, Notes tabs. Every rollable number drafts an Intent pill. The composer stays visible. Design round first (CP-8).
+
+Prerequisite checkpoints: CP-8 (plan-of-action §7).
+
+Parent epic: TASK-0260.
+
+Source: docs/design/replan-2026-11/board-rework-map.md (N-17).
+<!-- SECTION:DESCRIPTION:END -->
+
+## Acceptance Criteria
+<!-- AC:BEGIN -->
+- [ ] #1 Clicking a weapon drafts an `attack` pill with weapon filled.
+- [ ] #2 Works at 1280 px and as a bottom sheet at 390 px.
+<!-- AC:END -->
+
+## Definition of Done
+<!-- DOD:BEGIN -->
+- [ ] #1 All tests and checks run green
+- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
+<!-- DOD:END -->

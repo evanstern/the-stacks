@@ -4,12 +4,13 @@ title: 'Solo Campaign: end-to-end demo'
 status: To Do
 assignee: []
 created_date: '2026-10-25 20:19'
+updated_date: '2026-11-07 05:17'
 labels:
   - solo
   - acceptance
-milestone: m-9
+  - 'ws:memory'
+milestone: m-17
 dependencies:
-  - TASK-0087
   - TASK-0088
   - TASK-0089
   - TASK-0090

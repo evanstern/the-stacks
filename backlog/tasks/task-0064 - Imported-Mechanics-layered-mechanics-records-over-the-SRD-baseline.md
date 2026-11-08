@@ -4,11 +4,13 @@ title: 'Imported Mechanics: layered mechanics records over the SRD baseline'
 status: To Do
 assignee: []
 created_date: '2026-10-25 20:17'
+updated_date: '2026-11-07 05:16'
 labels:
   - mechanics
   - engine
   - library
-milestone: m-5
+  - deferred
+milestone: m-18
 dependencies:
   - TASK-0063
 references:
@@ -34,6 +36,12 @@ Why: decision-0012 layers extracted import records over the SRD in the same reco
 - [ ] #5 Compact lookup records exist for imported records, within the same size bound as the SRD ones.
 - [ ] #6 Imported records never leave the operator's volume, and no test fixture contains proprietary text.
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Deferred by replan-2026-11 to Later. P-21. Trigger: SRD monster list blocks a generator or playtest.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->

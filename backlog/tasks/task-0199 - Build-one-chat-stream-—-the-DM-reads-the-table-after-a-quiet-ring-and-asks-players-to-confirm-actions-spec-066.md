@@ -6,12 +6,13 @@ title: >-
 status: To Do
 assignee: []
 created_date: '2026-11-02 06:46'
-updated_date: '2026-11-02 06:49'
+updated_date: '2026-11-07 05:25'
 labels:
   - web
   - dm
   - playtest
-milestone: m-3
+  - 'ws:table-ux'
+milestone: m-10
 dependencies:
   - TASK-0188
 priority: high
@@ -21,11 +22,13 @@ ordinal: 178000
 ## Description
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
-Outcome: the play route has one composer and one Send button. The AI DM reads the table after a visible quiet ring (2 s + 8 s, restarted by each in-character or @dm post) and either reacts (D19) or posts a confirm row that the player accepts with 👍. 👍 declares and commits the DM's wording in one step. @dm gets one read-only out-of-character answer. The sign-off UI leaves the player view.
+REWRITTEN by replan-2026-11: Quiet ring for exploration only (P-04), on the Intent `declared` state; amend spec 066.
 
-Why: alpha run 3 finding 2 (2026-11-01). Group sign-off had no teeth, and the Talk/Action split meant TASK-0180's talk path never ran. Design: TASK-0188, decision-0028 (D20, accepted 2026-11-02, operator ruling "All (a), amend").
+Intent: the play route keeps one composer and one Send button. In exploration and social play, a `declared` Intent waits for the quiet ring; the DM then reacts or posts a confirm row. A 👍 moves the Intent to `confirmed` and sends it to the gate. Combat uses explicit turns: the active player's Enter commits (N-10, TASK-0275). Human-DM tables may turn the ring off. Amend spec 066 after CP-4 freezes the Intent contract (N-01, TASK-0266). UI: no modals. Use Brave for the live check.
 
-The frozen-contract amendments are already approved and appended on the TASK-0188 branch. Run it as a pdlc:sweep lane after TASK-0188 merges. UI: no modals. Use Brave for the live check.
+Source: docs/design/replan-2026-11/board-rework-map.md (rewrite row), plan-of-action.md §5, target-architecture.md, decisions-for-ratification.md.
+
+Prior scope (superseded): every deed waited for a 2 s + 8 s quiet ring and a 👍 confirm row (decision-0028, D20; TASK-0188 design), with `action.declare {text}` as the only write.
 
 Spec: specs/066-one-chat-stream
 <!-- SECTION:DESCRIPTION:END -->
@@ -38,10 +41,19 @@ Spec: specs/066-one-chat-stream
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Spec phase: Session model — events, catalog, projection (card AC #1, #3)
-- [ ] #2 Spec phase: Gate — suggest, accept, withdraw, refusal codes (card AC #2, #3)
-- [ ] #3 Spec phase: DM runtime — ring window, read marker, confirm, `@dm` answer, interrupt (card AC #1, #2)
-- [ ] #4 Spec phase: Web — composer, ring, Thinking, interrupt strip, confirm row (card AC #1, #2)
-- [ ] #5 Spec phase: Contract and wiki amendments (card AC #3)
-- [ ] #6 Spec phase: Verification **[orchestrator]**
+- [ ] #1 Spec 066 is amended after CP-4 so the quiet ring runs on the Intent declared state.
+- [ ] #2 In exploration and social play, a declared Intent waits for the quiet ring, then gets a DM reaction or confirm row.
+- [ ] #3 A 👍 on the confirm row moves the Intent from declared to confirmed and sends it to the gate.
+- [ ] #4 In combat, no quiet ring runs; the active player's Enter commits the Intent, with a test.
+- [ ] #5 A human-DM table setting turns the quiet ring off, with a test.
+- [ ] #6 @dm produces one read-only ask_dm answer that changes no state, with a test.
+- [ ] #7 The play route has one composer and one Send button, verified live in Brave.
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Rewritten by replan-2026-11. Quiet ring for exploration only (P-04), on the Intent `declared` state; amend spec 066.
+
+AC re-authored by replan-2026-11.
+<!-- SECTION:NOTES:END -->

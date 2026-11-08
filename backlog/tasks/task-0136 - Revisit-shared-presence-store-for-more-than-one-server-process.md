@@ -4,9 +4,12 @@ title: 'Revisit: shared presence store for more than one server process'
 status: To Do
 assignee: []
 created_date: '2026-10-27 03:37'
+updated_date: '2026-11-07 05:17'
 labels:
   - revisit
   - realtime
+  - deferred
+milestone: m-18
 dependencies: []
 priority: low
 ordinal: 123000
@@ -22,6 +25,12 @@ Trigger: revisit when a second server process (horizontal scale, a separate work
 <!-- AC:BEGIN -->
 - [ ] #1 A decision record picks the shared presence mechanism before the second process ships
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Deferred by replan-2026-11 to Later. Trigger: multi-process deployment.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->

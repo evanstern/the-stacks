@@ -4,9 +4,12 @@ title: 'Revisit: events.integration T018 (50 concurrent appends, gapless) flaked
 status: To Do
 assignee: []
 created_date: '2026-10-27 13:32'
+updated_date: '2026-11-07 05:17'
 labels:
   - revisit
   - flaky-test
+  - deferred
+milestone: m-18
 dependencies: []
 ordinal: 147000
 ---
@@ -21,6 +24,12 @@ Observed 2026-10-27 on branch task-0141-scene-presence (commit e83ae9d): test/ev
 <!-- AC:BEGIN -->
 - [ ] #1 On a second T018 failure, the failure log is attached and the cause is found or the test is fixed
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Deferred by replan-2026-11 to Later. Trigger stays: second flake.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->

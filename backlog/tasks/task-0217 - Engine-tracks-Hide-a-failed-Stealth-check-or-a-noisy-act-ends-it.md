@@ -4,11 +4,13 @@ title: Engine tracks Hide; a failed Stealth check or a noisy act ends it
 status: To Do
 assignee: []
 created_date: '2026-11-03 02:46'
+updated_date: '2026-11-07 05:18'
 labels:
   - dm
   - engine
   - rules
-milestone: m-3
+  - 'ws:engine'
+milestone: m-12
 dependencies:
   - TASK-0205
 ordinal: 203000

@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Goals → architecture — Replan 2026-11</title>
+<link rel="stylesheet" href="hub.css">
+</head>
+<body>
+<main>
+<h1>Goals → architecture: the backward map</h1>
+<p class="lede">Each end goal names the feature groups that make it true. Each feature group needs capabilities. Each capability rests on a foundation. Each foundation lives in a package. Nothing appears that no goal asks for.</p>
+<p class="src"><a href="../wishlist.md">wishlist.md</a> §1, §2, §4, §5 · <a href="../target-architecture.md">target-architecture.md</a> §1, §8</p>
+
+<h2>The map</h2>
+<figure>
+<div class="diagram" id="tree"></div>
+<figcaption>Hover or tab to any node to light up everything it depends on and everything that depends on it. Try F2: it reaches every goal. Interactive; colours below.</figcaption>
+</figure>
+<div class="legend">
+  <span><span class="badge" style="border-color:var(--warn)">goal</span></span>
+  <span><span class="badge" style="border-color:var(--info)">feature group</span></span>
+  <span><span class="badge" style="border-color:var(--muted-fg)">capability C-nn</span></span>
+  <span><span class="badge b-new">missing foundation</span></span>
+  <span><span class="badge b-keep">kept asset K1–K7</span></span>
+  <span><span class="badge b-v">package / module</span></span>
+</div>
+
+<h2>The four goals and their "done when"</h2>
+<div class="tbl-wrap"><table>
+<thead><tr><th>Goal</th><th>Statement</th><th>Done when</th><th>MVP slice</th></tr></thead>
+<tbody>
+<tr><td><b>G1</b></td><td>A player sits down alone; an AI DM runs a full campaign.</td><td>A solo player finishes a short campaign across 3+ sessions with recaps, no operator help.</td><td>R1, R2</td></tr>
+<tr><td><b>G2</b></td><td>A top-notch human table: human or AI DM, multiplayer.</td><td>Three humans play one adventure twice (AI DM, then human DM in the console); both pass the auditor.</td><td>R3</td></tr>
+<tr><td><b>G3</b></td><td>UX is first-class: talk, combat, text and VTT.</td><td>A 4v4 round in under 60 s, in text and on the board, mechanics shown in under 1 s.</td><td>R1, R3</td></tr>
+<tr><td><b>G4</b></td><td>Campaign creation: generators, notebook, editors; human and AI co-author.</td><td>A human DM and the AI build a 5-location adventure; the AI DM plays it with no seed.</td><td>R2, R4</td></tr>
+</tbody></table></div>
+<p class="src"><a href="../wishlist.md">wishlist.md</a> §1, §6</p>
+
+<h2>The foundations</h2>
+<div class="tbl-wrap"><table>
+<thead><tr><th>Id</th><th>Foundation</th><th>One line</th><th>Today</th><th>Lands in</th></tr></thead>
+<tbody>
+<tr><td><span class="badge b-new">F1</span></td><td>Spatial model</td><td>Zones first; grid squares are a finer resolution of the same model. Positions live in engine state.</td><td>Absent</td><td>R1 (zones), R5 (grid)</td></tr>
+<tr><td><span class="badge b-new">F2</span></td><td>Intent vocabulary + planner</td><td>One typed Intent set for every surface and both DM seats; a deterministic planner turns it into engine commands.</td><td>Only <code>action.declare {text}</code></td><td>R1</td></tr>
+<tr><td><span class="badge b-new">F3</span></td><td>Codex data model</td><td>Generic entity + typed payload, typed links, block visibility, reveal-as-event, versions with provenance.</td><td>Four JSON seeds</td><td>R2</td></tr>
+<tr><td><span class="badge b-new">F3·rec</span></td><td>Campaign, table, session records</td><td>First-class rows; a session covers a seq range of the log.</td><td><code>routes/tables.ts</code> scans events</td><td>R2</td></tr>
+<tr><td><span class="badge b-new">F4</span></td><td>Memory and continuity</td><td>Typed state for what changes play; retrieval for recall; projection snapshots.</td><td>20-line tail, full replays</td><td>R2 (snapshots), R7</td></tr>
+<tr><td><span class="badge b-new">F5</span></td><td>Narration around facts</td><td>Code renders every fact row; the model writes prose slots around a fact sheet.</td><td>Free prose, then audit</td><td>R1</td></tr>
+<tr><td><span class="badge b-keep">K1–K7</span></td><td>Kept assets</td><td>Event log + visibility, pure 5e engine, proposal gate, shared <code>project()</code>, AI gateway, jobs queue, library retrieval.</td><td>Sound</td><td>extended</td></tr>
+</tbody></table></div>
+<div class="callout"><p>The audit found a sixth gap — no campaign, table or session record exists at all. The wish list folds it into F3; this page draws it as its own node so it stays visible.</p></div>
+<p class="src"><a href="../wishlist.md">wishlist.md</a> §0, §2 · <a href="../research/architecture-audit.md">research/architecture-audit.md</a> §2, §3</p>
+
+<h2>Capabilities</h2>
+<details><summary>C-01 … C-16 with the features each serves</summary>
+<div class="tbl-wrap"><table>
+<thead><tr><th>Id</th><th>Capability</th><th>Foundation</th></tr></thead>
+<tbody id="captable"></tbody></table></div>
+</details>
+<p class="src"><a href="../wishlist.md">wishlist.md</a> §5</p>
+</main>
+<footer><a href="index.html">← Back to the briefing</a></footer>
+<script src="hub.js"></script>
+<script>
+const G = c => ({ color: "var(--warn)", fill: "var(--warn-s)" });
+const goals = [
+  { id: "G1", label: "G1 Solo AI campaign", sub: "AI DM start to finish" },
+  { id: "G2", label: "G2 Human table", sub: "human or AI DM, multiplayer" },
+  { id: "G3", label: "G3 First-class UX", sub: "talk, combat, text + VTT" },
+  { id: "G4", label: "G4 Campaign creation", sub: "human + AI co-author" },
+].map(n => ({ ...n, ...G() }));
+const fg = [
+  ["table", "Table — text play", "W-101…113"], ["combat", "Combat", "W-401…412"], ["comms", "Communication", "W-501…506"],
+  ["sheet", "Character sheet", "W-301…307"], ["board", "Board — VTT", "W-201…211"], ["console", "Human-DM console", "W-801…808"],
+  ["aidm", "AI DM", "W-901…909"], ["notebook", "Notebook / codex", "W-601…610"], ["gens", "Generators", "W-701…710"],
+  ["life", "Campaign lifecycle", "W-1001…1006"], ["plat", "Platform, onboarding", "W-1101…1106"],
+].map(([id, label, sub]) => ({ id, label, sub, color: "var(--info)" }));
+const caps = [
+  ["C01", "C-01 Typed Intent", "F2"], ["C02", "C-02 Planner", "F2"], ["C03", "C-03 Zone state", "F1"], ["C04", "C-04 Grid over zones", "F1"],
+  ["C05", "C-05 Per-viewer projection", "F1 F3 K1"], ["C06", "C-06 Fact rows by code", "F5"], ["C07", "C-07 Prose slots", "F5"],
+  ["C08", "C-08 Entity store", "F3"], ["C09", "C-09 Compile scene", "F3"], ["C10", "C-10 Knowledge ledger", "F3 F4"],
+  ["C11", "C-11 Prep-time proposals", "F3 K3"], ["C12", "C-12 Snapshots", "F4"], ["C13", "C-13 Retrieval", "F4 K7"],
+  ["C14", "C-14 Campaign records", "F3·rec"], ["C15", "C-15 Structured output", "K5"], ["C16", "C-16 Encounter machine", "K2"],
+].map(([id, label, sub]) => ({ id, label, sub, color: "var(--muted-fg)" }));
+const NEW = { color: "var(--ok)", fill: "var(--ok-s)" };
+const found = [
+  { id: "F2", label: "F2 Intent + planner", ...NEW }, { id: "F5", label: "F5 Narration / facts", ...NEW },
+  { id: "F1", label: "F1 Spatial model", ...NEW }, { id: "F3", label: "F3 Codex model", ...NEW },
+  { id: "REC", label: "F3·rec Records", sub: "campaign / table / session", ...NEW }, { id: "F4", label: "F4 Memory", ...NEW },
+  { id: "K", label: "K1–K7 kept", sub: "log, engine, gate, gateway…", color: "var(--muted-fg)", fill: "var(--muted)" },
+];
+const PK = { color: "var(--violet)", fill: "var(--violet-s)" };
+const pkgs = [
+  ["p-intent", "@stacks/intent", "new"], ["p-planner", "@stacks/planner", "new"], ["p-dm", "server: dm runtime", "extend / replace"],
+  ["p-ai", "server: ai gateway", "extend"], ["p-space", "@stacks/space", "new"], ["p-engine", "dnd5e-engine", "extend"],
+  ["p-codex", "@stacks/codex-model", "new"], ["p-csvc", "server: codex + records", "new"], ["p-sm", "session-model", "extend"],
+  ["p-mem", "server: memory", "new"],
+].map(([id, label, sub]) => ({ id, label, sub, ...PK }));
+
+const E = [];
+const link = (from, tos) => tos.split(" ").forEach(t => E.push([from, t]));
+// goal -> feature group (wishlist §4 Goals column)
+link("G1", "table combat sheet aidm notebook gens life plat");
+link("G2", "table combat comms sheet board console aidm notebook gens life plat");
+link("G3", "table combat comms sheet board console aidm");
+link("G4", "comms sheet console aidm notebook gens life plat");
+// feature group -> capability (wishlist §5 Features served)
+link("table", "C01 C02 C03 C06 C07 C12"); link("combat", "C01 C02 C03 C06 C12 C16"); link("comms", "C01 C10");
+link("sheet", "C01 C08"); link("board", "C03 C04 C05"); link("console", "C01 C09"); link("aidm", "C01 C02 C09 C10 C13 C15");
+link("notebook", "C05 C08 C13"); link("gens", "C11 C15"); link("life", "C11 C13 C14"); link("plat", "C14");
+// capability -> foundation
+link("C01", "F2"); link("C02", "F2 K"); link("C03", "F1 K"); link("C04", "F1"); link("C05", "F1 F3 K"); link("C06", "F5"); link("C07", "F5 K");
+link("C08", "F3"); link("C09", "F3"); link("C10", "F3 F4"); link("C11", "F3 K"); link("C12", "F4 K"); link("C13", "F4 K"); link("C14", "REC");
+link("C15", "K"); link("C16", "K");
+// foundation -> package (target-architecture §1, §8)
+link("F2", "p-intent p-planner"); link("F5", "p-dm p-ai"); link("F1", "p-space p-engine"); link("F3", "p-codex p-csvc");
+link("REC", "p-csvc p-sm"); link("F4", "p-sm p-mem"); link("K", "p-engine p-sm p-ai");
+
+layered(document.getElementById("tree"),
+  [{ title: "End goals", nodes: goals }, { title: "Feature groups", nodes: fg }, { title: "Capabilities", nodes: caps },
+   { title: "Foundations", nodes: found }, { title: "Packages / modules", nodes: pkgs }],
+  E, { width: 1260, nodeW: 205, nodeH: 42, gap: 9, label: "Backward map from end goals to packages" });
+
+document.getElementById("captable").innerHTML = caps.map(c => `<tr><td>${c.label.split(" ")[0]}</td><td>${c.label.replace(/^C-\d+ /, "")}</td><td>${c.sub}</td></tr>`).join("");
+</script>
+</body>
+</html>

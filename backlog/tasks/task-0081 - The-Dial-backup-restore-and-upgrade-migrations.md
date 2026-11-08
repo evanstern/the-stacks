@@ -4,10 +4,12 @@ title: 'The Dial: backup, restore and upgrade migrations'
 status: To Do
 assignee: []
 created_date: '2026-10-25 20:18'
+updated_date: '2026-11-07 05:17'
 labels:
   - release
   - infra
-milestone: m-7
+  - 'ws:platform'
+milestone: m-13
 dependencies:
   - TASK-0076
 priority: medium
@@ -29,6 +31,12 @@ Why: self-hosters own their data (constitution VIII, IX). The event log and code
 - [ ] #3 Migrations apply forward from every tagged pre-release version, and CI tests the upgrade path.
 - [ ] #4 The docs describe backup, restore and upgrade.
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Re-homed by replan-2026-11. Backup, restore, migrations needed once campaigns hold authored content.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->

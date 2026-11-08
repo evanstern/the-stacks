@@ -4,13 +4,14 @@ title: 'Solo Campaign: campaign start from a premise'
 status: To Do
 assignee: []
 created_date: '2026-10-25 20:19'
+updated_date: '2026-11-07 05:17'
 labels:
   - solo
   - dm
   - agent
-milestone: m-9
+  - 'ws:generators'
+milestone: m-16
 dependencies:
-  - TASK-0087
   - TASK-0086
 priority: medium
 ordinal: 78000

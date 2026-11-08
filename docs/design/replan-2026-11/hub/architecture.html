@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Architecture — Replan 2026-11</title>
+<link rel="stylesheet" href="hub.css">
+</head>
+<body>
+<main>
+<h1>Architecture: same direction, five additions</h1>
+<p class="lede">The event log, the pure engine, the gate, <code>project()</code>, the AI gateway and the jobs queue stay. Four new packages and three new server modules add the missing foundations. The seed files, the seq-0 replay and the audit loop retire.</p>
+<p class="src"><a href="../target-architecture.md">target-architecture.md</a> §1–§9 · <a href="../research/architecture-audit.md">research/architecture-audit.md</a> §1–§6</p>
+
+<h2>Current vs target</h2>
+<div class="legend"><span><span class="badge b-keep">keep</span></span><span><span class="badge b-ext">extend</span></span><span><span class="badge b-new">new</span></span><span><span class="badge b-repl">replace / retire</span></span><span>Hover a node to trace its connections.</span></div>
+<h3>Today (audit at 34a713e6)</h3>
+<figure class="diagram" id="current"></figure>
+<p class="g">The only player write is <code>action.declare {text}</code>. Every mechanic goes through an LLM pipeline (assemble → director → interpret → adjudicate → resolve → narrate → audit). Seeds stand in for a codex. No campaign, table or session rows exist.</p>
+<h3>Target</h3>
+<figure class="diagram" id="target"></figure>
+<p class="g">Every surface and both DM seats send Intents. The planner turns them into engine commands without a model. The DM runtime is reached only on <code>needs_ruling</code>, for prose slots, and for prep drafts.</p>
+
+<h2>Module delta</h2>
+<div class="tbl-wrap"><table>
+<thead><tr><th>Module</th><th>Delta</th><th>What changes</th></tr></thead>
+<tbody>
+<tr><td>Event log, visibility, ws replay</td><td><span class="badge b-keep">keep</span></td><td>Sound; the one design that lets text, VTT, AI DM and adapter share one truth.</td></tr>
+<tr><td><code>dnd5e-engine</code></td><td><span class="badge b-ext">extend</span></td><td>Positions (zone, optional square), <code>move</code>, reach, encounter state machine.</td></tr>
+<tr><td><code>srd</code></td><td><span class="badge b-ext">extend</span></td><td>Species, backgrounds, feats, magic items, glossary.</td></tr>
+<tr><td><code>session-model</code></td><td><span class="badge b-ext">extend</span></td><td>Intent request kind, spatial and reveal events, snapshot format.</td></tr>
+<tr><td><code>@stacks/intent</code></td><td><span class="badge b-new">new</span></td><td>Schema, commit states, slash grammar.</td></tr>
+<tr><td><code>@stacks/planner</code></td><td><span class="badge b-new">new</span></td><td>Pure. Takes the deterministic half of <code>resolve.ts</code> (1 967 LOC) and <code>plan-gate.ts</code> (1 060 LOC).</td></tr>
+<tr><td><code>@stacks/space</code></td><td><span class="badge b-new">new</span></td><td>Zones, grid, LOS, AoE; renderer-free.</td></tr>
+<tr><td><code>@stacks/codex-model</code></td><td><span class="badge b-new">new</span></td><td>Kind schemas, links, visibility, <code>compile()</code>.</td></tr>
+<tr><td>Codex service + campaign/table/session tables</td><td><span class="badge b-new">new</span></td><td>Replaces <code>seeds/*.json</code>, <code>dm/seed/load.ts</code> and event scanning in <code>routes/tables.ts</code>.</td></tr>
+<tr><td>Memory: snapshots + retrieval</td><td><span class="badge b-new">new</span></td><td>Replaces seq-0 replay (<code>gate/gate.ts:159</code>) and <code>TRANSCRIPT_TAIL = 20</code>.</td></tr>
+<tr><td>DM runtime</td><td><span class="badge b-ext">extend</span> <span class="badge b-repl">replace</span></td><td><code>interpret</code> emits Intents; <code>resolve</code> shrinks to rulings; <code>narrate</code> writes slots; <code>audit</code> shrinks to leak + contradiction; <code>claims.ts</code> deleted.</td></tr>
+<tr><td>AI gateway</td><td><span class="badge b-ext">extend</span></td><td>Structured output per purpose.</td></tr>
+<tr><td>Generators, Board</td><td><span class="badge b-new">new</span></td><td>Server module drafting through the gate; client-only PixiJS route.</td></tr>
+</tbody></table></div>
+
+<h2 id="pipeline">The turn pipeline and its latency budget</h2>
+<figure class="diagram">
+<svg viewBox="0 0 1240 470" role="img" aria-label="Turn pipeline sequence with latency budget">
+  <defs><marker id="t" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L10,5L0,10z" fill="var(--primary)"/></marker>
+  <marker id="tv" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L10,5L0,10z" fill="var(--violet)"/></marker></defs>
+  <g font-size="14">
+  <!-- stages -->
+  <g>
+    <rect x="10" y="40" width="150" height="70" rx="10" fill="var(--card)" stroke="var(--border)" stroke-width="2"/><text x="24" y="68" font-weight="800">Intent</text><text x="24" y="90" font-size="12" class="mute">surface or interpret</text>
+    <rect x="190" y="40" width="130" height="70" rx="10" fill="var(--card)" stroke="var(--primary)" stroke-width="2"/><text x="204" y="68" font-weight="800">Gate</text><text x="204" y="90" font-size="12" class="mute">seat, turn, policy</text>
+    <rect x="350" y="40" width="140" height="70" rx="10" fill="var(--ok-s)" stroke="var(--ok)" stroke-width="2"/><text x="364" y="68" font-weight="800">Planner</text><text x="364" y="90" font-size="12" class="mute">pure, no model</text>
+    <rect x="520" y="40" width="130" height="70" rx="10" fill="var(--card)" stroke="var(--primary)" stroke-width="2"/><text x="534" y="68" font-weight="800">Engine</text><text x="534" y="90" font-size="12" class="mute">execute(), pure</text>
+    <rect x="680" y="40" width="140" height="70" rx="10" fill="var(--card)" stroke="var(--primary)" stroke-width="2"/><text x="694" y="68" font-weight="800">Events</text><text x="694" y="90" font-size="12" class="mute">append, per viewer</text>
+    <rect x="850" y="40" width="160" height="70" rx="10" fill="var(--ok-s)" stroke="var(--ok)" stroke-width="2"/><text x="864" y="68" font-weight="800">Fact rows</text><text x="864" y="90" font-size="12" class="mute">code-rendered</text>
+    <rect x="1040" y="40" width="190" height="70" rx="10" fill="var(--violet-s)" stroke="var(--violet)" stroke-width="2"/><text x="1054" y="68" font-weight="800">Narrate (slots)</text><text x="1054" y="90" font-size="12" class="mute">streamed, async</text>
+    <path d="M160,75 H187" stroke="var(--primary)" stroke-width="2.5" marker-end="url(#t)"/><path d="M320,75 H347" stroke="var(--primary)" stroke-width="2.5" marker-end="url(#t)"/><path d="M490,75 H517" stroke="var(--primary)" stroke-width="2.5" marker-end="url(#t)"/><path d="M650,75 H677" stroke="var(--primary)" stroke-width="2.5" marker-end="url(#t)"/><path d="M820,75 H847" stroke="var(--primary)" stroke-width="2.5" marker-end="url(#t)"/><path d="M1010,75 H1037" stroke="var(--violet)" stroke-width="2.5" stroke-dasharray="6 4" marker-end="url(#tv)"/>
+    <!-- ruling loop -->
+    <rect x="300" y="150" width="240" height="64" rx="10" fill="var(--warn-s)" stroke="var(--warn)" stroke-width="2"/><text x="314" y="176" font-weight="800">needs_ruling only</text><text x="314" y="198" font-size="12">AI DM job (&lt; 5 s) or human row</text>
+    <path d="M400,110 C390,130 390,135 395,148" fill="none" stroke="var(--warn)" stroke-width="2" marker-end="url(#t)"/><path d="M460,148 C470,135 470,128 450,112" fill="none" stroke="var(--warn)" stroke-width="2" marker-end="url(#t)"/>
+    <text x="480" y="140" font-size="12" class="mute">ruling Intent → plan again</text>
+    <!-- check -->
+    <rect x="1040" y="150" width="190" height="64" rx="10" fill="var(--card)" stroke="var(--border)" stroke-width="2"/><text x="1054" y="176" font-weight="800">Leak + contradiction</text><text x="1054" y="198" font-size="12">failure appends a correction</text>
+    <path d="M1135,110 V147" stroke="var(--violet)" stroke-width="2" marker-end="url(#tv)"/>
+  </g>
+  <!-- latency bar -->
+  <text x="10" y="270" font-weight="800">Latency budget</text>
+  <rect x="10" y="285" width="840" height="34" rx="6" fill="var(--ok-s)" stroke="var(--ok)" stroke-width="2"/>
+  <text x="24" y="307" font-weight="700">confirmed Intent → fact rows: p95 &lt; 1 s (gate, plan, engine in ms)</text>
+  <rect x="850" y="285" width="380" height="34" rx="6" fill="var(--violet-s)" stroke="var(--violet)" stroke-width="2"/>
+  <text x="864" y="307" font-weight="700">first narration token p50 &lt; 10 s</text>
+  <rect x="10" y="335" width="300" height="34" rx="6" fill="var(--card)" stroke="var(--border)" stroke-width="2" stroke-dasharray="6 4"/>
+  <text x="24" y="357">free text → Intent (interpret): &lt; 3 s</text>
+  <rect x="10" y="385" width="1220" height="34" rx="6" fill="var(--mark)" stroke="var(--primary)" stroke-width="2"/>
+  <text x="24" y="407" font-weight="700">4 PCs + 4 monsters, one full round: &lt; 60 s wall time</text>
+  <text x="10" y="450" class="mute" font-size="13">Today: median turn 28–39 s, max 89–102 s; combat first-attempt audit pass 43% → 71%. Players leave at 30 s.</text>
+  </g>
+</svg>
+</figure>
+<div class="tbl-wrap"><table>
+<thead><tr><th>Stage</th><th>Owner</th><th>Model call?</th><th>Target</th></tr></thead>
+<tbody>
+<tr><td>Intent from text</td><td><code>interpret</code> (AI) or slash grammar</td><td>Only for free text</td><td>&lt; 3 s</td></tr>
+<tr><td>Gate</td><td>code</td><td>No</td><td>ms</td></tr>
+<tr><td>Plan</td><td>planner</td><td>No</td><td>ms</td></tr>
+<tr><td>Ruling</td><td>AI DM or human</td><td>Only on <code>needs_ruling</code></td><td>AI &lt; 5 s</td></tr>
+<tr><td>Engine</td><td>engine</td><td>No</td><td>ms</td></tr>
+<tr><td>Fact rows</td><td>code (F5)</td><td>No</td><td><b>&lt; 1 s end to end</b></td></tr>
+<tr><td>Narration</td><td>narrator</td><td>Yes, streamed</td><td>first token &lt; 10 s</td></tr>
+<tr><td>Check</td><td>leak + contradiction</td><td>Rarely</td><td>async; never blocks play</td></tr>
+</tbody></table></div>
+<p class="src"><a href="../target-architecture.md">target-architecture.md</a> §6 · <a href="../research/decisions-digest.md">decisions-digest</a> §5 · <a href="../decisions-for-ratification.md">P-12, P-14</a></p>
+
+<h2>Projections: many views, one state</h2>
+<figure class="diagram" id="proj"></figure>
+<p class="src"><a href="../target-architecture.md">target-architecture.md</a> §7</p>
+
+<h2 id="seams">Package and repo seams</h2>
+<figure class="diagram" id="seamsg"></figure>
+<div class="tbl-wrap"><table>
+<thead><tr><th>Seam</th><th>Location</th><th>Contract</th><th>Versioning</th></tr></thead>
+<tbody>
+<tr><td><code>srd</code></td><td>monorepo; publish at R8</td><td>Record schemas + provenance + CC-BY attribution</td><td>semver</td></tr>
+<tr><td><code>dnd5e-engine</code></td><td>monorepo; publish at R8</td><td><code>EngineCommand</code>, <code>EngineEvent</code>, <code>Refusal</code>, golden-dice conformance</td><td>semver; schema version in events</td></tr>
+<tr><td><code>space</code></td><td>package</td><td><code>SpaceView</code>, <code>distance()</code>, <code>inReach()</code>, <code>los()</code>, <code>aoeTargets()</code></td><td>internal</td></tr>
+<tr><td><code>intent</code></td><td>package</td><td>Intent schema, per-kind params, <code>toText</code>/<code>parse</code> round-trip</td><td><code>INTENT_SCHEMA_VERSION</code></td></tr>
+<tr><td><code>planner</code></td><td>package</td><td><code>plan(state, space, intent)</code> → commands | refusal | needs_ruling</td><td>internal</td></tr>
+<tr><td><code>session-model</code></td><td>package</td><td>Event catalog + upcasters, <code>project()</code>, snapshots, <code>GateRequest</code></td><td>internal</td></tr>
+<tr><td><code>codex-model</code></td><td>package</td><td>Kind schemas, link types, visibility, <code>compile()</code></td><td><code>CODEX_SCHEMA_VERSION</code> per kind</td></tr>
+<tr><td>Server ↔ clients</td><td>ws protocol</td><td>Intent frames in; per-viewer events out; replay from cursor</td><td>protocol version</td></tr>
+<tr><td>External adapter</td><td>separate repo, Later</td><td>ws protocol + scoped token; reads projections, writes Intents only</td><td>protocol version</td></tr>
+</tbody></table></div>
+<div class="callout"><p><b>Rule at every seam:</b> the downstream side depends only on the published schema, never a sibling's internals. <code>scripts/check-boundaries.mjs</code> gains entries for the new packages. Stack is kept; PixiJS v8 is the only addition (P-19).</p></div>
+</main>
+<footer><a href="index.html">← Back to the briefing</a></footer>
+<script src="hub.js"></script>
+<script>
+const K = { color: "var(--muted-fg)", fill: "var(--muted)" }, X = { color: "var(--info)", fill: "var(--info-s)" },
+      N = { color: "var(--ok)", fill: "var(--ok-s)" }, R = { color: "var(--bad)", fill: "var(--bad-s)" };
+const n = (id, label, sub, s) => ({ id, label, sub, ...s });
+
+layered(document.getElementById("current"), [
+  { title: "Web", nodes: [n("c-comp", "composer.tsx", "talk | free text", R), n("c-tv", "table-view.tsx", "project() per frame", X), n("c-dbg", "debug page", "", K)] },
+  { title: "Transport", nodes: [n("c-ws", "ws gateway", "replay + canSee", K)] },
+  { title: "Server", nodes: [n("c-gate", "gate.ts", "replays from seq 0", R), n("c-jobs", "jobs", "lease + fence", K), n("c-dm", "dm pipeline", "7 LLM-heavy nodes", R), n("c-seed", "seeds/*.json", "codex stand-in", R)] },
+  { title: "Packages", nodes: [n("c-sm", "session-model", "catalog, project()", K), n("c-eng", "dnd5e-engine", "pure, no positions", K), n("c-srd", "srd", "1020 records", K), n("c-ai", "ai gateway", "free-form JSON", X)] },
+  { title: "Postgres", nodes: [n("c-ev", "events", "append-only", K), n("c-jt", "jobs table", "", K), n("c-lib", "library", "vector + fts", K)] },
+], [["c-comp", "c-ws"], ["c-ws", "c-gate"], ["c-gate", "c-sm"], ["c-sm", "c-eng"], ["c-gate", "c-ev"], ["c-ev", "c-ws"], ["c-ws", "c-tv"], ["c-gate", "c-jobs"], ["c-jobs", "c-jt"], ["c-jobs", "c-dm"], ["c-dm", "c-ai"], ["c-dm", "c-seed"], ["c-dm", "c-lib"], ["c-dm", "c-gate"], ["c-eng", "c-srd"], ["c-dbg", "c-ws"]],
+  { width: 1240, nodeW: 200, nodeH: 44, label: "Current system map" });
+
+layered(document.getElementById("target"), [
+  { title: "Surfaces", nodes: [n("t-stream", "Stream + composer", "Intent pills", X), n("t-sheet", "Sheet drawer", "", N), n("t-board", "Board (PixiJS)", "client-only", N), n("t-con", "DM console", "", N), n("t-nb", "Notebook + desk", "", N)] },
+  { title: "Server edge", nodes: [n("t-ws", "ws", "Intent frames", X), n("t-gate", "gate", "snapshot load", X), n("t-csvc", "codex service", "CRUD, versions, reveal", N), n("t-gen", "generators", "drafts via gate", N)] },
+  { title: "Pure core", nodes: [n("t-int", "@stacks/intent", "", N), n("t-plan", "@stacks/planner", "", N), n("t-eng", "dnd5e-engine", "+ positions", X), n("t-space", "@stacks/space", "", N), n("t-cm", "@stacks/codex-model", "compile()", N)] },
+  { title: "Runtime", nodes: [n("t-dm", "dm runtime", "rulings, slots", X), n("t-mem", "memory", "snapshots, retrieval", N), n("t-ai", "ai gateway", "structured output", X), n("t-sm", "session-model", "+ snapshots", X)] },
+  { title: "Postgres", nodes: [n("t-ev", "events + snapshots", "", X), n("t-rec", "campaigns / tables / sessions", "", N), n("t-ent", "entities, versions, links", "", N), n("t-lib", "library index", "reused", K)] },
+], [["t-stream", "t-ws"], ["t-sheet", "t-ws"], ["t-board", "t-ws"], ["t-con", "t-ws"], ["t-nb", "t-csvc"], ["t-nb", "t-gen"], ["t-ws", "t-gate"], ["t-gate", "t-plan"], ["t-plan", "t-eng"], ["t-plan", "t-space"], ["t-plan", "t-int"], ["t-gate", "t-sm"], ["t-gate", "t-ev"], ["t-gate", "t-dm"], ["t-dm", "t-ai"], ["t-dm", "t-mem"], ["t-dm", "t-cm"], ["t-csvc", "t-cm"], ["t-csvc", "t-ent"], ["t-gen", "t-ai"], ["t-gen", "t-cm"], ["t-mem", "t-lib"], ["t-mem", "t-ev"], ["t-sm", "t-rec"], ["t-eng", "t-space"]],
+  { width: 1240, nodeW: 210, nodeH: 44, label: "Target system map" });
+
+layered(document.getElementById("proj"), [
+  { title: "Source", nodes: [n("p-ev", "event log", "+ snapshot", K), n("p-cx", "codex", "entities + reveals", N)] },
+  { title: "Fold", nodes: [n("p-fold", "project(events, viewer)", "same pure fn everywhere", K)] },
+  { title: "Projection → consumer", nodes: [n("p1", "Text stream", "table route", X), n("p2", "Board", "board module", N), n("p3", "Sheet", "sheet drawer", N), n("p4", "DM console", "console route", X), n("p5", "Notebook", "notebook routes", N), n("p6", "AI context", "dm runtime", X), n("p7", "External", "UVTT, Obsidian, adapter", N)] },
+], [["p-ev", "p-fold"], ["p-cx", "p-fold"], ...["p1", "p2", "p3", "p4", "p5", "p6", "p7"].map(p => ["p-fold", p])], { width: 1000, nodeW: 240, label: "Projections" });
+
+layered(document.getElementById("seamsg"), [
+  { title: "Leaf", nodes: [n("s-srd", "srd", "publish R8", X), n("s-space", "space", "", N), n("s-int", "intent", "", N), n("s-cm", "codex-model", "", N)] },
+  { title: "Core", nodes: [n("s-eng", "dnd5e-engine", "publish R8", X), n("s-plan", "planner", "", N)] },
+  { title: "Model", nodes: [n("s-sm", "session-model", "", X)] },
+  { title: "Apps", nodes: [n("s-srv", "apps/server", "", X), n("s-web", "apps/web", "", X)] },
+  { title: "External", nodes: [n("s-ad", "adapter repo", "Later, P-07", K)] },
+], [["s-srd", "s-eng"], ["s-space", "s-eng"], ["s-eng", "s-plan"], ["s-int", "s-plan"], ["s-space", "s-plan"], ["s-eng", "s-sm"], ["s-int", "s-sm"], ["s-space", "s-sm"], ["s-cm", "s-sm"], ["s-sm", "s-srv"], ["s-plan", "s-srv"], ["s-cm", "s-srv"], ["s-sm", "s-web"], ["s-int", "s-web"], ["s-space", "s-web"], ["s-cm", "s-web"], ["s-srv", "s-ad"]],
+  { width: 1100, nodeW: 210, label: "Package dependency seams" });
+</script>
+</body>
+</html>

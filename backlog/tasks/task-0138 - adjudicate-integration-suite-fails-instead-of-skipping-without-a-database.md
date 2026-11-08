@@ -4,12 +4,13 @@ title: adjudicate integration suite fails instead of skipping without a database
 status: To Do
 assignee: []
 created_date: '2026-10-27 03:39'
-updated_date: '2026-11-02 05:22'
+updated_date: '2026-11-07 05:17'
 labels:
   - test
   - bug
   - server
-milestone: m-3
+  - 'ws:tooling'
+milestone: m-10
 dependencies: []
 priority: medium
 ordinal: 125000

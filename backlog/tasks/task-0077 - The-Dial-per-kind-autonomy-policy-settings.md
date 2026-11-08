@@ -4,11 +4,13 @@ title: 'The Dial: per-kind autonomy policy settings'
 status: To Do
 assignee: []
 created_date: '2026-10-25 20:18'
+updated_date: '2026-11-07 05:16'
 labels:
   - dial
   - gate
   - ui
-milestone: m-7
+  - 'ws:dm-console'
+milestone: m-12
 dependencies:
   - TASK-0076
 references:

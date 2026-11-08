@@ -4,10 +4,11 @@ title: 'Library management UI: book list, delete, re-import'
 status: To Do
 assignee: []
 created_date: '2026-09-30 01:19'
-updated_date: '2026-09-30 02:55'
+updated_date: '2026-11-07 05:16'
 labels:
   - ui
-milestone: m-1
+  - deferred
+milestone: m-18
 dependencies:
   - TASK-0028
 ordinal: 29000
@@ -44,4 +45,6 @@ The spec comes later, through a sweep.
 
 <!-- SECTION:NOTES:BEGIN -->
 Operator ruling 2026-09-29 (TASK-0028 round 2): a book without embeddings stays keyword-searchable (hybrid retrieval already runs FTS over every chunk; retrieve.ts). When an embedding model is available, offer 'Embed now' on that book at any time; never force a re-import or re-embed. Needs an operator-only embed route. No modals: confirmations go in slide-out panels or inline.
+
+Deferred by replan-2026-11 to Later. Library management; no goal needs it before 1.0. Trigger: second imported book.
 <!-- SECTION:NOTES:END -->

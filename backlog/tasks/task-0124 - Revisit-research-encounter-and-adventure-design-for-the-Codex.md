@@ -4,11 +4,13 @@ title: 'Revisit: research encounter and adventure design for the Codex'
 status: To Do
 assignee: []
 created_date: '2026-10-27 02:06'
+updated_date: '2026-11-07 05:17'
 labels:
   - research
   - dm
   - revisit
-milestone: m-4
+  - 'ws:generators'
+milestone: m-15
 dependencies: []
 priority: low
 ordinal: 111000

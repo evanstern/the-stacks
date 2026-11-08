@@ -4,12 +4,14 @@ title: 'Research branch 3: exploration, awareness and time'
 status: To Do
 assignee: []
 created_date: '2026-10-27 02:06'
-updated_date: '2026-11-02 05:22'
+updated_date: '2026-11-07 05:17'
 labels:
   - research
   - dm
   - doctrine
   - revisit
+  - 'ws:memory'
+milestone: m-16
 dependencies:
   - TASK-0119
 priority: medium

@@ -4,10 +4,12 @@ title: 'Knowledge ledger: who has met whom and what each character knows'
 status: To Do
 assignee: []
 created_date: '2026-10-28 19:40'
+updated_date: '2026-11-07 05:18'
 labels:
   - dm
   - rules
-milestone: m-3
+  - 'ws:memory'
+milestone: m-11
 dependencies:
   - TASK-0148
 references:

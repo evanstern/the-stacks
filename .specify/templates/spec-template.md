@@ -107,15 +107,24 @@
 -->
 
 - **CR-001** (I. Agent-operable): An agent MUST be able to drive [capability]
-  through [the same interface a human uses].
-- **CR-002** (II. Content contract): Any entity this feature creates MUST carry
-  identity, portrayal, and hooks, complete enough for an agent to generate new
-  in-character content from it alone.
-- **CR-003** (V. Citations): Any claim this feature draws from the library MUST
+  by sending [Intent kinds] through the gate a human uses.
+- **CR-002** (II. One Intent vocabulary): Every write this feature adds MUST be a
+  typed Intent with a text form; [surface] MUST emit Intents, never a private path.
+- **CR-003** (III/V. One state): Every view this feature adds MUST be a projection
+  of the log or codex, and every fact it shows MUST also appear in the stream.
+- **CR-004** (VI. Engine owns the numbers): This feature MUST reach mechanics only
+  through the 5e engine package, and no model may roll or write a number.
+- **CR-005** (VII. Narration around facts): Code MUST render every fact row this
+  feature produces; the model MUST write only prose slots from a fact sheet.
+- **CR-006** (VIII. Campaign is data): Any content this feature creates MUST be a
+  codex entity with a typed payload, playable core, typed links, block visibility,
+  and versioned provenance; AI-authored content MUST land as a draft.
+- **CR-007** (IX. UX quality bar): [Interaction] MUST show its result within
+  [budget: fact rows < 1 s p95 / first token < 10 s p50], use no modal, work at
+  1280 px and 390 px, and be reachable by keyboard and screen reader.
+- **CR-008** (X. Citations): Any claim this feature draws from the library MUST
   carry a verifiable source anchor.
-- **CR-004** (VI. 5e engine boundary): This feature MUST reach game mechanics
-  only through the 5e engine package, and no model may roll or compute a number.
-- **CR-005** (VIII. Operator-owned content): This feature MUST NOT ship
+- **CR-009** (XI. Operator-owned content): This feature MUST NOT ship
   proprietary rulebook content or reproduce book text beyond cited quotes.
 
 ### Key Entities *(include if feature involves data)*

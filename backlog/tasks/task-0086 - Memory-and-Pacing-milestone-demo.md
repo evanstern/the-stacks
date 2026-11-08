@@ -4,10 +4,12 @@ title: 'Memory and Pacing: milestone demo'
 status: To Do
 assignee: []
 created_date: '2026-10-25 20:19'
+updated_date: '2026-11-07 05:17'
 labels:
   - memory
   - acceptance
-milestone: m-8
+  - 'ws:memory'
+milestone: m-16
 dependencies:
   - TASK-0084
   - TASK-0085

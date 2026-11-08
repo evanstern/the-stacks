@@ -4,11 +4,12 @@ title: 'Maps and the Table View: VTT adapter port and the first live adapter'
 status: To Do
 assignee: []
 created_date: '2026-10-25 20:18'
-updated_date: '2026-10-25 20:19'
+updated_date: '2026-11-07 05:16'
 labels:
   - vtt
   - adapter
-milestone: m-6
+  - deferred
+milestone: m-18
 dependencies:
   - TASK-0070
 references:
@@ -33,6 +34,12 @@ Why: decision-0013. Operators keep their favourite VTT, but our server keeps aut
 - [ ] #4 A token moved in the VTT becomes a proposal through the gate; a refused move snaps back.
 - [ ] #5 The adapter never writes state directly, and a test proves hidden regions never reach it.
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Deferred by replan-2026-11 to Later. P-07 trigger; review at CP-15.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->

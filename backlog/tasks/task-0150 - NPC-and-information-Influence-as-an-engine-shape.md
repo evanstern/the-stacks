@@ -4,11 +4,13 @@ title: 'NPC and information: Influence as an engine shape'
 status: To Do
 assignee: []
 created_date: '2026-10-27 03:58'
+updated_date: '2026-11-07 05:17'
 labels:
   - dm
   - npc
   - rules-gate
-milestone: m-3
+  - 'ws:engine'
+milestone: m-12
 dependencies:
   - TASK-0104
   - TASK-0128

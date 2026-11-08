@@ -4,11 +4,13 @@ title: 'Reset-password CLI for any account, shipped in the runtime image'
 status: To Do
 assignee: []
 created_date: '2026-10-26 15:29'
-updated_date: '2026-10-26 20:26'
+updated_date: '2026-11-07 05:17'
 labels:
   - auth
   - ops
   - cli
+  - 'ws:platform'
+milestone: m-12
 dependencies: []
 priority: medium
 ordinal: 93000

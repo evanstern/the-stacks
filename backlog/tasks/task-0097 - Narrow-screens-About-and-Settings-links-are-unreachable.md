@@ -4,8 +4,11 @@ title: 'Narrow screens: About and Settings links are unreachable'
 status: To Do
 assignee: []
 created_date: '2026-10-26 02:58'
+updated_date: '2026-11-07 05:17'
 labels:
   - ui
+  - 'ws:table-ux'
+milestone: m-12
 dependencies: []
 priority: medium
 ordinal: 87000

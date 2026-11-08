@@ -4,11 +4,13 @@ title: 'The Table: multi-human demo with an AI DM and with an assisted human DM'
 status: To Do
 assignee: []
 created_date: '2026-10-25 20:00'
-updated_date: '2026-11-02 05:05'
+updated_date: '2026-11-07 05:16'
 labels:
   - multiplayer
   - acceptance
   - revisit
+  - 'ws:dm-console'
+milestone: m-12
 dependencies:
   - TASK-0049
   - TASK-0050
@@ -23,6 +25,11 @@ ordinal: 43000
 ## Description
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
+REWRITTEN by replan-2026-11: R3 demo: same adventure, AI DM then human DM in the console, sheet and channels in use.
+
+Source: docs/design/replan-2026-11/board-rework-map.md. Acceptance criteria are refined at the milestone's planning (P-16).
+
+--- Previous description (superseded where it conflicts) ---
 Outcome: the M3 milestone demo. Several humans play one scene twice: once with the AI DM (policy auto) and once with a human DM in assisted mode (policy ask).
 
 Why: decision-0014 (multiplayer follows solo) and decision-0015 (one pipeline, two ends of the autonomy dial). The second run proves the assisted table works on the same pipeline.
@@ -48,6 +55,8 @@ Operator ruling 2026-10-28 in chat, answering "How should the demo get its three
 Operator ruling 2026-10-28 in chat, answering "Should I card F-1, seating a human DM from the web, in m-3 before the demo?": "Card it in m-3". Carded TASK-0177; TASK-0053 now also depends on it. Sweep order: TASK-0176, TASK-0177, the TASK-0163 alpha run, then the demo.
 
 Operator ruling 2026-11-02, in the M3 sweep session, verbatim: "I want to skip TASK-0053 for now -- revisit it after M3 is done. The 2player run got most of what we need already". Read as: the demo no longer gates M3. Evidence it leans on: alpha run 3 (docs/playtests/2026-11-01-two-browser-alpha-run-3.md, TASK-0163 Done) played the duo seed to the scene goal on hosted dev with the AI DM. Trigger to revisit: the last other m-3 task reaches Done. Milestone cleared so M3 can close without it; the human-DM run (AC #2) and the trio seed (TASK-0176) stay ready.
+
+Rewritten by replan-2026-11. R3 demo: same adventure, AI DM then human DM in the console, sheet and channels in use.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done

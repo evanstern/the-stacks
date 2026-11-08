@@ -4,11 +4,13 @@ title: 'Imported Mechanics: stat block extraction from D&D Beyond imports'
 status: To Do
 assignee: []
 created_date: '2026-10-25 20:17'
+updated_date: '2026-11-07 05:16'
 labels:
   - mechanics
   - library
   - parser
-milestone: m-5
+  - deferred
+milestone: m-18
 dependencies:
   - TASK-0064
 priority: medium
@@ -31,6 +33,12 @@ Why: decision-0012. With only the SRD, the AI DM cannot run a monster from the o
 - [ ] #4 Fixtures are synthetic or SRD-based, per decision-0003.
 - [ ] #5 Re-importing a book replaces its extracted records without duplicates.
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Deferred by replan-2026-11 to Later. P-21. Same trigger.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->

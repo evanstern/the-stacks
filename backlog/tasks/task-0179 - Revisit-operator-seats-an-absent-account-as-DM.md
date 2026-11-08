@@ -4,9 +4,12 @@ title: 'Revisit: operator seats an absent account as DM'
 status: To Do
 assignee: []
 created_date: '2026-10-29 05:10'
+updated_date: '2026-11-07 05:18'
 labels:
   - play-route
   - revisit
+  - 'ws:dm-console'
+milestone: m-12
 dependencies:
   - TASK-0177
 priority: low

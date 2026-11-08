@@ -4,11 +4,13 @@ title: 'The Dial: mid-session generation of NPCs, encounters and maps'
 status: To Do
 assignee: []
 created_date: '2026-10-25 20:18'
+updated_date: '2026-11-07 05:16'
 labels:
   - dial
   - dm
   - agent
-milestone: m-7
+  - 'ws:generators'
+milestone: m-15
 dependencies:
   - TASK-0078
 priority: medium

@@ -163,24 +163,34 @@ Examples of foundational tasks (adjust based on your project):
 **Purpose**: principle-driven work that is easy to omit and expensive to retrofit.
 Include each task that applies; delete the rest.
 
-- [ ] TXXX Zod schema for each new codex entity, with identity, portrayal, hooks
-      (Principle II)
-- [ ] TXXX Portrayal-completeness lint covers the new entity types (Principle II)
-- [ ] TXXX Cross-plane boundary check updated for any new package or seam
-      (Principle III)
+- [ ] TXXX Intent schema, text round-trip and planner-outcome tests for each new
+      Intent kind (Principle II)
+- [ ] TXXX Agent-facing Intents exercised by a test, not only the human UI
+      (Principle I)
 - [ ] TXXX Event types versioned, with visibility set where information is hidden
+      (Principle III)
+- [ ] TXXX Projection tolerates unknown and future event types (Principle III)
+- [ ] TXXX Cross-plane boundary check updated for any new package or seam
       (Principle IV)
-- [ ] TXXX Projection tolerates unknown and future event types (Principle IV)
-- [ ] TXXX Retrieval eval fixtures added or extended for new library surfaces
-      (Principle V)
+- [ ] TXXX Projection parity test: the view and the stream agree per viewer; no
+      client receives an unrevealed fact (Principle V)
 - [ ] TXXX Scripted-dice tests cover every new or changed engine command
       (Principle VI)
+- [ ] TXXX Fact-sheet test: every digit and state in narration comes from a
+      code-rendered row (Principle VII)
+- [ ] TXXX Codex kind schema, readiness lint and provenance fields for each new
+      entity kind (Principle VIII)
+- [ ] TXXX Generators and assets persist prompt, provider and seed; seed
+      reproduces output (Principle VIII)
+- [ ] TXXX Latency measurement on fixture tables for each new resolved Intent
+      (Principle IX)
+- [ ] TXXX Accessibility check, 1280 px and 390 px renders, and no-modal lint for
+      each new view (Principle IX)
+- [ ] TXXX Retrieval eval fixtures added or extended for new library surfaces
+      (Principle X)
 - [ ] TXXX Shipped SRD data keeps its attribution file and guard test
-      (Principle VIII)
-- [ ] TXXX Generated assets persist prompt, provider, and seed (Principle VII)
-- [ ] TXXX Agent-facing interface exercised by a test, not only the human UI
-      (Principle I)
-- [ ] TXXX `docker compose up` still works from a clean clone (Principle IX)
+      (Principle XI)
+- [ ] TXXX `docker compose up` still works from a clean clone (Principle XII)
 
 ---
 

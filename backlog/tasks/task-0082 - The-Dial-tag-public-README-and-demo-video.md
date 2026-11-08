@@ -4,10 +4,12 @@ title: 'The Dial: tag, public README and demo video'
 status: To Do
 assignee: []
 created_date: '2026-10-25 20:18'
+updated_date: '2026-11-07 05:17'
 labels:
   - release
   - acceptance
-milestone: m-7
+  - 'ws:platform'
+milestone: m-17
 dependencies:
   - TASK-0077
   - TASK-0078

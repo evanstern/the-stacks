@@ -2,7 +2,7 @@
 id: decision-0009
 title: D1 First Scene is the next milestone (AI-run vertical slice before the Codex)
 date: '2026-10-25'
-status: accepted
+status: superseded
 ---
 ## Context
 
@@ -39,3 +39,7 @@ beat, a fight) to its end. It lands ahead of the Codex. This reverses the ratifi
   replaces the seed with codex entities.
 - M2 cards: TASK-0042 to TASK-0048 (milestone m-2).
 - M1's open tasks (TASK-0031, TASK-0038, TASK-0039) stay in M1 and are not re-planned.
+
+## Superseded
+
+Superseded by decision-0029 (replan 2026-11, P-01 and P-20), ratified 2026-11-07.

@@ -4,12 +4,13 @@ title: 'Solo Campaign: assisted fallback when the AI is out of its depth'
 status: To Do
 assignee: []
 created_date: '2026-10-25 20:19'
+updated_date: '2026-11-07 05:17'
 labels:
   - solo
   - dial
-milestone: m-9
-dependencies:
-  - TASK-0087
+  - 'ws:dm-console'
+milestone: m-16
+dependencies: []
 priority: medium
 ordinal: 79000
 ---

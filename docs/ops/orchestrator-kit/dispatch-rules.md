@@ -16,7 +16,7 @@ You were dispatched by the M3 sweep orchestrator. Follow these rules exactly.
 - Never use the backlog MCP tools: they edit the root checkout's card copy. Use the `backlog` CLI inside your worktree, and only when your brief says to. The CLI auto-commits each edit.
 
 ## Spec Kit (spec authors)
-- Use the skills: `speckit-specify` → `spec.md`; `speckit-clarify` only on genuine ambiguity (say so in spec.md when skipped); `speckit-plan` → `plan.md` with a Constitution Check against `.specify/memory/constitution.md` 2.0.0; `speckit-tasks` → `tasks.md` with real phases (one phase is one implementer dispatch; no catch-all phase).
+- Use the skills: `speckit-specify` → `spec.md`; `speckit-clarify` only on genuine ambiguity (say so in spec.md when skipped); `speckit-plan` → `plan.md` with a Constitution Check against `.specify/memory/constitution.md` 3.0.0; `speckit-tasks` → `tasks.md` with real phases (one phase is one implementer dispatch; no catch-all phase).
 - Point `.specify/feature.json` at your spec dir when a skill needs it, then restore it (`git -C <worktree> checkout origin/main -- .specify/feature.json`) before committing. Never commit it: every lane edits it and the PRs conflict.
 - `spec.md` maps every card acceptance criterion. `plan.md` names every file it touches, every migration, and every new runtime dependency with the reason an installed package does not cover it.
 - `tasks.md` ends with a wiki phase: the notes the runbook lists for your task (NEEDS-REVIEW), plus `CAPSULES.md`/`INDEX.md` upkeep, re-pinned honestly.
