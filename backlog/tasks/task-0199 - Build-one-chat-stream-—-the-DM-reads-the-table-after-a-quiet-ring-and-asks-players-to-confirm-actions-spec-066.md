@@ -6,7 +6,7 @@ title: >-
 status: To Do
 assignee: []
 created_date: '2026-11-02 06:46'
-updated_date: '2026-11-08 19:55'
+updated_date: '2026-11-08 21:25'
 labels:
   - web
   - dm
@@ -48,6 +48,7 @@ Spec: specs/066-one-chat-stream
 - [ ] #5 A human-DM table setting turns the quiet ring off, with a test.
 - [ ] #6 @dm produces one read-only ask_dm answer that changes no state, with a test.
 - [ ] #7 The play route has one composer and one Send button, verified live in Brave.
+- [ ] #8 Spec 066 is amended against Intent contract v1.1 and reviewed by the operator at C-AMD before implementation.
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -58,4 +59,6 @@ Rewritten by replan-2026-11. Quiet ring for exploration only (P-04), on the Inte
 AC re-authored by replan-2026-11.
 
 CP-5 ruling 2026-11-08 (docs/design/r1-fast-table-runbook.md) F2: this card owns the combat Enter-commit rule (AC #4); TASK-0275 builds on it.
+
+T015 (spec 092): amend spec 066 against Intent contract v1.1 (decision-0030 + Amendments) before implementation: confirm row = declared->confirmed; action.suggest carries Intent bodies; quiet ring in exploration only, Enter commits in combat (this card owns it, F2); readable-post rule reads Intent kinds. Review at C-AMD.
 <!-- SECTION:NOTES:END -->
