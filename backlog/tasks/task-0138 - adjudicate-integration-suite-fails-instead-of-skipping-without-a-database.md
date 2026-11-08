@@ -1,10 +1,10 @@
 ---
 id: TASK-0138
 title: adjudicate integration suite fails instead of skipping without a database
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-10-27 03:39'
-updated_date: '2026-11-07 05:17'
+updated_date: '2026-11-08 20:11'
 labels:
   - test
   - bug
@@ -33,6 +33,8 @@ Outcome: apps/server/test/dm/adjudicate.integration.test.ts skips without a reac
 
 <!-- SECTION:NOTES:BEGIN -->
 2026-11-02: merged duplicate TASK-0185 into this card (same file, same missing no-DB skip; found again in TASK-0180 Phase 1, 2026-10-30). Its pattern criterion is added here as AC #3; its 'ci:check skips the 5 tests' criterion is covered by AC #1.
+
+Claimed 2026-11-08 by the R1 sweep (docs/design/r1-fast-table-runbook.md). Worktree .worktrees/task-0138, branch task-0138-adjudicate-skip, cut from origin/main a8bda4ab. No spec dir: signed escape line covers this task.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
