@@ -23,25 +23,25 @@ as `text` events.
 `ai.openai-compatible.test.ts` pass with the new cases. Every existing gateway test passes
 unchanged.
 
-- [ ] T001 [US1] In `apps/server/src/ai/types.ts`, add `PurposeConfig.structured`,
+- [x] T001 [US1] In `apps/server/src/ai/types.ts`, add `PurposeConfig.structured`,
       `ChatRequest.output` and the widened `Provider.chat` opts (plan D1).
-- [ ] T002 [US1] In `apps/server/src/ai/config.ts`, add `structured` to `PurposeConfigSchema`.
+- [x] T002 [US1] In `apps/server/src/ai/config.ts`, add `structured` to `PurposeConfigSchema`.
       In `crossValidate`, reject `structured` on an `op: "embed"` purpose with a named error.
-- [ ] T003 [US1] In `apps/server/src/ai/gateway.ts`, pass `structured: purpose.structured` in
+- [x] T003 [US1] In `apps/server/src/ai/gateway.ts`, pass `structured: purpose.structured` in
       the `provider.chat` opts (plan D2).
-- [ ] T004 [US1] In `apps/server/src/ai/adapters/openai-compatible.ts`, build the tool-mode and
+- [x] T004 [US1] In `apps/server/src/ai/adapters/openai-compatible.ts`, build the tool-mode and
       json-schema-mode bodies, and stream index-0 tool-call arguments as `text`. Hold content
       deltas in tool mode and yield them only when no argument arrived (plan D3).
-- [ ] T005 [P] [US1] In `apps/server/test/ai.config.test.ts`, accept both modes, reject an
+- [x] T005 [P] [US1] In `apps/server/test/ai.config.test.ts`, accept both modes, reject an
       unknown mode, and reject `structured` on an embed purpose.
-- [ ] T006 [P] [US1] In `apps/server/test/ai.gateway.test.ts`, assert the mode reaches the
+- [x] T006 [P] [US1] In `apps/server/test/ai.gateway.test.ts`, assert the mode reaches the
       provider opts. Assert an unset mode passes `structured: undefined`.
-- [ ] T007 [US1] In `apps/server/test/ai.openai-compatible.test.ts`, add cases: tool-mode body;
+- [x] T007 [US1] In `apps/server/test/ai.openai-compatible.test.ts`, add cases: tool-mode body;
       json-schema-mode body; no `output` sends today's body byte for byte; tool-call fragments
       yield `text` in order; `finish_reason: "tool_calls"` completes; content-only reply in tool
       mode yields one held `text`; mixed content and arguments yields arguments only;
       `finish_reason: "length"` in tool mode marks `truncated`.
-- [ ] T008 [US1] Amend `specs/011-ai-gateway/contracts/gateway.md` with `structured`, `output`
+- [x] T008 [US1] Amend `specs/011-ai-gateway/contracts/gateway.md` with `structured`, `output`
       and the wire mapping (plan D9).
 
 ## Phase 2: callJson sends its schema; truncation logs apart (US1, US2, US4; FR-006 to FR-009, FR-013, FR-015; plan D4, D5, D7, D9)
