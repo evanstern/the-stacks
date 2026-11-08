@@ -5,7 +5,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-11-07 05:13'
-updated_date: '2026-11-08 05:10'
+updated_date: '2026-11-08 12:13'
 labels:
   - 'ws:intent'
   - replan-2026-11
@@ -33,7 +33,7 @@ Spec: specs/092-intent-contract
 <!-- AC:BEGIN -->
 - [ ] #1 Every kind in target-architecture §2 has a params schema and a fixture.
 - [ ] #2 `parse(toText(i))` round-trips for every fixture.
-- [ ] #3 A decision record freezes the schema with `INTENT_SCHEMA_VERSION = 1`.
+- [x] #3 A decision record freezes the schema with `INTENT_SCHEMA_VERSION = 1`.
 - [ ] #4 Boundary lint forbids imports from apps into the package.
 <!-- AC:END -->
 
@@ -47,6 +47,8 @@ Spec specs/092-intent-contract (spec, plan, tasks, contracts/intent-schema.md). 
 
 <!-- SECTION:NOTES:BEGIN -->
 Spec authored for CP-4. Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=cc/claude-opus-5-5
+
+CP-4 2026-11-08: operator ruled Q1–Q9 as recommended and froze the contract as v1 (decision-0030). AC #3 met by the decision record. Implementation (AC #1, #2, #4) follows per specs/092-intent-contract/tasks.md.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
