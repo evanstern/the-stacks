@@ -164,7 +164,7 @@ async function setup(opts: { citations: unknown[]; readings: number }) {
   return { ctx, scripted, parsed, book, retrieveCalls: () => retrieveCalls };
 }
 
-describe("adjudicate (database)", () => {
+describe.skipIf(!reachable)("adjudicate (database)", () => {
   it("keeps a verified library citation with its anchor and drops an unverifiable quote", async () => {
     const { ctx, parsed, book, scripted } = await setup({
       readings: 1,
