@@ -4,7 +4,7 @@ title: Engine records surprise; facts derive startlement
 status: To Do
 assignee: []
 created_date: '2026-11-03 00:33'
-updated_date: '2026-11-07 05:18'
+updated_date: '2026-11-08 19:55'
 labels:
   - dm
   - engine
@@ -27,8 +27,14 @@ Why: spec 074 (TASK-0113) OQ-2. Startlement is one of the four operator-confirme
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
 - [ ] #1 The engine records which combatants are surprised when an encounter starts, with an engine test
-- [ ] #2 NarrationFacts lists a startlement involuntary effect for a surprised PC, with a test
+- [ ] #2 The fact sheet lists a startlement involuntary effect for a surprised PC, with a test (retargeted from NarrationFacts by F3).
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+CP-5 ruling 2026-11-08 (docs/design/r1-fast-table-runbook.md) F3: AC #2 retargeted from NarrationFacts to the TASK-0245 fact sheet. Lands after TASK-0274 and TASK-0245.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
