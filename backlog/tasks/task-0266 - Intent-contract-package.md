@@ -42,26 +42,6 @@ Spec: specs/092-intent-contract
 - [x] #9 Spec phase: Freeze and close [orchestrator]
 <!-- AC:END -->
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 ## Implementation Plan
 
 <!-- SECTION:PLAN:BEGIN -->
@@ -81,6 +61,8 @@ Phases 1-2 done (529c762e, 8af1a7e1): 57 kinds, KIND_RULES, refusals, fixtures; 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5 (phases 3-4)
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5 (close: v1.1, ci:check, wiki)
 AC #1 57 kinds with schemas and fixtures; AC #2 round-trip 57/57 plus seeded property tests; AC #4 boundary 20/20 fixtures flagged. pnpm ci:check exit 0 (DB suites skipped, REQUIRE_DATABASE unset). Contract v1.1 (operator C-CON). Orchestrator verified the 4 unchanged-prose re-pins: only biome.json changed under their sources (new intent rule block, \u2014 re-encoded).
+
+spec-bridge sync: Package skeleton, scalars, refs and boundary lint (FR-001–FR-004, FR-008, FR-017): 4/4 · Kinds, KIND_RULES, refusals and fixtures (FR-005–FR-010): 4/4 · Text form (FR-011–FR-015): 3/3 · Property, totality and latency tests (SC-002–SC-004): 2/2 · Freeze and close [orchestrator]: 4/4 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
