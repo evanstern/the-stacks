@@ -1,11 +1,9 @@
 <!--
 SYNC IMPACT REPORT
 ==================
-Version change: 2.0.0 -> 3.0.0 (PROPOSED — ratification pending at CP-2)
-Status: proposed. Version 2.0.0 binds until the operator ratifies this text at
-  checkpoint CP-2 (docs/design/replan-2026-11/plan-of-action.md §7). CP-2 runs
-  after CP-1 rules on P-01…P-21 (decisions-for-ratification.md). A P-nn rejected
-  at CP-1 strikes or amends the clause that cites it before CP-2.
+Version change: 2.0.0 -> 3.0.0 (ratified 2026-11-07 at CP-2)
+Status: ratified. The operator approved P-01…P-21 at CP-1 and this text at
+  CP-2 on 2026-11-07 (docs/design/replan-2026-11/plan-of-action.md §7).
 Bump rationale: MAJOR. Principles are renumbered, two are redefined
   incompatibly (old II, old VII folded into new VIII), and five are new. The
   product goals changed (brief.md, 2026-11-06): four co-equal goals, UX
@@ -200,8 +198,7 @@ with an AI DM. A human table plays with a human or an AI DM, in text or on a
 board. A human DM and the AI co-author the campaign. This constitution governs
 every spec, plan, and task in the repo.
 
-**Status: PROPOSED (3.0.0).** Version 2.0.0 binds until the operator ratifies
-this text at CP-2. P-nn ids cite `docs/design/replan-2026-11/decisions-for-ratification.md`.
+**Status: ratified (3.0.0), 2026-11-07 at CP-2.** P-nn ids cite `docs/design/replan-2026-11/decisions-for-ratification.md`.
 
 ## Core Principles
 
@@ -463,4 +460,4 @@ Version 2.0.0 (2026-10-25) amended IV, VI and VIII. Version 3.0.0 is the
 replan-2026-11 rewrite: `docs/design/replan-2026-11/` holds the reasoning; this
 file is the obligation.
 
-**Version**: 3.0.0 (PROPOSED, ratification pending at CP-2) | **Ratified**: 2026-09-22 (v1.0.0); v3.0.0 pending | **Last Amended**: 2026-11-07
+**Version**: 3.0.0 | **Ratified**: 2026-09-22 (v1.0.0); v3.0.0 2026-11-07 | **Last Amended**: 2026-11-07
