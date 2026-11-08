@@ -6,7 +6,7 @@ title: >-
 status: To Do
 assignee: []
 created_date: '2026-11-05 05:48'
-updated_date: '2026-11-07 05:25'
+updated_date: '2026-11-08 21:25'
 labels:
   - web
   - ux
@@ -48,6 +48,7 @@ Spec: specs/091-mud-stream-and-composer
 - [ ] #5 A progress indicator shows between fact rows and narration until the first narration token arrives.
 - [ ] #6 The composer keeps a line's draft until its echo lands, with a test.
 - [ ] #7 NPC dialogue renders as distinct rows, and the transcript column is capped at 1024 px and centred.
+- [ ] #8 Spec 091 is amended against Intent contract v1.1 and reviewed by the operator at C-AMD before implementation.
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -70,4 +71,6 @@ Merged from TASK-0243 (Dice lines hide the dropped die on advantage and disadvan
 Rewritten by replan-2026-11. Stream and composer emit Intent pills; absorbs 0132, 0133, 0162, 0169, 0187, 0190, 0243; amend spec 091.
 
 AC re-authored by replan-2026-11.
+
+T015 (spec 092): amend spec 091: draft(text) -> draft(intent); closed command set -> the full verb table; /help is the Help action and composer help moves to /? (Q1); unknown /words are refused, not sent as speech; FR-024 'no new gate request' is superseded once TASK-0268 lands. Review at C-AMD.
 <!-- SECTION:NOTES:END -->
