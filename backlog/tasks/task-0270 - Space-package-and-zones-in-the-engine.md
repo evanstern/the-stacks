@@ -4,7 +4,7 @@ title: Space package and zones in the engine
 status: In Progress
 assignee: []
 created_date: '2026-11-07 05:13'
-updated_date: '2026-11-08 21:39'
+updated_date: '2026-11-09 05:45'
 labels:
   - 'ws:space'
   - replan-2026-11
@@ -59,6 +59,9 @@ Phases 3 (5bb0de98) and 4 (426a317d) done: OUT_OF_REACH/OUT_OF_RANGE (44 codes),
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5 (phase 5)
 Phase 5 done (eda32108 merge, c7a73935 wiki): new space note; 7 notes prose-updated, 5 re-pinned unchanged (orchestrator spot-checked seeds: only speed:30). pnpm ci:check exit 0 (DB suites skipped). Orchestrator re-ran freshness OK 62, plan empty. PR held: spine #5, behind 0273.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5 (merge main after TASK-0273)
+Merge dea1a12b: the 4 wiki conflicts were pin lines only; prose auto-merged. Re-ground 5e481aa4: dm-runtime, overview, playtest-harness re-pinned after diff review. ci:check rc 0 (server 1385 pass, DB skipped). Orchestrator re-ran freshness OK 62, plan empty, no conflict markers.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
