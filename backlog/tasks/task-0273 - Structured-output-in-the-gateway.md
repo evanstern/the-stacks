@@ -46,26 +46,6 @@ Spec: specs/093-structured-output
 - [x] #14 Spec phase: Wiki re-ground
 <!-- AC:END -->
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -90,6 +70,8 @@ OQ-3 reading 2026-11-08 via the read-only debug route /dm/sessions/bb4952dc-8600
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5 (phases 3, 5)
 Phase 3: interpret cap 8000, boot warning for unstructured dm purposes, env example. Phase 5: 11 notes reviewed (5 prose changes), CAPSULES regenerated. ci:check exit 0 (server 1383 pass, DB suites skipped). Orchestrator re-ran freshness OK 61, plan empty. AC #2 reads at CP-7.
+
+spec-bridge sync: Gateway structured mode (US1; FR-001 to FR-005; plan D1 to D3, D9): 8/8 · callJson sends its schema; truncation logs apart (US1, US2, US4; FR-006 to FR-009, FR-013, FR-015; plan D4, D5, D7, D9): 9/9 · Interpret cap, boot warning and env example (US1, US5; FR-010, FR-011, FR-014; plan D6): 6/6 · Playtest watch counts (US3; FR-012; plan D8): 2/2 · Wiki re-ground: 5/5 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
