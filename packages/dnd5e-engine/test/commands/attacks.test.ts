@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { bandOf, SkillSchema } from "../../src/index.js";
+import { type AttackEntry, bandOf, SkillSchema } from "../../src/index.js";
 import {
   expectOk,
   expectRefusal,
@@ -1099,5 +1099,153 @@ describe("opposition and assists (spec 084)", () => {
     const own = expectOk(run(helper, dattack("h"), [10]).result);
     expect(own[0]).toMatchObject({ mode: "normal" });
     expect(own.some((e) => e.type === "assist.ended")).toBe(false);
+  });
+});
+
+describe("attack.roll bands (spec 094)", () => {
+  const zone = (id: string) => ({
+    id,
+    name: id,
+    kind: "room",
+    tags: [],
+    hidden: false,
+  });
+  const space = {
+    zones: ["a", "b", "c", "d"].map(zone),
+    edges: [
+      { from: "a", to: "b", kind: "open", feet: 20 },
+      { from: "b", to: "c", kind: "open", feet: 20 },
+    ],
+  };
+  const stats = (attacks: AttackEntry[]) => ({
+    abilityMods: {},
+    proficiencyBonus: 2,
+    saves: {},
+    skills: {},
+    attacks,
+    spellcastingAbility: null,
+  });
+  const sword: AttackEntry = {
+    name: "Sword",
+    range: "melee",
+    toHit: 5,
+    damage: [],
+  };
+  const bow: AttackEntry = {
+    name: "Bow",
+    range: "ranged",
+    toHit: 5,
+    damage: [],
+    rangeFt: { normal: 80, long: 320 },
+  };
+  const short: AttackEntry = {
+    ...bow,
+    name: "Short",
+    rangeFt: { normal: 20, long: 60 },
+  };
+  const either: AttackEntry = {
+    ...bow,
+    name: "Either",
+    range: "melee-or-ranged",
+  };
+  const noRange: AttackEntry = {
+    name: "Sling",
+    range: "ranged",
+    toHit: 5,
+    damage: [],
+  };
+  const setup = (attackerZone: string | null, targetZone: string | null) => {
+    const base = stateWith(
+      makeCombatant({
+        id: "atk",
+        stats: stats([sword, bow, short, either, noRange]),
+      }),
+      makeCombatant({ id: "tgt" }),
+    );
+    let state = settle(
+      base,
+      run(base, { type: "space.define", space, reason: "s" }).result,
+    );
+    for (const [id, z] of [
+      ["atk", attackerZone],
+      ["tgt", targetZone],
+    ] as const) {
+      if (z)
+        state = settle(
+          state,
+          run(state, {
+            type: "combatant.place",
+            combatantId: id,
+            zoneId: z,
+            reason: "p",
+          }).result,
+        );
+    }
+    return state;
+  };
+  const swing = (attack: string, over = {}) => ({
+    type: "attack.roll",
+    attackerId: "atk",
+    targetId: "tgt",
+    attack,
+    reason: "swing",
+    ...over,
+  });
+
+  it("resolves a melee entry against an engaged target", () => {
+    const out = run(setup("a", "a"), swing("Sword"), [10]);
+    expectOk(out.result);
+    expect(out.counter.draws()).toBe(1);
+  });
+  it("refuses OUT_OF_REACH for a melee entry at near, before a draw", () => {
+    expectRefusedBeforeDraw(
+      run(setup("a", "b"), swing("Sword"), [10]),
+      "OUT_OF_REACH",
+    );
+  });
+  it("rolls a ranged entry at far with disadvantage (80/320 at 120 ft)", () => {
+    const out = run(setup("a", "c"), swing("Bow"), [15, 3]);
+    const [dice] = expectOk(out.result);
+    expect(dice).toMatchObject({ mode: "disadvantage", natural: 3 });
+  });
+  it("rolls a ranged entry at near without disadvantage", () => {
+    const out = run(setup("a", "b"), swing("Bow"), [15]);
+    expect(expectOk(out.result)[0]).toMatchObject({ mode: "normal" });
+  });
+  it("refuses OUT_OF_RANGE for 20/60 at far, and for an unreachable zone", () => {
+    expectRefusedBeforeDraw(
+      run(setup("a", "c"), swing("Short"), [10]),
+      "OUT_OF_RANGE",
+    );
+    expectRefusedBeforeDraw(
+      run(setup("a", "d"), swing("Bow"), [10]),
+      "OUT_OF_RANGE",
+    );
+  });
+  it("treats melee-or-ranged as melee when engaged and ranged otherwise", () => {
+    expectOk(run(setup("a", "a"), swing("Either"), [10]).result);
+    const far = run(setup("a", "c"), swing("Either"), [15, 3]);
+    expect(expectOk(far.result)[0]).toMatchObject({ mode: "disadvantage" });
+  });
+  it("refuses STAT_UNDEFINED for a placed ranged entry without rangeFt", () => {
+    expectRefusedBeforeDraw(
+      run(setup("a", "b"), swing("Sling"), [10]),
+      "STAT_UNDEFINED",
+    );
+  });
+  it("skips band checks when unplaced, spaceless, or an explicit expression", () => {
+    expectOk(run(setup("a", null), swing("Sword"), [10]).result);
+    expectOk(run(setup(null, "a"), swing("Sword"), [10]).result);
+    const base = stateWith(
+      makeCombatant({ id: "atk", stats: stats([sword]) }),
+      makeCombatant({ id: "tgt" }),
+    );
+    expectOk(run(base, swing("Sword"), [10]).result);
+    const far = run(
+      setup("a", "d"),
+      swing("", { attack: undefined, expression: "1d20+5" }),
+      [10],
+    );
+    expectOk(far.result);
   });
 });

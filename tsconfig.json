@@ -8,6 +8,8 @@
     { "path": "packages/intent/test" },
     { "path": "packages/session-model" },
     { "path": "packages/session-model/test" },
+    { "path": "packages/space" },
+    { "path": "packages/space/test" },
     { "path": "packages/srd" },
     { "path": "packages/srd/test" },
     { "path": "apps/server" },

@@ -15,16 +15,18 @@ sources:
   - packages/dnd5e-engine/src/schema/state.ts
   - packages/dnd5e-engine/src/schema/commands.ts
   - packages/dnd5e-engine/src/schema/refusals.ts
+  - packages/dnd5e-engine/src/commands/move.ts
+  - packages/dnd5e-engine/src/space.ts
   - packages/dnd5e-engine/test/purity.test.ts
   - packages/dnd5e-engine/test/coverage.test.ts
   - specs/026-dnd5e-engine/spec.md
-verified_against: 3a617d4a10e572a061aa5be87b3f9711fd7910ae
+verified_against: eda321081cbdee5318684984fac5f32ae90dae1f
 ---
 
 # 5e engine
 
 `@the-stacks/dnd5e-engine` is a pure TypeScript package holding the 5e rules. It has no
-database, network, model, clock or global randomness; its only runtime dependency is `zod`.
+database, network, model, clock or global randomness; its only runtime dependencies are `zod` and the pure `@the-stacks/space` package ([[space]]).
 The DM runtime ([[dm-runtime]]) is its caller; the server derives its closed rules-term lists from the engine's enums (see Skills).
 
 ## Entry point
@@ -40,7 +42,7 @@ against `EngineCommandSchema` (`INVALID_COMMAND`), then dispatches by `command.t
 handler map (`roll`, `combatant.add/remove`, `damage.apply`, `healing.apply`, `temp-hp.grant`,
 `death-save.roll`, `stabilize`, `attack.roll`, `check.roll`, `condition.apply/remove`,
 `exhaustion.adjust`, `initiative.roll/join/leave`, `turn.advance`, `encounter.end`,
-`rest.short/long`, `spell-slot.expend/restore`, `spell.cast`, `help.grant`). Each handler lives in `src/commands/`.
+`rest.short/long`, `spell-slot.expend/restore`, `spell.cast`, `help.grant`, and the four zone-mode commands below). Each handler lives in `src/commands/`.
 `evolve` applies one event; `replay(events, state)`
 folds many. Replaying all events from `emptyState()` reproduces state.
 
@@ -54,6 +56,10 @@ skipped, the next live entry becomes active (wrapping to index 0 and a new round
 turn-start conditions expire. A leaver before the active entry shifts `turnIndex` down by one.
 The command emits `encounter.changed` and draws no dice. A leaver's id is removed from
 `reactionsSpent` (below) in the same event.
+
+## Space and movement
+
+Spec 094 (TASK-0270). The engine holds an optional `space`, per-combatant `placement` and `speed`, and four commands: `space.define`, `combatant.place`, `move`, `movement.action`. Their rules, refusals and the speed budget are in [[space]].
 
 ## RNG
 
@@ -92,7 +98,7 @@ Spec 070: `check.resolved` records optional `margin` and `band` (`success`, `suc
 A handler runs every refusal check before it calls `rollDie`. A refused command consumes no
 dice, so the RNG stream is unchanged after a refusal. Refusals carry a code from
 `RefusalCodeSchema` (for example `TARGET_AC_UNKNOWN`, `D20_TERM_REQUIRED`, `NOT_DYING`,
-`NO_SLOT_AVAILABLE`, `REACTION_SPENT`, `STAT_UNDEFINED`, `NOT_PROFICIENT`), a message and optional detail (35 codes). The DM plan gate alone raises `REASON_CONTRADICTS_STATE` (spec 058).
+`NO_SLOT_AVAILABLE`, `REACTION_SPENT`, `STAT_UNDEFINED`, `NOT_PROFICIENT`, and the zone codes `SPACE_UNDEFINED`, `ZONE_UNKNOWN`, `ZONE_IN_USE`, `NOT_PLACED`, `MOVE_BLOCKED`, `MOVE_OVER_SPEED`, `MOVE_OFF_TURN`, `OUT_OF_REACH`, `OUT_OF_RANGE`), a message and optional detail (43 codes). The DM plan gate alone raises `REASON_CONTRADICTS_STATE` (spec 058).
 `attack.roll` and ability-check `check.roll` refuse an unable actor with `ACTOR_UNABLE` (`commands/attacks.ts`): lifeState `unconscious` or `stable`, or an `incapacitated`, `paralyzed`, `petrified`, `stunned` or `unconscious` condition. The detail names `combatantId`, `role`, `lifeState` and `conditions`. Saving throws and attack targets are never checked, so a dying actor can still roll its death save. A broken RNG contract (a face outside
 `1..sides`, or a die size outside `1..1000`) throws `RngContractError` rather than refusing. `encounter.end` keeps combatants in state; it is not what refused the actions in the TASK-0110 repro, whose cause was resolve order ([[dm-runtime]]), not an engine rule.
 
@@ -104,7 +110,7 @@ and Node builtins, app packages and the `**/apps/**` path (via `noRestrictedImpo
 `Date`, `performance`, timers, `fetch`, `WebSocket`, `process`, `crypto` and `require` (via
 `noRestrictedGlobals`). `pnpm check:boundaries` proves it fires against fixtures under
 `fixtures/boundary-violations/packages/dnd5e-engine/` (see [[ci-pipeline]]), and
-`test/purity.test.ts` scans every import specifier under `src/`. `test/coverage.test.ts` is
+`test/purity.test.ts` scans every import specifier under `src/` and allows only `zod`, `@the-stacks/space` and relative imports. `test/coverage.test.ts` is
 a meta-test: every command type and refusal code must appear in a test file.
 
 ## R8 ruling
@@ -123,4 +129,4 @@ Rules context lives in [[overview]] (planned direction). The package sits in the
 project references ([[monorepo-and-toolchain]]) and its tests are a separate project
 ([[test-suite]] covers the server's).
 
-Stats-derived rolls, `spell.cast` and assists are in [[dnd5e-engine-derived-rolls]]; reactions are in [[dnd5e-engine-reactions]].
+Stats-derived rolls, `spell.cast` and assists are in [[dnd5e-engine-derived-rolls]]; reactions are in [[dnd5e-engine-reactions]]. The zone package is [[space]].

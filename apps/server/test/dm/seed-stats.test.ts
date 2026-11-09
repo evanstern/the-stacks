@@ -58,6 +58,7 @@ describe("statsFromSrd", () => {
     expect(firstMeleeAttack(s)).toEqual({
       name: "Scimitar",
       range: "melee",
+      reachFt: 5,
       toHit: 4,
       damage: [
         {
@@ -73,6 +74,8 @@ describe("statsFromSrd", () => {
     expect(s.attacks.find((a) => a.name === "Dagger")).toEqual({
       name: "Dagger",
       range: "melee-or-ranged",
+      reachFt: 5,
+      rangeFt: { normal: 20, long: 60 },
       toHit: 4,
       damage: [
         {
@@ -101,5 +104,26 @@ describe("statsFromSrd", () => {
     const rec = structuredClone(monster("goblin-warrior"));
     for (const a of rec.actions) if (a.attack) a.attack.type = "ranged";
     expect(firstMeleeAttack(statsFromSrd(rec))).toBeNull();
+  });
+});
+
+describe("spec 094 speed, reach and range", () => {
+  it("maps the goblin's speed, scimitar reach and shortbow range", async () => {
+    const { combatantFromSrd } = await import(
+      "../../src/dm/seed/combatants.js"
+    );
+    const c = combatantFromSrd(monster("goblin-warrior"), "g", null);
+    expect(c.speed).toBe(30);
+    const s = statsFromSrd(monster("goblin-warrior"));
+    expect(s.attacks.find((a) => a.name === "Scimitar")?.reachFt).toBe(5);
+    expect(s.attacks.find((a) => a.name === "Shortbow")?.rangeFt).toEqual({
+      normal: 80,
+      long: 320,
+    });
+  });
+  it("maps a PC weapon's range from the SRD", () => {
+    const k = pc("kestrel").attacks.find((a) => a.name === "Shortbow");
+    expect(k?.rangeFt).toEqual({ normal: 80, long: 320 });
+    expect(pc("tamsin").attacks[0]?.reachFt).toBeUndefined();
   });
 });

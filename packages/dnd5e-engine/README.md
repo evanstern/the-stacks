@@ -15,6 +15,10 @@ if (result.ok) state = replay(result.events, state);
 - `replay(events, state)` applies events. `evolve` applies one event.
 - `initiative.leave` takes a combatant out of the encounter order and keeps its state. When the active combatant leaves, the next entry becomes active.
 - `attack.roll` with `reaction: true` spends the attacker's Reaction. It refuses `REACTION_SPENT` until the start of that combatant's next turn.
+- `space.define` sets the scene's zone graph (`@the-stacks/space`). It refuses `ZONE_IN_USE` when a placed combatant's zone is dropped.
+- `combatant.place` sets or clears a placement with no edge or speed check.
+- `move` walks a placed combatant along the cheapest open path. It refuses `MOVE_BLOCKED`, `MOVE_OFF_TURN` and `MOVE_OVER_SPEED`. Outside an encounter it has no speed budget.
+- `movement.action` records `dash` or `disengage` on the active combatant's turn.
 - `seededRng(seed)` serves play. `scriptedRng(faces)` serves tests.
 
 ## Invariants
