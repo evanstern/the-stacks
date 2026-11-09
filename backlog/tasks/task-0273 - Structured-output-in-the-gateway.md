@@ -4,7 +4,7 @@ title: Structured output in the gateway
 status: Done
 assignee: []
 created_date: '2026-11-07 05:13'
-updated_date: '2026-11-09 05:40'
+updated_date: '2026-11-09 05:41'
 labels:
   - 'ws:narration'
   - replan-2026-11
@@ -39,12 +39,14 @@ Spec: specs/093-structured-output
 - [x] #7 Phase 3: interpret cap, boot warning, env example (needs OQ-3 C9 read or 8000 fallback)
 - [x] #8 Phase 4: playtest watch counts
 - [x] #9 Phase 5: wiki re-ground
-- [ ] #10 Spec phase: Gateway structured mode (US1; FR-001 to FR-005; plan D1 to D3, D9)
+- [x] #10 Spec phase: Gateway structured mode (US1; FR-001 to FR-005; plan D1 to D3, D9)
 - [ ] #11 Spec phase: callJson sends its schema; truncation logs apart (US1, US2, US4; FR-006 to FR-009, FR-013, FR-015; plan D4, D5, D7, D9)
 - [ ] #12 Spec phase: Interpret cap, boot warning and env example (US1, US5; FR-010, FR-011, FR-014; plan D6)
 - [ ] #13 Spec phase: Playtest watch counts (US3; FR-012; plan D8)
 - [ ] #14 Spec phase: Wiki re-ground
 <!-- AC:END -->
+
+
 
 
 
