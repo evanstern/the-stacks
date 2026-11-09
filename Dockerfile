@@ -13,6 +13,8 @@ COPY packages/shared/package.json packages/shared/package.json
 COPY packages/srd/package.json packages/srd/package.json
 COPY packages/dnd5e-engine/package.json packages/dnd5e-engine/package.json
 COPY packages/session-model/package.json packages/session-model/package.json
+COPY packages/space/package.json packages/space/package.json
+COPY packages/intent/package.json packages/intent/package.json
 RUN pnpm install --frozen-lockfile
 
 FROM deps AS build
@@ -34,6 +36,8 @@ COPY packages/shared/package.json packages/shared/package.json
 COPY packages/srd/package.json packages/srd/package.json
 COPY packages/dnd5e-engine/package.json packages/dnd5e-engine/package.json
 COPY packages/session-model/package.json packages/session-model/package.json
+COPY packages/space/package.json packages/space/package.json
+COPY packages/intent/package.json packages/intent/package.json
 RUN pnpm install --frozen-lockfile --prod --filter "@the-stacks/server..." --filter "@the-stacks/web..."
 # Declared after the install RUN so a changing commit never busts that
 # layer's cache (spec 010 T005). Surfaced at /health via config.ts.
@@ -42,6 +46,7 @@ ENV GIT_COMMIT=$GIT_COMMIT
 COPY --from=build /app/packages/shared/dist packages/shared/dist
 COPY --from=build /app/packages/dnd5e-engine/dist packages/dnd5e-engine/dist
 COPY --from=build /app/packages/session-model/dist packages/session-model/dist
+COPY --from=build /app/packages/space/dist packages/space/dist
 COPY --from=build /app/packages/srd/dist packages/srd/dist
 COPY --from=build /app/packages/srd/data packages/srd/data
 COPY --from=build /app/packages/srd/ATTRIBUTION.md packages/srd/ATTRIBUTION.md
