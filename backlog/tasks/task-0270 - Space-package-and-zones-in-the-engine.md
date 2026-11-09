@@ -4,7 +4,7 @@ title: Space package and zones in the engine
 status: Done
 assignee: []
 created_date: '2026-11-07 05:13'
-updated_date: '2026-11-09 05:50'
+updated_date: '2026-11-09 05:51'
 labels:
   - 'ws:space'
   - replan-2026-11
@@ -40,11 +40,13 @@ Spec: specs/094-space-and-zones
 - [x] #8 Phase 4: provokers() with golden-dice opportunity-attack tests
 - [x] #9 Phase 5: wiki re-ground (merge main first; new space note)
 - [x] #10 Spec phase: The space package (US4, AC #4)
-- [ ] #11 Spec phase: Engine placement, space and move (US1, AC #1)
+- [x] #11 Spec phase: Engine placement, space and move (US1, AC #1)
 - [ ] #12 Spec phase: Reach and range by band, and SRD mapping (US2, AC #2)
 - [ ] #13 Spec phase: Opportunity attacks from leaving an engaged band (US3, AC #3)
 - [ ] #14 Spec phase: Wiki re-ground
 <!-- AC:END -->
+
+
 
 
 
