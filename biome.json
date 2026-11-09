@@ -319,6 +319,66 @@
     },
     {
       "includes": [
+        "packages/space/src/**",
+        "fixtures/boundary-violations/packages/space/**"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "react": "space is renderer-free and model-free: zod only, no renderer, React, engine, app, node module or clock (constitution V, VI).",
+                  "react-dom": "space is renderer-free and model-free: zod only, no renderer, React, engine, app, node module or clock (constitution V, VI).",
+                  "pixi.js": "space is renderer-free and model-free: zod only, no renderer, React, engine, app, node module or clock (constitution V, VI).",
+                  "@pixi/react": "space is renderer-free and model-free: zod only, no renderer, React, engine, app, node module or clock (constitution V, VI).",
+                  "@the-stacks/dnd5e-engine": "space is renderer-free and model-free: zod only, no renderer, React, engine, app, node module or clock (constitution V, VI).",
+                  "@the-stacks/session-model": "space is renderer-free and model-free: zod only, no renderer, React, engine, app, node module or clock (constitution V, VI).",
+                  "@the-stacks/intent": "space is renderer-free and model-free: zod only, no renderer, React, engine, app, node module or clock (constitution V, VI).",
+                  "@the-stacks/server": "space is renderer-free and model-free: zod only, no renderer, React, engine, app, node module or clock (constitution V, VI).",
+                  "@the-stacks/web": "space is renderer-free and model-free: zod only, no renderer, React, engine, app, node module or clock (constitution V, VI).",
+                  "@the-stacks/shared": "space is renderer-free and model-free: zod only, no renderer, React, engine, app, node module or clock (constitution V, VI).",
+                  "pg": "space is renderer-free and model-free: zod only, no renderer, React, engine, app, node module or clock (constitution V, VI).",
+                  "ws": "space is renderer-free and model-free: zod only, no renderer, React, engine, app, node module or clock (constitution V, VI).",
+                  "hono": "space is renderer-free and model-free: zod only, no renderer, React, engine, app, node module or clock (constitution V, VI).",
+                  "openai": "space is renderer-free and model-free: zod only, no renderer, React, engine, app, node module or clock (constitution V, VI).",
+                  "@anthropic-ai/sdk": "space is renderer-free and model-free: zod only, no renderer, React, engine, app, node module or clock (constitution V, VI)."
+                },
+                "patterns": [
+                  {
+                    "group": ["node:*"],
+                    "message": "space is renderer-free and model-free: zod only, no renderer, React, engine, app, node module or clock (constitution V, VI)."
+                  },
+                  {
+                    "group": ["**/apps/**"],
+                    "message": "space is renderer-free and model-free: zod only, no renderer, React, engine, app, node module or clock (constitution V, VI)."
+                  },
+                  {
+                    "group": ["fs", "http", "https", "net"],
+                    "message": "space is renderer-free and model-free: zod only, no renderer, React, engine, app, node module or clock (constitution V, VI)."
+                  }
+                ]
+              }
+            },
+            "noRestrictedGlobals": {
+              "level": "error",
+              "options": {
+                "deniedGlobals": {
+                  "Date": "space is renderer-free and model-free: zod only, no renderer, React, engine, app, node module or clock (constitution V, VI).",
+                  "fetch": "space is renderer-free and model-free: zod only, no renderer, React, engine, app, node module or clock (constitution V, VI).",
+                  "process": "space is renderer-free and model-free: zod only, no renderer, React, engine, app, node module or clock (constitution V, VI).",
+                  "window": "space is renderer-free and model-free: zod only, no renderer, React, engine, app, node module or clock (constitution V, VI).",
+                  "document": "space is renderer-free and model-free: zod only, no renderer, React, engine, app, node module or clock (constitution V, VI)."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": [
         "packages/session-model/src/**",
         "fixtures/boundary-violations/packages/session-model/**"
       ],

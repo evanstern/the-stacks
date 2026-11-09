@@ -61,6 +61,15 @@ export function statsFromSrd(monster: Monster): CombatantStats {
     attacks.push({
       name: action.name,
       range: atk.type,
+      ...(atk.reach !== undefined ? { reachFt: atk.reach } : {}),
+      ...(atk.range
+        ? {
+            rangeFt: {
+              normal: atk.range.normal,
+              long: atk.range.long ?? atk.range.normal,
+            },
+          }
+        : {}),
       toHit: atk.bonus,
       damage: damage.slice(0, 4),
     });
@@ -87,12 +96,15 @@ export function statsFromCharacter(
   const id = character.identity;
   const attacks: AttackEntry[] = id.attacks.map((a) => {
     const weapon = srd.getByName("equipment", a.name);
-    const range =
-      weapon && weapon.category === "weapon" ? weapon.rangeType : "melee";
+    const sw = weapon && weapon.category === "weapon" ? weapon : null;
+    const range = sw ? sw.rangeType : "melee";
     const m = /^1d20([+-]\d+)?$/.exec(a.expression.replace(/\s+/g, ""));
     return {
       name: a.name,
       range,
+      // SRD weapon: Reach property gives 10 ft (spec 094 FR-025); range is its normal/long.
+      ...(sw?.properties.includes("Reach") ? { reachFt: 10 } : {}),
+      ...(sw?.range ? { rangeFt: sw.range } : {}),
       toHit: m?.[1] ? Number(m[1]) : 0,
       damage: a.damage.map((d) => ({
         amount: {
@@ -128,6 +140,7 @@ export function combatantFromSrd(
     initiativeBonus: monster.initiative.mod,
     conModifier: monster.abilities.con.mod,
     ac: monster.ac,
+    speed: monster.speed.walk,
     defenses: {
       resistances: engineTypes(monster.damageResistances),
       vulnerabilities: engineTypes(monster.damageVulnerabilities),

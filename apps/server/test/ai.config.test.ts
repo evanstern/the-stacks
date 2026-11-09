@@ -6,6 +6,37 @@ function env(vars: Record<string, string>): NodeJS.ProcessEnv {
   return { ...vars } as NodeJS.ProcessEnv;
 }
 
+describe("structured purposes (TASK-0273)", () => {
+  const load = (purpose: Record<string, unknown>) =>
+    loadAiConfig(
+      env({
+        AI_PROVIDERS: JSON.stringify({
+          p: { kind: "fake", baseUrl: "http://x" },
+        }),
+        AI_PURPOSES: JSON.stringify({
+          x: { provider: "p", model: "m", ...purpose },
+        }),
+      }),
+    );
+
+  it("accepts both modes", () => {
+    expect(load({ structured: "tool" }).purposes.x?.structured).toBe("tool");
+    expect(load({ structured: "json-schema" }).purposes.x?.structured).toBe(
+      "json-schema",
+    );
+  });
+
+  it("rejects an unknown mode", () => {
+    expect(() => load({ structured: "grammar" })).toThrow(/structured/);
+  });
+
+  it("rejects structured on an embed purpose, naming it", () => {
+    expect(() => load({ op: "embed", structured: "tool" })).toThrow(
+      /"x".*structured.*embed/s,
+    );
+  });
+});
+
 describe("loadAiConfig", () => {
   it("yields no providers or purposes when nothing is set (M0 behavior unchanged)", () => {
     const config = loadAiConfig(env({}));

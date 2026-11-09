@@ -36,7 +36,7 @@ codex, system modules, or agents yet. `main` is now continuously deployed to a r
 
 ## Rules engine
 
-- [[dnd5e-engine]] — the pure 5e engine package: `execute(state, command, rng)` to events or a refusal, seeded/scripted RNG, roll ledger, refuse-before-draw, no-I/O boundary, the R8 arithmetic ruling, stats-derived check and attack rolls (`STAT_UNDEFINED`), `spell.cast` for six SRD spells (`SPELLS` table), opposition DCs and `help.grant` assists (advantage, `NOT_PROFICIENT`).
+- [[dnd5e-engine]] — the pure 5e engine package: `execute(state, command, rng)` to events or a refusal, seeded/scripted RNG, roll ledger, refuse-before-draw, no-I/O boundary, the R8 arithmetic ruling, stats-derived check and attack rolls (`STAT_UNDEFINED`), `spell.cast` for six SRD spells (`SPELLS` table), opposition DCs and `help.grant` assists (advantage, `NOT_PROFICIENT`), and zone-mode placement, `move`, speed budget and band checks ([[space]]).
 - [[dnd5e-engine-derived-rolls]] — stats-derived check and attack rolls, `spell.cast` with the engine `SPELLS` table, opposition DCs and `help.grant` assists with their expiry rules (split from dnd5e-engine, TASK-0231).
 - [[dnd5e-engine-reactions]] — the `reactionsSpent` list, `attack.roll` with `reaction: true`, its refusals, and the commands that clear a Reaction (split from dnd5e-engine, TASK-0231).
 - [[srd-data]] — the SRD 5.2.1 data package: six Zod record kinds (rules text included), Open5e conversion pinned to a commit and checked against the PDF, provenance, id/name loader, 120-token compact form, attribution and `/about`, and the no-engine-import boundary.
@@ -53,6 +53,7 @@ codex, system modules, or agents yet. `main` is now continuously deployed to a r
 - [[debug-view]] — the operator debug API (TASK-0116): four read-only `/dm` routes (events, jobs, seed, calls), cursors, the job-to-seq link, the `dm_model_calls` ledger as cost authority; and the debug page built on it (TASK-0117, `play/:sessionId/debug`).
 - [[session-model]] — the session event catalog (talk/lifecycle/state-change/marker/record), mechanics envelope, `canSee`, the projection fold, fixtures, and the server append seam.
 - [[intent-contract]] — `@the-stacks/intent` (spec 092, TASK-0266): the pure Intent vocabulary (57 kinds, 13 groups), KIND_RULES, refusal codes and the canonical text form, contract v1.1.
+- [[space]] — `@the-stacks/space` (spec 094, TASK-0270): the pure zone graph schemas, cheapest-path and band rules, reach and range rules, and `SpaceView`; the engine owns movement.
 
 ## Server
 

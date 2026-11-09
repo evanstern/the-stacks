@@ -156,6 +156,29 @@ export function engineExamples(): Record<string, EngineEvent> {
       reason: r,
     });
   }
+  // Spec 094: space, placement and movement events.
+  const zoneOf = (id: string) => ({
+    id,
+    name: id,
+    kind: "room",
+    tags: [],
+    hidden: false,
+  });
+  step({
+    type: "space.define",
+    space: {
+      zones: [zoneOf("hall"), zoneOf("ford")],
+      edges: [{ from: "hall", to: "ford", kind: "open", feet: 10 }],
+    },
+    reason: r,
+  });
+  step({
+    type: "combatant.place",
+    combatantId: "ana",
+    zoneId: "hall",
+    reason: r,
+  });
+  step({ type: "move", combatantId: "ana", toZoneId: "ford", reason: r });
   step({
     type: "initiative.roll",
     participants: [{ combatantId: "ana" }, { combatantId: "goblin" }],

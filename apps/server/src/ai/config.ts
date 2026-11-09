@@ -13,6 +13,7 @@ const PurposeConfigSchema = z.object({
   op: z.enum(["chat", "embed"]).default("chat"),
   maxTokens: z.number().int().positive().optional(),
   batchSize: z.number().int().positive().optional(),
+  structured: z.enum(["tool", "json-schema"]).optional(),
 });
 
 const PriceSchema = z.object({
@@ -91,6 +92,11 @@ export function crossValidate(
     if (!supportedOps.has(purpose.op)) {
       throw new Error(
         `AI_PURPOSES."${purposeName}" needs op "${purpose.op}" but provider "${purpose.provider}" (kind "${provider.kind}") does not support it`,
+      );
+    }
+    if (purpose.structured && purpose.op === "embed") {
+      throw new Error(
+        `AI_PURPOSES."${purposeName}" sets "structured" on an embed purpose; structured output applies to chat only`,
       );
     }
     usedProviders.add(purpose.provider);

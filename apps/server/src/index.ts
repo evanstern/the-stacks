@@ -10,7 +10,7 @@ import { createValidateSession } from "./auth/session.js";
 import { loadConfig } from "./config.js";
 import { createDatabaseProbe, createDb } from "./db.js";
 import { createDmEnqueuer } from "./dm/enqueue.js";
-import { missingDmPurposes } from "./dm/purposes.js";
+import { missingDmPurposes, unstructuredDmPurposes } from "./dm/purposes.js";
 import { createAiRuntime } from "./dm/script/env.js";
 import { loadSeed } from "./dm/seed/load.js";
 import { startDmWorker } from "./dm/worker.js";
@@ -81,6 +81,12 @@ const missingPurposes = missingDmPurposes(aiConfig.purposes);
 if (missingPurposes.length > 0) {
   console.warn(
     `DM runtime: unconfigured purposes (turns that call them will fail): ${missingPurposes.join(", ")}`,
+  );
+}
+const unstructuredPurposes = unstructuredDmPurposes(aiConfig.purposes);
+if (unstructuredPurposes.length > 0) {
+  console.warn(
+    `DM runtime: purposes without a structured mode (JSON parse failures cost retries): ${unstructuredPurposes.join(", ")}`,
   );
 }
 const dmWorker = startDmWorker({

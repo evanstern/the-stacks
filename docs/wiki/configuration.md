@@ -92,7 +92,7 @@ Read by [[server-entrypoint-and-app]] (`index.ts` calls `loadConfig()` once, unc
 and by [[compose-stack]]'s env-var contract. `.env.example` is the template `docker-compose.yml`
 and this file both assume, and now also documents the AI gateway's three env vars (see
 [[ai-gateway]]), retrieval's three (see [[retrieval]]), and (TASK-0027) answering's one,
-`ASK_MIN_SIMILARITY` (see [[rules-answerer]]), a commented seven-purpose `AI_PURPOSES` example (`maxTokens` 4000 each, TASK-0192) for the DM runtime (TASK-0046, [[dm-runtime]]), and a commented `DM_FAKE_SCRIPT=greyhollow-live` (TASK-0158). See [[overview]]'s "environment contract"
+`ASK_MIN_SIMILARITY` (see [[rules-answerer]]), a commented seven-purpose `AI_PURPOSES` example (`maxTokens` 4000, `dm.interpret` 8000; `"structured":"tool"`; TASK-0273) for [[dm-runtime]], and a commented `DM_FAKE_SCRIPT`. See [[overview]]'s "environment contract"
 callout for the same trap at a higher level.
 
 ## Operational notes
@@ -105,7 +105,7 @@ by `index.ts` via `ai/config.ts`'s `loadAiConfig`, not by `loadConfig` itself (s
 `RETRIEVAL_EMBED_PURPOSE` are the same shape — optional, Zod-validated by `library/retrieve.ts`'s
 `loadRetrievalConfig`, also called by `index.ts` rather than `loadConfig` (see [[retrieval]]).
 `DM_FAKE_SCRIPT` (TASK-0158, specs/053) is optional: a name matching `^[a-z0-9][a-z0-9-]{0,63}$` for a file in `apps/server/dm-scripts/`. When set, `createAiRuntime` in `dm/script/env.ts` (called by `index.ts`, not `loadConfig`) replaces the whole AI config, so `AI_PROVIDERS`/`AI_PURPOSES`/`AI_PRICES` are not read, and boot throws unless `STACKS_ENV` is a worktree name (unset, empty, `default`, `main` and `dev` refuse). Set it in a worktree `.env`: root's value would win ([[runtime-stacks]], [[ai-gateway]]; walkthrough `specs/053-env-fake-dm-script/quickstart.md`).
-The DM runtime otherwise adds no env var: it reads seven `dm.*` entries of `AI_PURPOSES` (all `op: "chat"`, with `maxTokens` per purpose; names in [[ai-gateway]]); `index.ts` warns by name at boot about any missing, and a missing one fails only the node that calls it (see [[ai-gateway]]). The playtest CLI ([[playtest-harness]]) adds `playtest.audit` and uses `AI_PRICES` to cap a provider run; optional `PLAYTEST_DATABASE_URL` (loopback only) overrides its database (default `TEST_DATABASE_URL || DATABASE_URL` + `_playtest`). `loadConfig` reads none of these. `ASK_MIN_SIMILARITY` (TASK-0027) is the same shape again — optional (default `0.3`),
+The DM runtime otherwise adds no env var: it reads seven `dm.*` entries of `AI_PURPOSES` (all `op: "chat"`, with `maxTokens` per purpose; names in [[ai-gateway]]); `index.ts` warns by name at boot about any missing or unstructured (not `dm.narrate`), and a missing one fails only the node that calls it (see [[ai-gateway]]). The playtest CLI ([[playtest-harness]]) adds `playtest.audit` and uses `AI_PRICES` to cap a provider run; optional `PLAYTEST_DATABASE_URL` (loopback only) overrides its database (default `TEST_DATABASE_URL || DATABASE_URL` + `_playtest`). `loadConfig` reads none of these. `ASK_MIN_SIMILARITY` (TASK-0027) is the same shape again — optional (default `0.3`),
 Zod-validated by `library/answer.ts`'s `loadAnswerConfig`, also called by `index.ts` (see
 [[rules-answerer]]). `TEST_DATABASE_URL` (and its port, `TEST_DB_PORT`, default `5433`) is consulted
 only by host-run code (`migrate.ts`, integration tests), never by `loadConfig`/the running

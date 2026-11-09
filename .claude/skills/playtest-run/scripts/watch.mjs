@@ -55,11 +55,12 @@ for (const j of fresh) {
   const cost = cs.reduce((s, c) => s + (c.costUsd ?? 0), 0);
   const bad = cs.filter((c) => c.outcome !== "ok");
   const invalid = cs.filter((c) => c.outcome === "invalid-json").length;
+  const truncated = cs.filter((c) => c.outcome === "truncated").length;
   const schema = cs.filter((c) => c.outcome === "schema-mismatch").length;
   const retries = cs.filter((c) => c.callAttempt > 1).length;
   const trig = j.input?.trigger ? ` trigger=${j.input.trigger}` : "";
   console.log(`\n[${j.kind}${trig}] job ${j.id.slice(0, 8)} ${j.status.toUpperCase()} ${secs(j.startedAt, j.finishedAt)}s attempts=${j.attempts}`);
-  console.log(`  calls=${cs.length} not-ok=${bad.length} invalid-json=${invalid} schema=${schema} retries=${retries} cost=${usd(cost)}`);
+  console.log(`  calls=${cs.length} not-ok=${bad.length} invalid-json=${invalid} truncated=${truncated} schema=${schema} retries=${retries} cost=${usd(cost)}`);
   if (j.error) console.log(`  error: ${j.error}`);
   const f = j.result?.failure; if (f) console.log(`  failure: ${JSON.stringify(f).slice(0, 300)}`);
   const seqs = [...(j.result?.checkpoint?.narration?.seqs ?? []), ...(j.result?.checkpoint?.submissions ?? []).flatMap((s) => s.seqs ?? [])];
@@ -86,4 +87,11 @@ if (ceiling) {
   if (level > state.warned) { console.log(`WARNING: spend crossed ${level}% of the ceiling. Tell the operator now.`); state.warned = level; }
   else if (level) console.log(`(already warned at ${state.warned}%)`);
 } else console.log(`${line} (no ceiling recorded: a paid model run must not start without one)`);
+// AC #2 (spec 093 OQ-2): an attempt-1 outcome that costs a re-ask counts as a failure.
+const a1 = data.calls.filter((c) => c.callAttempt === 1);
+const a1Bad = a1.filter((c) => ["invalid-json", "schema-mismatch", "truncated"].includes(c.outcome)).length;
+console.log(`attempt-1 failures ${a1Bad}/${a1.length} = ${a1.length ? ((a1Bad / a1.length) * 100).toFixed(1) : "0.0"}%`);
+const outMax = {};
+for (const c of data.calls) if (c.outputTokens != null) outMax[c.purpose] = Math.max(outMax[c.purpose] ?? 0, c.outputTokens);
+console.log(`out-max ${Object.entries(outMax).map(([p, n]) => `${p}=${n}`).join(" ") || "(no token counts)"}`);
 writeFileSync(v.state, JSON.stringify(state));

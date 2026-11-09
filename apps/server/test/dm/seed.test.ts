@@ -304,6 +304,7 @@ describe("combatantFromSrd", () => {
       initiativeBonus: 2,
       conModifier: 0,
       ac: 15,
+      speed: 30,
       defenses: { resistances: [], vulnerabilities: [], immunities: [] },
       stats: statsFromSrd(monster),
     });
@@ -320,6 +321,7 @@ describe("combatantFromSrd", () => {
       initiativeBonus: 2,
       conModifier: 0,
       ac: 12,
+      speed: 30,
       defenses: { resistances: [], vulnerabilities: [], immunities: [] },
       stats: statsFromSrd(monster),
     });

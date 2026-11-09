@@ -22,7 +22,7 @@ sources:
   - apps/server/src/dm/nodes/schemas.ts
   - apps/web/app/routes/about.tsx
   - biome.json
-verified_against: 82d3e37bc6f47f7d5a6368dcccc154a6ec2b2ae7
+verified_against: eda321081cbdee5318684984fac5f32ae90dae1f
 ---
 
 # SRD data package
@@ -117,7 +117,7 @@ and `ATTRIBUTION.md` ([[container-image]]).
 
 A Biome `noRestrictedImports` override on `packages/srd/**` forbids importing
 `@the-stacks/dnd5e-engine`, `@the-stacks/server`, `@the-stacks/web`, and `apps/**` or
-`dnd5e-engine/**` paths. The reverse direction is allowed. `apps/server` is now a consumer too (TASK-0046): its `package.json` depends on `@the-stacks/srd` and its tsconfig references it, and the DM runtime ([[dm-runtime]]) calls `getById`, `getByName`, `compact` and `estimateTokens`. `SrdKind` widened to include `rule`, which flows into the adjudicate citation schema (`apps/server/src/dm/nodes/schemas.ts`) and the pipeline types. `pnpm check:boundaries` proves the rule
+`dnd5e-engine/**` paths. The reverse direction is allowed. The `space` package has its own override and does not import srd; the engine's `speed`, `reachFt` and `rangeFt` stats are plain numbers a caller maps from SRD records ([[dnd5e-engine]], [[space]]). `apps/server` is now a consumer too (TASK-0046): its `package.json` depends on `@the-stacks/srd` and its tsconfig references it, and the DM runtime ([[dm-runtime]]) calls `getById`, `getByName`, `compact` and `estimateTokens`. `SrdKind` widened to include `rule`, which flows into the adjudicate citation schema (`apps/server/src/dm/nodes/schemas.ts`) and the pipeline types. `pnpm check:boundaries` proves the rule
 fires against `fixtures/boundary-violations/packages/srd/src/bad.ts` ([[ci-pipeline]],
 [[monorepo-and-toolchain]]).
 

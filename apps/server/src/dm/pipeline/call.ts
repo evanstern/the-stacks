@@ -1,5 +1,10 @@
-import type { ZodType } from "zod";
-import type { ChatMessage, ErrorKind, UsageRecord } from "../../ai/types.js";
+import { type ZodType, z } from "zod";
+import type {
+  ChatMessage,
+  ErrorKind,
+  OutputSpec,
+  UsageRecord,
+} from "../../ai/types.js";
 import type { DmPurpose } from "../purposes.js";
 import type { ModelCallRecord, NodeDeps, NodeError } from "./context.js";
 
@@ -38,6 +43,8 @@ type Collected =
       ok: true;
       text: string;
       outputTokens: number | null;
+      /** One source for the log line: the provider hit its output cap. */
+      truncated: boolean;
       usage: UsageRecord | null;
     }
   | {
@@ -125,18 +132,22 @@ const LOG_EDGE = 200;
  * left no trace of the reply's shape. Log head and tail (200 chars each) of
  * every rejected reply, one line per attempt. The event name carries the
  * failure kind: `dm.call.invalid-json` (no JSON) or `dm.call.schema-mismatch`.
+ * TASK-0273: a reply cut by its output cap logs `dm.call.truncated` instead,
+ * with the parse kind in `parse` (null for a text call), so a cap is not
+ * counted as a model-shape failure.
  */
-function logInvalid(
+function logFailed(
   deps: CallDeps,
   req: CallRequest,
   attempt: 1 | 2,
-  collected: { text: string; outputTokens: number | null },
+  collected: { text: string; outputTokens: number | null; truncated: boolean },
   issues: string,
-  kind: ParseFailureKind,
+  kind: ParseFailureKind | null,
 ): void {
   const t = collected.text;
   deps.log?.({
-    event: `dm.call.${kind}`,
+    event: collected.truncated ? "dm.call.truncated" : `dm.call.${kind}`,
+    ...(collected.truncated ? { parse: kind } : {}),
     purpose: req.purpose,
     promptVersion: req.promptVersion,
     attempt,
@@ -148,10 +159,30 @@ function logInvalid(
   });
 }
 
+const outputSpecs = new WeakMap<ZodType, Record<string, unknown>>();
+
+/** The schema a JSON call sends: converted once per Zod schema (plan D4). */
+function outputSpecOf(purpose: string, schema: ZodType): OutputSpec {
+  let json = outputSpecs.get(schema);
+  if (!json) {
+    // io "input": normalizers and defaults run before Zod, so the model writes the input shape.
+    // `.refine` rules are dropped by the converter; the post-parse safeParse still enforces them.
+    const { $schema: _s, ...rest } = z.toJSONSchema(schema, {
+      target: "draft-7",
+      io: "input",
+      unrepresentable: "any",
+    });
+    json = rest;
+    outputSpecs.set(schema, json);
+  }
+  return { name: purpose.replaceAll(".", "_"), schema: json };
+}
+
 async function collect(
   deps: CallDeps,
   req: CallRequest,
   messages: ChatMessage[],
+  output?: OutputSpec,
 ): Promise<Collected> {
   let text = "";
   let outputTokens: number | null = null;
@@ -162,6 +193,7 @@ async function collect(
     system: req.system,
     messages,
     signal: req.signal,
+    ...(output ? { output } : {}),
     onUsage: (r) => {
       usage = r;
     },
@@ -186,7 +218,13 @@ async function collect(
       usage,
     };
   }
-  return { ok: true, text, outputTokens, usage };
+  return {
+    ok: true,
+    text,
+    outputTokens,
+    truncated: (usage as UsageRecord | null)?.truncated === true,
+    usage,
+  };
 }
 
 async function failure(
@@ -321,19 +359,20 @@ export async function callJson<T>(
   const calls: ModelCallRecord[] = [];
   const messages: ChatMessage[] = [{ role: "user", content: req.user }];
 
-  const first = await collect(deps, req, messages);
+  const output = outputSpecOf(req.purpose, req.schema);
+  const first = await collect(deps, req, messages, output);
   if (!first.ok) return failure(deps, first, req, 1, calls);
   const parsedFirst = parseAgainst(first.text, req.schema, req.normalize);
   if (parsedFirst.ok) {
     await settle(deps, req, 1, "ok", null, first.usage, calls);
     return { ok: true, value: parsedFirst.value, calls };
   }
-  logInvalid(deps, req, 1, first, parsedFirst.issues, parsedFirst.kind);
+  logFailed(deps, req, 1, first, parsedFirst.issues, parsedFirst.kind);
   await settle(
     deps,
     req,
     1,
-    first.usage?.truncated ? "truncated" : parsedFirst.kind,
+    first.truncated ? "truncated" : parsedFirst.kind,
     null,
     first.usage,
     calls,
@@ -347,19 +386,19 @@ export async function callJson<T>(
       content: `That output was rejected:\n${parsedFirst.issues}\nReply again with only the corrected JSON object.`,
     },
   );
-  const second = await collect(deps, req, messages);
+  const second = await collect(deps, req, messages, output);
   if (!second.ok) return failure(deps, second, req, 2, calls);
   const parsedSecond = parseAgainst(second.text, req.schema, req.normalize);
   if (parsedSecond.ok) {
     await settle(deps, req, 2, "ok", null, second.usage, calls);
     return { ok: true, value: parsedSecond.value, calls };
   }
-  logInvalid(deps, req, 2, second, parsedSecond.issues, parsedSecond.kind);
+  logFailed(deps, req, 2, second, parsedSecond.issues, parsedSecond.kind);
   await settle(
     deps,
     req,
     2,
-    second.usage?.truncated ? "truncated" : parsedSecond.kind,
+    second.truncated ? "truncated" : parsedSecond.kind,
     null,
     second.usage,
     calls,
@@ -391,11 +430,12 @@ export async function callText(
     { role: "user", content: req.user },
   ]);
   if (!result.ok) return failure(deps, result, req, 1, calls);
+  if (result.truncated) logFailed(deps, req, 1, result, "", null);
   await settle(
     deps,
     req,
     1,
-    result.usage?.truncated ? "truncated" : "ok",
+    result.truncated ? "truncated" : "ok",
     null,
     result.usage,
     calls,

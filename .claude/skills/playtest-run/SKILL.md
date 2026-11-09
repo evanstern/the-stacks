@@ -69,9 +69,9 @@ Poll about every 15 seconds, and after each operator message. Never poll the `/d
 - **Local:** `node scripts/watch.mjs --state <state-file> --ceiling <usd> --base http://localhost:<port> --creds <creds> --session <id>`.
 - **Hosted:** run `references/hosted-fetch.js` with `mcp__Claude_Browser__javascript_tool` in the signed-in page. Set `SESSION` first. Write the returned JSON to a file. Run `node scripts/watch.mjs --state <state-file> --ceiling <usd> --input <file>`.
 
-The script reports each new finished turn: job kind and trigger, status, duration, attempts, model calls (not-ok, invalid-json, schema, retries), cost and the narration text. It prints a running total.
+The script reports each new finished turn: job kind and trigger, status, duration, attempts, model calls (not-ok, invalid-json, truncated, schema, retries), cost and the narration text. It prints a running total, then `attempt-1 failures f/n = p%` and `out-max <purpose>=<tokens>`. AC #2 of TASK-0273 reads from the attempt-1 line.
 
-Relay each report to the operator in two lines. Flag failed turns, `invalid-json`, `schema-mismatch`, retries and turns over 45 s. Check each narration against the deterministic rules in `apps/server/src/playtest/auditor/checks.ts` (prose digits, dice lines, life states, hidden information, dice language).
+Relay each report to the operator in two lines. Flag failed turns, `invalid-json`, `truncated`, `schema-mismatch`, retries and turns over 45 s. Check each narration against the deterministic rules in `apps/server/src/playtest/auditor/checks.ts` (prose digits, dice lines, life states, hidden information, dice language).
 
 ### Spend
 
