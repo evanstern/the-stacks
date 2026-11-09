@@ -37,15 +37,15 @@ actor field reaches the plan gate as the character's combatant id.
 **Independent test**: `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/1.0.1/gates/cli.mjs
 freshness . docs/wiki` prints `OK`.
 
-- [ ] T007 NEEDS-REVIEW `docs/wiki/dm-runtime.md`: interpret step 3 names `dm.interpret-v16` and the
+- [x] T007 NEEDS-REVIEW `docs/wiki/dm-runtime.md`: interpret step 3 names `dm.interpret-v16` and the
       seat normalizer (`seatActorIds`, log `dm.interpret.seat-actor`); the Director names
       `dm.director-v11`.
-- [ ] T008 NEEDS-REVIEW `docs/wiki/dm-narration-quality.md` "Transcript and facts": the DM-side form
+- [x] T008 NEEDS-REVIEW `docs/wiki/dm-narration-quality.md` "Transcript and facts": the DM-side form
       labels a human by the seated character id, never a user id (`seatsOf`, `dmActorLabel`).
-- [ ] T009 NEEDS-REVIEW `docs/wiki/dm-plan-gate.md`: the actor check receives readings already
+- [x] T009 NEEDS-REVIEW `docs/wiki/dm-plan-gate.md`: the actor check receives readings already
       seat-normalized; the gate itself is unchanged and still maps no alias.
-- [ ] T010 NEEDS-REVIEW `docs/wiki/dm-failure-and-gates.md` line 48: `dm.interpret-v16`.
-- [ ] T011 Update `docs/wiki/INDEX.md` (state line: TASK-0302, specs/096) and `docs/wiki/CAPSULES.md`
+- [x] T010 NEEDS-REVIEW `docs/wiki/dm-failure-and-gates.md` line 48: `dm.interpret-v16`.
+- [x] T011 Update `docs/wiki/INDEX.md` (state line: TASK-0302, specs/096) and `docs/wiki/CAPSULES.md`
       where they name the interpret or director version.
-- [ ] T012 Re-pin each touched note honestly against the Phase 1 commit. Run the freshness gate and
+- [x] T012 Re-pin each touched note honestly against the Phase 1 commit. Run the freshness gate and
       the spec-bridge check. Commit as `TASK-0302 phase 2: re-ground wiki for seat actor id`.
