@@ -6,7 +6,7 @@ title: >-
 status: Done
 assignee: []
 created_date: '2026-11-09 05:23'
-updated_date: '2026-11-09 13:43'
+updated_date: '2026-11-09 14:50'
 labels:
   - playtest
   - 'ws:intent'
@@ -55,6 +55,8 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-
 Phase 1 (b1f7300b): seated character id rendered in interpret (v16) and director (v11) prompts; seatActorIds normalizer logs dm.interpret.seat-actor. Phase 2 (d2190a08): 4 notes re-grounded. ci:check exit 0. Orchestrator re-ran seat-actor-id.test.ts (3/3) and freshness OK 62. AC #2 bypassed by spec 096: the structural fix is TASK-0269 (seat supplies the actor). Hosted verification after deploy.
 
 spec-bridge sync: Seat labels and seat normalizer (US1, US2; FR-001 to FR-007): 6/6 · Wiki (re-ground): 6/6 — status In Progress → Done
+
+Verified live 2026-11-09 on vm-104 (a0049104), session b9898b7f: 0 of 4 Tamsin combat actions refused STEP_ACTOR_MISMATCH (baseline 4 of 5); attacks resolved at seq 55, 72, 102, 113, 163. No dm.interpret.seat-actor log lines: the prompt-label fix alone held. Log: docs/playtests/2026-11-09-r1-baseline-playtest.md (verification section).
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
