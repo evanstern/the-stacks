@@ -7,13 +7,32 @@ interface Gateway {
 }
 interface Provider {               // one instance per named AI_PROVIDERS entry
   readonly ops: ReadonlySet<"chat" | "embed">;
-  chat?(model: string, req: ChatRequest, opts: { maxTokens?: number }): AsyncIterable<ChatEvent>;
+  chat?(model: string, req: ChatRequest, opts: { maxTokens?: number; structured?: "tool" | "json-schema" }): AsyncIterable<ChatEvent>;
   embed?(model: string, texts: string[], signal?: AbortSignal): Promise<{ vectors: number[][]; inputTokens: number }>;
 }
 type AdapterFactory = (cfg: ProviderConfig, deps: { fetch: typeof fetch; env: NodeJS.ProcessEnv }) => Provider;
 interface UsageSink { record(r: UsageRecord): void }
 // ChatRequest also carries (TASK-0116): onUsage?: (r: UsageRecord) => void
+// ChatRequest also carries (TASK-0273): output?: { name: string; schema: Record<string, unknown> }
+// PurposeConfig also carries (TASK-0273): structured?: "tool" | "json-schema"
 ```
+
+## Structured output (TASK-0273)
+
+`PurposeConfig.structured` is the per-purpose mode. `ChatRequest.output` is a vendor-neutral
+`{name, schema}` (JSON Schema). The gateway passes `purpose.structured` in the provider `opts` and
+`req` unchanged. It never inspects the schema. An adapter reads `req.output` only when `opts.structured` is set.
+A request without both sends today's body byte for byte.
+
+`openai-compatible` wire mapping:
+
+- `tool`: `tools: [{type:"function", function:{name, description:"Return the reply.", parameters: schema}}]` and
+  `tool_choice: {type:"function", function:{name}}`. Index-0 `delta.tool_calls[].function.arguments`
+  fragments stream as `text` events, in order. `delta.content` is held and yielded as one `text` only
+  when no argument arrived. `finish_reason: "tool_calls"` completes the stream; `"length"` marks `truncated`.
+- `json-schema`: `response_format: {type:"json_schema", json_schema:{name, schema, strict:false}}`. Content streams as `text`.
+
+Startup rejects `structured` on an `op: "embed"` purpose, naming the purpose.
 
 Invariants (each has a test):
 

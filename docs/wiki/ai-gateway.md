@@ -16,7 +16,7 @@ sources:
   - .env.example
   - apps/server/src/dm/script/env.ts
   - apps/server/dm-scripts/greyhollow-live.json
-verified_against: da173eaa7e314723c52253f0ebe17488e9480ee1
+verified_against: beae54aa70dd2338a46f33de801f38e0019624b6
 ---
 
 # AI gateway
@@ -30,7 +30,7 @@ provider name is hard-coded in this directory (decision-0007); a test greps the 
 
 **Config is data, not code.** `apps/server/src/ai/config.ts`'s `loadAiConfig(env)` reads three
 JSON env vars — `AI_PROVIDERS` (name → `{kind, baseUrl, apiKeyEnv?}`), `AI_PURPOSES` (name →
-`{provider, model, op, maxTokens?, batchSize?}`), `AI_PRICES` (`"<provider>/<model>"` →
+`{provider, model, op, maxTokens?, batchSize?, structured?}`), `AI_PRICES` (`"<provider>/<model>"` →
 `{inputPerMTok, outputPerMTok}`) — Zod-parses and cross-validates them: every purpose names a
 declared provider whose kind supports the purpose's op, and every provider actually used by a
 purpose has its `apiKeyEnv` set. An unused provider's key is never checked. All three env vars
@@ -40,10 +40,8 @@ are optional; unset, `loadAiConfig` returns an empty config, not an error.
 `"local"`, anything) — never a vendor name in source. Two adapter kinds exist:
 `openai-compatible` (stdlib `fetch` against `{baseUrl}/chat/completions` — streamed SSE — and
 `{baseUrl}/embeddings`; `Authorization: Bearer` only when `apiKeyEnv` is set) and `fake`
-(scripted chat/embed for tests, with deterministic hash-derived embeddings; `scriptChatFor(purpose, ...scripts)` queues scripts per purpose, consumed before the global FIFO, and `pendingFor(purpose)` counts them; `strict = true` turns an unscripted chat call into a `config` error instead of an empty `done`). `gateway.ts`'s
-`createGateway({config, sink, fetch?, env?, adapters?})` looks up a purpose, resolves its
-provider (lazily, cached by name) through a kind → `AdapterFactory` registry, and calls
-`provider.chat`/`provider.embed`. The adapter reads only `delta.content`, so router `<think>` text passes through; the DM strips it ([[dm-runtime]]). The router-side cause is unconfirmed (specs/063-think-block/evidence/probe.md).
+(scripted chat/embed for tests, with hash-derived embeddings; `scriptChatFor(purpose, ...scripts)` queues per purpose; `strict = true` makes an unscripted chat call a `config` error). `createGateway({config, sink, fetch?, env?, adapters?})` looks up a purpose, resolves its
+provider (lazily, cached) through a kind → `AdapterFactory` registry, and calls `provider.chat`/`provider.embed`. The adapter reads only `delta.content`, so router `<think>` text passes through; the DM strips it ([[dm-runtime]]).
 
 `chat()` yields zero or more `{type:"text"}` then exactly one `{type:"done"}` or
 `{type:"error", kind}` (`ErrorKind` is `config | auth | rate_limit | refusal | upstream |
@@ -51,7 +49,7 @@ cancelled`); an unknown purpose fails before any provider call, with no usage re
 splits the input into `purpose.batchSize`-sized chunks (default 128), preserves order, rejects
 the whole call if any returned vector isn't length 1024, and short-circuits `[]` input with no
 provider call and no usage record. Every call — success, error, or cancellation — emits exactly
-one `UsageRecord` to the injected `UsageSink` (`logSink` logs a JSON line; `memorySink()` collects them); a record never carries prompt or completion text, and an unpriced provider/model gets `costUsd: null`, never `0`. `UsageRecord.truncated` (TASK-0192): `finish_reason: "length"` or `outputTokens >= maxTokens`. `ChatRequest.onUsage` (TASK-0116) receives that record after `sink.record`; a throw is swallowed ([[dm-turn-jobs]]).
+one `UsageRecord` to the injected `UsageSink` (`logSink` logs JSON; `memorySink()` collects); a record never carries prompt or completion text; an unpriced model gets `costUsd: null`, never `0`. `UsageRecord.truncated` (TASK-0192): `finish_reason: "length"` or `outputTokens >= maxTokens`. `ChatRequest.onUsage` (TASK-0116) receives that record after `sink.record`; a throw is swallowed ([[dm-turn-jobs]]).
 
 `sse.ts`'s `parseSse` turns a fetch body into an async iterable of `data:` payloads (stops at
 `[DONE]`; the OpenAI-compatible adapter also treats a non-null `finish_reason` as completion, since
@@ -73,32 +71,33 @@ call per purpose, and the returned `aiConfig` names it for the seven `dm.*` purp
 `embedding` purpose, with `prices: {}`. That config replaces the whole AI config: `AI_*` are not
 read, and the `adapters` map registers `fake` to that one provider instance. `gateRng` is the
 script's dice, then `seededRng(0)` (`facesThenSeed`); a face outside `1..sides` throws. A spent
-queue fails the call loudly (`unscripted call for <purpose>`) and `dm_model_calls` rows read
-provider `scripted`, cost null. Boot throws `DmScriptEnvError` when `STACKS_ENV` is unset, empty,
-`default`, `main` or `dev`, when the name fails `^[a-z0-9][a-z0-9-]{0,63}$`, when the file is
-missing (the error lists available names) or when the script is invalid. Unset, `createAiRuntime`
+queue fails the call loudly; `dm_model_calls` rows read provider `scripted`, cost null. Boot throws `DmScriptEnvError` on a bad `STACKS_ENV` (unset, empty, `default`, `main`, `dev`), a bad name, a missing file or an invalid script. Unset, `createAiRuntime`
 is exactly `loadAiConfig(env)`. `greyhollow-live.json` (9 calls, 1 die) scripts scene start and
-one `act-search` turn, with a `dm.chronicle` call per narrated turn. Walkthrough:
-`specs/053-env-fake-dm-script/quickstart.md`.
+one `act-search` turn. Walkthrough: `specs/053-env-fake-dm-script/quickstart.md`.
 
-`index.ts` passes the same `aiGateway` into `startIngestWorker({db, gateway: aiGateway,
-embedPurpose, uploadDir})`. `embedPurpose` is [[retrieval]]'s `embedPurpose` name, only when
+`index.ts` passes `aiGateway` into `startIngestWorker({db, gateway: aiGateway,
+embedPurpose, uploadDir})`. `embedPurpose` is [[retrieval]]'s name, only when
 `aiConfig.purposes[name]?.op === "embed"`; otherwise `null` and the worker skips `embed()`
 (`embedding.status === "skipped"`). A bad embed purpose degrades ingestion, never boot.
 
-Since TASK-0027, `index.ts` also passes the same `aiGateway` into `createApp`'s
-`library.answer.gateway`: [[rules-answerer]]'s `answer()` calls `chat()` (purpose fixed at the code
-constant `"answering"`) and, via `retrieve()`, `embed()`. An unconfigured `"answering"` purpose
-degrades like ingestion's: `answer()` maps the error event (or a thrown `retrieve()`/`embed()`
-failure) to a terminal SSE `error` event, never a crash.
+`index.ts` also passes `aiGateway` into `createApp`'s
+`library.answer.gateway`: [[rules-answerer]]'s `answer()` calls `chat()` (purpose `"answering"`) and, via `retrieve()`, `embed()`. An unconfigured purpose
+degrades to a terminal SSE `error` event, never a crash.
 
 Since TASK-0046 (specs/031-dm-runtime), the DM runtime is the gateway's third caller. It uses
 seven `op: "chat"` purposes whose names are code constants in `dm/purposes.ts` (`DM_PURPOSES`):
 `dm.director`, `dm.interpret`, `dm.adjudicate`, `dm.narrate`, `dm.audit`, `dm.chronicle`,
-`dm.companion`. Model choice and `maxTokens` per purpose stay in `AI_PURPOSES` (4000 each); `.env.example`
-carries a commented seven-purpose example. `index.ts` passes the same `aiGateway` into
-`startDmWorker` and warns `missingDmPurposes(aiConfig.purposes)` at boot; a missing purpose
+`dm.companion`. Model choice and `maxTokens` per purpose stay in `AI_PURPOSES` (4000 each; `dm.interpret` 8000); `.env.example`
+carries a commented seven-purpose example with `"structured":"tool"` on every purpose but `dm.narrate`. `index.ts` passes the same `aiGateway` into
+`startDmWorker` and warns `missingDmPurposes(aiConfig.purposes)` and `unstructuredDmPurposes(aiConfig.purposes)` at boot; a missing purpose
 never blocks boot, it fails only its node.
+
+**Structured output (TASK-0273, spec 093).** `PurposeConfig.structured` is `"tool"` or `"json-schema"`
+(not on `embed`). When set and the request carries `ChatRequest.output`
+(`{name, schema}`), the gateway passes the mode to `Provider.chat`, and the OpenAI-compatible adapter
+sends a forced tool call (`tools` + `tool_choice`) or `response_format: json_schema` (`strict: false`).
+Tool-call arguments stream back as ordinary `text` events; content is held and yielded only when no
+argument arrived.
 
 Since TASK-0048, the playtest auditor adds an eighth chat purpose, `playtest.audit`
 (`PLAYTEST_AUDIT_PURPOSE`, 700 `maxTokens` default), one call per transcript segment.
@@ -113,7 +112,6 @@ Callers: [[ingestion]]'s worker (`embed()`), [[rules-answerer]]'s `answer()` (`c
 
 ## Operational notes
 
-All AI env vars are optional.
 `apps/server/test/ai.gateway.test.ts` includes a standing test (invariant 10) that recursively
 greps every `.ts` file under `apps/server/src/ai/` for vendor/provider name tokens (openai,
 anthropic, google, azure, …) and all-caps `*_KEY`/`*_API_KEY` variable names, failing the
