@@ -62,6 +62,37 @@ describe("path", () => {
     );
     expect(path(s, "a", "z")?.zones).toEqual(["a", "m", "z"]);
   });
+  it("tie-breaks on deep equal-cost routes and repeat calls", () => {
+    // Three equal-cost 3-hop routes a-?-?-z; smallest id list is a,b,y,z.
+    const s = mk(
+      ["a", "b", "c", "x", "y", "z"],
+      [
+        ["a", "c", 5],
+        ["c", "x", 5],
+        ["x", "z", 5],
+        ["a", "b", 5],
+        ["b", "y", 5],
+        ["y", "z", 5],
+        ["a", "x", 5],
+        ["x", "y", 5],
+      ],
+    );
+    for (let i = 0; i < 2; i++) {
+      expect(path(s, "a", "z")).toEqual({ zones: ["a", "x", "z"], feet: 10 });
+    }
+    const t = mk(
+      ["a", "b", "c", "x", "y", "z"],
+      [
+        ["a", "c", 5],
+        ["c", "x", 5],
+        ["x", "z", 5],
+        ["a", "b", 5],
+        ["b", "y", 5],
+        ["y", "z", 5],
+      ],
+    );
+    expect(path(t, "a", "z")).toEqual({ zones: ["a", "b", "y", "z"], feet: 15 });
+  });
 });
 
 describe("band", () => {
