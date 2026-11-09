@@ -43,7 +43,10 @@ Spec: specs/094-space-and-zones
 - [ ] #11 Spec phase: Engine placement, space and move (US1, AC #1)
 - [ ] #12 Spec phase: Reach and range by band, and SRD mapping (US2, AC #2)
 - [ ] #13 Spec phase: Opportunity attacks from leaving an engaged band (US3, AC #3)
+- [ ] #14 Spec phase: Wiki re-ground
 <!-- AC:END -->
+
+
 
 
 
