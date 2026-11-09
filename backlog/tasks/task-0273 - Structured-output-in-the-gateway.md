@@ -4,7 +4,7 @@ title: Structured output in the gateway
 status: In Progress
 assignee: []
 created_date: '2026-11-07 05:13'
-updated_date: '2026-11-08 21:28'
+updated_date: '2026-11-09 00:14'
 labels:
   - 'ws:narration'
   - replan-2026-11
@@ -60,6 +60,8 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-
 Phases 1-2 (bc2a1dd3, a4f8eee4) and 4 (e559c92f) done. Phase 3 waits on the OQ-3 vm-104 read (operator approved the query; checkout path unknown) or the 8000 fallback.
 
 AC tick correction: #2 (under 1% attempt-1 failures over the R1 playtest) is read at CP-7, not now; unticked. #3, #5, #6, #8 ticked.
+
+OQ-3 reading 2026-11-08 via the read-only debug route /dm/sessions/bb4952dc-8600-48e8-a15f-2f4cf154625d/calls in the signed-in hosted page (no vm-104 shell command): dm.interpret attempt-1 n=26, max=4000, p95=4000, outcomes ok+truncated. The reading is saturated at the old 4000 cap, so it understates demand. Cap set to the spec's fallback 8000 (not the formula's 6000). OQ-6 (S9 fixture) skipped: no shell read.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
