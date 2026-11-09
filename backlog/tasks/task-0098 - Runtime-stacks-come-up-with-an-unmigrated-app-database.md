@@ -1,10 +1,10 @@
 ---
 id: TASK-0098
 title: Runtime stacks come up with an unmigrated app database
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-10-26 02:58'
-updated_date: '2026-11-08 21:20'
+updated_date: '2026-11-09 05:58'
 labels:
   - env
   - runtime
@@ -52,6 +52,12 @@ Spec 095 committed (0300bd09). Phase ACs seeded from tasks.md. OQ1 (no explicit-
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5
 Phases 1-2 done (3510dac3, fb90d5de). env:up migrated both DBs to 10/10 journal entries; REQUIRE_DATABASE=1 pnpm ci:check exited 0 with nothing skipped (implementer). Orchestrator re-check: freshness OK 60 notes, plan empty, env:prune --check exit 0. PR held: spine #6, after 0266, 0273, 0270.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Migrate on up, verify, back off (US1, US2, US3; FR-001 to FR-010): 10/10 · Wiki (re-ground): 5/5). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
