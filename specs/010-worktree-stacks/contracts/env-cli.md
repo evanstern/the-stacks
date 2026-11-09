@@ -9,12 +9,34 @@ no code change — a test stack is just another labeled project to them.
 
 | Command | pnpm alias | Does | Exit |
 |---|---|---|---|
-| `env.mjs up` | `pnpm env:up` | Derive env, project, test project, ports for this worktree; refuse from root, for reserved names, or for a name ending in `-test`; probe app, db, and test-db ports; write `.env`; `docker compose -p stacks-<env>-test -f docker-compose.test.yml up -d --wait`; then `docker compose -p stacks-<env> up -d --build --wait` with labels and build arg | 0 both healthy · 1 refused or failed · 2 environment error |
-| `env.mjs down [main]` | `pnpm env:down` | `down -v --remove-orphans` for `stacks-<env>-test` (via `docker-compose.test.yml`), then `stacks-<env>`. With `main`: the local main stack only, then remove `.worktrees/env-main` | 0 (also when either or both were absent) · 2 |
+| `env.mjs up` | `pnpm env:up` | Derive env, project, test project, ports for this worktree; refuse from root, for reserved names, or for a name ending in `-test`; probe app, db, and test-db ports; write `.env`; `docker compose -p stacks-<env>-test -f docker-compose.test.yml up -d --wait`; migrate and verify both databases (see Migration); then `docker compose -p stacks-<env> up -d --build --wait` with labels and build arg | 0 both healthy · 1 refused or failed · 2 environment error |
+| `env.mjs down [main]` | `pnpm env:down` | `down -v --remove-orphans` for `stacks-<env>-test` (via `docker-compose.test.yml`), then `stacks-<env>`; removes the `stacks-<env>-migrate` image. With `main`: the local main stack only, then remove `.worktrees/env-main` | 0 (also when either or both were absent) · 2 |
 | `env.mjs status` | `pnpm env:status` | One line per labeled stack: env, project, worktree, branch, commit, ports, `ORPHAN` marker (a test stack lists as its own project) | 0 · 2 |
-| `env.mjs prune` | `pnpm env:prune` | `down -v` every orphan; print each removed | 0 · 2 |
+| `env.mjs prune` | `pnpm env:prune` | `down -v` every orphan and remove its `-migrate` image; print each removed | 0 · 2 |
 | `env.mjs prune --check` | `pnpm env:prune --check` | Report orphans, change nothing | 0 none · 1 orphans (named) · 2 environment error |
-| `env.mjs main` | `pnpm env:main` | Fetch `origin/main`; create or refresh detached worktree `.worktrees/env-main`; `up` it as env `main` on 3000/5432, no test stack | as `up` |
+| `env.mjs main` | `pnpm env:main` | Fetch `origin/main`; create or refresh detached worktree `.worktrees/env-main`; `up` it as env `main` on 3000/5432, no test stack; migrates and verifies the app database only | as `up` |
+
+## Migration (spec 095)
+
+`up` and `main` migrate before the app service starts. No hand `db:migrate` step remains.
+
+1. Build the Dockerfile `build` stage as `stacks-<env>-migrate` (a layer-cache hit after the first build).
+2. Test database (`up` only): after the test stack is healthy, run `scripts/migrate.ts` in that image on the
+   `stacks-<env>-test_default` network with the fixed throwaway credentials.
+3. App database: `docker compose -p stacks-<env> up -d --wait db`, then run `scripts/migrate.ts` in the
+   image on the `stacks-<env>_default` network with `--env-file .env` and `TEST_DATABASE_URL=` cleared. Docker
+   reads `.env`; the host never parses a password.
+4. Verify: count rows in `drizzle.__drizzle_migrations` through the database container's own env. A count
+   below the entry count of `apps/server/drizzle/meta/_journal.json` exits 1 and names the database (app or test).
+5. `down` and `prune` remove the `stacks-<env>-migrate` image.
+
+Host `db:migrate` and `auth:create-operator` print `target: host:port/database` (never the user or
+password) before they act. They prefer `TEST_DATABASE_URL`, so on the host they target the test database.
+To provision an operator in the app database, run inside the stack:
+
+```bash
+docker compose -p stacks-<env> exec app node dist/cli/create-operator.js
+```
 
 ## Derivation
 

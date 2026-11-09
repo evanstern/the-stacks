@@ -150,6 +150,40 @@ if (skipReason) {
       "inherited-keys line presence must match whether root .env has shared keys",
     );
 
+    // Spec 095: both databases hold every migration the journal lists.
+    const expected = JSON.parse(
+      readFileSync(
+        path.join(worktree, "apps/server/drizzle/meta/_journal.json"),
+        "utf8",
+      ),
+    ).entries.length;
+    for (const [project, files] of [
+      [identity.project, []],
+      [identity.testProject, ["-f", "docker-compose.test.yml"]],
+    ]) {
+      const count = spawnSync(
+        "docker",
+        [
+          "compose",
+          "-p",
+          project,
+          ...files,
+          "exec",
+          "-T",
+          "db",
+          "sh",
+          "-c",
+          'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -tAc "select count(*) from drizzle.__drizzle_migrations"',
+        ],
+        { cwd: worktree, encoding: "utf8" },
+      );
+      assert.equal(
+        Number(count.stdout.trim()),
+        expected,
+        `${project} migrations`,
+      );
+    }
+
     const down = env(["down"], worktree);
     assert.equal(down.status, 0, down.stdout + down.stderr);
 

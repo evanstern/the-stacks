@@ -14,6 +14,13 @@ import { createDb } from "../db.js";
 // DATABASE_URL names the address the app CONTAINER uses.
 const config = loadConfig();
 const databaseUrl = process.env.TEST_DATABASE_URL || config.databaseUrl;
+const target = new URL(databaseUrl);
+// Host and database only — never the user or password.
+console.log(
+  `target: ${target.hostname}:${target.port || 5432}${target.pathname} (from ${
+    process.env.TEST_DATABASE_URL ? "TEST_DATABASE_URL" : "DATABASE_URL"
+  })`,
+);
 const db = createDb(databaseUrl);
 
 /** OPERATOR_PASSWORD env var, or an interactive prompt (research D6). */
