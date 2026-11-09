@@ -3,10 +3,10 @@ id: TASK-0303
 title: >-
   Deploy image and CI regressions from TASK-0270: space package missing from the
   Dockerfile; space timing test flakes
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-11-09 14:03'
-updated_date: '2026-11-09 14:30'
+updated_date: '2026-11-09 14:36'
 labels:
   - 'ws:platform'
   - replan-2026-11
@@ -59,7 +59,7 @@ path() perf (f39868f0): adjacency cached per Space (WeakMap), predecessor links;
 ## Final Summary
 
 <!-- SECTION:FINAL_SUMMARY:BEGIN -->
-Dockerfile now copies packages/space (package.json + dist) and packages/intent (package.json); scripts/check-dockerfile-packages.mjs fails CI on a missing workspace package; the SC-005 timing test uses warm-up and the median of 9 batches. Merged in PR #153 (4d092779). The vm-104 deploy run for 4d092779 succeeded and /health reports ok at 4d092779.
+Dockerfile copies packages/space (package.json + dist) and packages/intent (package.json), with scripts/check-dockerfile-packages.mjs guarding it (PR #153; vm-104 serves 4d092779). The SC-005 timing budget runs alone as pnpm check:timing after the parallel tests, because turbo's parallel test load measured 1.19 ms against path()'s real 0.05 ms; path() also caches adjacency and keeps predecessor links (PR #154). Threshold unchanged.
 <!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
