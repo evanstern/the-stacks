@@ -41,14 +41,6 @@ Spec: specs/096-seat-actor-id
 - [x] #6 Spec phase: Wiki (re-ground)
 <!-- AC:END -->
 
-
-
-
-
-
-
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -61,6 +53,8 @@ Spec 096 (652af7e0). Root cause verified by orchestrator: interpret and director
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5 (phases 1-2)
 Phase 1 (b1f7300b): seated character id rendered in interpret (v16) and director (v11) prompts; seatActorIds normalizer logs dm.interpret.seat-actor. Phase 2 (d2190a08): 4 notes re-grounded. ci:check exit 0. Orchestrator re-ran seat-actor-id.test.ts (3/3) and freshness OK 62. AC #2 bypassed by spec 096: the structural fix is TASK-0269 (seat supplies the actor). Hosted verification after deploy.
+
+spec-bridge sync: Seat labels and seat normalizer (US1, US2; FR-001 to FR-007): 6/6 · Wiki (re-ground): 6/6 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
