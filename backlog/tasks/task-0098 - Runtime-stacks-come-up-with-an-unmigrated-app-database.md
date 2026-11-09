@@ -37,14 +37,6 @@ Spec: specs/095-migrated-stacks
 - [x] #8 Spec phase: Wiki (re-ground)
 <!-- AC:END -->
 
-
-
-
-
-
-
-
-
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
@@ -61,6 +53,8 @@ Spec 095 committed (0300bd09). Phase ACs seeded from tasks.md. OQ1 (no explicit-
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5
 Phases 1-2 done (3510dac3, fb90d5de). env:up migrated both DBs to 10/10 journal entries; REQUIRE_DATABASE=1 pnpm ci:check exited 0 with nothing skipped (implementer). Orchestrator re-check: freshness OK 60 notes, plan empty, env:prune --check exit 0. PR held: spine #6, after 0266, 0273, 0270.
+
+spec-bridge sync: Migrate on up, verify, back off (US1, US2, US3; FR-001 to FR-010): 10/10 · Wiki (re-ground): 5/5 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
