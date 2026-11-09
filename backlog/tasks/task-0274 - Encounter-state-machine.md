@@ -4,7 +4,7 @@ title: Encounter state machine
 status: In Progress
 assignee: []
 created_date: '2026-11-07 05:13'
-updated_date: '2026-11-09 15:35'
+updated_date: '2026-11-09 17:15'
 labels:
   - 'ws:engine'
   - replan-2026-11
@@ -46,6 +46,9 @@ Merged from TASK-0254 (A combatant who fled keeps its turn and gets contradictor
 Operator ruling 2026-11-08 (spec 094 OQs): OQ-3 and OQ-4 from spec 094 homed here as AC.
 
 Claimed 2026-11-08 by the R1 sweep (docs/design/r1-fast-table-runbook.md). Worktree .worktrees/task-0274, branch task-0274-encounter-state, cut from origin/main d639c0e1. Spec number 099 claimed with a stub.
+
+Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=cc/claude-opus-5-5 (spec authoring, grant C1)
+Spec 099 (58fc1fd4): server-derived encounter phase, combatant sides, combatant.depart, stand (half speed), code-owned end, resume, closeCombatFoes for the planner. 7 phases; Phase 6 waits for TASK-0267. OQ-6 (a party wipe does not auto-end) kept as recommended. Operator rulings pending: OQ-1 (move the close-combat disadvantage rule into the engine instead of the planner), OQ-2/OQ-3/OQ-5 revisit cards, OQ-4 seed sides deferred to TASK-0056.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
