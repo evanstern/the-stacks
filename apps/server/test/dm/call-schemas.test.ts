@@ -6,15 +6,15 @@ import { ChronicleOutput } from "../../src/dm/chronicle.js";
 import { CompanionOutput } from "../../src/dm/companion.js";
 import { AuditModelOutput } from "../../src/dm/nodes/audit.js";
 import {
-  PURPOSE_MAX_TOKENS,
-  unstructuredDmPurposes,
-} from "../../src/dm/purposes.js";
-import {
   AdjudicateModelOutput,
   DirectorOutput,
   InterpretOutput,
   ReactOutput,
 } from "../../src/dm/nodes/schemas.js";
+import {
+  PURPOSE_MAX_TOKENS,
+  unstructuredDmPurposes,
+} from "../../src/dm/purposes.js";
 
 /** FR-015: every schema a DM `callJson` site passes converts to JSON Schema with callJson's options. */
 describe("DM schemas convert to JSON Schema", () => {
@@ -48,7 +48,9 @@ describe("interpret cap and unstructured purposes (spec 093 OQ-3)", () => {
       resolve(import.meta.dirname, "../../../../.env.example"),
       "utf8",
     );
-    expect(env).toContain('"dm.interpret":{"provider":"hosted","model":"mid-model","structured":"tool","maxTokens":8000}');
+    expect(env).toContain(
+      '"dm.interpret":{"provider":"hosted","model":"mid-model","structured":"tool","maxTokens":8000}',
+    );
   });
   it("lists configured dm.* purposes lacking structured, never dm.narrate", () => {
     expect(
