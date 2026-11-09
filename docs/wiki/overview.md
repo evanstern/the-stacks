@@ -13,7 +13,7 @@ sources:
   - docker-compose.test.yml
   - package.json
   - .github/workflows/ci.yml
-verified_against: dea1a12b5ed9c93e20bfb027404f9fdb9e06b4c0
+verified_against: 3898df927538d2f62711db2f69d6ab03d44ed7d9
 ---
 
 # Overview
@@ -118,7 +118,7 @@ database. See [[configuration]] and [[runtime-stacks]].
 
 CI now runs on every pull request and push to `main` ([[ci-pipeline]]): one job brings up
 that same throwaway test compose stack and runs `pnpm ci:check` (lint, typecheck, build,
-test, boundary check, hook tests, script tests) with `REQUIRE_DATABASE=1`, so the
+test, boundary check, hook tests, script tests, serial timing budget) with `REQUIRE_DATABASE=1`, so the
 integration suites are proven rather than loud-skipped. TASK-0017 closed the "gates run by
 hand" gap this note previously described.
 

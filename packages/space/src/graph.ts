@@ -5,7 +5,19 @@ export const BAND_FEET = { engaged: 5, near: 30, far: 120 } as const;
 
 type Adj = Map<ZoneId, { to: ZoneId; edge: Edge }[]>;
 
+// Spaces are immutable values (replaced, never edited in place), so the
+// adjacency list is safe to cache per object.
+const adjCache = new WeakMap<Space, Adj>();
+
 function adjacency(space: Space): Adj {
+  let adj = adjCache.get(space);
+  if (adj) return adj;
+  adj = adjacency0(space);
+  adjCache.set(space, adj);
+  return adj;
+}
+
+function adjacency0(space: Space): Adj {
   const adj: Adj = new Map();
   for (const z of space.zones) adj.set(z.id, []);
   for (const e of space.edges) {
@@ -43,7 +55,13 @@ export function path(
   const adj = adjacency(space);
   if (!adj.has(from) || !adj.has(to)) return null;
   const dist = new Map<ZoneId, number>([[from, 0]]);
-  const route = new Map<ZoneId, ZoneId[]>([[from, [from]]]);
+  const pred = new Map<ZoneId, ZoneId>();
+  // Routes are materialised only on an exact cost tie or for the result.
+  const routeOf = (id: ZoneId): ZoneId[] => {
+    const r = [id];
+    for (let p = pred.get(id); p !== undefined; p = pred.get(p)) r.push(p);
+    return r.reverse();
+  };
   const done = new Set<ZoneId>();
   // ponytail: O(n^2) selection; fine for the 64-zone cap, swap in a heap if the cap rises.
   for (;;) {
@@ -56,25 +74,24 @@ export function path(
     done.add(u);
     if (u === to) break;
     const du = dist.get(u) as number;
-    const ru = route.get(u) as ZoneId[];
     for (const { to: v, edge } of adj.get(u) ?? []) {
       if (done.has(v)) continue;
       const nd = du + cost(edge);
-      const nr = [...ru, v];
       const cur = dist.get(v);
       if (
         cur === undefined ||
         nd < cur ||
-        (nd === cur && lexLess(nr, route.get(v) as ZoneId[]))
+        // Same suffix v, so comparing the prefixes orders the full routes.
+        (nd === cur && lexLess(routeOf(u), routeOf(pred.get(v) as ZoneId)))
       ) {
         dist.set(v, nd);
-        route.set(v, nr);
+        pred.set(v, u);
       }
     }
   }
   const feet = dist.get(to);
   if (feet === undefined || !done.has(to)) return null;
-  return { zones: route.get(to) as ZoneId[], feet };
+  return { zones: routeOf(to), feet };
 }
 
 /** Band by fewest passable edges (BFS): same zone engaged, 1 near, 2 far, else out. */

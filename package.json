@@ -17,7 +17,7 @@
     "check:scripts": "node --test 'scripts/*lib.test.mjs'",
     "check:env": "node --test scripts/env.test.mjs",
     "check:host-scripts": "node --experimental-strip-types -e \"await import('./apps/server/src/config.ts'); await import('./apps/server/src/db.ts');\"",
-    "ci:check": "pnpm lint && pnpm typecheck && pnpm build && pnpm test && pnpm check:boundaries && pnpm check:hooks && pnpm check:scripts && pnpm check:host-scripts",
+    "ci:check": "pnpm lint && pnpm typecheck && pnpm build && pnpm test && pnpm check:boundaries && pnpm check:hooks && pnpm check:scripts && pnpm check:host-scripts && pnpm check:timing",
     "env:up": "node scripts/env.mjs up",
     "env:down": "node scripts/env.mjs down",
     "env:status": "node scripts/env.mjs status",
@@ -25,7 +25,8 @@
     "env:main": "node scripts/env.mjs main",
     "bench:load": "pnpm --filter @the-stacks/server bench:load",
     "bench:retrieval": "pnpm --filter @the-stacks/server bench:retrieval",
-    "playtest": "pnpm --filter @the-stacks/server playtest"
+    "playtest": "pnpm --filter @the-stacks/server playtest",
+    "check:timing": "pnpm --filter @the-stacks/space test:timing"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.5.14",

@@ -13,7 +13,7 @@ sources:
   - README.md
   - .github/workflows/deploy-dev.yml
   - .github/workflows/drift-dev.yml
-verified_against: eda321081cbdee5318684984fac5f32ae90dae1f
+verified_against: 3898df927538d2f62711db2f69d6ab03d44ed7d9
 ---
 
 # CI pipeline
@@ -29,7 +29,7 @@ self-hosted runner instead of in this job — see [[hosted-dev]].
 
 Root `package.json`'s `ci:check` script is the single aggregate:
 `pnpm lint && pnpm typecheck && pnpm build && pnpm test && pnpm check:boundaries && pnpm
-check:hooks && pnpm check:scripts && pnpm check:host-scripts`. CI runs exactly this one
+check:hooks && pnpm check:scripts && pnpm check:host-scripts && pnpm check:timing`. `check:timing` runs `@the-stacks/space`'s wall-clock budget (spec 094 SC-005) alone, after the parallel `turbo run test`, so a busy runner does not fail it (TASK-0303). CI runs exactly this one
 command (`pnpm ci:check`), so there is no drift between what CI enforces and what a
 contributor can reproduce locally — see README.md's "Checks" section for the exact local
 reproduction steps. `check:scripts` (`node --test 'scripts/*lib.test.mjs'`, spec 010) is the
