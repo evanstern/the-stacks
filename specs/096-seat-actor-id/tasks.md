@@ -17,18 +17,18 @@ actor field reaches the plan gate as the character's combatant id.
 
 **Independent test**: `pnpm --filter @the-stacks/server exec vitest run test/dm/seat-actor-id.test.ts` passes.
 
-- [ ] T001 [US1] [US2] In `apps/server/src/dm/prompts/common.ts`, add `seatsOf` and `dmActorLabel`;
+- [x] T001 [US1] [US2] In `apps/server/src/dm/prompts/common.ts`, add `seatsOf` and `dmActorLabel`;
       extend `transcriptEntries` and `beatEntries` (plan D1). Add the `ponytail:` comment (plan D2).
-- [ ] T002 [US1] In `apps/server/src/dm/prompts/interpret.ts` and `prompts/director.ts`, pass seats
+- [x] T002 [US1] In `apps/server/src/dm/prompts/interpret.ts` and `prompts/director.ts`, pass seats
       and bump to `dm.interpret-v16` and `dm.director-v11` (plan D2).
-- [ ] T003 [US1] In `apps/server/src/dm/nodes/interpret.ts`, add `seatActorIds`; apply it and log
+- [x] T003 [US1] In `apps/server/src/dm/nodes/interpret.ts`, add `seatActorIds`; apply it and log
       `dm.interpret.seat-actor` in both return paths (plan D3).
-- [ ] T004 [P] [US1] [US2] Add `apps/server/test/dm/seat-actor-id.test.ts` with the three cases in
+- [x] T004 [P] [US1] [US2] Add `apps/server/test/dm/seat-actor-id.test.ts` with the three cases in
       plan D4.
-- [ ] T005 Update the version assertions in `test/dm/interpret-prompt.test.ts` and
+- [x] T005 Update the version assertions in `test/dm/interpret-prompt.test.ts` and
       `test/dm/assemble.test.ts`, and line 296 of `test/dm/narration-quality-repro.test.ts`
       (plan, Files touched).
-- [ ] T006 Run `pnpm ci:check`. Commit as `TASK-0302 phase 1: seat actor id in DM prompts and readings`.
+- [x] T006 Run `pnpm ci:check`. Commit as `TASK-0302 phase 1: seat actor id in DM prompts and readings`.
 
 ## Phase 2: Wiki (re-ground)
 

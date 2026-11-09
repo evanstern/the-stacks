@@ -10,13 +10,14 @@ import {
   capEntries,
   dmStateSection,
   joinSections,
+  seatsOf,
   section,
   seedEntries,
   srdEntries,
   transcriptEntries,
 } from "./common.js";
 
-export const PROMPT_VERSION = "dm.director-v10";
+export const PROMPT_VERSION = "dm.director-v11";
 
 const OUTPUT_SHAPE = [
   "Reply with ONE JSON object and nothing else:",
@@ -54,6 +55,7 @@ export function buildDirectorPrompt(input: DirectorPromptInput): {
   user: string;
 } {
   const { ctx, assembled } = input;
+  const seats = seatsOf(assembled.projections.party);
   const doctrine = capEntries(
     renderDoctrine("director").split("\n\n"),
     CAPS.doctrine,
@@ -79,11 +81,11 @@ export function buildDirectorPrompt(input: DirectorPromptInput): {
     section("AI companions in the party", input.aiCompanions, 200, "end"),
     section(
       "Recent transcript",
-      transcriptEntries(assembled.transcriptTail),
+      transcriptEntries(assembled.transcriptTail, undefined, seats),
       CAPS.transcript,
       "start",
     ),
-    section("Beat to resolve", beatEntries(assembled.beat), 800, "end"),
+    section("Beat to resolve", beatEntries(assembled.beat, seats), 800, "end"),
     section(
       "SRD records",
       srdEntries(assembled),
