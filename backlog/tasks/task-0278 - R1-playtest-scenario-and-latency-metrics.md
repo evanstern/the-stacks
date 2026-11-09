@@ -4,7 +4,7 @@ title: R1 playtest scenario and latency metrics
 status: To Do
 assignee: []
 created_date: '2026-11-07 05:13'
-updated_date: '2026-11-07 05:15'
+updated_date: '2026-11-09 00:16'
 labels:
   - 'ws:tooling'
   - replan-2026-11
@@ -31,6 +31,12 @@ Source: docs/design/replan-2026-11/board-rework-map.md (N-13).
 - [ ] #1 The auditor reports the three latency metrics.
 - [ ] #2 The scenario runs hosted under the playtest-run skill.
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Baseline playtest 2026-11-08 (pre-R1, vm-104 at 25ea6bc8). Ceiling: $25 (operator, in chat: "$25"). Scenario: reed camp, solo plus AI companions. Measures R1 metrics plus B2 rows rolled forward.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
