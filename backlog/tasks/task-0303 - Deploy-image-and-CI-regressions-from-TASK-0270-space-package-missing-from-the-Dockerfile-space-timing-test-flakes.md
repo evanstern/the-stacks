@@ -3,9 +3,10 @@ id: TASK-0303
 title: >-
   Deploy image and CI regressions from TASK-0270: space package missing from the
   Dockerfile; space timing test flakes
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-11-09 14:03'
+updated_date: '2026-11-09 14:03'
 labels:
   - 'ws:platform'
   - replan-2026-11
@@ -34,6 +35,12 @@ Two regressions from TASK-0270 (PR #150).
 - [ ] #3 A vm-104 deploy of the fix serves the new commit on /health.
 - [ ] #4 The SC-005 timing test is stable on CI runners while still guarding the 1 ms budget.
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Claimed 2026-11-08 by the R1 sweep (docs/design/r1-fast-table-runbook.md). Worktree .worktrees/task-0303, branch task-0303-deploy-image-hotfix, cut from origin/main 840fac4f. No spec dir: signed escape line covers this task.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
