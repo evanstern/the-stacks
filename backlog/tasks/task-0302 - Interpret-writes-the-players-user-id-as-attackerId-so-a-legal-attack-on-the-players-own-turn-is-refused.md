@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-11-09 05:23'
-updated_date: '2026-11-09 12:56'
+updated_date: '2026-11-09 13:29'
 labels:
   - playtest
   - 'ws:intent'
@@ -35,6 +35,8 @@ Spec: specs/096-seat-actor-id
 <!-- AC:BEGIN -->
 - [ ] #1 A human player's attack on their own turn carries the character id as the attacker, with a regression test from session 3406d9ae seq 117.
 - [ ] #2 No model output may set an actor id; the seat supplies it (fixed structurally by TASK-0269).
+- [ ] #3 Phase 1: prompts render the seated character id; seatActorIds normalizer; regression test (specs/096)
+- [ ] #4 Phase 2: wiki re-ground
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -43,6 +45,9 @@ Spec: specs/096-seat-actor-id
 Recurrence 2026-11-09: 4 of Tamsin's 5 combat actions refused STEP_ACTOR_MISMATCH (seq 118, 216, 271, 316); only one shot resolved (seq 164). Every refused turn spends her turn and ships a fallback narration. Combat stalls: the human PC cannot act. Severity: blocks combat for a human player on the solo seed.
 
 Claimed 2026-11-08 by the R1 sweep (docs/design/r1-fast-table-runbook.md). Worktree .worktrees/task-0302, branch task-0302-seat-actor-id, cut from origin/main 48725992. Spec number 096 claimed with a stub.
+
+Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=cc/claude-opus-5-5 (spec authoring, grant C1)
+Spec 096 (652af7e0). Root cause verified by orchestrator: interpret and director call transcriptEntries(tail) without a roster, so speaker() in prompts/common.ts returns the raw user id for human lines; party-scope beat entries also fall back to the user id. Fix (c): label fix (prompt versions bumped) plus a seatActorIds normalizer after interpret, logged. AC #2 (seat supplies the actor) deferred to TASK-0269. OQ1 (companion prompt shows a commenter's user id) left to TASK-0299.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
