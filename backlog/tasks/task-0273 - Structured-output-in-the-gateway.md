@@ -43,7 +43,10 @@ Spec: specs/093-structured-output
 - [ ] #11 Spec phase: callJson sends its schema; truncation logs apart (US1, US2, US4; FR-006 to FR-009, FR-013, FR-015; plan D4, D5, D7, D9)
 - [ ] #12 Spec phase: Interpret cap, boot warning and env example (US1, US5; FR-010, FR-011, FR-014; plan D6)
 - [ ] #13 Spec phase: Playtest watch counts (US3; FR-012; plan D8)
+- [ ] #14 Spec phase: Wiki re-ground
 <!-- AC:END -->
+
+
 
 
 
