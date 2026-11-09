@@ -41,7 +41,7 @@ sources:
   - apps/server/seeds/greyhollow-ford-trio.json
   - biome.json
 size_budget_exempt: both notes sat within 30 chars of the 8000 budget before TASK-0180; the talk path got its own note (dm-talk-triggers) and only a pointer line lands here; the rest is one pipeline each, not splittable without a TASK of its own
-verified_against: 82d3e37bc6f47f7d5a6368dcccc154a6ec2b2ae7
+verified_against: dea1a12b5ed9c93e20bfb027404f9fdb9e06b4c0
 ---
 
 # DM runtime
@@ -75,7 +75,7 @@ async function `(TurnContext) => NodeResult`.
 An empty-beat `talk` turn skips this order ([[dm-talk-triggers]]).
 
 Director, interpret and adjudicate outputs are checkpointed in `jobs.result`; a reclaim does not re-pay them. Model output is parsed with Zod through `callJson`/`callText` (`pipeline/call.ts`); every call
-is recorded to `recordCall` ([[dm-turn-jobs]]). Parse order: think strip, strict parse (fence stripped), else the one top-level object inside surrounding prose, then normalize, schema. Each rejected reply logs one line with a 200-char head and tail: `dm.call.invalid-json` when no JSON parses, `dm.call.schema-mismatch` when JSON parses and fails the schema (TASK-0203). The ledger outcome follows the same split (`truncated` wins when the attempt was capped). Excerpts keep raw text (TASK-0181).
+is recorded to `recordCall` ([[dm-turn-jobs]]). Parse order: think strip, strict parse (fence stripped), else the one top-level object inside surrounding prose, then normalize, schema. A capped attempt logs `dm.call.truncated` (with `parse` set to the failure kind, null for `callText`) instead. Each rejected reply logs one line with a 200-char head and tail: `dm.call.invalid-json` when no JSON parses, `dm.call.schema-mismatch` when JSON parses and fails the schema (TASK-0203). The ledger outcome follows the same split (`truncated` wins when the attempt was capped). Excerpts keep raw text (TASK-0181).
 
 `callJson` makes at most two attempts, the second with the first's issues. Three calls pass a `normalize` hook. `normalizeDirector` cuts an over-long `goalNote` or `reason` to 300 characters (spec 033). `normalizeAudit` (`nodes/audit.ts`, spec 086) maps an unknown issue `kind` to `other` with a `[kind]` detail prefix, clips `detail` to 300 and drops a null `actor`. `normalizeChronicle` (`chronicle.ts`) turns numeric `sourceActionIds` into strings. The companion prompt (`dm.companion-v8`) says to write all four keys.
 
@@ -106,7 +106,7 @@ the fallback and the player-facing seed view are in [[dm-narration-quality]].
 
 ## Purposes
 
-`dm/purposes.ts` fixes seven purposes (`dm.director`, `interpret`, `adjudicate`, `narrate`, `audit`, `chronicle`, `companion`). Models: `AI_PURPOSES`; see [[ai-gateway]]. Each `PURPOSE_MAX_TOKENS` default is 4000 (TASK-0192). In `callJson`/`callText`, an attempt whose usage says `truncated` settles as `truncated`, not `invalid-json`/`ok`.
+`dm/purposes.ts` fixes seven purposes (`dm.director`, `interpret`, `adjudicate`, `narrate`, `audit`, `chronicle`, `companion`). Models: `AI_PURPOSES`; see [[ai-gateway]]. Each `PURPOSE_MAX_TOKENS` default is 4000 (TASK-0192), except `dm.interpret` at 8000 (TASK-0273: a hosted read saturated 4000). `unstructuredDmPurposes` names configured purposes lacking `structured`. `callJson` sends its Zod schema as `ChatRequest.output` (JSON Schema draft-7, input shape; `.refine` rules still run after parsing). In `callJson`/`callText`, an attempt whose usage says `truncated` settles as `truncated`, not `invalid-json`/`ok`.
 
 ## Seed, doctrine, script
 

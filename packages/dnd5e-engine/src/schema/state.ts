@@ -1,3 +1,4 @@
+import { PlacementSchema, SpaceSchema } from "@the-stacks/space";
 import { z } from "zod";
 
 export const ENGINE_SCHEMA_VERSION = 1;
@@ -208,6 +209,15 @@ export const SKILL_ABILITY: Record<
 export const AttackEntrySchema = z.object({
   name: z.string().min(1).max(60),
   range: z.enum(["melee", "ranged", "melee-or-ranged"]),
+  // Spec 094: reach and range in feet; the band checks read these.
+  reachFt: z.number().int().min(5).max(30).optional(),
+  rangeFt: z
+    .object({
+      normal: z.number().int().min(5).max(1000),
+      long: z.number().int().min(5).max(1000),
+    })
+    .refine((r) => r.normal <= r.long, "normal must not exceed long")
+    .optional(),
   toHit: z.number().int().min(-5).max(30),
   damage: z
     .array(z.object({ amount: AmountSchema, damageType: DamageTypeSchema }))
@@ -271,6 +281,9 @@ export const CombatantSchema = z
     defenses: DefenseSetSchema,
     stats: CombatantStatsSchema.optional(),
     assists: z.array(AssistSchema).max(8).optional(),
+    // Spec 094: where the combatant stands, and its walking Speed in feet.
+    placement: PlacementSchema.optional(),
+    speed: z.number().int().min(0).max(200).optional(),
   })
   .superRefine((c, ctx) => {
     const helpers = (c.assists ?? []).map((a) => a.helperId);
@@ -328,6 +341,17 @@ export const EncounterSchema = z
     order: z.array(InitiativeEntrySchema).min(1),
     // Combatants whose Reaction is spent until the start of their next turn (SRD 5.2.1 p. 10).
     reactionsSpent: z.array(CombatantIdSchema).optional(),
+    // Spec 094: the active combatant's movement this turn. A record whose round or
+    // combatantId differs from the active turn reads as zero movement used.
+    movement: z
+      .object({
+        combatantId: CombatantIdSchema,
+        round: z.number().int().min(1),
+        usedFt: z.number().int().min(0),
+        dashes: z.number().int().min(0),
+        disengaged: z.boolean(),
+      })
+      .optional(),
   })
   .superRefine((e, ctx) => {
     if (e.turnIndex >= e.order.length) {
@@ -344,8 +368,21 @@ export const EngineStateSchema = z
     v: z.literal(ENGINE_SCHEMA_VERSION),
     combatants: z.record(CombatantIdSchema, CombatantSchema),
     encounter: EncounterSchema.nullable(),
+    space: SpaceSchema.optional(),
   })
   .superRefine((s, ctx) => {
+    const zones = new Set(s.space?.zones.map((z) => z.id));
+    for (const [key, c] of Object.entries(s.combatants)) {
+      if (c.placement && !zones.has(c.placement.zoneId)) {
+        ctx.addIssue({
+          code: "custom",
+          message: s.space
+            ? `"${key}" is placed in unknown zone "${c.placement.zoneId}"`
+            : `"${key}" is placed but the state has no space`,
+          path: ["combatants", key, "placement"],
+        });
+      }
+    }
     for (const [key, c] of Object.entries(s.combatants)) {
       if (key !== c.id) {
         ctx.addIssue({

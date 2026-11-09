@@ -18,6 +18,7 @@ import type {
   ErrorKind,
   Provider,
   ProviderConfig,
+  StructuredMode,
   UsageSummary,
 } from "../types.js";
 
@@ -29,7 +30,13 @@ interface Deps {
 }
 
 interface ChatCompletionChunk {
-  choices?: { delta?: { content?: string }; finish_reason?: string | null }[];
+  choices?: {
+    delta?: {
+      content?: string;
+      tool_calls?: { index?: number; function?: { arguments?: string } }[];
+    };
+    finish_reason?: string | null;
+  }[];
   usage?: { prompt_tokens?: number; completion_tokens?: number };
 }
 
@@ -82,14 +89,43 @@ export class OpenAiCompatibleProvider implements Provider {
   async *chat(
     model: string,
     req: ChatRequest,
-    opts: { maxTokens?: number },
+    opts: { maxTokens?: number; structured?: StructuredMode },
   ): AsyncIterable<ChatEvent> {
     const messages = req.system
       ? [{ role: "system", content: req.system }, ...req.messages]
       : req.messages;
+    const out = opts.structured && req.output ? req.output : undefined;
+    const toolMode = out !== undefined && opts.structured === "tool";
     const body = JSON.stringify({
       model,
       messages,
+      ...(out && toolMode
+        ? {
+            tools: [
+              {
+                type: "function",
+                function: {
+                  name: out.name,
+                  description: "Return the reply.",
+                  parameters: out.schema,
+                },
+              },
+            ],
+            tool_choice: { type: "function", function: { name: out.name } },
+          }
+        : {}),
+      ...(out && !toolMode
+        ? {
+            response_format: {
+              type: "json_schema",
+              json_schema: {
+                name: out.name,
+                schema: out.schema,
+                strict: false,
+              },
+            },
+          }
+        : {}),
       ...(opts.maxTokens !== undefined ? { max_tokens: opts.maxTokens } : {}),
       stream: true,
       stream_options: { include_usage: true },
@@ -148,6 +184,10 @@ export class OpenAiCompatibleProvider implements Provider {
     let refusal = false;
     let sawFinish = false;
     let truncated = false;
+    // Tool mode: arguments stream as `text`; content is held and yielded only
+    // when no argument arrived (a router that ignored the tool).
+    let held = "";
+    let sawArgs = false;
 
     try {
       for await (const data of events) {
@@ -160,7 +200,19 @@ export class OpenAiCompatibleProvider implements Provider {
         }
         const choice = chunk.choices?.[0];
         const text = choice?.delta?.content;
-        if (text) yield { type: "text", text };
+        if (text) {
+          if (toolMode) held += text;
+          else yield { type: "text", text };
+        }
+        if (toolMode) {
+          for (const call of choice?.delta?.tool_calls ?? []) {
+            const args = call.function?.arguments;
+            if ((call.index ?? 0) === 0 && args) {
+              sawArgs = true;
+              yield { type: "text", text: args };
+            }
+          }
+        }
         if (choice?.finish_reason) sawFinish = true;
         if (choice?.finish_reason === "content_filter") refusal = true;
         if (choice?.finish_reason === "length") truncated = true;
@@ -185,6 +237,7 @@ export class OpenAiCompatibleProvider implements Provider {
     }
 
     if (req.signal?.aborted) return;
+    if (toolMode && !sawArgs && held) yield { type: "text", text: held };
     if (refusal) {
       yield {
         type: "error",

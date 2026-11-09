@@ -20,6 +20,16 @@ export interface PurposeConfig {
   op: "chat" | "embed";
   maxTokens?: number;
   batchSize?: number;
+  /** Structured-output mode for chat purposes: sends `ChatRequest.output` on the wire. */
+  structured?: StructuredMode;
+}
+
+export type StructuredMode = "tool" | "json-schema";
+
+/** A vendor-neutral output spec: the adapter maps it to its wire form per mode. */
+export interface OutputSpec {
+  name: string;
+  schema: Record<string, unknown>;
 }
 
 /** One `AI_PRICES` entry, keyed `"<provider>/<model>"`, USD per million tokens. */
@@ -38,6 +48,8 @@ export interface ChatRequest {
   system?: string;
   messages: ChatMessage[];
   signal?: AbortSignal;
+  /** The reply's JSON Schema; sent only when the purpose declares `structured`. */
+  output?: OutputSpec;
   /**
    * Called once per call that emits a usage record, with the record the sink
    * receives. Not called for an unknown purpose (no record exists). A throwing
@@ -107,7 +119,7 @@ export interface Provider {
   chat?(
     model: string,
     req: ChatRequest,
-    opts: { maxTokens?: number },
+    opts: { maxTokens?: number; structured?: StructuredMode },
   ): AsyncIterable<ChatEvent>;
   embed?(
     model: string,

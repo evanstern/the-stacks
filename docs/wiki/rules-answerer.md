@@ -7,7 +7,7 @@ sources:
   - apps/server/src/library/cite.ts
   - apps/server/src/routes/library.ts
   - .env.example
-verified_against: 4b9c7549af7e22e6be7c198f02743d124fa98e84
+verified_against: beae54aa70dd2338a46f33de801f38e0019624b6
 ---
 
 # Rules answerer

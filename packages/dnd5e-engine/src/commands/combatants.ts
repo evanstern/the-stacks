@@ -17,6 +17,19 @@ export const handleCombatantAdd: Handler<"combatant.add"> = (
       },
     );
   }
+  if (init.placement) {
+    if (!state.space) {
+      return refuse(
+        "SPACE_UNDEFINED",
+        "a placement needs a space; run space.define first",
+      );
+    }
+    if (!state.space.zones.some((z) => z.id === init.placement?.zoneId)) {
+      return refuse("ZONE_UNKNOWN", `no zone "${init.placement.zoneId}"`, {
+        zoneId: init.placement.zoneId,
+      });
+    }
+  }
   const current = init.hp.current ?? init.hp.max;
   const standard: Combatant["spellSlots"]["standard"] = {};
   for (const [level, max] of Object.entries(init.spellSlots.standard)) {
@@ -53,6 +66,8 @@ export const handleCombatantAdd: Handler<"combatant.add"> = (
     ac: init.ac,
     defenses: init.defenses,
     ...(init.stats ? { stats: init.stats } : {}),
+    ...(init.placement ? { placement: init.placement } : {}),
+    ...(init.speed !== undefined ? { speed: init.speed } : {}),
   };
   return {
     ok: true,

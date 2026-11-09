@@ -155,3 +155,18 @@ export function parseWorktreeList(porcelain) {
   }
   return paths;
 }
+
+/**
+ * `null` when the applied migration count covers the journal, else a one-line
+ * reason. `journalText` is `apps/server/drizzle/meta/_journal.json`;
+ * `appliedText` is the trimmed `psql` count (non-integer, e.g. a missing
+ * table, counts as 0). Pure — see specs/095-migrated-stacks plan D2.
+ */
+export function migrationShortfall(journalText, appliedText) {
+  const expected = JSON.parse(journalText).entries.length;
+  const text = String(appliedText ?? "").trim();
+  const applied = /^\d+$/.test(text) ? Number.parseInt(text, 10) : 0;
+  return applied >= expected
+    ? null
+    : `${applied} of ${expected} migrations applied`;
+}

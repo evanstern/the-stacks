@@ -203,3 +203,51 @@ describe("combatant.add stats (spec 082)", () => {
     expect(settle(state, without.result).combatants.b?.stats).toBeUndefined();
   });
 });
+
+describe("combatant.add placement and speed", () => {
+  const sp = {
+    zones: [{ id: "a", name: "A", kind: "room", tags: [], hidden: false }],
+    edges: [],
+  };
+  const mk = (extra: Record<string, unknown>) =>
+    add({
+      id: "gob-1",
+      name: "Goblin",
+      hp: { max: 7 },
+      zeroHpRule: "dies",
+      ...extra,
+    });
+
+  it("copies placement and speed", () => {
+    const base = stateWith();
+    const state = settle(
+      base,
+      run(base, { type: "space.define", space: sp, reason: "scene" }).result,
+    );
+    const next = settle(
+      state,
+      run(state, mk({ placement: { zoneId: "a" }, speed: 30 })).result,
+    );
+    expect(next.combatants["gob-1"]).toMatchObject({
+      placement: { zoneId: "a" },
+      speed: 30,
+    });
+  });
+  it("refuses ZONE_UNKNOWN for a zone outside the space", () => {
+    const base = stateWith();
+    const state = settle(
+      base,
+      run(base, { type: "space.define", space: sp, reason: "scene" }).result,
+    );
+    expectRefusedBeforeDraw(
+      run(state, mk({ placement: { zoneId: "zz" } })),
+      "ZONE_UNKNOWN",
+    );
+  });
+  it("refuses SPACE_UNDEFINED for a placement with no space", () => {
+    expectRefusal(
+      run(stateWith(), mk({ placement: { zoneId: "a" } })).result,
+      "SPACE_UNDEFINED",
+    );
+  });
+});

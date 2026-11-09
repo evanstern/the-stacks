@@ -12,7 +12,7 @@ sources:
   - Dockerfile
   - apps/server/src/config.ts
   - apps/server/src/routes/health.ts
-verified_against: 84b2de8b900500246b3757232b5378d6ed6bc5a0
+verified_against: 3510dac3caf968fc747fa0db592482e2b531cd7a
 ---
 
 # Runtime stacks
@@ -95,11 +95,15 @@ drops the volume, `-v`) then `env:up` again.
 
 **Scripted DM on a worktree stack (TASK-0158).** `DM_FAKE_SCRIPT=<name>` makes the app
 replay `apps/server/dm-scripts/<name>.json` with no key ([[ai-gateway]]). Set it in the worktree's `.env`, never root's: a root key wins and would reach every stack.
-A fresh stack is unmigrated and a host `db:migrate` hits the test database ([[configuration]]); migrate without a credential: `docker build --target build -t
-stacks-<env>-migrate .`, then `docker run --rm --network stacks-<env>_default --env-file .env -e
-TEST_DATABASE_URL= -w /app/apps/server stacks-<env>-migrate node --experimental-strip-types
-scripts/migrate.ts` (`deploy/dev`'s `migrate` service has the same shape). Append the key with `printf '\nDM_FAKE_SCRIPT=<name>\n' >> .env`, not `echo`: a `.env`
-without a trailing newline fuses the value onto its last line. Then `docker compose -p stacks-<env> up -d --force-recreate --wait app`. See `specs/053-env-fake-dm-script/quickstart.md`. Scripts: `greyhollow-live`, `greyhollow-human-dm` (10 calls; the resumed turn has no second `dm.interpret`). An unresolved committed action still enqueues a reconcile turn at every boot; a roll awaiting the human DM is out of its beat.
+`env up` already migrated it. Append the key with `printf '\nDM_FAKE_SCRIPT=<name>\n' >> .env`, not `echo`: a `.env`
+without a trailing newline fuses the value onto its last line. Then `docker compose -p stacks-<env> up -d --force-recreate --wait app`. See `specs/053-env-fake-dm-script/quickstart.md`. Scripts: `greyhollow-live`, `greyhollow-human-dm`. An unresolved committed action still enqueues a reconcile turn at every boot; a roll awaiting the human DM is out of its beat.
+
+**Migrate on up (TASK-0098).** `runUp` (`env up`, `env main`) builds the `build` stage as
+`stacks-<env>-migrate`, migrates the test database (`up` only), starts `db`, then migrates the app
+database with `docker run --network stacks-<env>_default --env-file .env -e TEST_DATABASE_URL=`
+(Docker reads `.env`; the host never parses a password). It counts `drizzle.__drizzle_migrations`
+per database; `migrationShortfall` (`env-lib.mjs`) vs `_journal.json` exits 1 naming a short one.
+`env down`/`prune` remove the image.
 
 ## Connections
 

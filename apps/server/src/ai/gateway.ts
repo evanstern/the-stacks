@@ -113,6 +113,7 @@ export function createGateway(opts: GatewayOptions): Gateway {
       try {
         for await (const event of provider.chat(purpose.model, req, {
           maxTokens: purpose.maxTokens,
+          structured: purpose.structured,
         })) {
           if (event.type !== "text") {
             usage = event.usage;

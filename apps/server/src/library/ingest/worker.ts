@@ -318,6 +318,13 @@ export function startIngestWorker(deps: IngestWorkerDeps): {
         }
       } catch (err) {
         console.error("ingest worker: loop iteration failed", err);
+        // Back off like the DM worker: a missing schema must not spin.
+        if (!stopped) {
+          const { promise, wake } = wait(POLL_MS);
+          wakeSleep = wake;
+          await promise;
+          wakeSleep = undefined;
+        }
       }
     }
   })();

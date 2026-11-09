@@ -1,25 +1,25 @@
 import { describe, expect, it } from "vitest";
 import type { ChatEvent, ChatRequest } from "../../src/ai/types.js";
-import { ChronicleOutput, normalizeChronicle } from "../../src/dm/chronicle.js";
-import { CompanionOutput } from "../../src/dm/companion.js";
+import { normalizeChronicle } from "../../src/dm/chronicle.js";
 import { AuditModelOutput, normalizeAudit } from "../../src/dm/nodes/audit.js";
-import { DirectorOutput, InterpretOutput } from "../../src/dm/nodes/schemas.js";
 import { callJson } from "../../src/dm/pipeline/call.js";
+import {
+  audit,
+  auditIssue,
+  chronicle,
+  SHAPES,
+  type Shape,
+  wrap,
+} from "./fixtures/task-0203-shapes.js";
 
-// Fixtures are rebuilt from the TASK-0203 root-cause note (specs/086 evidence limits).
+// Fixtures live in ./fixtures/task-0203-shapes.ts (rebuilt from the TASK-0203 note).
 const usage = { inputTokens: 1, outputTokens: 1 };
 const text = (t: string): ChatEvent[] => [
   { type: "text", text: t },
   { type: "done", usage },
 ];
-const fenced = (o: unknown) => text(`\`\`\`json\n${JSON.stringify(o)}\n\`\`\``);
-const thinking = (o: unknown) => text(`<think></think>${JSON.stringify(o)}`);
 
-function run<T>(
-  schema: import("zod").ZodType<T>,
-  scripts: ChatEvent[][],
-  normalize?: (j: unknown) => unknown,
-) {
+function run(shape: Shape, scripts: ChatEvent[][]) {
   const gateway = {
     chat: async function* (_req: ChatRequest) {
       for (const e of scripts.shift() ?? []) yield e;
@@ -28,167 +28,48 @@ function run<T>(
   return callJson(
     { gateway },
     {
-      purpose: "dm.audit",
+      purpose: shape.purpose,
       promptVersion: "t",
       system: "s",
       user: "u",
-      schema,
-      normalize,
+      schema: shape.schema,
+      normalize: shape.normalize,
       signal: new AbortController().signal,
     },
   );
 }
 
-const auditIssue = (over: Record<string, unknown> = {}) => ({
-  kind: "doctrine",
-  detail: "ok",
-  ...over,
-});
-const audit = (issue: Record<string, unknown>) => ({
-  verdict: "fail",
-  issues: [issue],
-});
-const chronicle = (ids: unknown[]) => ({
-  entries: [
-    { title: "t", body: "b", sourceActionIds: ids, visibility: "public" },
-  ],
-});
-const director = {
-  beat: { decision: "resolve" },
-  tableMode: { to: "stay" },
-  trackers: [],
-  scene: { status: "continue" },
-  pacing: { tension: "low", spotlight: null, beatId: null },
-  goalNote: "g",
-  companionPrompts: [],
-};
-const companion = { say: null, comment: null, act: null, pending: [] };
-const check = (stakes: object) => ({
-  step: "check",
-  reason: "r",
-  combatantId: null,
-  kind: "ability-check",
-  ability: "dex",
-  skill: null,
-  difficulty: "medium",
-  circumstance: null,
-  autoFail: null,
-  onSuccess: [],
-  onFailure: [],
-  stakes,
-});
-const reading = (steps: unknown[]) => ({
-  readings: [
-    {
-      actionId: "a1",
-      intent: "attack",
-      uncertain: false,
-      needsAdjudication: false,
-      rulesQuestion: null,
-      clarify: null,
-      steps,
-    },
-  ],
-});
-const attack = {
-  step: "attack",
-  reason: "r",
-  attackerId: "goblin",
-  targetId: "rook",
-  attack: "Scimitar",
-  circumstance: null,
-  onHit: [],
-};
-
-describe("safe coercions pass on attempt 1 (S1 to S4)", () => {
-  it("S1: unknown audit kind becomes other with a prefix", async () => {
-    const r = await run(
-      AuditModelOutput,
-      [fenced(audit(auditIssue({ kind: "turn-mode", detail: "Rook acts." })))],
-      normalizeAudit,
-    );
-    expect(r.calls.map((c) => c.outcome)).toEqual(["ok"]);
-    if (!r.ok) throw new Error("expected ok");
-    expect(r.value.issues[0]).toMatchObject({
-      kind: "other",
-      detail: "[turn-mode] Rook acts.",
-    });
-  });
-  it("S2: a 450-character detail is clipped at a space within 300", async () => {
-    const detail = "word ".repeat(90).trim();
-    const r = await run(
-      AuditModelOutput,
-      [thinking(audit(auditIssue({ detail })))],
-      normalizeAudit,
-    );
-    expect(r.calls).toHaveLength(1);
-    if (!r.ok) throw new Error("expected ok");
-    const d = r.value.issues[0]?.detail ?? "";
-    expect(d.length).toBeLessThanOrEqual(300);
-    expect(d.endsWith("word")).toBe(true);
-  });
-  it("S3: a null actor is dropped", async () => {
-    const r = await run(
-      AuditModelOutput,
-      [fenced(audit(auditIssue({ actor: null })))],
-      normalizeAudit,
-    );
-    expect(r.calls).toHaveLength(1);
-    if (!r.ok) throw new Error("expected ok");
-    expect("actor" in (r.value.issues[0] ?? {})).toBe(false);
-  });
-  it("S4: numeric chronicle ids become strings", async () => {
-    const r = await run(
-      ChronicleOutput,
-      [thinking(chronicle([12, 14]))],
-      normalizeChronicle,
-    );
-    expect(r.calls).toHaveLength(1);
-    if (!r.ok) throw new Error("expected ok");
-    expect(r.value.entries[0]?.sourceActionIds).toEqual(["12", "14"]);
-  });
-});
-
-describe("other mismatches still re-ask (S5 to S8)", () => {
-  const reask = async (
-    schema: import("zod").ZodType<unknown>,
-    bad: unknown,
-    good: unknown,
-  ) => {
-    const r = await run(schema, [fenced(bad), fenced(good)]);
-    expect(r.ok).toBe(true);
-    expect(r.calls.map((c) => c.outcome)).toEqual(["schema-mismatch", "ok"]);
-  };
-  it("S5: companion without comment", async () => {
-    const { comment: _c, ...bad } = companion;
-    await reask(CompanionOutput, bad, companion);
-  });
-  it("S6: director with goalNote inside pacing", async () => {
-    const { goalNote: _g, ...rest } = director;
-    await reask(
-      DirectorOutput,
-      { ...rest, pacing: { ...director.pacing, goalNote: "g" } },
-      director,
-    );
-  });
-  it("S7: NPC attack step without attack", async () => {
-    const { attack: _a, ...bad } = attack;
-    await reask(InterpretOutput, reading([bad]), reading([attack]));
-  });
-  it("S8: ability check with stakes.severe null", async () => {
-    const stakes = { success: "s", cost: "c", failure: "f" };
-    await reask(
-      InterpretOutput,
-      reading([check({ ...stakes, severe: null })]),
-      reading([check({ ...stakes, severe: "x" })]),
-    );
-  });
+describe("TASK-0203 shapes through callJson", () => {
+  for (const shape of SHAPES) {
+    if (shape.expect === "ok") {
+      it(`${shape.id}: passes on attempt 1`, async () => {
+        const r = await run(shape, [text(wrap(shape, shape.reply))]);
+        expect(r.calls.map((c) => c.outcome)).toEqual(["ok"]);
+        if (!r.ok) throw new Error("expected ok");
+        shape.check?.(r.value);
+      });
+    } else {
+      it(`${shape.id}: re-asks once, then passes`, async () => {
+        const r = await run(shape, [
+          text(wrap(shape, shape.reply)),
+          text(wrap(shape, shape.good)),
+        ]);
+        expect(r.ok).toBe(true);
+        expect(r.calls.map((c) => c.outcome)).toEqual([
+          "schema-mismatch",
+          "ok",
+        ]);
+      });
+    }
+  }
   it("a non-string audit kind is not coerced and re-asks", async () => {
-    const r = await run(
-      AuditModelOutput,
-      [fenced(audit(auditIssue({ kind: 7 }))), fenced(audit(auditIssue()))],
-      normalizeAudit,
-    );
+    const shape = SHAPES[0] as Shape;
+    const bad = audit(auditIssue({ kind: 7 }));
+    const good = audit(auditIssue());
+    const r = await run({ ...shape, schema: AuditModelOutput }, [
+      text(wrap(shape, bad)),
+      text(wrap(shape, good)),
+    ]);
     expect(r.calls.map((c) => c.outcome)).toEqual(["schema-mismatch", "ok"]);
   });
 });

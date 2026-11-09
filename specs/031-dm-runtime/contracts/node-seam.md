@@ -155,6 +155,19 @@ export async function callJson<T>(
 
 `callText` is the same without steps 3–4 (narrate's prose).
 
+Amended by TASK-0273 (spec 093):
+
+- `callJson` converts `schema` once per Zod schema with
+  `z.toJSONSchema(schema, {target: "draft-7", io: "input", unrepresentable: "any"})`, drops `$schema`,
+  and sends it as `ChatRequest.output = {name: purpose with "." → "_", schema}` on both attempts.
+  `callText` sends no `output`. The gateway forwards it only to a purpose with `structured` set
+  (specs/011-ai-gateway/contracts/gateway.md). Parse, normalize, Zod and the re-ask are unchanged.
+  `.refine` rules are not in the sent schema; the post-parse `safeParse` still enforces them.
+- A failed attempt whose usage is `truncated` logs `dm.call.truncated` with `parse` set to
+  `invalid-json` or `schema-mismatch`, not `dm.call.invalid-json` or `dm.call.schema-mismatch`.
+  A truncated `callText` attempt logs `dm.call.truncated` with `parse: null` and `issues: ""`.
+  The payload is otherwise the TASK-0203 payload. The ledger outcome is unchanged.
+
 Amended by specs/033-director-robustness/contracts/director-output.md.
 Amended by specs/033-director-robustness/contracts/failure-record.md.
 Amended by specs/063-think-block/contracts/think-strip.md.

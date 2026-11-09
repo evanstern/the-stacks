@@ -22,6 +22,12 @@ import {
   handleTempHpGrant,
 } from "./commands/hit-points.js";
 import { handleDeathSaveRoll, handleStabilize } from "./commands/life.js";
+import {
+  handleCombatantPlace,
+  handleMove,
+  handleMovementAction,
+  handleSpaceDefine,
+} from "./commands/move.js";
 import { handleRestLong, handleRestShort } from "./commands/rests.js";
 import { handleRoll } from "./commands/roll.js";
 import {
@@ -65,6 +71,10 @@ const handlers: HandlerMap = {
   "spell.cast": handleSpellCast,
   "spell-slot.expend": handleSpellSlotExpend,
   "spell-slot.restore": handleSpellSlotRestore,
+  "space.define": handleSpaceDefine,
+  "combatant.place": handleCombatantPlace,
+  move: handleMove,
+  "movement.action": handleMovementAction,
 };
 
 function issuesOf(error: {

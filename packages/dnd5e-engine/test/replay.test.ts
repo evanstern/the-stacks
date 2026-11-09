@@ -217,3 +217,56 @@ describe("assist replay (spec 084)", () => {
     expect(replay(all).combatants.a?.assists).toEqual([]);
   });
 });
+
+describe("replay of spatial events", () => {
+  it("replays space.defined, combatant.placed and combatant.moved", () => {
+    const rng = scriptedRng([]);
+    let state: EngineState = emptyState();
+    const all: EngineEvent[] = [];
+    const step = (command: unknown) => {
+      const events = expectOk(execute(state, command, rng));
+      all.push(...events);
+      state = replay(events, state);
+    };
+    const z = (id: string) => ({
+      id,
+      name: id,
+      kind: "room",
+      tags: [],
+      hidden: false,
+    });
+    step(
+      add({ id: "hero", name: "Hero", hp: { max: 12 }, zeroHpRule: "dies" }),
+    );
+    step({
+      type: "space.define",
+      space: {
+        zones: [z("a"), z("b")],
+        edges: [{ from: "a", to: "b", kind: "open", feet: 10 }],
+      },
+      reason: "scene",
+    });
+    step({
+      type: "combatant.place",
+      combatantId: "hero",
+      zoneId: "a",
+      reason: "p",
+    });
+    step({ type: "move", combatantId: "hero", toZoneId: "b", reason: "m" });
+    expect(all.map((e) => e.type)).toEqual([
+      "combatant.added",
+      "space.defined",
+      "combatant.placed",
+      "combatant.moved",
+    ]);
+    expect(state.combatants.hero?.placement).toEqual({ zoneId: "b" });
+    expect(replay(all)).toEqual(state);
+    step({
+      type: "combatant.place",
+      combatantId: "hero",
+      zoneId: null,
+      reason: "gone",
+    });
+    expect(state.combatants.hero?.placement).toBeUndefined();
+  });
+});

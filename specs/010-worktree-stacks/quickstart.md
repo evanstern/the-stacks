@@ -4,9 +4,8 @@
 
 ```bash
 cd .worktrees/task-0022
-pnpm env:up                 # stacks-task-0022 on :3022, db on :15022
+pnpm env:up                 # stacks-task-0022 on :3022, db on :15022; both databases migrated
 curl -s localhost:3022/health   # "commit" names this branch's HEAD
-pnpm --filter @the-stacks/server db:migrate   # uses TEST_DATABASE_URL from .env
 pnpm test                   # integration suites run against this stack
 pnpm env:down               # removes containers, network, volume
 ```

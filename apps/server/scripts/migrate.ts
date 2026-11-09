@@ -18,6 +18,13 @@ import { createDb } from "../src/db.ts";
 // and container-run migration is unaffected.
 const config = loadConfig();
 const databaseUrl = process.env.TEST_DATABASE_URL || config.databaseUrl;
+const target = new URL(databaseUrl);
+// Host and database only — never the user or password.
+console.log(
+  `target: ${target.hostname}:${target.port || 5432}${target.pathname} (from ${
+    process.env.TEST_DATABASE_URL ? "TEST_DATABASE_URL" : "DATABASE_URL"
+  })`,
+);
 const db = createDb(databaseUrl);
 
 try {

@@ -520,3 +520,50 @@ describe("gateway.chat truncated flag (TASK-0192)", () => {
     expect(await run(5000)).toBe(false);
   });
 });
+
+describe("gateway.chat structured mode (TASK-0273)", () => {
+  const run = async (structured?: "tool" | "json-schema") => {
+    const seen: unknown[] = [];
+    const gateway = createGateway({
+      config: {
+        providers: { p: { kind: "fake", baseUrl: "http://x" } },
+        purposes: {
+          a: {
+            provider: "p",
+            model: "m",
+            op: "chat",
+            ...(structured ? { structured } : {}),
+          },
+        },
+        prices: {},
+      },
+      sink: memorySink(),
+      adapters: {
+        fake: () => ({
+          ops: new Set(["chat"]),
+          async *chat(_m, _r, opts) {
+            seen.push(opts.structured);
+            yield { type: "done", usage: { inputTokens: 0, outputTokens: 0 } };
+          },
+        }),
+      },
+    });
+    await collect(
+      gateway.chat({
+        purpose: "a",
+        messages: [{ role: "user", content: "x" }],
+        output: { name: "a", schema: { type: "object" } },
+      }),
+    );
+    return seen;
+  };
+
+  it("forwards the purpose's mode to the provider opts", async () => {
+    expect(await run("tool")).toEqual(["tool"]);
+    expect(await run("json-schema")).toEqual(["json-schema"]);
+  });
+
+  it("passes undefined when the purpose sets no mode", async () => {
+    expect(await run()).toEqual([undefined]);
+  });
+});

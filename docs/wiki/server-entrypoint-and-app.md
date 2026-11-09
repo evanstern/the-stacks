@@ -8,7 +8,7 @@ sources:
   - apps/server/src/routes/dm.ts
   - apps/server/src/routes/tables.ts
   - apps/server/src/dm/script/env.ts
-verified_against: 85f778d1365d9968af0b94e21e78f5c058aebd1e
+verified_against: beae54aa70dd2338a46f33de801f38e0019624b6
 ---
 
 # Server entrypoint and app
@@ -46,7 +46,7 @@ built twice.
 Since TASK-0046, `createGate({ db, presence: presence.reader, rng: runtime.gateRng })` (see
 [[proposal-gate]]; `rng` is set only in script mode) is created **before** `createApp`, because the DM runtime needs it:
 `missingDmPurposes(aiConfig.purposes)` logs unconfigured `dm.*` purposes by name with
-`console.warn`; `startDmWorker({ db, presence: presence.reader, gateway: aiGateway, gate, retrieve, loadProjections,
+`console.warn`, and `unstructuredDmPurposes` warns once; `startDmWorker({ db, presence: presence.reader, gateway: aiGateway, gate, retrieve, loadProjections,
 minSimilarity: answerConfig.minSimilarity })` returns `{ nudge, stop }` (see [[dm-turn-jobs]]);
 and `createDmEnqueuer({ db, nudge: dmWorker.nudge, loadProjections, presence: presence.reader, log })` builds the gate
 listener. `createApp` receives `dm: { nudge: dmWorker.nudge }`. After `createGateway({ db, validateSession, gate, presence })` for the WebSocket side, two listeners

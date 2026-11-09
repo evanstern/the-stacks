@@ -12,7 +12,7 @@ sources:
   - apps/server/drizzle/0007_aromatic_baron_zemo.sql
   - apps/server/drizzle/0008_bored_blade.sql
   - apps/server/drizzle/0009_certain_rick_jones.sql
-verified_against: da173eaa7e314723c52253f0ebe17488e9480ee1
+verified_against: 3510dac3caf968fc747fa0db592482e2b531cd7a
 ---
 
 # Migrations
@@ -20,7 +20,7 @@ verified_against: da173eaa7e314723c52253f0ebe17488e9480ee1
 Schema changes flow: edit `apps/server/src/schema/*.ts` → `pnpm db:generate` (`drizzle-kit
 generate`, config in `apps/server/drizzle.config.ts`) writes a new SQL file into
 `apps/server/drizzle/`, which is **committed** — this project never uses drizzle-kit's `push`.
-Applying that SQL to a running database is a separate step: `pnpm db:migrate`.
+Applying that SQL to a running database is a separate step: `pnpm db:migrate` on a host-reachable database. `pnpm env:up` and `pnpm env:main` do it for you (TASK-0098): they run this script in a container against both stack databases and verify the count ([[runtime-stacks]]).
 
 ## How it works
 
@@ -55,7 +55,7 @@ fails on every fresh setup with `Failed query: CREATE SCHEMA IF NOT EXISTS drizz
 (`@localhost:<DB_PORT>`). Inside the container `TEST_DATABASE_URL` is unset, so
 `DATABASE_URL` applies and container-run migration is unaffected. Once resolved, the script
 calls `drizzle-orm/node-postgres/migrator`'s `migrate(db, { migrationsFolder: "./drizzle" })`,
-logs success or failure, and always closes the pool (`db.$client.end()`) in a `finally`.
+first prints `target: <host>:<port>/<db> (from <VAR>)` (never the user or password), logs success or failure, and always closes the pool (`db.$client.end()`) in a `finally`.
 
 **Migration history.** `0000` (events, append-only trigger), `0001` (auth tables), `0002` (the
 `vector` extension and the library plane), `0003` (the `jobs` table), and `0004_glamorous_warlock.sql`
