@@ -39,7 +39,10 @@ Spec: specs/093-structured-output
 - [x] #7 Phase 3: interpret cap, boot warning, env example (needs OQ-3 C9 read or 8000 fallback)
 - [x] #8 Phase 4: playtest watch counts
 - [x] #9 Phase 5: wiki re-ground
+- [ ] #10 Spec phase: Gateway structured mode (US1; FR-001 to FR-005; plan D1 to D3, D9)
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
