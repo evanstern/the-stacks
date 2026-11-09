@@ -1,0 +1,42 @@
+---
+id: TASK-0303
+title: >-
+  Deploy image and CI regressions from TASK-0270: space package missing from the
+  Dockerfile; space timing test flakes
+status: To Do
+assignee: []
+created_date: '2026-11-09 14:03'
+labels:
+  - 'ws:platform'
+  - replan-2026-11
+  - ep-1
+  - hotfix
+milestone: m-10
+dependencies: []
+priority: high
+ordinal: 287000
+---
+
+## Description
+
+<!-- SECTION:DESCRIPTION:BEGIN -->
+Two regressions from TASK-0270 (PR #150).
+
+1. The Dockerfile copies each workspace package by name and omits packages/space. The engine now imports @the-stacks/space, so the runtime image cannot start. vm-104 deploys failed at 05:56, 06:04 and 13:48 on 2026-11-09 and rolled back to 583a0686; TASK-0270, TASK-0098 and TASK-0302 are not live. CI never builds or boots the image, so it did not catch this. packages/intent will hit the same gap when the server imports it (TASK-0268).
+
+2. packages/space test/graph.test.ts 'path and band on 64 zones take under 1 ms each' (SC-005) flakes on CI runners: 1.22 ms measured on PR #149's run. It turns unrelated PRs red.
+<!-- SECTION:DESCRIPTION:END -->
+
+## Acceptance Criteria
+<!-- AC:BEGIN -->
+- [ ] #1 The runtime image includes every workspace package the server depends on, including packages/space and packages/intent.
+- [ ] #2 A test fails when a workspace package the server depends on is missing from the Dockerfile's copy lines.
+- [ ] #3 A vm-104 deploy of the fix serves the new commit on /health.
+- [ ] #4 The SC-005 timing test is stable on CI runners while still guarding the 1 ms budget.
+<!-- AC:END -->
+
+## Definition of Done
+<!-- DOD:BEGIN -->
+- [ ] #1 All tests and checks run green
+- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
+<!-- DOD:END -->
