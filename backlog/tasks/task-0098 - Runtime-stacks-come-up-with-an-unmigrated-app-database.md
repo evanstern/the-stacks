@@ -33,7 +33,10 @@ Spec: specs/095-migrated-stacks
 - [x] #4 The env-cli contract documents where migration happens.
 - [x] #5 Phase 1: migrate on up, verify, back off (specs/095 tasks.md T001-T010)
 - [x] #6 Phase 2: wiki re-ground (specs/095 tasks.md T011-T015)
+- [ ] #7 Spec phase: Migrate on up, verify, back off (US1, US2, US3; FR-001 to FR-010)
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
