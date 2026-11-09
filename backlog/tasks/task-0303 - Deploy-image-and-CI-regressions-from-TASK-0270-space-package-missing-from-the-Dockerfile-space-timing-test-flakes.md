@@ -3,10 +3,10 @@ id: TASK-0303
 title: >-
   Deploy image and CI regressions from TASK-0270: space package missing from the
   Dockerfile; space timing test flakes
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-11-09 14:03'
-updated_date: '2026-11-09 14:08'
+updated_date: '2026-11-09 14:21'
 labels:
   - 'ws:platform'
   - replan-2026-11
@@ -32,7 +32,7 @@ Two regressions from TASK-0270 (PR #150).
 <!-- AC:BEGIN -->
 - [x] #1 The runtime image includes every workspace package the server depends on, including packages/space and packages/intent.
 - [x] #2 A test fails when a workspace package the server depends on is missing from the Dockerfile's copy lines.
-- [ ] #3 A vm-104 deploy of the fix serves the new commit on /health.
+- [x] #3 A vm-104 deploy of the fix serves the new commit on /health.
 - [x] #4 The SC-005 timing test is stable on CI runners while still guarding the 1 ms budget.
 <!-- AC:END -->
 
@@ -45,7 +45,15 @@ Escape line E8 (operator, 2026-11-09, in chat, answering the request for a spec 
 
 Dispatch: tier=haiku pinned=cc/claude-haiku-5-5 served=cc/claude-haiku-5-5
 9ba26e09: space package.json + dist in the image; intent package.json in deps/runtime. Intent dist is not copied: the server does not import intent yet and the build stage does not build it; the new guard (scripts/check-dockerfile-packages.mjs, in check:scripts) fails CI the moment it does. Docker runtime build passed and the engine imported inside the container. 46ae0a12: SC-005 timing test uses warm-up and the median of 9 batches; 1 ms kept; 5/5 local runs pass. Orchestrator: guard exits 0; full ci:check exit 0 after merging main (server 1389, intent 244, web 157). AC #3 reads on the vm-104 deploy.
+
+AC #3 verified 2026-11-09: vm-104 /health status ok, commit 4d092779 (deploy run success at 14:17Z). The failed run at 14:09Z deployed 840fac4f, the board commit before the fix.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Dockerfile now copies packages/space (package.json + dist) and packages/intent (package.json); scripts/check-dockerfile-packages.mjs fails CI on a missing workspace package; the SC-005 timing test uses warm-up and the median of 9 batches. Merged in PR #153 (4d092779). The vm-104 deploy run for 4d092779 succeeded and /health reports ok at 4d092779.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
