@@ -4,7 +4,7 @@ title: Structured output in the gateway
 status: In Progress
 assignee: []
 created_date: '2026-11-07 05:13'
-updated_date: '2026-11-09 00:14'
+updated_date: '2026-11-09 02:07'
 labels:
   - 'ws:narration'
   - replan-2026-11
@@ -36,9 +36,9 @@ Spec: specs/093-structured-output
 - [x] #4 The vm-104 log shapes from TASK-0203 are regression fixtures.
 - [x] #5 Phase 1: gateway structured mode (specs/093 tasks.md)
 - [x] #6 Phase 2: callJson sends its schema; truncation logged apart
-- [ ] #7 Phase 3: interpret cap, boot warning, env example (needs OQ-3 C9 read or 8000 fallback)
+- [x] #7 Phase 3: interpret cap, boot warning, env example (needs OQ-3 C9 read or 8000 fallback)
 - [x] #8 Phase 4: playtest watch counts
-- [ ] #9 Phase 5: wiki re-ground
+- [x] #9 Phase 5: wiki re-ground
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -62,6 +62,9 @@ Phases 1-2 (bc2a1dd3, a4f8eee4) and 4 (e559c92f) done. Phase 3 waits on the OQ-3
 AC tick correction: #2 (under 1% attempt-1 failures over the R1 playtest) is read at CP-7, not now; unticked. #3, #5, #6, #8 ticked.
 
 OQ-3 reading 2026-11-08 via the read-only debug route /dm/sessions/bb4952dc-8600-48e8-a15f-2f4cf154625d/calls in the signed-in hosted page (no vm-104 shell command): dm.interpret attempt-1 n=26, max=4000, p95=4000, outcomes ok+truncated. The reading is saturated at the old 4000 cap, so it understates demand. Cap set to the spec's fallback 8000 (not the formula's 6000). OQ-6 (S9 fixture) skipped: no shell read.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5 (phases 3, 5)
+Phase 3: interpret cap 8000, boot warning for unstructured dm purposes, env example. Phase 5: 11 notes reviewed (5 prose changes), CAPSULES regenerated. ci:check exit 0 (server 1383 pass, DB suites skipped). Orchestrator re-ran freshness OK 61, plan empty. AC #2 reads at CP-7.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
