@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-11-09 14:03'
-updated_date: '2026-11-09 14:03'
+updated_date: '2026-11-09 14:08'
 labels:
   - 'ws:platform'
   - replan-2026-11
@@ -30,10 +30,10 @@ Two regressions from TASK-0270 (PR #150).
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 The runtime image includes every workspace package the server depends on, including packages/space and packages/intent.
-- [ ] #2 A test fails when a workspace package the server depends on is missing from the Dockerfile's copy lines.
+- [x] #1 The runtime image includes every workspace package the server depends on, including packages/space and packages/intent.
+- [x] #2 A test fails when a workspace package the server depends on is missing from the Dockerfile's copy lines.
 - [ ] #3 A vm-104 deploy of the fix serves the new commit on /health.
-- [ ] #4 The SC-005 timing test is stable on CI runners while still guarding the 1 ms budget.
+- [x] #4 The SC-005 timing test is stable on CI runners while still guarding the 1 ms budget.
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -42,6 +42,9 @@ Two regressions from TASK-0270 (PR #150).
 Claimed 2026-11-08 by the R1 sweep (docs/design/r1-fast-table-runbook.md). Worktree .worktrees/task-0303, branch task-0303-deploy-image-hotfix, cut from origin/main 840fac4f. No spec dir: signed escape line covers this task.
 
 Escape line E8 (operator, 2026-11-09, in chat, answering the request for a spec escape line on the hotfix: 'I approve it'): no spec set; the card's AC drive. Tier: haiku for the Dockerfile and test edits.
+
+Dispatch: tier=haiku pinned=cc/claude-haiku-5-5 served=cc/claude-haiku-5-5
+9ba26e09: space package.json + dist in the image; intent package.json in deps/runtime. Intent dist is not copied: the server does not import intent yet and the build stage does not build it; the new guard (scripts/check-dockerfile-packages.mjs, in check:scripts) fails CI the moment it does. Docker runtime build passed and the engine imported inside the container. 46ae0a12: SC-005 timing test uses warm-up and the median of 9 batches; 1 ms kept; 5/5 local runs pass. Orchestrator: guard exits 0; full ci:check exit 0 after merging main (server 1389, intent 244, web 157). AC #3 reads on the vm-104 deploy.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
