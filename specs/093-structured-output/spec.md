@@ -274,6 +274,9 @@ card AC #2. TASK-0197 AC #1 is card AC #3.
   `dm.interpret` attempt 1 in session `bb4952dc`, truncated rows included. The cap is
   `max(4000, ceil(1.5 × max))`, rounded up to the next 1000. (b) If the read is refused, set 8000
   with a `ponytail:` comment naming the CP-7 `out-max` line as the upgrade path. **Recommend (a).**
+  **Answered (operator ruling, R1 lane LF, 2026-11-08):** the hosted read through the read-only debug
+  route was n=26 attempt-1 calls, max=4000, p95=4000, with truncated outcomes: saturated at the old
+  4000 cap. The formula is unusable on a saturated max, so fallback (b) applies: the cap is 8000.
 - **OQ-4 — Which mode does `.env.example` show?** (a) `tool`: the form most widely translated by
   OpenAI-compatible routers and local servers. (b) `json-schema`. **Recommend (a)**, with
   `json-schema` documented as the alternative. The vm-104 value is chosen at CP-7 prep. If the
@@ -285,3 +288,4 @@ card AC #2. TASK-0197 AC #1 is card AC #3.
   vm-104 `dm.call.invalid-json` log line (session `bb4952dc`, seq 109-113). (a) Read it in the
   same C9 read as OQ-3 and add it as fixture S9. (b) Ship S1 to S8 only; AC #4 names the
   TASK-0203 shapes, which S1 to S8 cover. **Recommend (a) when the C9 read happens, else (b).**
+  **Skipped:** no shell read was taken, so S9 is not added; S1 to S8 only (option b).

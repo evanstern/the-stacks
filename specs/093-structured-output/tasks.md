@@ -88,17 +88,17 @@ ones, and the interpret cap fits measured output.
 **Independent test**: `call-schemas.test.ts` pins the interpret cap in `PURPOSE_MAX_TOKENS` and
 in `.env.example`. A unit test covers `unstructuredDmPurposes`.
 
-- [ ] T018 [US1] In `apps/server/src/dm/purposes.ts`, add `unstructuredDmPurposes(purposes)`
+- [x] T018 [US1] In `apps/server/src/dm/purposes.ts`, add `unstructuredDmPurposes(purposes)`
       per plan D6. Exclude `dm.narrate`.
-- [ ] T019 [US1] In `apps/server/src/index.ts`, warn once beside the `missingDmPurposes` warning,
+- [x] T019 [US1] In `apps/server/src/index.ts`, warn once beside the `missingDmPurposes` warning,
       listing the unstructured purposes.
-- [ ] T020 [US5] In `apps/server/src/dm/purposes.ts`, set `PURPOSE_MAX_TOKENS["dm.interpret"]` to
+- [x] T020 [US5] In `apps/server/src/dm/purposes.ts`, set `PURPOSE_MAX_TOKENS["dm.interpret"]` to
       the OQ-3 value. The comment names the session, max, p95 and date.
-- [ ] T021 [US1] In `.env.example`, add `"structured":"tool"` to every `dm.*` entry except
+- [x] T021 [US1] In `.env.example`, add `"structured":"tool"` to every `dm.*` entry except
       `dm.narrate`. Set the interpret `maxTokens`. Rewrite the comment per plan D6.
-- [ ] T022 [US1] In `apps/server/test/dm/call-schemas.test.ts`, test `unstructuredDmPurposes` and
+- [x] T022 [US1] In `apps/server/test/dm/call-schemas.test.ts`, test `unstructuredDmPurposes` and
       pin the interpret cap in both places (read `.env.example` from the repo root).
-- [ ] T023 [US5] Run `pnpm --filter @the-stacks/server test -- budget` and update any
+- [x] T023 [US5] Run `pnpm --filter @the-stacks/server test -- budget` and update any
       `playtest/budget.test.ts` expectation the new cap moves.
 
 ## Phase 4: Playtest watch counts (US3; FR-012; plan D8)

@@ -147,7 +147,7 @@ the schema.
 - `dm/purposes.ts`: `unstructuredDmPurposes(purposes)` returns each configured `dm.*` purpose
   whose entry lacks `structured`, except `dm.narrate`. `index.ts` warns once beside the
   `missingDmPurposes` line.
-- `dm/purposes.ts`: `PURPOSE_MAX_TOKENS["dm.interpret"]` takes the OQ-3 value. The comment names
+- `dm/purposes.ts`: `PURPOSE_MAX_TOKENS["dm.interpret"]` takes the OQ-3 value: 8000 (fallback; the hosted read saturated at 4000: n=26, max=4000, p95=4000). OQ-6 skipped, no S9. The comment names
   the measurement (session, max, p95) and the date.
 - `.env.example`: every `dm.*` entry except `dm.narrate` gains `"structured":"tool"`.
   `dm.interpret` carries the new cap. The comment states both modes, that `dm.narrate` stays
