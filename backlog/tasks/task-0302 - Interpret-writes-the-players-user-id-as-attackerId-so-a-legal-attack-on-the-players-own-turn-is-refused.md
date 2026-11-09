@@ -3,10 +3,10 @@ id: TASK-0302
 title: >-
   Interpret writes the player's user id as attackerId, so a legal attack on the
   player's own turn is refused
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-11-09 05:23'
-updated_date: '2026-11-09 05:39'
+updated_date: '2026-11-09 12:56'
 labels:
   - playtest
   - 'ws:intent'
@@ -27,6 +27,8 @@ ordinal: 286000
 Found in the R1 baseline playtest (2026-11-09, session 3406d9ae, seq 117-124). On Tamsin's own turn, 'I shoot the wounded goblin lookout on the rise' was refused STEP_ACTOR_MISMATCH and the turn was spent. The dm.interpret reading set the attack step's attackerId to the player's user id (6ff0a0f1-...) instead of the character id 'tamsin'. The plan gate's foreignActor check then saw a non-party attacker. The narration audit failed twice and shipped the fallback line 'Tamsin Vale cannot do that here.'
 
 The structural fix is the Intent path: a typed attack Intent carries actor pc:tamsin from the seat, so no model writes an actor id (TASK-0267 planner, TASK-0269 interpret emits Intents). Until then the interpret prompt or a normalizer must map the seat's user id to its character.
+
+Spec: specs/096-seat-actor-id
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
@@ -39,6 +41,8 @@ The structural fix is the Intent path: a typed attack Intent carries actor pc:ta
 
 <!-- SECTION:NOTES:BEGIN -->
 Recurrence 2026-11-09: 4 of Tamsin's 5 combat actions refused STEP_ACTOR_MISMATCH (seq 118, 216, 271, 316); only one shot resolved (seq 164). Every refused turn spends her turn and ships a fallback narration. Combat stalls: the human PC cannot act. Severity: blocks combat for a human player on the solo seed.
+
+Claimed 2026-11-08 by the R1 sweep (docs/design/r1-fast-table-runbook.md). Worktree .worktrees/task-0302, branch task-0302-seat-actor-id, cut from origin/main 48725992. Spec number 096 claimed with a stub.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
