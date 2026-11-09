@@ -37,7 +37,7 @@ sources:
   - apps/web/app/debug/use-debug-session.ts
   - apps/web/app/debug/waiting.ts
   - apps/web/app/routes/play-debug.tsx
-verified_against: 112801aa27a89d4fb6e57036e4ad10466e7c062f
+verified_against: beae54aa70dd2338a46f33de801f38e0019624b6
 ---
 
 # Debug view API

@@ -122,16 +122,16 @@ output in the commit body.
 **Independent test**: `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/1.0.1/gates/cli.mjs
 freshness . docs/wiki` prints `OK`.
 
-- [ ] T026 NEEDS-REVIEW `docs/wiki/ai-gateway.md`: the `structured` key, `ChatRequest.output`, the
+- [x] T026 NEEDS-REVIEW `docs/wiki/ai-gateway.md`: the `structured` key, `ChatRequest.output`, the
       adapter wire mapping, tool-call streaming as `text`, the embed rejection. Read the diff of
       its sources before bumping the pin.
-- [ ] T027 NEEDS-REVIEW `docs/wiki/dm-runtime.md`: `callJson` sends its schema; the
+- [x] T027 NEEDS-REVIEW `docs/wiki/dm-runtime.md`: `callJson` sends its schema; the
       `dm.call.truncated` log line; the interpret cap; the boot warning.
-- [ ] T028 NEEDS-REVIEW `docs/wiki/dm-turn-jobs.md`: confirm the ledger is unchanged; amend only
+- [x] T028 NEEDS-REVIEW `docs/wiki/dm-turn-jobs.md`: confirm the ledger is unchanged; amend only
       where it describes the log lines or `truncated`. Re-pin only after the diff read.
-- [ ] T029 NEEDS-REVIEW `docs/wiki/playtest-harness.md`: the watch's three counts. Add
+- [x] T029 NEEDS-REVIEW `docs/wiki/playtest-harness.md`: the watch's three counts. Add
       `.claude/skills/playtest-run/scripts/watch.mjs` to its sources if absent.
-- [ ] T030 Update `docs/wiki/INDEX.md` state paragraph and `docs/wiki/CAPSULES.md` for the
+- [x] T030 Update `docs/wiki/INDEX.md` state paragraph and `docs/wiki/CAPSULES.md` for the
       `ai-gateway` capsule. Run the freshness gate and the spec-bridge check.
 
 ## Dependencies
