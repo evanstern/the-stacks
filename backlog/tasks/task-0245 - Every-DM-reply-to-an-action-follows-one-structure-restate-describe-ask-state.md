@@ -3,10 +3,10 @@ id: TASK-0245
 title: >-
   Every DM reply to an action follows one structure: restate, describe, ask,
   state
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-11-05 04:52'
-updated_date: '2026-11-08 19:55'
+updated_date: '2026-11-09 15:35'
 labels:
   - dm
   - narration
@@ -31,6 +31,8 @@ Intent: each narrate job receives a fact sheet: the restate target, the facts th
 Source: docs/design/replan-2026-11/board-rework-map.md (rewrite row), plan-of-action.md §5, target-architecture.md, decisions-for-ratification.md.
 
 Prior scope (superseded): a four-part reply policed by the narrate prompt and the audit, from runbook B playtest run 1 (2026-11-03, session 729a6c5c, seq 20). Operator rulings 2026-11-04: State line is code-rendered; restate is a narrator paraphrase; no design round. Related: TASK-0209, 0204, 0207, 0214, 0237, 0244.
+
+Spec: specs/098-fact-sheet
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
@@ -51,6 +53,8 @@ Rewritten by replan-2026-11. Fact sheet, code-rendered fact rows and State line,
 AC re-authored by replan-2026-11.
 
 CP-5 ruling 2026-11-08 (docs/design/r1-fast-table-runbook.md) F4: may develop ahead of TASK-0268 against fixtures. Builds after TASK-0273. The spec states the fact-sheet input as settled engine events.
+
+Claimed 2026-11-08 by the R1 sweep (docs/design/r1-fast-table-runbook.md). Worktree .worktrees/task-0245, branch task-0245-fact-sheet, cut from origin/main d639c0e1. Spec number 098 claimed with a stub.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
