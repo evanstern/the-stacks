@@ -11,7 +11,7 @@ sources:
   - packages/space/src/view.ts
   - packages/dnd5e-engine/src/space.ts
   - packages/dnd5e-engine/src/commands/move.ts
-verified_against: f39868f0d350a24e65f77e09d4163d87dee94bb5
+verified_against: 3898df927538d2f62711db2f69d6ab03d44ed7d9
 ---
 
 # Space
