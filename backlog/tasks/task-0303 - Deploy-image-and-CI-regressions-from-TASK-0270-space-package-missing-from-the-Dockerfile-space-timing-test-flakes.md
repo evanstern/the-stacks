@@ -40,6 +40,8 @@ Two regressions from TASK-0270 (PR #150).
 
 <!-- SECTION:NOTES:BEGIN -->
 Claimed 2026-11-08 by the R1 sweep (docs/design/r1-fast-table-runbook.md). Worktree .worktrees/task-0303, branch task-0303-deploy-image-hotfix, cut from origin/main 840fac4f. No spec dir: signed escape line covers this task.
+
+Escape line E8 (operator, 2026-11-09, in chat, answering the request for a spec escape line on the hotfix: 'I approve it'): no spec set; the card's AC drive. Tier: haiku for the Dockerfile and test edits.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
