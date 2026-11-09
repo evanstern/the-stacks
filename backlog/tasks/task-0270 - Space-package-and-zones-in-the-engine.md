@@ -1,10 +1,10 @@
 ---
 id: TASK-0270
 title: Space package and zones in the engine
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-11-07 05:13'
-updated_date: '2026-11-09 05:45'
+updated_date: '2026-11-09 05:50'
 labels:
   - 'ws:space'
   - replan-2026-11
@@ -63,6 +63,12 @@ Phase 5 done (eda32108 merge, c7a73935 wiki): new space note; 7 notes prose-upda
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5 (merge main after TASK-0273)
 Merge dea1a12b: the 4 wiki conflicts were pin lines only; prose auto-merged. Re-ground 5e481aa4: dm-runtime, overview, playtest-harness re-pinned after diff review. ci:check rc 0 (server 1385 pass, DB skipped). Orchestrator re-ran freshness OK 62, plan empty, no conflict markers.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (The space package (US4, AC #4): 12/12 · Engine placement, space and move (US1, AC #1): 12/12 · Reach and range by band, and SRD mapping (US2, AC #2): 6/6 · Opportunity attacks from leaving an engaged band (US3, AC #3): 2/2 · Wiki re-ground: 7/7). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
