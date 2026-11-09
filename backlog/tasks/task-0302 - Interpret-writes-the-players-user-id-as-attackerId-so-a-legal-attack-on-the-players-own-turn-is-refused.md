@@ -3,10 +3,10 @@ id: TASK-0302
 title: >-
   Interpret writes the player's user id as attackerId, so a legal attack on the
   player's own turn is refused
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-11-09 05:23'
-updated_date: '2026-11-09 13:37'
+updated_date: '2026-11-09 13:43'
 labels:
   - playtest
   - 'ws:intent'
@@ -52,6 +52,12 @@ Spec 096 (652af7e0). Root cause verified by orchestrator: interpret and director
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5 (phases 1-2)
 Phase 1 (b1f7300b): seated character id rendered in interpret (v16) and director (v11) prompts; seatActorIds normalizer logs dm.interpret.seat-actor. Phase 2 (d2190a08): 4 notes re-grounded. ci:check exit 0. Orchestrator re-ran seat-actor-id.test.ts (3/3) and freshness OK 62. AC #2 bypassed by spec 096: the structural fix is TASK-0269 (seat supplies the actor). Hosted verification after deploy.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Seat labels and seat normalizer (US1, US2; FR-001 to FR-007): 6/6 · Wiki (re-ground): 6/6). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
