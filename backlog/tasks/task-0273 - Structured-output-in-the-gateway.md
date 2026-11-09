@@ -40,7 +40,10 @@ Spec: specs/093-structured-output
 - [x] #8 Phase 4: playtest watch counts
 - [x] #9 Phase 5: wiki re-ground
 - [ ] #10 Spec phase: Gateway structured mode (US1; FR-001 to FR-005; plan D1 to D3, D9)
+- [ ] #11 Spec phase: callJson sends its schema; truncation logs apart (US1, US2, US4; FR-006 to FR-009, FR-013, FR-015; plan D4, D5, D7, D9)
 <!-- AC:END -->
+
+
 
 
 
