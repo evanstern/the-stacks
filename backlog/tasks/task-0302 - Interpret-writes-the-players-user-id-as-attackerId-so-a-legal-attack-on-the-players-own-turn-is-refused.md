@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-11-09 05:23'
-updated_date: '2026-11-09 13:29'
+updated_date: '2026-11-09 13:37'
 labels:
   - playtest
   - 'ws:intent'
@@ -33,10 +33,10 @@ Spec: specs/096-seat-actor-id
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 A human player's attack on their own turn carries the character id as the attacker, with a regression test from session 3406d9ae seq 117.
+- [x] #1 A human player's attack on their own turn carries the character id as the attacker, with a regression test from session 3406d9ae seq 117.
 - [ ] #2 No model output may set an actor id; the seat supplies it (fixed structurally by TASK-0269).
-- [ ] #3 Phase 1: prompts render the seated character id; seatActorIds normalizer; regression test (specs/096)
-- [ ] #4 Phase 2: wiki re-ground
+- [x] #3 Phase 1: prompts render the seated character id; seatActorIds normalizer; regression test (specs/096)
+- [x] #4 Phase 2: wiki re-ground
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -48,6 +48,9 @@ Claimed 2026-11-08 by the R1 sweep (docs/design/r1-fast-table-runbook.md). Workt
 
 Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=cc/claude-opus-5-5 (spec authoring, grant C1)
 Spec 096 (652af7e0). Root cause verified by orchestrator: interpret and director call transcriptEntries(tail) without a roster, so speaker() in prompts/common.ts returns the raw user id for human lines; party-scope beat entries also fall back to the user id. Fix (c): label fix (prompt versions bumped) plus a seatActorIds normalizer after interpret, logged. AC #2 (seat supplies the actor) deferred to TASK-0269. OQ1 (companion prompt shows a commenter's user id) left to TASK-0299.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5 (phases 1-2)
+Phase 1 (b1f7300b): seated character id rendered in interpret (v16) and director (v11) prompts; seatActorIds normalizer logs dm.interpret.seat-actor. Phase 2 (d2190a08): 4 notes re-grounded. ci:check exit 0. Orchestrator re-ran seat-actor-id.test.ts (3/3) and freshness OK 62. AC #2 bypassed by spec 096: the structural fix is TASK-0269 (seat supplies the actor). Hosted verification after deploy.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
