@@ -16,7 +16,7 @@ sources:
   - apps/server/src/dm/audit-words.ts
   - specs/034-narration-quality/contracts/audit-criteria.md
 size_budget_exempt: TASK-0113 adds the agency checks and reflex facts to the one narration-and-audit pipeline; it does not split without a TASK of its own (sibling notes dm-runtime and playtest-harness carry the same exemption)
-verified_against: ee5555fef74502e96badd67e43c1b285d964396b
+verified_against: b1f7300bcb6f3bb6ae413c185134d6f9fe8fac28
 ---
 
 # DM narration quality
@@ -37,8 +37,11 @@ DM-only seed facts never reach a player-facing prompt. The director still sees t
 ## Transcript and facts
 
 `transcriptEntries(tail, roster?)` in `prompts/common.ts`: with a roster (`rosterOf(party)`) it
-drops non-public rows and names speakers; without one it is the unchanged DM-side form (director
-and interpret). `NarrationFacts` (`facts.ts`, `buildNarrationFacts`) carries trigger, actions
+drops non-public rows and names speakers; without one it is the DM-side form (director
+and interpret): every entry is kept, and a human is labelled by the seated character id, never a
+user id (TASK-0302, spec 096: `seatsOf(party)` maps a player's user id to the character they seat,
+`dmActorLabel` returns the character id, an `ai:`/`system` actor, or `a player`; `beatEntries`
+labels a party-scope item the same way; the optional third argument `seats` carries the map). `NarrationFacts` (`facts.ts`, `buildNarrationFacts`) carries trigger, actions
 with rolls and changes, `npcTurn`, director pacing, `modeChange`, present NPCs, rulings,
 `clarify` questions, plus v2 fields: `party` (id, name, controller), `events` (public encounter
 and turn changes, plus a `presence` fact from each `scene-presence.changed` row: name, new presence and reason; the name falls back to the seed NPC name) and `setting` (`locationName`, `openingFraming`). At scene start `openingSection` (`prompts/narrate.ts`) adds place, premise, goal, framing, each party character (name, class, look) and each NPC present at the first beat (`beats[0]` declaration minus S1 absent, not the Director's beat); it names characters, never players or controllers. `party` stays for the audit's

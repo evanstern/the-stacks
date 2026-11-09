@@ -70,7 +70,7 @@ const NARRATIVE =
 
 describe("interpret and adjudicate prompts", () => {
   it("bumps the prompt versions", () => {
-    expect(INTERPRET_VERSION).toBe("dm.interpret-v15");
+    expect(INTERPRET_VERSION).toBe("dm.interpret-v16");
     expect(ADJUDICATE_VERSION).toBe("dm.adjudicate-v10");
   });
 

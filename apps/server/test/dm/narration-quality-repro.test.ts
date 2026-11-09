@@ -293,8 +293,9 @@ describe("F17 and F76: facts and transcript lines lose detail (T014)", () => {
     const p = projectedThrough(188);
     const entry = p.transcript.filter((e) => e.seq === 187);
     expect(entry).toHaveLength(1);
-    // Without a roster the line is unchanged (director and interpret).
-    expect(transcriptEntries(entry)[0]).toContain(PLAYER_USER_ID);
+    // Without a roster (director and interpret) the human is the seated
+    // character id, never the user id (TASK-0302).
+    expect(transcriptEntries(entry)[0]).not.toContain(PLAYER_USER_ID);
     const lines = transcriptEntries(entry, rosterOf(p.party));
     expect(lines).toHaveLength(1);
     expect(lines[0]).toContain("Tamsin Vale");

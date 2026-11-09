@@ -23,7 +23,7 @@ import { greyhollowDuo, greyhollowFight } from "./snapshot-fixtures.js";
 const duo = greyhollowDuo();
 const assembled = (over: Partial<NodeOutputs["assemble"]> = {}) =>
   ({
-    projections: {},
+    projections: { party: [] },
     snapshot: buildSnapshot(duo.projections, duo.seed),
     throughSeq: 5,
     beat: [{ actionId: "a1" }],

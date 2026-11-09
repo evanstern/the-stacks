@@ -4,6 +4,7 @@ title: Companion and monster turns emit Intents
 status: To Do
 assignee: []
 created_date: '2026-11-08 19:56'
+updated_date: '2026-11-09 13:29'
 labels:
   - 'ws:intent'
   - replan-2026-11
@@ -30,6 +31,12 @@ Source: docs/design/r1-fast-table-runbook.md finding F5, CP-5 ruling 2026-11-08.
 - [ ] #3 AI-actor Intents pass the same gate and planner as player Intents, with a test.
 - [ ] #4 A fixture 4v4 round with three companions and four monsters completes under 60 s with the fake model.
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+From spec 096 OQ1 (TASK-0302): prompts/companion.ts still renders a human commenter's user id. Fix it here when companion turns emit Intents.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
