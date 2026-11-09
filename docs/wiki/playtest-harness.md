@@ -22,6 +22,7 @@ sources:
   - apps/server/test/playtest/stats.test.ts
   - .env.example
   - .claude/skills/playtest-run/scripts/checklist.mjs
+  - .claude/skills/playtest-run/scripts/watch.mjs
   - .claude/skills/playtest-run/scripts/local-table.mjs
   - apps/server/seeds/greyhollow-ford-reed-camp.json
   - apps/server/dm-scripts/runbook-a-reed-camp.json
@@ -152,5 +153,5 @@ plays (TASK-0195, `docs/design/playtest-scenarios.md`). Parts: a seed, an option
 `DM_FAKE_SCRIPT` setup script, a checklist file under `docs/playtests/scenarios/`. The
 `playtest-run` skill's `checklist.mjs derive --scenario <file>` adds the file's rows;
 `local-table.mjs seed <creds> <port> <seedId> a,b` seats two humans and `act` declares and
-commits one action. Runbook A ships seed `greyhollow-ford-reed-camp` and script
+commits one action. `watch.mjs` prints per turn `truncated=` and, after the spend line, `attempt-1 failures f/n = p%` and `out-max <purpose>=<tokens>` (TASK-0273). Runbook A ships seed `greyhollow-ford-reed-camp` and script
 `runbook-a-reed-camp`; a script consumes its calls in order, so a companion prompt must be scripted.

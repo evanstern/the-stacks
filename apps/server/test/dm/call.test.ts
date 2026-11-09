@@ -685,3 +685,94 @@ describe("loose parse (TASK-0203)", () => {
     expect(calls.map((c) => c.outcome)).toEqual(["truncated", "ok"]);
   });
 });
+
+describe("output spec and truncated log (TASK-0273)", () => {
+  it("sends the same output spec on both attempts, named after the purpose", async () => {
+    const { gateway, requests } = gatewayOf([text("nope"), text('{"n":1}')]);
+    await callJson({ gateway }, { ...req(), purpose: "dm.audit" });
+    expect(requests).toHaveLength(2);
+    expect(requests[0]?.output?.name).toBe("dm_audit");
+    expect(requests[0]?.output?.schema).toMatchObject({ type: "object" });
+    expect(requests[0]?.output?.schema).not.toHaveProperty("$schema");
+    expect(requests[1]?.output).toBe(requests[0]?.output);
+  });
+
+  it("sends no output on callText", async () => {
+    const { gateway, requests } = gatewayOf([text("prose")]);
+    const { schema: _s, ...rest } = req();
+    await callText({ gateway }, rest);
+    expect(requests[0]).not.toHaveProperty("output");
+  });
+
+  const trunc = usageRecord({ truncated: true });
+  const logs = async (scripts: Parameters<typeof usageGatewayOf>[0]) => {
+    const lines: Record<string, unknown>[] = [];
+    await callJson(
+      { ...usageGatewayOf(scripts), log: (l) => lines.push(l) },
+      req(),
+    );
+    return lines;
+  };
+
+  it("logs dm.call.truncated with parse invalid-json for a capped unparsable reply", async () => {
+    const lines = await logs([
+      { events: text('{"n":'), record: trunc },
+      { events: text('{"n":1}'), record: usageRecord() },
+    ]);
+    expect(lines).toHaveLength(1);
+    expect(lines[0]).toMatchObject({
+      event: "dm.call.truncated",
+      parse: "invalid-json",
+      attempt: 1,
+    });
+  });
+
+  it("logs dm.call.truncated with parse schema-mismatch for a capped schema failure", async () => {
+    const lines = await logs([
+      { events: text('{"n":"x"}'), record: trunc },
+      { events: text('{"n":1}'), record: usageRecord() },
+    ]);
+    expect(lines[0]).toMatchObject({
+      event: "dm.call.truncated",
+      parse: "schema-mismatch",
+    });
+  });
+
+  it("logs a capped second attempt too", async () => {
+    const lines = await logs([
+      { events: text("nope"), record: usageRecord() },
+      { events: text("nope"), record: trunc },
+    ]);
+    expect(lines.map((l) => l.event)).toEqual([
+      "dm.call.invalid-json",
+      "dm.call.truncated",
+    ]);
+  });
+
+  it("logs a capped callText attempt with parse null", async () => {
+    const lines: Record<string, unknown>[] = [];
+    const { schema: _s, ...rest } = req();
+    await callText(
+      {
+        ...usageGatewayOf([{ events: text("The door"), record: trunc }]),
+        log: (l) => lines.push(l),
+      },
+      rest,
+    );
+    expect(lines).toHaveLength(1);
+    expect(lines[0]).toMatchObject({
+      event: "dm.call.truncated",
+      parse: null,
+      issues: "",
+      head: "The door",
+    });
+  });
+
+  it("logs no invalid-json line for a capped reply", async () => {
+    const lines = await logs([
+      { events: text("{"), record: trunc },
+      { events: text('{"n":1}'), record: usageRecord() },
+    ]);
+    expect(lines.some((l) => l.event === "dm.call.invalid-json")).toBe(false);
+  });
+});
