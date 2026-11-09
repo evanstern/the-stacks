@@ -13,6 +13,7 @@ import {
   clueEntries,
   dmStateSection,
   joinSections,
+  seatsOf,
   section,
   seedEntries,
   srdEntries,
@@ -20,7 +21,7 @@ import {
 } from "./common.js";
 import { STEP_GRAMMAR } from "./step-grammar.js";
 
-export const PROMPT_VERSION = "dm.interpret-v15";
+export const PROMPT_VERSION = "dm.interpret-v16";
 
 /** One complete minimal reading: a check step with empty effect lists. */
 export const EXAMPLE_OUTPUT = {
@@ -81,6 +82,7 @@ export function buildInterpretPrompt(input: {
   director: DirectorNodeOutput;
 }): { system: string; user: string } {
   const { ctx, assembled, director } = input;
+  const seats = seatsOf(assembled.projections.party);
   const doctrine = capEntries(
     renderDoctrine("interpret").split("\n\n"),
     CAPS.doctrine,
@@ -132,7 +134,7 @@ export function buildInterpretPrompt(input: {
     ),
     section(
       "Recent transcript",
-      transcriptEntries(assembled.transcriptTail),
+      transcriptEntries(assembled.transcriptTail, undefined, seats),
       CAPS.transcript,
       "start",
     ),
@@ -143,7 +145,7 @@ export function buildInterpretPrompt(input: {
       "end",
     ),
     `Pacing: ${director.pacing.tension}. Director's note (pacing advice only; it never adds a step, a method or a skill): ${director.goalNote}`,
-    section("Beat items", beatEntries(freshBeat), 800, "end"),
+    section("Beat items", beatEntries(freshBeat, seats), 800, "end"),
     assembled.npcTurn
       ? `Monster turn: ${assembled.npcTurn.combatantId}${assembled.npcTurn.srdMonsterId ? ` (SRD ${assembled.npcTurn.srdMonsterId})` : ""}. Write one reading with actionId null.`
       : "",

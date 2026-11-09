@@ -119,12 +119,43 @@ export function rosterOf(party: SessionProjections["party"]): RosterEntry[] {
   }));
 }
 
+/**
+ * Player user id to the character they seat, for the DM-side prompts.
+ * ponytail: a user seating two characters labels as the first; upgrade path
+ * is TASK-0269, where each Intent carries its seat's actor.
+ */
+export function seatsOf(
+  party: SessionProjections["party"],
+): Map<string, string> {
+  const seats = new Map<string, string>();
+  for (const m of party) {
+    if (m.controller.kind === "player" && !seats.has(m.controller.userId)) {
+      seats.set(m.controller.userId, m.characterId);
+    }
+  }
+  return seats;
+}
+
+/** The DM-side actor label: a character id or an ai actor, never a user id. */
+export function dmActorLabel(
+  actor: string,
+  characterId: string | null,
+  seats: ReadonlyMap<string, string>,
+): string {
+  return (
+    characterId ??
+    seats.get(actor) ??
+    (actor === "system" || actor.startsWith("ai:") ? actor : "a player")
+  );
+}
+
 function speaker(
   actor: string,
   characterId: string | null,
   roster: readonly RosterEntry[] | undefined,
+  seats: ReadonlyMap<string, string> = new Map(),
 ): string {
-  if (!roster) return actor;
+  if (!roster) return dmActorLabel(actor, characterId, seats);
   if (characterId) {
     const byChar = roster.find((r) => r.characterId === characterId);
     if (byChar) return byChar.name;
@@ -140,16 +171,17 @@ function speaker(
 function transcriptLine(
   e: TranscriptEntry,
   roster: readonly RosterEntry[] | undefined,
+  seats?: ReadonlyMap<string, string>,
 ): string {
   switch (e.kind) {
     case "talk":
-      return `[${e.seq}] ${speaker(e.actor, e.characterId, roster)} said: ${e.text}`;
+      return `[${e.seq}] ${speaker(e.actor, e.characterId, roster, seats)} said: ${e.text}`;
     case "narration":
       return `[${e.seq}] narration: ${e.text}`;
     case "action.declared":
-      return `[${e.seq}] ${speaker(e.actor, e.characterId, roster)} declared ${e.actionId}: ${e.text}`;
+      return `[${e.seq}] ${speaker(e.actor, e.characterId, roster, seats)} declared ${e.actionId}: ${e.text}`;
     case "action.commented":
-      return `[${e.seq}] ${speaker(e.actor, null, roster)} ${e.stance} on ${e.actionId}: ${e.text}`;
+      return `[${e.seq}] ${speaker(e.actor, null, roster, seats)} ${e.stance} on ${e.actionId}: ${e.text}`;
     case "action.committed":
       return `[${e.seq}] ${e.actionId} committed (${e.authority})`;
     case "action.resolved":
@@ -162,22 +194,26 @@ function transcriptLine(
 /**
  * The last 20 entries, oldest dropped first to fit. With a roster the output
  * is player-facing: non-public entries are dropped and speakers are named.
- * Without one it is byte-identical to the DM-side form.
+ * Without one it is the DM-side form: every entry, a human labelled by seated character id.
  */
 export function transcriptEntries(
   tail: readonly TranscriptEntry[],
   roster?: readonly RosterEntry[],
+  seats?: ReadonlyMap<string, string>,
 ): string[] {
   const kept = roster ? tail.filter((e) => e.visibility === "public") : tail;
   return kept
     .slice(-CAPS.transcriptEntries)
-    .map((e) => transcriptLine(e, roster));
+    .map((e) => transcriptLine(e, roster, seats));
 }
 
-export function beatEntries(beat: readonly BeatItem[]): string[] {
+export function beatEntries(
+  beat: readonly BeatItem[],
+  seats: ReadonlyMap<string, string> = new Map(),
+): string[] {
   return beat.map(
     (b) =>
-      `${b.actionId} [${b.status}] by ${b.characterId ?? b.actor} (${b.scope}): ${b.text}`,
+      `${b.actionId} [${b.status}] by ${dmActorLabel(b.actor, b.characterId, seats)} (${b.scope}): ${b.text}`,
   );
 }
 

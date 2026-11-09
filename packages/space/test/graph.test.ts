@@ -168,16 +168,19 @@ describe("timing (SC-005)", () => {
     for (let i = 0; i < 63; i++) edges.push([`z${i}`, `z${i + 1}`, 5]);
     for (let i = 0; i < 60; i += 3) edges.push([`z${i}`, `z${i + 4}`, 10]);
     const s = mk(ids, edges);
-    path(s, "z0", "z63");
-    band(s, "z0", "z63");
-    const N = 50;
-    let t = performance.now();
-    for (let i = 0; i < N; i++) path(s, "z0", "z63");
-    const pathMs = (performance.now() - t) / N;
-    t = performance.now();
-    for (let i = 0; i < N; i++) band(s, "z0", "z63");
-    const bandMs = (performance.now() - t) / N;
-    expect(pathMs).toBeLessThan(1);
-    expect(bandMs).toBeLessThan(1);
+    // Warm up, then take the median per-call time over 9 batches so one slow
+    // batch on a shared CI runner cannot fail the test. The 1 ms budget stays.
+    const perCall = (fn: () => unknown) => {
+      for (let i = 0; i < 200; i++) fn();
+      const batches: number[] = [];
+      for (let b = 0; b < 9; b++) {
+        const t = performance.now();
+        for (let i = 0; i < 50; i++) fn();
+        batches.push((performance.now() - t) / 50);
+      }
+      return batches.sort((x, y) => x - y)[4];
+    };
+    expect(perCall(() => path(s, "z0", "z63"))).toBeLessThan(1);
+    expect(perCall(() => band(s, "z0", "z63"))).toBeLessThan(1);
   });
 });

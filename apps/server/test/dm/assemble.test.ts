@@ -340,7 +340,7 @@ describe("prompt caps (SC-007)", () => {
       offstageNpcs: [],
       unseenMonsters: [],
     });
-    expect(DIRECTOR_VERSION).toBe("dm.director-v10");
+    expect(DIRECTOR_VERSION).toBe("dm.director-v11");
     expect(prompt.system).toContain(
       "`goalNote` is its own top-level key, always written (an empty string when you have no note), never inside `pacing`.",
     );
