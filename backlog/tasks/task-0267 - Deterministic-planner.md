@@ -4,7 +4,7 @@ title: Deterministic planner
 status: In Progress
 assignee: []
 created_date: '2026-11-07 05:13'
-updated_date: '2026-11-09 15:35'
+updated_date: '2026-11-09 16:53'
 labels:
   - 'ws:intent'
   - replan-2026-11
@@ -41,6 +41,9 @@ Spec: specs/097-planner
 CP-5 ruling 2026-11-08 (docs/design/r1-fast-table-runbook.md) F1: AC #4 (resolve.ts loses ported paths) moved to TASK-0269. This task ships the pure package with golden tests only.
 
 Claimed 2026-11-08 by the R1 sweep (docs/design/r1-fast-table-runbook.md). Worktree .worktrees/task-0267, branch task-0267-planner, cut from origin/main d639c0e1. Spec number 097 claimed with a stub.
+
+Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=cc/claude-opus-5-5 (spec authoring, grant C1)
+Spec 097 (a34d5d39): packages/planner, PlanState, 28 served kinds, PlanFact, RulingRequest, 6 phases. Orchestrator-settled (technical seams, follow ratified decisions): OQ-1 PlanState, OQ-6 AC #3 scope, OQ-7 stop at first refused command, OQ-9 spell range ponytail to TASK-0227, OQ-10 FactRow naming, OQ-11 keep the AI-hostile reaction port. Operator rulings pending: OQ-2/OQ-3 (action economy + Dodge card), OQ-4 (player-written DC), OQ-5 (stakes/free retry), OQ-8 (AI-DM fiat code), OQ-12 (unarmed strikes).
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
