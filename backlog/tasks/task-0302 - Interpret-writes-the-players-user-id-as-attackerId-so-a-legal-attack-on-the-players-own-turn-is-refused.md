@@ -6,6 +6,7 @@ title: >-
 status: To Do
 assignee: []
 created_date: '2026-11-09 05:23'
+updated_date: '2026-11-09 05:39'
 labels:
   - playtest
   - 'ws:intent'
@@ -33,6 +34,12 @@ The structural fix is the Intent path: a typed attack Intent carries actor pc:ta
 - [ ] #1 A human player's attack on their own turn carries the character id as the attacker, with a regression test from session 3406d9ae seq 117.
 - [ ] #2 No model output may set an actor id; the seat supplies it (fixed structurally by TASK-0269).
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Recurrence 2026-11-09: 4 of Tamsin's 5 combat actions refused STEP_ACTOR_MISMATCH (seq 118, 216, 271, 316); only one shot resolved (seq 164). Every refused turn spends her turn and ships a fallback narration. Combat stalls: the human PC cannot act. Severity: blocks combat for a human player on the solo seed.
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
