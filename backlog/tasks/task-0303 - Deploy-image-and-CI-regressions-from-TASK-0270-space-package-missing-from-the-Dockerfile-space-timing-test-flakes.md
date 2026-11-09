@@ -49,6 +49,8 @@ Dispatch: tier=haiku pinned=cc/claude-haiku-5-5 served=cc/claude-haiku-5-5
 AC #3 verified 2026-11-09: vm-104 /health status ok, commit 4d092779 (deploy run success at 14:17Z). The failed run at 14:09Z deployed 840fac4f, the board commit before the fix.
 
 Reopened 2026-11-09: AC #4 was ticked on local runs only. CI on PR #149 (after the fix) measured 1.19 ms. The cause is path() itself: it rebuilds adjacency(space) on every call and copies the full route array on every relaxation (packages/space/src/graph.ts). Fix the code, keep the 1 ms budget. Same escape line E8.
+
+Claimed 2026-11-08 by the R1 sweep (docs/design/r1-fast-table-runbook.md). Worktree .worktrees/task-0303, branch task-0303-space-path-perf, cut from origin/main 81d523d9. No spec dir: signed escape line covers this task.
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
