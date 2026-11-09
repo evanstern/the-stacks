@@ -11,7 +11,7 @@ sources:
   - packages/space/src/view.ts
   - packages/dnd5e-engine/src/space.ts
   - packages/dnd5e-engine/src/commands/move.ts
-verified_against: eda321081cbdee5318684984fac5f32ae90dae1f
+verified_against: f39868f0d350a24e65f77e09d4163d87dee94bb5
 ---
 
 # Space
@@ -27,7 +27,7 @@ verified_against: eda321081cbdee5318684984fac5f32ae90dae1f
 
 ## Rules
 
-- `path(space, from, to)` is the cheapest path over non-blocked edges (Dijkstra), or `null`. Squeeze and climb edges cost double feet. Equal-cost paths tie-break by the lexicographic order of the zone id list. The result is `{ zones, feet }`.
+- `path(space, from, to)` is the cheapest path over non-blocked edges (Dijkstra), or `null`. Squeeze and climb edges cost double feet. Equal-cost paths tie-break by the lexicographic order of the zone id list. The result is `{ zones, feet }`. The non-blocked adjacency list is cached per `Space` object (a `WeakMap`; spaces are immutable values), and routes are rebuilt from predecessor links only on a cost tie and for the result.
 - `band(space, a, b)` counts the fewest passable edges: same zone `engaged`, one edge `near`, two `far`, else (or an unknown zone) `out`. `BAND_FEET` gives the nominal distance: engaged 5, near 30, far 120.
 - `reachCovers(band, reachFt)` is true only at `engaged` with reach of at least 5 ft.
 - `rangeOf(band, { normal, long })` returns `normal`, `long` (disadvantage) or `out` by comparing the band's nominal feet.
