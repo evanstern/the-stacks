@@ -324,6 +324,7 @@ Then **stop for CP-7** (the R1 playtest).
   - **E5 — TASK-0215:** card ACs drive (AC #2 retargeted per F3). Engine test plus fact-sheet test.
   - **E6 — TASK-0224:** card AC drives, including the grapple escape DC scope. Engine tests.
   - **E7 — TASK-0101 (+0037):** card ACs drive. Ops work; every vm-104 command at C9.
+  - **E8 — TASK-0303 (hotfix, operator-signed 2026-11-09):** card ACs drive. Dockerfile package copies plus a guard test; stabilize the SC-005 timing test.
 
 ## Concurrency & conflict doctrine
 
