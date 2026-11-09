@@ -458,3 +458,10 @@ updated at each dispatch boundary. `tokens/cost` carries best-effort actuals.
 
 | date | task | PR | merge | tokens/cost (best-effort) | notes |
 |------|------|----|-------|---------------------------|-------|
+| 2026-11-08 | TASK-0231 | #145 | f0d0b491 | haiku | E1; wiki split, pins kept |
+| 2026-11-08 | TASK-0138 | #146 | a837f7e1 | haiku | E2; REQUIRE_DATABASE=1 verified by orchestrator |
+| 2026-11-08 | TASK-0266 | #147 | 32d00d10 | opus spec; sonnet x4 | contract v1.0 frozen (decision-0030), v1.1 text forms (C-CON) |
+| 2026-11-09 | TASK-0273 | #148 | aee5400b | opus spec; sonnet x4 | interpret cap 8000 (OQ-3 read via debug route; saturated at 4000); held through the baseline playtest |
+| 2026-11-09 | TASK-0270 | #150 | 85c10c53 | opus spec; sonnet x4 | OQ-10 engine events; OQ-3/OQ-4 to TASK-0274 |
+| 2026-11-09 | TASK-0098 | #151 | 78284502 | opus spec; sonnet x1 | OQ2 carded as TASK-0301 (R8) |
+| 2026-11-09 | baseline playtest | #149 (log, awaiting operator) | — | $5.25 of $25 | new blocker TASK-0302 (R1) |
