@@ -1,10 +1,10 @@
 ---
 id: TASK-0274
 title: Encounter state machine
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-11-07 05:13'
-updated_date: '2026-11-08 21:18'
+updated_date: '2026-11-09 15:35'
 labels:
   - 'ws:engine'
   - replan-2026-11
@@ -23,6 +23,8 @@ Make the encounter a live engine state: start, join, leave, flee, end and resume
 Parent epic: TASK-0258.
 
 Source: docs/design/replan-2026-11/board-rework-map.md (N-09).
+
+Spec: specs/099-encounter-state
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
@@ -42,6 +44,8 @@ Merged from TASK-0253 (A fight can't resume once its encounter has ended: a brok
 Merged from TASK-0254 (A combatant who fled keeps its turn and gets contradictory facts) by replan-2026-11: Fled combatant leaves the order.
 
 Operator ruling 2026-11-08 (spec 094 OQs): OQ-3 and OQ-4 from spec 094 homed here as AC.
+
+Claimed 2026-11-08 by the R1 sweep (docs/design/r1-fast-table-runbook.md). Worktree .worktrees/task-0274, branch task-0274-encounter-state, cut from origin/main d639c0e1. Spec number 099 claimed with a stub.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
