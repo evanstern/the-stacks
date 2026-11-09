@@ -37,9 +37,11 @@ Spec: specs/096-seat-actor-id
 - [ ] #2 No model output may set an actor id; the seat supplies it (fixed structurally by TASK-0269).
 - [x] #3 Phase 1: prompts render the seated character id; seatActorIds normalizer; regression test (specs/096)
 - [x] #4 Phase 2: wiki re-ground
-- [ ] #5 Spec phase: Seat labels and seat normalizer (US1, US2; FR-001 to FR-007)
+- [x] #5 Spec phase: Seat labels and seat normalizer (US1, US2; FR-001 to FR-007)
 - [ ] #6 Spec phase: Wiki (re-ground)
 <!-- AC:END -->
+
+
 
 
 
