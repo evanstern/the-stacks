@@ -39,7 +39,10 @@ Spec: specs/094-space-and-zones
 - [x] #7 Phase 3: reach and range by band in attack.roll; SRD speed/reach/range in seeds
 - [x] #8 Phase 4: provokers() with golden-dice opportunity-attack tests
 - [x] #9 Phase 5: wiki re-ground (merge main first; new space note)
+- [ ] #10 Spec phase: The space package (US4, AC #4)
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
