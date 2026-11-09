@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-11-05 04:52'
-updated_date: '2026-11-09 15:35'
+updated_date: '2026-11-09 18:22'
 labels:
   - dm
   - narration
@@ -55,6 +55,9 @@ AC re-authored by replan-2026-11.
 CP-5 ruling 2026-11-08 (docs/design/r1-fast-table-runbook.md) F4: may develop ahead of TASK-0268 against fixtures. Builds after TASK-0273. The spec states the fact-sheet input as settled engine events.
 
 Claimed 2026-11-08 by the R1 sweep (docs/design/r1-fast-table-runbook.md). Worktree .worktrees/task-0245, branch task-0245-fact-sheet, cut from origin/main d639c0e1. Spec number 098 claimed with a stub.
+
+Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=cc/claude-opus-5-5 (spec authoring, grant C1)
+Spec 098 (a370041c): FactSheet with code-rendered FactRow rows, tagged prose slots, code-composed reply, State line; dm.narrate-v22, dm.audit-v17; 4 phases. Orchestrator-settled (technical seams): OQ-1 tagged text (dm.narrate stays a text purpose per spec 093), OQ-2 FactRow in apps/server/src/dm/fact-sheet.ts (matches spec 097 OQ-10), OQ-5 NarrationFacts kept as settled, OQ-7 refusal wording table, OQ-8 drop ledger-format.ts from the footprint, OQ-9 position row noted on TASK-0271, OQ-10 slots owned here, noted on TASK-0272. Operator rulings pending: OQ-3 (rows still ride narration text, a partial meet of constitution VII), OQ-4 (no State line on talk replies), OQ-6 (audit stops blocking claim omission).
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
