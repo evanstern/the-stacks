@@ -6,7 +6,7 @@ title: >-
 status: To Do
 assignee: []
 created_date: '2026-11-05 05:48'
-updated_date: '2026-11-08 21:25'
+updated_date: '2026-11-10 03:11'
 labels:
   - web
   - ux
@@ -49,6 +49,7 @@ Spec: specs/091-mud-stream-and-composer
 - [ ] #6 The composer keeps a line's draft until its echo lands, with a test.
 - [ ] #7 NPC dialogue renders as distinct rows, and the transcript column is capped at 1024 px and centred.
 - [ ] #8 Spec 091 is amended against Intent contract v1.1 and reviewed by the operator at C-AMD before implementation.
+- [ ] #9 Fact rows render from the ledger at resolve time, not from the narration text (spec 098 OQ-3).
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -73,4 +74,6 @@ Rewritten by replan-2026-11. Stream and composer emit Intent pills; absorbs 0132
 AC re-authored by replan-2026-11.
 
 T015 (spec 092): amend spec 091: draft(text) -> draft(intent); closed command set -> the full verb table; /help is the Help action and composer help moves to /? (Q1); unknown /words are refused, not sent as speech; FR-024 'no new gate request' is superseded once TASK-0268 lands. Review at C-AMD.
+
+Operator ruling 2026-11-09 (R1 lane specs 097-100): spec 098 OQ-3.
 <!-- SECTION:NOTES:END -->
