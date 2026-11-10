@@ -35,7 +35,10 @@ Spec: specs/097-planner
 - [ ] #3 Legality checks from TASK-0145 and TASK-0147 pass as planner tests.
 - [ ] #4 Phase 1: Package skeleton, types, boundary and kind table (AC #1) (specs/097-planner tasks.md)
 - [ ] #5 Phase 2: Checks and the ruling loop (US2, AC #2) (specs/097-planner tasks.md)
+- [ ] #6 Phase 3: Combat actions (US1, AC #2) (specs/097-planner tasks.md)
 <!-- AC:END -->
+
+
 
 
 
