@@ -34,7 +34,7 @@ Spec: specs/101-engaged-ranged
 - [x] #4 Phase 1: Engine melee pairs (US1, US2, US3) (specs/101-engaged-ranged tasks.md)
 - [x] #5 Phase 2: Planner fact and server tests (US1 server half, FR-011, FR-013) (specs/101-engaged-ranged tasks.md)
 - [x] #6 Phase 3: Wiki re-ground (specs/101-engaged-ranged tasks.md)
-- [ ] #7 Spec phase: Engine melee pairs (US1, US2, US3)
+- [x] #7 Spec phase: Engine melee pairs (US1, US2, US3)
 - [ ] #8 Spec phase: Planner fact and server tests (US1 server half, FR-011, FR-013)
 - [ ] #9 Spec phase: Wiki re-ground
 <!-- AC:END -->
