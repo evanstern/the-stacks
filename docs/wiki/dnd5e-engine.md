@@ -20,7 +20,7 @@ sources:
   - packages/dnd5e-engine/test/purity.test.ts
   - packages/dnd5e-engine/test/coverage.test.ts
   - specs/026-dnd5e-engine/spec.md
-verified_against: eda321081cbdee5318684984fac5f32ae90dae1f
+verified_against: 9c2209b9453d211adf302bd86436ece4c2a23ed7
 ---
 
 # 5e engine
@@ -56,6 +56,8 @@ skipped, the next live entry becomes active (wrapping to index 0 and a new round
 turn-start conditions expire. A leaver before the active entry shifts `turnIndex` down by one.
 The command emits `encounter.changed` and draws no dice. A leaver's id is removed from
 `reactionsSpent` (below) in the same event.
+
+`src/index.ts` also exports `isUnable` (from `src/commands/attacks.ts`): the able-actor predicate that `attackRoll`, `checkRoll` and `move` use, so the planner ([[planner]]) refuses `ACTOR_UNABLE` by the same rule.
 
 ## Space and movement
 

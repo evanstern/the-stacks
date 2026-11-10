@@ -1,0 +1,14 @@
+{
+  "extends": "../../../tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "types": ["node"]
+  },
+  "include": ["."],
+  "references": [
+    { "path": ".." },
+    { "path": "../../intent" },
+    { "path": "../../space" },
+    { "path": "../../dnd5e-engine" }
+  ]
+}
