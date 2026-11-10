@@ -66,6 +66,7 @@ export type { Tracker } from "./events/tracker.js";
 export { TrackerChangedV1, TrackerSchema } from "./events/tracker.js";
 export type { CommitDecision } from "./gate/authority.js";
 export { commitAuthority } from "./gate/authority.js";
+export { fogRows, revealRows } from "./gate/fog.js";
 export type { PermissionResult } from "./gate/permissions.js";
 export { checkPermission } from "./gate/permissions.js";
 export type {

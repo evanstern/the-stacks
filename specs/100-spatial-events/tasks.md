@@ -40,13 +40,13 @@ operator's OQ-1 ruling quoted in its brief.
 
 **Goal**: every plan passes through `fogRows`; players never receive a fogged zone.
 
-- [ ] T010 [US1] Write `packages/session-model/src/gate/fog.ts`: `fogRows` and `revealRows` per contracts/zone-revealed.md §3, §4, §6 (reset reason fixed text).
-- [ ] T011 [US1] Apply `fogRows` inside `planProposal` in `src/gate/plan.ts` (`validate(fog(plan(...)))`); export `fogRows`, `revealRows`.
-- [ ] T012 [US2] Write `src/fixtures/spatial-fog.ts` (rows produced by `planProposal` over public proposals plus one `dm` mechanics proposal) and register it in `src/fixtures/index.ts`; update `test/fixtures.test.ts` (nine → ten).
-- [ ] T013 [P] [US2] Write `test/gate-fog.test.ts`: each §3 rule; each FR-009 row type; crossing both ways; arrival; occupants on a later reveal; `dm` proposals never loosened; non-DM guard; envelopes' `index`/`count` unchanged; `revealRows` refusals and no-op; 64-zone timing < 1 ms.
-- [ ] T014 [P] [US1] Write `test/fog-secrecy.test.ts`: SC-001 over the fixture and each US1/US2 scenario (stringified visible rows and the stringified player projection hold no fogged id or name).
-- [ ] T015 [P] [US1] Write `test/spatial-parity.test.ts`: SC-002 over every prefix of each scripted public log.
-- [ ] T016 [US1] Add amendment notes to `specs/028-session-model/contracts/session-events.md` and `projections.md`, and (per the OQ-1 ruling) `specs/029-proposal-gate/contracts/gate-api.md`, each pointing at spec 100's contracts.
+- [x] T010 [US1] Write `packages/session-model/src/gate/fog.ts`: `fogRows` and `revealRows` per contracts/zone-revealed.md §3, §4, §6 (reset reason fixed text).
+- [x] T011 [US1] Apply `fogRows` inside `planProposal` in `src/gate/plan.ts` (`validate(fog(plan(...)))`); export `fogRows`, `revealRows`.
+- [x] T012 [US2] Write `src/fixtures/spatial-fog.ts` (rows produced by `planProposal` over public proposals plus one `dm` mechanics proposal) and register it in `src/fixtures/index.ts`; update `test/fixtures.test.ts` (nine → ten).
+- [x] T013 [P] [US2] Write `test/gate-fog.test.ts`: each §3 rule; each FR-009 row type; crossing both ways; arrival; occupants on a later reveal; `dm` proposals never loosened; non-DM guard; envelopes' `index`/`count` unchanged; `revealRows` refusals and no-op; 64-zone timing < 1 ms.
+- [x] T014 [P] [US1] Write `test/fog-secrecy.test.ts`: SC-001 over the fixture and each US1/US2 scenario (stringified visible rows and the stringified player projection hold no fogged id or name).
+- [x] T015 [P] [US1] Write `test/spatial-parity.test.ts`: SC-002 over every prefix of each scripted public log.
+- [x] T016 [US1] Add amendment notes to `specs/028-session-model/contracts/session-events.md` and `projections.md`, and (per the OQ-1 ruling) `specs/029-proposal-gate/contracts/gate-api.md`, each pointing at spec 100's contracts.
 
 **Checkpoint**: session-model and server gate suites green (`REQUIRE_DATABASE=1` for `gate.integration`); `pnpm ci:check` green.
 

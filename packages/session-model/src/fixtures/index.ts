@@ -6,6 +6,7 @@ import { groupSignoff } from "./group-signoff.js";
 import { presenceMarker } from "./presence-marker.js";
 import { proposalExamples } from "./proposal-examples.js";
 import { secretTracker } from "./secret-tracker.js";
+import { spatialFog } from "./spatial-fog.js";
 import { talkOnly } from "./talk-only.js";
 import { turnFloor } from "./turn-floor.js";
 import { turnModeCombat } from "./turn-mode-combat.js";
@@ -22,6 +23,7 @@ export {
   presenceMarker,
   proposalExamples,
   secretTracker,
+  spatialFog,
   talkOnly,
   turnFloor,
   turnModeCombat,
@@ -38,4 +40,5 @@ export const fixtures: readonly SessionFixture[] = [
   commitAuthority,
   groupSignoff,
   turnFloor,
+  spatialFog,
 ];

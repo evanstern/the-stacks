@@ -310,3 +310,13 @@ runtime (TASK-0046) receives the same `gate` instance from `index.ts`.
 > The `action.withdraw` row also accepts a `committed` action; `ACTION_NOT_OPEN` covers only
 > `resolved` and `withdrawn`. An `action.declare` carrying `suggestionId` is `INVALID_PROPOSAL`.
 > `GateRefusalCodeSchema` gains `SUGGESTION_STALE` and `SUGGESTION_NOT_FOUND` (21 codes).
+
+> **Amendment (TASK-0271).** Amended 2026-11-09 (operator ruling 2026-11-09, spec 100 OQ-1). Spec `specs/100-spatial-events`.
+> `planProposal` passes every planned row through `fogRows(p, rows)` before validation. Rows
+> that name a fogged zone follow spec 100's fog rule: a row may be written `dm`, and a public
+> `zone.revealed` row may precede it. `mechanics`, `floor` and `scene-presence` plans are
+> affected; a `zone.revealed` row never changes a mechanics envelope's `index` or `count`. The
+> pure package also exports `fogRows` and `revealRows`. Detail:
+> `specs/100-spatial-events/contracts/zone-revealed.md`.
+>
+> Changelog: 2026-11-09 — fog rule runs in the proposal gate (operator ruling 2026-11-09, spec 100 OQ-1).

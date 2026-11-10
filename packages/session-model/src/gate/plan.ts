@@ -9,6 +9,7 @@ import { REASON_TO_PRESENCE } from "../events/scene-presence.js";
 import { memberOf } from "../projections/party.js";
 import type { SessionProjections } from "../projections/types.js";
 import { commitAuthority } from "./authority.js";
+import { fogRows } from "./fog.js";
 import { actorOf, type Proposal, type Proposer } from "./proposals.js";
 import type { GateRefusal } from "./refusals.js";
 import { controls, isAiDm, isDm, isPartyMember, isSeatedDm } from "./roles.js";
@@ -773,5 +774,9 @@ export function planProposal(
   proposalId: string | null,
   context?: PlanContext,
 ): PlanResult {
-  return validate(plan(p, proposer, proposal, rng, ids, proposalId, context));
+  const planned = plan(p, proposer, proposal, rng, ids, proposalId, context);
+  // Spec 100: every spatial row passes the fog rule before validation.
+  return validate(
+    planned.ok ? { ...planned, rows: fogRows(p, planned.rows) } : planned,
+  );
 }

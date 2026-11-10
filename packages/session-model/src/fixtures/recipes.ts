@@ -1,4 +1,5 @@
 import type { MechanicsRecipe } from "./build.js";
+import { spatialFogRecipes } from "./spatial-fog.js";
 
 /**
  * The engine command and scripted dice behind each mechanics batch of the fixtures. The
@@ -577,4 +578,5 @@ export const recipes: readonly MechanicsRecipe[] = [
     },
     faces: [],
   },
+  ...spatialFogRecipes,
 ];

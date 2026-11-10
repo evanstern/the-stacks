@@ -410,3 +410,8 @@ A refusal writes nothing.
 (`lifecycle`, any, `ActionSuggestedV1`); `ActionDeclaredV1` gains optional `suggestionId`;
 `PresenceRecordedV1.purpose` gains `read`. Payload versions are unchanged. Detail:
 `specs/029-proposal-gate/contracts/proposal-events.md`, "Suggestions and the read marker".
+
+**Amendment (TASK-0271).** Amended 2026-11-09 (operator ruling 2026-11-09, spec 100 OQ-1). The catalog gains `zone.revealed`
+(`state-change`, any, `ZoneRevealedV1`; the gate writes it, always `public`). It carries a map
+delta, so it has no `before` or `after`. Payload versions are unchanged. Detail:
+`specs/100-spatial-events/contracts/zone-revealed.md`.
