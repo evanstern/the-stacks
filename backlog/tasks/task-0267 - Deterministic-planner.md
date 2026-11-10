@@ -4,7 +4,7 @@ title: Deterministic planner
 status: In Progress
 assignee: []
 created_date: '2026-11-07 05:13'
-updated_date: '2026-11-09 16:53'
+updated_date: '2026-11-10 03:13'
 labels:
   - 'ws:intent'
   - replan-2026-11
@@ -33,7 +33,10 @@ Spec: specs/097-planner
 - [ ] #1 The planner makes no model call and no I/O (boundary lint).
 - [ ] #2 Golden tests cover each supported kind, each refusal code and each ruling request.
 - [ ] #3 Legality checks from TASK-0145 and TASK-0147 pass as planner tests.
+- [ ] #4 Phase 1: Package skeleton, types, boundary and kind table (AC #1) (specs/097-planner tasks.md)
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
