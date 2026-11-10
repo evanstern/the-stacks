@@ -20,7 +20,7 @@ describe("catalog shape", () => {
   it("has 20 session entries and 24 mechanics entries", () => {
     expect(SESSION_EVENT_TYPES).toHaveLength(20);
     expect(MECHANICS_EVENT_TYPES).toHaveLength(24);
-    expect(catalog).toHaveLength(43);
+    expect(catalog).toHaveLength(44);
   });
 
   it("catalogues the five gate types at version 1 with their kinds and visibility", () => {

@@ -176,7 +176,8 @@ describe("fogRows (zone.revealed contract section 3)", () => {
     const side = plan(p, {
       type: "combatant.side",
       combatantId: "snag",
-      side: p.engine.combatants.snag?.side === "hostile" ? "neutral" : "hostile",
+      side:
+        p.engine.combatants.snag?.side === "hostile" ? "neutral" : "hostile",
       reason: "yields",
     });
     expect(JSON.stringify(side)).not.toContain("camp");
