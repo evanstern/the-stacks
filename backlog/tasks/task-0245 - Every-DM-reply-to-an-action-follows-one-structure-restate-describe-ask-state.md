@@ -3,10 +3,10 @@ id: TASK-0245
 title: >-
   Every DM reply to an action follows one structure: restate, describe, ask,
   state
-status: In Progress
+status: Done
 assignee: []
 created_date: 2026-11-05 04:52
-updated_date: '2026-11-10T04:03:00Z'
+updated_date: '2026-11-10T04:10:00Z'
 labels:
   - dm
   - narration
@@ -74,3 +74,9 @@ Phases a3aea616, 809cfe65, 803c548b, 2d3b45cd. dm.narrate-v22, dm.audit-v17. Cla
 
 Operator ruling 2026-11-09 (R1 lane specs 097-100): spec 100 OQ-12 — add fact rows for moves and zone reveals once TASK-0271 lands (position row). (Restored after the main merge.)
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Rows, State line and slots as pure code (US2, US4; FR-004 to FR-008, FR-011, FR-012; plan D1, D2): 6/6 · Narrate builds and ships the sheet (US1, US3; FR-001 to FR-003, FR-009, FR-010, FR-013; plan D3, D4): 5/5 · Audit, fallback, talk, auditor and transcript follow the template (FR-014, FR-015; plan D5 to D10): 10/10 · Wiki re-ground: 5/5). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
