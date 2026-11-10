@@ -17,7 +17,7 @@ import type { NarrateOutput } from "../../src/dm/nodes/narrate.js";
 import type { ResolveOutput } from "../../src/dm/nodes/resolve.js";
 import { buildAuditPrompt } from "../../src/dm/prompts/audit.js";
 import { createScriptedDm, loadDmScript } from "../../src/dm/script/load.js";
-import { freeEventsThrough, makeCtx, projectDm } from "./helpers.js";
+import { freeEventsThrough, makeCtx, projectDm, testSheet } from "./helpers.js";
 import { EMPTY_RESOLVE_SNAPSHOT } from "./snapshot-fixtures.js";
 
 /**
@@ -195,6 +195,8 @@ async function replay(facts: NarrationFacts, captured: string, second: string) {
     attempt: 1,
     skipped: false,
     facts,
+    sheet: testSheet(facts),
+    slots: { restate: "", describe: captured, ask: "" },
     withheld: [],
   };
   const out = await audit({

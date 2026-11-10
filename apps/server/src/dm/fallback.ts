@@ -274,6 +274,7 @@ function plannedSentence(
 export function factualSummary(
   facts: NarrationFacts,
   state?: ClaimState,
+  opts: { forSheet?: boolean } = {},
 ): string {
   const out: string[] = [];
   if (facts.trigger === "scene-start" && facts.setting.openingFraming) {
@@ -301,7 +302,8 @@ export function factualSummary(
   for (const a of facts.actions) {
     const name = a.characterName ? spellDigits(a.characterName) : "The party";
     if (a.outcome === "refused") {
-      out.push(`${name} cannot do that here.`);
+      // A refusal row carries it when the template ships (spec 098 D6).
+      if (!opts.forSheet) out.push(`${name} cannot do that here.`);
     } else if (a.outcome === "no-effect" && holdIds.has(a.actionId)) {
       // On hold: a closing question stands in for this action.
     } else if (a.outcome === "no-effect") {
@@ -344,7 +346,7 @@ export function factualSummary(
     );
   }
 
-  for (const c of facts.clarify) {
+  for (const c of opts.forSheet ? [] : facts.clarify) {
     const a = facts.actions.find((x) => x.actionId === c.actionId);
     const who = a?.characterName ? spellDigits(a.characterName) : "the party";
     // Voice the question when it is speakable (specs/073); else the stock line.

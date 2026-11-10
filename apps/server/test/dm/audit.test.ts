@@ -212,11 +212,9 @@ describe("deterministicChecks", () => {
     ).toBe(true);
   });
 
-  it("fails the omission of a diff death, and passes once the prose records it", () => {
+  it("does not block the omission of a diff death; code writes the life-state row (spec 098 OQ-6)", () => {
     const dead = claimState("dead", [guardLife("dead")]);
-    const bad = check(CLEAN, facts(), dead);
-    expect(bad.pass).toBe(false);
-    expect(bad.issues.map((i) => i.detail).join()).toMatch(/^Actor state: /);
+    expect(check(CLEAN, facts(), dead).pass).toBe(true);
     expect(
       check("The guard is dead, and the lock gives.", facts(), dead).pass,
     ).toBe(true);
@@ -235,9 +233,9 @@ describe("deterministicChecks", () => {
     ).toBe(true);
   });
 
-  it("fails the omission of a diff drop, and passes once the prose records it", () => {
+  it("does not block the omission of a diff drop (spec 098 OQ-6)", () => {
     const down = claimState("unconscious", [guardLife("unconscious")]);
-    expect(check(CLEAN, facts(), down).pass).toBe(false);
+    expect(check(CLEAN, facts(), down).pass).toBe(true);
     expect(
       check("The guard falls unconscious. The lock gives.", facts(), down).pass,
     ).toBe(true);
@@ -335,6 +333,47 @@ describe("deterministicChecks", () => {
       claimState(),
     );
     expect(r.issues[0]?.detail).toMatch(/dice lines/);
+  });
+});
+
+describe("restate block (spec 098 R4)", () => {
+  const f = {
+    ...facts([
+      action({
+        characterName: "Ana",
+        text: "I hold my ground",
+        rolls: [{ ...roll("miss"), name: "Goblin", target: "Ana" }],
+        outcomes: ["miss"],
+      }),
+    ]),
+    party: [{ characterId: "ana", name: "Ana", controller: "human" as const }],
+  };
+  // The restate quotes the player's words; a dodge in it is the player's, not the DM's.
+  const restate = "Ana means to dodge the blow.";
+  const rest = "The blow goes wide of the post.";
+  it("the agency check skips the restate block", () => {
+    const r = deterministicChecks(
+      f,
+      {
+        prose: `${restate}\n\n${rest}`,
+        diceLines: renderDiceLines(f),
+        restate,
+      },
+      claimState(),
+    );
+    expect(r.issues.filter((i) => i.kind === "player-agency")).toEqual([]);
+  });
+  it("the agency check still reads the describe slot", () => {
+    const r = deterministicChecks(
+      f,
+      {
+        prose: `${restate}\n\nAna dodges the blow.`,
+        diceLines: renderDiceLines(f),
+        restate,
+      },
+      claimState(),
+    );
+    expect(r.issues.some((i) => i.kind === "player-agency")).toBe(true);
   });
 });
 
@@ -545,7 +584,7 @@ describe("audit loop", () => {
     if (!out.ok) throw new Error("audit failed");
     expect(out.output.record.final).toBe("passed");
     expect(out.output.record.flagged).toBe(false);
-    expect(out.output.shipped?.prose).toBe(CLEAN);
+    expect(out.output.shipped?.prose).toContain(CLEAN);
     expect(scripted.remaining().calls["dm.narrate"]).toBe(0);
   });
 
@@ -579,7 +618,9 @@ describe("audit loop", () => {
     expect(r.final).toBe("passed");
     expect(r.flagged).toBe(false);
     expect(r.attempts).toHaveLength(1);
-    expect(r.attempts[0]?.words).toBe(CLEAN.split(/\s+/).length);
+    expect(r.attempts[0]?.words).toBeGreaterThanOrEqual(
+      CLEAN.split(/\s+/).length,
+    );
     expect(r.attempts[0]?.llm).toMatchObject({
       issues: [{ kind: "doctrine", blocking: false }],
     });

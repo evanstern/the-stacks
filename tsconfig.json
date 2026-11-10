@@ -6,6 +6,8 @@
     { "path": "packages/dnd5e-engine/test" },
     { "path": "packages/intent" },
     { "path": "packages/intent/test" },
+    { "path": "packages/planner" },
+    { "path": "packages/planner/test" },
     { "path": "packages/session-model" },
     { "path": "packages/session-model/test" },
     { "path": "packages/space" },

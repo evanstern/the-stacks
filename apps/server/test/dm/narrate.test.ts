@@ -107,6 +107,7 @@ describe("narrate import boundary (AC #6)", () => {
   it("walks a real closure", () => {
     expect(files.size).toBeGreaterThan(4);
     expect(rel).toContain("dm/facts.ts");
+    expect(rel).toContain("dm/fact-sheet.ts");
     expect(rel).toContain("dm/pipeline/call.ts");
   });
 
@@ -190,6 +191,30 @@ async function setup(responses: string[]) {
 }
 
 describe("narrate", () => {
+  it("builds a sheet, parses tagged slots and ships the template (spec 098)", async () => {
+    const { ctx } = await setup([
+      "[restate] Ana means to pick the lock.\n[describe] The tumblers give way and the door swings inward.\n[ask] Who goes in first?",
+    ]);
+    const out = await narrate(ctx);
+    expect(out.ok).toBe(true);
+    if (!out.ok) return;
+    const n = out.output;
+    expect(n.sheet.slots).toEqual(["restate", "describe", "ask"]);
+    expect(n.slots).toEqual({
+      restate: "Ana means to pick the lock.",
+      describe: "The tumblers give way and the door swings inward.",
+      ask: "Who goes in first?",
+    });
+    expect(n.text).toBe(
+      [
+        "Ana means to pick the lock.",
+        "The tumblers give way and the door swings inward.",
+        "Who goes in first?",
+        `${n.diceLines.join("\n")}\n${n.sheet.state}`,
+      ].join("\n\n"),
+    );
+  });
+
   it("ships prose plus the rendered dice lines, with facts and no command in the prompt", async () => {
     const { ctx, scripted, assembled, snapshot } = await setup([
       "The tumblers give way, and the vault door swings inward on a breath of cold air. Something moves inside.",
@@ -201,7 +226,9 @@ describe("narrate", () => {
     expect(n.skipped).toBe(false);
     expect(n.prose).not.toMatch(/[0-9]/);
     expect(n.diceLines.length).toBeGreaterThan(0);
-    expect(n.text).toBe(`${n.prose}\n\n${n.diceLines.join("\n")}`);
+    expect(n.text).toBe(
+      `${n.prose}\n\n${n.diceLines.join("\n")}\n${n.sheet.state}`,
+    );
     expect(n.actionIds).toEqual(["act-lockpick"]);
     expect(out.calls.map((c) => c.purpose)).toEqual(["dm.narrate"]);
     expect(scripted.remaining().calls["dm.narrate"]).toBe(0);
@@ -360,7 +387,7 @@ describe("narrate", () => {
       facts,
       prior: null,
     });
-    expect(NARRATE_VERSION).toBe("dm.narrate-v21");
+    expect(NARRATE_VERSION).toBe("dm.narrate-v22");
     expect(prompt.system).toContain(
       "A refused action did not happen: no roll and no result. Never show it succeed, fail or land, and never show anyone react to its result.",
     );
@@ -527,10 +554,10 @@ describe("narrate", () => {
       sys.indexOf("When an intent is unclear"),
     );
     expect(prompt.system).toContain(
-      "end with the Unclear intent question exactly as written",
+      "describe the moment and stop. Code asks the question.",
     );
     expect(prompt.system).toContain(
-      'Never end on "What do you do?" or an either-or question, except the Unclear intent question.',
+      'Never end on "What do you do?" or an either-or question.',
     );
     expect(prompt.system).toContain("Cover every Event line.");
     expect(prompt.system).toContain("AI companions included");
@@ -801,7 +828,7 @@ describe("narrate", () => {
       snapshot,
       prose: "Prose.",
     });
-    expect(AUDIT_VERSION).toBe("dm.audit-v16");
+    expect(AUDIT_VERSION).toBe("dm.audit-v17");
     expect(p.system).toContain(
       "Omit `actor` when no character is named; never write null.",
     );

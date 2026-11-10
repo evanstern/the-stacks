@@ -4,7 +4,7 @@ title: Spatial events and per-viewer projection
 status: To Do
 assignee: []
 created_date: '2026-11-07 05:13'
-updated_date: '2026-11-08 21:18'
+updated_date: '2026-11-09 18:22'
 labels:
   - 'ws:space'
   - replan-2026-11
@@ -38,6 +38,8 @@ Source: docs/design/replan-2026-11/board-rework-map.md (N-06).
 Merged from TASK-0201 (Objects as plan targets (doors, posts) without initiative) by replan-2026-11: Objects are zone features and targets.
 
 Operator ruling 2026-11-08 (spec 094 OQs) OQ-10: space.defined, combatant.placed and combatant.moved are ENGINE events from TASK-0270 (mechanics rows, replayed through evolve), not session actor.* events. This card adds zone.revealed and the per-viewer projection only. Rewrite the AC at spec authoring.
+
+From spec 098 OQ-9: add a position fact row (who moved, from which zone to which) to the fact sheet when spatial events land.
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done

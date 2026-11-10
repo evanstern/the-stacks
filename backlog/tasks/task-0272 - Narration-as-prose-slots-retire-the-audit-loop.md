@@ -4,7 +4,7 @@ title: Narration as prose slots; retire the audit loop
 status: To Do
 assignee: []
 created_date: '2026-11-07 05:13'
-updated_date: '2026-11-07 05:14'
+updated_date: '2026-11-09 18:22'
 labels:
   - 'ws:narration'
   - replan-2026-11
@@ -33,6 +33,12 @@ Source: docs/design/replan-2026-11/board-rework-map.md (N-07).
 - [ ] #3 The R1 playtest shows zero fallback lines.
 - [ ] #4 `dm/claims.ts` lexical gate is deleted.
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+From spec 098 OQ-10: TASK-0245 owns the prose slots and the code-composed reply. This card retires the audit loop and renders PlanFact as why rows (spec 098 contract §6).
+<!-- SECTION:NOTES:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->

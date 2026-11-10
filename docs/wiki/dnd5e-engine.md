@@ -61,6 +61,8 @@ The command emits `encounter.changed` and draws no dice. A leaver's id is remove
 
 Optional combatant `side`, `combatant.side`, `combatant.depart`, `stand`, four selectors and the engine close-combat rule: [[dnd5e-engine-sides]].
 
+`src/index.ts` also exports `isUnable` (from `src/commands/attacks.ts`): the able-actor predicate that `attackRoll`, `checkRoll` and `move` use, so the planner ([[planner]]) refuses `ACTOR_UNABLE` by the same rule.
+
 ## Space and movement
 
 Spec 094 (TASK-0270). The engine holds an optional `space`, per-combatant `placement` and `speed`, and four commands: `space.define`, `combatant.place`, `move`, `movement.action`. Their rules, refusals and the speed budget are in [[space]].

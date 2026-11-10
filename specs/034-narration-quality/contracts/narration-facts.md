@@ -222,3 +222,12 @@ companion it waits for, `text` the action text. A held result is never an Action
 combatant a ran group's steps name (`stepActors` of an `applied`, `refused` or `no-effect` result) is on
 turn, so `turn.offTurn` omits it. A plan-refused group adds no step actor. Narrate is `dm.narrate-v20`. The
 audit prompt reads `factEntries`, so it shows the line with no version bump.
+
+## Fact sheet (specs/098-fact-sheet, TASK-0245)
+
+`NarrationFacts` is the `settled` record of the fact sheet defined in
+`specs/098-fact-sheet/contracts/fact-sheet.md`. Code renders every fact row and the State line from
+it. The model writes three tagged slots (`restate`, `describe`, `ask`). Narrate is `dm.narrate-v22`
+and audit is `dm.audit-v17`. `factEntries` renders a clarify as `Waiting on an answer for <actionId>`;
+the question text reaches the reply through the sheet's `ask`, never the model. The claim `omission`
+no longer blocks a reply.

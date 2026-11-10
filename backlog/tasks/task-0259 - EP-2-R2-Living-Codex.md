@@ -4,7 +4,7 @@ title: EP-2 R2 Living Codex
 status: To Do
 assignee: []
 created_date: '2026-11-07 05:07'
-updated_date: '2026-11-07 05:19'
+updated_date: '2026-11-10 03:11'
 labels:
   - replan-2026-11
   - epic
@@ -33,3 +33,9 @@ Source: docs/design/replan-2026-11/plan-of-action.md §5 and board-rework-map.md
 - [ ] #1 All tests and checks run green
 - [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Operator ruling 2026-11-09 (R1 lane specs 097-100): spec 100 OQ-5 — object stats (doors, posts) for feature zones belong to the codex.
+<!-- SECTION:NOTES:END -->

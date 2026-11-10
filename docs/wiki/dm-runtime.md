@@ -71,7 +71,7 @@ async function `(TurnContext) => NodeResult`.
    A code-only **first-stage cut** (`first-stage.ts`, TASK-0182) runs between adjudicate and resolve: in `free` mode steps after the first run of like checks become `followUps`, and `holdDirector` holds that beat's turn, tracker and scene-end moves. `checkpoint.cut` makes a reclaim skip it. A human's clarify also holds (specs/073): `clarifyHolds` marks each committed human action whose reading asks a question and has no ruling; the cut holds that beat's turn, tracker and scene-end moves with reason `held: an action awaits an answer`. An AI actor's clarify does not hold. After the cut, `askUndeclared` (spec 077, [[dm-failure-and-gates]]) turns an undeclared manner check or another human's roll into a clarify, so the same hold applies; the `dm.plan.cut` log line reports the count as `asked`.
 5. **resolve** - code only; the one node that writes. It first seeds the run with each resumed plan's submissions (an approved `pending` one becomes `applied`), so the chain continues without a second roll. After its last gate write it builds **S1** and returns
    `ResolveOutput.snapshot` and `ResolveOutput.diff` (S0 to S1). See below. In turn mode a held party action (`TURN_HELD`, TASK-0244) resolves as outcome `held`: no step, no row, still committed; the turn advance ignores it, and when the turn reaches the companion resolve queues a `turn` job with trigger `held` instead of a companion job ([[dm-turn-jobs]]).
-6. **narrate** - `dm.narrate`. Writes prose from code-built facts (including the monster reading's plan, the turn holder, the Off turn list and the Waiting line for a held party action, TASK-0193, TASK-0214, TASK-0244), the player-facing seed view and S1 ([[dm-narration-quality]]).
+6. **narrate** - `dm.narrate`. Builds the fact sheet (`dm/fact-sheet.ts`, [[dm-narration-quality]]), asks the model for tagged `[restate]` `[describe]` `[ask]` slots (TASK-0245, spec 098) and ships `composeReply`: slots, then code rows and a `State:` line. Writes prose from code-built facts (including the monster reading's plan, the turn holder, the Off turn list and the Waiting line for a held party action, TASK-0193, TASK-0214, TASK-0244), the player-facing seed view and S1 ([[dm-narration-quality]]).
 7. **audit** - deterministic checks, including the claim gate against S1 and the diff ([[output-claim-gate]]), plus one `dm.audit` call (same S1 sections); decides what ships ([[dm-narration-quality]]).
 
 An empty-beat `talk` turn skips this order ([[dm-talk-triggers]]).
@@ -102,7 +102,7 @@ Resolve holds a Director arrival that a check's stake texts name (`splitArrivals
 
 ## Narration and audit
 
-Prose is **digit-free**; code builds the dice lines. The audit loop makes at most `MAX_NARRATION_ATTEMPTS = 3` attempts and ships
+Prose is **digit-free**; code builds the rows and the State line (`NarrateOutput.sheet`, `slots`). The audit loop makes at most `MAX_NARRATION_ATTEMPTS = 3` attempts and ships
 a code-built in-fiction fallback on exhaustion, with a `dm` journal flag. The claim gate: [[output-claim-gate]]. Facts, audit checks,
 the fallback and the player-facing seed view are in [[dm-narration-quality]].
 
