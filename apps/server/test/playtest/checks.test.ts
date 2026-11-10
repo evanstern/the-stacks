@@ -243,3 +243,41 @@ describe("dice-lines false positive (multi-paragraph prose)", () => {
     expect(diceLines).toEqual([]);
   });
 });
+
+describe("splitNarration: row forms and the State line (spec 098 D8)", () => {
+  const rows: [string, string][] = [
+    ["life-state", "Snag: conscious → dead"],
+    ["condition applied", "Snag: prone applied"],
+    ["condition removed", "Snag: prone removed"],
+    ["death saves", "Ana death saves: 1 success, 2 failures"],
+    ["spell slot", "Ana spends a level 2 spell slot"],
+    ["assist", "Odo helps Ana (ability check)"],
+    ["hp", "Snag takes 3 fire (9→6 HP)"],
+  ];
+  for (const [name, line] of rows) {
+    it(`accepts a ${name} row before a State line`, () => {
+      const { prose, diceLines } = splitNarration(
+        `Prose.\n\n${line}\nState: Anyone may act.`,
+      );
+      expect(prose).toBe("Prose.");
+      expect(diceLines).toEqual([line]);
+    });
+  }
+  it("accepts a refusal row and drops it from the compared lines", () => {
+    const { diceLines } = splitNarration(
+      "Prose.\n\nAna: refused, it is not that character's turn (NOT_YOUR_TURN)\nState: Ana's action did not happen. It is Odo's turn.",
+    );
+    expect(diceLines).toEqual([]);
+  });
+  it("accepts a State line alone as the code block", () => {
+    const { prose, diceLines } = splitNarration(
+      "Prose.\n\nState: Anyone may act.",
+    );
+    expect(prose).toBe("Prose.");
+    expect(diceLines).toEqual([]);
+  });
+  it("leaves a prose paragraph that merely mentions state as prose", () => {
+    const t = "One.\n\nThe state of the ford is poor.";
+    expect(splitNarration(t).prose).toBe(t);
+  });
+});

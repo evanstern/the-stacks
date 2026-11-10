@@ -275,7 +275,10 @@ export function deterministicChecks(
     );
   }
 
-  for (const c of checkClaims(state, prose).issues) {
+  // Spec 098 OQ-6: code writes the life-state row, so an omitted claim is advisory only.
+  for (const c of checkClaims(state, prose).issues.filter(
+    (x) => x.claim !== "omission",
+  )) {
     add("ledger-mismatch", `Actor state: ${c.detail}`);
   }
 

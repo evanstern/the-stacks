@@ -69,33 +69,33 @@ web read the new text.
 **Independent test**: `audit.test.ts`, `fallback.test.ts`, `checks.test.ts`, `table-view.test.tsx`
 pass; DB integration tests pass with `REQUIRE_DATABASE=1`.
 
-- [ ] T012 In `apps/server/src/dm/nodes/audit.ts`, filter claim `omission`, run agency checks on
+- [x] T012 In `apps/server/src/dm/nodes/audit.ts`, filter claim `omission`, run agency checks on
       describe and ask, read clarify exemptions from `sheet.ask`, regenerate with the sheet, and ship
       `composeReply`. In `apps/server/src/dm/prompts/audit.ts`, add the restate note and bump to
       `dm.audit-v17`.
-- [ ] T013 In `apps/server/src/dm/fallback.ts`, add the `forSheet` option; the audit fallback ships
+- [x] T013 In `apps/server/src/dm/fallback.ts`, add the `forSheet` option; the audit fallback ships
       the template (plan D6).
-- [ ] T014 In `apps/server/src/dm/talk-turn.ts`, append the floor-clause State line on an `escalate`
+- [x] T014 In `apps/server/src/dm/talk-turn.ts`, append the floor-clause State line on an `escalate`
       that starts a fight.
-- [ ] T015 In `apps/server/src/playtest/auditor/checks.ts`, accept the row forms and the State line,
+- [x] T015 In `apps/server/src/playtest/auditor/checks.ts`, accept the row forms and the State line,
       and widen `DICE_RELEVANT` (plan D8).
-- [ ] T016 In `apps/web/app/play/components/transcript.tsx`, add `whitespace-pre-line` to the
+- [x] T016 In `apps/web/app/play/components/transcript.tsx`, add `whitespace-pre-line` to the
       narration paragraph.
-- [ ] T017 Amend `specs/034-narration-quality/contracts/narration-facts.md` with the pointer section
+- [x] T017 Amend `specs/034-narration-quality/contracts/narration-facts.md` with the pointer section
       (plan D10).
-- [ ] T018 [P] Extend `audit.test.ts` (omission advisory; a restate quoting "I dodge" does not trip
+- [x] T018 [P] Extend `audit.test.ts` (omission advisory; a restate quoting "I dodge" does not trip
       agency), `fallback.test.ts` (`forSheet`), `apps/server/test/playtest/checks.test.ts` (one case
       per row kind and the State line), `apps/web/test/play/table-view.test.tsx` (pre-line class).
-- [ ] T019 Run the DB suites on the worktree stack. Update narration-text expectations in the
+- [x] T019 Run the DB suites on the worktree stack. Update narration-text expectations in the
       integration tests to the template; change no behaviour assertion. Record any 5 s timeout re-run.
 
 **Checkpoint**: SC-001 to SC-004 hold.
 
 ### Constitution Compliance (the-stacks)
 
-- [ ] T020 Fact-sheet test: every digit in a shipped reply lies in a row or the State line
+- [x] T020 Fact-sheet test: every digit in a shipped reply lies in a row or the State line
       (Principle VII). Add to `fact-sheet-replay.test.ts` over every scripted narrate reply it runs.
-- [ ] T021 Accessibility: the narration paragraph keeps its text role and renders at 1280 px and
+- [x] T021 Accessibility: the narration paragraph keeps its text role and renders at 1280 px and
       390 px; `apps/web/test/no-dialog.test.mjs` green (Principle IX).
 
 ## Phase 4: Wiki re-ground

@@ -998,3 +998,18 @@ describe("factualSummary: assists (spec 084 D13)", () => {
     expect(assist("attack")).toContain("Bram distracts Ana.");
   });
 });
+
+describe("factualSummary forSheet (spec 098 D6)", () => {
+  const f = facts({
+    actions: [action({ outcome: "refused", refusalCode: "NOT_YOUR_TURN" })],
+    clarify: [{ actionId: "a2", question: "Which way?" }],
+  });
+  it("omits the refusal and clarify sentences the template carries", () => {
+    const plain = factualSummary(f);
+    expect(plain).toContain("cannot do that here");
+    expect(plain).toContain("Which way?");
+    const sheet = factualSummary(f, undefined, { forSheet: true });
+    expect(sheet).not.toContain("cannot do that here");
+    expect(sheet).not.toContain("Which way?");
+  });
+});

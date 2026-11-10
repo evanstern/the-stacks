@@ -828,7 +828,7 @@ describe("narrate", () => {
       snapshot,
       prose: "Prose.",
     });
-    expect(AUDIT_VERSION).toBe("dm.audit-v16");
+    expect(AUDIT_VERSION).toBe("dm.audit-v17");
     expect(p.system).toContain(
       "Omit `actor` when no character is named; never write null.",
     );

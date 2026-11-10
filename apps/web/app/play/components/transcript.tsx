@@ -37,7 +37,9 @@ export function Transcript({
               {item.text}
             </p>
           ) : item.kind === "narration" ? (
-            <p className="italic text-muted-foreground">{item.text}</p>
+            <p className="italic text-muted-foreground whitespace-pre-line">
+              {item.text}
+            </p>
           ) : (
             <ActionCard
               card={item.card}
