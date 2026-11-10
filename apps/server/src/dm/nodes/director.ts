@@ -1,6 +1,7 @@
 import type { SessionProjections } from "@the-stacks/session-model";
 import {
   encounterPhase,
+  joinableMonsters,
   startableEncounterIds,
   unseenMonsters,
 } from "../gates/plan-gate.js";
@@ -242,8 +243,12 @@ export function legalizeDirector(
 
   // arrivals
   const offstage = new Set(offstageNpcIds(projections, seed));
+  // Spec 099 FR-021: in turn mode, a monster of the running fight may join.
   const unseen = new Set(
-    free ? unseenMonsters(projections, seed).map((m) => m.id) : [],
+    (free
+      ? unseenMonsters(projections, seed)
+      : joinableMonsters(projections, seed)
+    ).map((m) => m.id),
   );
   const monsterIds = new Set(
     seed.encounters.flatMap((e) => e.monsters.map((m) => m.combatantId)),
@@ -292,9 +297,10 @@ export const director: Node<"director"> = async (ctx) => {
     resumeEncounterIds: ctx.seed.encounters
       .filter((e) => encounterPhase(assembled.projections, e) === "ended")
       .map((e) => e.id),
-    unseenMonsters: unseenMonsters(assembled.projections, ctx.seed)
-      .filter(() => assembled.projections.tableMode.mode === "free")
-      .map((m) => `Monster ${m.id} (${m.name}, encounter ${m.encounterId})`),
+    unseenMonsters: (assembled.projections.tableMode.mode === "free"
+      ? unseenMonsters(assembled.projections, ctx.seed)
+      : joinableMonsters(assembled.projections, ctx.seed)
+    ).map((m) => `Monster ${m.id} (${m.name}, encounter ${m.encounterId})`),
     offstageNpcs: offstageNpcIds(assembled.projections, ctx.seed).map((id) => {
       const n = ctx.seed.npcs.find((x) => x.id === id);
       return `NPC ${id} (${n?.name ?? id}, ${n?.identity.role ?? "npc"})`;

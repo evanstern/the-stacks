@@ -1018,6 +1018,15 @@ async function arriveOne(
       `${m.name ?? rec.name} comes into view`,
       null,
     );
+    // Spec 099 FR-021: a newcomer to a running fight joins the order and rolls alone.
+    if (p.encounter !== null && p.tableMode.mode === "turn") {
+      await run.mech(
+        `director:arrival:${id}:join`,
+        { type: "initiative.join", combatantId: id, mode: "normal" },
+        `${m.name ?? rec.name} joins the fight`,
+        null,
+      );
+    }
     return true;
   }
   await run.submit(`director:arrival:${id}`, "scene-presence", () => ({
@@ -1331,6 +1340,19 @@ async function directorClosing(
   if (tm.to === "free") {
     await endEncounter(tm.reason);
     await setMode({ mode: "free" }, tm.reason);
+  }
+
+  // Spec 099 FR-020: code ends a fight no foe stands in. A party wipe does not
+  // end it (OQ-6). A depart that emptied the order already ended the engine's.
+  if (local.encounterActive) {
+    const fresh = await ctx.deps.loadProjections(ctx.job.sessionId);
+    if (fresh.encounter === null) {
+      local.encounterActive = false;
+      await setMode({ mode: "free" }, "The fight is over.");
+    } else if (encounterOver(fresh.engine)) {
+      await endEncounter("No foe still stands.");
+      await setMode({ mode: "free" }, "No foe still stands.");
+    }
   }
 
   // scene end

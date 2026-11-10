@@ -84,11 +84,11 @@ rolls for an absent or yielded monster.
 
 **Goal**: the fight ends when no foe stands; a turn-mode arrival joins with one roll.
 
-- [ ] T025 [US3] In `directorClosing` (`nodes/resolve.ts`), load fresh projections after the table-mode decision; apply FR-020 through `endEncounter` and `setMode`; confirm the turn advance group skips once `local.encounterActive` is false.
-- [ ] T026 [US4] In `apps/server/src/dm/gates/plan-gate.ts` add `joinableMonsters`; in `nodes/director.ts` keep turn-mode arrivals in it; in `prompts/director.ts` list them in turn mode; in `arriveOne` (`nodes/resolve.ts`) follow a turn-mode add with `initiative.join` (FR-021). Make the plan gate's `joining` input include them.
-- [ ] T027 [P] [US3] Write `apps/server/test/dm/encounter-auto-end.integration.test.ts`: last hostile killed; last hostile surrenders; party down with a hostile standing (no end); a sideless order (no end).
-- [ ] T028 [P] [US4] Write `apps/server/test/dm/mid-fight-arrival.integration.test.ts`: `goblin-4` arrives in turn mode; one `combatant.add` with side `hostile`, one `initiative.join`, one initiative `dice.rolled`; the active combatant is unchanged.
-- [ ] T029 [US4] Extend `apps/server/test/dm/director.test.ts`: turn-mode arrival of a joinable monster kept; of a non-encounter monster or an existing combatant dropped.
+- [x] T025 [US3] In `directorClosing` (`nodes/resolve.ts`), load fresh projections after the table-mode decision; apply FR-020 through `endEncounter` and `setMode`; confirm the turn advance group skips once `local.encounterActive` is false.
+- [x] T026 [US4] In `apps/server/src/dm/gates/plan-gate.ts` add `joinableMonsters`; in `nodes/director.ts` keep turn-mode arrivals in it; in `prompts/director.ts` list them in turn mode; in `arriveOne` (`nodes/resolve.ts`) follow a turn-mode add with `initiative.join` (FR-021). Make the plan gate's `joining` input include them.
+- [x] T027 [P] [US3] Write `apps/server/test/dm/encounter-auto-end.integration.test.ts`: last hostile killed; last hostile surrenders; party down with a hostile standing (no end); a sideless order (no end).
+- [x] T028 [P] [US4] Write `apps/server/test/dm/mid-fight-arrival.integration.test.ts`: `goblin-4` arrives in turn mode; one `combatant.add` with side `hostile`, one `initiative.join`, one initiative `dice.rolled`; the active combatant is unchanged.
+- [x] T029 [US4] Extend `apps/server/test/dm/director.test.ts`: turn-mode arrival of a joinable monster kept; of a non-encounter monster or an existing combatant dropped.
 
 **Checkpoint**: server unit and DB integration suites green on the worktree stack; `pnpm ci:check` green.
 

@@ -450,6 +450,25 @@ describe("legalizeDirector monster arrivals (spec 088)", () => {
     expect(arrive(["goblin-3"], p).arrivals).toEqual([]);
   });
 
+  it("keeps a turn-mode arrival of a monster of the running fight; drops an existing combatant (spec 099)", () => {
+    const running = structuredClone(turnProjections) as never as {
+      encounter: { order: { combatantId: string }[] };
+      engine: { combatants: Record<string, unknown> };
+    };
+    running.encounter = {
+      ...(running.encounter as object),
+      order: [...running.encounter.order, { combatantId: "snag" }],
+    } as never;
+    running.engine.combatants.snag = Object.values(
+      running.engine.combatants,
+    )[0];
+    const out = arrive(["goblin-3"], running as never);
+    expect(out.arrivals).toEqual(["goblin-3"]);
+    expect(out.overrides).toEqual([]);
+    running.engine.combatants["goblin-3"] = running.engine.combatants.snag;
+    expect(arrive(["goblin-3"], running as never).arrivals).toEqual([]);
+  });
+
   it("keeps reed-camp runnable with a monster added, then resumable after it started", () => {
     const reedCamp = seed.encounters.find((e) => e.id === "reed-camp");
     if (!reedCamp) throw new Error("fixture lacks reed-camp");
