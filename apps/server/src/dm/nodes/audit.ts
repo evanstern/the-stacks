@@ -24,6 +24,11 @@ import {
   offTurnActs,
   unmetReveals,
 } from "../claims.js";
+import {
+  composeReply,
+  defaultRestate,
+  type NarrationSlots,
+} from "../fact-sheet.js";
 import { type NarrationFacts, renderDiceLines, unmetRolls } from "../facts.js";
 import { factualSummary, spellDigits } from "../fallback.js";
 import { callJson } from "../pipeline/call.js";
@@ -36,7 +41,7 @@ import { buildAuditPrompt, PROMPT_VERSION } from "../prompts/audit.js";
 import { PURPOSE_OF } from "../purposes.js";
 import { nameTerms } from "../snapshot/aliases.js";
 import { capText } from "./director.js";
-import { composeText, narrateAttempt } from "./narrate.js";
+import { narrateAttempt } from "./narrate.js";
 
 /**
  * The audit node (contracts/audit.md): deterministic checks, one `dm.audit`
@@ -238,7 +243,12 @@ const sha = (s: string): string => createHash("sha256").update(s).digest("hex");
  */
 export function deterministicChecks(
   facts: NarrationFacts,
-  narration: { prose: string; diceLines: readonly string[] },
+  narration: {
+    prose: string;
+    diceLines: readonly string[];
+    /** Spec 098: the restate block; the agency checks skip it (it quotes the declared verbs). */
+    restate?: string;
+  },
   state: ClaimState,
 ): { pass: boolean; issues: AuditIssue[] } {
   const { prose } = narration;
@@ -265,7 +275,10 @@ export function deterministicChecks(
     );
   }
 
-  for (const c of checkClaims(state, prose).issues) {
+  // Spec 098 OQ-6: code writes the life-state row, so an omitted claim is advisory only.
+  for (const c of checkClaims(state, prose).issues.filter(
+    (x) => x.claim !== "omission",
+  )) {
     add("ledger-mismatch", `Actor state: ${c.detail}`);
   }
 
@@ -317,8 +330,12 @@ export function deterministicChecks(
       .replace(/["'\u2018\u2019\u201c\u201d]/g, "")
       .replace(/\s+/g, " ")
       .trim();
-  let agencyProse = prose;
-  const trimmed = prose.trimEnd();
+  const own =
+    narration.restate && prose.startsWith(narration.restate)
+      ? prose.slice(narration.restate.length).trimStart()
+      : prose;
+  let agencyProse = own;
+  const trimmed = own.trimEnd();
   for (const c of facts.clarify) {
     const q = c.question.trim();
     if (q && normText(trimmed).endsWith(normText(q))) {
@@ -507,7 +524,7 @@ export const audit: Node<"audit"> = async (ctx) => {
     };
   }
 
-  const { facts } = narration;
+  const { facts, sheet } = narration;
   const claimState: ClaimState = {
     snapshot: resolved.snapshot,
     diff: resolved.diff,
@@ -519,13 +536,20 @@ export const audit: Node<"audit"> = async (ctx) => {
     `${i.blocking ? "" : "[advisory] "}${i.kind}: ${i.detail}`;
   const advisory = (xs: readonly AuditIssue[]): RecordedIssue[] =>
     xs.map((i) => ({ ...i, blocking: false }));
-  let current = { prose: narration.prose, diceLines: narration.diceLines };
+  let current: {
+    prose: string;
+    diceLines: readonly string[];
+    slots: NarrationSlots;
+  } = {
+    prose: narration.prose,
+    diceLines: narration.diceLines,
+    slots: narration.slots,
+  };
   let issuesSoFar: AuditIssue[] = [];
   let attempt = 1;
 
   const fallback = (): AuditOutput => {
-    const prose = factualSummary(facts, claimState);
-    const diceLines = renderDiceLines(facts);
+    const prose = factualSummary(facts, claimState, { forSheet: true });
     return {
       record: {
         attempts,
@@ -535,7 +559,16 @@ export const audit: Node<"audit"> = async (ctx) => {
       },
       shipped: {
         prose,
-        text: composeText(prose, diceLines),
+        text: composeReply(
+          {
+            restate: sheet.slots.includes("restate")
+              ? defaultRestate(sheet)
+              : "",
+            describe: prose,
+            ask: sheet.ask ?? "",
+          },
+          sheet,
+        ),
         actionIds: narration.actionIds,
         fallback: true,
         flagBody:
@@ -546,7 +579,11 @@ export const audit: Node<"audit"> = async (ctx) => {
   };
 
   for (;;) {
-    const detRaw = deterministicChecks(facts, current, claimState);
+    const detRaw = deterministicChecks(
+      facts,
+      { ...current, restate: current.slots.restate },
+      claimState,
+    );
     const det = {
       pass: detRaw.pass,
       issues: detRaw.issues.map((i) => ({ ...i, blocking: true })),
@@ -615,7 +652,7 @@ export const audit: Node<"audit"> = async (ctx) => {
           },
           shipped: {
             prose: current.prose,
-            text: composeText(current.prose, current.diceLines),
+            text: composeReply(current.slots, sheet),
             actionIds: narration.actionIds,
             fallback: false,
             flagBody: null,
@@ -647,6 +684,7 @@ export const audit: Node<"audit"> = async (ctx) => {
       assembled,
       facts,
       resolved.snapshot,
+      sheet,
       {
         prose: current.prose,
         issues: issuesSoFar,
@@ -662,6 +700,10 @@ export const audit: Node<"audit"> = async (ctx) => {
       );
       return { ok: true, node: "audit", calls, output: fallback() };
     }
-    current = { prose: regen.prose, diceLines: renderDiceLines(facts) };
+    current = {
+      prose: regen.prose,
+      diceLines: renderDiceLines(facts),
+      slots: regen.slots,
+    };
   }
 };

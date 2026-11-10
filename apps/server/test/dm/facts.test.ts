@@ -8,6 +8,7 @@ import {
   buildNarrationFacts,
   collectFacts,
   deriveInvoluntary,
+  type FactChange,
   type NarrationFacts,
   renderChangeLine,
   renderDiceLines,
@@ -334,7 +335,7 @@ describe("dice-line renderer", () => {
     expect(c.changes).toEqual([]);
   });
 
-  it("renders no line for an engine refusal (no rows)", () => {
+  it("renders a refusal row for an engine refusal (spec 098)", () => {
     const facts = {
       actions: [
         {
@@ -350,7 +351,9 @@ describe("dice-line renderer", () => {
       ],
       npcTurn: null,
     } as unknown as NarrationFacts;
-    expect(renderDiceLines(facts)).toEqual([]);
+    expect(renderDiceLines(facts)).toEqual([
+      "Ana: refused, that target is not in the scene (UNKNOWN_COMBATANT)",
+    ]);
   });
 
   it("renders an auto-fail with no roll", () => {
@@ -544,7 +547,12 @@ describe("dice-line renderer", () => {
       "life-state",
       "condition",
     ]);
-    expect(renderChangeLine(c.changes[2] as never)).toBeNull();
+    expect(renderChangeLine(c.changes[1] as never)).toBe(
+      "Ana: unconscious → conscious",
+    );
+    expect(renderChangeLine(c.changes[2] as never)).toBe(
+      "Ana: poisoned applied",
+    );
   });
 });
 
@@ -956,7 +964,7 @@ describe("facts v2: party, events, target, setting (run-5 rows)", () => {
     expect(hold[0]).toBe(
       'Action a1 by Ana: "waves" -> on hold (the intent is unclear; nothing happened yet)',
     );
-    expect(hold).toContain("Unclear intent for a1: Which way?");
+    expect(hold).toContain("Waiting on an answer for a1");
     const ev = factEntries({ ...base, actions: [], clarify: [] });
     expect(ev).toContain(
       "Event: a fight starts (Snag, Goblin with a pot-helm, Goblin lookout, Goblin by the fire); Snag acts first",
@@ -1313,12 +1321,60 @@ describe("assist facts (spec 084 D13)", () => {
     ] as unknown as LedgerRow[];
 
   for (const kind of ["ability-check", "attack"] as const) {
-    it(`builds an assist fact for a ${kind} assist and adds no dice line`, () => {
+    it(`builds an assist fact for a ${kind} assist and renders a helps row`, () => {
       const c = collectFacts(assistRow(kind), nameOf);
       expect(c.changes).toEqual([
         { kind: "assist", target: "Ana", helper: "Goblin", assist: kind },
       ]);
-      expect(c.changes.map(renderChangeLine)).toEqual([null]);
+      expect(c.changes.map(renderChangeLine)).toEqual([
+        `Goblin helps Ana (${kind === "attack" ? "attack" : "ability check"})`,
+      ]);
     });
+  }
+});
+
+describe("renderChangeLine: a row for every FactChange kind (spec 098 T005)", () => {
+  const cases: [FactChange, string][] = [
+    [
+      {
+        kind: "hp",
+        target: "Ana",
+        direction: "damage",
+        amount: 3,
+        damageType: "fire",
+        before: 9,
+        after: 6,
+      },
+      "Ana takes 3 fire (9→6 HP)",
+    ],
+    [
+      { kind: "life-state", target: "Ana", before: "conscious", after: "dead" },
+      "Ana: conscious → dead",
+    ],
+    [
+      { kind: "condition", target: "Ana", op: "removed", condition: "prone" },
+      "Ana: prone removed",
+    ],
+    [
+      { kind: "spell-slot", target: "Ana", pool: "spell", level: 2 },
+      "Ana spends a level 2 spell slot",
+    ],
+    [
+      { kind: "assist", target: "Ana", helper: "Goblin", assist: "attack" },
+      "Goblin helps Ana (attack)",
+    ],
+    [
+      {
+        kind: "death-saves",
+        target: "Ana",
+        successes: 1,
+        failures: 0,
+        failed: false,
+      },
+      "Ana death saves: 1 success, 0 failures",
+    ],
+  ];
+  for (const [change, text] of cases) {
+    it(`${change.kind}`, () => expect(renderChangeLine(change)).toBe(text));
   }
 });

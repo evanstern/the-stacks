@@ -55,3 +55,10 @@ Classes: bug, rough edge, missing feature, rules/DM quality, positive.
 - **New cards:** TASK-0302. **Evidence added:** TASK-0302 recurrence; TASK-0278 baseline numbers.
 - **Driving:** Playwright over a debug-port Brave window (operator signed in once); turns posted over the page's own websocket. Operator played no turns by hand.
 - **Auditor:** not run — the hosted audit needs the vm-104 database (C9); deferred to CP-7 with the R1 scenario.
+
+## Verification run — TASK-0302 (2026-11-09, after #152 and #153 deployed)
+
+- **Session:** `b9898b7f-28d7-4223-ba2e-6cb5b528e294`, vm-104 at `a0049104` (includes TASK-0302 fix `aec294a4`). Solo seed `greyhollow-ford`, Tamsin human, Odo and Kestrel AI. Driven by Playwright.
+- **Result:** 0 of 4 Tamsin combat actions refused `STEP_ACTOR_MISMATCH` (baseline: 4 of 5). Tamsin's attacks resolved at seq 55, 72, 102, 113, 163. One combat action (`act-d5156758`, "I shoot the nearest goblin") resolved `no-effect` with a clarify question ("which goblin is nearest?") because two goblins were plausible. That is a legitimate clarification, not the bug.
+- **Normalizer:** the vm-104 app log shows no `dm.interpret.seat-actor` line, so the prompt-label fix alone kept user ids out of the model's output.
+- **Attempt-1:** 1 of 97 calls not ok (a `dm.interpret` schema-mismatch). **Spend:** $2.08 this run; $7.33 of the $25 ceiling in total.

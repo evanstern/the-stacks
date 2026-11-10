@@ -51,3 +51,5 @@ Fog, `zone.revealed`, the per-viewer `spatial` projection, `spatialFor`, `reachO
 ## Boundary
 
 Space knows no combatants, speed, turns or dice. The engine owns the commands (`space.define`, `combatant.place`, `move`, `movement.action`), the speed budget, opportunity-attack `provokers` and the band checks on attacks ([[dnd5e-engine]], [[dnd5e-engine-reactions]]). Grid mode is not built; band distances and origin-zone-only provocation are zone-mode simplifications marked `ponytail:` in code.
+
+The planner ([[planner]]) is a consumer: it reads `bandBetween`, `reachCovers` and `rangeOf` for attack and help reach, and passes the engine's `spaceViewOf` view into `plan()`.

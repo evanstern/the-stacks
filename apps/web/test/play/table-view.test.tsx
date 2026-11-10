@@ -403,3 +403,13 @@ test("the Party trigger renders for a DM, a player and a spectator", () => {
     expect(html).not.toContain("<dialog");
   }
 });
+
+test("the narration paragraph keeps line breaks and its text role (spec 098 T016, T021)", () => {
+  const f = fixtures.find((x) => x.name === "free-mode-action");
+  if (!f) throw new Error("fixture missing");
+  const html = renderToStaticMarkup(
+    <TableView source={sourceFor(f, f.viewers.dm)} />,
+  );
+  expect(html).toMatch(/<p class="[^"]*whitespace-pre-line[^"]*">/);
+  expect(html).toContain("italic text-muted-foreground");
+});

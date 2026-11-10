@@ -13,7 +13,7 @@ sources:
   - docker-compose.test.yml
   - package.json
   - .github/workflows/ci.yml
-verified_against: 3898df927538d2f62711db2f69d6ab03d44ed7d9
+verified_against: 9c2209b9453d211adf302bd86436ece4c2a23ed7
 ---
 
 # Overview
@@ -83,8 +83,8 @@ present-state code is in the sections above and the linked notes.
   model output required); XIII Plan Just-in-Time.
 - **Package seams.** Architecture Constraints name `srd`, `dnd5e-engine`, `space`,
   `intent`, `planner`, `session-model`, `codex-model`. Under `packages/` only `srd`,
-  `dnd5e-engine`, `session-model`, `intent` ([[intent-contract]]), `space` ([[space]], TASK-0270) and `shared` exist;
-  `planner` and `codex-model` are planned. The board is PixiJS v8 on a client-only route.
+  `dnd5e-engine`, `session-model`, `intent` ([[intent-contract]]), `space` ([[space]], TASK-0270), `planner` ([[planner]], TASK-0267) and `shared` exist;
+  `codex-model` is planned. The board is PixiJS v8 on a client-only route.
 - **DM runtime.** Turn jobs share the worker loop with ingestion ([[dm-runtime]]).
 - **VTT.** The own board is a projection of the event log (R5 The Board). External VTT
   adapters are trigger-gated (P-02, P-07), not scheduled.

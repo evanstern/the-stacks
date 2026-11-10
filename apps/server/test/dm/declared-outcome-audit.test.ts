@@ -21,7 +21,13 @@ import { buildNarratePrompt } from "../../src/dm/prompts/narrate.js";
 import { createScriptedDm, loadDmScript } from "../../src/dm/script/load.js";
 import { buildSnapshot } from "../../src/dm/snapshot/index.js";
 import { clueFor } from "../../src/dm/stakes.js";
-import { freeEventsThrough, makeCtx, projectDm, testSeed } from "./helpers.js";
+import {
+  freeEventsThrough,
+  makeCtx,
+  projectDm,
+  testSeed,
+  testSheet,
+} from "./helpers.js";
 import { EMPTY_RESOLVE_SNAPSHOT } from "./snapshot-fixtures.js";
 
 /**
@@ -187,6 +193,8 @@ async function run(facts: NarrationFacts, calls: unknown[]) {
     attempt: 1,
     skipped: false,
     facts,
+    sheet: testSheet(facts),
+    slots: { restate: "", describe: MARKS_ONLY, ask: "" },
     withheld: [],
   };
   const out = await audit({

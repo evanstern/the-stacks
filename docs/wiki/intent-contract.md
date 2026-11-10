@@ -12,7 +12,7 @@ sources:
   - packages/intent/src/text/parse.ts
   - packages/intent/src/text/to-text.ts
   - packages/intent/src/text/tokens.ts
-verified_against: 0cfd68f5f9c71f32bde3cc8286caa8e91a8a54c5
+verified_against: 9c2209b9453d211adf302bd86436ece4c2a23ed7
 ---
 
 # Intent contract
@@ -25,3 +25,5 @@ verified_against: 0cfd68f5f9c71f32bde3cc8286caa8e91a8a54c5
 - **Text form.** `toText(intent)` is total and emits only canonical forms; `parse(text, ctx)` is total up to 4000 characters and returns a refusal, never a throw, with no model call and no I/O. `parse(toText(i), ctxOf(i))` deep-equals the schema-parsed `i`, and `toText` is idempotent (seeded property tests in `packages/intent/test`). Sigils: `@` actor, `&` entity, `$` item, `#` zone, `sq:`, `pt:`.
 - **v1.1 additions** (contract 8.2.1): explicit speech verbs `/say /to /ask /ooc /npc`; `text="…"` and `reason="…"` keys; quoted `@"dm"` is the literal id, bare `@dm` the seat; bare `party` in `/reveal to=` is the keyword, quoted `"party"` a pc id; trailing `ability=`; leading `dc= diff= text= reason=` keys on `/rule amend`.
 - **Versioning.** A minor bump adds a kind, optional param, alias, refusal code or source and needs a README changelog line. A major bump needs a decision record and a session-model upcaster ([[session-model]]). The carrier stores the major beside each stored Intent. The proposal seam ([[proposal-gate]]) does not yet consume Intents.
+
+The planner ([[planner]], TASK-0267) raises the planner-side refusal codes `KIND_UNSERVED`, `TARGET_NOT_PRESENT`, `TARGET_UNSEEN`, `OUT_OF_REACH`, `OUT_OF_RANGE`, `NO_MOVEMENT_LEFT`, `REQUEST_NOT_OPEN` and `DM_SEAT_REQUIRED`. `NO_ACTION_LEFT` and `NO_BONUS_ACTION_LEFT` stay reserved (TASK-0304); the gate raises the seat and turn codes.

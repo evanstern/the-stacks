@@ -13,7 +13,7 @@ sources:
   - apps/server/src/dm/pipeline/context.ts
   - apps/server/src/dm/nodes/schemas.ts
   - apps/server/dm-scripts/greyhollow-talk.json
-verified_against: 62af1658a4a9b0c21bc234b4f8ed13abb78144ea
+verified_against: 803c548b982da9c5a080e8b8cd5832e39521ef40
 ---
 
 # DM talk triggers
@@ -50,7 +50,7 @@ full pipeline.
    One regenerate; a second refusal records `none`.
 6. `escalate` runs resolve's opening move through a synthetic Director output when
    `legalEscalation` holds (free mode, no running encounter, encounter not yet run: `encounterRan`, spec 088); else `scene`.
-7. `submitNarration` ships one row with no action ids. The worker stores `jobs.result.talk`
+7. `submitNarration` ships one row with no action ids. A `reply` carries no State line; an `escalate` that opened a fight appends `State: The fight begins. It is <name>'s turn.` (spec 098 OQ-4). The worker stores `jobs.result.talk`
    (`posts`, `codeTriggers`, `modelTriggers`, `outcome`, `reason`), queues the companion `prompt`
    job (none at the cap), a chronicle job, and after an escalation the first `npc-turn`.
 

@@ -1,7 +1,9 @@
 /**
  * DM-craft doctrine adapted from tabletop-dm (https://github.com/bradbushSFAI/tabletop-dm, commit fe2c29b), Copyright (c) 2026 Brad Bush, used under the MIT License. See apps/server/src/dm/doctrine/NOTICE.md.
  */
+
 import { agencyRule, renderDoctrine } from "../doctrine/doctrine.js";
+import type { FactSheet } from "../fact-sheet.js";
 import {
   type FactEvent,
   type FactRoll,
@@ -25,7 +27,7 @@ import {
   transcriptEntries,
 } from "./common.js";
 
-export const PROMPT_VERSION = "dm.narrate-v21";
+export const PROMPT_VERSION = "dm.narrate-v22";
 
 /** One turn rule, shared by the narrate and audit prompts (TASK-0214). */
 export const TURN_RULE =
@@ -33,7 +35,8 @@ export const TURN_RULE =
 
 const RULES = [
   "You narrate the result of one beat of a tabletop role-playing session. The facts below are TRUE and already decided by the rules engine. Retell them as story.",
-  "Write plain prose only: one short scene of about one hundred words, never more than one hundred fifty. No lists, no headings, no bold.",
+  'Write tagged slots, each tag at the start of a line, and only the slots listed under Slots. [restate]: one sentence that repeats the character\'s intention, with no outcome and no digit. [describe]: plain prose of about one hundred words, never more than one hundred fifty, with no lists, no headings and no bold. [ask]: only when listed; one open question, never an either-or and never "What do you do?".',
+  "Never write a State line or a dice line. Code appends the rows and the State line. When a Settled question line is listed, code asks it: never ask a question yourself.",
   "Write NO digits. Do not state totals, damage numbers, hit points, armor class or difficulty. Code appends the dice lines after your prose.",
   "Never contradict a fact. A hit lands, a miss misses, a failure fails. Do not invent rolls, dice or mechanics.",
   agencyRule("narrate"),
@@ -42,14 +45,14 @@ const RULES = [
   "A refused action did not happen: no roll and no result. Never show it succeed, fail or land, and never show anyone react to its result.",
   "When a foe's attack misses a party member, its grab fails, or a party member succeeds on a save against it, tell it from the foe's side: the blow goes wide, glances off armour, finds only air. On a miss listed under Reflex, the party member may flinch. The flinch never causes the miss. Never show the party member choosing a defence: no dodge, no duck, no twist that times the blow, no step aside. Never show a wound unless a fact records damage.",
   "A roll's band and outcome are settled. A success means the attempted task happens. Deliver the outcome and any learned fact plainly in the prose; invent no other. A success at a cost succeeds and the consequence lands. A severe failure fails worse than a plain failure. A free retry with no roll succeeds.",
-  "When an intent is unclear, describe the moment, then end with the Unclear intent question exactly as written.",
+  "When an intent is unclear, describe the moment and stop. Code asks the question.",
   "Cover every Event line.",
   TURN_RULE,
   "When the Monster turn has a says: line, the monster speaks those words in this beat.",
   "Name a character as dead or unconscious only when a fact or the state sections say so; when a fact says so, say so.",
   "A dead, unconscious, stable or absent character does not act or speak. Count only what the state sections show.",
   "A not-yet-attempted step has not happened, in this beat or an earlier one. Stop before it; never show it start or done.",
-  'End on something that demands a response. Never end on "What do you do?" or an either-or question, except the Unclear intent question.',
+  'Never end on "What do you do?" or an either-or question.',
 ].join("\n");
 
 /** The facts as capped entries, most important first. */
@@ -181,7 +184,7 @@ export function factEntries(facts: NarrationFacts): string[] {
     );
   }
   for (const c of facts.clarify) {
-    out.push(`Unclear intent for ${c.actionId}: ${c.question}`);
+    out.push(`Waiting on an answer for ${c.actionId}`);
   }
   if (facts.director.sceneEnded) out.push("The scene ends with this beat.");
   return out;
@@ -287,7 +290,29 @@ export interface NarratePromptInput {
   /** S1: the actor snapshot after resolve. */
   snapshot: ActorSnapshot;
   facts: NarrationFacts;
+  /** Spec 098: the fact sheet; absent only in tests that read the facts alone. */
+  sheet?: FactSheet;
   prior: { prose: string; issues: AuditIssue[] } | null;
+}
+
+/** The Slots, Restate, Speakers and Settled question sections (spec 098 D4). */
+export function sheetSections(sheet: FactSheet): string[] {
+  return [
+    section("Slots", sheet.slots, 100, "end"),
+    section(
+      "Restate",
+      sheet.restate.map((t) => `${t.subject}: "${t.text}" (${t.resolution})`),
+      600,
+      "end",
+    ),
+    section(
+      "Speakers",
+      sheet.speakers.map((s) => (s.say ? `${s.name} says: ${s.say}` : s.name)),
+      400,
+      "end",
+    ),
+    sheet.ask ? "## Settled question\nCode asks this; do not ask it." : "",
+  ];
 }
 
 export function buildNarratePrompt(input: NarratePromptInput): {
@@ -316,6 +341,7 @@ export function buildNarratePrompt(input: NarratePromptInput): {
     openingSection(seed, facts),
     ...characterSections(input.snapshot),
     section("Facts", factEntries(facts), CAPS.facts, "end"),
+    ...(input.sheet ? sheetSections(input.sheet) : []),
     `Pacing: ${facts.director.pacing.tension}. Private note: ${facts.director.goalNote}`,
     section("Present characters", npcs, 400, "end"),
     section(

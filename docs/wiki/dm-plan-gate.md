@@ -5,7 +5,7 @@ kind: component
 sources:
   - apps/server/src/dm/gates/plan-gate.ts
   - apps/server/src/dm/pipeline/runner.ts
-verified_against: 62af1658a4a9b0c21bc234b4f8ed13abb78144ea
+verified_against: 9c2209b9453d211adf302bd86436ece4c2a23ed7
 ---
 
 # DM plan gate
@@ -16,3 +16,5 @@ Since TASK-0110 a gate-refused action resolves before a Director stage change (e
 **`askUndeclared`** (`gates/plan-gate.ts`, spec 077) is pure and runs in the runner after the cut and before `clarifyHolds`. Two rules turn a reading into a clarify with a fixed question. The other-player question (and the `help` step's `helperId`, spec 084) names the other PC's player and the declarer, and ends "What does <declarer> do instead?", never on the stock "What do you do?" (TASK-0204). A Stealth, Deception or Intimidation check runs only when the declaration's wording names that manner (`MANNER_SKILLS` cues). A check or attack from a character-scope action may not roll for another human's PC. Party-scope actions, saves, effect targets and AI companions skip the manner rule. Each ask is counted as `asked` on `dm.plan.cut`.
 **Help and opposition** (spec 084, TASK-0128). A `help` step is a foreign actor if its `helperId` is not the action's own (`STEP_ACTOR_MISMATCH`), and `askUndeclared` reads `helperId` for the other-player question. The gate reads a `help` step's `helperId`, `allyId` or `targetId`, and an opposed check's `opposedBy`, as ids that must exist. An opposed check whose opponent lacks the stat for its rule, or an ability-check `help` whose helper has no `stats`, is refused `STAT_UNDEFINED`; a joining combatant is skipped. `NOT_PROFICIENT` is raised only by the engine at resolve ([[dnd5e-engine]]).
 **Spell rule** (spec 083, `spellGap`). A `spell` step is strict (SRD id, slot level, no numbers). The gate refuses `SPELL_UNKNOWN` (no SRD record), `SPELL_NOT_PREPARED` (not on the caster's seed list), `SPELL_UNRESOLVED` (not in the engine table, or wrong slot level), `STAT_UNDEFINED` (no spellcasting modifier or target save), and an intent `spell` reading with no spell step. Another member's spell is `STEP_ACTOR_MISMATCH`.
+
+The deterministic planner ([[planner]], TASK-0267) ports the id, able-actor, stat and spell checks of this gate onto Intents (`UNKNOWN_COMBATANT`, `ACTOR_UNABLE`, `STAT_UNDEFINED`, `SPELL_UNKNOWN`, `SPELL_NOT_PREPARED`, `SPELL_UNRESOLVED`). This gate and `resolve.ts` are unchanged until TASK-0269.

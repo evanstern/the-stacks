@@ -1,0 +1,30 @@
+{
+  "_header": "RECONSTRUCTED fixture, not a capture. No ledger export of session 729a6c5c is in the repo (spec 098 R6). The beat follows docs/playtests/2026-11-03-runbook-b-playtest.md findings 2 and 6 and the B-undeclared-method row: a party action by Tamsin's player, interpret clarify, no steps, free mode, Wenna present. The test appends these rows to run 5's scene, combatant and party rows; actor $HUMAN is the human seat's user id and seq is renumbered.",
+  "reconstructed": true,
+  "sources": [
+    "docs/playtests/2026-11-03-runbook-b-playtest.md findings 2 and 6"
+  ],
+  "action": "We move along the timber posts toward the reed camp.",
+  "clarify": "Do you creep along the timbers quietly, or just move straight for the camp?",
+  "rows": [
+    {
+      "seq": 88,
+      "actor": "$HUMAN",
+      "type": "action.declared",
+      "payload": {
+        "actionId": "act-run1-15",
+        "characterId": null,
+        "scope": "party",
+        "text": "We move along the timber posts toward the reed camp."
+      },
+      "visibility": "public"
+    },
+    {
+      "seq": 89,
+      "actor": "$HUMAN",
+      "type": "action.committed",
+      "payload": { "actionId": "act-run1-15", "authority": "declarer" },
+      "visibility": "public"
+    }
+  ]
+}
