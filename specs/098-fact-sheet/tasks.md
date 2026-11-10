@@ -16,18 +16,18 @@ composes slots. Nothing calls it yet.
 
 **Independent test**: `fact-sheet.test.ts` and `facts.test.ts` pass.
 
-- [ ] T001 [US2] In `apps/server/src/dm/facts.ts`, extend `renderChangeLine` with `life-state`,
+- [x] T001 [US2] In `apps/server/src/dm/facts.ts`, extend `renderChangeLine` with `life-state`,
       `condition`, `spell-slot` and `assist` rows (contract §3.1). Keep `hp` and `death-saves` text.
-- [ ] T002 [US2] Create `apps/server/src/dm/fact-sheet.ts` with the contract §2 types,
+- [x] T002 [US2] Create `apps/server/src/dm/fact-sheet.ts` with the contract §2 types,
       `REFUSAL_REASON` (§3.2), `renderRows` (§3.1 order plus refusal rows), and `renderDiceLines`
       re-expressed in `facts.ts` as the row texts.
-- [ ] T003 [US4] In `fact-sheet.ts`, write `buildFactSheet` and `renderStateLine` per contract §4:
+- [x] T003 [US4] In `fact-sheet.ts`, write `buildFactSheet` and `renderStateLine` per contract §4:
       restate targets, resolutions (`partial` from submissions and followUps), slots, code ask,
       speakers, status and floor clauses.
-- [ ] T004 [US1] In `fact-sheet.ts`, write `parseSlots` and `composeReply` per contract §5.
-- [ ] T005 [P] [US2] In `apps/server/test/dm/facts.test.ts`, assert a row for every `FactChange`
+- [x] T004 [US1] In `fact-sheet.ts`, write `parseSlots` and `composeReply` per contract §5.
+- [x] T005 [P] [US2] In `apps/server/test/dm/facts.test.ts`, assert a row for every `FactChange`
       kind.
-- [ ] T006 [US4] Write `apps/server/test/dm/fact-sheet.test.ts`: one case per decision-tree branch
+- [x] T006 [US4] Write `apps/server/test/dm/fact-sheet.test.ts`: one case per decision-tree branch
       (contract §4.1 to §4.3, including the five worked examples) asserting slots and the exact State
       line; a property over all branches that no State line holds `?` and each names a combatant,
       "Anyone" or "the DM"; refusal rows per code; `parseSlots` (untagged reply, digit restate,

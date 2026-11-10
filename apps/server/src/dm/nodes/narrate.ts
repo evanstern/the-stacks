@@ -1,5 +1,6 @@
-import { hasCountClaim, STOCK_ENDING } from "../audit-words.js";
+import { hasCountClaim } from "../audit-words.js";
 import { type ClaimState, checkClaims } from "../claims.js";
+import { clipProse, dropStockEnding, MAX_PROSE_CHARS } from "../fact-sheet.js";
 import {
   buildNarrationFacts,
   type NarrationFacts,
@@ -29,7 +30,7 @@ import type { AuditIssue } from "./audit.js";
  * writes digit-free prose; code renders the dice lines (FR-034).
  */
 
-export const MAX_PROSE_CHARS = 1200;
+export { clipProse, dropStockEnding, MAX_PROSE_CHARS };
 
 export interface NarrateOutput {
   /** 1..1,200 characters; no digits (FR-034). Empty when skipped. */
@@ -133,36 +134,6 @@ export function withholdRefusedInputs(
     },
     withheld,
   };
-}
-
-/**
- * Drops a trailing "What do you do?" sentence when a sentence end precedes it
- * (TASK-0214 R5). The audit's literal-ending check stays as the backstop for
- * prose with no earlier sentence.
- */
-export function dropStockEnding(prose: string): string {
-  const m = STOCK_ENDING.exec(prose.trim());
-  if (!m) return prose;
-  const t = prose.trim();
-  // Strip the opening quote of a quoted stock line.
-  const head = t
-    .slice(0, m.index)
-    .replace(/["'\u201c\u2018]+$/, "")
-    .trimEnd();
-  return /[.!?]["'\u201d\u2019]*$/.test(head) ? head : prose;
-}
-
-/** Cuts prose to the cap at a sentence end when one exists. */
-export function clipProse(text: string): string {
-  const trimmed = text.trim();
-  if (trimmed.length <= MAX_PROSE_CHARS) return trimmed;
-  const cut = trimmed.slice(0, MAX_PROSE_CHARS);
-  const end = Math.max(
-    cut.lastIndexOf(". "),
-    cut.lastIndexOf("! "),
-    cut.lastIndexOf("? "),
-  );
-  return end > 200 ? cut.slice(0, end + 1) : cut;
 }
 
 export function composeText(
