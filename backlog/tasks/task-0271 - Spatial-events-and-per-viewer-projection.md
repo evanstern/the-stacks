@@ -71,6 +71,8 @@ Phases dccde3cc, 4996584b, a18da0cc, f1676535, dfebbb55, 359b9cf1. Fog rule in t
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5 (merge main + 0274 fog coverage)
 Merged main twice (with 0245, 0267, 0274). Fog covers combatant.depart (its before-zone keeps it dm in fog) and combatant.side (names no zone), tested. Two DB tests needed a second d20: the party is gathered into the one-zone reed camp, so close-combat disadvantage applies to every ranged attack (carded as TASK-0306 for a rules ruling). Server with REQUIRE_DATABASE=1: 1979 pass / 5 skipped. ci:check exit 0. Orchestrator re-ran the fog tests (18) and freshness (OK 65).
+
+spec-bridge sync: Event and projection (US1, US4; AC #2, #5): 9/9 · The fog rule in the gate (US1, US2; AC #1, #2, #3): 7/7 · Seeds and the DM runtime (US4; AC #5): 7/7 · Zones and reach in the AI context (US3; AC #4): 4/4 · Wiki: 5/5 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
