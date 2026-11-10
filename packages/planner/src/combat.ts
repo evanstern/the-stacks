@@ -114,7 +114,8 @@ function bandUse(
   return { fact: { kind: "reach", band, use }, refusal: null };
 }
 
-// The engine folds the disadvantage itself; the planner only reports it (spec 099).
+// The engine folds the disadvantage itself; the planner only reports it (spec 099). The engine
+// verdict reads melee pairs, not zones (spec 101).
 const closeCombatFact = (
   c: Ctx,
   attackerId: string,

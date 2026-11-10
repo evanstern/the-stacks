@@ -40,10 +40,10 @@ with `pnpm ci:check` green and one commit led by `TASK-0306`. Phase 2 runs DB su
 
 **Goal**: the planner fact reports pairs; the reed-camp DB tests draw one d20.
 
-- [ ] T010 [US1] In `packages/planner/src/combat.ts`, update the `closeCombatFact` comment to cite spec 101. No code change (FR-011).
-- [ ] T011 [US1] In `packages/planner/test/combat.test.ts` "close-combat fact", seed a melee pair in the engine state for the positive cases; add a same-zone, no-pair case that reports no fact.
-- [ ] T012 [US1] Revert the dice in `apps/server/test/dm/derived-numbers.integration.test.ts` to `[...INIT, 15, 4]` and in `apps/server/test/dm/revealed-npc.integration.test.ts` drop the duplicated `s.dice[1]` and its comment (FR-013).
-- [ ] T013 [US2] Run the server and session-model suites with `REQUIRE_DATABASE=1`. Fix only exact `encounter.changed` payload assertions that now carry `melee` (candidates in plan.md). Report any other failure.
+- [x] T010 [US1] In `packages/planner/src/combat.ts`, update the `closeCombatFact` comment to cite spec 101. No code change (FR-011).
+- [x] T011 [US1] In `packages/planner/test/combat.test.ts` "close-combat fact", seed a melee pair in the engine state for the positive cases; add a same-zone, no-pair case that reports no fact.
+- [x] T012 [US1] Revert the dice in `apps/server/test/dm/derived-numbers.integration.test.ts` to `[...INIT, 15, 4]` and in `apps/server/test/dm/revealed-npc.integration.test.ts` drop the duplicated `s.dice[1]` and its comment (FR-013).
+- [x] T013 [US2] Run the server and session-model suites with `REQUIRE_DATABASE=1`. Fix only exact `encounter.changed` payload assertions that now carry `melee` (candidates in plan.md). Report any other failure.
 
 **Checkpoint**: planner, session-model and server suites green under `REQUIRE_DATABASE=1`; `pnpm ci:check` green.
 
