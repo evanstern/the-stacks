@@ -8,7 +8,7 @@ sources:
   - packages/session-model/src/projections/spatial.ts
   - packages/session-model/src/gate/plan.ts
   - packages/session-model/src/fixtures/spatial-fog.ts
-verified_against: f1676535f62847ef4ac0571639c6ca60b993bb94
+verified_against: bb1a7c07dd75ce2bb9653424b0adb654209de425
 ---
 
 # Zone fog
@@ -26,6 +26,8 @@ Fog is zone-granular and party-wide ([[space]] holds the geometry, [[session-mod
 ## The projection
 
 `SessionProjections.spatial` is `{ space, map, placements }`, a `SpaceView` plus `map`, folded from `zone.revealed` and the spatial engine rows (`projections/spatial.ts`). For the DM, `space` is the engine space and `placements` equal `spaceViewOf(engine).placements`. For a player both come from the map. Each reveal adds one ledger `change` row. `spatialFor(p, viewer)` derives a viewer's view from the DM projection; a player's folded view equals it for any log planned from public proposals (a `dm` proposal breaks parity on purpose). `reachOf(view, id)` lists others in the zone (zone-mode reach is `engaged`). `targetStatus(p, viewer, ref)` returns `ok`, `unseen` or `unknown` for an `actor`, `zone` or `entity` ref; a `feature` zone is an entity, an `area` as entity is `unknown`, the DM is never `unseen`.
+
+Spec 099 events: `combatant.depart` plans a `combatant.placed` row with `after: null`; its `before` zone is named, so a hostile leaving a fogged zone stays `dm` and no zone reaches a player (`gate-fog.test.ts`). `combatant.side` names no zone and needs no fog rule.
 
 ## Consumers
 
