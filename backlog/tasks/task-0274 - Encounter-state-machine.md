@@ -4,7 +4,7 @@ title: Encounter state machine
 status: Done
 assignee: []
 created_date: 2026-11-07 05:13
-updated_date: '2026-11-10T04:28:00Z'
+updated_date: '2026-11-10T21:31:00Z'
 labels:
   - ws:engine
   - replan-2026-11
@@ -80,6 +80,8 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-
 Merged main 96c68c00 (wiki pin lines and CAPSULES only). c93d2da0: planner maps stand to the engine command; close-combat disadvantage reported as a rule fact when closeCombatSources is non-empty (attack, cast). Planner 135 pass; server with REQUIRE_DATABASE=1 on its stack 1966 pass / 5 skipped; ci:check exit 0; boundary 28/28. Orchestrator re-ran planner tests and freshness (OK 64). env:down and prune clean.
 
 spec-bridge sync: Engine sides and selectors (US5 engine half, foundation for US2–US4): 7/7 · Engine depart and stand (US2 engine half, US6, AC #5): 6/6 · Presence mapping in the gate (US2, US3 gate half): 3/3 · Server sides, phases and resume (US1, US2 server half, AC #1): 8/8 · Code-owned end and mid-fight arrivals (US3, US4, AC #3): 5/5 · Planner rules (US5, US6 mapping, AC #4) — REPLACED, not run: 3/3 · Wiki re-ground: 8/8 — status In Progress → Done
+
+Playtest 2026-11-10 (session 86abad65): the encounter ended in code at seq 195 after a negotiated trade; the table returned to free mode. R1 exit criterion 6 seen live.
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
