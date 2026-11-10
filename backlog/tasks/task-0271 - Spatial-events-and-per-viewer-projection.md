@@ -41,7 +41,10 @@ Spec: specs/100-spatial-events
 - [ ] #4 The AI context lists each placed combatant's zone and who is in its reach; the seat and fiction views omit unrevealed zones.
 - [ ] #5 Seeds declare zones, and a revealed door or post resolves as an entity target that never enters initiative.
 - [ ] #6 Phase 1: Event and projection (US1, US4; AC #2, #5) (specs/100-spatial-events tasks.md)
+- [ ] #7 Phase 2: The fog rule in the gate (US1, US2; AC #1, #2, #3) (specs/100-spatial-events tasks.md)
 <!-- AC:END -->
+
+
 
 
 
