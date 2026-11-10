@@ -266,6 +266,7 @@ export const EMPTY_RESOLVE_SNAPSHOT = {
       encounter: null,
       scene: null,
       trackers: [],
+      zones: null,
     },
   } as import("../../src/dm/snapshot/index.js").ActorSnapshot,
   diff: {

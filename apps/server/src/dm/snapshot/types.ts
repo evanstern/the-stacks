@@ -74,6 +74,10 @@ export interface SnapshotActor {
   resources: ActorResources | null;
   sheet: ActorSheet | null;
   presence: ScenePresence;
+  /** Spec 100: the zone id the actor stands in, or null when unplaced or the scene has no space. */
+  zone: string | null;
+  /** Spec 100: actor ids sharing the zone (zone-mode reach is `engaged`); [] when unplaced. */
+  reach: string[];
 }
 
 export interface SnapshotStage {
@@ -97,6 +101,8 @@ export interface SnapshotStage {
     filled: number;
     segments: number;
   }[];
+  /** Spec 100: the scene's zones; `revealed` is membership in the players' map. Null with no space. */
+  zones: { id: string; name: string; kind: string; revealed: boolean }[] | null;
 }
 
 export interface ActorSnapshot {

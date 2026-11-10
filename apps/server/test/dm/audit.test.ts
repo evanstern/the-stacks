@@ -96,6 +96,8 @@ function guard(over: Partial<SnapshotActor> = {}): SnapshotActor {
     resources: null,
     sheet: null,
     presence: "present",
+    zone: null,
+    reach: [],
     ...over,
   };
 }

@@ -72,10 +72,10 @@ operator's OQ-1 ruling quoted in its brief.
 
 **Goal**: the snapshot carries zone and reach per actor and a zones line per view.
 
-- [ ] T024 [US3] Add `zone`, `reach` and `stage.zones` to `apps/server/src/dm/snapshot/types.ts`; fill them in `build.ts` from `projections.spatial` and `reachOf`.
-- [ ] T025 [US3] Render them in `apps/server/src/dm/snapshot/render.ts` per plan "Server" (dm, seat, fiction).
-- [ ] T026 [US3] Write `apps/server/test/dm/snapshot-space.test.ts`: US3 #1–#3; the no-space output byte-equal to today's for an existing fixture.
-- [ ] T027 [US3] Add the new fields to `apps/server/test/dm/snapshot-fixtures.ts` and other `SnapshotActor` literals where typecheck demands.
+- [x] T024 [US3] Add `zone`, `reach` and `stage.zones` to `apps/server/src/dm/snapshot/types.ts`; fill them in `build.ts` from `projections.spatial` and `reachOf`.
+- [x] T025 [US3] Render them in `apps/server/src/dm/snapshot/render.ts` per plan "Server" (dm, seat, fiction).
+- [x] T026 [US3] Write `apps/server/test/dm/snapshot-space.test.ts`: US3 #1–#3; the no-space output byte-equal to today's for an existing fixture.
+- [x] T027 [US3] Add the new fields to `apps/server/test/dm/snapshot-fixtures.ts` and other `SnapshotActor` literals where typecheck demands.
 
 **Checkpoint**: server suite green; `pnpm ci:check` green.
 

@@ -85,6 +85,8 @@ function claimStateFor(
     resources: null,
     sheet: null,
     presence: "present",
+    zone: null,
+    reach: [],
   }));
   return {
     snapshot: { ...EMPTY_RESOLVE_SNAPSHOT.snapshot, actors },

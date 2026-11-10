@@ -25,6 +25,18 @@ function nameOf(snapshot: ActorSnapshot, id: string | null): string | null {
   return snapshot.actors.find((a) => a.id === id)?.name ?? null;
 }
 
+/** The zone entry an actor stands in, when this view may show it (spec 100 FR-027). */
+function visibleZone(
+  snapshot: ActorSnapshot,
+  a: SnapshotActor,
+  view: RenderOptions["view"],
+): { id: string; name: string } | null {
+  if (a.zone === null) return null;
+  const z = snapshot.stage.zones?.find((x) => x.id === a.zone);
+  if (!z) return null;
+  return view === "dm" || z.revealed ? z : null;
+}
+
 function conditionText(a: SnapshotActor, digits: boolean): string {
   if (a.conditions.length === 0) return "";
   const names = a.conditions.map((c) =>
@@ -48,6 +60,10 @@ function stageLines(snapshot: ActorSnapshot, opts: RenderOptions): string[] {
     } else {
       lines.push(`No fight is on.${who ? ` It is ${who}'s turn.` : ""}`);
     }
+    const places = (stage.zones ?? []).filter((z) => z.revealed);
+    if (places.length > 0) {
+      lines.push(`Places: ${places.map((z) => z.name).join(", ")}.`);
+    }
     return lines;
   }
   const tm = stage.tableMode;
@@ -65,6 +81,14 @@ function stageLines(snapshot: ActorSnapshot, opts: RenderOptions): string[] {
     lines.push(
       `Encounter round ${enc.round}, active ${enc.activeActorId ?? enc.activeCombatantId}${name ? ` "${name}"` : ""}; order: ${enc.order.join(", ")}`,
     );
+  }
+  if (stage.zones !== null) {
+    const shown = stage.zones.filter((z) => opts.view === "dm" || z.revealed);
+    if (shown.length > 0) {
+      lines.push(
+        `Zones: ${shown.map((z) => `${z.id} "${z.name}" ${z.kind}${z.revealed ? "" : " (hidden)"}`).join(", ")}`,
+      );
+    }
   }
   if (opts.view === "dm" && opts.trackers) {
     for (const t of stage.trackers) {
@@ -124,8 +148,12 @@ function resourcesText(a: SnapshotActor): string {
   return parts.length > 0 ? ` ${parts.join("; ")}` : "";
 }
 
-function fullLine(a: SnapshotActor, opts: RenderOptions): string {
-  if (opts.view === "fiction") return fictionLine(a);
+function fullLine(
+  a: SnapshotActor,
+  opts: RenderOptions,
+  snapshot: ActorSnapshot,
+): string {
+  if (opts.view === "fiction") return fictionLine(a, snapshot);
   const detailed =
     opts.view === "dm" || a.kind === "party" || a.id === opts.self;
   const head = `${a.id} "${a.name}" (${a.kind}${a.kind === "party" ? `, ${controllerLabel(a)}` : ""}${a.combatantId && a.combatantId !== a.id ? `, combatant ${a.combatantId}` : ""})`;
@@ -140,6 +168,12 @@ function fullLine(a: SnapshotActor, opts: RenderOptions): string {
   const cond = conditionText(a, true);
   if (cond) bits.push(cond);
   if (a.initiative !== null) bits.push(`init ${a.initiative}`);
+  const zone = visibleZone(snapshot, a, opts.view);
+  if (zone) {
+    bits.push(
+      `zone ${zone.id}; reach ${a.reach.length > 0 ? a.reach.join(",") : "none"}`,
+    );
+  }
   if (a.presence !== "present") bits.push(a.presence);
   let line = `${head}: ${bits.join(" ")}`;
   if (detailed) line += `${resourcesText(a)}${sheetText(a)}`;
@@ -153,7 +187,7 @@ const LIFE_WORDS: Record<string, string> = {
   dead: "dead",
 };
 
-function fictionLine(a: SnapshotActor): string {
+function fictionLine(a: SnapshotActor, snapshot: ActorSnapshot): string {
   const who =
     a.kind === "party"
       ? `party, ${a.controller.kind === "player" ? "human player" : "AI companion"}`
@@ -161,6 +195,8 @@ function fictionLine(a: SnapshotActor): string {
   const bits: string[] = [a.lifeState ? (LIFE_WORDS[a.lifeState] ?? "") : ""];
   const cond = conditionText(a, false);
   if (cond) bits.push(cond);
+  const zone = visibleZone(snapshot, a, "fiction");
+  if (zone) bits.push(`in ${zone.name}`);
   if (a.presence === "yielded") bits.push("stepped back");
   if (a.presence === "absent") bits.push("gone");
   const state = bits.filter(Boolean).join(" ");
@@ -184,7 +220,7 @@ export function renderSnapshot(
   opts: RenderOptions,
 ): RenderResult {
   const stage = stageLines(snapshot, opts);
-  const full = snapshot.actors.map((a) => fullLine(a, opts));
+  const full = snapshot.actors.map((a) => fullLine(a, opts, snapshot));
   if (totalOf([...stage, ...full]) <= opts.cap) {
     return { ok: true, lines: [...stage, ...full] };
   }
