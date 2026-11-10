@@ -48,7 +48,7 @@ Spec: specs/099-encounter-state
 - [x] #17 Spec phase: Server sides, phases and resume (US1, US2 server half, AC #1)
 - [x] #18 Spec phase: Code-owned end and mid-fight arrivals (US3, US4, AC #3)
 - [x] #19 Spec phase: Planner rules (US5, US6 mapping, AC #4) — REPLACED, not run
-- [ ] #20 Spec phase: Wiki re-ground
+- [x] #20 Spec phase: Wiki re-ground
 <!-- AC:END -->
 
 ## Definition of Done
