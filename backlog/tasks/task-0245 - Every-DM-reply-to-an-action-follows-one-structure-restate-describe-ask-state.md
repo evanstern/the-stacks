@@ -77,6 +77,8 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-
 Phases a3aea616, 809cfe65, 803c548b, 2d3b45cd. dm.narrate-v22, dm.audit-v17. Clarify replay (run 1 seq 15-20, fixture rebuilt from the playtest log) 3/3. Server tests: 1437 pass with no DB; test/dm 1282 pass, 0 skipped with REQUIRE_DATABASE=1. ci:check exit 0. Orchestrator re-ran the replay test and freshness (OK 62); env:down done. PR held for spine order (#9, after TASK-0267).
 
 Operator ruling 2026-11-09 (R1 lane specs 097-100): spec 100 OQ-12 — add fact rows for moves and zone reveals once TASK-0271 lands (position row). (Restored after the main merge.)
+
+spec-bridge sync: Rows, State line and slots as pure code (US2, US4; FR-004 to FR-008, FR-011, FR-012; plan D1, D2): 6/6 · Narrate builds and ships the sheet (US1, US3; FR-001 to FR-003, FR-009, FR-010, FR-013; plan D3, D4): 5/5 · Audit, fallback, talk, auditor and transcript follow the template (FR-014, FR-015; plan D5 to D10): 10/10 · Wiki re-ground: 5/5 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
