@@ -36,7 +36,7 @@ Spec: specs/101-engaged-ranged
 - [x] #6 Phase 3: Wiki re-ground (specs/101-engaged-ranged tasks.md)
 - [x] #7 Spec phase: Engine melee pairs (US1, US2, US3)
 - [x] #8 Spec phase: Planner fact and server tests (US1 server half, FR-011, FR-013)
-- [ ] #9 Spec phase: Wiki re-ground
+- [x] #9 Spec phase: Wiki re-ground
 <!-- AC:END -->
 
 ## Definition of Done
