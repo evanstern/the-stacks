@@ -20,7 +20,7 @@ sources:
   - packages/dnd5e-engine/test/purity.test.ts
   - packages/dnd5e-engine/test/coverage.test.ts
   - specs/026-dnd5e-engine/spec.md
-verified_against: 6ae46ed20335a69754372878a551bd8ea3ceb1da
+verified_against: 849583241734158db445178cc8c1f70c65af8e23
 ---
 
 # 5e engine
@@ -55,13 +55,13 @@ transition, as in `turn.advance`: the leaver's turn-end conditions expire, dead 
 skipped, the next live entry becomes active (wrapping to index 0 and a new round), and its
 turn-start conditions expire. A leaver before the active entry shifts `turnIndex` down by one.
 The command emits `encounter.changed` and draws no dice. A leaver's id is removed from
-`reactionsSpent` (below) in the same event. Its body is `leaveEvents` and `encounter.end`'s is `endEvents` (`src/commands/encounter.ts`).
+`reactionsSpent` (below) in the same event.
 
 ## Sides, depart and stand (spec 099, TASK-0274)
 
-Optional combatant `side`, `combatant.side`, `combatant.depart`, `stand`, four selectors, `closeCombatSources` (the mode source the planner reads to report the rule, [[planner]]) and the engine close-combat rule: [[dnd5e-engine-sides]].
+Optional combatant `side`, `combatant.side`, `combatant.depart`, `stand`, four selectors and the engine close-combat rule: [[dnd5e-engine-sides]].
 
-`src/index.ts` also exports `isUnable` (from `src/commands/attacks.ts`): the able-actor predicate that `attackRoll`, `checkRoll` and `move` use, so the planner ([[planner]]) refuses `ACTOR_UNABLE` by the same rule.
+`isUnable` is the able-actor predicate [[planner]] reuses.
 
 ## Space and movement
 
