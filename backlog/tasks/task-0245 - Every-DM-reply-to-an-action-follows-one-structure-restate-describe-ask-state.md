@@ -46,7 +46,10 @@ Spec: specs/098-fact-sheet
 - [ ] #7 Phase 1: Rows, State line and slots as pure code (US2, US4; FR-004 to FR-008, FR-011, FR-012; plan D1, D2) (specs/098-fact-sheet tasks.md)
 - [ ] #8 Phase 2: Narrate builds and ships the sheet (US1, US3; FR-001 to FR-003, FR-009, FR-010, FR-013; plan D3, D4) (specs/098-fact-sheet tasks.md)
 - [ ] #9 Phase 3: Audit, fallback, talk, auditor and transcript follow the template (FR-014, FR-015; plan D5 to D10) (specs/098-fact-sheet tasks.md)
+- [ ] #10 Phase 4: Wiki re-ground (specs/098-fact-sheet tasks.md)
 <!-- AC:END -->
+
+
 
 
 
