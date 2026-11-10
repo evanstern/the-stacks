@@ -38,7 +38,10 @@ Spec: specs/099-encounter-state
 - [ ] #7 Phase 2: Engine depart and stand (US2 engine half, US6, AC #5) (specs/099-encounter-state tasks.md)
 - [ ] #8 Phase 3: Presence mapping in the gate (US2, US3 gate half) (specs/099-encounter-state tasks.md)
 - [ ] #9 Phase 4: Server sides, phases and resume (US1, US2 server half, AC #1) (specs/099-encounter-state tasks.md)
+- [ ] #10 Phase 5: Code-owned end and mid-fight arrivals (US3, US4, AC #3) (specs/099-encounter-state tasks.md)
 <!-- AC:END -->
+
+
 
 
 
