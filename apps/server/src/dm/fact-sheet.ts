@@ -325,6 +325,13 @@ export function buildFactSheet(input: FactSheetInput): FactSheet {
   };
 }
 
+/** The code restate: `<subject> means to: "<text>".` per target. */
+export function defaultRestate(sheet: FactSheet): string {
+  return sheet.restate
+    .map((t) => `${t.subject} means to: "${t.text}".`)
+    .join(" ");
+}
+
 const TAG = /^\[(restate|describe|ask)\][ \t]*/gim;
 
 /** Parses the model's tagged text into validated slots (contract §5.1). */
@@ -352,9 +359,7 @@ export function parseSlots(text: string, sheet: FactSheet): NarrationSlots {
 
   let restate = slot("restate");
   if (sheet.slots.includes("restate") && (!restate || /[0-9]/.test(restate))) {
-    restate = sheet.restate
-      .map((t) => `${t.subject} means to: "${t.text}".`)
-      .join(" ");
+    restate = defaultRestate(sheet);
   }
   let ask = slot("ask");
   if (

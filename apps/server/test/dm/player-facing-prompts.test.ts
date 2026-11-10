@@ -3,6 +3,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import type { StoredEvent } from "@the-stacks/session-model";
 import { describe, expect, it } from "vitest";
+import { buildFactSheet } from "../../src/dm/fact-sheet.js";
 import {
   buildNarrationFacts,
   type NarrationFacts,
@@ -378,5 +379,61 @@ describe("player-facing prompts (card AC #1)", () => {
           expect(p.user).not.toContain(k);
       }
     }
+  });
+});
+
+describe("narrate prompt: fact-sheet sections (spec 098 D4)", () => {
+  const sheetOf = (f: NarrationFacts) =>
+    buildFactSheet({
+      settled: f,
+      beat: f.actions.length
+        ? [
+            {
+              actionId: "act-x",
+              characterId: "tamsin",
+              scope: "character",
+              actor: USER_ID,
+              text: "I ask Wenna about the bell.",
+            },
+          ]
+        : [],
+      projections,
+      nameOf: (id) => id ?? "The scene",
+      submissions: [],
+    });
+  const promptFor = (f: NarrationFacts) =>
+    buildNarratePrompt({
+      seed: VIEW,
+      roster: rosterOf(projections.party),
+      assembled,
+      snapshot,
+      facts: f,
+      sheet: sheetOf(f),
+      prior: null,
+    });
+
+  it("lists Slots, Restate and Speakers for an action", () => {
+    const f = facts({
+      trigger: "commit",
+      beatId: "the-keeper",
+      beatNpcIds: ["wenna"],
+      action: true,
+    });
+    const { user } = promptFor(f);
+    expect(user).toContain("## Slots\nrestate\ndescribe\nask");
+    expect(user).toContain("## Restate\n");
+    expect(user).toContain("(no-effect)");
+    expect(user).toContain("## Speakers\nWenna");
+    expect(user).not.toContain("Settled question");
+  });
+
+  it("states the Settled question and withholds the question text on a clarify", () => {
+    const { user } = promptFor(clarifyFacts);
+    expect(user).toContain(
+      "## Settled question\nCode asks this; do not ask it.",
+    );
+    expect(user).toContain("## Slots\nrestate\ndescribe\n\n");
+    expect(user).not.toContain("Which way do you press on?");
+    expect(user).toContain("Waiting on an answer for act-x");
   });
 });

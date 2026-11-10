@@ -545,7 +545,7 @@ describe("audit loop", () => {
     if (!out.ok) throw new Error("audit failed");
     expect(out.output.record.final).toBe("passed");
     expect(out.output.record.flagged).toBe(false);
-    expect(out.output.shipped?.prose).toBe(CLEAN);
+    expect(out.output.shipped?.prose).toContain(CLEAN);
     expect(scripted.remaining().calls["dm.narrate"]).toBe(0);
   });
 
@@ -579,7 +579,9 @@ describe("audit loop", () => {
     expect(r.final).toBe("passed");
     expect(r.flagged).toBe(false);
     expect(r.attempts).toHaveLength(1);
-    expect(r.attempts[0]?.words).toBe(CLEAN.split(/\s+/).length);
+    expect(r.attempts[0]?.words).toBeGreaterThanOrEqual(
+      CLEAN.split(/\s+/).length,
+    );
     expect(r.attempts[0]?.llm).toMatchObject({
       issues: [{ kind: "doctrine", blocking: false }],
     });

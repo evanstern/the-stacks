@@ -1,11 +1,19 @@
 import { hasCountClaim } from "../audit-words.js";
 import { type ClaimState, checkClaims } from "../claims.js";
-import { clipProse, dropStockEnding, MAX_PROSE_CHARS } from "../fact-sheet.js";
+import {
+  buildFactSheet,
+  clipProse,
+  composeReply,
+  dropStockEnding,
+  type FactSheet,
+  MAX_PROSE_CHARS,
+  type NarrationSlots,
+  parseSlots,
+} from "../fact-sheet.js";
 import {
   buildNarrationFacts,
   type NarrationFacts,
   nothingToNarrate,
-  renderDiceLines,
 } from "../facts.js";
 import { openFollowUps, priorActionIds } from "../follow-ups.js";
 import { callText } from "../pipeline/call.js";
@@ -37,7 +45,7 @@ export interface NarrateOutput {
   prose: string;
   /** Rendered by code from the facts, never by the model. */
   diceLines: string[];
-  /** prose + "\n\n" + diceLines.join("\n"); what ships. */
+  /** The template: restate, describe, ask, rows, State line (spec 098); what ships. */
   text: string;
   /** The ids of the actions this narration covers. */
   actionIds: string[];
@@ -46,6 +54,10 @@ export interface NarrateOutput {
   /** True when there was nothing to narrate (no model call was made). */
   skipped: boolean;
   facts: NarrationFacts;
+  /** The fact sheet (spec 098); empty-slot sheet when skipped. */
+  sheet: FactSheet;
+  /** The validated slots; `prose` is these joined by a blank line. */
+  slots: NarrationSlots;
   /**
    * Refused ruling and `goalNote` texts (spec 051, OQ-2). Always present;
    * empty when nothing was withheld. The audit node records them as advisory.
@@ -136,15 +148,20 @@ export function withholdRefusedInputs(
   };
 }
 
-export function composeText(
-  prose: string,
-  diceLines: readonly string[],
-): string {
-  return diceLines.length > 0 ? `${prose}\n\n${diceLines.join("\n")}` : prose;
+/** The slots as one prose string, for the audit's checks. */
+export function proseOf(slots: NarrationSlots): string {
+  return [slots.restate, slots.describe, slots.ask]
+    .filter(Boolean)
+    .join("\n\n");
 }
 
 export type AttemptResult =
-  | { ok: true; prose: string; calls: ModelCallRecord[] }
+  | {
+      ok: true;
+      prose: string;
+      slots: NarrationSlots;
+      calls: ModelCallRecord[];
+    }
   | { ok: false; error: NodeError; calls: ModelCallRecord[] };
 
 /** One `dm.narrate` call; regeneration passes the prior text and issues. */
@@ -153,6 +170,7 @@ export async function narrateAttempt(
   assembled: AssembleOutput,
   facts: NarrationFacts,
   snapshot: ActorSnapshot,
+  sheet: FactSheet,
   prior: { prose: string; issues: AuditIssue[] } | null,
 ): Promise<AttemptResult> {
   const prompt = buildNarratePrompt({
@@ -161,6 +179,7 @@ export async function narrateAttempt(
     assembled,
     snapshot,
     facts,
+    sheet,
     prior,
   });
   const result = await callText(ctx.deps, {
@@ -171,10 +190,8 @@ export async function narrateAttempt(
     signal: ctx.signal,
   });
   if (!result.ok) return result;
-  const clipped = clipProse(result.text);
-  // A clarify question may end the prose; leave it whole.
-  const prose = facts.clarify.length > 0 ? clipped : dropStockEnding(clipped);
-  return { ok: true, prose, calls: result.calls };
+  const slots = parseSlots(result.text, sheet);
+  return { ok: true, prose: proseOf(slots), slots, calls: result.calls };
 }
 
 export const narrate: Node<"narrate"> = async (ctx) => {
@@ -258,6 +275,21 @@ export const narrate: Node<"narrate"> = async (ctx) => {
     diff: resolve.diff,
   });
   const actionIds = facts.actions.map((a) => a.actionId);
+  const nameOf = (id: string | null): string => {
+    if (id === null) return "The scene";
+    return (
+      projections.engine.combatants[id]?.name ??
+      projections.party.find((m) => m.combatantId === id)?.name ??
+      id
+    );
+  };
+  const sheet = buildFactSheet({
+    settled: facts,
+    beat: assembled.beat,
+    projections,
+    nameOf,
+    submissions: resolve.submissions,
+  });
 
   if (nothingToNarrate(facts)) {
     return {
@@ -272,6 +304,8 @@ export const narrate: Node<"narrate"> = async (ctx) => {
         attempt: 1,
         skipped: true,
         facts,
+        sheet,
+        slots: { restate: "", describe: "", ask: "" },
         withheld,
       },
     };
@@ -282,6 +316,7 @@ export const narrate: Node<"narrate"> = async (ctx) => {
     assembled,
     facts,
     resolve.snapshot,
+    sheet,
     null,
   );
   if (!result.ok) {
@@ -292,19 +327,20 @@ export const narrate: Node<"narrate"> = async (ctx) => {
       calls: result.calls,
     };
   }
-  const diceLines = renderDiceLines(facts);
   return {
     ok: true,
     node: "narrate",
     calls: result.calls,
     output: {
       prose: result.prose,
-      diceLines,
-      text: composeText(result.prose, diceLines),
+      diceLines: sheet.rows.map((r) => r.text),
+      text: composeReply(result.slots, sheet),
       actionIds,
       attempt: 1,
       skipped: false,
       facts,
+      sheet,
+      slots: result.slots,
       withheld,
     },
   };

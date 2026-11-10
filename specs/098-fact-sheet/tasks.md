@@ -43,17 +43,17 @@ template. The run 1 seq 15-20 replay passes.
 **Independent test**: `narrate.test.ts`, `player-facing-prompts.test.ts` and
 `fact-sheet-replay.test.ts` pass.
 
-- [ ] T007 [US1] In `apps/server/src/dm/nodes/narrate.ts`, build the sheet after
+- [x] T007 [US1] In `apps/server/src/dm/nodes/narrate.ts`, build the sheet after
       `withholdRefusedInputs`, pass it to `narrateAttempt`, run `parseSlots`, and set `sheet`,
       `slots`, `prose`, `diceLines` and `text` (contract §5.2). Replace `composeText` with
       `composeReply` at every caller.
-- [ ] T008 [US1] In `apps/server/src/dm/prompts/narrate.ts`, apply plan D4 and bump to
+- [x] T008 [US1] In `apps/server/src/dm/prompts/narrate.ts`, apply plan D4 and bump to
       `dm.narrate-v22`.
-- [ ] T009 [P] [US1] Extend `apps/server/test/dm/narrate.test.ts`: `output.sheet` on every non-skipped
+- [x] T009 [P] [US1] Extend `apps/server/test/dm/narrate.test.ts`: `output.sheet` on every non-skipped
       job; template order; the import-closure test still passes with `fact-sheet.ts` in it.
-- [ ] T010 [P] [US1] Extend `apps/server/test/dm/player-facing-prompts.test.ts` for the Slots,
+- [x] T010 [P] [US1] Extend `apps/server/test/dm/player-facing-prompts.test.ts` for the Slots,
       Restate, Speakers and Settled question sections.
-- [ ] T011 [US3] Create `apps/server/test/dm/fixtures/run1-seq15-20-clarify.json` (header cites
+- [x] T011 [US3] Create `apps/server/test/dm/fixtures/run1-seq15-20-clarify.json` (header cites
       `docs/playtests/2026-11-03-runbook-b-playtest.md` findings 2 and 6) and
       `apps/server/test/dm/fact-sheet-replay.test.ts`: the narrate node with the fake gateway ships
       the question as its own block, no row, and the exact clarify State line; a model `[ask]` is

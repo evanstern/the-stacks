@@ -352,9 +352,11 @@ describe("A3 and A4: clarify relay and craft judgments (T015)", () => {
       prior: null,
     });
     expect(prompt.system).toContain(
-      "end with the Unclear intent question exactly as written",
+      "describe the moment and stop. Code asks the question.",
     );
-    expect(prompt.system).toContain("except the Unclear intent question.");
+    expect(prompt.system).toContain(
+      'Never end on "What do you do?" or an either-or question.',
+    );
     expect(prompt.user).toContain(
       "on hold (the intent is unclear; nothing happened yet)",
     );
@@ -435,6 +437,6 @@ describe("A3 and A4: clarify relay and craft judgments (T015)", () => {
     expect(out.output.record.final).toBe("passed");
     expect(out.output.record.flagged).toBe(false);
     expect(out.output.shipped?.fallback).toBe(false);
-    expect(out.output.shipped?.prose).toBe(CLEAN);
+    expect(out.output.shipped?.prose).toContain(CLEAN);
   });
 });

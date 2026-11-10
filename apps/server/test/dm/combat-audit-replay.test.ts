@@ -29,7 +29,7 @@ import { buildNarratePrompt, TURN_RULE } from "../../src/dm/prompts/narrate.js";
 import { createScriptedDm, loadDmScript } from "../../src/dm/script/load.js";
 import { playerFacingSeed } from "../../src/dm/seed/views.js";
 import { buildSnapshot } from "../../src/dm/snapshot/index.js";
-import { makeCtx, projectDm, testSeed } from "./helpers.js";
+import { makeCtx, projectDm, testSeed, testSheet } from "./helpers.js";
 import { EMPTY_RESOLVE_SNAPSHOT } from "./snapshot-fixtures.js";
 
 /**
@@ -246,6 +246,8 @@ async function runAudit(
         attempt: 1,
         skipped: false,
         facts: f,
+        sheet: testSheet(f),
+        slots: { restate: "", describe: prose, ask: "" },
         withheld: [],
       },
     },

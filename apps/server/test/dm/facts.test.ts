@@ -964,7 +964,7 @@ describe("facts v2: party, events, target, setting (run-5 rows)", () => {
     expect(hold[0]).toBe(
       'Action a1 by Ana: "waves" -> on hold (the intent is unclear; nothing happened yet)',
     );
-    expect(hold).toContain("Unclear intent for a1: Which way?");
+    expect(hold).toContain("Waiting on an answer for a1");
     const ev = factEntries({ ...base, actions: [], clarify: [] });
     expect(ev).toContain(
       "Event: a fight starts (Snag, Goblin with a pot-helm, Goblin lookout, Goblin by the fire); Snag acts first",
