@@ -115,3 +115,4 @@ codex, system modules, or agents yet. `main` is now continuously deployed to a r
 - [[m2-demo]] — the M2 milestone check: the scripted and human playtest runs, the `pnpm playtest` commands, the fake-gateway CI case, and the signed record of every audit finding.
 - [[m0-demo]] — the milestone check: two browsers, one message, and how it is run.
 - [[benchmarks]] — the load and stress bench: tiers, the isolated `_load` database, the decision-0005 ingest-scaling measurement, both stress cases, and the dev tier's read-only safety design.
+- [[planner]] — `@the-stacks/planner` (spec 097, TASK-0267): the pure deterministic planner, `plan(state, space, intent)` to guarded engine commands, a refusal or a ruling request; `PlanState`, served kinds, facts, the ruling loop and the `ai:dm` seat rules.

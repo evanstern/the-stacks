@@ -106,7 +106,7 @@ floor (TASK-0154). The default stays 5 s. The load is turbo running every packag
 
 **`test/` is now its own typechecked project reference.** `apps/server/test/tsconfig.json`
 (`extends` the shared base, `noEmit: true`, `include: ["."]`, `references` `apps/server`,
-`packages/shared`, `packages/dnd5e-engine` and `packages/session-model`) is an entry in root `tsconfig.json`'s `references` array,
+`packages/shared`, `packages/dnd5e-engine` and `packages/session-model`) is an entry in root `tsconfig.json`'s `references` array (the `packages/planner/test` project is one, [[planner]]),
 alongside `packages/shared`, `packages/dnd5e-engine` (and its own `test` project, see
 [[dnd5e-engine]]), `packages/session-model` (and its `test` project, see [[session-model]]), `packages/srd` (and its `test` project, see [[srd-data]]), `apps/server`, `apps/web`. `pnpm typecheck` (`tsc -b` at the
 root) now builds this reference too, so a type error introduced only in a test fails

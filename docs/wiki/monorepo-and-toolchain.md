@@ -47,7 +47,7 @@ depends on database reachability, which Turbo cannot hash), and runs against fre
 changes must bust the cached tasks' cache, since none of them appear in any task's input files.
 
 Root `tsconfig.json` has `"files": []` and a `references` array pointing at `packages/shared`,
-`packages/dnd5e-engine`, `packages/dnd5e-engine/test`, `packages/session-model`, `packages/session-model/test`, `packages/srd`, `packages/srd/test`, `packages/intent`, `packages/intent/test`, `packages/space`, `packages/space/test`,
+`packages/dnd5e-engine`, `packages/dnd5e-engine/test`, `packages/session-model`, `packages/session-model/test`, `packages/srd`, `packages/srd/test`, `packages/intent`, `packages/intent/test`, `packages/planner`, `packages/planner/test`, `packages/space`, `packages/space/test`,
 `apps/server`, `apps/server/test`, `apps/web` — it builds nothing itself, only orchestrates
 `tsc -b` across the listed projects ([[dnd5e-engine]] is the pure rules package and its test project;
 [[srd-data]] is the SRD data package and its test project; [[session-model]] is the pure session event package and its test project). Each workspace's own `tsconfig.json` extends `tsconfig.base.json`
