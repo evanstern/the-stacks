@@ -185,20 +185,41 @@ describe("close-combat fact", () => {
     });
     return s;
   };
+  // Spec 101: the engine reads melee pairs; seed one for the positive cases.
+  const engaged = () => {
+    const s = sided();
+    s.engine.encounter = {
+      round: 1,
+      turnIndex: 0,
+      order: Object.keys(s.engine.combatants).map((combatantId) => ({
+        combatantId,
+        total: 10,
+        bonus: 0,
+      })),
+      melee: [["goblin-2", "thorin"]],
+    };
+    return s;
+  };
   const weapon = (w: string) =>
     intent("attack", { targets: [tgt("goblin-2")], params: { weapon: w } });
 
-  it("a ranged attack with a hostile in the attacker's zone reports the rule", () => {
-    expect(cmds(run(weapon("Shortbow"), sided())).facts).toContainEqual(RULE);
+  it("a ranged attack with a hostile in a melee pair reports the rule", () => {
+    expect(cmds(run(weapon("Shortbow"), engaged())).facts).toContainEqual(RULE);
   });
 
-  it("a melee attack does not", () => {
-    expect(cmds(run(weapon("Longsword"), sided())).facts).not.toContainEqual(
+  it("a ranged attack with a same-zone hostile and no pair does not (spec 101)", () => {
+    expect(cmds(run(weapon("Shortbow"), sided())).facts).not.toContainEqual(
       RULE,
     );
   });
 
-  it("a ranged attack with no hostile in the zone does not", () => {
+  it("a melee attack does not", () => {
+    expect(cmds(run(weapon("Longsword"), engaged())).facts).not.toContainEqual(
+      RULE,
+    );
+  });
+
+  it("a ranged attack with no hostile in the zone and no pair does not", () => {
     const s = placeAt(sided(), "goblin-2", "b");
     expect(cmds(run(weapon("Shortbow"), s)).facts).not.toContainEqual(RULE);
   });

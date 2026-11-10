@@ -22,7 +22,7 @@ if (result.ok) state = replay(result.events, state);
 - `stand` removes `prone` and, in an encounter, spends half the actor's Speed (rounded down) on its turn. It refuses `MOVE_OFF_TURN`, `STAT_UNDEFINED` and `MOVE_OVER_SPEED` (Speed 0 gives `details.reason: "speed-zero"`).
 - `combatant.side` sets a combatant's side (`party`, `hostile` or `neutral`) and emits `combatant.sided`. `combatant.add` accepts an optional `side`.
 - `combatant.depart` takes a combatant out of the order (as `initiative.leave`; the encounter ends when no living combatant would remain) and clears its placement.
-- Selectors: `areHostile`, `hostilesStanding`, `encounterOver` and `closeCombatFoes` read sides and placements. A ranged attack roll or spell attack with a hostile in the attacker's zone rolls with disadvantage (`attack.roll` and `spell.cast`); with no sides the rule is off.
+- Selectors: `areHostile`, `hostilesStanding`, `encounterOver`, `meleeFoes` and `closeCombatFoes` read sides, placements and melee pairs. A ranged attack roll or spell attack by a combatant in a melee pair (`Encounter.melee`, spec 101) with a conscious, able, sighted hostile rolls with disadvantage (`attack.roll` and `spell.cast`). A resolved melee attack in one zone forms the pair; a placement change, a leave or the encounter's end drops it. Sharing a zone alone does not trigger the rule; with no sides or no encounter it is off.
 - `seededRng(seed)` serves play. `scriptedRng(faces)` serves tests.
 
 ## Invariants

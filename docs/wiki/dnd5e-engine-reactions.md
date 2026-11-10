@@ -7,7 +7,7 @@ sources:
   - packages/dnd5e-engine/src/commands/encounter.ts
   - packages/dnd5e-engine/src/commands/move.ts
   - packages/dnd5e-engine/src/schema/state.ts
-verified_against: 6ae46ed20335a69754372878a551bd8ea3ceb1da
+verified_against: 2707677c72373882afd5868a4ed10eca26f85dd6
 ---
 
 # 5e engine: reactions
@@ -24,4 +24,4 @@ attacker to `reactionsSpent`. `turn.advance` clears the incoming combatant's id 
 `reactionsSpent` with its own `encounter.changed`, and `initiative.leave` clears both the
 leaver and the incoming combatant (`combatant.depart` composes the same `leaveEvents`, [[dnd5e-engine]]). `encounter.end` drops the encounter, and with it `reactionsSpent`.
 
-Spec 094 adds zone checks. When both combatants are placed, an `attack.roll` with an attack entry checks the band between them ([[space]]): a melee entry (or melee-or-ranged at the engaged band) needs the engaged band and refuses `OUT_OF_REACH` otherwise; a ranged use refuses `OUT_OF_RANGE` beyond `rangeFt.long` and gains disadvantage beyond `rangeFt.normal`. Spec 099 adds a further disadvantage source for a ranged use: a hostile in the attacker's zone (`closeCombatFoes`, [[dnd5e-engine-derived-rolls]]). With either side unplaced, no check runs. `provokers` (`src/commands/move.ts`) names who may take an opportunity attack when a mover leaves a zone: it skips anyone whose id is in `reactionsSpent` ([[dnd5e-engine]]).
+Spec 094 adds zone checks. When both combatants are placed, an `attack.roll` with an attack entry checks the band between them ([[space]]): a melee entry (or melee-or-ranged at the engaged band) needs the engaged band and refuses `OUT_OF_REACH` otherwise; a ranged use refuses `OUT_OF_RANGE` beyond `rangeFt.long` and gains disadvantage beyond `rangeFt.normal`. Spec 099 adds a further disadvantage source for a ranged use: a hostile in a melee pair with the attacker (`closeCombatFoes`, [[dnd5e-engine-derived-rolls]]); spec 101 makes a reaction attack form that pair in the same `encounter.changed` that spends the Reaction. `provokers` still reads zones. With either side unplaced, no check runs. `provokers` (`src/commands/move.ts`) names who may take an opportunity attack when a mover leaves a zone: it skips anyone whose id is in `reactionsSpent` ([[dnd5e-engine]]).

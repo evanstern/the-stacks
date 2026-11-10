@@ -20,7 +20,7 @@ sources:
   - packages/dnd5e-engine/test/purity.test.ts
   - packages/dnd5e-engine/test/coverage.test.ts
   - specs/026-dnd5e-engine/spec.md
-verified_against: 849583241734158db445178cc8c1f70c65af8e23
+verified_against: 2707677c72373882afd5868a4ed10eca26f85dd6
 ---
 
 # 5e engine
@@ -59,7 +59,7 @@ The command emits `encounter.changed` and draws no dice. A leaver's id is remove
 
 ## Sides, depart and stand (spec 099, TASK-0274)
 
-Optional combatant `side`, `combatant.side`, `combatant.depart`, `stand`, four selectors and the engine close-combat rule: [[dnd5e-engine-sides]].
+Optional combatant `side`, `combatant.side`, `combatant.depart`, `stand`, five selectors, melee pairs (spec 101) and the close-combat rule: [[dnd5e-engine-sides]].
 
 `isUnable` is the able-actor predicate [[planner]] reuses.
 

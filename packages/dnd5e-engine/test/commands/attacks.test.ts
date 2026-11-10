@@ -1336,6 +1336,23 @@ describe("ranged attacks in close combat (spec 099)", () => {
     }
     return state;
   };
+  // Spec 101: seed an active encounter holding the given melee pairs.
+  const pairedWith = (
+    state: ReturnType<typeof setup>,
+    ...pairs: [string, string][]
+  ) => ({
+    ...state,
+    encounter: {
+      round: 1,
+      turnIndex: 0,
+      order: ["atk", "tgt", "far"].map((combatantId) => ({
+        combatantId,
+        total: 10,
+        bonus: 0,
+      })),
+      melee: pairs,
+    },
+  });
   const swing = (attack: string, targetId = "tgt") => ({
     type: "attack.roll",
     attackerId: "atk",
@@ -1350,14 +1367,27 @@ describe("ranged attacks in close combat (spec 099)", () => {
   ) => expectOk(run(state, cmd, faces).result)[0];
 
   it("a ranged attack with a hostile in the attacker's zone has disadvantage", () => {
-    expect(modeOf(setup(true), swing("Bow"), [15, 3])).toMatchObject({
+    expect(
+      modeOf(pairedWith(setup(true), ["atk", "tgt"]), swing("Bow"), [15, 3]),
+    ).toMatchObject({
       mode: "disadvantage",
       natural: 3,
     });
   });
   it("applies to a ranged attack on a target elsewhere while a foe is engaged", () => {
-    expect(modeOf(setup(true), swing("Bow", "far"), [15, 3])).toMatchObject({
+    expect(
+      modeOf(
+        pairedWith(setup(true), ["atk", "tgt"]),
+        swing("Bow", "far"),
+        [15, 3],
+      ),
+    ).toMatchObject({
       mode: "disadvantage",
+    });
+  });
+  it("a same-zone foe without a melee pair does not (spec 101)", () => {
+    expect(modeOf(pairedWith(setup(true)), swing("Bow"), [15])).toMatchObject({
+      mode: "normal",
     });
   });
   it("melee does not", () => {
@@ -1381,13 +1411,16 @@ describe("ranged attacks in close combat (spec 099)", () => {
     });
   });
   it("an incapacitated foe does not trigger it", () => {
-    const st = setup(true, "a", { conditions: [cond("incapacitated")] });
+    const st = pairedWith(
+      setup(true, "a", { conditions: [cond("incapacitated")] }),
+      ["atk", "tgt"],
+    );
     expect(modeOf(st, swing("Bow", "far"), [15])).toMatchObject({
       mode: "normal",
     });
   });
   it("cancels against advantage (stunned far target)", () => {
-    const st = setup(true);
+    const st = pairedWith(setup(true), ["atk", "tgt"]);
     st.combatants.far = {
       ...(st.combatants.far as Combatant),
       conditions: [cond("stunned")],

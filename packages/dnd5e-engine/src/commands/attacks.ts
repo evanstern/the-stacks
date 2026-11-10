@@ -21,9 +21,10 @@ import type {
   Assist,
   AttackEntry,
   Combatant,
+  Encounter,
   EngineState,
 } from "../schema/state.js";
-import { closeCombatSources } from "../sides.js";
+import { closeCombatSources, meleePairFor, withMeleePair } from "../sides.js";
 import { spaceViewOf } from "../space.js";
 
 /** Spec 084: one `assist.ended` (used) per applied assist, held by `holderId`. */
@@ -301,17 +302,33 @@ export const handleAttackRoll: Handler<"attack.roll"> = (
     },
     ...usedAssists(command.targetId, applied, command.reason),
   ];
+  // Spec 101: a resolved melee use in one zone forms a melee pair.
+  let after: Encounter | null = enc;
+  if (enc && command.attack !== undefined && command.attackerId !== null) {
+    const attacker = state.combatants[command.attackerId];
+    const entry = attacker ? findAttack(attacker, command.attack) : null;
+    if (
+      entry?.ok &&
+      !isRangedUse(state, command.attackerId, command.targetId, entry.value) &&
+      meleePairFor(state, command.attackerId, command.targetId)
+    ) {
+      after = withMeleePair(enc, command.attackerId, command.targetId) ?? enc;
+    }
+  }
   if (command.reaction && enc && command.attackerId !== null) {
+    after = {
+      ...(after as Encounter),
+      reactionsSpent: [...(enc.reactionsSpent ?? []), command.attackerId],
+    };
+  }
+  if (enc && after && after !== enc && command.attackerId !== null) {
     events.push({
       type: "encounter.changed",
       v: 1,
       reason: command.reason,
       combatantId: command.attackerId,
       before: enc,
-      after: {
-        ...enc,
-        reactionsSpent: [...(enc.reactionsSpent ?? []), command.attackerId],
-      },
+      after,
     });
   }
   return { ok: true, events };

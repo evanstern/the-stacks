@@ -97,6 +97,7 @@ export {
   closeCombatSources,
   encounterOver,
   hostilesStanding,
+  meleeFoes,
 } from "./sides.js";
 export { spaceViewOf } from "./space.js";
 export type { SpellMechanics } from "./spells.js";

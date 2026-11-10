@@ -3,6 +3,7 @@ import type { Handler } from "../handler.js";
 import type { EngineEvent } from "../schema/events.js";
 import { type RefusalResult, refuse } from "../schema/refusals.js";
 import type { Combatant, Encounter, EngineState } from "../schema/state.js";
+import { withoutMelee } from "../sides.js";
 import { actorUnable, isUnable } from "./attacks.js";
 
 type Movement = NonNullable<Encounter["movement"]>;
@@ -117,19 +118,34 @@ export const handleCombatantPlace: Handler<"combatant.place"> = (
       });
     }
   }
-  return {
-    ok: true,
-    events: [
-      {
-        type: "combatant.placed",
-        v: 1,
-        reason: command.reason,
-        combatantId: c.id,
-        before: c.placement ?? null,
-        after: command.zoneId === null ? null : { zoneId: command.zoneId },
-      },
-    ],
-  };
+  const events: EngineEvent[] = [
+    {
+      type: "combatant.placed",
+      v: 1,
+      reason: command.reason,
+      combatantId: c.id,
+      before: c.placement ?? null,
+      after: command.zoneId === null ? null : { zoneId: command.zoneId },
+    },
+  ];
+  // Spec 101: a placement change ends the combatant's melee pairs.
+  const enc = state.encounter;
+  const dropped = enc ? withoutMelee(enc, c.id) : {};
+  if (
+    enc &&
+    dropped.melee &&
+    dropped.melee.length !== (enc.melee?.length ?? 0)
+  ) {
+    events.push({
+      type: "encounter.changed",
+      v: 1,
+      reason: command.reason,
+      combatantId: c.id,
+      before: enc,
+      after: { ...enc, ...dropped },
+    });
+  }
+  return { ok: true, events };
 };
 
 export const handleMove: Handler<"move"> = (state, command) => {
@@ -210,10 +226,14 @@ export const handleMove: Handler<"move"> = (state, command) => {
       reason: command.reason,
       combatantId: c.id,
       before: enc,
-      after: withMovement(state, c.id, (m) => ({
-        ...m,
-        usedFt: m.usedFt + cost,
-      })),
+      after: {
+        ...withMovement(state, c.id, (m) => ({
+          ...m,
+          usedFt: m.usedFt + cost,
+        })),
+        // Spec 101: leaving the zone ends the mover's melee pairs.
+        ...withoutMelee(enc, c.id),
+      },
     });
   }
   return { ok: true, events };
