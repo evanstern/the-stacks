@@ -1,10 +1,10 @@
 ---
 id: TASK-0306
 title: Zone size makes every ranged attack in a one-zone fight roll at disadvantage
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-11-10T04:45:00Z'
-updated_date: '2026-11-10T04:53:00Z'
+updated_date: '2026-11-10T04:54:00Z'
 labels:
   - ws:space
   - replan-2026-11
@@ -22,6 +22,8 @@ ordinal: 290000
 Found while merging TASK-0271 with TASK-0274 (2026-11-09). Spec 100 gathers the party into the encounter zone at encounter start, and the reed-camp encounter is one zone (a 30-ft mud island). The close-combat rule (TASK-0274, operator ruling: engine applies ranged disadvantage when a hostile shares the attacker's zone) therefore gives every ranged attack in that fight disadvantage, for the whole fight. SRD 5.2.1 applies it only when a hostile is within 5 ft. Kestrel, an archer, is penalized on every shot. Evidence: two DB tests needed a second d20 (TASK-0271 commit c57d756b).
 
 Options: (a) the rule needs the attacker 'engaged' (a hostile that has moved or attacked into melee with it, tracked per combatant) not merely sharing a zone; (b) split large encounter zones in seeds; (c) start ranged combatants at an edge zone. Needs an operator ruling before build.
+
+Spec: specs/101-engaged-ranged
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
@@ -43,4 +45,6 @@ Options: (a) the rule needs the attacker 'engaged' (a hostile that has moved or 
 Operator ruling 2026-11-10: engaged-only. Ranged (and ranged spell attack) disadvantage applies only while a hostile is ENGAGED with the attacker: a hostile that made a melee attack against it, or that it made a melee attack against, this round or since its last turn, while both share a zone. Sharing a zone alone no longer triggers it. This narrows the 2026-11-09 engine ruling (TASK-0274); the rule stays in the engine.
 
 Correction: the operator's words were 'Engaged-only penalty' (option text: the penalty applies only when an enemy is actually engaged in melee with the attacker, tracked per combatant). The detailed trigger in the previous note (a melee attack between them this round or since the last turn) is the orchestrator's proposed definition, not the operator's. Spec 101 settles the definition; any judgment call there comes back as an open question.
+
+Claimed 2026-11-09 by the R1 sweep (docs/design/r1-fast-table-runbook.md). Worktree .worktrees/task-0306, branch task-0306-engaged-ranged, cut from origin/main 8b4772b9. Spec number 101 claimed with a stub.
 <!-- SECTION:NOTES:END -->
