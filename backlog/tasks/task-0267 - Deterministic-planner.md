@@ -38,7 +38,10 @@ Spec: specs/097-planner
 - [ ] #6 Phase 3: Combat actions (US1, AC #2) (specs/097-planner tasks.md)
 - [ ] #7 Phase 4: Movement, turn, resources and DM control (US1, US3, AC #2) (specs/097-planner tasks.md)
 - [ ] #8 Phase 5: Legality, coverage and determinism (US3, AC #2, AC #3) (specs/097-planner tasks.md)
+- [ ] #9 Phase 6: Wiki re-ground (specs/097-planner tasks.md)
 <!-- AC:END -->
+
+
 
 
 
