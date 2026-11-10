@@ -33,6 +33,7 @@ Spec: specs/101-engaged-ranged
 - [ ] #3 An archer with a hostile engaged in melee with it still rolls at disadvantage.
 - [ ] #4 Phase 1: Engine melee pairs (US1, US2, US3) (specs/101-engaged-ranged tasks.md)
 - [ ] #5 Phase 2: Planner fact and server tests (US1 server half, FR-011, FR-013) (specs/101-engaged-ranged tasks.md)
+- [ ] #6 Phase 3: Wiki re-ground (specs/101-engaged-ranged tasks.md)
 <!-- AC:END -->
 
 ## Definition of Done
