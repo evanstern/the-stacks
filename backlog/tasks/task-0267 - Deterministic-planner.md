@@ -4,7 +4,7 @@ title: Deterministic planner
 status: In Progress
 assignee: []
 created_date: 2026-11-07 05:13
-updated_date: '2026-11-10T03:49:00Z'
+updated_date: '2026-11-10T03:57:00Z'
 labels:
   - ws:intent
   - replan-2026-11
@@ -30,16 +30,15 @@ Spec: specs/097-planner
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 The planner makes no model call and no I/O (boundary lint).
-- [ ] #2 Golden tests cover each supported kind, each refusal code and each ruling request.
-- [ ] #3 Legality checks from TASK-0145 and TASK-0147 pass as planner tests.
-- [ ] #4 Phase 1: Package skeleton, types, boundary and kind table (AC #1) (specs/097-planner tasks.md)
-- [ ] #5 Phase 2: Checks and the ruling loop (US2, AC #2) (specs/097-planner tasks.md)
-- [ ] #6 Phase 3: Combat actions (US1, AC #2) (specs/097-planner tasks.md)
-- [ ] #7 Phase 4: Movement, turn, resources and DM control (US1, US3, AC #2) (specs/097-planner tasks.md)
-- [ ] #8 Phase 5: Legality, coverage and determinism (US3, AC #2, AC #3) (specs/097-planner tasks.md)
-- [ ] #9 Phase 6: Wiki re-ground (specs/097-planner tasks.md)
-- [ ] #10 The planner maps the stand Intent to the engine stand command, with a golden test (moved from spec 099 T031).
+- [x] #1 The planner makes no model call and no I/O (boundary lint).
+- [x] #2 Golden tests cover each supported kind, each refusal code and each ruling request.
+- [x] #3 Legality checks from TASK-0145 and TASK-0147 pass as planner tests.
+- [x] #4 Phase 1: Package skeleton, types, boundary and kind table (AC #1) (specs/097-planner tasks.md)
+- [x] #5 Phase 2: Checks and the ruling loop (US2, AC #2) (specs/097-planner tasks.md)
+- [x] #6 Phase 3: Combat actions (US1, AC #2) (specs/097-planner tasks.md)
+- [x] #7 Phase 4: Movement, turn, resources and DM control (US1, US3, AC #2) (specs/097-planner tasks.md)
+- [x] #8 Phase 5: Legality, coverage and determinism (US3, AC #2, AC #3) (specs/097-planner tasks.md)
+- [x] #9 Phase 6: Wiki re-ground (specs/097-planner tasks.md)
 <!-- AC:END -->
 
 ## Definition of Done
@@ -59,4 +58,7 @@ Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=cc/claude-opus-5-5 (spe
 Spec 097 (a34d5d39): packages/planner, PlanState, 28 served kinds, PlanFact, RulingRequest, 6 phases. Orchestrator-settled (technical seams, follow ratified decisions): OQ-1 PlanState, OQ-6 AC #3 scope, OQ-7 stop at first refused command, OQ-9 spell range ponytail to TASK-0227, OQ-10 FactRow naming, OQ-11 keep the AI-hostile reaction port. Operator rulings pending: OQ-2/OQ-3 (action economy + Dodge card), OQ-4 (player-written DC), OQ-5 (stakes/free retry), OQ-8 (AI-DM fiat code), OQ-12 (unarmed strikes).
 
 From TASK-0274: stand mapping and its golden test moved here; close-combat disadvantage is the engine's, the planner reports it as a fact.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5 (phases 1-6)
+Phases 8db77eaa, ceb0981c, 179ee146, eeaad658, 07627848; wiki 9c2209b9, 44e5e00a. 28 kinds plan to engine commands; attempt and use_object ask for a ruling; the rest refuse KIND_UNSERVED citing their owner card. 132 planner tests. ci:check exit 0 (DB suites skipped; the planner has no DB code). Orchestrator re-ran planner tests (132), boundary (28/28), freshness (OK 63), Dockerfile guard. The stand-mapping AC moved to TASK-0274: the engine stand command lands there, after this card merges. Until then stand refuses KIND_UNSERVED citing TASK-0274.
 <!-- SECTION:NOTES:END -->
