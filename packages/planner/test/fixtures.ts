@@ -351,3 +351,10 @@ export function patchStats(
   };
   return s;
 }
+
+/** A result without the Intent text a ruling request carries for the DM to read (contract §5). */
+export function sansText(r: unknown): unknown {
+  return JSON.parse(JSON.stringify(r), (k, v) =>
+    k === "text" ? undefined : v,
+  );
+}
