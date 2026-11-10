@@ -4,7 +4,7 @@ title: Spatial events and per-viewer projection
 status: In Progress
 assignee: []
 created_date: '2026-11-07 05:13'
-updated_date: '2026-11-09 20:10'
+updated_date: '2026-11-10 03:13'
 labels:
   - 'ws:space'
   - replan-2026-11
@@ -27,12 +27,6 @@ Source: docs/design/replan-2026-11/board-rework-map.md (N-06).
 Spec: specs/100-spatial-events
 <!-- SECTION:DESCRIPTION:END -->
 
-## Acceptance Criteria
-<!-- AC:BEGIN -->
-- [ ] #1 A player projection never contains an unrevealed zone or hidden placement.
-- [ ] #2 The AI context lists each actor's zone and who is in reach.
-- [ ] #3 A door or post is a valid Intent target.
-<!-- AC:END -->
 
 ## Implementation Notes
 
