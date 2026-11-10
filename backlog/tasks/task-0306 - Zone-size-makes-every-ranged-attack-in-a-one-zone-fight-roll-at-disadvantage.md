@@ -4,7 +4,7 @@ title: Zone size makes every ranged attack in a one-zone fight roll at disadvant
 status: Done
 assignee: []
 created_date: '2026-11-10T04:45:00Z'
-updated_date: '2026-11-10T15:33:00Z'
+updated_date: '2026-11-10T15:34:00Z'
 labels:
   - ws:space
   - replan-2026-11
@@ -36,6 +36,7 @@ Spec: specs/101-engaged-ranged
 - [x] #6 Phase 3: Wiki re-ground (specs/101-engaged-ranged tasks.md)
 - [ ] #7 Spec phase: Engine melee pairs (US1, US2, US3)
 - [ ] #8 Spec phase: Planner fact and server tests (US1 server half, FR-011, FR-013)
+- [ ] #9 Spec phase: Wiki re-ground
 <!-- AC:END -->
 
 ## Definition of Done
