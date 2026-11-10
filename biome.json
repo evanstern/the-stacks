@@ -580,6 +580,108 @@
       }
     },
     {
+      "includes": [
+        "packages/planner/src/**",
+        "fixtures/boundary-violations/packages/planner/**"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "pg": "the planner is pure: intent, space, engine and zod only; no app, session model, node module, model or clock (constitution II, VI).",
+                  "postgres": "the planner is pure: intent, space, engine and zod only; no app, session model, node module, model or clock (constitution II, VI).",
+                  "drizzle-orm": "the planner is pure: intent, space, engine and zod only; no app, session model, node module, model or clock (constitution II, VI).",
+                  "drizzle-kit": "the planner is pure: intent, space, engine and zod only; no app, session model, node module, model or clock (constitution II, VI).",
+                  "ws": "the planner is pure: intent, space, engine and zod only; no app, session model, node module, model or clock (constitution II, VI).",
+                  "hono": "the planner is pure: intent, space, engine and zod only; no app, session model, node module, model or clock (constitution II, VI).",
+                  "@hono/node-server": "the planner is pure: intent, space, engine and zod only; no app, session model, node module, model or clock (constitution II, VI).",
+                  "undici": "the planner is pure: intent, space, engine and zod only; no app, session model, node module, model or clock (constitution II, VI).",
+                  "busboy": "the planner is pure: intent, space, engine and zod only; no app, session model, node module, model or clock (constitution II, VI).",
+                  "yauzl": "the planner is pure: intent, space, engine and zod only; no app, session model, node module, model or clock (constitution II, VI).",
+                  "parse5": "the planner is pure: intent, space, engine and zod only; no app, session model, node module, model or clock (constitution II, VI).",
+                  "openai": "the planner is pure: intent, space, engine and zod only; no app, session model, node module, model or clock (constitution II, VI).",
+                  "@anthropic-ai/sdk": "the planner is pure: intent, space, engine and zod only; no app, session model, node module, model or clock (constitution II, VI).",
+                  "@the-stacks/server": "the planner is pure: intent, space, engine and zod only; no app, session model, node module, model or clock (constitution II, VI).",
+                  "@the-stacks/web": "the planner is pure: intent, space, engine and zod only; no app, session model, node module, model or clock (constitution II, VI).",
+                  "@the-stacks/session-model": "the planner is pure: intent, space, engine and zod only; no app, session model, node module, model or clock (constitution II, VI).",
+                  "@the-stacks/shared": "the planner is pure: intent, space, engine and zod only; no app, session model, node module, model or clock (constitution II, VI).",
+                  "@the-stacks/srd": "the planner is pure: intent, space, engine and zod only; no app, session model, node module, model or clock (constitution II, VI)."
+                },
+                "patterns": [
+                  {
+                    "group": ["node:*"],
+                    "message": "the planner is pure: intent, space, engine and zod only; no app, session model, node module, model or clock (constitution II, VI)."
+                  },
+                  {
+                    "group": [
+                      "fs",
+                      "fs/**",
+                      "http",
+                      "https",
+                      "http2",
+                      "net",
+                      "tls",
+                      "dgram",
+                      "dns",
+                      "child_process",
+                      "cluster",
+                      "worker_threads",
+                      "crypto",
+                      "os",
+                      "process",
+                      "timers",
+                      "timers/**",
+                      "perf_hooks",
+                      "readline",
+                      "stream"
+                    ],
+                    "message": "the planner is pure: intent, space, engine and zod only; no app, session model, node module, model or clock (constitution II, VI)."
+                  },
+                  {
+                    "group": ["drizzle-orm/**"],
+                    "message": "the planner is pure: intent, space, engine and zod only; no app, session model, node module, model or clock (constitution II, VI)."
+                  },
+                  {
+                    "group": ["@anthropic-ai/**"],
+                    "message": "the planner is pure: intent, space, engine and zod only; no app, session model, node module, model or clock (constitution II, VI)."
+                  },
+                  {
+                    "group": ["@ai-sdk/**"],
+                    "message": "the planner is pure: intent, space, engine and zod only; no app, session model, node module, model or clock (constitution II, VI)."
+                  },
+                  {
+                    "group": ["**/apps/**"],
+                    "message": "the planner is pure: intent, space, engine and zod only; no app, session model, node module, model or clock (constitution II, VI)."
+                  }
+                ]
+              }
+            },
+            "noRestrictedGlobals": {
+              "level": "error",
+              "options": {
+                "deniedGlobals": {
+                  "Date": "the planner is pure: intent, space, engine and zod only; no app, session model, node module, model or clock (constitution II, VI).",
+                  "performance": "the planner is pure: intent, space, engine and zod only; no app, session model, node module, model or clock (constitution II, VI).",
+                  "setTimeout": "the planner is pure: intent, space, engine and zod only; no app, session model, node module, model or clock (constitution II, VI).",
+                  "setInterval": "the planner is pure: intent, space, engine and zod only; no app, session model, node module, model or clock (constitution II, VI).",
+                  "setImmediate": "the planner is pure: intent, space, engine and zod only; no app, session model, node module, model or clock (constitution II, VI).",
+                  "fetch": "the planner is pure: intent, space, engine and zod only; no app, session model, node module, model or clock (constitution II, VI).",
+                  "WebSocket": "the planner is pure: intent, space, engine and zod only; no app, session model, node module, model or clock (constitution II, VI).",
+                  "XMLHttpRequest": "the planner is pure: intent, space, engine and zod only; no app, session model, node module, model or clock (constitution II, VI).",
+                  "process": "the planner is pure: intent, space, engine and zod only; no app, session model, node module, model or clock (constitution II, VI).",
+                  "crypto": "the planner is pure: intent, space, engine and zod only; no app, session model, node module, model or clock (constitution II, VI).",
+                  "require": "the planner is pure: intent, space, engine and zod only; no app, session model, node module, model or clock (constitution II, VI)."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
       "includes": ["packages/intent/**"],
       "linter": {
         "rules": {

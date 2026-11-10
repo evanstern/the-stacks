@@ -1,0 +1,23 @@
+{
+  "name": "@the-stacks/planner",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -b",
+    "typecheck": "tsc -b",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@the-stacks/dnd5e-engine": "workspace:*",
+    "@the-stacks/intent": "workspace:*",
+    "@the-stacks/space": "workspace:*",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.4",
+    "vitest": "^5.0.1"
+  }
+}

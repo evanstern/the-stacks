@@ -21,17 +21,17 @@ with `pnpm ci:check` green and one commit led by `TASK-0267`. No file under `app
 **Goal**: `@the-stacks/planner` exists, is pure, is boundary-checked, and refuses every kind it
 does not serve.
 
-- [ ] T001 Create `packages/planner/{package.json,tsconfig.json,vitest.config.ts,README.md}` per plan "Source Code". Runtime deps: `@the-stacks/intent`, `@the-stacks/space`, `@the-stacks/dnd5e-engine` (`workspace:*`), `zod` `^4.6.5`.
-- [ ] T002 Add `packages/planner` and `packages/planner/test` to root `tsconfig.json` references. Run `pnpm install` to update `pnpm-lock.yaml`.
-- [ ] T003 Add `isUnable` to the `./commands/attacks.js` export line in `packages/dnd5e-engine/src/index.ts`.
-- [ ] T004 Write `packages/planner/src/types.ts`: the types and Zod schemas of contract §2–§5 (`PlanStateSchema`, `PlanFactSchema`, `RulingRequestSchema`, `PlannedCommand`, `PlanRefusal`, `PlanResult`, `StepOutcome`).
-- [ ] T005 Write `packages/planner/src/kinds.ts`: `PLAN_KINDS` per spec "Served kinds", with an `owner` card id per unserved kind (`dodge`→`"spec-097-OQ-3"` until the orchestrator cards it, then that card id; `ready`/`react`/`roll`/`request_roll`→`"TASK-0276"`, `delay`→`"Q5"`, resource gaps→`"N-17"`, `concentration_drop`→`"TASK-0227"`, `level_choice`→`"N-18"`, not-planned→`"gate"`).
-- [ ] T006 Write `packages/planner/src/outcome.ts` (`stepOutcome`, FR-006) and `src/plan.ts`: dispatch on `intent.kind`; refuse `KIND_UNSERVED` from `PLAN_KINDS`; the reason helper of FR-004. Served kinds return `KIND_UNSERVED` until later phases fill them.
-- [ ] T007 Write `packages/planner/src/refs.ts`: actor and target resolution (FR-009–FR-012), the able-actor check via `isUnable`, pull-in commands, `hostilesStanding`.
-- [ ] T008 Write `packages/planner/src/index.ts` with the FR-037 exports only.
-- [ ] T009 Add the `biome.json` override per plan "Boundary override". Add `fixtures/boundary-violations/packages/planner/src/{bad-app,bad-session-model,bad-clock,bad-model}.ts`, one violation each.
-- [ ] T010 [P] Write `packages/planner/test/tsconfig.json`, `test/fixtures.ts` (PlanState builders: a three-zone space A–B–C, Thorin and Kestrel `party`, goblin-2 and Snag `hostile`, a cleric caster, an NPC init) and `test/purity.test.ts` (import allowlist, modelled on `packages/dnd5e-engine/test/purity.test.ts`).
-- [ ] T011 [P] Write `packages/planner/test/kinds.test.ts`: every `INTENT_KINDS` entry has a `PLAN_KINDS` row; each Unserved and Not-planned kind refuses `KIND_UNSERVED` with its owner; `refs.ts` cases for `UNKNOWN_COMBATANT`, `ACTOR_UNABLE`, `TARGET_NOT_PRESENT`, `TARGET_UNSEEN`, pull-in.
+- [x] T001 Create `packages/planner/{package.json,tsconfig.json,vitest.config.ts,README.md}` per plan "Source Code". Runtime deps: `@the-stacks/intent`, `@the-stacks/space`, `@the-stacks/dnd5e-engine` (`workspace:*`), `zod` `^4.6.5`.
+- [x] T002 Add `packages/planner` and `packages/planner/test` to root `tsconfig.json` references. Run `pnpm install` to update `pnpm-lock.yaml`.
+- [x] T003 Add `isUnable` to the `./commands/attacks.js` export line in `packages/dnd5e-engine/src/index.ts`.
+- [x] T004 Write `packages/planner/src/types.ts`: the types and Zod schemas of contract §2–§5 (`PlanStateSchema`, `PlanFactSchema`, `RulingRequestSchema`, `PlannedCommand`, `PlanRefusal`, `PlanResult`, `StepOutcome`).
+- [x] T005 Write `packages/planner/src/kinds.ts`: `PLAN_KINDS` per spec "Served kinds", with an `owner` card id per unserved kind (`dodge`→`"spec-097-OQ-3"` until the orchestrator cards it, then that card id; `ready`/`react`/`roll`/`request_roll`→`"TASK-0276"`, `delay`→`"Q5"`, resource gaps→`"N-17"`, `concentration_drop`→`"TASK-0227"`, `level_choice`→`"N-18"`, not-planned→`"gate"`).
+- [x] T006 Write `packages/planner/src/outcome.ts` (`stepOutcome`, FR-006) and `src/plan.ts`: dispatch on `intent.kind`; refuse `KIND_UNSERVED` from `PLAN_KINDS`; the reason helper of FR-004. Served kinds return `KIND_UNSERVED` until later phases fill them.
+- [x] T007 Write `packages/planner/src/refs.ts`: actor and target resolution (FR-009–FR-012), the able-actor check via `isUnable`, pull-in commands, `hostilesStanding`.
+- [x] T008 Write `packages/planner/src/index.ts` with the FR-037 exports only.
+- [x] T009 Add the `biome.json` override per plan "Boundary override". Add `fixtures/boundary-violations/packages/planner/src/{bad-app,bad-session-model,bad-clock,bad-model}.ts`, one violation each.
+- [x] T010 [P] Write `packages/planner/test/tsconfig.json`, `test/fixtures.ts` (PlanState builders: a three-zone space A–B–C, Thorin and Kestrel `party`, goblin-2 and Snag `hostile`, a cleric caster, an NPC init) and `test/purity.test.ts` (import allowlist, modelled on `packages/dnd5e-engine/test/purity.test.ts`).
+- [x] T011 [P] Write `packages/planner/test/kinds.test.ts`: every `INTENT_KINDS` entry has a `PLAN_KINDS` row; each Unserved and Not-planned kind refuses `KIND_UNSERVED` with its owner; `refs.ts` cases for `UNKNOWN_COMBATANT`, `ACTOR_UNABLE`, `TARGET_NOT_PRESENT`, `TARGET_UNSEEN`, pull-in.
 
 **Checkpoint**: `pnpm check:boundaries` flags the four fixtures. `pnpm ci:check` green.
 
