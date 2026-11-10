@@ -42,6 +42,7 @@ Spec: specs/097-planner
 - [ ] #10 Spec phase: Package skeleton, types, boundary and kind table (AC #1)
 - [ ] #11 Spec phase: Checks and the ruling loop (US2, AC #2)
 - [ ] #12 Spec phase: Combat actions (US1, AC #2)
+- [ ] #13 Spec phase: Movement, turn, resources and DM control (US1, US3, AC #2)
 <!-- AC:END -->
 
 ## Definition of Done
