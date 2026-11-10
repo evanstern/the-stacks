@@ -61,12 +61,32 @@ type StateChange = Extract<
       | "party.member.changed"
       | "tracker.changed"
       | "dm.seat.changed"
-      | "gate.policy.changed";
+      | "gate.policy.changed"
+      | "zone.revealed";
   }
 >;
 
 /** The ledger change row for a session-native state change. */
 export function sessionChangeRow(event: StateChange): LedgerRow {
+  if (event.type === "zone.revealed") {
+    return {
+      kind: "change",
+      seq: event.seq,
+      actor: event.actor,
+      visibility: event.visibility,
+      reason: event.payload.reason,
+      type: event.type,
+      subject: null,
+      before: null,
+      after: {
+        zones: event.payload.zones.map((z) => z.name),
+        reset: event.payload.reset,
+      },
+      batchId: null,
+      index: null,
+      actionId: null,
+    };
+  }
   let subject: string | null = null;
   if (event.type === "scene.changed") {
     subject = (event.payload.after ?? event.payload.before)?.sceneId ?? null;

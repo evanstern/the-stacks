@@ -40,6 +40,17 @@ describe("package entry points", () => {
     }
   });
 
+  it("the main entry exports the spatial vocabulary (spec 100)", () => {
+    for (const name of [
+      "ZoneRevealedV1",
+      "spatialFor",
+      "reachOf",
+      "targetStatus",
+    ]) {
+      expect(name in main, name).toBe(true);
+    }
+  });
+
   it("the main entry exports the Phase 2 decision core", () => {
     for (const name of [
       "checkPermission",

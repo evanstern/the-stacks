@@ -22,6 +22,7 @@ import {
 } from "./events/proposals.js";
 import { SceneChangedV1 } from "./events/scene.js";
 import { ScenePresenceChangedV1 } from "./events/scene-presence.js";
+import { ZoneRevealedV1 } from "./events/space.js";
 import { TableModeChangedV1 } from "./events/table-mode.js";
 import { NarrationV1, TalkV1 } from "./events/talk.js";
 import { TrackerChangedV1 } from "./events/tracker.js";
@@ -89,6 +90,7 @@ const sessionEntries: CatalogEntry[] = [
   session("dm.seat.changed", "state-change", DmSeatChangedV1),
   session("gate.policy.changed", "state-change", GatePolicyChangedV1),
   session("presence.recorded", "marker", PresenceRecordedV1),
+  session("zone.revealed", "state-change", ZoneRevealedV1),
 ];
 
 const mechanicsEntries: CatalogEntry[] = MECHANICS_EVENT_TYPES.map((type) =>
@@ -144,6 +146,7 @@ type SessionPayloads = {
   "dm.seat.changed": z.infer<typeof DmSeatChangedV1>;
   "gate.policy.changed": z.infer<typeof GatePolicyChangedV1>;
   "presence.recorded": z.infer<typeof PresenceRecordedV1>;
+  "zone.revealed": z.infer<typeof ZoneRevealedV1>;
 };
 
 export type SessionNativeEvent = {

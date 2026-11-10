@@ -56,6 +56,8 @@ export {
   ScenePresenceChangedV1,
   ScenePresenceSchema,
 } from "./events/scene-presence.js";
+export type { ZoneRevealed } from "./events/space.js";
+export { ZoneRevealedV1 } from "./events/space.js";
 export type { TableMode } from "./events/table-mode.js";
 export { TableModeChangedV1, TableModeSchema } from "./events/table-mode.js";
 export type { Narration, Talk } from "./events/talk.js";
@@ -135,6 +137,8 @@ export {
 } from "./ids.js";
 export { applyEvent, emptyProjections, project } from "./projections/apply.js";
 export { findProposal, pendingProposals } from "./projections/proposals.js";
+export type { SpatialView, TargetStatus } from "./projections/spatial.js";
+export { reachOf, spatialFor, targetStatus } from "./projections/spatial.js";
 export type {
   ActionAuthority,
   ActionStatus,

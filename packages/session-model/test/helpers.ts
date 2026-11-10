@@ -320,6 +320,15 @@ export const sessionPayloads: Record<string, unknown> = {
     present: [PLAYER_A],
     purpose: "director",
   },
+  "zone.revealed": {
+    reason: "The party sees the loft",
+    reset: false,
+    zones: [
+      { id: "loft", name: "Loft", kind: "room", tags: [], hidden: false },
+    ],
+    edges: [{ from: "house", to: "loft", kind: "climb", feet: 10 }],
+    occupants: {},
+  },
 };
 
 /** A payload that fails the schema of the same type. */
@@ -437,6 +446,16 @@ export const invalidSessionPayloads: Record<string, unknown[]> = {
       after: "ask",
     },
     { reason: "x", proposalKind: "journal", before: "auto", after: "never" },
+  ],
+  "zone.revealed": [
+    {
+      reason: "x",
+      reset: false,
+      zones: [{ id: "a", name: "A", kind: "room", tags: [], hidden: true }],
+      edges: [],
+      occupants: {},
+    },
+    { reason: "x", reset: false, zones: [], edges: [], occupants: {} },
   ],
   "presence.recorded": [
     { present: ["not-a-uuid"], purpose: "director" },

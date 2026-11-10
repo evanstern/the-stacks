@@ -16,6 +16,7 @@ import {
   createProposal,
   rejectProposal,
 } from "./proposals.js";
+import { EMPTY_SPATIAL, foldPlacement, foldReveal } from "./spatial.js";
 import type { Diagnostics, SessionProjections } from "./types.js";
 
 export function emptyProjections(viewer: Viewer): SessionProjections {
@@ -36,6 +37,7 @@ export function emptyProjections(viewer: Viewer): SessionProjections {
     gate: { seat: { kind: "ai" }, policyOverrides: {} },
     proposals: [],
     presence: null,
+    spatial: EMPTY_SPATIAL,
     throughSeq: 0,
     diagnostics: {
       skippedUnknownType: 0,
@@ -111,8 +113,10 @@ function applyMechanics(
 
   // Engine fold: the engine's evolve, never a recomputed rule.
   let engine = next.engine;
+  let spatial = next.spatial;
   try {
     engine = evolve(next.engine, event.payload.event);
+    spatial = foldPlacement(spatial, next.viewer, event.payload.event);
   } catch {
     next = bump(next, "engineRejected");
   }
@@ -120,6 +124,7 @@ function applyMechanics(
   return {
     ...next,
     engine,
+    spatial,
     party,
     encounter: buildEncounter(engine, party),
     ledger: [...next.ledger, mechanicsRow(event)],
@@ -276,6 +281,12 @@ function applyKnown(
         ledger: [...p.ledger, sessionChangeRow(event)],
       };
     }
+    case "zone.revealed":
+      return {
+        ...p,
+        spatial: foldReveal(p.spatial, p.viewer, event.payload),
+        ledger: [...p.ledger, sessionChangeRow(event)],
+      };
     case "presence.recorded":
       return {
         ...p,

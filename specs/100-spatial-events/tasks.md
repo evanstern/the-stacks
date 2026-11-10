@@ -22,15 +22,15 @@ operator's OQ-1 ruling quoted in its brief.
 
 **Goal**: `zone.revealed` is in the catalog, and `project()` folds a per-viewer `SpatialView`.
 
-- [ ] T001 [US1] Add `@the-stacks/space` to `packages/session-model/package.json` dependencies and `tsconfig.json` references; run `pnpm install`.
-- [ ] T002 [US1] Write `packages/session-model/src/events/space.ts`: `ZoneRevealedV1` with the five refinements of contracts/zone-revealed.md §2.
-- [ ] T003 [US1] Add `zone.revealed` to `src/catalog.ts` (`sessionEntries`, `SessionPayloads`); update `test/catalog.test.ts` counts (19 → 20, 42 → 43).
-- [ ] T004 [US1] Write `src/projections/spatial.ts`: `EMPTY_SPATIAL`, `foldReveal`, `foldPlacement`, `spatialFor`, `reachOf`, `targetStatus` (contracts/spatial-projection.md §1–§3).
-- [ ] T005 [US1] Add `SpatialView` and `spatial` to `src/projections/types.ts`; wire `emptyProjections`, the `zone.revealed` case and the `applyMechanics` placement fold in `src/projections/apply.ts`; add the ledger row in `src/projections/ledger.ts`.
-- [ ] T006 [US1] Export the Phase 1 names from `src/index.ts`; extend `test/exports.test.ts`.
-- [ ] T007 [P] [US1] Write `test/spatial-fold.test.ts`: every row of the contract §2 fold table for both viewers; DM placements equal `spaceViewOf(engine).placements`; unknown-type tolerance unchanged.
-- [ ] T008 [P] [US4] Write `test/spatial-targets.test.ts`: `targetStatus` for every row of contract §3 (feature zone `unseen` then `ok`; area as entity `unknown`; DM never `unseen`); `reachOf`.
-- [ ] T009 [US1] Add the `spatial` field to every `SessionProjections` literal that typecheck flags in existing tests.
+- [x] T001 [US1] Add `@the-stacks/space` to `packages/session-model/package.json` dependencies and `tsconfig.json` references; run `pnpm install`.
+- [x] T002 [US1] Write `packages/session-model/src/events/space.ts`: `ZoneRevealedV1` with the five refinements of contracts/zone-revealed.md §2.
+- [x] T003 [US1] Add `zone.revealed` to `src/catalog.ts` (`sessionEntries`, `SessionPayloads`); update `test/catalog.test.ts` counts (19 → 20, 42 → 43).
+- [x] T004 [US1] Write `src/projections/spatial.ts`: `EMPTY_SPATIAL`, `foldReveal`, `foldPlacement`, `spatialFor`, `reachOf`, `targetStatus` (contracts/spatial-projection.md §1–§3).
+- [x] T005 [US1] Add `SpatialView` and `spatial` to `src/projections/types.ts`; wire `emptyProjections`, the `zone.revealed` case and the `applyMechanics` placement fold in `src/projections/apply.ts`; add the ledger row in `src/projections/ledger.ts`.
+- [x] T006 [US1] Export the Phase 1 names from `src/index.ts`; extend `test/exports.test.ts`.
+- [x] T007 [P] [US1] Write `test/spatial-fold.test.ts`: every row of the contract §2 fold table for both viewers; DM placements equal `spaceViewOf(engine).placements`; unknown-type tolerance unchanged.
+- [x] T008 [P] [US4] Write `test/spatial-targets.test.ts`: `targetStatus` for every row of contract §3 (feature zone `unseen` then `ok`; area as entity `unknown`; DM never `unseen`); `reachOf`.
+- [x] T009 [US1] Add the `spatial` field to every `SessionProjections` literal that typecheck flags in existing tests.
 
 **Checkpoint**: `pnpm --filter @the-stacks/session-model test` and `pnpm ci:check` green.
 
