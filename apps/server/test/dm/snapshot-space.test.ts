@@ -2,7 +2,12 @@ import { describe, expect, it } from "vitest";
 import { buildSnapshot, renderSnapshot } from "../../src/dm/snapshot/index.js";
 import { greyhollowFight } from "./snapshot-fixtures.js";
 
-const z = (id: string, name: string, kind = "area", hidden = false) => ({
+const z = (
+  id: string,
+  name: string,
+  kind: "area" | "room" | "feature" = "area",
+  hidden = false,
+) => ({
   id,
   name,
   kind,
