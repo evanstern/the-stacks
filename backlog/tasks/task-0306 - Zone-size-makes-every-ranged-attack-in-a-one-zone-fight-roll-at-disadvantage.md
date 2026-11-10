@@ -4,7 +4,7 @@ title: Zone size makes every ranged attack in a one-zone fight roll at disadvant
 status: In Progress
 assignee: []
 created_date: '2026-11-10T04:45:00Z'
-updated_date: '2026-11-10T15:13:00Z'
+updated_date: '2026-11-10T15:28:00Z'
 labels:
   - ws:space
   - replan-2026-11
@@ -29,11 +29,11 @@ Spec: specs/101-engaged-ranged
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
 - [x] #1 An operator ruling picks the model for 'within 5 ft' in zone mode, recorded on this card.
-- [ ] #2 In the reed-camp fight, an archer not engaged in melee rolls a ranged attack without disadvantage, with a golden-dice test.
-- [ ] #3 An archer with a hostile engaged in melee with it still rolls at disadvantage.
-- [ ] #4 Phase 1: Engine melee pairs (US1, US2, US3) (specs/101-engaged-ranged tasks.md)
-- [ ] #5 Phase 2: Planner fact and server tests (US1 server half, FR-011, FR-013) (specs/101-engaged-ranged tasks.md)
-- [ ] #6 Phase 3: Wiki re-ground (specs/101-engaged-ranged tasks.md)
+- [x] #2 In the reed-camp fight, an archer not engaged in melee rolls a ranged attack without disadvantage, with a golden-dice test.
+- [x] #3 An archer with a hostile engaged in melee with it still rolls at disadvantage.
+- [x] #4 Phase 1: Engine melee pairs (US1, US2, US3) (specs/101-engaged-ranged tasks.md)
+- [x] #5 Phase 2: Planner fact and server tests (US1 server half, FR-011, FR-013) (specs/101-engaged-ranged tasks.md)
+- [x] #6 Phase 3: Wiki re-ground (specs/101-engaged-ranged tasks.md)
 <!-- AC:END -->
 
 ## Definition of Done
@@ -55,4 +55,7 @@ Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=cc/claude-opus-5-5 (spe
 Spec 101 (02b96689): Encounter.melee pairs formed by a resolved melee attack roll between same-zone hostiles; a pair ends on a placement change, leaving the order, or encounter end; it does not count while the foe is down, incapacitated or blinded, or the attacker invisible. closeCombatFoes reads pairs; opportunity attacks keep same-zone. 3 phases. Operator rulings pending: OQ-1 (narrow opportunity attacks to pairs too?), OQ-2 (Disengage does not end a pair), OQ-3 (no penalty outside an encounter), OQ-4 (only an attack forms a pair, not moving in).
 
 Operator rulings 2026-11-10 on spec 101: pair model approved; opportunity attacks keep same-zone (narrowing noted on TASK-0305); Disengage does not end a pair, but the move that usually follows does (operator note; golden test added to scope); no penalty outside an encounter.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5 (phases 1-3)
+c7000f9a engine melee pairs; 2707677c planner comment and DB tests back to one d20; b1d5d545 wiki. Disengage-then-move golden test passes (pair holds after Disengage, gone after the move, shot rolls normal). Server with REQUIRE_DATABASE=1: 1979 pass / 5 skipped. Orchestrator re-ran melee 16, engine 438, planner 136, freshness OK 65, and full ci:check (exit 0) after merging main.
 <!-- SECTION:NOTES:END -->
