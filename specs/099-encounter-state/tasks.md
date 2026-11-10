@@ -67,14 +67,14 @@ neutral.
 **Goal**: every added combatant has a side; the Director resumes an ended encounter; no start
 rolls for an absent or yielded monster.
 
-- [ ] T017 [US1] Add the `side` parameter to `combatantFromSrd` in `apps/server/src/dm/seed/combatants.ts`; set sides at every `combatant.add` in `apps/server/src/dm/nodes/resolve.ts` (FR-013).
-- [ ] T018 [US1] In `apps/server/src/dm/gates/plan-gate.ts`, add `encounterPhase`, `eligibleMonsters`, `startableEncounterIds`; make `joiningCombatants` and `arrivingNpcs` return `[]` for an `ended` encounter (FR-014–FR-016, FR-018). Update their callers.
-- [ ] T019 [US1] In `apps/server/src/dm/nodes/director.ts`, use `startableEncounterIds` in legality and in the prompt input; add the "no foe of the encounter can fight" override reason.
-- [ ] T020 [US1] In `apps/server/src/dm/prompts/director.ts`, add the `(resume)` suffix; bump `PROMPT_VERSION` to `dm.director-v12`; update the pin in `apps/server/test/dm/assemble.test.ts`.
-- [ ] T021 [US1] In `directorOpening` (`nodes/resolve.ts`), branch on `encounterPhase`: filter participants by eligibility; skip adds and the seed-presence group on resume; skip the roll when no monster is eligible (FR-017, FR-018).
-- [ ] T022 [P] [US1] Extend `apps/server/test/dm/director.test.ts` and `apps/server/test/dm/plan-gate.test.ts`: phase derivation, startable list, resume legality, dead/absent/yielded override, resume joiners empty. Extend `apps/server/test/dm/seed-stats.test.ts` for the side parameter.
-- [ ] T023 [US1] Write `apps/server/test/dm/encounter-resume.integration.test.ts`: start, Director `free`, then `turn` on `reed-camp`; assert one `initiative.roll` over eligible ids, no `combatant.add`, no encounter-start `scene-presence` row, turn mode set.
-- [ ] T024 [US2] Write `apps/server/test/dm/fled-combatant.integration.test.ts`: the lookout flees in free mode (seq 40 shape), the encounter starts without it; in a second case it flees mid-fight and the batch holds `combatant.depart`; no NPC turn for it follows (seq 161-164).
+- [x] T017 [US1] Add the `side` parameter to `combatantFromSrd` in `apps/server/src/dm/seed/combatants.ts`; set sides at every `combatant.add` in `apps/server/src/dm/nodes/resolve.ts` (FR-013).
+- [x] T018 [US1] In `apps/server/src/dm/gates/plan-gate.ts`, add `encounterPhase`, `eligibleMonsters`, `startableEncounterIds`; make `joiningCombatants` and `arrivingNpcs` return `[]` for an `ended` encounter (FR-014–FR-016, FR-018). Update their callers.
+- [x] T019 [US1] In `apps/server/src/dm/nodes/director.ts`, use `startableEncounterIds` in legality and in the prompt input; add the "no foe of the encounter can fight" override reason.
+- [x] T020 [US1] In `apps/server/src/dm/prompts/director.ts`, add the `(resume)` suffix; bump `PROMPT_VERSION` to `dm.director-v12`; update the pin in `apps/server/test/dm/assemble.test.ts`.
+- [x] T021 [US1] In `directorOpening` (`nodes/resolve.ts`), branch on `encounterPhase`: filter participants by eligibility; skip adds and the seed-presence group on resume; skip the roll when no monster is eligible (FR-017, FR-018).
+- [x] T022 [P] [US1] Extend `apps/server/test/dm/director.test.ts` and `apps/server/test/dm/plan-gate.test.ts`: phase derivation, startable list, resume legality, dead/absent/yielded override, resume joiners empty. Extend `apps/server/test/dm/seed-stats.test.ts` for the side parameter.
+- [x] T023 [US1] Write `apps/server/test/dm/encounter-resume.integration.test.ts`: start, Director `free`, then `turn` on `reed-camp`; assert one `initiative.roll` over eligible ids, no `combatant.add`, no encounter-start `scene-presence` row, turn mode set.
+- [x] T024 [US2] Write `apps/server/test/dm/fled-combatant.integration.test.ts`: the lookout flees in free mode (seq 40 shape), the encounter starts without it; in a second case it flees mid-fight and the batch holds `combatant.depart`; no NPC turn for it follows (seq 161-164).
 
 **Checkpoint**: server unit and DB integration suites green on the worktree stack; `pnpm ci:check` green.
 

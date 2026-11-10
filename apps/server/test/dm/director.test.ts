@@ -1,13 +1,13 @@
 import { describe, expect, it } from "vitest";
 import { createGateway } from "../../src/ai/gateway.js";
 import { memorySink } from "../../src/ai/usage.js";
+import {
+  encounterPhase,
+  startableEncounterIds as runnableEncounterIds,
+} from "../../src/dm/gates/plan-gate.js";
 import type { BeatItem } from "../../src/dm/nodes/assemble.js";
 import { assemble } from "../../src/dm/nodes/assemble.js";
-import {
-  director,
-  legalizeDirector,
-  runnableEncounterIds,
-} from "../../src/dm/nodes/director.js";
+import { director, legalizeDirector } from "../../src/dm/nodes/director.js";
 import { DirectorOutput } from "../../src/dm/nodes/schemas.js";
 import { createScriptedDm, loadDmScript } from "../../src/dm/script/load.js";
 import {
@@ -151,34 +151,69 @@ describe("legalizeDirector (director.md legality table)", () => {
     expect(out.overrides.map((o) => o.decision)).toEqual(["turn"]);
   });
 
-  it("overrides a turn into an encounter that has already run (spec 088)", () => {
-    // A logged encounter.started row whose order held snag: the encounter ran.
-    const projections = {
-      ...freeProjections,
+  // Spec 099: an ended encounter resumes while a foe can fight.
+  const ranWith = (snag: Record<string, unknown> | null, presence?: string) => {
+    const base = freeProjections;
+    return {
+      ...base,
       ledger: [
-        ...freeProjections.ledger,
+        ...base.ledger,
         {
           kind: "change",
           type: "encounter.started",
           after: { order: [{ combatantId: "snag" }] },
         },
       ],
+      scenePresence: presence
+        ? { ...base.scenePresence, snag: { presence } }
+        : base.scenePresence,
       engine: {
-        ...freeProjections.engine,
-        combatants: {
-          ...freeProjections.engine.combatants,
-          snag: freeProjections.engine.combatants.ana,
-        },
+        ...base.engine,
+        combatants: snag
+          ? {
+              ...base.engine.combatants,
+              snag: { ...base.engine.combatants.ana, ...snag },
+            }
+          : base.engine.combatants,
       },
-    } as typeof freeProjections;
-    const out = legalizeDirector(
+    } as unknown as typeof freeProjections;
+  };
+  const turnInto = (projections: typeof freeProjections) =>
+    legalizeDirector(
       model({
         tableMode: { to: "turn", encounterId: "reed-camp", reason: "x" },
       }),
       input({ projections: projections as never }),
     );
-    expect(out.tableMode).toEqual({ to: "stay" });
+  const reedCamp = () => {
+    const e = seed.encounters.find((x) => x.id === "reed-camp");
+    if (!e) throw new Error("fixture lacks reed-camp");
+    return e;
+  };
+
+  it("keeps a turn into an ended encounter with a foe able to fight (resume, spec 099)", () => {
+    const p = ranWith({ side: "hostile" });
+    expect(encounterPhase(p as never, reedCamp())).toBe("ended");
+    const out = turnInto(p);
+    expect(out.tableMode.to).toBe("turn");
+    expect(out.overrides).toEqual([]);
   });
+
+  it.each([
+    ["dead", { lifeState: "dead" }, undefined],
+    ["yielded (neutral)", { side: "neutral" }, undefined],
+    ["absent", { side: "hostile" }, "absent"],
+    ["not a combatant", null, undefined],
+  ] as const)(
+    "overrides a resume when the only foe is %s",
+    (_l, snag, presence) => {
+      const out = turnInto(ranWith(snag as never, presence));
+      expect(out.tableMode).toEqual({ to: "stay" });
+      expect(out.overrides).toEqual([
+        { decision: "turn", reason: "no foe of the encounter can fight" },
+      ]);
+    },
+  );
 
   it("allows free only from turn mode", () => {
     const legal = legalizeDirector(
@@ -395,7 +430,8 @@ describe("legalizeDirector monster arrivals (spec 088)", () => {
     expect(out.overrides).toEqual([]);
   });
 
-  it("drops it in turn mode, and drops an unknown monster id", () => {
+  it("drops an unknown monster id, and a turn-mode arrival of a monster outside the running fight", () => {
+    // turnProjections holds no reed-camp monster in its order.
     expect(arrive(["goblin-3"], turnProjections).arrivals).toEqual([]);
     const out = arrive(["goblin-9"]);
     expect(out.arrivals).toEqual([]);
@@ -414,7 +450,9 @@ describe("legalizeDirector monster arrivals (spec 088)", () => {
     expect(arrive(["goblin-3"], p).arrivals).toEqual([]);
   });
 
-  it("keeps reed-camp runnable with a monster added, not after it started", () => {
+  it("keeps reed-camp runnable with a monster added, then resumable after it started", () => {
+    const reedCamp = seed.encounters.find((e) => e.id === "reed-camp");
+    if (!reedCamp) throw new Error("fixture lacks reed-camp");
     const p = structuredClone(freeProjections);
     p.engine.combatants["goblin-3"] = {
       ...Object.values(p.engine.combatants)[0],
@@ -435,6 +473,13 @@ describe("legalizeDirector monster arrivals (spec 088)", () => {
       index: null,
       actionId: null,
     } as never);
+    // Spec 099: it ran, so it is startable only as a resume, and goblin-3 can fight.
+    expect(encounterPhase(p, reedCamp)).toBe("ended");
+    expect(runnableEncounterIds(p, seed)).toContain("reed-camp");
+    p.engine.combatants["goblin-3"] = {
+      ...(p.engine.combatants["goblin-3"] as object),
+      lifeState: "dead",
+    } as never;
     expect(runnableEncounterIds(p, seed)).not.toContain("reed-camp");
   });
 });
