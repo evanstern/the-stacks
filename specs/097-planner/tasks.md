@@ -81,11 +81,11 @@ does not serve.
 
 **Goal**: the corpus describes the planner and passes the freshness gate.
 
-- [ ] T026 Merge `origin/main` into the branch first, so wiki edits land on the current notes.
-- [ ] T027 Write a new note `docs/wiki/planner.md`: the contract, `PlanState`, the served-kind table, guarded commands and the execution rule, facts and the spec 098 seam, ruling requests and adjudication, the seat rules, the boundary. Sources: `packages/planner/**` files used. Record OQ-1 (the `PlanState` delta from target-architecture §2).
-- [ ] T028 [P] Review `docs/wiki/intent-contract.md` (who raises the planner codes), `docs/wiki/space.md` (planner as a consumer), `docs/wiki/dnd5e-engine.md` (`isUnable` export), `docs/wiki/dm-plan-gate.md` (which checks the planner ports; resolve and plan-gate unchanged until TASK-0269), `docs/wiki/monorepo-and-toolchain.md` (new package, references, boundary override) and `docs/wiki/overview.md` (one sentence for TASK-0267).
-- [ ] T029 Update `docs/wiki/INDEX.md` and `docs/wiki/CAPSULES.md` for the new `planner` note and the changed notes.
-- [ ] T030 Re-pin every touched note's `verified_against` honestly. Run `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/1.0.1/gates/cli.mjs freshness . docs/wiki` until it prints `OK`.
+- [x] T026 Merge `origin/main` into the branch first, so wiki edits land on the current notes.
+- [x] T027 Write a new note `docs/wiki/planner.md`: the contract, `PlanState`, the served-kind table, guarded commands and the execution rule, facts and the spec 098 seam, ruling requests and adjudication, the seat rules, the boundary. Sources: `packages/planner/**` files used. Record OQ-1 (the `PlanState` delta from target-architecture §2).
+- [x] T028 [P] Review `docs/wiki/intent-contract.md` (who raises the planner codes), `docs/wiki/space.md` (planner as a consumer), `docs/wiki/dnd5e-engine.md` (`isUnable` export), `docs/wiki/dm-plan-gate.md` (which checks the planner ports; resolve and plan-gate unchanged until TASK-0269), `docs/wiki/monorepo-and-toolchain.md` (new package, references, boundary override) and `docs/wiki/overview.md` (one sentence for TASK-0267).
+- [x] T029 Update `docs/wiki/INDEX.md` and `docs/wiki/CAPSULES.md` for the new `planner` note and the changed notes.
+- [x] T030 Re-pin every touched note's `verified_against` honestly. Run `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/1.0.1/gates/cli.mjs freshness . docs/wiki` until it prints `OK`.
 
 **Checkpoint**: freshness `OK`; spec-bridge check exits 0; `pnpm ci:check` green.
 
