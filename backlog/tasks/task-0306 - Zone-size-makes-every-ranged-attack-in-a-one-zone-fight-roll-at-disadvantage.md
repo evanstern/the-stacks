@@ -4,7 +4,7 @@ title: Zone size makes every ranged attack in a one-zone fight roll at disadvant
 status: In Progress
 assignee: []
 created_date: '2026-11-10T04:45:00Z'
-updated_date: '2026-11-10T05:13:00Z'
+updated_date: '2026-11-10T15:13:00Z'
 labels:
   - ws:space
   - replan-2026-11
@@ -31,6 +31,7 @@ Spec: specs/101-engaged-ranged
 - [x] #1 An operator ruling picks the model for 'within 5 ft' in zone mode, recorded on this card.
 - [ ] #2 In the reed-camp fight, an archer not engaged in melee rolls a ranged attack without disadvantage, with a golden-dice test.
 - [ ] #3 An archer with a hostile engaged in melee with it still rolls at disadvantage.
+- [ ] #4 Phase 1: Engine melee pairs (US1, US2, US3) (specs/101-engaged-ranged tasks.md)
 <!-- AC:END -->
 
 ## Definition of Done
