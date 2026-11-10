@@ -72,6 +72,9 @@ describe("references", () => {
       intent: i,
       reason: reasonOf(i),
       askId: i.id,
+      replan: () => {
+        throw new Error("unused");
+      },
     };
   };
   const fail = <T>(r: Res<T>) => {

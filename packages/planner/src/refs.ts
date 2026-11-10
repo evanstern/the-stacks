@@ -32,6 +32,8 @@ export type Ctx = {
   reason: string;
   askId: string;
   answer?: { dc?: number; difficulty?: Difficulty };
+  /** Plan another Intent in this context (set by `plan`); rulings use it to replan. */
+  replan: (c: Ctx) => PlanResult;
 };
 export type Handler = (c: Ctx) => PlanResult;
 

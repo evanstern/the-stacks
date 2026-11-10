@@ -39,10 +39,10 @@ does not serve.
 
 **Goal**: checks, saves, contests, search and hide plan or ask; rulings replan.
 
-- [ ] T012 [US2] Write `packages/planner/src/checks.ts`: `check`, `save` (FR-013, FR-014), `contest` (FR-015), `search` (FR-016), `hide` (FR-017), with house rules, mode and `STAT_UNDEFINED` (FR-018).
-- [ ] T013 [US2] Write `packages/planner/src/rulings.ts`: `attempt`, `use_object` (FR-033); `ruling` accept, reject, amend (FR-034); `set_dc` (FR-035); re-ask keys (FR-036). Wire both modules into `plan.ts`.
-- [ ] T014 [P] [US2] Write `packages/planner/test/checks.test.ts`: a golden result per kind and outcome: tier from an `npc`, player DC ignored with fact `ignored`, `influence` and `unarmed-strike` contests, contest with no covering rule, search ask, hide at `medium`, `STAT_UNDEFINED`.
-- [ ] T015 [P] [US2] Write `packages/planner/test/rulings.test.ts`: both asks; accept with tier, accept with `dc` from `dm`, accept on `outcome` (`no-roll`), reject, amend to `contest`, amend to `attempt` (new request id), `set_dc`, `REQUEST_NOT_OPEN`, re-ask on a tierless accept.
+- [x] T012 [US2] Write `packages/planner/src/checks.ts`: `check`, `save` (FR-013, FR-014), `contest` (FR-015), `search` (FR-016), `hide` (FR-017), with house rules, mode and `STAT_UNDEFINED` (FR-018).
+- [x] T013 [US2] Write `packages/planner/src/rulings.ts`: `attempt`, `use_object` (FR-033); `ruling` accept, reject, amend (FR-034); `set_dc` (FR-035); re-ask keys (FR-036). Wire both modules into `plan.ts`.
+- [x] T014 [P] [US2] Write `packages/planner/test/checks.test.ts`: a golden result per kind and outcome: tier from an `npc`, player DC ignored with fact `ignored`, `influence` and `unarmed-strike` contests, contest with no covering rule, search ask, hide at `medium`, `STAT_UNDEFINED`.
+- [x] T015 [P] [US2] Write `packages/planner/test/rulings.test.ts`: both asks; accept with tier, accept with `dc` from `dm`, accept on `outcome` (`no-roll`), reject, amend to `contest`, amend to `attempt` (new request id), `set_dc`, `REQUEST_NOT_OPEN`, re-ask on a tierless accept.
 
 **Checkpoint**: US2 scenarios 1–4 pass. `pnpm ci:check` green.
 
