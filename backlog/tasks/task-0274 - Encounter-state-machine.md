@@ -4,7 +4,7 @@ title: Encounter state machine
 status: Done
 assignee: []
 created_date: 2026-11-07 05:13
-updated_date: '2026-11-10T04:27:00Z'
+updated_date: '2026-11-10T04:28:00Z'
 labels:
   - ws:engine
   - replan-2026-11
@@ -42,6 +42,7 @@ Spec: specs/099-encounter-state
 - [x] #11 Phase 6: Planner rules (US5, US6 mapping, AC #4) (specs/099-encounter-state tasks.md)
 - [x] #12 Phase 7: Wiki re-ground (specs/099-encounter-state tasks.md)
 - [x] #13 After merging main (with the planner), the planner maps the stand Intent to the engine stand command and reports the engine's close-combat disadvantage as a fact, with golden tests (moved from TASK-0267).
+- [ ] #14 Spec phase: Engine sides and selectors (US5 engine half, foundation for US2–US4)
 <!-- AC:END -->
 
 ## Definition of Done
