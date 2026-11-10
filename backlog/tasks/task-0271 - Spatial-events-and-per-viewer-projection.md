@@ -44,7 +44,10 @@ Spec: specs/100-spatial-events
 - [ ] #7 Phase 2: The fog rule in the gate (US1, US2; AC #1, #2, #3) (specs/100-spatial-events tasks.md)
 - [ ] #8 Phase 3: Seeds and the DM runtime (US4; AC #5) (specs/100-spatial-events tasks.md)
 - [ ] #9 Phase 4: Zones and reach in the AI context (US3; AC #4) (specs/100-spatial-events tasks.md)
+- [ ] #10 Phase 5: Wiki (specs/100-spatial-events tasks.md)
 <!-- AC:END -->
+
+
 
 
 
