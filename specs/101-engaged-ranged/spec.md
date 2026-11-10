@@ -248,3 +248,10 @@ A goblin swings its Scimitar at Kestrel. On her turn she shoots any goblin at di
   Helps, forms none. Forming pairs on arrival would re-create the gather bug for every move into a
   shared zone. **Recommend:** melee attacks only. Card a revisit task, trigger: a playtest where a
   foe stood beside an archer without attacking and the table expected the penalty.
+
+## Operator rulings (2026-11-10)
+
+- The melee-pair model is approved as specified (OQ-4): only a resolved melee attack roll forms a pair; moving into a foe's zone does not.
+- OQ-1: opportunity attacks keep the same-zone rule (spec 094 OQ-1/OQ-2). Narrowing them to melee pairs goes on the revisit card TASK-0305.
+- OQ-2: Disengage does not end a pair. Operator note: the usual next step after Disengage is moving away, and a placement change ends the pair, so in practice Disengage-then-move clears the penalty. Add a golden test for that sequence (Disengage, move to another zone, ranged attack has no disadvantage).
+- OQ-3: no close-combat penalty outside an encounter.
