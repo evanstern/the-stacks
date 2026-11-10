@@ -53,4 +53,6 @@ Claimed 2026-11-09 by the R1 sweep (docs/design/r1-fast-table-runbook.md). Workt
 
 Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=cc/claude-opus-5-5 (spec authoring, grant C1)
 Spec 101 (02b96689): Encounter.melee pairs formed by a resolved melee attack roll between same-zone hostiles; a pair ends on a placement change, leaving the order, or encounter end; it does not count while the foe is down, incapacitated or blinded, or the attacker invisible. closeCombatFoes reads pairs; opportunity attacks keep same-zone. 3 phases. Operator rulings pending: OQ-1 (narrow opportunity attacks to pairs too?), OQ-2 (Disengage does not end a pair), OQ-3 (no penalty outside an encounter), OQ-4 (only an attack forms a pair, not moving in).
+
+Operator rulings 2026-11-10 on spec 101: pair model approved; opportunity attacks keep same-zone (narrowing noted on TASK-0305); Disengage does not end a pair, but the move that usually follows does (operator note; golden test added to scope); no penalty outside an encounter.
 <!-- SECTION:NOTES:END -->
