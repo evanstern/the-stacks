@@ -5,7 +5,7 @@ export type {
   SpaceView,
   Zone,
 } from "@the-stacks/space";
-export { bandOf } from "./commands/attacks.js";
+export { bandOf, isUnable } from "./commands/attacks.js";
 export {
   effectiveSpeed,
   movementLeft,
