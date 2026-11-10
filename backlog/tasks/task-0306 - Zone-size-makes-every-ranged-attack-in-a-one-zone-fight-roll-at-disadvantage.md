@@ -4,7 +4,7 @@ title: Zone size makes every ranged attack in a one-zone fight roll at disadvant
 status: In Progress
 assignee: []
 created_date: '2026-11-10T04:45:00Z'
-updated_date: '2026-11-10T04:54:00Z'
+updated_date: '2026-11-10T05:13:00Z'
 labels:
   - ws:space
   - replan-2026-11
@@ -47,4 +47,7 @@ Operator ruling 2026-11-10: engaged-only. Ranged (and ranged spell attack) disad
 Correction: the operator's words were 'Engaged-only penalty' (option text: the penalty applies only when an enemy is actually engaged in melee with the attacker, tracked per combatant). The detailed trigger in the previous note (a melee attack between them this round or since the last turn) is the orchestrator's proposed definition, not the operator's. Spec 101 settles the definition; any judgment call there comes back as an open question.
 
 Claimed 2026-11-09 by the R1 sweep (docs/design/r1-fast-table-runbook.md). Worktree .worktrees/task-0306, branch task-0306-engaged-ranged, cut from origin/main 8b4772b9. Spec number 101 claimed with a stub.
+
+Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=cc/claude-opus-5-5 (spec authoring, grant C1)
+Spec 101 (02b96689): Encounter.melee pairs formed by a resolved melee attack roll between same-zone hostiles; a pair ends on a placement change, leaving the order, or encounter end; it does not count while the foe is down, incapacitated or blinded, or the attacker invisible. closeCombatFoes reads pairs; opportunity attacks keep same-zone. 3 phases. Operator rulings pending: OQ-1 (narrow opportunity attacks to pairs too?), OQ-2 (Disengage does not end a pair), OQ-3 (no penalty outside an encounter), OQ-4 (only an attack forms a pair, not moving in).
 <!-- SECTION:NOTES:END -->
