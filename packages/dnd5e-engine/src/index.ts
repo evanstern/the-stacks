@@ -94,6 +94,7 @@ export { activeCombatant, conditionsOf } from "./selectors.js";
 export {
   areHostile,
   closeCombatFoes,
+  closeCombatSources,
   encounterOver,
   hostilesStanding,
 } from "./sides.js";

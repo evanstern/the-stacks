@@ -158,6 +158,52 @@ describe("attack", () => {
   });
 });
 
+describe("close-combat fact", () => {
+  const RULE = {
+    kind: "rule",
+    rule: "playing-the-game.combat.ranged-attacks.ranged-attacks-in-close-combat",
+  };
+  const sided = () => {
+    const s = baseState();
+    for (const [id, side] of [
+      ["thorin", "party"],
+      ["goblin-2", "hostile"],
+    ] as const) {
+      s.engine.combatants[id] = { ...s.engine.combatants[id]!, side };
+    }
+    patchStats(s, "thorin", {
+      attacks: [
+        {
+          name: "Shortbow",
+          range: "ranged",
+          rangeFt: { normal: 80, long: 320 },
+          toHit: 3,
+          damage: [],
+        },
+        { name: "Longsword", range: "melee", reachFt: 5, toHit: 5, damage: [] },
+      ],
+    });
+    return s;
+  };
+  const weapon = (w: string) =>
+    intent("attack", { targets: [tgt("goblin-2")], params: { weapon: w } });
+
+  it("a ranged attack with a hostile in the attacker's zone reports the rule", () => {
+    expect(cmds(run(weapon("Shortbow"), sided())).facts).toContainEqual(RULE);
+  });
+
+  it("a melee attack does not", () => {
+    expect(cmds(run(weapon("Longsword"), sided())).facts).not.toContainEqual(
+      RULE,
+    );
+  });
+
+  it("a ranged attack with no hostile in the zone does not", () => {
+    const s = placeAt(sided(), "goblin-2", "b");
+    expect(cmds(run(weapon("Shortbow"), s)).facts).not.toContainEqual(RULE);
+  });
+});
+
 describe("cast", () => {
   const cast = (spell: string, over: Record<string, unknown> = {}) =>
     intent("cast", {

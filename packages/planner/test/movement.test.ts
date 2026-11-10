@@ -163,12 +163,16 @@ describe("turn actions", () => {
     }
   });
 
-  it("stand refuses KIND_UNSERVED naming TASK-0274 until the engine stand command lands", () => {
-    expect(refusal(run(intent("stand")))).toMatchObject({
-      source: "planner",
-      code: "KIND_UNSERVED",
-      details: { kind: "stand", owner: "TASK-0274" },
-    });
+  it("stand plans the engine stand command", () => {
+    expect(cmds(run(intent("stand"))).commands).toEqual([
+      {
+        command: {
+          type: "stand",
+          combatantId: "thorin",
+          reason: expect.any(String),
+        },
+      },
+    ]);
   });
 
   it("drop_prone applies prone", () => {
