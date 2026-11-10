@@ -3,6 +3,7 @@ import type {
   SessionProjections,
   StoredEvent,
 } from "@the-stacks/session-model";
+import { renderRows } from "./fact-sheet.js";
 import type { TurnTrigger } from "./jobs.js";
 import type { AdjudicateOutput } from "./nodes/adjudicate.js";
 import type { BeatItem } from "./nodes/assemble.js";
@@ -495,38 +496,39 @@ export function renderRollLine(roll: FactRoll): string {
   return `${roll.name} — ${roll.reason}: ${roll.expression} → ${roll.shown} = ${roll.total}${vs}${outcome}`;
 }
 
-/** `<target> takes <n> <type> (<before>→<after> HP)`; healing reads "regains". */
+/**
+ * One row per change kind (spec 098 contract §3.1). `<target> takes <n> <type>
+ * (<before>→<after> HP)`; healing reads "regains".
+ */
 export function renderChangeLine(change: FactChange): string | null {
-  if (change.kind === "death-saves") {
-    const successes = change.successes === 1 ? "success" : "successes";
-    const failures = change.failures === 1 ? "failure" : "failures";
-    return `${change.target} death saves: ${change.successes} ${successes}, ${change.failures} ${failures}`;
+  switch (change.kind) {
+    case "death-saves": {
+      const successes = change.successes === 1 ? "success" : "successes";
+      const failures = change.failures === 1 ? "failure" : "failures";
+      return `${change.target} death saves: ${change.successes} ${successes}, ${change.failures} ${failures}`;
+    }
+    case "life-state":
+      return `${change.target}: ${change.before} → ${change.after}`;
+    case "condition":
+      return `${change.target}: ${change.condition} ${change.op}`;
+    case "spell-slot":
+      return `${change.target} spends a level ${change.level} spell slot`;
+    case "assist":
+      return `${change.helper} helps ${change.target} (${change.assist === "attack" ? "attack" : "ability check"})`;
+    case "hp": {
+      const hp = `(${change.before}→${change.after} HP)`;
+      if (change.direction === "heal") {
+        return `${change.target} regains ${change.amount} HP ${hp}`;
+      }
+      const type = change.damageType ? ` ${change.damageType}` : "";
+      return `${change.target} takes ${change.amount}${type} ${hp}`;
+    }
   }
-  if (change.kind !== "hp") return null;
-  const hp = `(${change.before}→${change.after} HP)`;
-  if (change.direction === "heal") {
-    return `${change.target} regains ${change.amount} HP ${hp}`;
-  }
-  const type = change.damageType ? ` ${change.damageType}` : "";
-  return `${change.target} takes ${change.amount}${type} ${hp}`;
 }
 
-/** Every dice and damage line for the turn, in action order. Pure. */
+/** Every row text for the turn, in action order. Pure; the rows live in `fact-sheet.ts`. */
 export function renderDiceLines(facts: NarrationFacts): string[] {
-  const lines: string[] = [];
-  const push = (rolls: FactRoll[], changes: FactChange[]): void => {
-    for (const r of rolls) lines.push(renderRollLine(r));
-    for (const c of changes) {
-      const l = renderChangeLine(c);
-      if (l) lines.push(l);
-    }
-  };
-  for (const a of facts.actions) push(a.rolls, a.changes);
-  // Pulls log before the NPC turn's rows, so the auditor's null-action group sees them first.
-  for (const s of facts.pulled ?? []) push(s.rolls, s.changes);
-  if (facts.npcTurn) push(facts.npcTurn.rolls, facts.npcTurn.changes);
-  for (const s of facts.settled ?? []) push(s.rolls, s.changes);
-  return lines;
+  return renderRows(facts).map((r) => r.text);
 }
 
 function damageTypesBySeq(rows: readonly StoredEvent[]): Map<number, string> {

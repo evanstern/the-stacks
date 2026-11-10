@@ -27,7 +27,7 @@ sources:
   - apps/server/seeds/greyhollow-ford-reed-camp.json
   - apps/server/dm-scripts/runbook-a-reed-camp.json
 size_budget_exempt: the note sat within 40 chars of the 8000 budget before TASK-0195; the per-runbook scenario section is a short pointer to docs/design/playtest-scenarios.md, and the in-process harness above is one pipeline that does not split without a TASK of its own
-verified_against: dea1a12b5ed9c93e20bfb027404f9fdb9e06b4c0
+verified_against: 803c548b982da9c5a080e8b8cd5832e39521ef40
 ---
 
 # Playtest harness
@@ -107,8 +107,8 @@ segment runs six pure code checks (`auditor/checks.ts`, `CHECK_IDS`):
 
 | Check | Fails when |
 |---|---|
-| `prose-digits` | the narration prose (all but the last blank-line block when every line of it is a dice line) has a digit |
-| `dice-lines` | that last block (lines with `→` or `: auto-fail`) differs from lines rebuilt from the ledger (`collectFacts`, `renderRollLine`, `renderChangeLine`) |
+| `prose-digits` | the narration prose (all but the last blank-line block when every line of it is a code row or a `State:` line) has a digit |
+| `dice-lines` | that last block (row forms: `→`, `: auto-fail`, `death saves:`, condition applied/removed, `spends a level N spell slot`, `helps … (attack|ability check)`, refusal rows; the `State:` line and refusal rows are accepted but not compared) differs from lines rebuilt from the ledger (`collectFacts`, `renderRollLine`, `renderChangeLine`) |
 | `life-states` | a life-state word and the ledger's life-state changes disagree |
 | `roll-reasons` | a ledger roll has an empty reason |
 | `hidden-info` | public text contains a seed `hooks.secrets` string, or discloses secret tracker state (`trackerStateDisclosures`: a segment count or fraction, or the words tracker/clock/segment beside a tracker's name or id) |

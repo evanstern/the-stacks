@@ -55,17 +55,24 @@ export interface CheckContext {
 const str = (v: unknown): string => (typeof v === "string" ? v : "");
 
 /**
- * A rendered dice or damage line always carries an arrow: roll lines
- * `… expr → shown = total`, change lines `(before→after HP)`; an auto-fail
- * roll line carries `auto-fail`. Prose carries neither.
+ * A code-written row (spec 098 contract §3): roll lines `… expr → shown = total`,
+ * hp lines `(before→after HP)`, life-state `a → b`, auto-fail rolls, conditions,
+ * death saves, spell slots, assists and refusal rows. Prose carries none of them.
  */
-const DICE_LINE = /→|: auto-fail/;
+const DICE_LINE =
+  /→|: auto-fail| death saves: \d|: \S.* (?:applied|removed)$| spends a level \d+ spell slot$| helps .+ \((?:attack|ability check)\)$|: refused, .+ \([A-Z_]+\)$/;
+/** The State line closes the code block; it has no ledger counterpart. */
+const STATE_LINE = /^State: /;
+/** A refusal row comes from `action.resolved`, not a ledger row the check replays. */
+const REFUSAL_ROW = /: refused, .+ \([A-Z_]+\)$/;
 
 /**
  * Splits narration text into prose and dice lines. The DM runtime appends the
- * dice lines as the final blank-line-separated block, but prose paragraphs
- * are separated by blank lines too, so only the last block counts, and only
- * when every line of it looks like a rendered dice line.
+ * rows and the State line as the final blank-line-separated block, but prose
+ * paragraphs are separated by blank lines too, so only the last block counts,
+ * and only when every line of it looks like a code-written row. The State line
+ * and refusal rows are accepted but not returned: the dice-lines check
+ * compares ledger-derived rows only.
  */
 export function splitNarration(text: string): {
   prose: string;
@@ -79,10 +86,16 @@ export function splitNarration(text: string): {
     .replace(/^\s+/, "")
     .split("\n")
     .filter((l) => l.trim() !== "");
-  if (lines.length === 0 || !lines.every((l) => DICE_LINE.test(l))) {
+  if (
+    lines.length === 0 ||
+    !lines.every((l) => STATE_LINE.test(l) || DICE_LINE.test(l))
+  ) {
     return { prose: text, diceLines: [] };
   }
-  return { prose: trimmed.slice(0, i), diceLines: lines };
+  return {
+    prose: trimmed.slice(0, i),
+    diceLines: lines.filter((l) => !STATE_LINE.test(l) && !REFUSAL_ROW.test(l)),
+  };
 }
 
 function narrationOf(seg: Segment): StoredEvent | null {
@@ -173,6 +186,9 @@ const DICE_RELEVANT = new Set([
   "life-state.changed",
   "condition.applied",
   "condition.removed",
+  "death-saves.changed",
+  "spell-slots.changed",
+  "assist.granted",
 ]);
 
 function aliases(name: string): string[] {

@@ -7,7 +7,7 @@ sources:
   - apps/server/src/dm/audit-words.ts
   - apps/server/src/dm/gates/plan-gate.ts
   - specs/051-output-claim-gate/contracts/claim-gate.md
-verified_against: ee5555fef74502e96badd67e43c1b285d964396b
+verified_against: 803c548b982da9c5a080e8b8cd5832e39521ef40
 ---
 
 # Output claim gate
@@ -25,7 +25,7 @@ a term to an actor by `aliases` (whole word, case-insensitive, possessive-aware;
 actor is unique) and returns `ClaimResult` (`pass`, `issues` of kind `act`, `speech`, `death`,
 `down`, `omission` or `count`). It refuses a dead, unconscious, stable or absent actor acting or
 speaking (a quote attributed to it too), a death or down word on the wrong actor, a recorded
-death or drop that the prose omits, and a count ("N down", "no X left", "last X", "all X down")
+death or drop that the prose omits (since spec 098 `deterministicChecks` filters `omission`: advisory only, code writes the life-state row), and a count ("N down", "no X left", "last X", "all X down")
 that disagrees with S1. An actor with a `life-state` or `presence` change in the diff is exempt
 from the act rule. A same-sentence pronoun, body part and act verb binds to the last uniquely
 named actor when no other name sits between. Pronouns and descriptions otherwise pass to

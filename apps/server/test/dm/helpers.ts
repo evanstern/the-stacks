@@ -1,6 +1,8 @@
 import { project, type StoredEvent } from "@the-stacks/session-model";
 import { fixtures } from "@the-stacks/session-model/fixtures";
 import { compact, getById, getByName } from "@the-stacks/srd";
+import { buildFactSheet, type FactSheet } from "../../src/dm/fact-sheet.js";
+import type { NarrationFacts } from "../../src/dm/facts.js";
 import type { TurnCheckpoint } from "../../src/dm/jobs.js";
 import type {
   NodeDeps,
@@ -146,4 +148,19 @@ export function makeCtx(
     checkpoint: { ...emptyCheckpoint(), ...over.checkpoint },
     results: over.results ?? {},
   };
+}
+
+/** A minimal fact sheet over `facts` (no beat, free mode), for tests that build a NarrateOutput by hand. */
+export function testSheet(facts: NarrationFacts): FactSheet {
+  return buildFactSheet({
+    settled: facts,
+    beat: [],
+    projections: {
+      party: [],
+      tableMode: { mode: "free" },
+      encounter: null,
+    } as never,
+    nameOf: (id) => id ?? "The scene",
+    submissions: [],
+  });
 }

@@ -334,6 +334,17 @@ export async function runTalkTurn(
     }
   }
 
+  // Spec 098 OQ-4: an escalation that started a fight names whose move it is. A reply has no State line.
+  let text = react.text;
+  if (result.outcome === "escalate") {
+    const after = await ctx.deps.loadProjections(ctx.job.sessionId);
+    const active = after.encounter?.activeCombatantId;
+    if (active) {
+      const name = after.engine.combatants[active]?.name ?? active;
+      text = `${text}\n\nState: The fight begins. It is ${name}'s turn.`;
+    }
+  }
+
   // Step 7: ship one narration row, then name the companions to prompt.
   if (!(await ctx.deps.fence())) return fenced();
   const shipped = await submitNarration(
@@ -347,7 +358,7 @@ export async function runTalkTurn(
       },
       shipped: {
         prose: react.text,
-        text: react.text,
+        text,
         actionIds: [],
         fallback: false,
         flagBody: null,
