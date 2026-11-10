@@ -10,7 +10,7 @@ sources:
   - apps/server/src/dm/snapshot/render.ts
   - apps/server/src/dm/snapshot/index.ts
   - specs/040-actor-snapshot/contracts/actor-snapshot.md
-verified_against: 62af1658a4a9b0c21bc234b4f8ed13abb78144ea
+verified_against: f1676535f62847ef4ac0571639c6ca60b993bb94
 ---
 
 # Actor snapshot
@@ -27,9 +27,9 @@ never fork a second state view. Runtime wiring is in [[dm-runtime]].
 `actors` and `stage`. A `SnapshotActor` has `id`, `combatantId`, `characterId`, `name`, `aliases`,
 `kind` (`party`, `monster`, `npc`), `controller` (`player`, `ai-companion`, `dm`), `hp`,
 `lifeState`, `conditions` (with the engine instance id), `ac`, `initiative`, `resources` (death
-saves, hit dice, spell slots), `sheet` (party only; since spec 083 the rendered sheet lists the character's spell ids) and `presence` (read from the log, see Build rules). The
-stage holds the table mode with the active actor, the encounter order as actor ids, the scene and
-the DM-only trackers. The snapshot carries no seed text except names, so a player-facing prompt
+saves, hit dice, spell slots), `zone` and `reach` (spec 100: the zone id the actor stands in, or null, and the actor ids sharing it; zone-mode reach is `engaged`) , `sheet` (party only; since spec 083 the rendered sheet lists the character's spell ids) and `presence` (read from the log, see Build rules). The
+stage holds the table mode with the active actor, the encounter order as actor ids, the scene,
+the DM-only trackers and `zones` (id, name, kind, `revealed`; null when the scene has no space). The snapshot carries no seed text except names, so a player-facing prompt
 cannot leak a DM-only string ([[dm-narration-quality]]). The module imports engine and
 session-model types only, never a value; narrate's import closure includes it.
 
@@ -68,9 +68,9 @@ overflow detail; `snapshotSection` returns `## <label>` plus the lines or throws
 
 | View | Readers | Carries |
 |---|---|---|
-| `dm` | director (with tracker lines), interpret, adjudicate | ids, HP, AC, life state, conditions, initiative, resources, sheet |
-| `seat` | companion | full line for the party and `self`; others get HP, life state, conditions, initiative |
-| `fiction` | narrate, audit, chronicle | name, kind, life state, conditions, presence; no digit, no id, no tracker |
+| `dm` | director (with tracker lines), interpret, adjudicate | ids, HP, AC, life state, conditions, initiative, resources, sheet, a `Zones:` line (fogged zones marked `(hidden)`), `zone <id>; reach <ids\|none>` per placed actor |
+| `seat` | companion | full line for the party and `self`; others get HP, life state, conditions, initiative; only revealed zones, and no zone or reach for an actor in a fogged zone |
+| `fiction` | narrate, audit, chronicle | name, kind, life state, conditions, presence, a `Places:` line and `in <zone name>` for revealed zones only; no digit, no id, no tracker |
 
 Caps (`prompts/common.ts` `CAPS`): `snapshotDm` 2000, `snapshotSeat` 2000, `snapshotFiction` 800.
 The schema-maximum seed (6 party, 12 monsters, 20 NPCs) fits every view uncompressed. Over the

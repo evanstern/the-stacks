@@ -17,10 +17,10 @@ import {
 const examples = engineExamples();
 
 describe("catalog shape", () => {
-  it("has 19 session entries and 24 mechanics entries", () => {
-    expect(SESSION_EVENT_TYPES).toHaveLength(19);
+  it("has 20 session entries and 24 mechanics entries", () => {
+    expect(SESSION_EVENT_TYPES).toHaveLength(20);
     expect(MECHANICS_EVENT_TYPES).toHaveLength(24);
-    expect(catalog).toHaveLength(43);
+    expect(catalog).toHaveLength(44);
   });
 
   it("catalogues the five gate types at version 1 with their kinds and visibility", () => {
@@ -253,7 +253,12 @@ describe("AC #6: reason, before and after are required", () => {
   for (const entry of catalog.filter(
     (e) => e.kind === "state-change" && !MECHANICS_EVENT_TYPES.includes(e.type),
   )) {
-    for (const key of ["reason", "before", "after"]) {
+    // zone.revealed (spec 100) is a state change with no before/after: it carries a map delta.
+    const keys =
+      entry.type === "zone.revealed"
+        ? ["reason"]
+        : ["reason", "before", "after"];
+    for (const key of keys) {
       it(`${entry.type} fails without ${key}`, () => {
         expect(
           entry.schema.safeParse(sessionPayloads[entry.type]).success,

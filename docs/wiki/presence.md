@@ -14,7 +14,7 @@ sources:
   - apps/server/src/dm/nodes/assemble.ts
   - packages/session-model/src/events/presence.ts
   - apps/web/app/play/presence.ts
-verified_against: 6ae46ed20335a69754372878a551bd8ea3ceb1da
+verified_against: bb1a7c07dd75ce2bb9653424b0adb654209de425
 ---
 
 # Presence
@@ -101,3 +101,5 @@ of the frozen [[ws-protocol]], amended once by decision-0024.
 
 Presence is per process. With more than one server process each tracker sees only its own
 connections; TASK-0136 carries that revisit. A table with no humans records `present: []`.
+
+Spec 100: `planProposal` also runs the fog rule over a `scene-presence` plan. Its engine `initiative.*` rows name no zone, so the fog rule leaves them unchanged ([[session-model]]).

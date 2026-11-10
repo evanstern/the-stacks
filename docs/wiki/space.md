@@ -44,6 +44,10 @@ Speed budget: `effectiveSpeed` is 0 under grappled, paralyzed, petrified, restra
 `provokers(state, moverId, toZoneId)` lists who may take an opportunity attack when a mover leaves: conscious, able, same origin zone, Reaction unspent, with a non-ranged attack, in initiative order; none after a disengage. Only the origin zone provokes. The engine knows no sides, so callers filter by hostility.
 `spaceViewOf(state)` (`src/space.ts`) is the one place the engine builds a `SpaceView`. `attack.roll` with an attack entry uses it for band checks ([[dnd5e-engine-reactions]]).
 
+## Fog (spec 100)
+
+Fog, `zone.revealed`, the per-viewer `spatial` projection, `spatialFor`, `reachOf` and `targetStatus` are built in [[zone-fog]] on top of `SpaceView`.
+
 ## Boundary
 
 Space knows no combatants, speed, turns or dice. The engine owns the commands (`space.define`, `combatant.place`, `move`, `movement.action`), the speed budget, opportunity-attack `provokers` and the band checks on attacks ([[dnd5e-engine]], [[dnd5e-engine-reactions]]). Grid mode is not built; band distances and origin-zone-only provocation are zone-mode simplifications marked `ponytail:` in code.

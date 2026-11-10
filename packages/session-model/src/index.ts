@@ -56,6 +56,8 @@ export {
   ScenePresenceChangedV1,
   ScenePresenceSchema,
 } from "./events/scene-presence.js";
+export type { ZoneRevealed } from "./events/space.js";
+export { ZoneRevealedV1 } from "./events/space.js";
 export type { TableMode } from "./events/table-mode.js";
 export { TableModeChangedV1, TableModeSchema } from "./events/table-mode.js";
 export type { Narration, Talk } from "./events/talk.js";
@@ -64,6 +66,7 @@ export type { Tracker } from "./events/tracker.js";
 export { TrackerChangedV1, TrackerSchema } from "./events/tracker.js";
 export type { CommitDecision } from "./gate/authority.js";
 export { commitAuthority } from "./gate/authority.js";
+export { fogRows, revealRows } from "./gate/fog.js";
 export type { PermissionResult } from "./gate/permissions.js";
 export { checkPermission } from "./gate/permissions.js";
 export type {
@@ -135,6 +138,8 @@ export {
 } from "./ids.js";
 export { applyEvent, emptyProjections, project } from "./projections/apply.js";
 export { findProposal, pendingProposals } from "./projections/proposals.js";
+export type { SpatialView, TargetStatus } from "./projections/spatial.js";
+export { reachOf, spatialFor, targetStatus } from "./projections/spatial.js";
 export type {
   ActionAuthority,
   ActionStatus,

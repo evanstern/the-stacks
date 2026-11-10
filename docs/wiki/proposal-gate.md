@@ -16,7 +16,7 @@ sources:
   - apps/server/src/gate/index.ts
   - apps/server/test/write-boundary.test.ts
   - apps/server/test/helpers/import-graph.ts
-verified_against: 6ae46ed20335a69754372878a551bd8ea3ceb1da
+verified_against: bb1a7c07dd75ce2bb9653424b0adb654209de425
 ---
 
 # Proposal gate
@@ -64,12 +64,14 @@ non-empty and each one's latest stance is `approve` (the declarer defaults to ap
 
 ## The gate API
 
+Fog rule: [[zone-fog]].
+
 `createGate({ db, rng?, newId?, appendSessionEvents?, presence? })` (`rng` is a `() => Rng` factory; `DM_FAKE_SCRIPT` mode passes the script's dice, [[ai-gateway]]) returns `submit(sessionId,
 proposer, proposal)`, `handle(sessionId, proposer, request)`, `recordPresence(sessionId, input)` and
 `onAppended(listener)`. Both entries
 parse with Zod first; a failure is `INVALID_PROPOSAL`, nothing written.
 `GateResult` is `applied` (events, `batchId`), `pending`, `suggested`, `decided` or `{ ok: false, refusal }`. A `GateRefusal` has a `source`
-(`gate`, `engine`, `append`), `code` and `message`. The gate holds no proposal state; each attempt calls `loadProjections`.
+(`gate`, `engine`, `append`), `code` and `message`. The gate holds no proposal state.
 
 **`recordPresence(sessionId, { purpose, actionId? })`** (decision-0024, TASK-0051) appends one
 `presence.recorded` row (`system`, `public`, the sorted present user ids). It is not a proposal, skips the projection load and `expectedLastSeq`, joins the

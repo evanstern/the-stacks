@@ -1,5 +1,5 @@
 import type { Combatant } from "@the-stacks/dnd5e-engine";
-import type { SessionProjections } from "@the-stacks/session-model";
+import { reachOf, type SessionProjections } from "@the-stacks/session-model";
 import type { SceneSeed } from "../seed/schema.js";
 import { nameTerms } from "./aliases.js";
 import {
@@ -173,6 +173,8 @@ export function buildSnapshot(
       ),
       sheet: sheetOf(seed, m.characterId),
       presence: presenceOf(projections, m.characterId),
+      zone: null,
+      reach: [],
     };
   });
 
@@ -202,6 +204,8 @@ export function buildSnapshot(
       ),
       sheet: null,
       presence: presenceOf(projections, npc.id),
+      zone: null,
+      reach: [],
     });
   }
 
@@ -223,6 +227,8 @@ export function buildSnapshot(
       ...stateOf(c, initiativeOf.get(c.id) ?? null),
       sheet: null,
       presence: presenceOf(projections, c.id),
+      zone: null,
+      reach: [],
     });
   }
 
@@ -237,6 +243,21 @@ export function buildSnapshot(
       );
     }
     seen.add(a.id);
+  }
+
+  // Spec 100: zone and reach from the DM projection's spatial view (engine placements).
+  const spatial = projections.spatial;
+  const actorOfCombatant = new Map<string, string>();
+  for (const a of all)
+    if (a.combatantId) actorOfCombatant.set(a.combatantId, a.id);
+  for (const a of all) {
+    if (!a.combatantId) continue;
+    const zone = spatial.placements[a.combatantId];
+    if (zone === undefined) continue;
+    a.zone = zone;
+    a.reach = reachOf(spatial, a.combatantId).map(
+      (id) => actorOfCombatant.get(id) ?? id,
+    );
   }
 
   // Rule 5: party; encounter order; remaining combatant actors by id; seed NPCs with no combatant.
@@ -321,5 +342,21 @@ function stageOf(
       filled: t.filled,
       segments: t.segments,
     })),
+    zones: zonesOf(projections),
   };
+}
+
+/** Spec 100: the engine space's zones, each flagged with whether the players' map holds it. */
+function zonesOf(projections: SessionProjections): SnapshotStage["zones"] {
+  const space = projections.engine.space;
+  if (!space) return null;
+  const onMap = new Set(
+    (projections.spatial.map?.zones ?? []).map((z) => z.id),
+  );
+  return space.zones.map((z) => ({
+    id: z.id,
+    name: z.name,
+    kind: z.kind,
+    revealed: onMap.has(z.id),
+  }));
 }

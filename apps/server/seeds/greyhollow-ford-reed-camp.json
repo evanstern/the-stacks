@@ -74,9 +74,24 @@
       "encounterId": "reed-camp"
     }
   ],
+  "space": {
+    "zones": [
+      {"id": "causeway", "name": "Causeway", "kind": "area", "tags": [], "hidden": false},
+      {"id": "reed-marsh", "name": "Reed marsh", "kind": "area", "tags": [], "hidden": false},
+      {"id": "reed-camp", "name": "Reed camp", "kind": "area", "tags": [], "hidden": true},
+      {"id": "camp-post", "name": "Camp post", "kind": "feature", "tags": [], "hidden": true}
+    ],
+    "edges": [
+      {"from": "causeway", "to": "reed-marsh", "kind": "squeeze", "feet": 60},
+      {"from": "reed-marsh", "to": "reed-camp", "kind": "squeeze", "feet": 30},
+      {"from": "reed-camp", "to": "camp-post", "kind": "open", "feet": 5}
+    ],
+    "start": "causeway"
+  },
   "npcs": [
     {
       "id": "wenna",
+      "zone": "causeway",
       "name": "Wenna Marsh",
       "identity": {
         "role": "ferry keeper",
@@ -110,6 +125,7 @@
     },
     {
       "id": "pell",
+      "zone": "reed-camp",
       "name": "Pell Marsh",
       "identity": {
         "role": "keeper's grandson, captive",
@@ -462,7 +478,8 @@
       ],
       "terrain": "A mud island thirty feet across, ringed by reeds; the fire gives half cover to anyone behind it; off the island the mud is difficult terrain.",
       "trigger": "The party reaches the island, or the lookout spots them on the causeway.",
-      "morale": "When two goblins fall, Snag offers the clapper for safe passage; the rest flee into the reeds if Snag falls."
+      "morale": "When two goblins fall, Snag offers the clapper for safe passage; the rest flee into the reeds if Snag falls.",
+      "zone": "reed-camp"
     }
   ],
   "trackers": [

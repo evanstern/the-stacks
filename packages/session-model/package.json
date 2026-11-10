@@ -22,6 +22,7 @@
   },
   "dependencies": {
     "@the-stacks/dnd5e-engine": "workspace:*",
+    "@the-stacks/space": "workspace:*",
     "zod": "^4.6.5"
   },
   "devDependencies": {

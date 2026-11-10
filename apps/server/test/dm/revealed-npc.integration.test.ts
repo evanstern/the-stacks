@@ -68,8 +68,9 @@ async function run(variant: Variant) {
       encounterId: "reed-camp",
       reason: "The goblins spring up as the party reaches the island.",
     };
-    // Initiative: party first (tamsin, kestrel), then the four goblins; then the attack.
-    dice = [s.dice[0], 18, 17, 2, 3, 4, 5, ...s.dice.slice(1)];
+    // Initiative: party first (tamsin, kestrel), then the four goblins; then the attack
+    // (two d20s: spec 099 gives a ranged attack disadvantage with a foe in the zone).
+    dice = [s.dice[0], 18, 17, 2, 3, 4, 5, s.dice[1], ...s.dice.slice(1)];
   }
   const w: World = await createWorld({
     dice,

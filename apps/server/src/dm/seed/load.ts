@@ -181,6 +181,35 @@ export function crossCheckSeed(seed: SceneSeed): string[] {
       }
     }
   }
+  const zones = new Map(seed.space?.zones.map((z) => [z.id, z]) ?? []);
+  if (seed.space) {
+    const start = zones.get(seed.space.start);
+    if (!start) {
+      issues.push(`space start "${seed.space.start}" is not a zone`);
+    } else if (start.hidden) {
+      issues.push(`space start "${start.id}" is hidden`);
+    } else if (start.kind === "feature") {
+      issues.push(`space start "${start.id}" is a feature zone`);
+    }
+  }
+  const zoneRefs: [string, string | undefined][] = [
+    ...seed.npcs.map((n): [string, string | undefined] => [
+      `npc "${n.id}"`,
+      n.zone,
+    ]),
+    ...seed.encounters.map((e): [string, string | undefined] => [
+      `encounter "${e.id}"`,
+      e.zone,
+    ]),
+  ];
+  for (const [label, zone] of zoneRefs) {
+    if (zone === undefined) continue;
+    if (!seed.space) {
+      issues.push(`${label} names zone "${zone}" but the seed has no space`);
+    } else if (!zones.has(zone)) {
+      issues.push(`${label} names unknown zone "${zone}"`);
+    }
+  }
   const humans = seed.characters.filter((c) => c.seat === "human").length;
   if (humans < 1) {
     issues.push(

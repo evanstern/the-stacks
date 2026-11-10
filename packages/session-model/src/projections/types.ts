@@ -19,6 +19,9 @@ import type {
 } from "../gate/proposals.js";
 import type { DmSeat } from "../gate/seat.js";
 import type { Viewer } from "../visibility.js";
+import type { SpatialView } from "./spatial.js";
+
+export type { SpatialView };
 
 export type ActionAuthority = "declarer" | "active-player" | "group" | "dm";
 export type Stance = "comment" | "approve" | "object";
@@ -255,6 +258,8 @@ export interface SessionProjections {
   proposals: ProposalView[];
   /** The latest presence marker; null until one is folded (decision-0024). */
   presence: PresenceView | null;
+  /** This viewer's space, the players' map and placements (spec 100). */
+  spatial: SpatialView;
 
   /** Highest seq folded for this viewer; 0 initially. */
   throughSeq: number;

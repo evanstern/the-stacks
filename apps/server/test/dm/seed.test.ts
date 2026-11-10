@@ -87,6 +87,88 @@ describe("seed character class and level (spec 072)", () => {
   });
 });
 
+describe("seed space (spec 100, FR-020 and FR-021)", () => {
+  it("every shipped seed declares a valid space with its NPC and encounter zones", () => {
+    const seeds = listSeeds();
+    expect(seeds.length).toBeGreaterThanOrEqual(4);
+    for (const seed of seeds) {
+      expect(seed.space, seed.seedId).toBeDefined();
+      const zones = new Map(seed.space?.zones.map((z) => [z.id, z]));
+      const start = zones.get(seed.space?.start as string);
+      expect(start?.hidden).toBe(false);
+      expect(start?.kind).not.toBe("feature");
+      for (const e of seed.encounters)
+        expect(zones.has(e.zone as string)).toBe(true);
+      for (const n of seed.npcs) {
+        if (n.zone) expect(zones.has(n.zone)).toBe(true);
+      }
+      expect(
+        seed.space?.zones.filter((z) => z.kind === "feature").map((z) => z.id),
+      ).toContain("camp-post");
+    }
+    expect(loadSeed("greyhollow-ford").space?.zones.map((z) => z.id)).toContain(
+      "ferry-house-door",
+    );
+  });
+
+  it("refuses a start that is unknown, hidden or a feature", () => {
+    expect(
+      issuesFor((s) => {
+        s.space.start = "nowhere";
+      }).join(" "),
+    ).toContain('space start "nowhere" is not a zone');
+    expect(
+      issuesFor((s) => {
+        s.space.start = "loft";
+      }).join(" "),
+    ).toContain('space start "loft" is hidden');
+    expect(
+      issuesFor((s) => {
+        s.space.start = "ferry-house-door";
+      }).join(" "),
+    ).toContain('"ferry-house-door" is a feature zone');
+  });
+
+  it("refuses an NPC or encounter zone outside the space", () => {
+    const issues = issuesFor((s) => {
+      s.npcs[0].zone = "nowhere";
+      s.encounters[0].zone = "elsewhere";
+    }).join(" ");
+    expect(issues).toContain('npc "wenna" names unknown zone "nowhere"');
+    expect(issues).toContain(
+      'encounter "reed-camp" names unknown zone "elsewhere"',
+    );
+  });
+
+  it("refuses zone fields in a seed with no space", () => {
+    const issues = issuesFor((s) => {
+      delete s.space;
+    }).join(" ");
+    expect(issues).toContain(
+      'npc "wenna" names zone "loft" but the seed has no space',
+    );
+    expect(issues).toContain(
+      'encounter "reed-camp" names zone "reed-camp" but the seed has no space',
+    );
+  });
+
+  it("a seed without space or zones still loads", () => {
+    const seed = raw();
+    delete seed.space;
+    for (const n of seed.npcs) delete n.zone;
+    for (const e of seed.encounters) delete e.zone;
+    expect(parseSeed(seed).space).toBeUndefined();
+  });
+
+  it("refuses a space that fails SpaceSchema", () => {
+    expect(
+      issuesFor((s) => {
+        s.space.edges.push({ ...s.space.edges[0] });
+      }).join(" "),
+    ).toContain("duplicate edge");
+  });
+});
+
 describe("scene seed (AC #13)", () => {
   it("loads the shipped seed", () => {
     const seed = loadSeed("greyhollow-ford");

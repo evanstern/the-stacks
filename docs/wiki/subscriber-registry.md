@@ -4,7 +4,7 @@ description: Connection bookkeeping for the WebSocket gateway — one session pe
 kind: component
 sources:
   - apps/server/src/ws/registry.ts
-verified_against: a10626b197d0bf98fc8949c4d8f2a2b7eeb9b10c
+verified_against: f1676535f62847ef4ac0571639c6ca60b993bb94
 ---
 
 # Subscriber registry
@@ -20,6 +20,8 @@ upgrade), `wantsPresence` (the latest `subscribe` carried `presence: true`) and 
 heartbeat flag [[websocket-gateway]] clears on ping and sets on pong).
 
 ## How it works
+
+Spatial secrecy (spec 100, [[zone-fog]]) is row visibility: the gate writes a row that names a fogged zone as `dm`, so `canSee` never delivers it to a player connection and the registry needs no zone logic.
 
 **Session isolation is structural, not filtered.** A connection subscribes to at most one
 session at a time; calling `subscribe` again first calls `unsubscribe`, which removes it from

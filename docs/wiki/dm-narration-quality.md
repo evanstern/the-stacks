@@ -17,7 +17,7 @@ sources:
   - apps/server/src/dm/audit-words.ts
   - specs/034-narration-quality/contracts/audit-criteria.md
 size_budget_exempt: TASK-0113 adds the agency checks and reflex facts to the one narration-and-audit pipeline; it does not split without a TASK of its own (sibling notes dm-runtime and playtest-harness carry the same exemption)
-verified_against: 803c548b982da9c5a080e8b8cd5832e39521ef40
+verified_against: 34e13e12b755f1537931bba926e15116761ce4ca
 ---
 
 # DM narration quality
@@ -108,3 +108,5 @@ flag.
 snapshot branch added the `seat` state view; v4 added the react trigger and the withdraw and
 revise decisions; companion v5 is both together; companion v6 (TASK-0189) adds the "Post that triggered you" section naming the speaking PC and whom the post addressed; see [[dm-runtime]]). The snapshot bumped narrate, audit,
 director, interpret, adjudicate and chronicle too. Narrate v6 (TASK-0182, specs/064) adds the rule "A not-yet-attempted step has not happened. Stop before it; never show it start."; `FactAction.followUps` render as `not yet attempted: <text>` lines, and `withholdRefusedInputs` drops a refused follow-up. Interpret v5 and director v4 came in the same task. Narrate v7 and audit v4 (TASK-0193, specs/071) add the `Turn:` and `Next:` lines (from `NarrationFacts.turn`, set only in turn mode) and the rule that only the Turn actor acts in the beat; audit definition 6 treats showing the Next actor act as `invented-mechanics` (v18/v12 extend it to the Off turn characters). A monster turn also renders `planned:`, `held:` and a no-rules-effect line from `FactNpcTurn.plan`. The presence effect bumped interpret and adjudicate to `dm.interpret-v4` and `dm.adjudicate-v4`. TASK-0208 (spec 079): `FactRoll.reaction` marks an opportunity attack (from `attack.resolved.reaction`) and narrate renders it as `reaction: <name> strikes at <target> as they pull away`; `fallback.ts` `rollSentences` names the roller, not the actor, for such a roll; the audit's opposite-outcome check reads only the character's own rolls (`name` equals `characterName`); `NarrationFacts.openFollowUps` (from `follow-ups.ts`, a followUp of an earlier beat not yet attempted) renders as `Earlier beat, not yet attempted:` and `withholdRefusedInputs` drops a refused one.
+
+Spec 100: the `fiction` snapshot view lists revealed zones as `Places:` and `in <zone name>` per actor, never a fogged zone or an id ([[actor-snapshot]]).

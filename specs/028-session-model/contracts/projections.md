@@ -259,3 +259,8 @@ export type LedgerRow =
 transcript gains the `action.suggested` entry; `ActionView` gains `suggestionId`; `ActionStatus`
 is unchanged, but `action.withdrawn` also closes a `committed` action. Detail:
 `specs/029-proposal-gate/contracts/proposal-events.md`, "Suggestions and the read marker".
+
+**Amendment (TASK-0271).** Amended 2026-11-09 (operator ruling 2026-11-09, spec 100 OQ-1). `SessionProjections` gains `spatial: SpatialView`
+(the viewer's space, the players' map, and placements), folded from `zone.revealed` and the
+spatial engine rows. The ledger gains one `change` row per `zone.revealed`. Detail:
+`specs/100-spatial-events/contracts/spatial-projection.md`.

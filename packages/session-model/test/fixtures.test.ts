@@ -51,7 +51,7 @@ function foldUpTo(f: SessionFixture, seqExclusive: number): SessionProjections {
 const cleanDiagnostics: Diagnostics = emptyProjections(dm).diagnostics;
 
 describe("fixture identity (guarantee 2)", () => {
-  it("has the nine contract fixtures with unique names and session ids", () => {
+  it("has the ten contract fixtures with unique names and session ids", () => {
     expect(fixtures.map((f) => f.name)).toEqual([
       "talk-only",
       "free-mode-action",
@@ -62,9 +62,10 @@ describe("fixture identity (guarantee 2)", () => {
       "commit-authority",
       "group-signoff",
       "turn-floor",
+      "spatial-fog",
     ]);
-    expect(new Set(fixtures.map((f) => f.name)).size).toBe(9);
-    expect(new Set(fixtures.map((f) => f.sessionId)).size).toBe(9);
+    expect(new Set(fixtures.map((f) => f.name)).size).toBe(10);
+    expect(new Set(fixtures.map((f) => f.sessionId)).size).toBe(10);
     for (const f of fixtures) {
       expect(f.name).toMatch(/^[a-z]+(-[a-z]+)*$/);
       expect(f.description.length).toBeGreaterThan(40);

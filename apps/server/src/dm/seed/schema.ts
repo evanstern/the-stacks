@@ -8,6 +8,7 @@ import {
   RefIdSchema,
   ScenePresenceSchema,
 } from "@the-stacks/session-model";
+import { SpaceSchema, ZoneIdSchema } from "@the-stacks/space";
 import { z } from "zod";
 import { SkillSchema } from "../nodes/schemas.js";
 
@@ -60,6 +61,8 @@ export const SeedNpc = z.object({
   }),
   portrayal: Portrayal,
   hooks: Hooks,
+  /** Spec 100: the zone the NPC joins in when it enters the engine. */
+  zone: ZoneIdSchema.optional(),
 });
 
 export const SeedCharacter = z.object({
@@ -150,6 +153,29 @@ export const SceneSeedSchema = z.object({
     )
     .min(1)
     .max(12),
+  /** Spec 100: zones, edges and the start zone. A seed without it plays as before. */
+  space: z
+    .object({
+      zones: SpaceSchema.shape.zones,
+      edges: SpaceSchema.shape.edges,
+      start: ZoneIdSchema,
+    })
+    .superRefine((sp, ctx) => {
+      const parsed = SpaceSchema.safeParse({
+        zones: sp.zones,
+        edges: sp.edges,
+      });
+      if (!parsed.success) {
+        for (const issue of parsed.error.issues) {
+          ctx.addIssue({
+            code: "custom",
+            path: issue.path,
+            message: issue.message,
+          });
+        }
+      }
+    })
+    .optional(),
   npcs: z.array(SeedNpc).max(20),
   characters: z.array(SeedCharacter).min(1).max(6),
   encounters: z
@@ -170,6 +196,8 @@ export const SceneSeedSchema = z.object({
         terrain: Text(500),
         trigger: Text(300),
         morale: Text(300),
+        /** Spec 100: the zone the fight happens in. */
+        zone: ZoneIdSchema.optional(),
       }),
     )
     .max(6),

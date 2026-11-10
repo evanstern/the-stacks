@@ -1,6 +1,6 @@
 ---
 name: session-model
-description: The session model (packages/session-model) - typed event catalog (talk, lifecycle, state-change, marker, record, proposal), the mechanics envelope, canSee visibility, the pure project() fold into scene/party/encounter/journal/proposal views, the pure gate core and turn rules (see proposal-gate), ten fixtures, and the server seam (appendSessionEvent(s), loadDmSeat, loadProjections). Read before emitting, replaying or rendering session events.
+description: The session model (packages/session-model) - typed event catalog, incl. zone.revealed, the mechanics envelope, canSee visibility, the pure project() fold into scene/party/encounter/journal/proposal views, the gate core and fog rule (see proposal-gate, zone-fog), ten fixtures, and the server seam (appendSessionEvent(s), loadDmSeat, loadProjections). Read before emitting, replaying or rendering session events.
 kind: component
 sources:
   - packages/session-model/package.json
@@ -21,7 +21,7 @@ sources:
   - packages/session-model/src/fixtures/turn-floor.ts
   - apps/server/src/session/events.ts
   - apps/server/src/session/projections.ts
-verified_against: 6ae46ed20335a69754372878a551bd8ea3ceb1da
+verified_against: bb1a7c07dd75ce2bb9653424b0adb654209de425
 ---
 
 # Session model
@@ -40,22 +40,19 @@ Six kinds exist:
 
 | kind | types |
 |---|---|
-| talk | `talk`, `narration` (a public IC `talk` row from a human or companion can queue a DM reaction: [[dm-talk-triggers]]) |
+| talk | `talk`, `narration` |
 | lifecycle | `action.declared`, `action.commented`, `action.committed`, `action.resolved`, `action.withdrawn` |
-| state-change | `table-mode.changed`, `scene.changed`, `scene-presence.changed`, `party.member.changed`, `tracker.changed` (dm-only), `dm.seat.changed`, `gate.policy.changed`, plus engine events that change state |
+| state-change | `table-mode.changed`, `scene.changed`, `scene-presence.changed`, `party.member.changed`, `tracker.changed` (dm-only), `dm.seat.changed`, `gate.policy.changed`, `zone.revealed` ([[zone-fog]]), plus engine events that change state |
 | marker | engine events `dice.rolled`, `attack.resolved`, `check.resolved`, `rest.completed`, and `presence.recorded` |
 | record | `journal.entry.added` |
 | proposal | `proposal.created`, `proposal.approved`, `proposal.rejected` (all `dm-only`) |
 
-`dm.seat.changed` carries the new `DmSeat` (`{kind:"ai"}` or `{kind:"human",userId}`);
-`gate.policy.changed` carries `proposalKind`, `before` and `after` policy. `proposal.created`
-holds `{ proposalId, policy, proposal }`; `proposal.approved` `{ proposalId, batchId }`;
-`proposal.rejected` `{ proposalId, reason }`. `action.withdrawn` (TASK-0114) holds `{ actionId }` and closes the action. `scene-presence.changed` (TASK-0141; `public`, or `dm` for a seed row, [[seed-npc-presence]]) holds `{ actorId, before, after, reason, actionId }`: `reason` is one of `PresenceReasonSchema` (`arrived`, `left`, `fled`, `removed`, `surrendered`, `conceded`) and fixes `after` through `REASON_TO_PRESENCE` (`present`, `absent` or `yielded`). `presence.recorded` (decision-0024; visibility
+`dm.seat.changed` carries the new `DmSeat`; `gate.policy.changed` carries `proposalKind`, `before` and `after`. `action.withdrawn` (TASK-0114) holds `{ actionId }` and closes the action. `scene-presence.changed` (TASK-0141; `public`, or `dm` for a seed row, [[seed-npc-presence]]) holds `{ actorId, before, after, reason, actionId }`: `reason` is one of `PresenceReasonSchema` (`arrived`, `left`, `fled`, `removed`, `surrendered`, `conceded`) and fixes `after` through `REASON_TO_PRESENCE` (`present`, `absent` or `yielded`). `presence.recorded` (decision-0024; visibility
 `any`, written `public` by `actor: "system"`) holds `{ present, purpose, actionId? }`: `present` is
 the sorted, unique user ids of the humans at the table (at most 64), `purpose` is `director`
 (per DM turn), `signoff` (by the gate in a group commit batch) or `floor` (an AI DM floor pass). See [[presence]].
 
-Engine event types derive from `EngineEventSchema`; there is no second list. State-change payloads carry `before` and `after`.
+Engine event types derive from `EngineEventSchema`; there is no second list. State-change payloads carry `before` and `after`, except `zone.revealed`.
 
 ## The mechanics wrapper
 
@@ -78,7 +75,7 @@ delivery uses the same function per connection ([[subscriber-registry]]).
 pure, total and never throws. `SessionProjections` holds: `scene`, `tableMode`, `party`,
 `encounter`, `journal`, `transcript`, `actions` (lifecycle status), `ledger`, DM-only
 `trackers`, `scenePresence` (per actor id: `presence`, `reason`, `seq`; no entry means present), `gate` (`seat`, `policyOverrides`; default AI seat), `proposals` (`ProposalView`s with a status, DM view only; `pendingProposals`, `findProposal`), the folded `engine` state (via the engine's `evolve`, never recomputed rules),
-`presence` (a `PresenceView` of `present`, `purpose`, `actionId` and the marker's `seq`; `null`
+`spatial` (a per-viewer `SpatialView`, [[zone-fog]]), `presence` (a `PresenceView` of `present`, `purpose`, `actionId` and the marker's `seq`; `null`
 until a marker folds, and each marker replaces the last), `throughSeq`, and `diagnostics`. The
 marker adds no transcript entry. Inside `applyEvent`, hidden rows are dropped
 uncounted and do not move `throughSeq`; a row at or below `throughSeq` counts as `outOfOrder`;
@@ -96,7 +93,7 @@ transitions, `before` mismatches, engine rejections and incomplete batches.
 `src/gate/` is the pure decision core: `checkPermission`, `commitAuthority`, `signoffState`
 (the group sign-off rule over public projections; see [[proposal-gate]]), the turn rules in `gate/turn.ts` ([[turn-floor]]), `routeProposal`
 with `DEFAULT_POLICIES` and `effectivePolicy`, and `planProposal` / `mechanicsRows` (turn a
-proposal into catalog rows, or a refusal, using the engine; refuses `CHARACTER_UNABLE` for a downed or absent declarer; the `scene-presence` kind plans the change row plus an engine `combatant.depart`, `combatant.side` `neutral` (a yielding hostile) or `initiative.join` (spec 099). All are exported from the package
+proposal into catalog rows, or a refusal, using the engine; refuses `CHARACTER_UNABLE` for a downed or absent declarer; the `scene-presence` kind plans the change row plus an engine `combatant.depart`, `combatant.side` `neutral` (a yielding hostile) or `initiative.join` (spec 099). `planProposal` also runs the fog rule ([[zone-fog]]). All are exported from the package
 index. Kinds, policies, authority and the server wrapper: [[proposal-gate]].
 
 ## Fixtures contract

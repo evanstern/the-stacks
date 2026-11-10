@@ -12,7 +12,7 @@ sources:
   - apps/server/drizzle/0007_aromatic_baron_zemo.sql
   - apps/server/drizzle/0008_bored_blade.sql
   - apps/server/drizzle/0009_certain_rick_jones.sql
-verified_against: 3510dac3caf968fc747fa0db592482e2b531cd7a
+verified_against: f1676535f62847ef4ac0571639c6ca60b993bb94
 ---
 
 # Migrations

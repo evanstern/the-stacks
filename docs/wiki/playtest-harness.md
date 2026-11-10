@@ -27,7 +27,7 @@ sources:
   - apps/server/seeds/greyhollow-ford-reed-camp.json
   - apps/server/dm-scripts/runbook-a-reed-camp.json
 size_budget_exempt: the note sat within 40 chars of the 8000 budget before TASK-0195; the per-runbook scenario section is a short pointer to docs/design/playtest-scenarios.md, and the in-process harness above is one pipeline that does not split without a TASK of its own
-verified_against: 803c548b982da9c5a080e8b8cd5832e39521ef40
+verified_against: 34e13e12b755f1537931bba926e15116761ce4ca
 ---
 
 # Playtest harness
@@ -155,3 +155,5 @@ plays (TASK-0195, `docs/design/playtest-scenarios.md`). Parts: a seed, an option
 `local-table.mjs seed <creds> <port> <seedId> a,b` seats two humans and `act` declares and
 commits one action. `watch.mjs` prints per turn `truncated=` and, after the spend line, `attempt-1 failures f/n = p%` and `out-max <purpose>=<tokens>` (TASK-0273). Runbook A ships seed `greyhollow-ford-reed-camp` and script
 `runbook-a-reed-camp`; a script consumes its calls in order, so a companion prompt must be scripted.
+
+Spec 100: the `greyhollow-ford-reed-camp` seed now declares a space (start `causeway`, hidden `reed-camp` and `camp-post`) and zone fields ([[seed-npc-presence]]).

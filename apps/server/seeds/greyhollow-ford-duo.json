@@ -70,9 +70,34 @@
       "encounterId": "reed-camp"
     }
   ],
+  "space": {
+    "zones": [
+      {"id": "near-bank", "name": "Near bank", "kind": "area", "tags": [], "hidden": false},
+      {"id": "ferry-house", "name": "Ferry-house", "kind": "room", "tags": [], "hidden": false},
+      {"id": "ferry-house-door", "name": "Ferry-house door", "kind": "feature", "tags": [], "hidden": false},
+      {"id": "loft", "name": "Loft", "kind": "room", "tags": [], "hidden": true},
+      {"id": "ferry", "name": "Ferry", "kind": "area", "tags": [], "hidden": false},
+      {"id": "causeway", "name": "Causeway", "kind": "area", "tags": [], "hidden": false},
+      {"id": "reed-marsh", "name": "Reed marsh", "kind": "area", "tags": [], "hidden": true},
+      {"id": "reed-camp", "name": "Reed camp", "kind": "area", "tags": [], "hidden": true},
+      {"id": "camp-post", "name": "Camp post", "kind": "feature", "tags": [], "hidden": true}
+    ],
+    "edges": [
+      {"from": "near-bank", "to": "ferry-house", "kind": "door", "feet": 10},
+      {"from": "near-bank", "to": "ferry", "kind": "open", "feet": 10},
+      {"from": "near-bank", "to": "causeway", "kind": "open", "feet": 30},
+      {"from": "ferry-house", "to": "ferry-house-door", "kind": "open", "feet": 5},
+      {"from": "ferry-house", "to": "loft", "kind": "climb", "feet": 10},
+      {"from": "causeway", "to": "reed-marsh", "kind": "squeeze", "feet": 60},
+      {"from": "reed-marsh", "to": "reed-camp", "kind": "squeeze", "feet": 30},
+      {"from": "reed-camp", "to": "camp-post", "kind": "open", "feet": 5}
+    ],
+    "start": "near-bank"
+  },
   "npcs": [
     {
       "id": "wenna",
+      "zone": "loft",
       "name": "Wenna Marsh",
       "identity": { "role": "ferry keeper", "srdMonsterId": null, "combatant": null, "aliases": ["the keeper"] },
       "portrayal": {
@@ -89,6 +114,7 @@
     },
     {
       "id": "pell",
+      "zone": "reed-camp",
       "name": "Pell Marsh",
       "identity": { "role": "keeper's grandson, captive", "srdMonsterId": null, "combatant": null, "aliases": ["the boy"] },
       "portrayal": {
@@ -242,7 +268,8 @@
       ],
       "terrain": "A mud island thirty feet across, ringed by reeds; the fire gives half cover to anyone behind it; off the island the mud is difficult terrain.",
       "trigger": "The party reaches the island, or the lookout spots them on the causeway.",
-      "morale": "When two goblins fall, Snag offers the clapper for safe passage; the rest flee into the reeds if Snag falls."
+      "morale": "When two goblins fall, Snag offers the clapper for safe passage; the rest flee into the reeds if Snag falls.",
+      "zone": "reed-camp"
     }
   ],
   "trackers": [
