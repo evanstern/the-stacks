@@ -120,14 +120,14 @@ has ruled OQ-1 for the engine, do T030 in the engine instead (`src/derive.ts`
 
 **Goal**: the corpus describes the merged code and passes the freshness gate.
 
-- [ ] T033 Merge `origin/main` into the branch first.
-- [ ] T034 Review `docs/wiki/dnd5e-engine.md` (sides, `combatant.side`, `combatant.depart`, `stand`, `leaveEvents`/`endEvents`); add `src/sides.ts` to its sources. Review `docs/wiki/dnd5e-engine-derived-rolls.md` for the close-combat rule wherever it landed.
-- [ ] T035 [P] Review `docs/wiki/session-model.md` and `docs/wiki/proposal-gate.md` (presence mapping, new event type, catalog counts).
-- [ ] T036 [P] Review `docs/wiki/dm-runtime.md`, `docs/wiki/dm-turn-jobs.md` and `docs/wiki/seed-npc-presence.md` (encounter phases, resume, eligibility, code-owned end, turn-mode arrivals, director-v12).
-- [ ] T037 [P] Review the planner note TASK-0267 created, if Phase 6 touched the planner.
-- [ ] T038 Update `docs/wiki/INDEX.md` and `docs/wiki/CAPSULES.md` for the changed notes (one TASK-0274 sentence in INDEX).
-- [ ] T039 Re-pin every touched note's `verified_against` honestly; run `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/1.0.1/gates/cli.mjs freshness . docs/wiki` until it prints `OK`.
-- [ ] T040 Run `node ~/.claude/plugins/cache/praxisflux/spec-bridge/1.0.1/gates/cli.mjs check .` and confirm exit 0.
+- [x] T033 Merge `origin/main` into the branch first. (Not run: the dispatch forbids touching origin; the orchestrator merges at PR time. No wiki source changed on main in this window.)
+- [x] T034 Review `docs/wiki/dnd5e-engine.md` (sides moved to the new `dnd5e-engine-sides.md` for the size budget; `combatant.side`, `combatant.depart`, `stand`, `leaveEvents`/`endEvents`); add `src/sides.ts` to its sources. Review `docs/wiki/dnd5e-engine-derived-rolls.md` for the close-combat rule wherever it landed.
+- [x] T035 [P] Review `docs/wiki/session-model.md` and `docs/wiki/proposal-gate.md` (presence mapping, new event type, catalog counts).
+- [x] T036 [P] Review `docs/wiki/dm-runtime.md`, `docs/wiki/dm-turn-jobs.md` and `docs/wiki/seed-npc-presence.md` (encounter phases, resume, eligibility, code-owned end, turn-mode arrivals, director-v12).
+- [x] T037 [P] Review the planner note TASK-0267 created, if Phase 6 touched the planner. (Phase 6 did not run: no planner edit.)
+- [x] T038 Update `docs/wiki/INDEX.md` and `docs/wiki/CAPSULES.md` for the changed notes (one TASK-0274 sentence in INDEX).
+- [x] T039 Re-pin every touched note's `verified_against` honestly; run `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/1.0.1/gates/cli.mjs freshness . docs/wiki` until it prints `OK`.
+- [x] T040 Run `node ~/.claude/plugins/cache/praxisflux/spec-bridge/1.0.1/gates/cli.mjs check .` and confirm exit 0.
 
 **Checkpoint**: freshness `OK`; spec-bridge exit 0; `pnpm ci:check` green.
 

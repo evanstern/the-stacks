@@ -11,7 +11,7 @@ sources:
   - packages/space/src/view.ts
   - packages/dnd5e-engine/src/space.ts
   - packages/dnd5e-engine/src/commands/move.ts
-verified_against: 3898df927538d2f62711db2f69d6ab03d44ed7d9
+verified_against: 6ae46ed20335a69754372878a551bd8ea3ceb1da
 ---
 
 # Space
@@ -39,7 +39,7 @@ verified_against: 3898df927538d2f62711db2f69d6ab03d44ed7d9
 ## Engine movement (spec 094)
 
 Spec 094 (TASK-0270). `EngineState.space` holds the scene's zone graph ([[space]]); a `Combatant` may carry `placement` (`{ zoneId }`) and `speed` (feet, 0..200); `combatant.add` accepts both. A state with a placement but no space, or in an unknown zone, fails `INVALID_STATE`.
-Four commands (`src/commands/move.ts`): `space.define` sets or replaces the space and refuses `ZONE_IN_USE` when a placed combatant's zone is dropped; `combatant.place` sets or clears a placement with no edge or speed check (`SPACE_UNDEFINED`, `ZONE_UNKNOWN`); `move` walks a placed combatant to `toZoneId` along the cheapest open path and refuses `NOT_PLACED`, `MOVE_BLOCKED`, `MOVE_OFF_TURN`, `MOVE_OVER_SPEED` and, in an encounter, `STAT_UNDEFINED` without a speed; `movement.action` records `dash` or `disengage` on the active combatant's turn. Events: `space.defined`, `combatant.placed`, `combatant.moved` (with `path` and `feet`), all `v: 1`.
+Four zone commands (`src/commands/move.ts`; spec 099 adds `stand`, half Speed to rise from prone, and `combatant.depart`, which clears a placement, see [[dnd5e-engine]]): `space.define` sets or replaces the space and refuses `ZONE_IN_USE` when a placed combatant's zone is dropped; `combatant.place` sets or clears a placement with no edge or speed check (`SPACE_UNDEFINED`, `ZONE_UNKNOWN`); `move` walks a placed combatant to `toZoneId` along the cheapest open path and refuses `NOT_PLACED`, `MOVE_BLOCKED`, `MOVE_OFF_TURN`, `MOVE_OVER_SPEED` and, in an encounter, `STAT_UNDEFINED` without a speed; `movement.action` records `dash` or `disengage` on the active combatant's turn. Events: `space.defined`, `combatant.placed`, `combatant.moved` (with `path` and `feet`), all `v: 1`.
 Speed budget: `effectiveSpeed` is 0 under grappled, paralyzed, petrified, restrained or unconscious, else speed minus 5 ft per exhaustion level. A move costs the path feet, doubled when prone. `movementLeft` is speed times (1 + dashes) minus `Encounter.movement.usedFt`; a record for another combatant or round reads as nothing used. Outside an encounter a move has no budget. A move in an encounter also emits `encounter.changed` carrying the new `movement`.
 `provokers(state, moverId, toZoneId)` lists who may take an opportunity attack when a mover leaves: conscious, able, same origin zone, Reaction unspent, with a non-ranged attack, in initiative order; none after a disengage. Only the origin zone provokes. The engine knows no sides, so callers filter by hostility.
 `spaceViewOf(state)` (`src/space.ts`) is the one place the engine builds a `SpaceView`. `attack.roll` with an attack entry uses it for band checks ([[dnd5e-engine-reactions]]).

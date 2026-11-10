@@ -1,6 +1,6 @@
 ---
 name: dnd5e-engine
-description: The pure 5e rules engine package (packages/dnd5e-engine, TASK-0042) - execute(state, command, rng) returns events or a refusal, seeded/scripted RNG, the roll ledger, refuse-before-draw, the no-I/O boundary rule, and the R8 ruling that the engine owns attack/save/resistance/crit arithmetic. Read before touching engine commands, dice, or state.
+description: The pure 5e rules engine package (packages/dnd5e-engine, TASK-0042) - execute(state, command, rng) returns events or a refusal, seeded/scripted RNG, the roll ledger, refuse-before-draw, the no-I/O boundary rule, the R8 ruling that the engine owns attack/save/resistance/crit arithmetic, and sides with `combatant.depart`, `stand` and the close-combat rule (spec 099). Read before touching engine commands, dice, or state.
 kind: concept
 sources:
   - packages/dnd5e-engine/README.md
@@ -20,7 +20,7 @@ sources:
   - packages/dnd5e-engine/test/purity.test.ts
   - packages/dnd5e-engine/test/coverage.test.ts
   - specs/026-dnd5e-engine/spec.md
-verified_against: eda321081cbdee5318684984fac5f32ae90dae1f
+verified_against: 6ae46ed20335a69754372878a551bd8ea3ceb1da
 ---
 
 # 5e engine
@@ -41,7 +41,7 @@ It validates `state` against `EngineStateSchema` (refusal `INVALID_STATE`), then
 against `EngineCommandSchema` (`INVALID_COMMAND`), then dispatches by `command.type` through a
 handler map (`roll`, `combatant.add/remove`, `damage.apply`, `healing.apply`, `temp-hp.grant`,
 `death-save.roll`, `stabilize`, `attack.roll`, `check.roll`, `condition.apply/remove`,
-`exhaustion.adjust`, `initiative.roll/join/leave`, `turn.advance`, `encounter.end`,
+`exhaustion.adjust`, `initiative.roll/join/leave`, `turn.advance`, `encounter.end`, the spec 099 trio,
 `rest.short/long`, `spell-slot.expend/restore`, `spell.cast`, `help.grant`, and the four zone-mode commands below). Each handler lives in `src/commands/`.
 `evolve` applies one event; `replay(events, state)`
 folds many. Replaying all events from `emptyState()` reproduces state.
@@ -55,7 +55,11 @@ transition, as in `turn.advance`: the leaver's turn-end conditions expire, dead 
 skipped, the next live entry becomes active (wrapping to index 0 and a new round), and its
 turn-start conditions expire. A leaver before the active entry shifts `turnIndex` down by one.
 The command emits `encounter.changed` and draws no dice. A leaver's id is removed from
-`reactionsSpent` (below) in the same event.
+`reactionsSpent` (below) in the same event. Its body is `leaveEvents` and `encounter.end`'s is `endEvents` (`src/commands/encounter.ts`).
+
+## Sides, depart and stand (spec 099, TASK-0274)
+
+Optional combatant `side`, `combatant.side`, `combatant.depart`, `stand`, four selectors and the engine close-combat rule: [[dnd5e-engine-sides]].
 
 ## Space and movement
 
