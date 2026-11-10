@@ -35,7 +35,10 @@ Spec: specs/099-encounter-state
 - [ ] #4 The planner applies disadvantage to a ranged attack made while a hostile is in the attacker's zone (spec 094 OQ-3; the engine knows no sides).
 - [ ] #5 Standing from prone costs half the actor's speed, with an engine test (spec 094 OQ-4).
 - [ ] #6 Phase 1: Engine sides and selectors (US5 engine half, foundation for US2–US4) (specs/099-encounter-state tasks.md)
+- [ ] #7 Phase 2: Engine depart and stand (US2 engine half, US6, AC #5) (specs/099-encounter-state tasks.md)
 <!-- AC:END -->
+
+
 
 
 
