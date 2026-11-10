@@ -27,6 +27,20 @@ Source: docs/design/replan-2026-11/board-rework-map.md (N-06).
 Spec: specs/100-spatial-events
 <!-- SECTION:DESCRIPTION:END -->
 
+## Definition of Done
+<!-- DOD:BEGIN -->
+- [ ] #1 All tests and checks run green
+- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
+<!-- DOD:END -->
+
+## Acceptance Criteria
+<!-- AC:BEGIN -->
+- [ ] #1 No row a player receives and no player projection holds an unrevealed zone or a placement in one.
+- [ ] #2 A player's folded spatial projection equals the one derived from the DM projection for the same log.
+- [ ] #3 Party moves, arrivals and fog crossings reveal the zones they name with a public zone.revealed in the same write.
+- [ ] #4 The AI context lists each placed combatant's zone and who is in its reach; the seat and fiction views omit unrevealed zones.
+- [ ] #5 Seeds declare zones, and a revealed door or post resolves as an entity target that never enters initiative.
+<!-- AC:END -->
 
 ## Implementation Notes
 
@@ -39,10 +53,6 @@ Claimed 2026-11-08 by the R1 sweep (docs/design/r1-fast-table-runbook.md). Workt
 
 Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=cc/claude-opus-5-5 (spec authoring, grant C1)
 Spec 100 (16ae6147): zone.revealed v1 (gate-written, public), per-zone party fog applied in planProposal, SessionProjections.spatial, spatialFor/reachOf/targetStatus. 5 phases. Proposed 5 replacement AC in spec.md (applied after the operator rules). Orchestrator-settled: OQ-10/OQ-11 runbook footprint fixes. Operator rulings pending: OQ-1 (the fog rule amends the frozen specs/029 gate contract — blocks Phase 2), OQ-2/3/6/7/8 adopt, OQ-4/12/13/5/9 deferrals.
-<!-- SECTION:NOTES:END -->
 
-## Definition of Done
-<!-- DOD:BEGIN -->
-- [ ] #1 All tests and checks run green
-- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
-<!-- DOD:END -->
+AC rewritten per spec 100 (operator approved, 2026-11-09).
+<!-- SECTION:NOTES:END -->
