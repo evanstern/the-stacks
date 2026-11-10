@@ -5,6 +5,7 @@ import {
   type EngineState,
   encounterOver,
   hostilesStanding,
+  meleeFoes,
 } from "../src/index.js";
 import { makeCombatant, run, settle, stateWith } from "./helpers.js";
 
@@ -130,32 +131,75 @@ describe("hostilesStanding and encounterOver", () => {
   });
 });
 
+/** Seed an active encounter holding the given melee pairs (spec 101). */
+function withPairs(state: EngineState, ...pairs: [string, string][]) {
+  return {
+    ...state,
+    encounter: {
+      round: 1,
+      turnIndex: 0,
+      order: Object.keys(state.combatants).map((combatantId) => ({
+        combatantId,
+        total: 10,
+        bonus: 0,
+      })),
+      melee: pairs,
+    },
+  } as EngineState;
+}
+
+describe("meleeFoes", () => {
+  const s = withPairs(
+    placed([
+      [c("k", "party"), "a"],
+      [c("g", "hostile"), "a"],
+      [c("h", "hostile"), "a"],
+    ]),
+    ["g", "k"],
+    ["h", "k"],
+  );
+  it("lists every partner, either side of the pair", () => {
+    expect(meleeFoes(s, "k")).toEqual(["g", "h"]);
+    expect(meleeFoes(s, "g")).toEqual(["k"]);
+    expect(meleeFoes(s, "nobody")).toEqual([]);
+  });
+  it("is empty with no pairs or no encounter", () => {
+    expect(meleeFoes(withPairs(s), "k")).toEqual([]);
+    expect(meleeFoes({ ...s, encounter: null }, "k")).toEqual([]);
+  });
+});
+
 describe("closeCombatFoes", () => {
   const base = (over = {}) =>
-    placed([
-      [c("k", "party", over), "a"],
-      [c("g", "hostile"), "a"],
-    ]);
-  it("lists an opposed conscious combatant in the attacker's zone", () => {
+    withPairs(
+      placed([
+        [c("k", "party", over), "a"],
+        [c("g", "hostile"), "a"],
+      ]),
+      ["g", "k"],
+    );
+  it("lists an opposed conscious combatant paired with the attacker", () => {
     expect(closeCombatFoes(base(), "k")).toEqual(["g"]);
   });
-  it("is empty for another zone, neutral, unable, blinded", () => {
-    const other = placed([
+  it("is empty for a same-zone foe without a pair (spec 101)", () => {
+    const s = placed([
       [c("k", "party"), "a"],
-      [c("g", "hostile"), "b"],
+      [c("g", "hostile"), "a"],
     ]);
-    expect(closeCombatFoes(other, "k")).toEqual([]);
+    expect(closeCombatFoes(withPairs(s), "k")).toEqual([]);
+  });
+  it("is empty for a paired neutral, unable or blinded foe", () => {
     const neutral = placed([
       [c("k", "party"), "a"],
       [c("g", "neutral"), "a"],
     ]);
-    expect(closeCombatFoes(neutral, "k")).toEqual([]);
+    expect(closeCombatFoes(withPairs(neutral, ["g", "k"]), "k")).toEqual([]);
     for (const k of ["incapacitated", "blinded", "paralyzed"]) {
       const s = placed([
         [c("k", "party"), "a"],
         [c("g", "hostile", { conditions: [cond(k)] }), "a"],
       ]);
-      expect(closeCombatFoes(s, "k")).toEqual([]);
+      expect(closeCombatFoes(withPairs(s, ["g", "k"]), "k")).toEqual([]);
     }
     const down = placed([
       [c("k", "party"), "a"],
@@ -167,7 +211,7 @@ describe("closeCombatFoes", () => {
         "a",
       ],
     ]);
-    expect(closeCombatFoes(down, "k")).toEqual([]);
+    expect(closeCombatFoes(withPairs(down, ["g", "k"]), "k")).toEqual([]);
   });
   it("is empty for an invisible, sideless or unplaced attacker", () => {
     expect(
@@ -177,13 +221,12 @@ describe("closeCombatFoes", () => {
       [c("k"), "a"],
       [c("g", "hostile"), "a"],
     ]);
-    expect(closeCombatFoes(sideless, "k")).toEqual([]);
+    expect(closeCombatFoes(withPairs(sideless, ["g", "k"]), "k")).toEqual([]);
     const s = stateWith(c("k", "party"), c("g", "hostile"));
-    expect(closeCombatFoes(s, "k")).toEqual([]);
+    expect(closeCombatFoes(withPairs(s, ["g", "k"]), "k")).toEqual([]);
     expect(closeCombatFoes(base(), "nobody")).toEqual([]);
   });
-  it("needs no active encounter", () => {
-    expect(base().encounter).toBeNull();
-    expect(closeCombatFoes(base(), "k")).toEqual(["g"]);
+  it("needs an active encounter", () => {
+    expect(closeCombatFoes({ ...base(), encounter: null }, "k")).toEqual([]);
   });
 });

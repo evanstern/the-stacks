@@ -357,8 +357,17 @@ export const EncounterSchema = z
         disengaged: z.boolean(),
       })
       .optional(),
+    // Spec 101: hostile pairs engaged in melee (the operator's "engaged"). Sorted ids, unique.
+    melee: z.array(z.tuple([CombatantIdSchema, CombatantIdSchema])).optional(),
   })
   .superRefine((e, ctx) => {
+    if (e.melee?.some(([a, b]) => a === b)) {
+      ctx.addIssue({
+        code: "custom",
+        message: "a melee pair needs two distinct ids",
+        path: ["melee"],
+      });
+    }
     if (e.turnIndex >= e.order.length) {
       ctx.addIssue({
         code: "custom",

@@ -4,6 +4,7 @@ import type { Rng } from "../rng.js";
 import type { EngineEvent } from "../schema/events.js";
 import { type RefusalResult, refuse } from "../schema/refusals.js";
 import type { Encounter, EngineState, ExpiryPoint } from "../schema/state.js";
+import { withoutMelee } from "../sides.js";
 
 type Entry = Encounter["order"][number];
 
@@ -290,6 +291,7 @@ export function leaveEvents(
       turnIndex,
       order,
       ...withoutSpent(enc, id, incomingId),
+      ...withoutMelee(enc, id),
     },
   });
   if (incomingId !== null) {

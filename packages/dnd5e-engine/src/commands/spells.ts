@@ -20,7 +20,7 @@ import type {
   EngineState,
   ExpiryPoint,
 } from "../schema/state.js";
-import { closeCombatSources } from "../sides.js";
+import { closeCombatSources, meleePairFor, withMeleePair } from "../sides.js";
 import { SPELLS, spellDice } from "../spells.js";
 import { actorUnable, bandOf, checkNamed, usedAssists } from "./attacks.js";
 import { appliedEvent } from "./conditions.js";
@@ -176,6 +176,25 @@ export const handleSpellCast: Handler<"spell.cast"> = (state, command, rng) => {
       spellId: spell.id,
     });
     events.push(...usedAssists(target.id, applied, reason));
+    // Spec 101: a resolved melee spell attack in one zone forms a melee pair.
+    const enc = state.encounter;
+    if (
+      enc &&
+      d.range === "melee" &&
+      meleePairFor(state, caster.id, target.id)
+    ) {
+      const paired = withMeleePair(enc, caster.id, target.id);
+      if (paired) {
+        events.push({
+          type: "encounter.changed",
+          v: 1,
+          reason,
+          combatantId: caster.id,
+          before: enc,
+          after: paired,
+        });
+      }
+    }
     if (outcome === "miss") return { ok: true, events };
     const refusal = fail(
       damageEvents(

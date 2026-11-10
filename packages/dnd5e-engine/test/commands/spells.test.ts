@@ -462,12 +462,31 @@ describe("spell attacks in close combat (spec 099)", () => {
     }
     return st;
   };
-  it("a ranged spell attack rolls with disadvantage when a hostile is in the caster's zone", () => {
-    const out = run(build(true, "a"), cast("fire-bolt"), [15, 3, 6]);
+  // Spec 101: seed an active encounter holding the caster-foe melee pair.
+  const paired = (st: ReturnType<typeof build>) => ({
+    ...st,
+    encounter: {
+      round: 1,
+      turnIndex: 0,
+      order: ["pc-odo", "m-goblin"].map((combatantId) => ({
+        combatantId,
+        total: 10,
+        bonus: 0,
+      })),
+      melee: [["m-goblin", "pc-odo"]] as [string, string][],
+    },
+  });
+  it("a ranged spell attack rolls with disadvantage when a hostile is in a melee pair with the caster", () => {
+    const out = run(paired(build(true, "a")), cast("fire-bolt"), [15, 3, 6]);
     expect(expectOk(out.result)[0]).toMatchObject({
       mode: "disadvantage",
       natural: 3,
     });
+  });
+  it("does not for a same-zone foe without a melee pair (spec 101)", () => {
+    expect(
+      expectOk(run(build(true, "a"), cast("fire-bolt"), [15, 6]).result)[0],
+    ).toMatchObject({ mode: "normal" });
   });
   it("does not without sides or with the foe in another zone", () => {
     expect(

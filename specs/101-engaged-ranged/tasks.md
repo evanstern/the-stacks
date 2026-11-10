@@ -22,15 +22,15 @@ with `pnpm ci:check` green and one commit led by `TASK-0306`. Phase 2 runs DB su
 
 **Goal**: the engine records melee pairs and the close-combat rule reads them, not zones.
 
-- [ ] T001 [US2] Add optional `melee` (sorted id pairs, distinct ids) to `EncounterSchema` in `packages/dnd5e-engine/src/schema/state.ts` (FR-001).
-- [ ] T002 [US1] In `packages/dnd5e-engine/src/sides.ts`, add `meleeFoes`, `withMeleePair`, `withoutMelee` and `meleePairFor` per plan.md; make `closeCombatFoes` read `meleeFoes` instead of zones and replace its `ponytail:` comment (FR-002, FR-003, FR-007). Export `meleeFoes` from `src/index.ts` (FR-012).
-- [ ] T003 [US2] In `src/commands/attacks.ts` `handleAttackRoll`, add the pair for a melee use; merge with the reaction's `encounter.changed`; emit nothing for an existing pair (FR-004).
-- [ ] T004 [US2] In `src/commands/spells.ts`, add the pair for a `range: "melee"` spell attack (FR-005).
-- [ ] T005 [US3] In `src/commands/move.ts`, drop pairs in `handleMove`'s `encounter.changed` and in `handleCombatantPlace` during an encounter (FR-006). Leave `provokers` unchanged (FR-010).
-- [ ] T006 [US3] In `src/commands/encounter.ts` `leaveEvents`, drop the leaver's pairs (FR-008).
-- [ ] T007 [P] [US1] Write `packages/dnd5e-engine/test/commands/melee.test.ts`: every US1–US3 scenario on the reed-camp fixture, with `scriptedRng`, the asserted mode and the draw count. Cite SRD 5.2.1 `playing-the-game.combat.ranged-attacks.ranged-attacks-in-close-combat` in the describe name.
-- [ ] T008 [P] [US1] Update `test/sides.test.ts` (`meleeFoes`; same zone without a pair is `[]`), the spec 099 close-combat blocks in `test/commands/attacks.test.ts` and `test/commands/spells.test.ts` (seed a pair; add the no-pair case), and any engine test whose exact event list gains the new `encounter.changed`.
-- [ ] T009 [US1] Update the close-combat bullet in `packages/dnd5e-engine/README.md`.
+- [x] T001 [US2] Add optional `melee` (sorted id pairs, distinct ids) to `EncounterSchema` in `packages/dnd5e-engine/src/schema/state.ts` (FR-001).
+- [x] T002 [US1] In `packages/dnd5e-engine/src/sides.ts`, add `meleeFoes`, `withMeleePair`, `withoutMelee` and `meleePairFor` per plan.md; make `closeCombatFoes` read `meleeFoes` instead of zones and replace its `ponytail:` comment (FR-002, FR-003, FR-007). Export `meleeFoes` from `src/index.ts` (FR-012).
+- [x] T003 [US2] In `src/commands/attacks.ts` `handleAttackRoll`, add the pair for a melee use; merge with the reaction's `encounter.changed`; emit nothing for an existing pair (FR-004).
+- [x] T004 [US2] In `src/commands/spells.ts`, add the pair for a `range: "melee"` spell attack (FR-005).
+- [x] T005 [US3] In `src/commands/move.ts`, drop pairs in `handleMove`'s `encounter.changed` and in `handleCombatantPlace` during an encounter (FR-006). Leave `provokers` unchanged (FR-010).
+- [x] T006 [US3] In `src/commands/encounter.ts` `leaveEvents`, drop the leaver's pairs (FR-008).
+- [x] T007 [P] [US1] Write `packages/dnd5e-engine/test/commands/melee.test.ts`: every US1–US3 scenario on the reed-camp fixture, with `scriptedRng`, the asserted mode and the draw count. Cite SRD 5.2.1 `playing-the-game.combat.ranged-attacks.ranged-attacks-in-close-combat` in the describe name.
+- [x] T008 [P] [US1] Update `test/sides.test.ts` (`meleeFoes`; same zone without a pair is `[]`), the spec 099 close-combat blocks in `test/commands/attacks.test.ts` and `test/commands/spells.test.ts` (seed a pair; add the no-pair case), and any engine test whose exact event list gains the new `encounter.changed`.
+- [x] T009 [US1] Update the close-combat bullet in `packages/dnd5e-engine/README.md`.
 
 **Checkpoint**: engine suite and coverage meta-test green; `provokers` tests unchanged; `pnpm ci:check` green.
 
