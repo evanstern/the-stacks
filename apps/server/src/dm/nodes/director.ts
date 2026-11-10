@@ -1,5 +1,10 @@
 import type { SessionProjections } from "@the-stacks/session-model";
-import { encounterRan, unseenMonsters } from "../gates/plan-gate.js";
+import {
+  encounterPhase,
+  joinableMonsters,
+  startableEncounterIds,
+  unseenMonsters,
+} from "../gates/plan-gate.js";
 import { callJson } from "../pipeline/call.js";
 import type { Node } from "../pipeline/context.js";
 import { buildDirectorPrompt, PROMPT_VERSION } from "../prompts/director.js";
@@ -57,16 +62,6 @@ export function offstageNpcIds(
   return seed.npcs
     .filter((n) => projections.scenePresence[n.id]?.presence === "absent")
     .map((n) => n.id);
-}
-
-/** Seed encounters that have not run (spec 088: some monsters may already be combatants). */
-export function runnableEncounterIds(
-  projections: SessionProjections,
-  seed: SceneSeed,
-): string[] {
-  return seed.encounters
-    .filter((e) => !encounterRan(projections, e))
-    .map((e) => e.id);
 }
 
 const TEXT_CAP = 300;
@@ -192,14 +187,19 @@ export function legalizeDirector(
 
   // table mode
   if (model.tableMode.to === "turn") {
-    const runnable = runnableEncounterIds(projections, seed);
+    const startable = startableEncounterIds(projections, seed);
+    const wanted = model.tableMode.encounterId;
+    const named = seed.encounters.find((e) => e.id === wanted);
     if (!free) {
       overrides.push({ decision: "turn", reason: "already in turn mode" });
       out.tableMode = { to: "stay" };
-    } else if (!runnable.includes(model.tableMode.encounterId)) {
+    } else if (!startable.includes(wanted)) {
       overrides.push({
         decision: "turn",
-        reason: "the encounter is not a seed encounter that has yet to run",
+        reason:
+          named && encounterPhase(projections, named) === "ended"
+            ? "no foe of the encounter can fight"
+            : "the encounter is not a seed encounter that has yet to run",
       });
       out.tableMode = { to: "stay" };
     }
@@ -243,8 +243,12 @@ export function legalizeDirector(
 
   // arrivals
   const offstage = new Set(offstageNpcIds(projections, seed));
+  // Spec 099 FR-021: in turn mode, a monster of the running fight may join.
   const unseen = new Set(
-    free ? unseenMonsters(projections, seed).map((m) => m.id) : [],
+    (free
+      ? unseenMonsters(projections, seed)
+      : joinableMonsters(projections, seed)
+    ).map((m) => m.id),
   );
   const monsterIds = new Set(
     seed.encounters.flatMap((e) => e.monsters.map((m) => m.combatantId)),
@@ -262,7 +266,7 @@ export function legalizeDirector(
     overrides.push({
       decision: "arrivals",
       reason:
-        "an arrival named a monster that is not unseen, or the table is in turn mode",
+        "an arrival named a monster that is not unseen, or not joinable to the running fight",
     });
   }
   out.arrivals = arrivals;
@@ -286,10 +290,17 @@ export const director: Node<"director"> = async (ctx) => {
       const m = assembled.projections.party.find((p) => p.characterId === id);
       return `${id} (${m?.name ?? id})`;
     }),
-    runnableEncounterIds: runnableEncounterIds(assembled.projections, ctx.seed),
-    unseenMonsters: unseenMonsters(assembled.projections, ctx.seed)
-      .filter(() => assembled.projections.tableMode.mode === "free")
-      .map((m) => `Monster ${m.id} (${m.name}, encounter ${m.encounterId})`),
+    runnableEncounterIds: startableEncounterIds(
+      assembled.projections,
+      ctx.seed,
+    ),
+    resumeEncounterIds: ctx.seed.encounters
+      .filter((e) => encounterPhase(assembled.projections, e) === "ended")
+      .map((e) => e.id),
+    unseenMonsters: (assembled.projections.tableMode.mode === "free"
+      ? unseenMonsters(assembled.projections, ctx.seed)
+      : joinableMonsters(assembled.projections, ctx.seed)
+    ).map((m) => `Monster ${m.id} (${m.name}, encounter ${m.encounterId})`),
     offstageNpcs: offstageNpcIds(assembled.projections, ctx.seed).map((id) => {
       const n = ctx.seed.npcs.find((x) => x.id === id);
       return `NPC ${id} (${n?.name ?? id}, ${n?.identity.role ?? "npc"})`;

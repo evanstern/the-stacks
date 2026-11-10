@@ -16,7 +16,7 @@ sources:
   - apps/server/src/gate/index.ts
   - apps/server/test/write-boundary.test.ts
   - apps/server/test/helpers/import-graph.ts
-verified_against: 095b85f615387975ce3ae59a3c95aa46ca903b10
+verified_against: 6ae46ed20335a69754372878a551bd8ea3ceb1da
 ---
 
 # Proposal gate
@@ -83,7 +83,7 @@ by two or more humans plans two rows: a `presence.recorded` marker (`purpose: "s
 
 **Floor and stall** (TASK-0050): the `floor` kind and its rules: [[turn-floor]].
 
-**Scene presence.** The `scene-presence` kind (`{ actorId, reason, actionId, visibility }`, TASK-0141; `visibility` `public` by default, or `dm`) is a DM kind with policy `ask`. The planner refuses `INVALID_PROPOSAL` on no change and plans a `scene-presence.changed` row plus an engine `initiative.leave` or `initiative.join` (detail: [[seed-npc-presence]], [[session-model]]). Only `dm/nodes/resolve.ts` builds one.
+**Scene presence.** The `scene-presence` kind (`{ actorId, reason, actionId, visibility }`, TASK-0141; `visibility` `public` by default, or `dm`) is a DM kind with policy `ask`. The planner refuses `INVALID_PROPOSAL` on no change and plans a `scene-presence.changed` row plus an engine `combatant.depart`, `combatant.side` or `initiative.join` (spec 099; [[seed-npc-presence]], [[session-model]]). Only `dm/nodes/resolve.ts` builds one.
 
 **Refuse before write.** Permission, routing, `planProposal` and
 catalog vetting run before any append. `ask`/`suggest` append one `dm` `proposal.created` row after a legality check.

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   activeCombatant,
+  type Combatant,
   type EngineState,
   effectiveSpeed,
   movementLeft,
@@ -360,5 +361,114 @@ describe("spaceViewOf", () => {
     expect(
       spaceViewOf(stateWith(hero({ placement: undefined }))).space,
     ).toBeNull();
+  });
+});
+
+// SRD 5.2.1 condition prone: standing up costs half Speed.
+describe("stand (condition prone, spec 099)", () => {
+  const prone = {
+    instanceId: "c1",
+    condition: "prone" as const,
+    level: null,
+    source: "x",
+    expiresAt: null,
+  };
+  const stand = (combatantId = "hero") => ({
+    type: "stand",
+    combatantId,
+    reason: "gets up",
+  });
+  const proneHero = (o = {}) => hero({ conditions: [prone], ...o });
+
+  it("removes prone and spends half Speed (30 -> 15 ft), drawing no dice", () => {
+    const state = inEncounter(space(), proneHero(), foe());
+    const out = run(state, stand());
+    const events = expectOk(out.result);
+    expect(events[0]).toMatchObject({
+      type: "condition.removed",
+      cause: "command",
+      before: { condition: "prone" },
+    });
+    expect(events[1]).toMatchObject({ type: "encounter.changed" });
+    const next = settle(state, out.result);
+    expect(next.encounter?.movement?.usedFt).toBe(15);
+    expect(movementLeft(next, "hero")).toBe(15);
+    expect(next.combatants.hero?.conditions).toEqual([]);
+    expect(out.counter.draws()).toBe(0);
+  });
+  it("refuses MOVE_OVER_SPEED when 20 ft are spent (15 > 10 left)", () => {
+    const base = inEncounter(space(), hero(), foe());
+    const moved = settle(base, run(base, move("hero", "b")).result);
+    const withProne = {
+      ...moved,
+      combatants: {
+        ...moved.combatants,
+        hero: {
+          ...(moved.combatants.hero as NonNullable<
+            (typeof moved.combatants)[string]
+          >),
+          conditions: [prone],
+        },
+      },
+    };
+    expectRefusedBeforeDraw(run(withProne, stand()), "MOVE_OVER_SPEED");
+  });
+  it("refuses MOVE_OVER_SPEED with speed-zero when grappled", () => {
+    const state = inEncounter(
+      space(),
+      proneHero({
+        conditions: [
+          prone,
+          { ...prone, instanceId: "c2", condition: "grappled" as const },
+        ],
+      }),
+      foe(),
+    );
+    const out = run(state, stand());
+    expectRefusedBeforeDraw(out, "MOVE_OVER_SPEED");
+    expect(out.result.ok === false && out.result.refusal.details).toMatchObject(
+      { reason: "speed-zero" },
+    );
+  });
+  it("rounds down: Speed 25 costs 12 ft", () => {
+    const state = inEncounter(space(), proneHero({ speed: 25 }), foe());
+    expect(
+      settle(state, run(state, stand()).result).encounter?.movement?.usedFt,
+    ).toBe(12);
+  });
+  it("outside an encounter only removes prone", () => {
+    const state = withSpace(space(), proneHero(), foe());
+    const events = expectOk(run(state, stand()).result);
+    expect(events.map((e) => e.type)).toEqual(["condition.removed"]);
+  });
+  it("refuses off turn, not prone, no speed, unknown", () => {
+    const state = inEncounter(space(), proneHero(), foe());
+    expectRefusedBeforeDraw(
+      run(
+        {
+          ...state,
+          combatants: {
+            ...state.combatants,
+            foe: {
+              ...(state.combatants.foe as Combatant),
+              conditions: [prone],
+            },
+          },
+        },
+        stand("foe"),
+      ),
+      "MOVE_OFF_TURN",
+    );
+    expectRefusedBeforeDraw(
+      run(inEncounter(), stand()),
+      "CONDITION_NOT_PRESENT",
+    );
+    const noSpeed = inEncounter(
+      space(),
+      proneHero({ speed: undefined }),
+      foe(),
+    );
+    expectRefusedBeforeDraw(run(noSpeed, stand()), "STAT_UNDEFINED");
+    expectRefusedBeforeDraw(run(state, stand("zz")), "UNKNOWN_COMBATANT");
   });
 });

@@ -128,6 +128,11 @@ export function evolve(state: EngineState, event: EngineEvent): EngineState {
       });
     case "space.defined":
       return { ...state, space: event.after };
+    case "combatant.sided":
+      return update(state, event.combatantId, (c) => ({
+        ...c,
+        side: event.after,
+      }));
     case "combatant.placed":
     case "combatant.moved":
       return update(state, event.combatantId, (c) => {

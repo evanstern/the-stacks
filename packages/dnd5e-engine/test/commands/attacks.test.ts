@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { type AttackEntry, bandOf, SkillSchema } from "../../src/index.js";
+import {
+  type AttackEntry,
+  bandOf,
+  type Combatant,
+  SkillSchema,
+} from "../../src/index.js";
 import {
   expectOk,
   expectRefusal,
@@ -1247,5 +1252,148 @@ describe("attack.roll bands (spec 094)", () => {
       [10],
     );
     expectOk(far.result);
+  });
+});
+
+describe("ranged attacks in close combat (spec 099)", () => {
+  // SRD 5.2.1 playing-the-game.combat.ranged-attacks.ranged-attacks-in-close-combat
+  const zone = (id: string) => ({
+    id,
+    name: id,
+    kind: "room",
+    tags: [],
+    hidden: false,
+  });
+  const space = {
+    zones: ["a", "b"].map(zone),
+    edges: [{ from: "a", to: "b", kind: "open", feet: 20 }],
+  };
+  const entry = (
+    name: string,
+    range: "melee" | "ranged" | "melee-or-ranged",
+  ): AttackEntry => ({
+    name,
+    range,
+    toHit: 5,
+    damage: [],
+    rangeFt: { normal: 80, long: 320 },
+  });
+  const stats = {
+    abilityMods: {},
+    proficiencyBonus: 2,
+    saves: {},
+    skills: {},
+    attacks: [
+      entry("Sword", "melee"),
+      entry("Bow", "ranged"),
+      entry("Either", "melee-or-ranged"),
+    ],
+    spellcastingAbility: null,
+  };
+  const cond = (condition: string) => ({
+    instanceId: `c-${condition}`,
+    condition: condition as Combatant["conditions"][number]["condition"],
+    level: null,
+    source: "t",
+    expiresAt: null,
+  });
+  // atk (party) in a; tgt (hostile) in foeZone; far (hostile) in b.
+  const setup = (sides: boolean, foeZone = "a", foeOver = {}) => {
+    const base = stateWith(
+      makeCombatant({
+        id: "atk",
+        ...(sides ? { side: "party" as const } : {}),
+        stats,
+      }),
+      makeCombatant({
+        id: "tgt",
+        ...(sides ? { side: "hostile" as const } : {}),
+        ...foeOver,
+      }),
+      makeCombatant({
+        id: "far",
+        ...(sides ? { side: "hostile" as const } : {}),
+      }),
+    );
+    let state = settle(
+      base,
+      run(base, { type: "space.define", space, reason: "s" }).result,
+    );
+    for (const [id, z] of [
+      ["atk", "a"],
+      ["tgt", foeZone],
+      ["far", "b"],
+    ] as const) {
+      state = settle(
+        state,
+        run(state, {
+          type: "combatant.place",
+          combatantId: id,
+          zoneId: z,
+          reason: "p",
+        }).result,
+      );
+    }
+    return state;
+  };
+  const swing = (attack: string, targetId = "tgt") => ({
+    type: "attack.roll",
+    attackerId: "atk",
+    targetId,
+    attack,
+    reason: "swing",
+  });
+  const modeOf = (
+    state: Parameters<typeof run>[0],
+    cmd: unknown,
+    faces: number[],
+  ) => expectOk(run(state, cmd, faces).result)[0];
+
+  it("a ranged attack with a hostile in the attacker's zone has disadvantage", () => {
+    expect(modeOf(setup(true), swing("Bow"), [15, 3])).toMatchObject({
+      mode: "disadvantage",
+      natural: 3,
+    });
+  });
+  it("applies to a ranged attack on a target elsewhere while a foe is engaged", () => {
+    expect(modeOf(setup(true), swing("Bow", "far"), [15, 3])).toMatchObject({
+      mode: "disadvantage",
+    });
+  });
+  it("melee does not", () => {
+    expect(modeOf(setup(true), swing("Sword"), [15])).toMatchObject({
+      mode: "normal",
+    });
+  });
+  it("melee-or-ranged against an engaged target is melee", () => {
+    expect(modeOf(setup(true), swing("Either"), [15])).toMatchObject({
+      mode: "normal",
+    });
+  });
+  it("no sides means no rule", () => {
+    expect(modeOf(setup(false), swing("Bow"), [15])).toMatchObject({
+      mode: "normal",
+    });
+  });
+  it("a foe in another zone does not trigger it", () => {
+    expect(modeOf(setup(true, "b"), swing("Bow"), [15])).toMatchObject({
+      mode: "normal",
+    });
+  });
+  it("an incapacitated foe does not trigger it", () => {
+    const st = setup(true, "a", { conditions: [cond("incapacitated")] });
+    expect(modeOf(st, swing("Bow", "far"), [15])).toMatchObject({
+      mode: "normal",
+    });
+  });
+  it("cancels against advantage (stunned far target)", () => {
+    const st = setup(true);
+    st.combatants.far = {
+      ...(st.combatants.far as Combatant),
+      conditions: [cond("stunned")],
+    };
+    expect(modeOf(st, swing("Bow", "far"), [15])).toMatchObject({
+      mode: "normal",
+    });
   });
 });

@@ -11,6 +11,7 @@ import {
   DefenseSetSchema,
   ExpiryPointSchema,
   HitDieSchema,
+  SideSchema,
   SkillSchema,
 } from "./state.js";
 
@@ -81,6 +82,7 @@ const CombatantInit = z.object({
   stats: CombatantStatsSchema.optional(),
   placement: PlacementSchema.optional(),
   speed: z.number().int().min(0).max(200).optional(),
+  side: SideSchema.optional(),
 });
 
 export const EngineCommandSchema = z.discriminatedUnion("type", [
@@ -132,6 +134,13 @@ export const EngineCommandSchema = z.discriminatedUnion("type", [
   z.object({
     type: z.literal("combatant.add"),
     combatant: CombatantInit,
+    reason: Reason,
+  }),
+  z.object({
+    // Spec 099: set a combatant's allegiance.
+    type: z.literal("combatant.side"),
+    combatantId: Id,
+    side: SideSchema,
     reason: Reason,
   }),
   z.object({
@@ -295,6 +304,18 @@ export const EngineCommandSchema = z.discriminatedUnion("type", [
     type: z.literal("move"),
     combatantId: Id,
     toZoneId: ZoneIdSchema,
+    reason: Reason,
+  }),
+  z.object({
+    // Spec 099: leave the order and the zone in one command.
+    type: z.literal("combatant.depart"),
+    combatantId: Id,
+    reason: Reason,
+  }),
+  z.object({
+    // Spec 099: stand from prone for half Speed.
+    type: z.literal("stand"),
+    combatantId: Id,
     reason: Reason,
   }),
   z.object({

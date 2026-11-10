@@ -256,6 +256,9 @@ export const AssistSchema = z.discriminatedUnion("kind", [
   }),
 ]);
 
+export const SideSchema = z.enum(["party", "hostile", "neutral"]);
+export type Side = z.infer<typeof SideSchema>;
+
 export const CombatantSchema = z
   .object({
     id: CombatantIdSchema,
@@ -284,6 +287,8 @@ export const CombatantSchema = z
     // Spec 094: where the combatant stands, and its walking Speed in feet.
     placement: PlacementSchema.optional(),
     speed: z.number().int().min(0).max(200).optional(),
+    // Spec 099: allegiance in a fight. Missing opposes no one.
+    side: SideSchema.optional(),
   })
   .superRefine((c, ctx) => {
     const helpers = (c.assists ?? []).map((a) => a.helperId);

@@ -19,6 +19,10 @@ if (result.ok) state = replay(result.events, state);
 - `combatant.place` sets or clears a placement with no edge or speed check.
 - `move` walks a placed combatant along the cheapest open path. It refuses `MOVE_BLOCKED`, `MOVE_OFF_TURN` and `MOVE_OVER_SPEED`. Outside an encounter it has no speed budget.
 - `movement.action` records `dash` or `disengage` on the active combatant's turn.
+- `stand` removes `prone` and, in an encounter, spends half the actor's Speed (rounded down) on its turn. It refuses `MOVE_OFF_TURN`, `STAT_UNDEFINED` and `MOVE_OVER_SPEED` (Speed 0 gives `details.reason: "speed-zero"`).
+- `combatant.side` sets a combatant's side (`party`, `hostile` or `neutral`) and emits `combatant.sided`. `combatant.add` accepts an optional `side`.
+- `combatant.depart` takes a combatant out of the order (as `initiative.leave`; the encounter ends when no living combatant would remain) and clears its placement.
+- Selectors: `areHostile`, `hostilesStanding`, `encounterOver` and `closeCombatFoes` read sides and placements. A ranged attack roll or spell attack with a hostile in the attacker's zone rolls with disadvantage (`attack.roll` and `spell.cast`); with no sides the rule is off.
 - `seededRng(seed)` serves play. `scriptedRng(faces)` serves tests.
 
 ## Invariants

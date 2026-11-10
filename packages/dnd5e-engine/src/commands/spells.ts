@@ -20,6 +20,7 @@ import type {
   EngineState,
   ExpiryPoint,
 } from "../schema/state.js";
+import { closeCombatSources } from "../sides.js";
 import { SPELLS, spellDice } from "../spells.js";
 import { actorUnable, bandOf, checkNamed, usedAssists } from "./attacks.js";
 import { appliedEvent } from "./conditions.js";
@@ -130,6 +131,7 @@ export const handleSpellCast: Handler<"spell.cast"> = (state, command, rng) => {
     const mode = foldMode("normal", [
       ...attackModeSources(caster, target, { range: d.range } as AttackEntry),
       ...(applied.length ? (["advantage"] as ModeSource[]) : []),
+      ...closeCombatSources(state, caster.id, d.range === "ranged"),
     ]);
     const ac = target.ac;
     if (ac === null) {

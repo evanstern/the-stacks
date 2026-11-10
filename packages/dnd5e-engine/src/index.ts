@@ -70,6 +70,7 @@ export type {
   DefenseSet,
   Encounter,
   EngineState,
+  Side,
   Skill,
 } from "./schema/state.js";
 export {
@@ -85,10 +86,18 @@ export {
   ENGINE_SCHEMA_VERSION,
   EncounterSchema,
   EngineStateSchema,
+  SideSchema,
   SKILL_ABILITY,
   SkillSchema,
 } from "./schema/state.js";
 export { activeCombatant, conditionsOf } from "./selectors.js";
+export {
+  areHostile,
+  closeCombatFoes,
+  closeCombatSources,
+  encounterOver,
+  hostilesStanding,
+} from "./sides.js";
 export { spaceViewOf } from "./space.js";
 export type { SpellMechanics } from "./spells.js";
 export { SPELLS, SpellMechanicsSchema, spellDice } from "./spells.js";

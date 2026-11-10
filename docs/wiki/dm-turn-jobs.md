@@ -20,7 +20,7 @@ sources:
   - apps/server/src/dm/companion.ts
   - apps/server/src/dm/chronicle.ts
 size_budget_exempt: both notes sat within 30 chars of the 8000 budget before TASK-0180; the talk path got its own note (dm-talk-triggers) and only a pointer line lands here; the rest is one pipeline each, not splittable without a TASK of its own
-verified_against: ee5555fef74502e96badd67e43c1b285d964396b
+verified_against: 6ae46ed20335a69754372878a551bd8ea3ceb1da
 ---
 
 # DM turn jobs
@@ -80,7 +80,7 @@ when narration shipped. A failed turn queues nothing. An action awaiting a human
 
 ## Resolve order
 
-Opening moves (the Director's `arrivals` rows log first, a monster arrival as a `combatant.add`, spec 088; then encounter start, where a seed-presence group logs the encounter beat's `arrived` rows, [[seed-npc-presence]]), rulings, actions, NPC, closing moves, turn advance; hold runs only the two Director groups. The TASK-0147 batch gate slots before turn advance. The plan gate runs first (a passing group may carry `pull` ids resolve adds to the scene before its steps, spec 068) and refuses a group naming an unknown or absent combatant or a contradicting step text ([[dm-failure-and-gates]]). A `presence` effect submits a `scene-presence` proposal through the gate. When the active combatant left the order during the turn, `initiative.leave` already handed the turn on, so resolve skips the closing `turn.advance` and still settles (spec 048). On a reclaim, `activeLeaverFromLog` reads the active-at-start combatant from the log. After an encounter start and after each turn advance, `settleTurn` (`nodes/settle.ts`, code only) settles each downed combatant reached: a dying one rolls `death-save.roll`, then `turn.advance` passes it; a stable or unable one passes; a natural 20 revives it and keeps the turn. Contract: `specs/031-dm-runtime/contracts/turn-jobs.md`.
+Opening moves (the Director's `arrivals` rows log first, a monster arrival as a `combatant.add`, spec 088; then encounter start, where a seed-presence group logs the encounter beat's `arrived` rows, [[seed-npc-presence]]; an encounter that already ran is a resume and skips both the monster adds and that group, spec 099), rulings, actions, NPC, closing moves (the Director's `free` decision, then the code-owned end when no foe stands, spec 099), turn advance; hold runs only the two Director groups. The TASK-0147 batch gate slots before turn advance. The plan gate runs first (a passing group may carry `pull` ids resolve adds to the scene before its steps, spec 068) and refuses a group naming an unknown or absent combatant or a contradicting step text ([[dm-failure-and-gates]]). A `presence` effect submits a `scene-presence` proposal through the gate. When the active combatant left the order during the turn, `combatant.depart` (spec 099; it composes `initiative.leave`) already handed the turn on, so resolve skips the closing `turn.advance` and still settles (spec 048). On a reclaim, `activeLeaverFromLog` reads the active-at-start combatant from the log. After an encounter start and after each turn advance, `settleTurn` (`nodes/settle.ts`, code only) settles each downed combatant reached: a dying one rolls `death-save.roll`, then `turn.advance` passes it; a stable or unable one passes; a natural 20 revives it and keeps the turn. Contract: `specs/031-dm-runtime/contracts/turn-jobs.md`.
 
 ## Reclaim idempotence
 

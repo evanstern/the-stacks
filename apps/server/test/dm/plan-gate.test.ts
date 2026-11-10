@@ -9,11 +9,15 @@ import {
   arrivingNpcs,
   askUndeclared,
   checkPlan,
+  eligibleMonsters,
+  encounterPhase,
   encounterRan,
   encounterToStart,
+  joinableMonsters,
   joiningCombatants,
   MANNER_SKILLS,
   otherPlayerQuestion,
+  startableEncounterIds,
 } from "../../src/dm/gates/plan-gate.js";
 import type { Ruling } from "../../src/dm/nodes/adjudicate.js";
 import type { BeatItem } from "../../src/dm/nodes/assemble.js";
@@ -588,6 +592,107 @@ describe("joiningCombatants", () => {
         "player-action",
       ),
     ).toBeUndefined();
+  });
+});
+
+describe("encounter phases and resume (spec 099)", () => {
+  const reed = () => {
+    const e = seed.encounters.find((x) => x.id === "reed-camp");
+    if (!e) throw new Error("fixture lacks reed-camp");
+    return e;
+  };
+  const ids = () => reed().monsters.map((m) => m.combatantId);
+  const proj = (over: {
+    order?: string[];
+    started?: boolean;
+    combatants?: Record<string, Record<string, unknown>>;
+    presence?: Record<string, string>;
+  }) =>
+    ({
+      encounter: over.order
+        ? { order: over.order.map((combatantId) => ({ combatantId })) }
+        : null,
+      ledger: over.started
+        ? [
+            {
+              kind: "change",
+              type: "encounter.started",
+              after: { order: [{ combatantId: ids()[0] }] },
+            },
+          ]
+        : [],
+      scenePresence: Object.fromEntries(
+        Object.entries(over.presence ?? {}).map(([k, v]) => [
+          k,
+          { presence: v },
+        ]),
+      ),
+      engine: { combatants: over.combatants ?? {} },
+    }) as never;
+  const fighter = (o = {}) => ({
+    lifeState: "conscious",
+    side: "hostile",
+    ...o,
+  });
+
+  it("derives pending, active and ended", () => {
+    expect(encounterPhase(proj({}), reed())).toBe("pending");
+    expect(encounterPhase(proj({ order: [ids()[0] as string] }), reed())).toBe(
+      "active",
+    );
+    expect(encounterPhase(proj({ started: true }), reed())).toBe("ended");
+  });
+
+  it("filters eligible monsters: dead, absent, yielded and missing are out; sideless is in", () => {
+    const [a, b, c, d] = ids() as string[];
+    const p = proj({
+      started: true,
+      combatants: {
+        [a as string]: fighter(),
+        [b as string]: fighter({ lifeState: "dead" }),
+        [c as string]: fighter({ side: "neutral" }),
+        [d as string]: fighter({ side: undefined }),
+      },
+      presence: { [d as string]: "absent" },
+    });
+    expect(eligibleMonsters(p, reed())).toEqual([a]);
+    const sideless = proj({
+      started: true,
+      combatants: { [a as string]: fighter({ side: undefined }) },
+    });
+    expect(eligibleMonsters(sideless, reed())).toEqual([a]);
+  });
+
+  it("lists pending encounters and ended ones with an eligible monster as startable", () => {
+    expect(startableEncounterIds(proj({}), seed)).toContain("reed-camp");
+    const none = proj({ started: true });
+    expect(startableEncounterIds(none, seed)).not.toContain("reed-camp");
+    const some = proj({
+      started: true,
+      combatants: { [ids()[0] as string]: fighter() },
+    });
+    expect(startableEncounterIds(some, seed)).toContain("reed-camp");
+    const active = proj({ order: [ids()[0] as string] });
+    expect(startableEncounterIds(active, seed)).not.toContain("reed-camp");
+  });
+
+  it("a resume has no joiners and no arriving NPCs", () => {
+    const ended = proj({ started: true });
+    expect(joiningCombatants(reed(), {}, ended)).toEqual([]);
+    expect(joiningCombatants(reed(), {}, proj({}))).toEqual(ids());
+    expect(arrivingNpcs(seed, reed(), {}, ended)).toEqual([]);
+  });
+
+  it("joinable monsters are those of the active encounter not yet combatants", () => {
+    const [a] = ids() as string[];
+    const active = proj({
+      order: [a as string],
+      combatants: { [a as string]: fighter() },
+    });
+    const joinable = joinableMonsters(active, seed).map((m) => m.id);
+    expect(joinable).not.toContain(a);
+    expect(joinable.length).toBe(ids().length - 1);
+    expect(joinableMonsters(proj({}), seed)).toEqual([]);
   });
 });
 

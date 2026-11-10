@@ -1,6 +1,7 @@
 import {
   type AttackEntry,
   type EngineCommand,
+  encounterOver,
   findAttack,
   firstMeleeAttack,
 } from "@the-stacks/dnd5e-engine";
@@ -24,6 +25,8 @@ import {
   arrivingMonsters,
   arrivingNpcs,
   checkPlan,
+  eligibleMonsters,
+  encounterPhase,
   encounterToStart,
   type PlanVerdict,
   stepActors,
@@ -1008,10 +1011,22 @@ async function arriveOne(
     if (!rec) throw stop("internal", `no SRD monster ${m.srdMonsterId}`);
     await run.mech(
       `director:arrival:${id}`,
-      { type: "combatant.add", combatant: combatantFromSrd(rec, id, m.name) },
+      {
+        type: "combatant.add",
+        combatant: combatantFromSrd(rec, id, m.name, "hostile"),
+      },
       `${m.name ?? rec.name} comes into view`,
       null,
     );
+    // Spec 099 FR-021: a newcomer to a running fight joins the order and rolls alone.
+    if (p.encounter !== null && p.tableMode.mode === "turn") {
+      await run.mech(
+        `director:arrival:${id}:join`,
+        { type: "initiative.join", combatantId: id, mode: "normal" },
+        `${m.name ?? rec.name} joins the fight`,
+        null,
+      );
+    }
     return true;
   }
   await run.submit(`director:arrival:${id}`, "scene-presence", () => ({
@@ -1135,7 +1150,11 @@ async function directorOpening(
         `director:combatant:${init.id}`,
         {
           type: "combatant.add",
-          combatant: { ...init, stats: statsFromCharacter(c, deps.srd) },
+          combatant: {
+            ...init,
+            side: "party",
+            stats: statsFromCharacter(c, deps.srd),
+          },
         },
         `${c.name} joins the scene`,
         null,
@@ -1211,27 +1230,41 @@ async function directorOpening(
   if (tm.to === "turn") {
     const enc = encounterToStart(seed, director, ctx.job.trigger);
     if (enc) {
-      for (const m of enc.monsters) {
-        if (fresh.engine.combatants[m.combatantId]) continue;
-        const rec = deps.srd.getById("monster", m.srdMonsterId);
-        if (!rec) throw stop("internal", `no SRD monster ${m.srdMonsterId}`);
-        await run.mech(
-          `director:combatant:${m.combatantId}`,
-          {
-            type: "combatant.add",
-            combatant: combatantFromSrd(rec, m.combatantId, m.name),
-          },
-          `${m.name ?? rec.name} joins the fight`,
-          null,
+      // Spec 099 FR-017, FR-018: a pending start adds the monsters and runs the
+      // seed's presence group; a resume (ended) does neither.
+      const resume = encounterPhase(fresh, enc) === "ended";
+      if (!resume) {
+        for (const m of enc.monsters) {
+          if (fresh.engine.combatants[m.combatantId]) continue;
+          const rec = deps.srd.getById("monster", m.srdMonsterId);
+          if (!rec) throw stop("internal", `no SRD monster ${m.srdMonsterId}`);
+          await run.mech(
+            `director:combatant:${m.combatantId}`,
+            {
+              type: "combatant.add",
+              combatant: combatantFromSrd(
+                rec,
+                m.combatantId,
+                m.name,
+                "hostile",
+              ),
+            },
+            `${m.name ?? rec.name} joins the fight`,
+            null,
+          );
+        }
+        await seedPresence(
+          run,
+          ctx,
+          fresh,
+          "encounter-start",
+          seed.beats.find((b) => b.encounterId === enc.id),
         );
       }
-      await seedPresence(
-        run,
-        ctx,
-        fresh,
-        "encounter-start",
-        seed.beats.find((b) => b.encounterId === enc.id),
-      );
+      // Eligibility reads the log after the adds and the presence group.
+      const ready = await deps.loadProjections(ctx.job.sessionId);
+      const monsters = eligibleMonsters(ready, enc);
+      if (monsters.length === 0) return;
       const ids = [
         ...p.party
           .filter(
@@ -1239,7 +1272,7 @@ async function directorOpening(
               m.combatantId && m.combatant && m.combatant.lifeState !== "dead",
           )
           .map((m) => m.combatantId as string),
-        ...enc.monsters.map((m) => m.combatantId),
+        ...monsters,
       ];
       const init = await run.mech(
         "director:initiative",
@@ -1274,6 +1307,7 @@ async function directorOpening(
  */
 async function directorClosing(
   run: Run,
+  ctx: TurnContext,
   assembled: AssembleOutput,
   director: DirectorNodeOutput,
   local: Local,
@@ -1306,6 +1340,19 @@ async function directorClosing(
   if (tm.to === "free") {
     await endEncounter(tm.reason);
     await setMode({ mode: "free" }, tm.reason);
+  }
+
+  // Spec 099 FR-020: code ends a fight no foe stands in. A party wipe does not
+  // end it (OQ-6). A depart that emptied the order already ended the engine's.
+  if (local.encounterActive) {
+    const fresh = await ctx.deps.loadProjections(ctx.job.sessionId);
+    if (fresh.encounter === null) {
+      local.encounterActive = false;
+      await setMode({ mode: "free" }, "The fight is over.");
+    } else if (encounterOver(fresh.engine)) {
+      await endEncounter("No foe still stands.");
+      await setMode({ mode: "free" }, "No foe still stands.");
+    }
   }
 
   // scene end
@@ -1358,7 +1405,16 @@ async function pullIn(
         `${prefix}:pull:${id}`,
         {
           type: "combatant.add",
-          combatant: combatantFromSrd(rec, id, npc.name),
+          combatant: combatantFromSrd(
+            rec,
+            id,
+            npc.name,
+            ctx.seed.encounters.some((e) =>
+              e.monsters.some((m) => m.combatantId === id),
+            )
+              ? "hostile"
+              : "neutral",
+          ),
         },
         `${npc.name} joins the scene`,
         null,
@@ -1688,7 +1744,7 @@ export const resolve: Node<"resolve"> = async (ctx) => {
 
     // Closing moves. A scene-start job has none (its opening moves returned).
     if (ctx.job.trigger !== "scene-start") {
-      await directorClosing(run, assembled, director, local);
+      await directorClosing(run, ctx, assembled, director, local);
     }
 
     if (!hold) {
