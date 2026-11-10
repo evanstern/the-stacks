@@ -39,7 +39,10 @@ Spec: specs/099-encounter-state
 - [ ] #8 Phase 3: Presence mapping in the gate (US2, US3 gate half) (specs/099-encounter-state tasks.md)
 - [ ] #9 Phase 4: Server sides, phases and resume (US1, US2 server half, AC #1) (specs/099-encounter-state tasks.md)
 - [ ] #10 Phase 5: Code-owned end and mid-fight arrivals (US3, US4, AC #3) (specs/099-encounter-state tasks.md)
+- [ ] #11 Phase 6: Planner rules (US5, US6 mapping, AC #4) (specs/099-encounter-state tasks.md)
 <!-- AC:END -->
+
+
 
 
 
