@@ -11,7 +11,7 @@ sources:
   - packages/space/src/view.ts
   - packages/dnd5e-engine/src/space.ts
   - packages/dnd5e-engine/src/commands/move.ts
-verified_against: 6ae46ed20335a69754372878a551bd8ea3ceb1da
+verified_against: 2707677c72373882afd5868a4ed10eca26f85dd6
 ---
 
 # Space
@@ -28,7 +28,7 @@ verified_against: 6ae46ed20335a69754372878a551bd8ea3ceb1da
 ## Rules
 
 - `path(space, from, to)` is the cheapest path over non-blocked edges (Dijkstra), or `null`. Squeeze and climb edges cost double feet. Equal-cost paths tie-break by the lexicographic order of the zone id list. The result is `{ zones, feet }`. The non-blocked adjacency list is cached per `Space` object (a `WeakMap`; spaces are immutable values), and routes are rebuilt from predecessor links only on a cost tie and for the result.
-- `band(space, a, b)` counts the fewest passable edges: same zone `engaged`, one edge `near`, two `far`, else (or an unknown zone) `out`. `BAND_FEET` gives the nominal distance: engaged 5, near 30, far 120.
+- `band(space, a, b)` counts the fewest passable edges: same zone `engaged` (a zone band only: the engine's melee pair that gates the close-combat ranged penalty is a separate record, spec 101, [[dnd5e-engine-sides]]), one edge `near`, two `far`, else (or an unknown zone) `out`. `BAND_FEET` gives the nominal distance: engaged 5, near 30, far 120.
 - `reachCovers(band, reachFt)` is true only at `engaged` with reach of at least 5 ft.
 - `rangeOf(band, { normal, long })` returns `normal`, `long` (disadvantage) or `out` by comparing the band's nominal feet.
 
@@ -50,6 +50,6 @@ Fog, `zone.revealed`, the per-viewer `spatial` projection, `spatialFor`, `reachO
 
 ## Boundary
 
-Space knows no combatants, speed, turns or dice. The engine owns the commands (`space.define`, `combatant.place`, `move`, `movement.action`), the speed budget, opportunity-attack `provokers` and the band checks on attacks ([[dnd5e-engine]], [[dnd5e-engine-reactions]]). Grid mode is not built; band distances and origin-zone-only provocation are zone-mode simplifications marked `ponytail:` in code.
+Space knows no combatants, speed, turns or dice. The engine owns the commands (`space.define`, `combatant.place`, `move`, `movement.action`; `move` and `combatant.place` drop the mover's melee pairs, spec 101), the speed budget, opportunity-attack `provokers` and the band checks on attacks ([[dnd5e-engine]], [[dnd5e-engine-reactions]]). Grid mode is not built; band distances and origin-zone-only provocation are zone-mode simplifications marked `ponytail:` in code.
 
 The planner ([[planner]]) is a consumer: it reads `bandBetween`, `reachCovers` and `rangeOf` for attack and help reach, and passes the engine's `spaceViewOf` view into `plan()`.

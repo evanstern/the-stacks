@@ -53,8 +53,8 @@ with `pnpm ci:check` green and one commit led by `TASK-0306`. Phase 2 runs DB su
 
 **Goal**: the corpus describes melee pairs and is re-pinned honestly.
 
-- [ ] T014 Review (NEEDS-REVIEW) and update `docs/wiki/dnd5e-engine-sides.md` (melee pairs, `meleeFoes`, the new close-combat rule, the OA divergence) and `docs/wiki/dnd5e-engine-derived-rolls.md` (the close-combat mode source).
-- [ ] T015 Review `docs/wiki/dnd5e-engine-reactions.md` (a reaction attack forms a pair in the same `encounter.changed`), `docs/wiki/dnd5e-engine.md` (encounter state field), `docs/wiki/space.md` (band `engaged` is distinct from a melee pair; `move` drops pairs) and `docs/wiki/planner.md` (the fact reports pairs).
-- [ ] T016 Update the `dnd5e-engine-sides` and `dnd5e-engine` lines in `docs/wiki/CAPSULES.md` and `docs/wiki/INDEX.md`. Re-pin every reviewed note to the branch head. Run the freshness gate and the spec-bridge gate.
+- [x] T014 Review (NEEDS-REVIEW) and update `docs/wiki/dnd5e-engine-sides.md` (melee pairs, `meleeFoes`, the new close-combat rule, the OA divergence) and `docs/wiki/dnd5e-engine-derived-rolls.md` (the close-combat mode source).
+- [x] T015 Review `docs/wiki/dnd5e-engine-reactions.md` (a reaction attack forms a pair in the same `encounter.changed`), `docs/wiki/dnd5e-engine.md` (encounter state field), `docs/wiki/space.md` (band `engaged` is distinct from a melee pair; `move` drops pairs) and `docs/wiki/planner.md` (the fact reports pairs).
+- [x] T016 Update the `dnd5e-engine-sides` and `dnd5e-engine` lines in `docs/wiki/CAPSULES.md` and `docs/wiki/INDEX.md`. Re-pin every reviewed note to the branch head. Run the freshness gate and the spec-bridge gate.
 
 **Checkpoint**: freshness gate prints `OK`; spec-bridge exits 0.

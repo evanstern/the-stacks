@@ -18,7 +18,7 @@ sources:
   - packages/planner/src/outcome.ts
   - packages/planner/test/purity.test.ts
   - specs/097-planner/contracts/planner.md
-verified_against: 849583241734158db445178cc8c1f70c65af8e23
+verified_against: 2707677c72373882afd5868a4ed10eca26f85dd6
 ---
 
 # Planner
@@ -41,7 +41,7 @@ Pre-checks match the old plan gate: unknown or absent actor `UNKNOWN_COMBATANT`,
 
 ## Facts
 
-`PlanFact` is code-chosen data (rule, dc, reach, pull-in, reaction, ruling, no-roll, ignored, unserved), never model text, so a "why" row renders from code. Spec 098's fact sheet names its own row type `FactRow`; TASK-0268 stores `PlanFact`s on the Intent outcome carrier event.
+`PlanFact` is code-chosen data (rule (the close-combat fact reports the engine's melee pairs, spec 101, not zones), dc, reach, pull-in, reaction, ruling, no-roll, ignored, unserved), never model text, so a "why" row renders from code. Spec 098's fact sheet names its own row type `FactRow`; TASK-0268 stores `PlanFact`s on the Intent outcome carrier event.
 
 ## Rulings
 

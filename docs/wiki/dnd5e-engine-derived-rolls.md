@@ -10,7 +10,7 @@ sources:
   - packages/dnd5e-engine/src/sides.ts
   - packages/dnd5e-engine/src/schema/state.ts
   - packages/dnd5e-engine/src/schema/events.ts
-verified_against: 6ae46ed20335a69754372878a551bd8ea3ceb1da
+verified_against: 2707677c72373882afd5868a4ed10eca26f85dd6
 ---
 
 # 5e engine: derived rolls
@@ -27,4 +27,4 @@ Spec 082. A `Combatant` may carry `stats`; `src/derive.ts` derives rolls from th
 
 Spec 094 adds optional `reachFt` and `rangeFt` (`normal`, `long`) to an attack entry in `stats.attacks`. Melee reach defaults to 5 ft; the zone band checks read both ([[dnd5e-engine-reactions]], [[space]]).
 
-Spec 099 (TASK-0274) adds the close-combat source to derived rolls: a derived `attack.roll` and a `spell.cast` attack spell fold `disadvantage` when the attack is ranged and `closeCombatFoes` (`src/sides.ts`) finds an opposed, conscious, able, sighted combatant in the attacker's zone. A melee-or-ranged entry is ranged only outside the engaged band. A combatant with no side, or a state with no placements, never triggers it. It stacks with the other sources through `foldMode` (advantage and disadvantage cancel). Selectors and sides: [[dnd5e-engine]].
+Spec 099 (TASK-0274) adds the close-combat source to derived rolls: a derived `attack.roll` and a `spell.cast` attack spell fold `disadvantage` when the attack is ranged and `closeCombatFoes` (`src/sides.ts`) finds an opposed, conscious, able, sighted combatant in a melee pair with the attacker (spec 101, TASK-0306: sharing a zone alone no longer counts; see [[dnd5e-engine-sides]]). A melee-or-ranged entry is ranged only outside the engaged band. A combatant with no side, or a state with no placements, never triggers it. It stacks with the other sources through `foldMode` (advantage and disadvantage cancel). Selectors and sides: [[dnd5e-engine]].

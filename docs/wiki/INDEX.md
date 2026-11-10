@@ -38,7 +38,7 @@ codex, system modules, or agents yet. `main` is now continuously deployed to a r
 
 - [[dnd5e-engine]] — the pure 5e engine package: `execute(state, command, rng)` to events or a refusal, seeded/scripted RNG, roll ledger, refuse-before-draw, no-I/O boundary, the R8 arithmetic ruling, stats-derived check and attack rolls (`STAT_UNDEFINED`), `spell.cast` for six SRD spells (`SPELLS` table), opposition DCs and `help.grant` assists (advantage, `NOT_PROFICIENT`), zone-mode placement, `move`, speed budget and band checks ([[space]]), and sides with `combatant.depart`, `stand` and the close-combat rule (spec 099).
 - [[dnd5e-engine-derived-rolls]] — stats-derived check and attack rolls, `spell.cast` with the engine `SPELLS` table, opposition DCs and `help.grant` assists with their expiry rules (split from dnd5e-engine, TASK-0231).
-- [[dnd5e-engine-sides]] — the optional combatant `side`, `combatant.side`, `combatant.depart`, `stand`, the four selectors and the engine close-combat ranged-disadvantage rule (spec 099, TASK-0274).
+- [[dnd5e-engine-sides]] — the optional combatant `side`, `combatant.side`, `combatant.depart`, `stand`, the five selectors and the engine close-combat ranged-disadvantage rule, read from melee pairs (spec 099, TASK-0274; spec 101, TASK-0306).
 - [[dnd5e-engine-reactions]] — the `reactionsSpent` list, `attack.roll` with `reaction: true`, its refusals, and the commands that clear a Reaction (split from dnd5e-engine, TASK-0231).
 - [[srd-data]] — the SRD 5.2.1 data package: six Zod record kinds (rules text included), Open5e conversion pinned to a commit and checked against the PDF, provenance, id/name loader, 120-token compact form, attribution and `/about`, and the no-engine-import boundary.
 
