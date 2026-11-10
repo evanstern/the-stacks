@@ -39,6 +39,7 @@ Spec: specs/100-spatial-events
 - [x] #8 Phase 3: Seeds and the DM runtime (US4; AC #5) (specs/100-spatial-events tasks.md)
 - [x] #9 Phase 4: Zones and reach in the AI context (US3; AC #4) (specs/100-spatial-events tasks.md)
 - [x] #10 Phase 5: Wiki (specs/100-spatial-events tasks.md)
+- [ ] #11 Spec phase: Event and projection (US1, US4; AC #2, #5)
 <!-- AC:END -->
 
 ## Definition of Done
