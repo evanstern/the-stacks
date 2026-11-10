@@ -59,11 +59,11 @@ does not serve.
 
 **Goal**: every remaining served kind plans.
 
-- [ ] T018 [US1] Write `packages/planner/src/movement.ts`: `move` (FR-025 probe with `execute` and `scriptedRng([])`; FR-026 reactions from `provokers` filtered by side; `NO_MOVEMENT_LEFT`; squares `KIND_UNSERVED`), `dash`, `disengage`, `stand`, `drop_prone`, `end_turn` (FR-027).
-- [ ] T019 [US1] Write `packages/planner/src/resources.ts`: `rest_short`, `rest_long`, `roll_free` (FR-028).
-- [ ] T020 [US3] Write `packages/planner/src/dm.ts`: `apply_damage`, `apply_heal`, `apply_condition` (FR-029), `start_combat`, `end_combat` (FR-030), `add_combatant`, `move_token` (FR-031), the `ai:dm` seat rules (FR-032). Wire all three modules into `plan.ts`.
-- [ ] T021 [P] [US1] Write `packages/planner/test/movement.test.ts`: move with no reactor, with one hostile reactor (reaction attack and guarded damage before `move`), disengaged (none), a party ally in the zone (none), engine pass-through `MOVE_BLOCKED` and `MOVE_OVER_SPEED`, `NO_MOVEMENT_LEFT`, free-mode move; dash, disengage, stand, drop_prone, end_turn.
-- [ ] T022 [P] [US3] Write `packages/planner/test/dm.test.ts`: each DM kind from `dm`; `temp` heal; exhaustion adjust; start_combat with and without targets; add_combatant with count 2, zone and encounter join; move_token; `DM_SEAT_REQUIRED` cases from `ai:dm`; and `rest_short`, `rest_long`, `roll_free` goldens.
+- [x] T018 [US1] Write `packages/planner/src/movement.ts`: `move` (FR-025 probe with `execute` and `scriptedRng([])`; FR-026 reactions from `provokers` filtered by side; `NO_MOVEMENT_LEFT`; squares `KIND_UNSERVED`), `dash`, `disengage`, `stand`, `drop_prone`, `end_turn` (FR-027).
+- [x] T019 [US1] Write `packages/planner/src/resources.ts`: `rest_short`, `rest_long`, `roll_free` (FR-028).
+- [x] T020 [US3] Write `packages/planner/src/dm.ts`: `apply_damage`, `apply_heal`, `apply_condition` (FR-029), `start_combat`, `end_combat` (FR-030), `add_combatant`, `move_token` (FR-031), the `ai:dm` seat rules (FR-032). Wire all three modules into `plan.ts`.
+- [x] T021 [P] [US1] Write `packages/planner/test/movement.test.ts`: move with no reactor, with one hostile reactor (reaction attack and guarded damage before `move`), disengaged (none), a party ally in the zone (none), engine pass-through `MOVE_BLOCKED` and `MOVE_OVER_SPEED`, `NO_MOVEMENT_LEFT`, free-mode move; dash, disengage, stand, drop_prone, end_turn.
+- [x] T022 [P] [US3] Write `packages/planner/test/dm.test.ts`: each DM kind from `dm`; `temp` heal; exhaustion adjust; start_combat with and without targets; add_combatant with count 2, zone and encounter join; move_token; `DM_SEAT_REQUIRED` cases from `ai:dm`; and `rest_short`, `rest_long`, `roll_free` goldens.
 
 **Checkpoint**: every served kind has a golden test. `pnpm ci:check` green.
 

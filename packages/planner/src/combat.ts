@@ -21,7 +21,7 @@ import {
 } from "./refs.js";
 import type { PlanFact, PlannedCommand, PlanResult } from "./types.js";
 
-type AttackEntry = NonNullable<
+export type AttackEntry = NonNullable<
   ReturnType<typeof findAttack> extends infer R
     ? R extends { ok: true; value: infer V }
       ? V
@@ -39,7 +39,7 @@ const statUndefined = (id: string, missing: string): PlanResult =>
 const nextStep = (list: PlannedCommand[]): number => list.length;
 
 /** One `damage.apply` per hit outcome: normal on `hit`, critical on `critical-hit`. */
-function guardedDamage(
+export function guardedDamage(
   entry: AttackEntry,
   targetId: string,
   step: number,

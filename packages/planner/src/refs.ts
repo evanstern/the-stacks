@@ -93,6 +93,16 @@ export function reasonOf(intent: Intent): string {
   return (text === "" ? intent.kind : text).slice(0, 500);
 }
 
+/** A short label for who did it, for a condition's `source` (max 200 characters). */
+export function sourceOf(intent: Intent): string {
+  const a = intent.actor;
+  const who =
+    a.kind === "pc" || a.kind === "companion" || a.kind === "npc"
+      ? a.id
+      : a.kind;
+  return `${who}: ${intent.kind}`.slice(0, 200);
+}
+
 /** The id of the actor an Intent names, or null for a DM seat. */
 export function actorIdOf(intent: Intent): string | null {
   const a = intent.actor;
