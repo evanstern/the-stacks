@@ -61,6 +61,8 @@ Operator rulings 2026-11-10 on spec 101: pair model approved; opportunity attack
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5 (phases 1-3)
 c7000f9a engine melee pairs; 2707677c planner comment and DB tests back to one d20; b1d5d545 wiki. Disengage-then-move golden test passes (pair holds after Disengage, gone after the move, shot rolls normal). Server with REQUIRE_DATABASE=1: 1979 pass / 5 skipped. Orchestrator re-ran melee 16, engine 438, planner 136, freshness OK 65, and full ci:check (exit 0) after merging main.
+
+spec-bridge sync: Engine melee pairs (US1, US2, US3): 9/9 · Planner fact and server tests (US1 server half, FR-011, FR-013): 4/4 · Wiki re-ground: 3/3 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
