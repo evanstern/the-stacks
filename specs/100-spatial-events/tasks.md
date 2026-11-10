@@ -56,13 +56,13 @@ operator's OQ-1 ruling quoted in its brief.
 
 **Goal**: shipped seeds declare zones; scene and encounter start define, place and gather.
 
-- [ ] T017 [US4] Add `@the-stacks/space` to `apps/server/package.json` and `tsconfig.json`; run `pnpm install`.
-- [ ] T018 [US4] Extend `apps/server/src/dm/seed/schema.ts` (`space`, `npcs[].zone`, `encounters[].zone`) and `crossCheckSeed` in `src/dm/seed/load.ts` (FR-020, FR-021).
-- [ ] T019 [US4] Add the plan "Seed layouts" to the four `apps/server/seeds/*.json`.
-- [ ] T020 [US4] Edit `apps/server/src/dm/nodes/resolve.ts`: `space.define` before the party loop; party `placement`; monster and pull-in `placement`; encounter-start gathering (FR-022, FR-023, FR-023a). Reasons name only the zone their row names.
-- [ ] T021 [P] [US4] Extend `apps/server/test/dm/seed.test.ts`: every shipped seed parses with its space; each FR-021 refusal.
-- [ ] T022 [US4] Write `apps/server/test/dm/scene-start-space.test.ts` (scripted DM, `REQUIRE_DATABASE=1`): FR-022 row order; no player-visible row names `loft`, `reed-marsh`, `reed-camp` or `camp-post` before their reveal; encounter start reveals `reed-camp` before the first public goblin row; the party is gathered; no feature zone id is a combatant or in initiative.
-- [ ] T023 [US4] Update row counts in existing scene-start and playtest tests that shift by the new rows. Never weaken an assertion.
+- [x] T017 [US4] Add `@the-stacks/space` to `apps/server/package.json` and `tsconfig.json`; run `pnpm install`.
+- [x] T018 [US4] Extend `apps/server/src/dm/seed/schema.ts` (`space`, `npcs[].zone`, `encounters[].zone`) and `crossCheckSeed` in `src/dm/seed/load.ts` (FR-020, FR-021).
+- [x] T019 [US4] Add the plan "Seed layouts" to the four `apps/server/seeds/*.json`.
+- [x] T020 [US4] Edit `apps/server/src/dm/nodes/resolve.ts`: `space.define` before the party loop; party `placement`; monster and pull-in `placement`; encounter-start gathering (FR-022, FR-023, FR-023a). Reasons name only the zone their row names.
+- [x] T021 [P] [US4] Extend `apps/server/test/dm/seed.test.ts`: every shipped seed parses with its space; each FR-021 refusal.
+- [x] T022 [US4] Write `apps/server/test/dm/scene-start-space.test.ts` (scripted DM, `REQUIRE_DATABASE=1`): FR-022 row order; no player-visible row names `loft`, `reed-marsh`, `reed-camp` or `camp-post` before their reveal; encounter start reveals `reed-camp` before the first public goblin row; the party is gathered; no feature zone id is a combatant or in initiative.
+- [x] T023 [US4] Update row counts in existing scene-start and playtest tests that shift by the new rows. Never weaken an assertion.
 
 **Checkpoint**: server suite green with `REQUIRE_DATABASE=1`; `pnpm ci:check` green.
 

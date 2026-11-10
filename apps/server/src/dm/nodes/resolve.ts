@@ -1006,9 +1006,18 @@ async function arriveOne(
     if (!m || p.engine.combatants[id]) return false;
     const rec = deps.srd.getById("monster", m.srdMonsterId);
     if (!rec) throw stop("internal", `no SRD monster ${m.srdMonsterId}`);
+    const zoneId = seed.encounters.find((e) =>
+      e.monsters.some((x) => x.combatantId === id),
+    )?.zone;
     await run.mech(
       `director:arrival:${id}`,
-      { type: "combatant.add", combatant: combatantFromSrd(rec, id, m.name) },
+      {
+        type: "combatant.add",
+        combatant: {
+          ...combatantFromSrd(rec, id, m.name),
+          ...(zoneId ? { placement: { zoneId } } : {}),
+        },
+      },
       `${m.name ?? rec.name} comes into view`,
       null,
     );
@@ -1128,6 +1137,18 @@ async function directorOpening(
         location: seed.location.name,
       },
     }));
+    // Spec 100 FR-022: the space is defined before the first party combatant joins.
+    if (seed.space) {
+      await run.mech(
+        "director:space",
+        {
+          type: "space.define",
+          space: { zones: seed.space.zones, edges: seed.space.edges },
+        },
+        `The scene is laid out: ${seed.location.name}`,
+        null,
+      );
+    }
     const seats = ctx.job.start?.seats ?? {};
     for (const c of seed.characters) {
       const init = c.identity.combatant;
@@ -1135,7 +1156,11 @@ async function directorOpening(
         `director:combatant:${init.id}`,
         {
           type: "combatant.add",
-          combatant: { ...init, stats: statsFromCharacter(c, deps.srd) },
+          combatant: {
+            ...init,
+            stats: statsFromCharacter(c, deps.srd),
+            ...(seed.space ? { placement: { zoneId: seed.space.start } } : {}),
+          },
         },
         `${c.name} joins the scene`,
         null,
@@ -1219,11 +1244,32 @@ async function directorOpening(
           `director:combatant:${m.combatantId}`,
           {
             type: "combatant.add",
-            combatant: combatantFromSrd(rec, m.combatantId, m.name),
+            combatant: {
+              ...combatantFromSrd(rec, m.combatantId, m.name),
+              ...(enc.zone ? { placement: { zoneId: enc.zone } } : {}),
+            },
           },
           `${m.name ?? rec.name} joins the fight`,
           null,
         );
+      }
+      // Spec 100 FR-023a (OQ-13): gather the party into the encounter zone before
+      // initiative. TASK-0269 removes this when moves resolve through the engine `move`.
+      if (enc.zone && seed.space) {
+        const zoneName =
+          seed.space.zones.find((z) => z.id === enc.zone)?.name ?? enc.zone;
+        const gather = await deps.loadProjections(ctx.job.sessionId);
+        for (const member of gather.party) {
+          const cid = member.combatantId;
+          if (!cid || !gather.engine.combatants[cid]) continue;
+          if (gather.spatial.placements[cid] === enc.zone) continue;
+          await run.mech(
+            `director:gather:${enc.id}:${cid}`,
+            { type: "combatant.place", combatantId: cid, zoneId: enc.zone },
+            `${member.name} closes on ${zoneName}`,
+            null,
+          );
+        }
       }
       await seedPresence(
         run,
@@ -1354,11 +1400,19 @@ async function pullIn(
       const srdId = npc.identity.srdMonsterId ?? "commoner";
       const rec = ctx.deps.srd.getById("monster", srdId);
       if (!rec) throw stop("internal", `no SRD monster ${srdId}`);
+      // Spec 100 FR-023: the active seed encounter's zone, else the NPC's own.
+      const fought = ctx.seed.encounters.find((e) =>
+        e.monsters.some((x) => fresh.engine.combatants[x.combatantId]),
+      );
+      const zoneId = (fresh.encounter && fought?.zone) || npc.zone;
       const added = await run.mech(
         `${prefix}:pull:${id}`,
         {
           type: "combatant.add",
-          combatant: combatantFromSrd(rec, id, npc.name),
+          combatant: {
+            ...combatantFromSrd(rec, id, npc.name),
+            ...(zoneId ? { placement: { zoneId } } : {}),
+          },
         },
         `${npc.name} joins the scene`,
         null,

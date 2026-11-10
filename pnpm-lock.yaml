@@ -32,6 +32,9 @@ importers:
       '@the-stacks/shared':
         specifier: workspace:*
         version: link:../../packages/shared
+      '@the-stacks/space':
+        specifier: workspace:*
+        version: link:../../packages/space
       '@the-stacks/srd':
         specifier: workspace:*
         version: link:../../packages/srd
