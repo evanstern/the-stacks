@@ -3,7 +3,8 @@ id: TASK-0305
 title: 'Revisit: encounter and fog edge rules from specs 099 and 100'
 status: To Do
 assignee: []
-created_date: '2026-11-10 03:11'
+created_date: 2026-11-10 03:11
+updated_date: '2026-11-10T15:13:00Z'
 labels:
   - deferred
   - replan-2026-11
@@ -32,3 +33,9 @@ Rules adopted as-is in R1, to revisit when a playtest shows they matter. Trigger
 - [ ] #1 All tests and checks run green
 - [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+From spec 101 OQ-1 (2026-11-10): should opportunity attacks narrow from same-zone to melee pairs? Kept same-zone for now. Also spec 101 OQ-4: moving into a foe's zone does not form a melee pair; revisit if a playtest shows it matters.
+<!-- SECTION:NOTES:END -->
