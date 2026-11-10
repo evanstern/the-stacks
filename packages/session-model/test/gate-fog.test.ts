@@ -36,7 +36,7 @@ function plan(
     { batchId: "t" },
     null,
   );
-  if (!r.ok) throw new Error(r.refusal.code);
+  if (!r.ok) throw new Error(JSON.stringify(r.refusal));
   return r.rows;
 }
 const shape = (rows: PlannedRow[]) =>
@@ -160,6 +160,26 @@ describe("fogRows (zone.revealed contract section 3)", () => {
     ).toEqual({
       snag: "camp",
     });
+  });
+
+  it("spec 099: a hostile departing a fogged zone stays dm; its side change names no zone", () => {
+    const p = at(11);
+    expect(p.engine.combatants.snag?.placement?.zoneId).toBe("camp");
+    const rows = plan(p, {
+      type: "combatant.depart",
+      combatantId: "snag",
+      reason: "slips away",
+    });
+    const placed = rows.filter((r) => r.type === "combatant.placed");
+    expect(placed.length).toBe(1);
+    for (const r of placed) expect(r.visibility).toBe("dm");
+    const side = plan(p, {
+      type: "combatant.side",
+      combatantId: "snag",
+      side: p.engine.combatants.snag?.side === "hostile" ? "neutral" : "hostile",
+      reason: "yields",
+    });
+    expect(JSON.stringify(side)).not.toContain("camp");
   });
 
   it("rule 4: a crossing from a revealed zone reveals the fogged one", () => {

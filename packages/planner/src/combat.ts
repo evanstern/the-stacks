@@ -1,6 +1,7 @@
 // FR-019–FR-024: attack, cast, help, grapple, shove.
 import {
   checkModifier,
+  closeCombatSources,
   type EngineCommand,
   findAttack,
   oppositionDc,
@@ -113,6 +114,21 @@ function bandUse(
   return { fact: { kind: "reach", band, use }, refusal: null };
 }
 
+// The engine folds the disadvantage itself; the planner only reports it (spec 099).
+const closeCombatFact = (
+  c: Ctx,
+  attackerId: string,
+  ranged: boolean,
+): PlanFact[] =>
+  closeCombatSources(c.state.engine, attackerId, ranged).length
+    ? [
+        {
+          kind: "rule",
+          rule: "playing-the-game.combat.ranged-attacks.ranged-attacks-in-close-combat",
+        },
+      ]
+    : [];
+
 export const attack: Handler = (c) => {
   const i = c.intent;
   if (i.kind !== "attack") throw new Error("attack");
@@ -148,6 +164,13 @@ export const attack: Handler = (c) => {
     ...who.value.facts,
     ...target.value.facts,
     ...(band.fact ? [band.fact] : []),
+    ...closeCombatFact(
+      c,
+      who.value.combatantId,
+      band.fact?.kind === "reach"
+        ? band.fact.use !== "melee"
+        : entry.value.range === "ranged",
+    ),
   ]);
 };
 
@@ -225,7 +248,15 @@ export const cast: Handler = (c) => {
         },
       },
     ],
-    [...caster.facts, ...(target ? target.value.facts : [])],
+    [
+      ...caster.facts,
+      ...(target ? target.value.facts : []),
+      ...closeCombatFact(
+        c,
+        caster.combatantId,
+        mech.delivery.kind === "attack" && mech.delivery.range === "ranged",
+      ),
+    ],
   );
 };
 

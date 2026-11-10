@@ -68,6 +68,7 @@ export const handleCombatantAdd: Handler<"combatant.add"> = (
     ...(init.stats ? { stats: init.stats } : {}),
     ...(init.placement ? { placement: init.placement } : {}),
     ...(init.speed !== undefined ? { speed: init.speed } : {}),
+    ...(init.side ? { side: init.side } : {}),
   };
   return {
     ok: true,
@@ -116,6 +117,40 @@ export const handleCombatantRemove: Handler<"combatant.remove"> = (
         combatantId: target.id,
         before: target,
         after: null,
+      },
+    ],
+  };
+};
+
+export const handleCombatantSide: Handler<"combatant.side"> = (
+  state,
+  command,
+) => {
+  const target = state.combatants[command.combatantId];
+  if (!target) {
+    return refuse(
+      "UNKNOWN_COMBATANT",
+      `no combatant "${command.combatantId}"`,
+      { combatantId: command.combatantId },
+    );
+  }
+  if (target.side === command.side) {
+    return refuse(
+      "INVALID_COMMAND",
+      `combatant "${target.id}" is already ${command.side}`,
+      { combatantId: target.id, side: command.side },
+    );
+  }
+  return {
+    ok: true,
+    events: [
+      {
+        type: "combatant.sided",
+        v: 1,
+        reason: command.reason,
+        combatantId: target.id,
+        before: target.side ?? null,
+        after: command.side,
       },
     ],
   };

@@ -378,8 +378,9 @@ describe("combatantFromSrd", () => {
   it("maps goblin-warrior", () => {
     const monster = getById("monster", "goblin-warrior");
     if (!monster) throw new Error("goblin-warrior missing from the SRD");
-    expect(combatantFromSrd(monster, "snag", "Snag")).toEqual({
+    expect(combatantFromSrd(monster, "snag", "Snag", "hostile")).toEqual({
       id: "snag",
+      side: "hostile",
       name: "Snag",
       hp: { max: 10 },
       zeroHpRule: "dies",
@@ -395,8 +396,9 @@ describe("combatantFromSrd", () => {
   it("maps goblin-minion and falls back to the SRD name", () => {
     const monster = getById("monster", "goblin-minion");
     if (!monster) throw new Error("goblin-minion missing from the SRD");
-    expect(combatantFromSrd(monster, "goblin-3", null)).toEqual({
+    expect(combatantFromSrd(monster, "goblin-3", null, "neutral")).toEqual({
       id: "goblin-3",
+      side: "neutral",
       name: "Goblin Minion",
       hp: { max: 7 },
       zeroHpRule: "dies",
@@ -416,7 +418,7 @@ describe("combatantFromSrd", () => {
       damageVulnerabilities: ["Cold"],
       damageImmunities: ["Poison"],
     } as never;
-    const out = combatantFromSrd(monster, "x", null);
+    const out = combatantFromSrd(monster, "x", null, "hostile");
     expect(out.defenses).toEqual({
       resistances: ["fire"],
       vulnerabilities: ["cold"],

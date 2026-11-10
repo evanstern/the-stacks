@@ -113,15 +113,13 @@ const movementAction =
 export const dash = movementAction("dash");
 export const disengage = movementAction("disengage");
 
-// ponytail: the engine on this branch has no `stand` command (TASK-0274 adds it, with the stand-up
-// movement cost). Refuse until it merges, then plan `{ type: "stand", combatantId, reason }`.
 export const stand: Handler = (c) => {
   const who = resolveActor(c);
   if (!who.ok) return who.result;
-  return refuse("KIND_UNSERVED", "stand needs the engine stand command", {
-    kind: "stand",
-    owner: "TASK-0274",
-  });
+  return commands(
+    [{ type: "stand", combatantId: who.value.combatantId, reason: c.reason }],
+    who.value.facts,
+  );
 };
 
 export const dropProne: Handler = (c) => {

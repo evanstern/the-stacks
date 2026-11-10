@@ -107,6 +107,12 @@ export function engineExamples(): Record<string, EngineEvent> {
   step({ type: "combatant.add", combatant: ana, reason: r });
   step({ type: "combatant.add", combatant: goblin, reason: r });
   step({ type: "combatant.add", combatant: bram, reason: r });
+  step({
+    type: "combatant.side",
+    combatantId: "goblin",
+    side: "hostile",
+    reason: r,
+  });
   step({ type: "roll", expression: "1d20+2", reason: r });
   step({
     type: "attack.roll",

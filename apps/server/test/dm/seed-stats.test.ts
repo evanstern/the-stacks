@@ -112,7 +112,7 @@ describe("spec 094 speed, reach and range", () => {
     const { combatantFromSrd } = await import(
       "../../src/dm/seed/combatants.js"
     );
-    const c = combatantFromSrd(monster("goblin-warrior"), "g", null);
+    const c = combatantFromSrd(monster("goblin-warrior"), "g", null, "hostile");
     expect(c.speed).toBe(30);
     const s = statsFromSrd(monster("goblin-warrior"));
     expect(s.attacks.find((a) => a.name === "Scimitar")?.reachFt).toBe(5);

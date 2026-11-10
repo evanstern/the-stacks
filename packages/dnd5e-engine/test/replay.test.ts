@@ -269,4 +269,27 @@ describe("replay of spatial events", () => {
     });
     expect(state.combatants.hero?.placement).toBeUndefined();
   });
+  it("replays combatant.sided (spec 099)", () => {
+    let st = emptyState();
+    const all: EngineEvent[] = [];
+    const go = (command: unknown) => {
+      const result = execute(st, command, scriptedRng([]));
+      if (!result.ok) throw new Error(result.refusal.message);
+      all.push(...result.events);
+      st = replay(result.events, st);
+    };
+    go({
+      type: "combatant.add",
+      combatant: { id: "g", name: "G", hp: { max: 7 }, zeroHpRule: "dies" },
+      reason: "r",
+    });
+    go({
+      type: "combatant.side",
+      combatantId: "g",
+      side: "hostile",
+      reason: "r",
+    });
+    expect(st.combatants.g?.side).toBe("hostile");
+    expect(replay(all)).toEqual(st);
+  });
 });

@@ -21,7 +21,7 @@ sources:
   - packages/session-model/src/fixtures/turn-floor.ts
   - apps/server/src/session/events.ts
   - apps/server/src/session/projections.ts
-verified_against: f1676535f62847ef4ac0571639c6ca60b993bb94
+verified_against: 6ae46ed20335a69754372878a551bd8ea3ceb1da
 ---
 
 # Session model
@@ -93,7 +93,7 @@ transitions, `before` mismatches, engine rejections and incomplete batches.
 `src/gate/` is the pure decision core: `checkPermission`, `commitAuthority`, `signoffState`
 (the group sign-off rule over public projections; see [[proposal-gate]]), the turn rules in `gate/turn.ts` ([[turn-floor]]), `routeProposal`
 with `DEFAULT_POLICIES` and `effectivePolicy`, and `planProposal` / `mechanicsRows` (turn a
-proposal into catalog rows, or a refusal, using the engine; refuses `CHARACTER_UNABLE` for a downed or absent declarer; the `scene-presence` kind plans the change row plus an engine `initiative.leave` or `initiative.join` when the actor is in or joins the order). `planProposal` also runs the fog rule ([[zone-fog]]). All are exported from the package
+proposal into catalog rows, or a refusal, using the engine; refuses `CHARACTER_UNABLE` for a downed or absent declarer; the `scene-presence` kind plans the change row plus an engine `combatant.depart`, `combatant.side` `neutral` (a yielding hostile) or `initiative.join` (spec 099). `planProposal` also runs the fog rule ([[zone-fog]]). All are exported from the package
 index. Kinds, policies, authority and the server wrapper: [[proposal-gate]].
 
 ## Fixtures contract

@@ -17,7 +17,7 @@ import {
   transcriptEntries,
 } from "./common.js";
 
-export const PROMPT_VERSION = "dm.director-v11";
+export const PROMPT_VERSION = "dm.director-v12";
 
 const OUTPUT_SHAPE = [
   "Reply with ONE JSON object and nothing else:",
@@ -35,7 +35,7 @@ const OUTPUT_SHAPE = [
 const SYSTEM = [
   "You are the Director of a tabletop role-playing session. You decide pacing and structure for the next beat. You never roll dice and never state a result: you run before any dice are rolled.",
   agencyRule("director"),
-  "Hold a beat only to give an AI companion a chance to speak first; otherwise resolve. Move to turn mode only when a seed encounter's trigger has happened. Return to free mode when an encounter is over. End the scene only when the goal's success or failure condition is met or the party retreats. Advance a tracker only when its advance-when condition happened. Decide table mode and trackers from what each beat item's first stage does; a trigger that needs a roll this beat to succeed waits for the next beat. Name in arrivals each offstage NPC or unseen encounter monster the recent transcript or the beat to resolve shows on screen: seen, heard or met. Never name one only mentioned or expected. Name an unseen monster only in free mode. When the beat to resolve is a search, a scan or a look that a roll decides, a reveal it would make is the roll's, not yours: code lands it only on a band that delivers it.",
+  "Hold a beat only to give an AI companion a chance to speak first; otherwise resolve. Move to turn mode only when a seed encounter's trigger has happened. Return to free mode when an encounter is over. End the scene only when the goal's success or failure condition is met or the party retreats. Advance a tracker only when its advance-when condition happened. Decide table mode and trackers from what each beat item's first stage does; a trigger that needs a roll this beat to succeed waits for the next beat. Name in arrivals each offstage NPC or unseen encounter monster the recent transcript or the beat to resolve shows on screen: seen, heard or met. Never name one only mentioned or expected. Name an unseen monster in free mode; in turn mode name only a monster of the running fight that has not yet appeared. An encounter marked (resume) already ran: choose it when the fight breaks out again and a foe can still fight. When the beat to resolve is a search, a scan or a look that a roll decides, a reveal it would make is the roll's, not yours: code lands it only on a band that delivers it.",
   "Doctrine:",
   "{{DOCTRINE}}",
   OUTPUT_SHAPE,
@@ -45,7 +45,10 @@ export interface DirectorPromptInput {
   ctx: TurnContext;
   assembled: AssembleOutput;
   aiCompanions: string[];
+  /** Encounters the Director may start (spec 099: pending, or ended with a foe able to fight). */
   runnableEncounterIds: string[];
+  /** The subset already run: starting one resumes the fight with fresh initiative. */
+  resumeEncounterIds?: string[];
   offstageNpcs: string[];
   unseenMonsters: string[];
 }
@@ -65,7 +68,10 @@ export function buildDirectorPrompt(input: DirectorPromptInput): {
 
   const encounters = ctx.seed.encounters
     .filter((e) => input.runnableEncounterIds.includes(e.id))
-    .map((e) => `Encounter ${e.id} (${e.name}): trigger ${e.trigger}`);
+    .map(
+      (e) =>
+        `Encounter ${e.id} (${e.name})${input.resumeEncounterIds?.includes(e.id) ? " (resume)" : ""}: trigger ${e.trigger}`,
+    );
   const beats = ctx.seed.beats.map(
     (b) => `Seed beat ${b.id} [${b.kind}]: ${b.summary}`,
   );

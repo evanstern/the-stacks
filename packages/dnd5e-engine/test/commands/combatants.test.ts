@@ -251,3 +251,93 @@ describe("combatant.add placement and speed", () => {
     );
   });
 });
+
+describe("combatant.side (spec 099)", () => {
+  it("copies a side on add and leaves a missing one missing", () => {
+    const state = stateWith();
+    const withSide = settle(
+      state,
+      run(
+        state,
+        add({
+          id: "g",
+          name: "G",
+          hp: { max: 7 },
+          zeroHpRule: "dies",
+          side: "hostile",
+        }),
+      ).result,
+    );
+    expect(withSide.combatants.g?.side).toBe("hostile");
+    const without = settle(
+      state,
+      run(
+        state,
+        add({ id: "g", name: "G", hp: { max: 7 }, zeroHpRule: "dies" }),
+      ).result,
+    );
+    expect(without.combatants.g).not.toHaveProperty("side");
+  });
+  it("sets the side with before and after, drawing no dice", () => {
+    const state = stateWith(makeCombatant({ id: "g" }));
+    const out = run(
+      state,
+      {
+        type: "combatant.side",
+        combatantId: "g",
+        side: "neutral",
+        reason: "yields",
+      },
+      [],
+    );
+    const [event] = expectOk(out.result);
+    expect(event).toMatchObject({
+      type: "combatant.sided",
+      before: null,
+      after: "neutral",
+    });
+    expect(out.counter.draws()).toBe(0);
+    const next = settle(state, out.result);
+    expect(next.combatants.g?.side).toBe("neutral");
+    const again = run(next, {
+      type: "combatant.side",
+      combatantId: "g",
+      side: "hostile",
+      reason: "x",
+    });
+    expect(expectOk(again.result)[0]).toMatchObject({
+      before: "neutral",
+      after: "hostile",
+    });
+  });
+  it("refuses unknown, unchanged and invalid sides before any draw", () => {
+    const state = stateWith(makeCombatant({ id: "g", side: "hostile" }));
+    expectRefusedBeforeDraw(
+      run(state, {
+        type: "combatant.side",
+        combatantId: "x",
+        side: "party",
+        reason: "r",
+      }),
+      "UNKNOWN_COMBATANT",
+    );
+    expectRefusedBeforeDraw(
+      run(state, {
+        type: "combatant.side",
+        combatantId: "g",
+        side: "hostile",
+        reason: "r",
+      }),
+      "INVALID_COMMAND",
+    );
+    expectRefusedBeforeDraw(
+      run(state, {
+        type: "combatant.side",
+        combatantId: "g",
+        side: "ally",
+        reason: "r",
+      }),
+      "INVALID_COMMAND",
+    );
+  });
+});

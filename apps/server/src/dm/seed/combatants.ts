@@ -2,6 +2,7 @@ import {
   type AttackEntry,
   type CombatantStats,
   DamageTypeSchema,
+  type Side,
   SkillSchema,
 } from "@the-stacks/dnd5e-engine";
 import type { SrdRecord } from "@the-stacks/srd";
@@ -131,9 +132,11 @@ export function combatantFromSrd(
   monster: Monster,
   combatantId: string,
   name: string | null,
+  side: Side,
 ): CombatantInit {
   return {
     id: combatantId,
+    side,
     name: name ?? monster.name,
     hp: { max: monster.hp.average },
     zeroHpRule: "dies",

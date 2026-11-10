@@ -17,9 +17,9 @@ import {
 const examples = engineExamples();
 
 describe("catalog shape", () => {
-  it("has 20 session entries and 23 mechanics entries", () => {
+  it("has 20 session entries and 24 mechanics entries", () => {
     expect(SESSION_EVENT_TYPES).toHaveLength(20);
-    expect(MECHANICS_EVENT_TYPES).toHaveLength(23);
+    expect(MECHANICS_EVENT_TYPES).toHaveLength(24);
     expect(catalog).toHaveLength(43);
   });
 

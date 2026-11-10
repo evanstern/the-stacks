@@ -10,6 +10,7 @@ import {
   DamageTypeSchema,
   EncounterSchema,
   LifeStateSchema,
+  SideSchema,
 } from "./state.js";
 
 const Reason = z.string().min(1).max(500);
@@ -257,6 +258,14 @@ export const EngineEventSchema = z.discriminatedUnion("type", [
     reason: Reason,
     before: SpaceSchema.nullable(),
     after: SpaceSchema,
+  }),
+  z.object({
+    type: z.literal("combatant.sided"),
+    v: V,
+    reason: Reason,
+    combatantId: Id,
+    before: SideSchema.nullable(),
+    after: SideSchema,
   }),
   z.object({
     type: z.literal("combatant.placed"),

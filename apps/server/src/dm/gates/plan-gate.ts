@@ -181,8 +181,11 @@ export function encounterToStart(
 export function joiningCombatants(
   enc: EncounterSeed | undefined,
   existing: Readonly<Record<string, unknown>>,
+  projections?: SessionProjections,
 ): string[] {
   if (!enc) return [];
+  // Spec 099 FR-018: a resume adds nobody.
+  if (projections && encounterPhase(projections, enc) === "ended") return [];
   return enc.monsters
     .map((m) => m.combatantId)
     .filter((id) => !(id in existing));
@@ -212,6 +215,83 @@ export function encounterRan(
       r.type === "encounter.started" &&
       orderHolds((r.after as { order?: unknown } | null)?.order),
   );
+}
+
+export type EncounterPhase = "pending" | "active" | "ended";
+
+/** Spec 099 FR-014: derived per seed encounter; never stored. */
+export function encounterPhase(
+  projections: SessionProjections,
+  enc: EncounterSeed,
+): EncounterPhase {
+  const ids = new Set(enc.monsters.map((m) => m.combatantId));
+  if (projections.encounter?.order.some((o) => ids.has(o.combatantId))) {
+    return "active";
+  }
+  return encounterRan(projections, enc) ? "ended" : "pending";
+}
+
+/**
+ * Spec 099 FR-016: the encounter's monsters that may enter a start or resume.
+ * A combatant, not dead, logged present (or never logged), side hostile or none.
+ */
+export function eligibleMonsters(
+  projections: SessionProjections,
+  enc: EncounterSeed,
+): string[] {
+  return enc.monsters
+    .map((m) => m.combatantId)
+    .filter((id) => {
+      const c = projections.engine.combatants[id];
+      if (!c || c.lifeState === "dead") return false;
+      if (
+        (projections.scenePresence[id]?.presence ?? "present") !== "present"
+      ) {
+        return false;
+      }
+      return c.side === undefined || c.side === "hostile";
+    });
+}
+
+/** Spec 099 FR-015: encounters the Director may start: every pending one, and each ended one with an eligible monster. */
+export function startableEncounterIds(
+  projections: SessionProjections,
+  seed: SceneSeed,
+): string[] {
+  return seed.encounters
+    .filter((e) => {
+      const phase = encounterPhase(projections, e);
+      return (
+        phase === "pending" ||
+        (phase === "ended" && eligibleMonsters(projections, e).length > 0)
+      );
+    })
+    .map((e) => e.id);
+}
+
+/**
+ * Spec 099 FR-021: monsters of the active seed encounter that are not combatants
+ * and not seed NPCs. A turn-mode arrival of one joins the order.
+ */
+export function joinableMonsters(
+  projections: SessionProjections,
+  seed: SceneSeed,
+): { id: string; name: string; encounterId: string }[] {
+  const npcIds = new Set(seed.npcs.map((n) => n.id));
+  const out: { id: string; name: string; encounterId: string }[] = [];
+  for (const e of seed.encounters) {
+    if (encounterPhase(projections, e) !== "active") continue;
+    for (const m of e.monsters) {
+      if (projections.engine.combatants[m.combatantId]) continue;
+      if (npcIds.has(m.combatantId)) continue;
+      out.push({
+        id: m.combatantId,
+        name: m.name ?? m.srdMonsterId,
+        encounterId: e.id,
+      });
+    }
+  }
+  return out;
 }
 
 /** Spec 088 D1: encounter monsters of an unrun encounter that are not combatants yet, in seed order. */
@@ -259,6 +339,7 @@ export function arrivingMonsters(
     ...joiningCombatants(
       encounterToStart(seed, director, trigger),
       projections.engine.combatants,
+      projections,
     ),
   ];
   return [...new Set(ids)].map((id) => ({ id, name: all.get(id) as string }));
@@ -273,8 +354,11 @@ export function arrivingNpcs(
   seed: SceneSeed,
   enc: EncounterSeed | undefined,
   scenePresence: SessionProjections["scenePresence"],
+  projections?: SessionProjections,
 ): string[] {
   if (!enc) return [];
+  // Spec 099 FR-018: a resume runs no encounter-start presence group.
+  if (projections && encounterPhase(projections, enc) === "ended") return [];
   const beat = seed.beats.find((b) => b.encounterId === enc.id);
   if (!beat) return [];
   const out: string[] = [];
