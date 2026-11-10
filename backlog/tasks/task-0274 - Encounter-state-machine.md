@@ -45,7 +45,7 @@ Spec: specs/099-encounter-state
 - [x] #14 Spec phase: Engine sides and selectors (US5 engine half, foundation for US2–US4)
 - [x] #15 Spec phase: Engine depart and stand (US2 engine half, US6, AC #5)
 - [x] #16 Spec phase: Presence mapping in the gate (US2, US3 gate half)
-- [ ] #17 Spec phase: Server sides, phases and resume (US1, US2 server half, AC #1)
+- [x] #17 Spec phase: Server sides, phases and resume (US1, US2 server half, AC #1)
 - [ ] #18 Spec phase: Code-owned end and mid-fight arrivals (US3, US4, AC #3)
 - [ ] #19 Spec phase: Planner rules (US5, US6 mapping, AC #4) — REPLACED, not run
 - [ ] #20 Spec phase: Wiki re-ground
