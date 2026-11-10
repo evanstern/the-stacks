@@ -421,3 +421,10 @@ Planner (`packages/planner`, after TASK-0267 merges):
   a revisit task, trigger: a talk-only table that cannot restart a fight.
 - **OQ-6 — Party wipe.** The end check ignores a downed party, so death saves keep their turns.
   A total party kill stays a Director or human DM decision. **Recommend:** keep; no card.
+
+## Operator rulings (2026-11-09)
+
+- OQ-1: the close-combat ranged-disadvantage rule lives in the ENGINE (attack resolution), for every attack, weapon or spell, AI or human. This supersedes the earlier ruling that the planner applies it. The planner reports it as a fact. Rework Phase 6 accordingly: it no longer folds the mode in the planner.
+- OQ-2, OQ-3, OQ-5: adopted as-is; carded for revisit on TASK-0305.
+- OQ-4: seed-declared sides deferred to TASK-0056 (note added).
+- OQ-6: a party wipe does not auto-end the fight.
