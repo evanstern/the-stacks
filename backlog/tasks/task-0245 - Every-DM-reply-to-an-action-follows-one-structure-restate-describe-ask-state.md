@@ -49,6 +49,7 @@ Spec: specs/098-fact-sheet
 - [x] #10 Phase 4: Wiki re-ground (specs/098-fact-sheet tasks.md)
 - [ ] #11 Spec phase: Rows, State line and slots as pure code (US2, US4; FR-004 to FR-008, FR-011, FR-012; plan D1, D2)
 - [ ] #12 Spec phase: Narrate builds and ships the sheet (US1, US3; FR-001 to FR-003, FR-009, FR-010, FR-013; plan D3, D4)
+- [ ] #13 Spec phase: Audit, fallback, talk, auditor and transcript follow the template (FR-014, FR-015; plan D5 to D10)
 <!-- AC:END -->
 
 ## Definition of Done
