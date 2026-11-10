@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: 2026-11-05 04:52
-updated_date: '2026-11-10T03:41:00Z'
+updated_date: '2026-11-10T04:03:00Z'
 labels:
   - dm
   - narration
@@ -71,4 +71,6 @@ Spec 098 (a370041c): FactSheet with code-rendered FactRow rows, tagged prose slo
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5 (phases 1-4)
 Phases a3aea616, 809cfe65, 803c548b, 2d3b45cd. dm.narrate-v22, dm.audit-v17. Clarify replay (run 1 seq 15-20, fixture rebuilt from the playtest log) 3/3. Server tests: 1437 pass with no DB; test/dm 1282 pass, 0 skipped with REQUIRE_DATABASE=1. ci:check exit 0. Orchestrator re-ran the replay test and freshness (OK 62); env:down done. PR held for spine order (#9, after TASK-0267).
+
+Operator ruling 2026-11-09 (R1 lane specs 097-100): spec 100 OQ-12 — add fact rows for moves and zone reveals once TASK-0271 lands (position row). (Restored after the main merge.)
 <!-- SECTION:NOTES:END -->
