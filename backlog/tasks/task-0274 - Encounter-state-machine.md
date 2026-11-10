@@ -4,7 +4,7 @@ title: Encounter state machine
 status: In Progress
 assignee: []
 created_date: 2026-11-07 05:13
-updated_date: '2026-11-10T03:57:00Z'
+updated_date: '2026-11-10T04:22:00Z'
 labels:
   - ws:engine
   - replan-2026-11
@@ -41,7 +41,7 @@ Spec: specs/099-encounter-state
 - [x] #10 Phase 5: Code-owned end and mid-fight arrivals (US3, US4, AC #3) (specs/099-encounter-state tasks.md)
 - [x] #11 Phase 6: Planner rules (US5, US6 mapping, AC #4) (specs/099-encounter-state tasks.md)
 - [x] #12 Phase 7: Wiki re-ground (specs/099-encounter-state tasks.md)
-- [ ] #13 After merging main (with the planner), the planner maps the stand Intent to the engine stand command and reports the engine's close-combat disadvantage as a fact, with golden tests (moved from TASK-0267).
+- [x] #13 After merging main (with the planner), the planner maps the stand Intent to the engine stand command and reports the engine's close-combat disadvantage as a fact, with golden tests (moved from TASK-0267).
 <!-- AC:END -->
 
 ## Definition of Done
@@ -68,4 +68,7 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-
 Phases b934a303, c57dc2e0, ac00de61, e1fcb426, 6ae46ed2, 4dd8d4b8. AC #4 met in the ENGINE per operator ruling 2026-11-09 (closeCombatSources in attack.roll and spell.cast; advantage cancels it); the planner reports it as a fact. AC #11 (Phase 6) superseded by that ruling; the stand mapping moves to TASK-0267. Engine 417, session-model 845, server 1917 pass (REQUIRE_DATABASE=1 on its stack, reported). ci:check exit 0. Orchestrator re-ran engine tests (417) and freshness (OK 63); env:down done. New wiki note dnd5e-engine-sides. PR held for spine order (#10).
 
 Moved from TASK-0267: the planner's stand mapping and close-combat fact land here, when this branch merges main after TASK-0267.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5 (merge main + planner wiring)
+Merged main 96c68c00 (wiki pin lines and CAPSULES only). c93d2da0: planner maps stand to the engine command; close-combat disadvantage reported as a rule fact when closeCombatSources is non-empty (attack, cast). Planner 135 pass; server with REQUIRE_DATABASE=1 on its stack 1966 pass / 5 skipped; ci:check exit 0; boundary 28/28. Orchestrator re-ran planner tests and freshness (OK 64). env:down and prune clean.
 <!-- SECTION:NOTES:END -->
