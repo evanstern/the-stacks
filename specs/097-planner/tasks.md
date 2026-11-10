@@ -50,8 +50,8 @@ does not serve.
 
 **Goal**: attack, cast, help, grapple and shove plan engine commands.
 
-- [ ] T016 [US1] Write `packages/planner/src/combat.ts`: `attack` (FR-019, reach and range with `bandBetween`, `reachCovers`, `rangeOf`; fact `reach`), `cast` (FR-020, port of `spellGap`; `ponytail:` comment for OQ-9), `help` (FR-021), `grapple` (FR-022), `shove` (FR-023, FR-024). Wire into `plan.ts`.
-- [ ] T017 [P] [US1] Write `packages/planner/test/combat.test.ts`: golden lists for melee hit/crit guards, ranged normal and long, `OUT_OF_REACH`, `OUT_OF_RANGE`, unplaced skip, `STAT_UNDEFINED` (no entry; `unarmed` per OQ-12); each of the six engine spells; `SPELL_UNKNOWN`, `SPELL_NOT_PREPARED`, `SPELL_UNRESOLVED` (bad slot, zone target, two targets); help both assists; grapple save choice; shove prone; shove push `KIND_UNSERVED`.
+- [x] T016 [US1] Write `packages/planner/src/combat.ts`: `attack` (FR-019, reach and range with `bandBetween`, `reachCovers`, `rangeOf`; fact `reach`), `cast` (FR-020, port of `spellGap`; `ponytail:` comment for OQ-9), `help` (FR-021), `grapple` (FR-022), `shove` (FR-023, FR-024). Wire into `plan.ts`.
+- [x] T017 [P] [US1] Write `packages/planner/test/combat.test.ts`: golden lists for melee hit/crit guards, ranged normal and long, `OUT_OF_REACH`, `OUT_OF_RANGE`, unplaced skip, `STAT_UNDEFINED` (no entry; `unarmed` per OQ-12); each of the six engine spells; `SPELL_UNKNOWN`, `SPELL_NOT_PREPARED`, `SPELL_UNRESOLVED` (bad slot, zone target, two targets); help both assists; grapple save choice; shove prone; shove push `KIND_UNSERVED`.
 
 **Checkpoint**: US1 scenarios 1, 2 and 4 pass. `pnpm ci:check` green.
 

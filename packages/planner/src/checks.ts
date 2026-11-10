@@ -24,7 +24,7 @@ import {
 } from "./refs.js";
 import type { PlanFact, PlanResult, RulingRequest } from "./types.js";
 
-type Roll = {
+export type Roll = {
   kind: "ability-check" | "saving-throw";
   ability: Ability;
   skill: Skill | null;
@@ -36,7 +36,7 @@ type Dc = { dc: number } | { difficulty: Difficulty };
 const RULE_ORDER: OppositionRule[] = ["influence", "unarmed-strike"];
 const RULE_IDS: Record<OppositionRule, string> = {
   influence: "rules-glossary.influence-action",
-  "unarmed-strike": "rules-glossary.unarmed-strike",
+  "unarmed-strike": "playing-the-game.combat.melee-attacks",
 };
 
 const abilityOf = (p: { ability?: Ability; skill?: Skill }): Ability =>
@@ -54,7 +54,7 @@ function checkStat(who: Ref, roll: Roll): PlanResult | null {
       );
 }
 
-function rollCommand(
+export function rollCommand(
   c: Ctx,
   who: Ref,
   roll: Roll,

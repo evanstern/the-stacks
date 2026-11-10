@@ -2,6 +2,7 @@
 import type { Intent, IntentKind } from "@the-stacks/intent";
 import type { SpaceView } from "@the-stacks/space";
 import { checkKind, contest, hide, search } from "./checks.js";
+import { attack, cast, grapple, help, shove } from "./combat.js";
 import { PLAN_KINDS } from "./kinds.js";
 import { type Ctx, type Handler, reasonOf, refuse } from "./refs.js";
 import { askOutcome, ruling, setDc } from "./rulings.js";
@@ -18,6 +19,11 @@ const HANDLERS: Partial<Record<IntentKind, Handler>> = {
   use_object: askOutcome,
   ruling,
   set_dc: setDc,
+  attack,
+  cast,
+  help,
+  grapple,
+  shove,
 };
 
 /** Plan one Intent in a context; a ruling calls this again with `answer` set. */

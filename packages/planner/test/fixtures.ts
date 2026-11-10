@@ -328,3 +328,26 @@ export function setActor(
   state.actors[id] = { ...(state.actors[id] as PlanActor), ...patch };
   return state;
 }
+
+const need = (s: PlanState, id: string): Combatant =>
+  s.engine.combatants[id] as Combatant;
+
+/** Move a combatant to a zone, in place. */
+export function placeAt(s: PlanState, id: string, zoneId: string): PlanState {
+  s.engine.combatants[id] = { ...need(s, id), placement: { zoneId } };
+  return s;
+}
+
+/** Patch a combatant's stats, in place. */
+export function patchStats(
+  s: PlanState,
+  id: string,
+  patch: Partial<CombatantStats>,
+): PlanState {
+  const c = need(s, id);
+  s.engine.combatants[id] = {
+    ...c,
+    stats: { ...(c.stats as CombatantStats), ...patch },
+  };
+  return s;
+}
