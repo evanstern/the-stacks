@@ -27,7 +27,7 @@ sources:
   - apps/server/seeds/greyhollow-ford-reed-camp.json
   - apps/server/dm-scripts/runbook-a-reed-camp.json
 size_budget_exempt: the note sat within 40 chars of the 8000 budget before TASK-0195; the per-runbook scenario section is a short pointer to docs/design/playtest-scenarios.md, and the in-process harness above is one pipeline that does not split without a TASK of its own
-verified_against: f1676535f62847ef4ac0571639c6ca60b993bb94
+verified_against: 34e13e12b755f1537931bba926e15116761ce4ca
 ---
 
 # Playtest harness
