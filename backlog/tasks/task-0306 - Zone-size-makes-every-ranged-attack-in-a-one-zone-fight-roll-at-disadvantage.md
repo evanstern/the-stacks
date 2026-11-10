@@ -4,6 +4,7 @@ title: Zone size makes every ranged attack in a one-zone fight roll at disadvant
 status: To Do
 assignee: []
 created_date: '2026-11-10T04:45:00Z'
+updated_date: '2026-11-10T04:53:00Z'
 labels:
   - ws:space
   - replan-2026-11
@@ -25,7 +26,7 @@ Options: (a) the rule needs the attacker 'engaged' (a hostile that has moved or 
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 An operator ruling picks the model for 'within 5 ft' in zone mode, recorded on this card.
+- [x] #1 An operator ruling picks the model for 'within 5 ft' in zone mode, recorded on this card.
 - [ ] #2 In the reed-camp fight, an archer not engaged in melee rolls a ranged attack without disadvantage, with a golden-dice test.
 - [ ] #3 An archer with a hostile engaged in melee with it still rolls at disadvantage.
 <!-- AC:END -->
@@ -35,3 +36,9 @@ Options: (a) the rule needs the attacker 'engaged' (a hostile that has moved or 
 - [ ] #1 All tests and checks run green
 - [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Operator ruling 2026-11-10: engaged-only. Ranged (and ranged spell attack) disadvantage applies only while a hostile is ENGAGED with the attacker: a hostile that made a melee attack against it, or that it made a melee attack against, this round or since its last turn, while both share a zone. Sharing a zone alone no longer triggers it. This narrows the 2026-11-09 engine ruling (TASK-0274); the rule stays in the engine.
+<!-- SECTION:NOTES:END -->
