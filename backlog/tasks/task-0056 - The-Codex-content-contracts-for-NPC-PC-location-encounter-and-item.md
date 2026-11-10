@@ -4,7 +4,7 @@ title: 'The Codex: content contracts for NPC, PC, location, encounter and item'
 status: To Do
 assignee: []
 created_date: '2026-10-25 20:13'
-updated_date: '2026-11-07 05:24'
+updated_date: '2026-11-10 03:11'
 labels:
   - codex
   - contracts
@@ -51,6 +51,8 @@ Rewritten by replan-2026-11. `@stacks/codex-model` per P-10; absorbs 0202. Froze
 Merged from TASK-0202 (Seed-declared starting conditions on NPCs) by replan-2026-11: Starting conditions are NPC/encounter payload.
 
 AC re-authored by replan-2026-11.
+
+Operator ruling 2026-11-09 (R1 lane specs 097-100): spec 099 OQ-4 — seeds/codex declare combatant sides (party, hostile, neutral).
 <!-- SECTION:NOTES:END -->
 
 ## Definition of Done
