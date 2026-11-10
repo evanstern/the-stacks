@@ -11,7 +11,7 @@ sources:
   - packages/space/src/view.ts
   - packages/dnd5e-engine/src/space.ts
   - packages/dnd5e-engine/src/commands/move.ts
-verified_against: 3898df927538d2f62711db2f69d6ab03d44ed7d9
+verified_against: f1676535f62847ef4ac0571639c6ca60b993bb94
 ---
 
 # Space
@@ -43,6 +43,10 @@ Four commands (`src/commands/move.ts`): `space.define` sets or replaces the spac
 Speed budget: `effectiveSpeed` is 0 under grappled, paralyzed, petrified, restrained or unconscious, else speed minus 5 ft per exhaustion level. A move costs the path feet, doubled when prone. `movementLeft` is speed times (1 + dashes) minus `Encounter.movement.usedFt`; a record for another combatant or round reads as nothing used. Outside an encounter a move has no budget. A move in an encounter also emits `encounter.changed` carrying the new `movement`.
 `provokers(state, moverId, toZoneId)` lists who may take an opportunity attack when a mover leaves: conscious, able, same origin zone, Reaction unspent, with a non-ranged attack, in initiative order; none after a disengage. Only the origin zone provokes. The engine knows no sides, so callers filter by hostility.
 `spaceViewOf(state)` (`src/space.ts`) is the one place the engine builds a `SpaceView`. `attack.roll` with an attack entry uses it for band checks ([[dnd5e-engine-reactions]]).
+
+## Fog (spec 100)
+
+Fog, `zone.revealed`, the per-viewer `spatial` projection, `spatialFor`, `reachOf` and `targetStatus` are built in [[zone-fog]] on top of `SpaceView`.
 
 ## Boundary
 

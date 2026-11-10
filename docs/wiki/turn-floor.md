@@ -19,7 +19,7 @@ sources:
   - apps/web/app/play/local-log.ts
   - apps/web/app/play/components/floor-controls.tsx
   - apps/web/app/play/components/turn-order.tsx
-verified_against: ee5555fef74502e96badd67e43c1b285d964396b
+verified_against: f1676535f62847ef4ac0571639c6ca60b993bb94
 ---
 
 # Turn floor
@@ -61,3 +61,5 @@ Write boundary: only `dm/floor.ts` builds a `floor` proposal or the stall overri
 The human DM leaves or resumes turn mode from the Table mode slide-out ([[play-route]], TASK-0165, specs/060); the floor controls above are unchanged.
 
 The `turn-floor` fixture ([[session-model]]) walks the whole flow.
+
+Spec 100: a `floor` `end` plan passes through the fog rule too. Its `turn.advance` rows name no zone, so the rule leaves them and the `table-mode.changed` row unchanged ([[session-model]]).

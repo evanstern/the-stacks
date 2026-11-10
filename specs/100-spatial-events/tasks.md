@@ -85,10 +85,10 @@ operator's OQ-1 ruling quoted in its brief.
 
 **Goal**: the corpus describes fog, `zone.revealed` and the spatial projection, re-pinned honestly.
 
-- [ ] T028 Update `docs/wiki/session-model.md` (catalog row, `spatial` fold, `fogRows` in `planProposal`, new exports) and re-pin.
-- [ ] T029 Update `docs/wiki/space.md` (fog, feature zones as entity targets, `spatialFor`/`reachOf`) and add `packages/session-model/src/projections/spatial.ts` to its sources; re-pin.
-- [ ] T030 Review and re-pin the runbook's list: `actor-snapshot.md` (zone, reach, zones line), `seed-npc-presence.md` (seed zones), `dm-runtime.md` (space define, gathering). Review and re-pin every other note whose sources this branch touched: `proposal-gate.md`, `presence.md`, `turn-floor.md`, `dm-failure-and-gates.md`, `dm-narration-quality.md`, `dm-turn-jobs.md`, `party-panel.md`, `playtest-harness.md`, `subscriber-registry.md` (one sentence: spatial secrecy is row visibility).
-- [ ] T031 Regenerate `docs/wiki/CAPSULES.md` for changed descriptions; update `docs/wiki/INDEX.md` routing for "fog", "zone.revealed", "spatial projection".
-- [ ] T032 Run the freshness gate (`OK`) and the spec-bridge check (exit 0).
+- [x] T028 Update `docs/wiki/session-model.md` (catalog row, `spatial` fold, `fogRows` in `planProposal`, new exports) and re-pin.
+- [x] T029 Update `docs/wiki/space.md` (fog, feature zones as entity targets, `spatialFor`/`reachOf`) and add `packages/session-model/src/projections/spatial.ts` to its sources; re-pin.
+- [x] T030 Review and re-pin the runbook's list: `actor-snapshot.md` (zone, reach, zones line), `seed-npc-presence.md` (seed zones), `dm-runtime.md` (space define, gathering). Review and re-pin every other note whose sources this branch touched: `proposal-gate.md`, `presence.md`, `turn-floor.md`, `dm-failure-and-gates.md`, `dm-narration-quality.md`, `dm-turn-jobs.md`, `party-panel.md`, `playtest-harness.md`, `subscriber-registry.md` (one sentence: spatial secrecy is row visibility).
+- [x] T031 Regenerate `docs/wiki/CAPSULES.md` for changed descriptions; update `docs/wiki/INDEX.md` routing for "fog", "zone.revealed", "spatial projection".
+- [x] T032 Run the freshness gate (`OK`) and the spec-bridge check (exit 0).
 
 **Checkpoint**: both gates green; every task above ticked.

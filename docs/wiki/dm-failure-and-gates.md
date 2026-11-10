@@ -14,7 +14,7 @@ sources:
   - apps/server/src/dm/prompts/step-grammar.ts
   - apps/server/src/dm/seed/schema.ts
   - specs/033-director-robustness/contracts/rules-terms.md
-verified_against: beae54aa70dd2338a46f33de801f38e0019624b6
+verified_against: f1676535f62847ef4ac0571639c6ca60b993bb94
 ---
 
 # DM failure record and rules-term gates
@@ -51,3 +51,4 @@ The scene seed's character `skills` keys and clue `check.skill` use the same `Sk
 A gate never maps, coerces or drops a term to pass output. The audit
 (`specs/033-director-robustness/contracts/rules-terms.md`) records spells as the term **not gated yet**; since spec 083 (TASK-0105) they are gated. Since TASK-0104 schemas refuse `expression`, `dc`, `targetAc` and `onHit` damage; the plan gate adds `STAT_UNDEFINED`.
 
+Spec 100: `SceneSeedSchema` gained an optional `space` and zone fields, checked in `crossCheckSeed`; a bad zone is a `SeedError` at load, not a turn failure ([[seed-npc-presence]]).

@@ -10,7 +10,7 @@ sources:
   - apps/web/app/play/components/margin.tsx
   - packages/session-model/src/events/party.ts
   - apps/server/src/dm/nodes/resolve.ts
-verified_against: b7ccccc1707210ceac13ab9a78af79dff07b3650
+verified_against: f1676535f62847ef4ac0571639c6ca60b993bb94
 ---
 
 # Party panel
@@ -40,3 +40,5 @@ default is "Turn order"), fed from the table view model's `order`.
 characters) and `level` (1 to 20). Scene start's `directorOpening` in `resolve.ts` writes both from the
 seed character's `identity` onto each `director:party:<id>` row's `after` ([[seed-npc-presence]],
 [[dm-runtime]]). A party member added any other way has neither, so its row reads "Class and level not recorded".
+
+Spec 100: scene start now places each party combatant in the seed's start zone. The panel reads no placement; the projection holds it in `spatial` ([[session-model]]).
