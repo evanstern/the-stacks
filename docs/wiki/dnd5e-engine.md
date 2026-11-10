@@ -59,7 +59,7 @@ The command emits `encounter.changed` and draws no dice. A leaver's id is remove
 
 ## Sides, depart and stand (spec 099, TASK-0274)
 
-Optional combatant `side`, `combatant.side`, `combatant.depart`, `stand`, four selectors and the engine close-combat rule: [[dnd5e-engine-sides]].
+Optional combatant `side`, `combatant.side`, `combatant.depart`, `stand`, four selectors, `closeCombatSources` (the mode source the planner reads to report the rule, [[planner]]) and the engine close-combat rule: [[dnd5e-engine-sides]].
 
 `src/index.ts` also exports `isUnable` (from `src/commands/attacks.ts`): the able-actor predicate that `attackRoll`, `checkRoll` and `move` use, so the planner ([[planner]]) refuses `ACTOR_UNABLE` by the same rule.
 
