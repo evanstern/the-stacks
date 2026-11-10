@@ -3,10 +3,10 @@ id: TASK-0267
 title: Deterministic planner
 status: In Progress
 assignee: []
-created_date: '2026-11-07 05:13'
-updated_date: '2026-11-10 03:13'
+created_date: 2026-11-07 05:13
+updated_date: '2026-11-10T03:49:00Z'
 labels:
-  - 'ws:intent'
+  - ws:intent
   - replan-2026-11
   - ep-1
 milestone: m-10
@@ -39,19 +39,14 @@ Spec: specs/097-planner
 - [ ] #7 Phase 4: Movement, turn, resources and DM control (US1, US3, AC #2) (specs/097-planner tasks.md)
 - [ ] #8 Phase 5: Legality, coverage and determinism (US3, AC #2, AC #3) (specs/097-planner tasks.md)
 - [ ] #9 Phase 6: Wiki re-ground (specs/097-planner tasks.md)
+- [ ] #10 The planner maps the stand Intent to the engine stand command, with a golden test (moved from spec 099 T031).
 <!-- AC:END -->
 
-
-
-
-
-
-
-
-
-
-
-
+## Definition of Done
+<!-- DOD:BEGIN -->
+- [ ] #1 All tests and checks run green
+- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
+<!-- DOD:END -->
 
 ## Implementation Notes
 
@@ -62,10 +57,6 @@ Claimed 2026-11-08 by the R1 sweep (docs/design/r1-fast-table-runbook.md). Workt
 
 Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=cc/claude-opus-5-5 (spec authoring, grant C1)
 Spec 097 (a34d5d39): packages/planner, PlanState, 28 served kinds, PlanFact, RulingRequest, 6 phases. Orchestrator-settled (technical seams, follow ratified decisions): OQ-1 PlanState, OQ-6 AC #3 scope, OQ-7 stop at first refused command, OQ-9 spell range ponytail to TASK-0227, OQ-10 FactRow naming, OQ-11 keep the AI-hostile reaction port. Operator rulings pending: OQ-2/OQ-3 (action economy + Dodge card), OQ-4 (player-written DC), OQ-5 (stakes/free retry), OQ-8 (AI-DM fiat code), OQ-12 (unarmed strikes).
-<!-- SECTION:NOTES:END -->
 
-## Definition of Done
-<!-- DOD:BEGIN -->
-- [ ] #1 All tests and checks run green
-- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
-<!-- DOD:END -->
+From TASK-0274: stand mapping and its golden test moved here; close-combat disadvantage is the engine's, the planner reports it as a fact.
+<!-- SECTION:NOTES:END -->
