@@ -4,7 +4,7 @@ title: Encounter state machine
 status: In Progress
 assignee: []
 created_date: '2026-11-07 05:13'
-updated_date: '2026-11-09 17:15'
+updated_date: '2026-11-10 03:13'
 labels:
   - 'ws:engine'
   - replan-2026-11
@@ -34,7 +34,10 @@ Spec: specs/099-encounter-state
 - [ ] #3 Joining mid-fight rolls initiative for the newcomer only.
 - [ ] #4 The planner applies disadvantage to a ranged attack made while a hostile is in the attacker's zone (spec 094 OQ-3; the engine knows no sides).
 - [ ] #5 Standing from prone costs half the actor's speed, with an engine test (spec 094 OQ-4).
+- [ ] #6 Phase 1: Engine sides and selectors (US5 engine half, foundation for US2–US4) (specs/099-encounter-state tasks.md)
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
