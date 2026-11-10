@@ -1225,7 +1225,7 @@ describe("scene-presence planner (TASK-0141)", () => {
     for (const row of rows.slice(1)) expect(row.visibility).toBe("public");
   });
 
-  it("turn mode, in the order, fled: presence row then initiative.leave rows in one batch", () => {
+  it("turn mode, in the order, fled: presence row then combatant.depart rows in one batch", () => {
     const p = dmFoldWith([init], turnOpts);
     const result = plan(p, aiDm, presence("goblin", "fled"));
     const rows = okRows(result);
@@ -1285,14 +1285,73 @@ describe("scene-presence planner (TASK-0141)", () => {
     ).toMatchObject({ ok: false, refusal: { code: "UNKNOWN_ACTION" } });
   });
 
-  it("an engine refusal (the last entry leaves) returns source engine and no rows", () => {
+  it("the last entry fleeing ends the encounter (spec 099)", () => {
     const solo = dmFoldWith([
       { ...init, participants: [{ combatantId: "goblin" }] },
     ]);
-    expect(plan(solo, aiDm, presence("goblin", "fled"))).toMatchObject({
-      ok: false,
-      refusal: { source: "engine", code: "NO_ELIGIBLE_COMBATANT" },
-    });
+    const rows = okRows(plan(solo, aiDm, presence("goblin", "fled")));
+    expect(rows.slice(1).map((r) => r.type)).toEqual(["encounter.ended"]);
+  });
+
+  it("a placed combatant that fled in free mode gets a combatant.placed null row", () => {
+    const p = dmFoldWith([
+      {
+        type: "space.define",
+        space: {
+          zones: [
+            { id: "z", name: "z", kind: "room", tags: [], hidden: false },
+          ],
+          edges: [],
+        },
+        reason: "r",
+      },
+      {
+        type: "combatant.place",
+        combatantId: "goblin",
+        zoneId: "z",
+        reason: "r",
+      },
+    ]);
+    const rows = okRows(plan(p, aiDm, presence("goblin", "fled")));
+    expect(rows.map((r) => r.type)).toEqual([
+      "scene-presence.changed",
+      "combatant.placed",
+    ]);
+    expect(
+      (rows[1].payload as { event: { after: unknown } }).event.after,
+    ).toBeNull();
+  });
+
+  it("a surrendered hostile goes neutral; a sideless or party yield gets the presence row only", () => {
+    const hostile = dmFoldWith([
+      {
+        type: "combatant.side",
+        combatantId: "goblin",
+        side: "hostile",
+        reason: "r",
+      },
+    ]);
+    const rows = okRows(plan(hostile, aiDm, presence("goblin", "surrendered")));
+    expect(rows.map((r) => r.type)).toEqual([
+      "scene-presence.changed",
+      "combatant.sided",
+    ]);
+    expect((rows[1].payload as { event: { after: string } }).event.after).toBe(
+      "neutral",
+    );
+    const party = dmFoldWith([
+      {
+        type: "combatant.side",
+        combatantId: "goblin",
+        side: "party",
+        reason: "r",
+      },
+    ]);
+    expect(
+      okRows(plan(party, aiDm, presence("goblin", "conceded"))).map(
+        (r) => r.type,
+      ),
+    ).toEqual(["scene-presence.changed"]);
   });
 
   it("a seated human DM may propose it; players and companions are refused", () => {

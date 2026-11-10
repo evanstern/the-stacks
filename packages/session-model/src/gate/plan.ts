@@ -630,11 +630,24 @@ function plan(
       const inOrder =
         cid !== null &&
         (encounter?.order.some((e) => e.combatantId === cid) ?? false);
+      const placed = cid !== null && p.engine.combatants[cid]?.placement;
       let command: unknown = null;
-      if (cid !== null && after === "absent" && inOrder) {
+      if (cid !== null && after === "absent" && (inOrder || placed)) {
+        // Spec 099: a departure leaves the order and the zone.
         command = {
-          type: "initiative.leave",
+          type: "combatant.depart",
           combatantId: cid,
+          reason: `${proposal.actorId} ${proposal.reason}`,
+        };
+      } else if (
+        cid !== null &&
+        after === "yielded" &&
+        p.engine.combatants[cid]?.side === "hostile"
+      ) {
+        command = {
+          type: "combatant.side",
+          combatantId: cid,
+          side: "neutral",
           reason: `${proposal.actorId} ${proposal.reason}`,
         };
       } else if (

@@ -54,9 +54,9 @@ Speed.
 **Goal**: a flee drops the combatant through `combatant.depart`; a hostile's surrender makes it
 neutral.
 
-- [ ] T014 [US2] In `packages/session-model/src/gate/plan.ts` `scene-presence`, replace the `initiative.leave` branch with `combatant.depart` (in order or placed, FR-010); add the `yielded` branch (FR-011). Keep the `arrived` branch (FR-012).
-- [ ] T015 [US2] Update `packages/session-model/test/gate-plan.test.ts` "scene-presence planner": depart rows for `fled` in an encounter and for a placed combatant in free mode; a `surrendered` hostile gets `combatant.sided`; a sideless or `party` yield gets only the presence row; `arrived` unchanged.
-- [ ] T016 [US2] Run the server presence tests (`apps/server/test/dm/presence-effect.test.ts`, `apps/server/test/dm/reclaim.integration.test.ts`). Fix any assertion on the old leave event list; on 2026-11-09 only `gate-plan.test.ts` names `initiative.leave`.
+- [x] T014 [US2] In `packages/session-model/src/gate/plan.ts` `scene-presence`, replace the `initiative.leave` branch with `combatant.depart` (in order or placed, FR-010); add the `yielded` branch (FR-011). Keep the `arrived` branch (FR-012).
+- [x] T015 [US2] Update `packages/session-model/test/gate-plan.test.ts` "scene-presence planner": depart rows for `fled` in an encounter and for a placed combatant in free mode; a `surrendered` hostile gets `combatant.sided`; a sideless or `party` yield gets only the presence row; `arrived` unchanged.
+- [x] T016 [US2] Run the server presence tests (`apps/server/test/dm/presence-effect.test.ts`, `apps/server/test/dm/reclaim.integration.test.ts`). Fix any assertion on the old leave event list; on 2026-11-09 only `gate-plan.test.ts` names `initiative.leave`.
 
 **Checkpoint**: session-model and server unit suites green; `pnpm ci:check` green.
 
