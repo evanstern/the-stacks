@@ -41,7 +41,7 @@ Spec: specs/097-planner
 - [x] #9 Phase 6: Wiki re-ground (specs/097-planner tasks.md)
 - [x] #10 Spec phase: Package skeleton, types, boundary and kind table (AC #1)
 - [x] #11 Spec phase: Checks and the ruling loop (US2, AC #2)
-- [ ] #12 Spec phase: Combat actions (US1, AC #2)
+- [x] #12 Spec phase: Combat actions (US1, AC #2)
 - [ ] #13 Spec phase: Movement, turn, resources and DM control (US1, US3, AC #2)
 - [ ] #14 Spec phase: Legality, coverage and determinism (US3, AC #2, AC #3)
 - [ ] #15 Spec phase: Wiki re-ground
