@@ -37,7 +37,10 @@ Spec: specs/099-encounter-state
 - [ ] #6 Phase 1: Engine sides and selectors (US5 engine half, foundation for US2–US4) (specs/099-encounter-state tasks.md)
 - [ ] #7 Phase 2: Engine depart and stand (US2 engine half, US6, AC #5) (specs/099-encounter-state tasks.md)
 - [ ] #8 Phase 3: Presence mapping in the gate (US2, US3 gate half) (specs/099-encounter-state tasks.md)
+- [ ] #9 Phase 4: Server sides, phases and resume (US1, US2 server half, AC #1) (specs/099-encounter-state tasks.md)
 <!-- AC:END -->
+
+
 
 
 
