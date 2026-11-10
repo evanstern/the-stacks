@@ -3,10 +3,10 @@ id: TASK-0274
 title: Encounter state machine
 status: In Progress
 assignee: []
-created_date: '2026-11-07 05:13'
-updated_date: '2026-11-10 03:13'
+created_date: 2026-11-07 05:13
+updated_date: '2026-11-10T03:49:00Z'
 labels:
-  - 'ws:engine'
+  - ws:engine
   - replan-2026-11
   - ep-1
 milestone: m-10
@@ -29,33 +29,25 @@ Spec: specs/099-encounter-state
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 A fight ended by truce resumes with a fresh turn order when broken.
-- [ ] #2 A fled combatant leaves the order and its zone.
-- [ ] #3 Joining mid-fight rolls initiative for the newcomer only.
-- [ ] #4 The planner applies disadvantage to a ranged attack made while a hostile is in the attacker's zone (spec 094 OQ-3; the engine knows no sides).
-- [ ] #5 Standing from prone costs half the actor's speed, with an engine test (spec 094 OQ-4).
-- [ ] #6 Phase 1: Engine sides and selectors (US5 engine half, foundation for US2–US4) (specs/099-encounter-state tasks.md)
-- [ ] #7 Phase 2: Engine depart and stand (US2 engine half, US6, AC #5) (specs/099-encounter-state tasks.md)
-- [ ] #8 Phase 3: Presence mapping in the gate (US2, US3 gate half) (specs/099-encounter-state tasks.md)
-- [ ] #9 Phase 4: Server sides, phases and resume (US1, US2 server half, AC #1) (specs/099-encounter-state tasks.md)
-- [ ] #10 Phase 5: Code-owned end and mid-fight arrivals (US3, US4, AC #3) (specs/099-encounter-state tasks.md)
-- [ ] #11 Phase 6: Planner rules (US5, US6 mapping, AC #4) (specs/099-encounter-state tasks.md)
-- [ ] #12 Phase 7: Wiki re-ground (specs/099-encounter-state tasks.md)
+- [x] #1 A fight ended by truce resumes with a fresh turn order when broken.
+- [x] #2 A fled combatant leaves the order and its zone.
+- [x] #3 Joining mid-fight rolls initiative for the newcomer only.
+- [x] #4 The planner applies disadvantage to a ranged attack made while a hostile is in the attacker's zone (spec 094 OQ-3; the engine knows no sides).
+- [x] #5 Standing from prone costs half the actor's speed, with an engine test (spec 094 OQ-4).
+- [x] #6 Phase 1: Engine sides and selectors (US5 engine half, foundation for US2–US4) (specs/099-encounter-state tasks.md)
+- [x] #7 Phase 2: Engine depart and stand (US2 engine half, US6, AC #5) (specs/099-encounter-state tasks.md)
+- [x] #8 Phase 3: Presence mapping in the gate (US2, US3 gate half) (specs/099-encounter-state tasks.md)
+- [x] #9 Phase 4: Server sides, phases and resume (US1, US2 server half, AC #1) (specs/099-encounter-state tasks.md)
+- [x] #10 Phase 5: Code-owned end and mid-fight arrivals (US3, US4, AC #3) (specs/099-encounter-state tasks.md)
+- [x] #11 Phase 6: Planner rules (US5, US6 mapping, AC #4) (specs/099-encounter-state tasks.md)
+- [x] #12 Phase 7: Wiki re-ground (specs/099-encounter-state tasks.md)
 <!-- AC:END -->
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+## Definition of Done
+<!-- DOD:BEGIN -->
+- [ ] #1 All tests and checks run green
+- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
+<!-- DOD:END -->
 
 ## Implementation Notes
 
@@ -70,10 +62,7 @@ Claimed 2026-11-08 by the R1 sweep (docs/design/r1-fast-table-runbook.md). Workt
 
 Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=cc/claude-opus-5-5 (spec authoring, grant C1)
 Spec 099 (58fc1fd4): server-derived encounter phase, combatant sides, combatant.depart, stand (half speed), code-owned end, resume, closeCombatFoes for the planner. 7 phases; Phase 6 waits for TASK-0267. OQ-6 (a party wipe does not auto-end) kept as recommended. Operator rulings pending: OQ-1 (move the close-combat disadvantage rule into the engine instead of the planner), OQ-2/OQ-3/OQ-5 revisit cards, OQ-4 seed sides deferred to TASK-0056.
-<!-- SECTION:NOTES:END -->
 
-## Definition of Done
-<!-- DOD:BEGIN -->
-- [ ] #1 All tests and checks run green
-- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
-<!-- DOD:END -->
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5 (phases 1-5, 7)
+Phases b934a303, c57dc2e0, ac00de61, e1fcb426, 6ae46ed2, 4dd8d4b8. AC #4 met in the ENGINE per operator ruling 2026-11-09 (closeCombatSources in attack.roll and spell.cast; advantage cancels it); the planner reports it as a fact. AC #11 (Phase 6) superseded by that ruling; the stand mapping moves to TASK-0267. Engine 417, session-model 845, server 1917 pass (REQUIRE_DATABASE=1 on its stack, reported). ci:check exit 0. Orchestrator re-ran engine tests (417) and freshness (OK 63); env:down done. New wiki note dnd5e-engine-sides. PR held for spine order (#10).
+<!-- SECTION:NOTES:END -->
