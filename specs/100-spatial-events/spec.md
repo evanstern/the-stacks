@@ -405,3 +405,11 @@ OQ-10 ruling). Absorbs TASK-0201."
   party in the encounter zone at encounter start. Ceiling: a fight across zones (archers on the
   bank) is not modelled before TASK-0269. **Recommend:** adopt; TASK-0269 removes the gathering
   step when interpret emits `move` Intents (add that as a TASK-0269 AC).
+
+## Operator rulings (2026-11-09)
+
+- OQ-1: the fog rule runs in the proposal gate. The operator approves amending the frozen `specs/029-proposal-gate/contracts/gate-api.md`; the amendment ships in this card's PR with a changelog line citing this ruling. Phase 2 may proceed.
+- OQ-2, OQ-3, OQ-6, OQ-7, OQ-8: adopted as recommended.
+- OQ-4: zone reveal Intent and `seen` → AC on TASK-0268. OQ-12: move and reveal fact rows → note on TASK-0245. OQ-13: encounter-start gathering removal → AC on TASK-0269. OQ-5: object stats → R2 codex epic TASK-0259. OQ-9: re-fogging → revisit card TASK-0305.
+- OQ-10, OQ-11: runbook footprint corrected (resolve.ts and dm/snapshot/ in; assemble.ts and facts.ts out; new dependency on @the-stacks/space).
+- The five proposed AC replace the card's AC.
