@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-11-05 04:52'
-updated_date: '2026-11-09 18:22'
+updated_date: '2026-11-10 03:13'
 labels:
   - dm
   - narration
@@ -43,7 +43,10 @@ Spec: specs/098-fact-sheet
 - [ ] #4 The narrator fills only the restate, describe and optional ask slots, and the reply renders in template order.
 - [ ] #5 A clarify reply shows its question in the ask slot and a State line saying nothing has happened, replaying run 1 seq 15-20.
 - [ ] #6 No State line contains 'What do you do?'; each names whose move it is, with a test per branch.
+- [ ] #7 Phase 1: Rows, State line and slots as pure code (US2, US4; FR-004 to FR-008, FR-011, FR-012; plan D1, D2) (specs/098-fact-sheet tasks.md)
 <!-- AC:END -->
+
+
 
 ## Implementation Notes
 
