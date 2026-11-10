@@ -388,3 +388,13 @@ Each has a recommendation. The orchestrator rules or cards each one.
 - **OQ-12 — Unarmed strikes.** No combatant carries an `Unarmed Strike` entry, so
   `weapon: "unarmed"` refuses `STAT_UNDEFINED`. The SRD derives it (1 + Strength modifier,
   bludgeoning). **Recommend:** add the derived entry in TASK-0223 (engine-derived amounts).
+
+## Operator rulings (2026-11-09)
+
+- OQ-1, OQ-6, OQ-7, OQ-9, OQ-10, OQ-11: adopted as recommended (orchestrator; technical seams).
+- OQ-2, OQ-3: action economy and Dodge are carded as TASK-0304 (engine, before TASK-0275). Until it merges, `dodge` refuses KIND_UNSERVED.
+- OQ-4: a `dc` or `difficulty` from a pc or companion actor is ignored (fact `ignored`) and the planner asks for a ruling; an npc actor's value is honoured.
+- OQ-5: band effects and the free retry stay beside the Intent path; AC added to TASK-0269.
+- OQ-8: AI-DM harm by fiat refuses DM_SEAT_REQUIRED. No new code.
+- OQ-12: unarmed strikes are derived in TASK-0223 (AC added).
+- Spec 099 OQ-1 (cross-spec): the close-combat ranged-disadvantage rule moves to the ENGINE (TASK-0274). The planner does not fold it; it reports the engine's result as a fact.
