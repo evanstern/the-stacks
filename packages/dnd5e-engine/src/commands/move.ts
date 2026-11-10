@@ -281,3 +281,73 @@ export function provokers(
     )
     .map((c) => c.id);
 }
+
+/** Spec 099: standing from prone costs half Speed (SRD 5.2.1 condition prone). */
+export const handleStand: Handler<"stand"> = (state, command) => {
+  const c = state.combatants[command.combatantId];
+  if (!c) return unknown(command.combatantId);
+  const prone = c.conditions.filter((i) => i.condition === "prone");
+  if (prone.length === 0) {
+    return refuse("CONDITION_NOT_PRESENT", `combatant "${c.id}" is not prone`, {
+      combatantId: c.id,
+      condition: "prone",
+    });
+  }
+  const enc = state.encounter;
+  let cost = 0;
+  if (enc) {
+    if (enc.order[enc.turnIndex]?.combatantId !== c.id) {
+      return refuse("MOVE_OFF_TURN", `it is not "${c.id}"'s turn`, {
+        combatantId: c.id,
+      });
+    }
+    const speed = effectiveSpeed(c);
+    if (speed === null) {
+      return refuse("STAT_UNDEFINED", `"${c.id}" has no speed`, {
+        combatantId: c.id,
+        missing: "speed",
+      });
+    }
+    cost = Math.floor(speed / 2);
+    const left = movementLeft(state, c.id) as number;
+    if (speed === 0 || cost > left) {
+      return refuse(
+        "MOVE_OVER_SPEED",
+        speed === 0
+          ? `"${c.id}" has Speed 0 and cannot stand`
+          : `standing costs ${cost} ft, ${left} ft left this turn`,
+        {
+          combatantId: c.id,
+          cost,
+          left,
+          ...(speed === 0 ? { reason: "speed-zero" } : {}),
+        },
+      );
+    }
+  }
+  const events: EngineEvent[] = prone.map(
+    (instance): EngineEvent => ({
+      type: "condition.removed",
+      v: 1,
+      reason: command.reason,
+      combatantId: c.id,
+      cause: "command",
+      before: instance,
+      after: null,
+    }),
+  );
+  if (enc) {
+    events.push({
+      type: "encounter.changed",
+      v: 1,
+      reason: command.reason,
+      combatantId: c.id,
+      before: enc,
+      after: withMovement(state, c.id, (m) => ({
+        ...m,
+        usedFt: m.usedFt + cost,
+      })),
+    });
+  }
+  return { ok: true, events };
+};

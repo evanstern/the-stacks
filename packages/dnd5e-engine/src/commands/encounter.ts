@@ -207,15 +207,16 @@ function withoutSpent(
   return { reactionsSpent: enc.reactionsSpent.filter((x) => !ids.includes(x)) };
 }
 
-export const handleInitiativeLeave: Handler<"initiative.leave"> = (
-  state,
-  command,
-  _rng,
-) => {
-  const enc = state.encounter;
-  if (!enc) return refuse("NO_ACTIVE_ENCOUNTER", "no encounter is active");
-  const id = command.combatantId;
-  if (!state.combatants[id]) return unknownCombatant(id);
+/**
+ * The events `initiative.leave` emits, or its refusal. `combatant.depart` composes it (spec 099).
+ * Caller guarantees an active encounter.
+ */
+export function leaveEvents(
+  state: EngineState,
+  id: string,
+  reason: string,
+): RefusalResult | EngineEvent[] {
+  const enc = state.encounter as Encounter;
   const at = enc.order.findIndex((e) => e.combatantId === id);
   if (at === -1) {
     return refuse("UNKNOWN_COMBATANT", `"${id}" is not in the order`, {
@@ -230,7 +231,6 @@ export const handleInitiativeLeave: Handler<"initiative.leave"> = (
       { combatantId: id },
     );
   }
-  const reason = command.reason;
   const order = enc.order.filter((_, i) => i !== at);
   const isDead = (e: Entry) =>
     state.combatants[e.combatantId]?.lifeState === "dead";
@@ -301,7 +301,21 @@ export const handleInitiativeLeave: Handler<"initiative.leave"> = (
       ),
     );
   }
-  return { ok: true, events };
+  return events;
+}
+
+export const handleInitiativeLeave: Handler<"initiative.leave"> = (
+  state,
+  command,
+  _rng,
+) => {
+  if (!state.encounter) {
+    return refuse("NO_ACTIVE_ENCOUNTER", "no encounter is active");
+  }
+  const id = command.combatantId;
+  if (!state.combatants[id]) return unknownCombatant(id);
+  const out = leaveEvents(state, id, command.reason);
+  return Array.isArray(out) ? { ok: true, events: out } : out;
 };
 
 export const handleTurnAdvance: Handler<"turn.advance"> = (
@@ -387,13 +401,9 @@ export const handleTurnAdvance: Handler<"turn.advance"> = (
   return { ok: true, events };
 };
 
-export const handleEncounterEnd: Handler<"encounter.end"> = (
-  state,
-  command,
-  _rng,
-) => {
-  const enc = state.encounter;
-  if (!enc) return refuse("NO_ACTIVE_ENCOUNTER", "no encounter is active");
+/** The events `encounter.end` emits. Caller guarantees an active encounter. */
+export function endEvents(state: EngineState, reason: string): EngineEvent[] {
+  const enc = state.encounter as Encounter;
   const events: EngineEvent[] = [];
   for (const c of Object.values(state.combatants)) {
     for (const instance of c.conditions) {
@@ -401,7 +411,7 @@ export const handleEncounterEnd: Handler<"encounter.end"> = (
         events.push({
           type: "condition.removed",
           v: 1,
-          reason: command.reason,
+          reason: reason,
           combatantId: c.id,
           cause: "encounter-ended",
           before: instance,
@@ -413,7 +423,7 @@ export const handleEncounterEnd: Handler<"encounter.end"> = (
       events.push({
         type: "assist.ended",
         v: 1,
-        reason: command.reason,
+        reason: reason,
         combatantId: c.id,
         cause: "encounter-ended",
         before: assist,
@@ -424,9 +434,57 @@ export const handleEncounterEnd: Handler<"encounter.end"> = (
   events.push({
     type: "encounter.ended",
     v: 1,
-    reason: command.reason,
+    reason: reason,
     before: enc,
     after: null,
   });
+  return events;
+}
+
+export const handleEncounterEnd: Handler<"encounter.end"> = (
+  state,
+  command,
+  _rng,
+) => {
+  if (!state.encounter) {
+    return refuse("NO_ACTIVE_ENCOUNTER", "no encounter is active");
+  }
+  return { ok: true, events: endEvents(state, command.reason) };
+};
+
+export const handleCombatantDepart: Handler<"combatant.depart"> = (
+  state,
+  command,
+  _rng,
+) => {
+  const id = command.combatantId;
+  const c = state.combatants[id];
+  if (!c) return unknownCombatant(id);
+  const inOrder = state.encounter?.order.some((e) => e.combatantId === id);
+  if (!inOrder && !c.placement) {
+    return refuse(
+      "INVALID_COMMAND",
+      `"${id}" is neither in the order nor placed`,
+      { combatantId: id },
+    );
+  }
+  const events: EngineEvent[] = [];
+  if (inOrder) {
+    const left = leaveEvents(state, id, command.reason);
+    if (Array.isArray(left)) events.push(...left);
+    else if (left.refusal.code === "NO_ELIGIBLE_COMBATANT") {
+      events.push(...endEvents(state, command.reason));
+    } else return left;
+  }
+  if (c.placement) {
+    events.push({
+      type: "combatant.placed",
+      v: 1,
+      reason: command.reason,
+      combatantId: id,
+      before: c.placement,
+      after: null,
+    });
+  }
   return { ok: true, events };
 };

@@ -38,12 +38,12 @@ suites with `REQUIRE_DATABASE=1` on the worktree stack.
 **Goal**: `combatant.depart` drops a combatant from the order and its zone; `stand` costs half
 Speed.
 
-- [ ] T008 [US2] In `src/commands/encounter.ts`, extract `leaveEvents(state, id, reason)` from `handleInitiativeLeave` and `endEvents(state, reason)` from `handleEncounterEnd`. Both handlers keep their behaviour; the existing encounter and initiative-leave tests pass unchanged.
-- [ ] T009 [US2] Add the `combatant.depart` command schema and `handleCombatantDepart` (FR-007) in `src/commands/encounter.ts`; register it in `src/execute.ts`.
-- [ ] T010 [US6] Add the `stand` command schema and `handleStand` (FR-008) in `src/commands/move.ts`, reusing `effectiveSpeed`, `movementLeft` and `withMovement`; register it in `src/execute.ts`.
-- [ ] T011 [P] [US2] Write `packages/dnd5e-engine/test/commands/depart.test.ts`: placed and unplaced, active and not active, last living combatant ends the encounter, not in order but placed, neither (`INVALID_COMMAND`), unknown; parity with `initiative.leave` for each state in `test/commands/initiative-leave.test.ts`; `scriptedRng([])` everywhere.
-- [ ] T012 [P] [US6] Extend `packages/dnd5e-engine/test/commands/move.test.ts` with every US6 scenario, cite SRD 5.2.1 condition `prone` in the describe name.
-- [ ] T013 [US2] Add README bullets for `combatant.side`, `combatant.depart`, `stand` and the selectors in `packages/dnd5e-engine/README.md`.
+- [x] T008 [US2] In `src/commands/encounter.ts`, extract `leaveEvents(state, id, reason)` from `handleInitiativeLeave` and `endEvents(state, reason)` from `handleEncounterEnd`. Both handlers keep their behaviour; the existing encounter and initiative-leave tests pass unchanged.
+- [x] T009 [US2] Add the `combatant.depart` command schema and `handleCombatantDepart` (FR-007) in `src/commands/encounter.ts`; register it in `src/execute.ts`.
+- [x] T010 [US6] Add the `stand` command schema and `handleStand` (FR-008) in `src/commands/move.ts`, reusing `effectiveSpeed`, `movementLeft` and `withMovement`; register it in `src/execute.ts`.
+- [x] T011 [P] [US2] Write `packages/dnd5e-engine/test/commands/depart.test.ts`: placed and unplaced, active and not active, last living combatant ends the encounter, not in order but placed, neither (`INVALID_COMMAND`), unknown; parity with `initiative.leave` for each state in `test/commands/initiative-leave.test.ts`; `scriptedRng([])` everywhere.
+- [x] T012 [P] [US6] Extend `packages/dnd5e-engine/test/commands/move.test.ts` with every US6 scenario, cite SRD 5.2.1 condition `prone` in the describe name.
+- [x] T013 [US2] Add README bullets for `combatant.side`, `combatant.depart`, `stand` and the selectors in `packages/dnd5e-engine/README.md`.
 
 **Checkpoint**: engine coverage meta-test green; `pnpm ci:check` green.
 

@@ -10,6 +10,7 @@ import {
   handleExhaustionAdjust,
 } from "./commands/conditions.js";
 import {
+  handleCombatantDepart,
   handleEncounterEnd,
   handleInitiativeJoin,
   handleInitiativeLeave,
@@ -28,6 +29,7 @@ import {
   handleMove,
   handleMovementAction,
   handleSpaceDefine,
+  handleStand,
 } from "./commands/move.js";
 import { handleRestLong, handleRestShort } from "./commands/rests.js";
 import { handleRoll } from "./commands/roll.js";
@@ -77,6 +79,8 @@ const handlers: HandlerMap = {
   "combatant.place": handleCombatantPlace,
   move: handleMove,
   "movement.action": handleMovementAction,
+  "combatant.depart": handleCombatantDepart,
+  stand: handleStand,
 };
 
 function issuesOf(error: {

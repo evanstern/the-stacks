@@ -307,6 +307,18 @@ export const EngineCommandSchema = z.discriminatedUnion("type", [
     reason: Reason,
   }),
   z.object({
+    // Spec 099: leave the order and the zone in one command.
+    type: z.literal("combatant.depart"),
+    combatantId: Id,
+    reason: Reason,
+  }),
+  z.object({
+    // Spec 099: stand from prone for half Speed.
+    type: z.literal("stand"),
+    combatantId: Id,
+    reason: Reason,
+  }),
+  z.object({
     type: z.literal("movement.action"),
     combatantId: Id,
     action: z.enum(["dash", "disengage"]),
