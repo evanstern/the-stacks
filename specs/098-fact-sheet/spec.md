@@ -284,3 +284,11 @@ startle trigger there and its prompt line. The sheet shape does not change.
 - **OQ-10 — Spec 093's seam note says TASK-0272 gives narrate a slot schema.** Card AC #4 puts the
   slots here. **Recommend:** this card owns the slots (tagged text). TASK-0272 owns the leak and
   contradiction check and any structured-mode switch. The orchestrator notes it on TASK-0272.
+
+## Operator rulings (2026-11-09)
+
+- OQ-1, OQ-2, OQ-5, OQ-7, OQ-8, OQ-9, OQ-10: adopted as recommended (orchestrator; technical seams).
+- OQ-3: fact rows still ride the narration text in this card; rendering them from the ledger at resolve time is an AC on TASK-0247.
+- OQ-4: talk replies carry no State line.
+- OQ-6: the audit no longer blocks a reply for omitting a claim; code writes the facts.
+- Spec 100 OQ-12: position and reveal rows are added once TASK-0271 lands (note on this card).
