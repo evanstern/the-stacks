@@ -45,6 +45,7 @@ Spec: specs/099-encounter-state
 - [ ] #14 Spec phase: Engine sides and selectors (US5 engine half, foundation for US2–US4)
 - [ ] #15 Spec phase: Engine depart and stand (US2 engine half, US6, AC #5)
 - [ ] #16 Spec phase: Presence mapping in the gate (US2, US3 gate half)
+- [ ] #17 Spec phase: Server sides, phases and resume (US1, US2 server half, AC #1)
 <!-- AC:END -->
 
 ## Definition of Done
