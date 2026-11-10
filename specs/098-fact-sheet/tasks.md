@@ -105,15 +105,15 @@ pass; DB integration tests pass with `REQUIRE_DATABASE=1`.
 **Independent test**: `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/1.0.1/gates/cli.mjs
 freshness . docs/wiki` prints `OK`; the spec-bridge check exits 0.
 
-- [ ] T022 NEEDS-REVIEW `docs/wiki/dm-narration-quality.md`: the fact sheet, rows per kind, State
+- [x] T022 NEEDS-REVIEW `docs/wiki/dm-narration-quality.md`: the fact sheet, rows per kind, State
       line, slots, prompt versions v22/v17, omission filter, fallback template. Add
       `apps/server/src/dm/fact-sheet.ts` to its sources.
-- [ ] T023 NEEDS-REVIEW `docs/wiki/dm-runtime.md`: narrate's output shape and the template.
-- [ ] T024 NEEDS-REVIEW `docs/wiki/output-claim-gate.md`: the audit no longer blocks `omission`.
-- [ ] T025 NEEDS-REVIEW `docs/wiki/dm-talk-triggers.md` (escalate State line),
+- [x] T023 NEEDS-REVIEW `docs/wiki/dm-runtime.md`: narrate's output shape and the template.
+- [x] T024 NEEDS-REVIEW `docs/wiki/output-claim-gate.md`: the audit no longer blocks `omission`.
+- [x] T025 NEEDS-REVIEW `docs/wiki/dm-talk-triggers.md` (escalate State line),
       `docs/wiki/playtest-harness.md` (row forms), `docs/wiki/seed-npc-presence.md` (re-read; re-pin
       only after the diff read).
-- [ ] T026 Update `docs/wiki/INDEX.md` and `docs/wiki/CAPSULES.md` for the `dm-narration-quality`
+- [x] T026 Update `docs/wiki/INDEX.md` and `docs/wiki/CAPSULES.md` for the `dm-narration-quality`
       capsule. Run the freshness gate and the spec-bridge check.
 
 ## Dependencies
