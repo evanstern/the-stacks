@@ -44,7 +44,10 @@ Spec: specs/098-fact-sheet
 - [ ] #5 A clarify reply shows its question in the ask slot and a State line saying nothing has happened, replaying run 1 seq 15-20.
 - [ ] #6 No State line contains 'What do you do?'; each names whose move it is, with a test per branch.
 - [ ] #7 Phase 1: Rows, State line and slots as pure code (US2, US4; FR-004 to FR-008, FR-011, FR-012; plan D1, D2) (specs/098-fact-sheet tasks.md)
+- [ ] #8 Phase 2: Narrate builds and ships the sheet (US1, US3; FR-001 to FR-003, FR-009, FR-010, FR-013; plan D3, D4) (specs/098-fact-sheet tasks.md)
 <!-- AC:END -->
+
+
 
 
 
