@@ -4,7 +4,7 @@ title: Spatial events and per-viewer projection
 status: In Progress
 assignee: []
 created_date: 2026-11-07 05:13
-updated_date: '2026-11-10T03:52:00Z'
+updated_date: '2026-11-10T04:46:00Z'
 labels:
   - ws:space
   - replan-2026-11
@@ -63,4 +63,7 @@ AC rewritten per spec 100 (operator approved, 2026-11-09).
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5 (phases 1-5)
 Phases dccde3cc, 4996584b, a18da0cc, f1676535, dfebbb55, 359b9cf1. Fog rule in the gate; frozen specs/029 gate-api.md amended (operator ruling 2026-11-09, spec 100 OQ-1). Orchestrator ran the FULL server suite with REQUIRE_DATABASE=1 against this worktree's test DB: 163 files / 1912 tests pass, 5 skipped (load bench). The implementer's run had hung; it was load from a parallel suite. env:down and env:prune --check done. PR held for spine order (#11).
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5 (merge main + 0274 fog coverage)
+Merged main twice (with 0245, 0267, 0274). Fog covers combatant.depart (its before-zone keeps it dm in fog) and combatant.side (names no zone), tested. Two DB tests needed a second d20: the party is gathered into the one-zone reed camp, so close-combat disadvantage applies to every ranged attack (carded as TASK-0306 for a rules ruling). Server with REQUIRE_DATABASE=1: 1979 pass / 5 skipped. ci:check exit 0. Orchestrator re-ran the fog tests (18) and freshness (OK 65).
 <!-- SECTION:NOTES:END -->
