@@ -23,6 +23,7 @@ import type {
   Combatant,
   EngineState,
 } from "../schema/state.js";
+import { closeCombatSources } from "../sides.js";
 import { spaceViewOf } from "../space.js";
 
 /** Spec 084: one `assist.ended` (used) per applied assist, held by `holderId`. */
@@ -159,6 +160,18 @@ function bandCheck(
   return { long: use === "long" };
 }
 
+function isRangedUse(
+  state: EngineState,
+  attackerId: string,
+  targetId: string,
+  entry: AttackEntry,
+): boolean {
+  if (entry.range === "ranged") return true;
+  if (entry.range === "melee") return false;
+  const band = bandBetween(spaceViewOf(state), attackerId, targetId);
+  return band !== null && band !== "engaged";
+}
+
 export const handleAttackRoll: Handler<"attack.roll"> = (
   state,
   command,
@@ -238,6 +251,14 @@ export const handleAttackRoll: Handler<"attack.roll"> = (
       ...attackModeSources(attacker, target, entry.value),
       ...(applied.length ? (["advantage"] as ModeSource[]) : []),
       ...(placed.long ? (["disadvantage"] as ModeSource[]) : []),
+      // Spec 099: a ranged attack with a hostile in the attacker's zone (the
+      // ranged-attacks-in-close-combat rule). A melee-or-ranged entry is ranged
+      // only against a target outside the engaged band.
+      ...closeCombatSources(
+        state,
+        attacker.id,
+        isRangedUse(state, attacker.id, command.targetId, entry.value),
+      ),
     ]);
   }
   const rolled = rollExpression(

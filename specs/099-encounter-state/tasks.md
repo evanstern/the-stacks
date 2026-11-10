@@ -21,13 +21,13 @@ suites with `REQUIRE_DATABASE=1` on the worktree stack.
 
 **Goal**: combatants carry an optional side; the four selectors exist and are exported.
 
-- [ ] T001 [US5] Add `SideSchema`, `Side` and optional `CombatantSchema.side` in `packages/dnd5e-engine/src/schema/state.ts`; add optional `side` to `CombatantInit` in `src/schema/commands.ts`.
-- [ ] T002 [US5] Add the `combatant.side` command (`src/schema/commands.ts`) and the `combatant.sided` event (`src/schema/events.ts`) per `contracts/engine-surface.md`; add the `evolve` case in `src/evolve.ts`.
-- [ ] T003 [US5] In `src/commands/combatants.ts`, copy `side` in `handleCombatantAdd`; write `handleCombatantSide` (FR-002); register it in `src/execute.ts`.
-- [ ] T004 [US5] Write `src/sides.ts`: `areHostile`, `hostilesStanding`, `encounterOver`, `closeCombatFoes` (FR-003–FR-006), with the `ponytail:` comment from the contract. Export them and `Side` from `src/index.ts` (FR-009).
-- [ ] T005 [P] [US5] Write `packages/dnd5e-engine/test/sides.test.ts`: each selector's true and false cases, including sideless combatants, neutral, blinded, incapacitated, invisible attacker, other zone, no encounter.
-- [ ] T006 [P] [US5] Extend `test/commands/combatants.test.ts` (side on add; `combatant.side` with `scriptedRng([])`, `UNKNOWN_COMBATANT`, `INVALID_COMMAND`) and `test/replay.test.ts` (`combatant.sided` replays).
-- [ ] T007 [US5] Extend `packages/session-model/test/helpers.ts` `engineExamples()` with `combatant.sided`; raise the mechanics and catalog counts in `packages/session-model/test/catalog.test.ts` by one.
+- [x] T001 [US5] Add `SideSchema`, `Side` and optional `CombatantSchema.side` in `packages/dnd5e-engine/src/schema/state.ts`; add optional `side` to `CombatantInit` in `src/schema/commands.ts`.
+- [x] T002 [US5] Add the `combatant.side` command (`src/schema/commands.ts`) and the `combatant.sided` event (`src/schema/events.ts`) per `contracts/engine-surface.md`; add the `evolve` case in `src/evolve.ts`.
+- [x] T003 [US5] In `src/commands/combatants.ts`, copy `side` in `handleCombatantAdd`; write `handleCombatantSide` (FR-002); register it in `src/execute.ts`.
+- [x] T004 [US5] Write `src/sides.ts`: `areHostile`, `hostilesStanding`, `encounterOver`, `closeCombatFoes` (FR-003–FR-006), with the `ponytail:` comment from the contract. Export them and `Side` from `src/index.ts` (FR-009).
+- [x] T005 [P] [US5] Write `packages/dnd5e-engine/test/sides.test.ts`: each selector's true and false cases, including sideless combatants, neutral, blinded, incapacitated, invisible attacker, other zone, no encounter.
+- [x] T006 [P] [US5] Extend `test/commands/combatants.test.ts` (side on add; `combatant.side` with `scriptedRng([])`, `UNKNOWN_COMBATANT`, `INVALID_COMMAND`) and `test/replay.test.ts` (`combatant.sided` replays).
+- [x] T007 [US5] Extend `packages/session-model/test/helpers.ts` `engineExamples()` with `combatant.sided`; raise the mechanics and catalog counts in `packages/session-model/test/catalog.test.ts` by one.
 
 **Checkpoint**: engine coverage meta-test green; session-model tests green; `pnpm ci:check` green.
 
@@ -94,7 +94,12 @@ rolls for an absent or yielded monster.
 
 ---
 
-## Phase 6: Planner rules (US5, US6 mapping, AC #4)
+## Phase 6: Planner rules (US5, US6 mapping, AC #4) — REPLACED, not run
+
+**Operator ruling 2026-11-09 (OQ-1):** the close-combat rule lives in the engine. It shipped in
+Phase 1: `closeCombatSources` in `src/sides.ts`, read by `attack.roll` and `spell.cast`. The planner
+does not fold it; it reports the rule as a fact (TASK-0267). The `stand` mapping belongs to
+TASK-0267. This phase does not run. The text below is kept for history.
 
 **Goal**: the planner gives ranged attacks close-combat disadvantage and maps `stand`.
 

@@ -2,6 +2,7 @@ import { handleAttackRoll, handleCheckRoll } from "./commands/attacks.js";
 import {
   handleCombatantAdd,
   handleCombatantRemove,
+  handleCombatantSide,
 } from "./commands/combatants.js";
 import {
   handleConditionApply,
@@ -50,6 +51,7 @@ const handlers: HandlerMap = {
   roll: handleRoll,
   "combatant.add": handleCombatantAdd,
   "combatant.remove": handleCombatantRemove,
+  "combatant.side": handleCombatantSide,
   "damage.apply": handleDamageApply,
   "healing.apply": handleHealingApply,
   "temp-hp.grant": handleTempHpGrant,

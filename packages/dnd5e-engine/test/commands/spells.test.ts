@@ -421,3 +421,60 @@ describe("spell.cast and attack assists (spec 084 D5a)", () => {
     expect(events.some((e) => e.type === "assist.ended")).toBe(false);
   });
 });
+
+describe("spell attacks in close combat (spec 099)", () => {
+  const zone = (id: string) => ({
+    id,
+    name: id,
+    kind: "room",
+    tags: [],
+    hidden: false,
+  });
+  const build = (sides: boolean, foeZone: string) => {
+    const base = stateWith(
+      caster(sides ? { side: "party" } : {}),
+      foe(sides ? { side: "hostile" } : {}),
+    );
+    let st = settle(
+      base,
+      run(base, {
+        type: "space.define",
+        space: {
+          zones: ["a", "b"].map(zone),
+          edges: [{ from: "a", to: "b", kind: "open", feet: 20 }],
+        },
+        reason: "s",
+      }).result,
+    );
+    for (const [id, z] of [
+      ["pc-odo", "a"],
+      ["m-goblin", foeZone],
+    ] as const) {
+      st = settle(
+        st,
+        run(st, {
+          type: "combatant.place",
+          combatantId: id,
+          zoneId: z,
+          reason: "p",
+        }).result,
+      );
+    }
+    return st;
+  };
+  it("a ranged spell attack rolls with disadvantage when a hostile is in the caster's zone", () => {
+    const out = run(build(true, "a"), cast("fire-bolt"), [15, 3, 6]);
+    expect(expectOk(out.result)[0]).toMatchObject({
+      mode: "disadvantage",
+      natural: 3,
+    });
+  });
+  it("does not without sides or with the foe in another zone", () => {
+    expect(
+      expectOk(run(build(false, "a"), cast("fire-bolt"), [15, 6]).result)[0],
+    ).toMatchObject({ mode: "normal" });
+    expect(
+      expectOk(run(build(true, "b"), cast("fire-bolt"), [15, 6]).result)[0],
+    ).toMatchObject({ mode: "normal" });
+  });
+});
