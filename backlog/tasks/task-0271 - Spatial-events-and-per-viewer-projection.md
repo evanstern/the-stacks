@@ -3,10 +3,10 @@ id: TASK-0271
 title: Spatial events and per-viewer projection
 status: In Progress
 assignee: []
-created_date: '2026-11-07 05:13'
-updated_date: '2026-11-10 03:13'
+created_date: 2026-11-07 05:13
+updated_date: '2026-11-10T03:52:00Z'
 labels:
-  - 'ws:space'
+  - ws:space
   - replan-2026-11
   - ep-1
 milestone: m-10
@@ -27,35 +27,25 @@ Source: docs/design/replan-2026-11/board-rework-map.md (N-06).
 Spec: specs/100-spatial-events
 <!-- SECTION:DESCRIPTION:END -->
 
+## Acceptance Criteria
+<!-- AC:BEGIN -->
+- [x] #1 No row a player receives and no player projection holds an unrevealed zone or a placement in one.
+- [x] #2 A player's folded spatial projection equals the one derived from the DM projection for the same log.
+- [x] #3 Party moves, arrivals and fog crossings reveal the zones they name with a public zone.revealed in the same write.
+- [x] #4 The AI context lists each placed combatant's zone and who is in its reach; the seat and fiction views omit unrevealed zones.
+- [x] #5 Seeds declare zones, and a revealed door or post resolves as an entity target that never enters initiative.
+- [x] #6 Phase 1: Event and projection (US1, US4; AC #2, #5) (specs/100-spatial-events tasks.md)
+- [x] #7 Phase 2: The fog rule in the gate (US1, US2; AC #1, #2, #3) (specs/100-spatial-events tasks.md)
+- [x] #8 Phase 3: Seeds and the DM runtime (US4; AC #5) (specs/100-spatial-events tasks.md)
+- [x] #9 Phase 4: Zones and reach in the AI context (US3; AC #4) (specs/100-spatial-events tasks.md)
+- [x] #10 Phase 5: Wiki (specs/100-spatial-events tasks.md)
+<!-- AC:END -->
+
 ## Definition of Done
 <!-- DOD:BEGIN -->
 - [ ] #1 All tests and checks run green
 - [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
-
-## Acceptance Criteria
-<!-- AC:BEGIN -->
-- [ ] #1 No row a player receives and no player projection holds an unrevealed zone or a placement in one.
-- [ ] #2 A player's folded spatial projection equals the one derived from the DM projection for the same log.
-- [ ] #3 Party moves, arrivals and fog crossings reveal the zones they name with a public zone.revealed in the same write.
-- [ ] #4 The AI context lists each placed combatant's zone and who is in its reach; the seat and fiction views omit unrevealed zones.
-- [ ] #5 Seeds declare zones, and a revealed door or post resolves as an entity target that never enters initiative.
-- [ ] #6 Phase 1: Event and projection (US1, US4; AC #2, #5) (specs/100-spatial-events tasks.md)
-- [ ] #7 Phase 2: The fog rule in the gate (US1, US2; AC #1, #2, #3) (specs/100-spatial-events tasks.md)
-- [ ] #8 Phase 3: Seeds and the DM runtime (US4; AC #5) (specs/100-spatial-events tasks.md)
-- [ ] #9 Phase 4: Zones and reach in the AI context (US3; AC #4) (specs/100-spatial-events tasks.md)
-- [ ] #10 Phase 5: Wiki (specs/100-spatial-events tasks.md)
-<!-- AC:END -->
-
-
-
-
-
-
-
-
-
-
 
 ## Implementation Notes
 
@@ -70,4 +60,7 @@ Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=cc/claude-opus-5-5 (spe
 Spec 100 (16ae6147): zone.revealed v1 (gate-written, public), per-zone party fog applied in planProposal, SessionProjections.spatial, spatialFor/reachOf/targetStatus. 5 phases. Proposed 5 replacement AC in spec.md (applied after the operator rules). Orchestrator-settled: OQ-10/OQ-11 runbook footprint fixes. Operator rulings pending: OQ-1 (the fog rule amends the frozen specs/029 gate contract — blocks Phase 2), OQ-2/3/6/7/8 adopt, OQ-4/12/13/5/9 deferrals.
 
 AC rewritten per spec 100 (operator approved, 2026-11-09).
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5 (phases 1-5)
+Phases dccde3cc, 4996584b, a18da0cc, f1676535, dfebbb55, 359b9cf1. Fog rule in the gate; frozen specs/029 gate-api.md amended (operator ruling 2026-11-09, spec 100 OQ-1). Orchestrator ran the FULL server suite with REQUIRE_DATABASE=1 against this worktree's test DB: 163 files / 1912 tests pass, 5 skipped (load bench). The implementer's run had hung; it was load from a parallel suite. env:down and env:prune --check done. PR held for spine order (#11).
 <!-- SECTION:NOTES:END -->
