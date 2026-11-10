@@ -108,9 +108,9 @@ has ruled OQ-1 for the engine, do T030 in the engine instead (`src/derive.ts`
 `attackModeSources` gains the state-aware close-combat source; `src/commands/attacks.ts` and
 `src/commands/spells.ts` pass it) and skip the planner half of T032.
 
-- [ ] T030 [US5] In the planner's `attack` mapping module (named in spec 097's plan), fold `disadvantage` when `closeCombatFoes` is non-empty and the attack is ranged (FR-022), using the engine's `foldMode`.
-- [ ] T031 [US6] In the planner's `stand` mapping, emit the engine `stand` command (FR-023).
-- [ ] T032 [P] [US5] Add planner golden tests for every US5 scenario and for the `stand` mapping, in the planner's test layout.
+- [x] T030 ~~[US5] In the planner's `attack` mapping module (named in spec 097's plan), fold `disadvantage` when `closeCombatFoes` is non-empty and the attack is ranged (FR-022), using the engine's `foldMode`.~~ — superseded: operator ruling 2026-11-09 moved close-combat disadvantage into the engine (closeCombatSources in attack.roll and spell.cast); the planner reports it as a fact.
+- [x] T031 ~~[US6] In the planner's `stand` mapping, emit the engine `stand` command (FR-023).~~ — moved to TASK-0267 (the planner maps `stand` to the engine command).
+- [x] T032 ~~[P] [US5] Add planner golden tests for every US5 scenario and for the `stand` mapping, in the planner's test layout.~~ — superseded: engine golden-dice tests cover US5; the `stand` mapping test moves to TASK-0267.
 
 **Checkpoint**: planner tests green; `pnpm ci:check` green.
 
