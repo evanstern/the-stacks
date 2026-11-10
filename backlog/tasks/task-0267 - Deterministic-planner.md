@@ -67,6 +67,8 @@ From TASK-0274: stand mapping and its golden test moved here; close-combat disad
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5 (phases 1-6)
 Phases 8db77eaa, ceb0981c, 179ee146, eeaad658, 07627848; wiki 9c2209b9, 44e5e00a. 28 kinds plan to engine commands; attempt and use_object ask for a ruling; the rest refuse KIND_UNSERVED citing their owner card. 132 planner tests. ci:check exit 0 (DB suites skipped; the planner has no DB code). Orchestrator re-ran planner tests (132), boundary (28/28), freshness (OK 63), Dockerfile guard. The stand-mapping AC moved to TASK-0274: the engine stand command lands there, after this card merges. Until then stand refuses KIND_UNSERVED citing TASK-0274.
+
+spec-bridge sync: Package skeleton, types, boundary and kind table (AC #1): 11/11 · Checks and the ruling loop (US2, AC #2): 4/4 · Combat actions (US1, AC #2): 2/2 · Movement, turn, resources and DM control (US1, US3, AC #2): 5/5 · Legality, coverage and determinism (US3, AC #2, AC #3): 3/3 · Wiki re-ground: 5/5 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
