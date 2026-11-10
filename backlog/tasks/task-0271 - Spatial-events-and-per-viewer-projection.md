@@ -43,7 +43,7 @@ Spec: specs/100-spatial-events
 - [x] #12 Spec phase: The fog rule in the gate (US1, US2; AC #1, #2, #3)
 - [x] #13 Spec phase: Seeds and the DM runtime (US4; AC #5)
 - [x] #14 Spec phase: Zones and reach in the AI context (US3; AC #4)
-- [ ] #15 Spec phase: Wiki
+- [x] #15 Spec phase: Wiki
 <!-- AC:END -->
 
 ## Definition of Done
