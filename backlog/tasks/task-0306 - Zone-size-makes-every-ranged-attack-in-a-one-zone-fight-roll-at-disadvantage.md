@@ -41,4 +41,6 @@ Options: (a) the rule needs the attacker 'engaged' (a hostile that has moved or 
 
 <!-- SECTION:NOTES:BEGIN -->
 Operator ruling 2026-11-10: engaged-only. Ranged (and ranged spell attack) disadvantage applies only while a hostile is ENGAGED with the attacker: a hostile that made a melee attack against it, or that it made a melee attack against, this round or since its last turn, while both share a zone. Sharing a zone alone no longer triggers it. This narrows the 2026-11-09 engine ruling (TASK-0274); the rule stays in the engine.
+
+Correction: the operator's words were 'Engaged-only penalty' (option text: the penalty applies only when an enemy is actually engaged in melee with the attacker, tracked per combatant). The detailed trigger in the previous note (a melee attack between them this round or since the last turn) is the orchestrator's proposed definition, not the operator's. Spec 101 settles the definition; any judgment call there comes back as an open question.
 <!-- SECTION:NOTES:END -->
