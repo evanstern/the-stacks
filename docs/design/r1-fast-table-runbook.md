@@ -466,3 +466,10 @@ updated at each dispatch boundary. `tokens/cost` carries best-effort actuals.
 | 2026-11-09 | TASK-0270 | #150 | 85c10c53 | opus spec; sonnet x4 | OQ-10 engine events; OQ-3/OQ-4 to TASK-0274 |
 | 2026-11-09 | TASK-0098 | #151 | 78284502 | opus spec; sonnet x1 | OQ2 carded as TASK-0301 (R8) |
 | 2026-11-09 | baseline playtest | #149 (log, awaiting operator) | — | $5.25 of $25 | new blocker TASK-0302 (R1) |
+| 2026-11-09 | TASK-0302 | #152 | aec294a4 | opus spec; sonnet x1 | live-verified on vm-104: 0 of 4 refused (baseline 4 of 5) |
+| 2026-11-09 | TASK-0303 | #153, #154 | 4d092779, a0049104 | haiku; sonnet; orchestrator | deploy image missing packages/space; timing budget moved to serial check:timing |
+| 2026-11-09 | TASK-0302 verify log | #155 | — | $2.08 | $7.33 of $25 in total |
+| 2026-11-10 | TASK-0267 | #156 | f00a5f3c | opus spec; sonnet x1 | planner package, 28 served kinds |
+| 2026-11-10 | TASK-0245 | #157 | ec33b56b | opus spec; sonnet x1 | fact sheet, dm.narrate-v22, dm.audit-v17 |
+| 2026-11-10 | TASK-0274 | #158 | 28735c39 | opus spec; sonnet x2 | close-combat rule in the engine (operator ruling); stand mapping moved here from 0267 |
+| 2026-11-10 | TASK-0271 | #159 | dc12f1fc | opus spec; sonnet x2 | fog in the gate; frozen spec 029 contract amended (operator ruling); TASK-0306 carded |
