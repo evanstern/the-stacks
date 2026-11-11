@@ -4,7 +4,7 @@ title: Interpret emits Intents
 status: In Progress
 assignee: []
 created_date: 2026-11-07 05:13
-updated_date: '2026-11-11T19:50:00Z'
+updated_date: '2026-11-11T19:52:00Z'
 labels:
   - ws:intent
   - replan-2026-11
@@ -35,6 +35,12 @@ Spec: specs/104-interpret-intents
 - [ ] #3 A compound declaration yields one Intent per stage, each planned in turn.
 - [ ] #4 Band effects and the free retry (autoSuccess) keep working beside the Intent path until a card puts stakes on Intents (spec 097 OQ-5).
 - [ ] #5 A beat narrates the facts of every intent.recorded row it covers, including rows the gate settled before the turn job ran, as why rows (spec 102 OQ-4; spec 103 OQ-8 window: the job input carries only triggerSeq and intent.recorded has no action link).
+- [ ] #6 Spec phase: Schema and slash parse
+- [ ] #7 Spec phase: Prompt v17 and interpret node
+- [ ] #8 Spec phase: Resolve Intent runner and beside data
+- [ ] #9 Spec phase: Narrate window
+- [ ] #10 Spec phase: Test and script migration
+- [ ] #11 Spec phase: Wiki
 <!-- AC:END -->
 
 ## Definition of Done
@@ -56,4 +62,6 @@ Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5
 Spec 104 spec.md + plan.md (2ac78ce1) against 092 06d7ca13, 093 beae54aa, 097 a34d5d39, 100 16ae6147, 102 86d425b6, 103 39c9ed24, base 702390db. Size check: ~52 tasks; split recommended (PR A this card: AC 1,2,3,5,7 ~36 tasks; PR B new card: AC 4,6 ~16 tasks, after TASK-0223). Awaiting operator ruling on the split.
 
 Operator ruling 2026-11-11 (in chat): "Approve split + OQs" — split per spec 104 plan (this card keeps AC #1, #2, #3, #5, #7; AC #4 and #6 move to a new card that lands after TASK-0223) and spec 104 OQ-1..OQ-9 as recommended.
+
+Spec 104 tasks.md for PR A (f61a0bac): 36 tasks in 6 phases.
 <!-- SECTION:NOTES:END -->
