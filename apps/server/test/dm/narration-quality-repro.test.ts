@@ -8,7 +8,6 @@ import { memorySink } from "../../src/ai/usage.js";
 import {
   buildNarrationFacts,
   type NarrationFacts,
-  renderDiceLines,
 } from "../../src/dm/facts.js";
 import { assemble } from "../../src/dm/nodes/assemble.js";
 import { check } from "../../src/dm/nodes/check.js";

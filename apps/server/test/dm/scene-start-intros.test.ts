@@ -9,10 +9,7 @@ import { listSeeds, loadSeed } from "../../src/dm/seed/load.js";
 import { dmOnlySeedText, playerFacingSeed } from "../../src/dm/seed/views.js";
 import type { ActorSnapshot } from "../../src/dm/snapshot/index.js";
 import { buildSnapshot } from "../../src/dm/snapshot/index.js";
-import {
-  EMPTY_RESOLVE_SNAPSHOT,
-  greyhollowFight,
-} from "./snapshot-fixtures.js";
+import { greyhollowFight } from "./snapshot-fixtures.js";
 
 function factsFor(
   seedId: string,

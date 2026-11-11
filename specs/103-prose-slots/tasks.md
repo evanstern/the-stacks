@@ -27,9 +27,9 @@ Tests use the fake gateway only.
 - [x] T013 In `nodes/resolve.ts`: `submitNarration` takes `CheckOutput` and submits each correction as an AI-DM `talk` proposal. Remove the `audit-flag` journal entry.
 - [x] T014 In `jobs.ts`: checkpoint `narration.check: CheckRecord`; move `AuditRecord` there as `LegacyAuditRecord` for old rows.
 - [x] T015 In `talk-turn.ts` and `prompts/react.ts`: remove the second react call and the `prior` section; run `checkNarration`; bump to `dm.react-v3`.
-- [ ] T016 In `gates/plan-gate.ts`: delete the spec 058 reason check and `REASON_CONTRADICTS_STATE` (spec OQ-1). Delete its tests.
+- [x] T016 In `gates/plan-gate.ts`: delete the spec 058 reason check and `REASON_CONTRADICTS_STATE` (spec OQ-1). Delete its tests.
 - [x] T017 Remove `dm.audit` from `purposes.ts` and any AI config purpose list (`git grep dm.audit`).
-- [ ] T018 Delete `dm/claims.ts`, `dm/fallback.ts`, `dm/nodes/audit.ts`, `dm/prompts/audit.ts` and the test files plan.md lists. `git grep -E "claims\.js|fallback\.js|nodes/audit|prompts/audit"` returns nothing.
+- [x] T018 Delete `dm/claims.ts`, `dm/fallback.ts`, `dm/nodes/audit.ts`, `dm/prompts/audit.ts` and the test files plan.md lists. `git grep -E "claims\.js|fallback\.js|nodes/audit|prompts/audit"` returns nothing.
 - [x] T019 Write `apps/server/test/dm/check-node.test.ts`: one `dm.narrate` call and no `dm.audit` call per turn; a leak drops the sentence and appends a `dm` correction; a life-state contradiction ships and appends a public correction; a narrate error ships restate, rows and State; the turn job completes in every case. Fix the remaining tests that imported deleted modules.
 
 ## Phase 4: Job-record consumers

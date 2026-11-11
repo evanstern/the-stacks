@@ -4,6 +4,7 @@ import {
   checkNarration,
   dropSentences,
 } from "../../src/dm/narration-check.js";
+import { namedActorIds } from "../../src/dm/snapshot/aliases.js";
 import { buildSnapshot } from "../../src/dm/snapshot/index.js";
 import type { LifeState, ScenePresence } from "../../src/dm/snapshot/types.js";
 import { M2_LOG, narrationAt, stateAt } from "./claim-fixtures.js";
@@ -177,5 +178,19 @@ describe("recorded evidence (ported from claim-evidence.test.ts)", () => {
   it("a dead actor called dead passes; a live one called dead is flagged", () => {
     expect(at("Goblin lookout is dead.", 220, 224)).toEqual([]);
     expect(at("Snag is dead.", 220, 224)).toEqual(["life-state"]);
+  });
+});
+
+describe("namedActorIds (spec 089 D1, ported)", () => {
+  const { projections, seed } = greyhollowFight();
+  const snapshot = buildSnapshot(projections, seed);
+  it("finds a unique alias, once, in order", () => {
+    expect(
+      namedActorIds(snapshot, "Pell is bound. Pell! Tamsin sees Pell."),
+    ).toEqual(["pell", "tamsin"]);
+  });
+  it("skips a shared noun and a description with no alias", () => {
+    expect(namedActorIds(snapshot, "the goblin waits")).toEqual([]);
+    expect(namedActorIds(snapshot, "a small figure at the post")).toEqual([]);
   });
 });

@@ -27,12 +27,6 @@ import {
 } from "../../src/dm/nodes/schemas.js";
 import { buildSnapshot } from "../../src/dm/snapshot/index.js";
 import {
-  M2_SEQ221_CONTROL,
-  M2_SEQ221_REASON,
-  M2_SEQ221_S0,
-  m2Seq221Reading,
-} from "./plan-reason-fixtures.js";
-import {
   greyhollowDuo,
   greyhollowFight,
   PLAYER_USER,
@@ -141,26 +135,6 @@ describe("checkPlan: STAT_UNDEFINED (spec 082 D8)", () => {
       joining: ["tamsin"],
     });
     expect(v[0]).toMatchObject({ ok: true });
-  });
-  it("refuses a circumstance reason that contradicts state", () => {
-    const v = plan(
-      [
-        read("a1", [
-          attackStep("goblin-2", {
-            circumstance: {
-              mode: "advantage",
-              reason: M2_SEQ221_REASON,
-            },
-          }),
-        ]),
-      ],
-      { combatants: withStats },
-    );
-    expect(v[0]).toMatchObject({
-      ok: false,
-      code: "REASON_CONTRADICTS_STATE",
-      failure: { field: "circumstance.reason" },
-    });
   });
 });
 
@@ -293,16 +267,6 @@ describe("checkPlan: spells (spec 083 D6)", () => {
       actors: new Map([["a1", "tamsin"]]),
     });
     expect(v[0]).toMatchObject({ ok: false, code: "STEP_ACTOR_MISMATCH" });
-  });
-  it("refuses a spell reason that contradicts state", () => {
-    const v = gate([
-      spellRead([spellStep("goblin-2", { reason: M2_SEQ221_REASON })]),
-    ]);
-    expect(v[0]).toMatchObject({
-      ok: false,
-      code: "REASON_CONTRADICTS_STATE",
-      failure: { field: "reason" },
-    });
   });
 });
 
@@ -695,57 +659,7 @@ describe("encounter phases and resume (spec 099)", () => {
   });
 });
 
-describe("checkPlan: roll reasons", () => {
-  const run = (reason: string) =>
-    checkPlan({
-      combatants: {},
-      snapshot: M2_SEQ221_S0,
-      readings: [m2Seq221Reading(reason)],
-      rulings: [],
-      joining: [],
-      arriving: [],
-      resumed: [],
-    });
-
-  it("M2 seq 221 state: goblin-3 dead, goblin-2 and snag up, no party actor down", () => {
-    const actor = (id: string) =>
-      M2_SEQ221_S0.actors.find((a) => a.id === id || a.combatantId === id);
-    const stateOf = (id: string) => actor(id)?.lifeState ?? null;
-    expect(stateOf("goblin-3")).toBe("dead");
-    for (const id of ["goblin-2", "snag"]) {
-      expect(actor(id)).toBeDefined();
-      expect(["dead", "unconscious", "stable"]).not.toContain(stateOf(id));
-    }
-    const down = M2_SEQ221_S0.actors.filter(
-      (a) =>
-        a.kind === "party" &&
-        a.lifeState !== null &&
-        a.lifeState !== "conscious",
-    );
-    expect(down).toEqual([]);
-  });
-
-  it("refuses the M2 seq 221 reason at step 0", () => {
-    const v = run(M2_SEQ221_REASON);
-    expect(v[0]).toMatchObject({
-      actionId: null,
-      ok: false,
-      failure: { stepIndex: 0, field: "reason" },
-    });
-    const failure = (v[0] as unknown as { failure: { issues: unknown[] } })
-      .failure;
-    expect(JSON.stringify(failure.issues)).toContain("two kin have fallen");
-    expect(failure.issues).toContainEqual(
-      expect.objectContaining({ claim: "count" }),
-    );
-  });
-
-  it("passes the control reason (the clause removed)", () => {
-    expect(run(M2_SEQ221_CONTROL)).toEqual([{ actionId: null, ok: true }]);
-  });
-});
-
-describe("checkPlan: reason state", () => {
+describe("checkPlan: presence ids", () => {
   const PELL_REASON = "Pell steps out of the reeds";
   const pellAway = () => {
     const f = greyhollowFight();
@@ -787,42 +701,6 @@ describe("checkPlan: reason state", () => {
     expect(v).toEqual([{ actionId: "a1", ok: true }]);
   });
 
-  it("refuses the same reason with no presence effect (act)", () => {
-    const v = run([read("a1", [pellStep()])]);
-    expect(v[0]).toMatchObject({
-      actionId: "a1",
-      ok: false,
-      code: "REASON_CONTRADICTS_STATE",
-      failure: { stepIndex: 0, field: "reason", text: PELL_REASON },
-    });
-    const failure = (v[0] as unknown as { failure: { issues: unknown[] } })
-      .failure;
-    expect(failure.issues).toContainEqual(
-      expect.objectContaining({ claim: "act" }),
-    );
-  });
-
-  it("refuses a stakes text that contradicts state (spec 070)", () => {
-    const v = run([
-      read("a1", [
-        checkStep({
-          reason: "Ana studies the reeds",
-          stakes: {
-            success: "The attempt works as intended.",
-            cost: "It works, at a small price.",
-            failure: PELL_REASON,
-            severe: "It goes badly wrong.",
-          },
-        }),
-      ]),
-    ]);
-    expect(v[0]).toMatchObject({
-      ok: false,
-      code: "REASON_CONTRADICTS_STATE",
-      failure: { stepIndex: 0, field: "stakes.failure", text: PELL_REASON },
-    });
-  });
-
   it("refuses an absent id in onSevere (spec 070)", () => {
     const v = run([
       read("a1", [
@@ -837,16 +715,6 @@ describe("checkPlan: reason state", () => {
       code: "UNKNOWN_COMBATANT",
       failure: { field: "onSevere[0].targetId", id: "pell" },
     });
-  });
-
-  it("exempts an arriving NPC from the act rule", () => {
-    const v = run([read("a1", [pellStep()])], { arriving: ["pell"] });
-    expect(v).toEqual([{ actionId: "a1", ok: true }]);
-  });
-
-  it("skips the reason check for a resumed action id", () => {
-    const v = run([read("a1", [pellStep()])], { resumed: ["a1"] });
-    expect(v).toEqual([{ actionId: "a1", ok: true }]);
   });
 
   it("still runs the id check for a resumed action id", () => {
@@ -872,40 +740,6 @@ describe("checkPlan: reason state", () => {
     });
   });
 
-  it("checks a check step's autoFail.reason", () => {
-    const v = run([
-      read("a1", [checkStep({ autoFail: { reason: PELL_REASON } })]),
-    ]);
-    expect(v[0]).toMatchObject({
-      ok: false,
-      code: "REASON_CONTRADICTS_STATE",
-      failure: { stepIndex: 0, field: "autoFail.reason", text: PELL_REASON },
-    });
-  });
-
-  it("checks a condition effect's source (OQ-3)", () => {
-    const v = run([
-      read("a1", [
-        attackStep("goblin-2", {
-          onHit: [
-            {
-              effect: "condition",
-              targetId: "goblin-2",
-              op: "apply",
-              condition: "prone",
-              source: PELL_REASON,
-            },
-          ],
-        }),
-      ]),
-    ]);
-    expect(v[0]).toMatchObject({
-      ok: false,
-      code: "REASON_CONTRADICTS_STATE",
-      failure: { field: "onHit[0].source", text: PELL_REASON },
-    });
-  });
-
   it("replaces a reading's steps with its ruling's steps", () => {
     const v = run([read("a1", [pellStep()])], {
       rulings: [{ actionId: "a1", steps: steps(attackStep("goblin-2")) }],
@@ -921,20 +755,6 @@ describe("checkPlan: reason state", () => {
   it("lets an id failure win over a reason failure in the same group", () => {
     const v = run([read("a1", [pellStep(), attackStep("nobody")])]);
     expect(v[0]).toMatchObject({ ok: false, code: "UNKNOWN_COMBATANT" });
-  });
-
-  it("reports only the first refused text", () => {
-    const v = run([
-      read("a1", [
-        pellStep({ reason: "Tamsin swings her sword" }),
-        pellStep(),
-        pellStep({ reason: "Pell lunges at Odo" }),
-      ]),
-    ]);
-    expect(v[0]).toMatchObject({
-      ok: false,
-      failure: { stepIndex: 1, text: PELL_REASON },
-    });
   });
 
   it("never rewrites a passing reading", () => {
@@ -1497,16 +1317,6 @@ describe("checkPlan: opposition and help (spec 084 D12)", () => {
         joining: ["snag"],
       })[0],
     ).toMatchObject({ ok: true });
-  });
-  it("refuses a help reason that contradicts state", () => {
-    const v = plan([read("a1", [helpStep({ reason: M2_SEQ221_REASON })])], {
-      combatants: withStats,
-    });
-    expect(v[0]).toMatchObject({
-      ok: false,
-      code: "REASON_CONTRADICTS_STATE",
-      failure: { field: "reason" },
-    });
   });
 });
 
