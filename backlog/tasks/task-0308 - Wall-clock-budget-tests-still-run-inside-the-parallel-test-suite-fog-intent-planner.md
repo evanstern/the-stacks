@@ -41,4 +41,6 @@ TASK-0303 moved space's SC-005 timing test into the serial pnpm check:timing ste
 
 <!-- SECTION:NOTES:BEGIN -->
 Claimed 2026-11-10 by the R1 sweep (docs/design/r1-fast-table-runbook.md). Worktree .worktrees/task-0308, branch task-0308-timing-tests, cut from origin/main e503b04a. No spec dir: signed escape line covers this task.
+
+Covered by escape line E8 (TASK-0303 hotfix scope, operator-signed 2026-11-09): this finishes TASK-0303's timing-test move for the three remaining wall-clock assertions. Card AC drive. Tier: haiku.
 <!-- SECTION:NOTES:END -->
