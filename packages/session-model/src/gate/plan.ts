@@ -1,91 +1,37 @@
-import {
-  type EngineEvent,
-  evolve,
-  execute,
-  type Rng,
-} from "@the-stacks/dnd5e-engine";
+import { execute, type Rng } from "@the-stacks/dnd5e-engine";
 import { catalogEntry, currentVersion } from "../catalog.js";
 import { REASON_TO_PRESENCE } from "../events/scene-presence.js";
 import { memberOf } from "../projections/party.js";
 import type { SessionProjections } from "../projections/types.js";
 import { commitAuthority } from "./authority.js";
 import { declareIntent } from "./declare.js";
+import { endTurnRows } from "./floor-end.js";
 import { fogRows } from "./fog.js";
+import { planIntent } from "./intents.js";
+import type { PlannerInputs } from "./plan-state.js";
 import { actorOf, type Proposal, type Proposer } from "./proposals.js";
-import type { GateRefusal } from "./refusals.js";
 import { controls, isAiDm, isDm, isPartyMember, isSeatedDm } from "./roles.js";
-import { signoffState } from "./signoff.js";
 import {
-  activeActorFor,
-  canAct,
-  currentTurn,
-  floorHeld,
-  nextSettleStep,
-} from "./turn.js";
-
-export interface PlannedRow {
-  actor: string;
-  /** A catalog type. */
-  type: string;
-  /** A valid payload for that type at its current version. */
-  payload: unknown;
-  visibility: string;
-}
-
-export interface PlanIds {
-  batchId: string;
-}
+  mechanicsRows,
+  type PlanIds,
+  type PlannedRow,
+  type PlanResult,
+  refuse,
+} from "./rows.js";
+import { signoffState } from "./signoff.js";
+import { activeActorFor, currentTurn, floorHeld } from "./turn.js";
 
 /**
  * Facts the planner cannot read from the projection (specs/044-group-signoff/contracts/signoff.md).
  * `present` is the present set (user ids) the group sign-off quorum counts.
  */
+export type { PlanIds, PlannedRow, PlanResult };
+export { mechanicsRows };
+
 export interface PlanContext {
   present?: readonly string[];
-}
-
-export type PlanResult =
-  | { ok: true; rows: PlannedRow[]; batchId: string | null }
-  | { ok: false; refusal: GateRefusal };
-
-/** Wraps one engine result in mechanics envelopes (one batch). */
-export function mechanicsRows(input: {
-  actor: string;
-  batchId: string;
-  events: readonly EngineEvent[];
-  actionId: string | null;
-  proposalId: string | null;
-  visibility: string;
-}): PlannedRow[] {
-  return input.events.map((event, index) => ({
-    actor: input.actor,
-    type: event.type,
-    visibility: input.visibility,
-    payload: {
-      batchId: input.batchId,
-      index,
-      count: input.events.length,
-      actionId: input.actionId,
-      proposalId: input.proposalId,
-      event,
-    },
-  }));
-}
-
-function refuse(
-  code: string,
-  message: string,
-  details?: Record<string, unknown>,
-): PlanResult {
-  return {
-    ok: false,
-    refusal: {
-      source: "gate",
-      code,
-      message,
-      ...(details ? { details } : {}),
-    },
-  };
+  /** Seed-derived planner inputs for `intent` requests (spec 102 FR-013). */
+  planner?: PlannerInputs;
 }
 
 function one(
@@ -146,16 +92,6 @@ function signoffMarker(
       purpose: "signoff",
       actionId,
     },
-  };
-}
-
-/** The `floor` presence marker row: who was present when the AI DM passed an absent human. */
-function floorMarker(present: readonly string[]): PlannedRow {
-  return {
-    actor: "system",
-    type: "presence.recorded",
-    visibility: "public",
-    payload: { present: [...new Set(present)].sort(), purpose: "floor" },
   };
 }
 
@@ -309,65 +245,15 @@ function planFloor(
     return refuse("FLOOR_NOT_HELD", "the floor is not yours", { holder });
   }
 
-  let state = p.engine;
-  const events: EngineEvent[] = [];
-  const step = (command: unknown): PlanResult | null => {
-    const result = execute(state, command, rng);
-    if (!result.ok) {
-      const { code, message, details } = result.refusal;
-      return {
-        ok: false,
-        refusal: {
-          source: "engine",
-          code,
-          message,
-          ...(details ? { details } : {}),
-        },
-      };
-    }
-    for (const event of result.events) state = evolve(state, event);
-    events.push(...result.events);
-    return null;
-  };
-  const activeOf = (): string =>
-    state.encounter?.order[state.encounter.turnIndex]?.combatantId ?? "";
-
-  const advanced = step({ type: "turn.advance", reason: proposal.reason });
-  if (advanced) return advanced;
-  const lap = state.encounter?.order.length ?? 0;
-  for (let n = 0; n < lap; n++) {
-    const next = nextSettleStep(state);
-    if (!next) break;
-    if (next.type === "death-save.roll") {
-      const rolled = step({
-        type: "death-save.roll",
-        targetId: next.targetId,
-        mode: "normal",
-        reason: "Death saving throw at the start of the turn",
-      });
-      if (rolled) return rolled;
-      if (canAct(state, next.targetId)) break;
-    }
-    const passed = step({
-      type: "turn.advance",
-      reason: "The turn passes a downed combatant",
-    });
-    if (passed) return passed;
-  }
-
-  const rows: PlannedRow[] = [
-    ...(isAiDm(proposer) ? [floorMarker(context?.present ?? [])] : []),
-    ...mechanicsRows({
-      actor,
-      batchId: ids.batchId,
-      events,
-      actionId: null,
-      proposalId,
-      visibility: "public",
-    }),
-    toModeRow({ mode: "turn", ...activeActorFor(p, activeOf()) }),
-  ];
-  return { ok: true, rows, batchId: ids.batchId };
+  return endTurnRows(
+    p,
+    proposer,
+    proposal.reason,
+    rng,
+    ids,
+    proposalId,
+    isAiDm(proposer) ? (context?.present ?? []) : undefined,
+  );
 }
 
 function plan(
@@ -766,8 +652,15 @@ function plan(
     case "floor":
       return planFloor(p, proposer, proposal, rng, ids, proposalId, context);
     case "intent":
-      // Replaced by planIntent in phase 2.
-      return refuse("KIND_UNSERVED", "intents are not planned yet");
+      return planIntent(
+        p,
+        proposer,
+        proposal.intent,
+        rng,
+        ids,
+        proposalId,
+        context,
+      );
     case "journal": {
       if (p.journal.some((j) => j.entryId === proposal.entry.entryId)) {
         return refuse("JOURNAL_ENTRY_EXISTS", "the journal entry exists");
@@ -797,8 +690,19 @@ export function planProposal(
   context?: PlanContext,
 ): PlanResult {
   const planned = plan(p, proposer, proposal, rng, ids, proposalId, context);
+  if (!planned.ok) return validate(planned);
   // Spec 100: every spatial row passes the fog rule before validation.
-  return validate(
-    planned.ok ? { ...planned, rows: fogRows(p, planned.rows) } : planned,
+  const rows = fogRows(p, planned.rows);
+  // Spec 102 OQ-12: a carrier row is `dm` when the fog rule made any row of its batch `dm`.
+  const hidden = rows.some(
+    (r) => r.type !== "intent.recorded" && r.visibility === "dm",
   );
+  return validate({
+    ...planned,
+    rows: hidden
+      ? rows.map((r) =>
+          r.type === "intent.recorded" ? { ...r, visibility: "dm" } : r,
+        )
+      : rows,
+  });
 }

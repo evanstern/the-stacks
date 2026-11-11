@@ -210,6 +210,12 @@ function detailsOf(
         { label: "Reason", value: proposal.reason },
         { label: "Visibility", value: "Everyone" },
       ];
+    // ponytail: kind and text only; T019 (phase 3) swaps in toText(intent).
+    case "intent":
+      return [
+        { label: "Intent", value: proposal.intent.kind },
+        { label: "Text", value: proposal.intent.text ?? "" },
+      ];
   }
 }
 

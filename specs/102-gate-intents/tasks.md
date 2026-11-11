@@ -20,25 +20,25 @@ on the worktree stack.
 
 **Goal**: the `intent` request parses, `intent.recorded` folds, `action.declare` validates as an Intent.
 
-- [ ] T001 Add `@the-stacks/intent` and `@the-stacks/planner` (`workspace:*`) to `packages/session-model/package.json` and its `tsconfig.json` references. Run `pnpm install`.
-- [ ] T002 Add the `intent` member to `ProposalSchema`, `ProposalKindSchema` and `DmProposalKindSchema` in `gate/proposals.ts`. Set `DEFAULT_POLICIES.intent = "ask"` in `gate/policy.ts`. Add the `intent` row to `gate/permissions.ts`.
-- [ ] T003 Write `src/events/intents.ts` (`IntentRecordedV1`, plan "Data model") and add `intent.recorded` to `catalog.ts`.
-- [ ] T004 Write `src/projections/intents.ts` (`IntentView`, `openRulings`); wire `apply.ts` and `types.ts`.
-- [ ] T005 Write `src/gate/declare.ts` (`declareIntent`, FR-026). Call it from the `action.declare` case in `plan.ts`; a schema failure refuses `INVALID_PROPOSAL` (FR-027).
-- [ ] T006 Add the `intent` example to `fixtures/proposal-examples.ts`. Export the new names from `src/index.ts`.
-- [ ] T007 Tests: `gate-declare.test.ts` (every declare fixture maps to a schema-valid `attempt`; round trip; party scope with null character), `intents-projection.test.ts` (fold, `openRulings`, answered), count 20 in `gate-schemas.test.ts`, `exports.test.ts`. Every existing `action.declare` test passes unchanged.
+- [x] T001 Add `@the-stacks/intent` and `@the-stacks/planner` (`workspace:*`) to `packages/session-model/package.json` and its `tsconfig.json` references. Run `pnpm install`.
+- [x] T002 Add the `intent` member to `ProposalSchema`, `ProposalKindSchema` and `DmProposalKindSchema` in `gate/proposals.ts`. Set `DEFAULT_POLICIES.intent = "ask"` in `gate/policy.ts`. Add the `intent` row to `gate/permissions.ts`.
+- [x] T003 Write `src/events/intents.ts` (`IntentRecordedV1`, plan "Data model") and add `intent.recorded` to `catalog.ts`.
+- [x] T004 Write `src/projections/intents.ts` (`IntentView`, `openRulings`); wire `apply.ts` and `types.ts`.
+- [x] T005 Write `src/gate/declare.ts` (`declareIntent`, FR-026). Call it from the `action.declare` case in `plan.ts`; a schema failure refuses `INVALID_PROPOSAL` (FR-027).
+- [x] T006 Add the `intent` example to `fixtures/proposal-examples.ts`. Export the new names from `src/index.ts`.
+- [x] T007 Tests: `gate-declare.test.ts` (every declare fixture maps to a schema-valid `attempt`; round trip; party scope with null character), `intents-projection.test.ts` (fold, `openRulings`, answered), count 20 in `gate-schemas.test.ts`, `exports.test.ts`. Every existing `action.declare` test passes unchanged.
 
 ## Phase 2: Pure Intent planning in session-model (US1, US4, AC #1, AC #4)
 
 **Goal**: `planProposal` plans an `intent` end to end with no server code.
 
-- [ ] T008 Write `src/gate/plan-state.ts`: `PlannerInputs` and `buildPlanState(p, viewer, inputs)` (FR-013, FR-014: `seen` from `targetStatus`, `space` from `spatialFor`).
-- [ ] T009 Extend `PlanContext` with `planner?: PlannerInputs` in `plan.ts`. Extract the floor `end` body of `planFloor` into a shared function.
-- [ ] T010 Write `src/gate/intents.ts` `planIntent`: checks FR-005–FR-012 in order (`DRAFT_NOT_ACCEPTED`, seats from `KIND_RULES`, `NOT_YOUR_ACTOR`, `INTENT_EXISTS`, declared-then-confirmed, `NOT_YOUR_TURN`, `MODEL_NUMBER` in amend bodies).
-- [ ] T011 In `planIntent`, route not-planned kinds to rows (FR-018), `reveal` zone to `revealRows` (FR-019), `end_turn` to the shared floor-end code (FR-020).
-- [ ] T012 In `planIntent`, call `plan()`, run commands per planner contract §3 (FR-015), map refusals (FR-016), wrap events with `mechanicsRows` (FR-017), and append the carrier row (FR-003, spec OQ-12 visibility).
-- [ ] T013 Add `case "intent"` to `plan.ts` calling `planIntent`.
-- [ ] T014 Tests `gate-intents.test.ts`: confirmed attack settles with engine rows then carrier; each refusal code above; `TARGET_UNSEEN` from fog; zone reveal writes `zone.revealed` and flips `seen`; not-planned kinds; `end_turn`; rule-4 stop keeps earlier events; declared then confirmed; `needs_ruling` carrier for `attempt` and a no-DC player `check`; `ruling` accept, reject, amend and `set_dc` close the request.
+- [x] T008 Write `src/gate/plan-state.ts`: `PlannerInputs` and `buildPlanState(p, viewer, inputs)` (FR-013, FR-014: `seen` from `targetStatus`, `space` from `spatialFor`).
+- [x] T009 Extend `PlanContext` with `planner?: PlannerInputs` in `plan.ts`. Extract the floor `end` body of `planFloor` into a shared function.
+- [x] T010 Write `src/gate/intents.ts` `planIntent`: checks FR-005–FR-012 in order (`DRAFT_NOT_ACCEPTED`, seats from `KIND_RULES`, `NOT_YOUR_ACTOR`, `INTENT_EXISTS`, declared-then-confirmed, `NOT_YOUR_TURN`, `MODEL_NUMBER` in amend bodies).
+- [x] T011 In `planIntent`, route not-planned kinds to rows (FR-018), `reveal` zone to `revealRows` (FR-019), `end_turn` to the shared floor-end code (FR-020).
+- [x] T012 In `planIntent`, call `plan()`, run commands per planner contract §3 (FR-015), map refusals (FR-016), wrap events with `mechanicsRows` (FR-017), and append the carrier row (FR-003, spec OQ-12 visibility).
+- [x] T013 Add `case "intent"` to `plan.ts` calling `planIntent`.
+- [x] T014 Tests `gate-intents.test.ts`: confirmed attack settles with engine rows then carrier; each refusal code above; `TARGET_UNSEEN` from fog; zone reveal writes `zone.revealed` and flips `seen`; not-planned kinds; `end_turn`; rule-4 stop keeps earlier events; declared then confirmed; `needs_ruling` carrier for `attempt` and a no-DC player `check`; `ruling` accept, reject, amend and `set_dc` close the request.
 
 ## Phase 3: Server gate wiring (US1, US2 human seat, AC #1, AC #2)
 
