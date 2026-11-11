@@ -4,7 +4,7 @@ title: Interpret emits Intents
 status: In Progress
 assignee: []
 created_date: 2026-11-07 05:13
-updated_date: '2026-11-11T21:01:00Z'
+updated_date: '2026-11-11T23:33:00Z'
 labels:
   - ws:intent
   - replan-2026-11
@@ -72,4 +72,6 @@ Phases 1-2 (184b6c7b, 0077d599), both red by ruling. Spec slash example correcte
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
 Phases 3-5 dispatch stopped at a blocker (WIP 74ac752c, red): action.resolve refuses UNKNOWN_BATCH for Intent stages. Frozen contract 029 gate-api.md:56 requires every batchId to name a ledger row with this actionId, and spec 102 FR-017 writes Intent engine rows with actionId null. Spec 104 FR-016 cannot be met as written. Awaiting operator ruling (C-GATE).
+
+C-GATE ruling (operator, 2026-11-11, in chat): "Relax the gate (a)": action.resolve also accepts a batchId that an intent.recorded row names, when that row's Intent id is <actionId>.<n> for this action. Engine rows stay actionId null (spec 102 FR-017 unchanged). Amend specs/029-proposal-gate/contracts/gate-api.md line 56 additively, quoting this ruling.
 <!-- SECTION:NOTES:END -->
