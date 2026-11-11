@@ -5,12 +5,12 @@ title: >-
   clickable nouns, draft path (spec 091)
 status: To Do
 assignee: []
-created_date: '2026-11-05 05:48'
-updated_date: '2026-11-10 03:11'
+created_date: 2026-11-05 05:48
+updated_date: '2026-11-11T19:51:00Z'
 labels:
   - web
   - ux
-  - 'ws:table-ux'
+  - ws:table-ux
 milestone: m-10
 dependencies:
   - TASK-0199
@@ -33,12 +33,6 @@ Prior scope (superseded): second half of the TASK-0236 table redesign (docs/desi
 Spec: specs/091-mud-stream-and-composer
 <!-- SECTION:DESCRIPTION:END -->
 
-## Definition of Done
-<!-- DOD:BEGIN -->
-- [ ] #1 All tests and checks run green
-- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
-<!-- DOD:END -->
-
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
 - [ ] #1 Spec 091 is amended after CP-4 so clickable nouns, ways and Tab completion draft Intent pills.
@@ -50,7 +44,14 @@ Spec: specs/091-mud-stream-and-composer
 - [ ] #7 NPC dialogue renders as distinct rows, and the transcript column is capped at 1024 px and centred.
 - [ ] #8 Spec 091 is amended against Intent contract v1.1 and reviewed by the operator at C-AMD before implementation.
 - [ ] #9 Fact rows render from the ledger at resolve time, not from the narration text (spec 098 OQ-3).
+- [ ] #10 A direct intent request (not from a turn job) queues a coalesced turn that narrates its intent.recorded facts (spec 104 OQ-4).
 <!-- AC:END -->
+
+## Definition of Done
+<!-- DOD:BEGIN -->
+- [ ] #1 All tests and checks run green
+- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
+<!-- DOD:END -->
 
 ## Implementation Notes
 
