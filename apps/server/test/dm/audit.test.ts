@@ -707,7 +707,7 @@ describe("audit loop", () => {
 
   it("skips the model audit when a deterministic check fails", async () => {
     const { out } = await loop([
-      text("dm.narrate", "Ana opens 3 locks."),
+      text("dm.narrate", "The guard dies where he stands."),
       text("dm.narrate", CLEAN),
       json("dm.audit", PASS),
     ]);

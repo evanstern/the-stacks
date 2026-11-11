@@ -1,17 +1,17 @@
 import { describe, expect, it } from "vitest";
 import {
-  ACT_VERBS,
-  INVOLUNTARY_VERBS,
-  SPEECH_VERBS,
-} from "../../src/dm/audit-words.js";
-import {
   type ClaimIssue,
   type ClaimState,
   checkClaims,
-  namedActorIds,
   offTurnActs,
   unmetReveals,
 } from "../../src/dm/claims.js";
+import {
+  ACT_VERBS,
+  INVOLUNTARY_VERBS,
+  SPEECH_VERBS,
+} from "../../src/dm/narration-words.js";
+import { namedActorIds } from "../../src/dm/snapshot/aliases.js";
 import { buildSnapshot } from "../../src/dm/snapshot/index.js";
 import type {
   ActorChange,

@@ -1,12 +1,5 @@
-import {
-  DEATH_WORDS,
-  DICE_LANGUAGE,
-  NEGATIVE_WORDS,
-  namePairsWith,
-  POSITIVE_WORDS,
-  UNCONSCIOUS_WORDS,
-} from "./audit-words.js";
 import { type ClaimState, checkClaims } from "./claims.js";
+import { DIGIT_WORDS, spellDigits } from "./fact-sheet.js";
 import type {
   FactChange,
   FactEvent,
@@ -14,6 +7,14 @@ import type {
   FactRoll,
   NarrationFacts,
 } from "./facts.js";
+import {
+  DEATH_WORDS,
+  DICE_LANGUAGE,
+  NEGATIVE_WORDS,
+  namePairsWith,
+  POSITIVE_WORDS,
+  UNCONSCIOUS_WORDS,
+} from "./narration-words.js";
 
 /**
  * The code-built factual fallback (specs/034-narration-quality
@@ -23,32 +24,9 @@ import type {
  * construction; a property test asserts it. It is never sent to `dm.audit`.
  */
 
-const DIGIT_WORDS = [
-  "zero",
-  "one",
-  "two",
-  "three",
-  "four",
-  "five",
-  "six",
-  "seven",
-  "eight",
-  "nine",
-];
-
 /** System words the prose must not hold (character names are exempt). */
 export const SYSTEM_WORDS =
   /\b(actions?|description|clarify|clearer|rolls?|rolled|dice|checks?|turns?|rounds?|initiative|scene|acts|nothing changes)\b/i;
-
-/** "Goblin-3" becomes "Goblin three"; every digit becomes its word. */
-export function spellDigits(text: string): string {
-  return text
-    .replace(/-(?=[0-9])/g, " ")
-    .replace(/[0-9]/g, (d) => ` ${DIGIT_WORDS[Number(d)]} `)
-    .replace(/\s+([,.;:!?])/g, "$1")
-    .replace(/\s+/g, " ")
-    .trim();
-}
 
 function joinNames(names: readonly string[]): string {
   if (names.length <= 1) return names[0] ?? "";

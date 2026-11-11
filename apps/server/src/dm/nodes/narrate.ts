@@ -1,4 +1,3 @@
-import { hasCountClaim } from "../audit-words.js";
 import { type ClaimState, checkClaims } from "../claims.js";
 import {
   buildFactSheet,
@@ -16,6 +15,7 @@ import {
   nothingToNarrate,
 } from "../facts.js";
 import { openFollowUps, priorActionIds } from "../follow-ups.js";
+import { hasCountClaim } from "../narration-words.js";
 import { callText } from "../pipeline/call.js";
 import type {
   ModelCallRecord,

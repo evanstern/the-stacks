@@ -5,16 +5,16 @@ import {
   type StoredEvent,
 } from "@the-stacks/session-model";
 import {
-  DEATH_WORDS,
-  DICE_LANGUAGE,
-  UNCONSCIOUS_WORDS,
-} from "../../dm/audit-words.js";
-import {
   collectFacts,
   type FactChange,
   renderChangeLine,
   renderRollLine,
 } from "../../dm/facts.js";
+import {
+  DEATH_WORDS,
+  DICE_LANGUAGE,
+  UNCONSCIOUS_WORDS,
+} from "../../dm/narration-words.js";
 import type { SceneSeed } from "../../dm/seed/schema.js";
 import type { FindingKind } from "./schema.js";
 import type { Segment } from "./segments.js";

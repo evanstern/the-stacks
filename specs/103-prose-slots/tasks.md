@@ -6,18 +6,18 @@ Tests use the fake gateway only.
 
 ## Phase 1: Check module and helper moves
 
-- [ ] T001 Move `namedActorIds` from `apps/server/src/dm/claims.ts` to `apps/server/src/dm/snapshot/aliases.ts`. Keep the unique-alias, whole-word rule. Re-point `nodes/resolve.ts`.
-- [ ] T002 Rename `apps/server/src/dm/audit-words.ts` to `apps/server/src/dm/narration-words.ts`. Re-point every importer, including `playtest/auditor/checks.ts`.
-- [ ] T003 Write `apps/server/src/dm/narration-check.ts` per plan D1: `checkNarration`, `dropSentences`, `CheckInput`, `CheckIssue`.
-- [ ] T004 Write `apps/server/test/dm/narration-check.test.ts`. Cover each leak kind and each contradiction kind, with a pass case for quotes, negation and "no sign of". Port each still-valid leak or contradiction case from `claims.test.ts` and `audit.test.ts`.
+- [x] T001 Move `namedActorIds` from `apps/server/src/dm/claims.ts` to `apps/server/src/dm/snapshot/aliases.ts`. Keep the unique-alias, whole-word rule. Re-point `nodes/resolve.ts`.
+- [x] T002 Rename `apps/server/src/dm/audit-words.ts` to `apps/server/src/dm/narration-words.ts`. Re-point every importer, including `playtest/auditor/checks.ts`.
+- [x] T003 Write `apps/server/src/dm/narration-check.ts` per plan D1: `checkNarration`, `dropSentences`, `CheckInput`, `CheckIssue`.
+- [x] T004 Write `apps/server/test/dm/narration-check.test.ts`. Cover each leak kind and each contradiction kind, with a pass case for quotes, negation and "no sign of". Port each still-valid leak or contradiction case from `claims.test.ts` and `audit.test.ts`.
 
 ## Phase 2: `why` rows and the digit drop
 
-- [ ] T005 Move `spellDigits` from `apps/server/src/dm/fallback.ts` into `apps/server/src/dm/fact-sheet.ts`.
-- [ ] T006 Add `"why"` to `FactRow.kind` and `planFacts?` to `FactSheetInput`. Type it as `IntentRecorded["facts"][number]`.
-- [ ] T007 Write `renderWhyRows` per spec 098 contract §6. Render after change rows, before the State line. `unserved` renders no row.
-- [ ] T008 In `parseSlots`, drop each describe or ask sentence that holds a digit.
-- [ ] T009 Write `apps/server/test/dm/why-rows.test.ts`: one case per `PlanFact.kind`. Extend `fact-sheet.test.ts`: every digit in `composeReply` output lies in a row or the State line (constitution VII gate).
+- [x] T005 Move `spellDigits` from `apps/server/src/dm/fallback.ts` into `apps/server/src/dm/fact-sheet.ts`.
+- [x] T006 Add `"why"` to `FactRow.kind` and `planFacts?` to `FactSheetInput`. Type it as `IntentRecorded["facts"][number]`.
+- [x] T007 Write `renderWhyRows` per spec 098 contract §6. Render after change rows, before the State line. `unserved` renders no row.
+- [x] T008 In `parseSlots`, drop each describe or ask sentence that holds a digit.
+- [x] T009 Write `apps/server/test/dm/why-rows.test.ts`: one case per `PlanFact.kind`. Extend `fact-sheet.test.ts`: every digit in `composeReply` output lies in a row or the State line (constitution VII gate).
 
 ## Phase 3: Turn pipeline swap and deletions
 

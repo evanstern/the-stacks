@@ -1,6 +1,20 @@
 import { createHash } from "node:crypto";
 import { z } from "zod";
 import {
+  type ClaimState,
+  checkClaims,
+  offTurnActs,
+  unmetReveals,
+} from "../claims.js";
+import {
+  composeReply,
+  defaultRestate,
+  type NarrationSlots,
+  spellDigits,
+} from "../fact-sheet.js";
+import { type NarrationFacts, renderDiceLines, unmetRolls } from "../facts.js";
+import { factualSummary } from "../fallback.js";
+import {
   DEFENCE_VERBS,
   DICE_LANGUAGE,
   EITHER_OR_END,
@@ -17,20 +31,7 @@ import {
   STOCK_ENDING,
   verbForms,
   wordCount,
-} from "../audit-words.js";
-import {
-  type ClaimState,
-  checkClaims,
-  offTurnActs,
-  unmetReveals,
-} from "../claims.js";
-import {
-  composeReply,
-  defaultRestate,
-  type NarrationSlots,
-} from "../fact-sheet.js";
-import { type NarrationFacts, renderDiceLines, unmetRolls } from "../facts.js";
-import { factualSummary, spellDigits } from "../fallback.js";
+} from "../narration-words.js";
 import { callJson } from "../pipeline/call.js";
 import type {
   ModelCallRecord,

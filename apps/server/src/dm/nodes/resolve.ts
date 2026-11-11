@@ -19,7 +19,6 @@ import {
   type TableMode,
 } from "@the-stacks/session-model";
 import type { Gate } from "../../gate/index.js";
-import { namedActorIds } from "../claims.js";
 import { clarifyHolds } from "../first-stage.js";
 import {
   arrivingMonsters,
@@ -38,6 +37,7 @@ import { reactors } from "../reactions.js";
 import { refreshSubmission } from "../resume.js";
 import { combatantFromSrd, statsFromCharacter } from "../seed/combatants.js";
 import type { SceneSeed } from "../seed/schema.js";
+import { namedActorIds } from "../snapshot/aliases.js";
 import {
   type ActorSnapshot,
   buildSnapshot,

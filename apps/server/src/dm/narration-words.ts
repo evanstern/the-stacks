@@ -1,5 +1,5 @@
 /**
- * Word lists for the deterministic audit checks (contracts/audit.md). Pure
+Word lists for the deterministic narration checks. Pure
  * data and small matchers; tested on their own in test/dm/audit.test.ts.
  */
 

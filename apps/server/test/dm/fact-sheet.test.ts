@@ -361,3 +361,35 @@ describe("fact sheet: parseSlots and composeReply", () => {
     );
   });
 });
+
+describe("fact sheet: digits come only from rows (constitution VII)", () => {
+  it("drops describe and ask sentences with a digit; every digit left is in a row or the State line", () => {
+    const s = buildFactSheet(
+      input(
+        facts({
+          actions: [
+            action({
+              changes: [
+                {
+                  kind: "life-state",
+                  target: "Goblin-3",
+                  before: "a",
+                  after: "b",
+                },
+              ],
+            }),
+          ],
+        }),
+      ),
+    );
+    const slots = parseSlots(
+      "[describe] Snag deals 7 damage. The mist thickens. He grins at 3 goblins.",
+      s,
+    );
+    expect(slots.describe).toBe("The mist thickens.");
+    const rowText = [...s.rows.map((r) => r.text), s.state ?? ""].join("\n");
+    const reply = composeReply(slots, s);
+    for (const d of reply.match(/[0-9]/g) ?? []) expect(rowText).toContain(d);
+    expect(parseSlots("[describe] Only 2.", s).describe).toBe("");
+  });
+});
