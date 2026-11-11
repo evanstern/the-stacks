@@ -91,6 +91,7 @@ export function withholdRefusedInputs(
       snapshot: state.snapshot,
       dmOnlyText: state.dmOnlyText,
       unmetSuccess: [],
+      departedIds: [],
     }).filter((c) => c.kind === "life-state" || c.kind === "dm-only-text");
     for (const c of issues) {
       withheld.push({ ...c, detail: `withheld ${label}: ${c.detail}` });

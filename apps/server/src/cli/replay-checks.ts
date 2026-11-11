@@ -92,6 +92,18 @@ export function replay(data: Export, seedDir = DEFAULT_SEED_DIR) {
         ),
         seed,
       );
+      const prev = events
+        .filter((e) => e.type === "narration" && e.seq < ev.seq)
+        .reduce((m, e) => Math.max(m, e.seq), 0);
+      const departedIds = events
+        .filter(
+          (e) =>
+            e.type === "scene-presence.changed" &&
+            e.seq > prev &&
+            e.seq < ev.seq &&
+            (e.payload as { after?: string }).after === "absent",
+        )
+        .map((e) => (e.payload as { actorId: string }).actorId);
       hits = checkNarration({
         slots: { restate: "", describe: prose, ask: "" },
         rows,
@@ -99,6 +111,7 @@ export function replay(data: Export, seedDir = DEFAULT_SEED_DIR) {
         snapshot,
         dmOnlyText,
         unmetSuccess: [],
+        departedIds,
       });
     }
     perTurn.push({

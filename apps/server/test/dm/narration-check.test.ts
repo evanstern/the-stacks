@@ -45,6 +45,7 @@ function input(
     snapshot,
     dmOnlyText: [],
     unmetSuccess: [],
+    departedIds: [],
     ...extra,
   };
 }
@@ -58,6 +59,15 @@ describe("leak check", () => {
         input("Pell steps out of the reeds.", { presence: { pell: "absent" } }),
       ),
     ).toEqual(["absent-actor"]);
+  });
+
+  it("skips an actor who departed in this beat but not one absent before it", () => {
+    const o = { presence: { pell: "absent" as ScenePresence } };
+    const t = "Pell steps out of the reeds.";
+    expect(kinds(input(t, o, { departedIds: ["pell"] }))).toEqual([]);
+    expect(kinds(input(t, o, { departedIds: ["goblin-2"] }))).toEqual([
+      "absent-actor",
+    ]);
   });
 
   it("passes quotes, negation, 'no sign of' and a question", () => {
@@ -167,6 +177,7 @@ describe("recorded evidence (ported from claim-evidence.test.ts)", () => {
       snapshot: stateAt(M2_LOG, s, e).snapshot,
       dmOnlyText: [],
       unmetSuccess: [],
+      departedIds: [],
       ...extra,
     }).map((i) => i.kind);
 

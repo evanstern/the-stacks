@@ -94,6 +94,14 @@ export const check: Node<"check"> = async (ctx) => {
       (facts.npcTurn?.rolls ?? []).length > 0 ||
       (facts.pulled ?? []).some((x) => x.rolls.length > 0),
     snapshot: resolved.snapshot,
+    departedIds: resolved.appendedRows.flatMap((r) => {
+      const pl = r.payload as { actorId?: string; after?: string };
+      return r.type === "scene-presence.changed" &&
+        pl.after === "absent" &&
+        pl.actorId
+        ? [pl.actorId]
+        : [];
+    }),
     dmOnlyText: dmOnlySeedText(ctx.seed).map((t) => t.toLowerCase()),
     unmetSuccess: unmetRolls(facts).flatMap((r) =>
       r.unmetSuccess ? [r.unmetSuccess] : [],

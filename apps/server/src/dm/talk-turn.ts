@@ -229,6 +229,7 @@ export async function runTalkTurn(
         snapshot: assembled.snapshot,
         dmOnlyText: secrets,
         unmetSuccess: [],
+        departedIds: [],
       }),
     ];
     const drop = found

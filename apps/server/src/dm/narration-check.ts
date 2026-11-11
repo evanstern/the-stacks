@@ -28,6 +28,8 @@ export interface CheckInput {
   dmOnlyText: readonly string[];
   /** `FactRoll.unmetSuccess` of this beat. */
   unmetSuccess: readonly string[];
+  /** Actor ids whose presence changed to `absent` in this beat's own rows; the S1 snapshot already shows them absent. */
+  departedIds: readonly string[];
 }
 
 export interface CheckIssue {
@@ -136,6 +138,7 @@ export function checkNarration(input: CheckInput): CheckIssue[] {
   const unmetIds = new Set(
     input.unmetSuccess.flatMap((t) => namedActorIds(snapshot, t)),
   );
+  const departed = new Set(input.departedIds);
   const fogged = (snapshot.stage.zones ?? []).filter((z) => !z.revealed);
   const issues: CheckIssue[] = [];
   for (const text of [input.slots.describe, input.slots.ask]) {
@@ -170,7 +173,7 @@ export function checkNarration(input: CheckInput): CheckIssue[] {
       }
       for (const o of aliasOccurrences(snapshot, masked)) {
         const actor = o.unique ? lifeOf(snapshot, o.ids[0] as string) : null;
-        if (actor?.presence !== "absent") continue;
+        if (actor?.presence !== "absent" || departed.has(actor.id)) continue;
         const before = masked.slice(0, o.start).replace(/’/g, "'");
         if (NEGATION_RE.test(before) || NO_SIGN_RE.test(before)) continue;
         if (masked.trimEnd().endsWith("?")) continue;
