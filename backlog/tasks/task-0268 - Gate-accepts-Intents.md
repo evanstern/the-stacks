@@ -4,7 +4,7 @@ title: Gate accepts Intents
 status: In Progress
 assignee: []
 created_date: 2026-11-07 05:13
-updated_date: '2026-11-11T05:27:00Z'
+updated_date: '2026-11-11T05:56:00Z'
 labels:
   - ws:intent
   - replan-2026-11
@@ -58,4 +58,7 @@ Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5
 Spec 102 authored (86d425b6) against plan commits 092 06d7ca13, 097 a34d5d39, 100 16ae6147, 099 58fc1fd4, 101 02b96689. ~2h7m, 79 tool calls; nudged to write after 2h of reading. Awaiting C-GATE ruling before implementation.
 
 C-GATE ruling (operator, 2026-11-11, in chat): "Approve all" — approves the spec 102 plan.md "C-GATE: frozen contract amendments" table and every spec 102 open question (OQ-1..OQ-14) as recommended.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
+Phases 1-2 done (6184167b, 14f1ccf6): ci:check green. Beyond plan: Dockerfile COPY for intent+planner (TASK-0303 guard), minimal web detailsOf intent case (T019 finishes it), gate/rows.ts + gate/floor-end.ts extracted. KIND_UNSERVED owner strings: predeclare -> N-10 (TASK-0275).
 <!-- SECTION:NOTES:END -->
