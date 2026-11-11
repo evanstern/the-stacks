@@ -4,7 +4,7 @@ title: Gate accepts Intents
 status: In Progress
 assignee: []
 created_date: 2026-11-07 05:13
-updated_date: '2026-11-11T06:29:00Z'
+updated_date: '2026-11-11T06:30:00Z'
 labels:
   - ws:intent
   - replan-2026-11
@@ -34,7 +34,7 @@ Spec: specs/102-gate-intents
 - [x] #2 A `needs_ruling` result enqueues a ruling job (AI seat) or a proposal row (human seat).
 - [x] #3 Existing `action.declare` clients keep working through the envelope.
 - [x] #4 A zone reveal Intent maps through the gate, and targetStatus 'ok' maps to seen (spec 100 OQ-4).
-- [ ] #5 Spec phase: Request kind, carrier event, projection and declare envelope (US3, AC #3)
+- [x] #5 Spec phase: Request kind, carrier event, projection and declare envelope (US3, AC #3)
 - [ ] #6 Spec phase: Pure Intent planning in session-model (US1, US4, AC #1, AC #4)
 - [ ] #7 Spec phase: Server gate wiring (US1, US2 human seat, AC #1, AC #2)
 - [ ] #8 Spec phase: AI-seat ruling job (US2 AI seat, AC #2)
