@@ -303,8 +303,8 @@ export function buildFactSheet(input: FactSheetInput): FactSheet {
   else if (settled.trigger === "npc-turn") slots = ["describe"];
   else if (settled.trigger === "scene-start") slots = ["describe", "ask"];
   else if (restate.length === 0) slots = ["describe"];
-  else if (ask) slots = ["restate", "describe"];
-  else slots = ["restate", "describe", "ask"];
+  // A routine turn never asks: the model's "What do you do next?" is a prompt to act, not a clarification.
+  else slots = ["restate", "describe"];
   const speakers: Speaker[] = settled.presentNpcs.map((n) => ({
     name: n.name,
     say:
@@ -332,7 +332,9 @@ export function defaultRestate(sheet: FactSheet): string {
     .join(" ");
 }
 
-const TAG = /^\[(restate|describe|ask)\][ \t]*/gim;
+// Label forms at line start: `[x]`, `[x]:`, `x:`, `**x:**`, `**x**:` (the model drifts from the bracket form).
+const TAG =
+  /^[ \t]*(?:\[(restate|describe|ask)\]:?|\*\*(restate|describe|ask):?\*\*:?|(restate|describe|ask):)[ \t]*/gim;
 
 /** Parses the model's tagged text into validated slots (contract §5.1). */
 export function parseSlots(text: string, sheet: FactSheet): NarrationSlots {
@@ -345,7 +347,7 @@ export function parseSlots(text: string, sheet: FactSheet): NarrationSlots {
   let last = 0;
   for (const m of text.matchAll(TAG)) {
     raw[current].push(text.slice(last, m.index));
-    current = (m[1] as string).toLowerCase() as SlotName;
+    current = (m[1] ?? m[2] ?? (m[3] as string)).toLowerCase() as SlotName;
     last = (m.index ?? 0) + m[0].length;
   }
   raw[current].push(text.slice(last));

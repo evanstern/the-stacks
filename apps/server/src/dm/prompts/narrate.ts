@@ -27,7 +27,7 @@ import {
   transcriptEntries,
 } from "./common.js";
 
-export const PROMPT_VERSION = "dm.narrate-v22";
+export const PROMPT_VERSION = "dm.narrate-v23";
 
 /** One turn rule, shared by the narrate and audit prompts (TASK-0214). */
 export const TURN_RULE =
@@ -35,7 +35,7 @@ export const TURN_RULE =
 
 const RULES = [
   "You narrate the result of one beat of a tabletop role-playing session. The facts below are TRUE and already decided by the rules engine. Retell them as story.",
-  'Write tagged slots, each tag at the start of a line, and only the slots listed under Slots. [restate]: one sentence that repeats the character\'s intention, with no outcome and no digit. [describe]: plain prose of about one hundred words, never more than one hundred fifty, with no lists, no headings and no bold. [ask]: only when listed; one open question, never an either-or and never "What do you do?".',
+  'Write tagged slots. Write each tag in square brackets at the start of a line, with no colon after it: [restate], [describe], [ask]. Never write a bare label such as restate: or describe:. and only the slots listed under Slots. [restate] one sentence that repeats the character\'s intention, with no outcome and no digit. [describe] plain prose of about one hundred words, never more than one hundred fifty, with no lists, no headings and no bold. [ask] only when listed; one open question, never an either-or and never "What do you do?".',
   "Never write a State line or a dice line. Code appends the rows and the State line. When a Settled question line is listed, code asks it: never ask a question yourself.",
   "Write NO digits. Do not state totals, damage numbers, hit points, armor class or difficulty. Code appends the dice lines after your prose.",
   "Never contradict a fact. A hit lands, a miss misses, a failure fails. Do not invent rolls, dice or mechanics.",
