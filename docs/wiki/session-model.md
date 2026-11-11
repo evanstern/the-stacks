@@ -21,7 +21,7 @@ sources:
   - packages/session-model/src/fixtures/turn-floor.ts
   - apps/server/src/session/events.ts
   - apps/server/src/session/projections.ts
-verified_against: bb1a7c07dd75ce2bb9653424b0adb654209de425
+verified_against: 4f0383cb9c20dfb8dbcbb561ed416616d5fbaae9
 ---
 
 # Session model

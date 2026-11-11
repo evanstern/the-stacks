@@ -12,7 +12,7 @@ sources:
   - packages/intent/src/text/parse.ts
   - packages/intent/src/text/to-text.ts
   - packages/intent/src/text/tokens.ts
-verified_against: 9c2209b9453d211adf302bd86436ece4c2a23ed7
+verified_against: 4f0383cb9c20dfb8dbcbb561ed416616d5fbaae9
 ---
 
 # Intent contract

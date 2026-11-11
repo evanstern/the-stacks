@@ -18,7 +18,7 @@ sources:
   - packages/planner/src/outcome.ts
   - packages/planner/test/purity.test.ts
   - specs/097-planner/contracts/planner.md
-verified_against: 2707677c72373882afd5868a4ed10eca26f85dd6
+verified_against: 4f0383cb9c20dfb8dbcbb561ed416616d5fbaae9
 ---
 
 # Planner
