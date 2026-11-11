@@ -48,6 +48,7 @@ import type {
   TurnOutcome,
 } from "./pipeline/context.js";
 import { type Nodes, runTurn } from "./pipeline/runner.js";
+import { answerRulings } from "./rulings.js";
 import { loadSeed } from "./seed/load.js";
 import type { SceneSeed } from "./seed/schema.js";
 
@@ -332,6 +333,8 @@ export function createDmWorker(deps: DmWorkerDeps): DmWorker {
 
     let outcome: TurnOutcome;
     try {
+      // Spec 102 FR-023: open ruling requests are answered before the beat is read.
+      await answerRulings(nodeDeps, job.sessionId, controller.signal);
       outcome = await runTurn(ctx, nodes);
     } catch (error) {
       log({

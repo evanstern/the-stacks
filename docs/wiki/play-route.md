@@ -36,7 +36,7 @@ sources:
   - apps/web/app/play/components/commit-control.tsx
   - apps/web/app/play/components/table-mode-panel.tsx
   - apps/web/app/play/components/dm-seat-panel.tsx
-verified_against: 3a78c328939cb7447322818749b9eeee35235b70
+verified_against: bfb65a157559c88bf988a6c0f55b7c03824ff412
 size_budget_exempt: TASK-0236 adds the table margin paragraph to the one play-route note; the note sat near the 8000 budget and the view does not split without a TASK of its own
 ---
 
@@ -111,7 +111,7 @@ With a human DM, a check's roll approval re-proposes the same roll instead of na
   `observer`. A `null` list yields only the DM row. See [[presence]].
 - `proposals.ts` - `selectPendingProposals` lists pending `proposal.*` rows for a DM viewer,
   oldest first; a player always gets `[]`. Each `PendingProposalView` carries `policy` (`ask` or
-  `suggest`) from the `proposal.created` row.
+  `suggest`) from the `proposal.created` row. An `intent` proposal shows its kind and `toText` text ([[intent-contract]]).
 - `ledger-format.ts` formats roll, outcome and change rows (`Reaction: `); `labels.ts` names.
 
 ## DM seat

@@ -27,6 +27,8 @@ export {
   DmSeatChangedV1,
   GatePolicyChangedV1,
 } from "./events/gate-config.js";
+export type { IntentRecorded } from "./events/intents.js";
+export { IntentRecordedV1 } from "./events/intents.js";
 export { JournalEntryAddedV1 } from "./events/journal.js";
 export type { MechanicsEnvelope } from "./events/mechanics.js";
 export { MechanicsEnvelopeV1 } from "./events/mechanics.js";
@@ -66,6 +68,8 @@ export type { Tracker } from "./events/tracker.js";
 export { TrackerChangedV1, TrackerSchema } from "./events/tracker.js";
 export type { CommitDecision } from "./gate/authority.js";
 export { commitAuthority } from "./gate/authority.js";
+export type { DeclareResult } from "./gate/declare.js";
+export { declareIntent } from "./gate/declare.js";
 export { fogRows, revealRows } from "./gate/fog.js";
 export type { PermissionResult } from "./gate/permissions.js";
 export { checkPermission } from "./gate/permissions.js";
@@ -76,6 +80,8 @@ export type {
   PlanResult,
 } from "./gate/plan.js";
 export { mechanicsRows, planProposal } from "./gate/plan.js";
+export type { PlannerInputs } from "./gate/plan-state.js";
+export { buildPlanState, EMPTY_PLANNER_INPUTS } from "./gate/plan-state.js";
 export type { Policy, PolicyTable, Route } from "./gate/policy.js";
 export {
   DEFAULT_POLICIES,
@@ -137,6 +143,7 @@ export {
   VisibilitySchema,
 } from "./ids.js";
 export { applyEvent, emptyProjections, project } from "./projections/apply.js";
+export { openRulings } from "./projections/intents.js";
 export { findProposal, pendingProposals } from "./projections/proposals.js";
 export type { SpatialView, TargetStatus } from "./projections/spatial.js";
 export { reachOf, spatialFor, targetStatus } from "./projections/spatial.js";
@@ -147,6 +154,7 @@ export type {
   Diagnostics,
   EncounterView,
   GateView,
+  IntentView,
   JournalEntryView,
   LedgerRow,
   PartyMemberView,

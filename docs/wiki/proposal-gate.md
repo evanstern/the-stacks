@@ -1,6 +1,6 @@
 ---
 name: proposal-gate
-description: The proposal gate (TASK-0045, spec 029) - the 15 proposal kinds and four supervision requests, the permission matrix, the default policy table (auto/ask/suggest) and DM seat, commit authority by table mode and the group sign-off quorum (TASK-0049, spec 044), the `floor` kind (see turn-floor), createGate (submit/handle/onAppended, per-session write order, bounded jittered retry on SeqConflictError, atomic approval, refuse-before-write), and the import-graph write-boundary test (AC #1).
+description: The proposal gate (TASK-0045, spec 029) - the 16 proposal kinds and four supervision requests, the permission matrix, the default policy table (auto/ask/suggest) and DM seat, commit authority by table mode and the group sign-off quorum (TASK-0049, spec 044), the `floor` kind (see turn-floor), createGate (submit/handle/onAppended, per-session write order, bounded jittered retry on SeqConflictError, atomic approval, refuse-before-write), and the import-graph write-boundary test (AC #1).
 kind: component
 sources:
   - packages/session-model/src/gate/proposals.ts
@@ -8,6 +8,8 @@ sources:
   - packages/session-model/src/gate/policy.ts
   - packages/session-model/src/gate/authority.ts
   - packages/session-model/src/gate/plan.ts
+  - packages/session-model/src/gate/intents.ts
+  - packages/session-model/src/gate/rows.ts
   - packages/session-model/src/gate/signoff.ts
   - packages/session-model/src/gate/turn.ts
   - packages/session-model/src/gate/seat.ts
@@ -16,7 +18,8 @@ sources:
   - apps/server/src/gate/index.ts
   - apps/server/test/write-boundary.test.ts
   - apps/server/test/helpers/import-graph.ts
-verified_against: bb1a7c07dd75ce2bb9653424b0adb654209de425
+size_budget_exempt: spec 102 adds the intent kind paragraph to the one proposal-gate note; it does not split without a TASK of its own
+verified_against: bfb65a157559c88bf988a6c0f55b7c03824ff412
 ---
 
 # Proposal gate
@@ -29,13 +32,15 @@ policy, plans the rows and appends them. Pure decisions live in
 
 ## Kinds and requests
 
-`ProposalKindSchema` has 15 kinds: `talk`, `action.declare`, `action.comment`,
+`ProposalKindSchema` has 16 kinds: `talk`, `action.declare`, `action.comment`,
 `action.commit`, `action.withdraw`, `action.resolve`, `mechanics` (engine command),
-`narration`, `table-mode`, `scene`, `party`, `tracker`, `scene-presence`, `journal`, `floor`. The AI DM may propose the
-thirteen in `DmProposalKindSchema` (all but `action.declare` and `action.withdraw`). `GateRequestSchema` adds four
-supervision requests: `proposal.approve`, `proposal.reject`, `dm.seat`, `gate.policy` (19
+`narration`, `table-mode`, `scene`, `party`, `tracker`, `scene-presence`, `journal`, `floor`, `intent`. The AI DM may propose the
+fourteen in `DmProposalKindSchema` (all but `action.declare` and `action.withdraw`). `GateRequestSchema` adds four
+supervision requests: `proposal.approve`, `proposal.reject`, `dm.seat`, `gate.policy` (20
 `GATE_REQUEST_KINDS`; sent over `send`, see [[websocket-gateway]]).
 A `Proposer` is a human (`userId`, role `operator` or `player`) or an AI (`ai:dm`, `ai:companion:<id>`).
+
+The `intent` kind (spec 102, ruling C-GATE) carries one `Intent` ([[intent-contract]]); policy `ask`; `checkPermission` passes it and `planIntent` (`gate/intents.ts`) decides seat, actor and turn, then plans through the planner ([[planner]]) into an `intent.recorded` carrier row plus engine rows. `rows.ts` holds `PlannedRow`, `PlanResult`, `mechanicsRows` and `refuse`; `plan.ts` re-exports them. New refusal codes: `NOT_YOUR_ACTOR`, `DM_SEAT_REQUIRED`, `NOT_YOUR_TURN`. `action.declare` plans through `declareIntent` (`gate/declare.ts`), same rows as before. Server side, `GateDeps.plannerInputs` (seed-derived `PlannerInputs`) rides `PlanContext.planner`. Under a human seat a `needs_ruling` carrier also writes a `proposal.created` row (`ruledRows`); approve or reject of that proposal plans a `ruling` Intent from the DM instead of replaying the proposal (`decideRuling`; a `difficulty` ask is not approvable). Under an AI seat the ruling turn answers it ([[dm-turn-jobs]]).
 
 ## Permission, policy, seat
 

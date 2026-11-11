@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@react-router/node": "^8.4.0",
+    "@the-stacks/intent": "workspace:*",
     "@the-stacks/session-model": "workspace:*",
     "@the-stacks/shared": "workspace:*",
     "@the-stacks/srd": "workspace:*",

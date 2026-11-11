@@ -76,6 +76,8 @@ export function checkPermission(
         ? ok
         : no("a comment needs a party member or the DM");
     case "action.commit":
+    case "intent":
+      // `planIntent` decides seat, actor and turn (FR-005 to FR-012).
       return ok;
     case "floor": {
       if (request.kind !== "floor") return no("not a floor request");

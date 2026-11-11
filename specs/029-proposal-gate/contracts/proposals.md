@@ -271,3 +271,21 @@ Rule changes:
   Only `action.accept` links an action to a suggestion.
 - Visibility: `action.suggest` is always `public`.
 - `action.declare`, `action.comment` and `action.commit` keep every rule above (OQ-11 (a)).
+
+**Amendment (TASK-0268).** Amended 2026-11-11 (spec `specs/102-gate-intents`, C-GATE).
+
+> "Approve all" (operator, C-GATE ruling, 2026-11-11: approves spec 102 plan.md "C-GATE: frozen contract amendments" and OQ-1 to OQ-14 as recommended)
+
+The kinds grow by one: `intent`. The DM kinds grow by one: `DmProposalKindSchema` keeps `intent`
+(`ai:dm` may send it). Code moves from 15 to 16 kinds and from 19 to 20 request literals. This
+text reads 18 kinds, 15 DM kinds and 22 request literals once TASK-0199 builds the TASK-0188
+amendment above (spec 102 OQ-14).
+
+```ts
+z.object({ kind: z.literal("intent"), ...ProposalNote, intent: IntentSchema }),  // @the-stacks/intent
+```
+
+Matrix row `intent`: every role passes the matrix. `planIntent` decides (spec 102 FR-005 to
+FR-012: `DRAFT_NOT_ACCEPTED`, `DM_SEAT_REQUIRED`, `NOT_AUTHORIZED`, `NOT_YOUR_ACTOR`,
+`INTENT_EXISTS`, `NOT_YOUR_TURN`, `MODEL_NUMBER`). `action.declare` keeps its rows and gains a pure
+envelope to a `declared` `attempt` Intent.

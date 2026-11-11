@@ -8,7 +8,8 @@ sources:
   - apps/server/src/routes/dm.ts
   - apps/server/src/routes/tables.ts
   - apps/server/src/dm/script/env.ts
-verified_against: beae54aa70dd2338a46f33de801f38e0019624b6
+size_budget_exempt: spec 102 adds the gate plannerInputs wiring line to the one server-entrypoint-and-app note; the entrypoint does not split without a TASK of its own
+verified_against: bfb65a157559c88bf988a6c0f55b7c03824ff412
 ---
 
 # Server entrypoint and app
@@ -43,7 +44,7 @@ enqueued rather than waiting up to `POLL_MS`, and (TASK-0027) `POST /library/ask
 dependencies — the same `aiGateway` and `retrievalConfig` constructed above, reused rather than
 built twice.
 
-Since TASK-0046, `createGate({ db, presence: presence.reader, rng: runtime.gateRng })` (see
+Since TASK-0046, `createGate({ db, presence: presence.reader, rng: runtime.gateRng, plannerInputs: createPlannerInputs(loadSeed) })` (`plannerInputs`: spec 102 seed-derived planner facts) (see
 [[proposal-gate]]; `rng` is set only in script mode) is created **before** `createApp`, because the DM runtime needs it:
 `missingDmPurposes(aiConfig.purposes)` logs unconfigured `dm.*` purposes by name with
 `console.warn`, and `unstructuredDmPurposes` warns once; `startDmWorker({ db, presence: presence.reader, gateway: aiGateway, gate, retrieve, loadProjections,

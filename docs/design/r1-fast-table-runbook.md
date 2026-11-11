@@ -479,3 +479,4 @@ updated at each dispatch boundary. `tokens/cost` carries best-effort actuals.
 | 2026-11-10 | R1 lane playtest | #162 (log) | dbde6a3a | $2.59 of $15 | encounter ended in code; TASK-0307 found |
 | 2026-11-10 | TASK-0307 | #163 | cdbaf393 | sonnet x1 | E9; slot labels stripped; live-verified on vm-104 |
 | 2026-11-10 | TASK-0308 | #164 | 7d6cde2a | haiku x1 | E8 extended; wall-clock tests serial; guard added |
+| 2026-11-11 | TASK-0268 | (this PR) | — | opus spec (~2h, nudged); sonnet x3 | C-GATE "Approve all"; intent kind, intent.recorded carrier, AI-seat ruling turn; spec 029 contracts amended |

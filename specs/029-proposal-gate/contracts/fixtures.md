@@ -88,3 +88,7 @@ kind's body in the approval panel from these.
    marker's `present`, folded before the marker, has empty `objecting`. For a `floor` marker,
    the next `table-mode.changed` row has a `before.activeActor` absent from the marker's
    `present`.
+
+Amended 2026-11-11 (TASK-0268, C-GATE ruling "Approve all"): `proposalExamples` holds one example per kind, 16 in code, and gains an `intent` example (a confirmed `attack`). The fixture test is total over kinds.
+
+> "Approve all" (operator, C-GATE ruling, 2026-11-11: approves spec 102 plan.md "C-GATE: frozen contract amendments" and OQ-1 to OQ-14 as recommended)

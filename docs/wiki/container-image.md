@@ -4,7 +4,7 @@ description: The Dockerfile's four-stage build (base, deps, build, runtime), wha
 kind: pipeline
 sources:
   - Dockerfile
-verified_against: ec21dcf1501ae3d034884504168db60374c21ec2
+verified_against: bfb65a157559c88bf988a6c0f55b7c03824ff412
 ---
 
 # Container image
@@ -40,7 +40,7 @@ GIT_COMMIT=$GIT_COMMIT` bakes the build's commit into the image (spec 010; surfa
 `/health` via [[configuration]] and [[health-check]]) — declared there, after the install
 `RUN`, specifically so a changing commit never busts that layer's cache. It then copies
 build outputs from the `build` stage by exact path: `packages/shared/dist`,
-`packages/dnd5e-engine/dist`, `packages/session-model/dist` (TASK-0044; the server now depends on both, and their `package.json` files are copied in `deps` and `runtime` too), `packages/space/dist` (TASK-0303; the `deps` and `runtime` manifest copies also include `packages/space/package.json` and `packages/intent/package.json`), `packages/srd/dist`, `packages/srd/data`, `packages/srd/ATTRIBUTION.md` (TASK-0043; the `deps` and
+`packages/dnd5e-engine/dist`, `packages/intent/dist` and `packages/planner/dist` (spec 102; `deps` and `runtime` also copy `packages/planner/package.json`), `packages/session-model/dist` (TASK-0044; the server now depends on both, and their `package.json` files are copied in `deps` and `runtime` too), `packages/space/dist` (TASK-0303; the `deps` and `runtime` manifest copies also include `packages/space/package.json` and `packages/intent/package.json`), `packages/srd/dist`, `packages/srd/data`, `packages/srd/ATTRIBUTION.md` (TASK-0043; the `deps` and
 `runtime` manifest copies also include `packages/srd/package.json`), `apps/server/dist`, `apps/server/seeds` (TASK-0046: scene seeds load at runtime, module-relative, for the DM runtime — [[dm-runtime]]), `apps/server/dm-scripts` (TASK-0158, specs/053: the shipped DM scripts `DM_FAKE_SCRIPT` names, loaded module-relative — [[ai-gateway]]), and `apps/web/build` (copied as-is to `apps/web/build`, no rename) —
 **this replaced the pre-migration copy of `apps/web/dist` into `apps/server/public`**, since
 `src/static.ts` now resolves its default roots as `apps/web/build/client` and

@@ -9,6 +9,7 @@ import type { StoredEvent } from "../stored-event.js";
 import { canSee, type Viewer } from "../visibility.js";
 import { applyLifecycle, transcriptEntry } from "./actions.js";
 import { buildEncounter } from "./encounter.js";
+import { linkProposal, recordIntent } from "./intents.js";
 import { mechanicsRow, sessionChangeRow } from "./ledger.js";
 import { changeMember, joinParty, memberOf } from "./party.js";
 import {
@@ -36,6 +37,7 @@ export function emptyProjections(viewer: Viewer): SessionProjections {
     engine: emptyState(),
     gate: { seat: { kind: "ai" }, policyOverrides: {} },
     proposals: [],
+    intents: [],
     presence: null,
     spatial: EMPTY_SPATIAL,
     throughSeq: 0,
@@ -251,7 +253,21 @@ function applyKnown(
           : event.type === "proposal.approved"
             ? approveProposal(p.proposals, event)
             : rejectProposal(p.proposals, event);
-      const next = { ...p, proposals: result.proposals };
+      let next = { ...p, proposals: result.proposals };
+      if (
+        event.type === "proposal.created" &&
+        !result.ignored &&
+        event.payload.proposal.kind === "intent"
+      ) {
+        next = {
+          ...next,
+          intents: linkProposal(
+            next.intents,
+            event.payload.proposal.intent.id,
+            event.payload.proposalId,
+          ),
+        };
+      }
       return result.ignored ? bump(next, "ignoredTransitions") : next;
     }
     case "dm.seat.changed": {
@@ -287,6 +303,8 @@ function applyKnown(
         spatial: foldReveal(p.spatial, p.viewer, event.payload),
         ledger: [...p.ledger, sessionChangeRow(event)],
       };
+    case "intent.recorded":
+      return { ...p, intents: recordIntent(p.intents, event) };
     case "presence.recorded":
       return {
         ...p,

@@ -8,7 +8,7 @@ sources:
   - packages/session-model/src/projections/spatial.ts
   - packages/session-model/src/gate/plan.ts
   - packages/session-model/src/fixtures/spatial-fog.ts
-verified_against: bb1a7c07dd75ce2bb9653424b0adb654209de425
+verified_against: bfb65a157559c88bf988a6c0f55b7c03824ff412
 ---
 
 # Zone fog

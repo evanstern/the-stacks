@@ -103,6 +103,9 @@ const FORBIDDEN_GATE_CODES = new Set([
   "NOT_DM",
   "COMMIT_NOT_ALLOWED",
   "GROUP_SIGNOFF_REQUIRED",
+  "NOT_YOUR_ACTOR",
+  "DM_SEAT_REQUIRED",
+  "NOT_YOUR_TURN",
 ]);
 
 function errorKindFor(

@@ -3,6 +3,8 @@ import type {
   EngineEvent,
   EngineState,
 } from "@the-stacks/dnd5e-engine";
+import type { Intent } from "@the-stacks/intent";
+import type { RulingRequest } from "@the-stacks/planner";
 import type { PartyMember } from "../events/party.js";
 import type { Scene } from "../events/scene.js";
 import type {
@@ -219,6 +221,19 @@ export interface ProposalView {
   } | null;
 }
 
+export interface IntentView {
+  id: string;
+  /** The seq of the first carrier row for this id. */
+  seq: number;
+  /** The carrier row's actor. */
+  actor: string;
+  intent: Intent;
+  status: "declared" | "settled" | "needs_ruling" | "answered";
+  request: RulingRequest | null;
+  /** The `proposal.created` row that mirrors an open request under a human seat. */
+  proposalId: string | null;
+}
+
 export interface PresenceView {
   /** The latest marker's present set (sorted ascending user ids). */
   present: string[];
@@ -256,6 +271,8 @@ export interface SessionProjections {
   gate: GateView;
   /** Always [] for a player viewer. */
   proposals: ProposalView[];
+  /** One entry per recorded Intent id, in log order. */
+  intents: IntentView[];
   /** The latest presence marker; null until one is folded (decision-0024). */
   presence: PresenceView | null;
   /** This viewer's space, the players' map and placements (spec 100). */

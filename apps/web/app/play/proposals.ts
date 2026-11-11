@@ -1,3 +1,4 @@
+import { toText } from "@the-stacks/intent";
 import {
   type PartyMemberView,
   type Proposal,
@@ -77,6 +78,8 @@ function actionIdOf(proposal: Proposal): string | null {
       return proposal.narration.actionIds[0] ?? null;
     case "action.declare":
       return proposal.action.actionId;
+    case "intent":
+      return proposal.intent.id;
     default:
       return null;
   }
@@ -209,6 +212,11 @@ function detailsOf(
         { label: "Request", value: FLOOR_OP_LABEL[proposal.op] },
         { label: "Reason", value: proposal.reason },
         { label: "Visibility", value: "Everyone" },
+      ];
+    case "intent":
+      return [
+        { label: "Intent", value: proposal.intent.kind },
+        { label: "Text", value: toText(proposal.intent) },
       ];
   }
 }
