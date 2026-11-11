@@ -6,7 +6,7 @@ title: >-
 status: Done
 assignee: []
 created_date: '2026-11-10T21:30:00Z'
-updated_date: '2026-11-11T01:32:00Z'
+updated_date: '2026-11-11T02:16:00Z'
 labels:
   - playtest
   - ws:narration
@@ -50,6 +50,8 @@ Escape line E9 (operator, 2026-11-10, in chat: 'Escape line, Sonnet (Recommended
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5
 d9c2569d: parseSlots strips [x], [x]:, x:, **x:**, **x**: at line start; the means-to fallback only fills an empty restate or one with a digit; routine turns' slots are restate and describe (ask kept at scene start; the code clarify ask unchanged). dm.narrate-v23. e77005c6 wiki. Regression test over six session 86abad65 replies. ci:check exit 0 (server 1474). Orchestrator re-ran the regression and fact-sheet tests (40) and freshness (OK 65).
+
+Verified live 2026-11-10 on vm-104 (7d6cde2a), session 86abad65 (continued; the new-table click timed out, so the check ran on the existing session after the deploy). Two narrations after the deploy (seq 203, 211): no slot labels, no 'means to' fallback, no routine ask. seq 203 was a clarify: the code question shipped as its own block with a correct 'Nothing has happened yet' State line. That clarify question is an either-or ('head back there to ask her, or call out from here?'), which contract §5.1 forbids for a model ask; it is the code-settled clarify text, so filed separately.
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
