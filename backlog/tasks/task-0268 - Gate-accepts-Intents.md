@@ -67,6 +67,8 @@ Phases 3-4 done (73d10c33, 133bb13c): ci:check green; full server suite REQUIRE_
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
 Phase 5 done (8ba29d64): 24 notes re-pinned; 4 new size_budget_exempt lines (orchestrator corrected 2 reasons).
+
+spec-bridge sync: Request kind, carrier event, projection and declare envelope (US3, AC #3): 7/7 · Pure Intent planning in session-model (US1, US4, AC #1, AC #4): 7/7 · Server gate wiring (US1, US2 human seat, AC #1, AC #2): 6/6 · AI-seat ruling job (US2 AI seat, AC #2): 4/4 · Wiki re-ground: 3/3 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
