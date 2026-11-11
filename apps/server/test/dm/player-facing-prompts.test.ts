@@ -420,7 +420,7 @@ describe("narrate prompt: fact-sheet sections (spec 098 D4)", () => {
       action: true,
     });
     const { user } = promptFor(f);
-    expect(user).toContain("## Slots\nrestate\ndescribe\nask");
+    expect(user).toContain("## Slots\nrestate\ndescribe");
     expect(user).toContain("## Restate\n");
     expect(user).toContain("(no-effect)");
     expect(user).toContain("## Speakers\nWenna");

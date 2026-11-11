@@ -282,9 +282,44 @@ describe("fact sheet: parseSlots and composeReply", () => {
     expect(parseSlots("[describe] Ok.\n[ask] What do you do?", sheet).ask).toBe(
       "",
     );
-    expect(parseSlots("[describe] Ok.\n[ask] Who steps up?", sheet).ask).toBe(
+    const opening = buildFactSheet(
+      input(facts({ trigger: "scene-start", actions: [] }), { beat: [] }),
+    );
+    expect(parseSlots("[describe] Ok.\n[ask] Who steps up?", opening).ask).toBe(
       "Who steps up?",
     );
+  });
+  it("a routine turn drops a model ask that only prompts the player to act", () => {
+    expect(sheet.slots).toEqual(["restate", "describe"]);
+    const s = parseSlots(
+      "restate: She swings.\ndescribe: Steel rings.\nask: What does she see?",
+      sheet,
+    );
+    expect(s.ask).toBe("");
+    expect(s.describe).toBe("Steel rings.");
+  });
+  it.each([
+    ["[restate] A\n[describe] B", "A", "B"],
+    ["[restate]: A\n[describe]: B", "A", "B"],
+    ["restate: A\ndescribe: B", "A", "B"],
+    ["RESTATE: A\nDescribe: B", "A", "B"],
+    ["**restate:** A\n**describe:** B", "A", "B"],
+    ["**Restate**: A\n**Describe**: B", "A", "B"],
+  ])("accepts and strips label form %j", (text, restate, describe) => {
+    const s = parseSlots(text, sheet);
+    expect(s.restate).toBe(restate);
+    expect(s.describe).toBe(describe);
+  });
+  it("a label word mid-sentence is not a tag", () => {
+    const s = parseSlots(
+      "She will describe: the hall, and restate: it.",
+      sheet,
+    );
+    expect(s.describe).toBe("She will describe: the hall, and restate: it.");
+  });
+  it("a model restate suppresses the means-to fallback", () => {
+    const s = parseSlots("restate: She lunges.\ndescribe: Ok.", sheet);
+    expect(composeReply(s, sheet)).not.toContain("means to");
   });
   it("digit restate with a restate of digits is replaced even in turn mode", () => {
     expect(

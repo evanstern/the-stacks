@@ -199,17 +199,16 @@ describe("narrate", () => {
     expect(out.ok).toBe(true);
     if (!out.ok) return;
     const n = out.output;
-    expect(n.sheet.slots).toEqual(["restate", "describe", "ask"]);
+    expect(n.sheet.slots).toEqual(["restate", "describe"]);
     expect(n.slots).toEqual({
       restate: "Ana means to pick the lock.",
       describe: "The tumblers give way and the door swings inward.",
-      ask: "Who goes in first?",
+      ask: "",
     });
     expect(n.text).toBe(
       [
         "Ana means to pick the lock.",
         "The tumblers give way and the door swings inward.",
-        "Who goes in first?",
         `${n.diceLines.join("\n")}\n${n.sheet.state}`,
       ].join("\n\n"),
     );
@@ -387,7 +386,7 @@ describe("narrate", () => {
       facts,
       prior: null,
     });
-    expect(NARRATE_VERSION).toBe("dm.narrate-v22");
+    expect(NARRATE_VERSION).toBe("dm.narrate-v23");
     expect(prompt.system).toContain(
       "A refused action did not happen: no roll and no result. Never show it succeed, fail or land, and never show anyone react to its result.",
     );
