@@ -32,7 +32,7 @@ Spec: specs/102-gate-intents
 <!-- AC:BEGIN -->
 - [x] #1 A confirmed `attack` Intent from a player appends engine events with no model call.
 - [x] #2 A `needs_ruling` result enqueues a ruling job (AI seat) or a proposal row (human seat).
-- [ ] #3 Existing `action.declare` clients keep working through the envelope.
+- [x] #3 Existing `action.declare` clients keep working through the envelope.
 - [ ] #4 A zone reveal Intent maps through the gate, and targetStatus 'ok' maps to seen (spec 100 OQ-4).
 - [ ] #5 Spec phase: Request kind, carrier event, projection and declare envelope (US3, AC #3)
 - [ ] #6 Spec phase: Pure Intent planning in session-model (US1, US4, AC #1, AC #4)
