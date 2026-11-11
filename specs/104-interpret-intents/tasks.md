@@ -26,15 +26,15 @@ Do not delete resolve's step paths, the adjudicate node or the gathering block: 
 
 ## Phase 3: Resolve Intent runner and beside data
 
-- [ ] T014 Create `apps/server/src/dm/intent-runner.ts` with `runStages(run, item, stages)` per plan D5. Return the existing `ChainResult` shape.
-- [ ] T015 Submit each player or companion stage as `declared` under the item's own proposer, then `confirmed` under `ai:dm` (spec FR-008, OQ-1). Submit a monster-turn stage once, `confirmed`, under `ai:dm`.
-- [ ] T016 Read each submission's carrier row. Handle `settled`, `needs_ruling` (AI seat: call `answerRulings`, then continue; human seat: await), a pending proposal and a refusal per spec FR-009, FR-010.
-- [ ] T017 For a settled check-kind stage with beside data, read the band with `stepOutcome` and run `effectsForBand` through `runEffects`. Set `reveals` and `revealedText` (spec FR-013, FR-015). Change `effectsForBand` in `stakes.ts` to take the beside fields.
-- [ ] T018 When `isFreeRetry` holds, or `beside.autoFail` is set, submit today's `check.roll` mechanics proposal instead of the Intent (spec FR-014).
-- [ ] T019 Key each stage submission `act:<actionId>:i<n>` so a resumed turn skips applied stages.
-- [ ] T020 In `nodes/resolve.ts` `resolveAction`, route new-shape readings to `runStages` and old-shape resumed readings to `runSteps`. Update `stepActors` for stages. Update `resume.ts` `ResumedPlan.reading` to the union (plan D7).
-- [ ] T021 Make `first-stage.ts`, `follow-ups.ts` and `gates/plan-gate.ts` `checkPlan` stage-aware per plan D5. Keep `TURN_HELD` and the undeclared-manner ask. Make `pipeline/runner.ts` `needsAdjudication` false for new-shape readings.
-- [ ] T022 Write `apps/server/test/dm/intent-runner.integration.test.ts`. Cover per kind group (check, combat action, movement, deed): `settled`, `needs_ruling` under each seat, planner refusal, engine refusal. Add the compound move-then-attack case, the reaction-drops-mover stop, a `success-at-cost` band, a reveal and a free retry.
+- [x] T014 Create `apps/server/src/dm/intent-runner.ts` with `runStages(run, item, stages)` per plan D5. Return the existing `ChainResult` shape.
+- [x] T015 Submit each player or companion stage as `declared` under the item's own proposer, then `confirmed` under `ai:dm` (spec FR-008, OQ-1). Submit a monster-turn stage once, `confirmed`, under `ai:dm`.
+- [x] T016 Read each submission's carrier row. Handle `settled`, `needs_ruling` (AI seat: call `answerRulings`, then continue; human seat: await), a pending proposal and a refusal per spec FR-009, FR-010.
+- [x] T017 For a settled check-kind stage with beside data, read the band with `stepOutcome` and run `effectsForBand` through `runEffects`. Set `reveals` and `revealedText` (spec FR-013, FR-015). Change `effectsForBand` in `stakes.ts` to take the beside fields.
+- [x] T018 When `isFreeRetry` holds, or `beside.autoFail` is set, submit today's `check.roll` mechanics proposal instead of the Intent (spec FR-014).
+- [x] T019 Key each stage submission `act:<actionId>:i<n>` so a resumed turn skips applied stages.
+- [x] T020 In `nodes/resolve.ts` `resolveAction`, route new-shape readings to `runStages` and old-shape resumed readings to `runSteps`. Update `stepActors` for stages. Update `resume.ts` `ResumedPlan.reading` to the union (plan D7).
+- [x] T021 Make `first-stage.ts`, `follow-ups.ts` and `gates/plan-gate.ts` `checkPlan` stage-aware per plan D5. Keep `TURN_HELD` and the undeclared-manner ask. Make `pipeline/runner.ts` `needsAdjudication` false for new-shape readings.
+- [x] T022 Write `apps/server/test/dm/intent-runner.integration.test.ts`. Cover per kind group (check, combat action, movement, deed): `settled`, `needs_ruling` under each seat, planner refusal, engine refusal. Add the compound move-then-attack case, the reaction-drops-mover stop, a `success-at-cost` band, a reveal and a free retry.
 
 ## Phase 4: Narrate window
 

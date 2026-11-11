@@ -351,3 +351,4 @@ Amended 2026-11-11 (TASK-0269, C-GATE ruling "Relax the gate (a)", spec `specs/1
 `<actionId>.<n>` for the resolved action. The ledger check by `actionId` is unchanged. Engine rows
 stay `actionId: null` (spec 102 FR-017 unchanged). A batch named only by another action's Intent, or
 by no row, stays `UNKNOWN_BATCH`. `IntentView` gains `batchIds`, the batches its carrier rows named.
+A `ruling` or `set_dc` Intent's batch counts for the Intent whose open request it answers (`answers`), so a ruled stage's batch resolves under that stage's id.

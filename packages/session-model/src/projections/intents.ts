@@ -32,7 +32,12 @@ export function recordIntent(
     ? next
     : next.map((v) =>
         v.request?.requestId === answers && v.status === "needs_ruling"
-          ? { ...v, status: "answered" as const }
+          ? {
+              ...v,
+              status: "answered" as const,
+              // The ruling's batch belongs to the Intent whose request it answers.
+              batchIds: [...v.batchIds, ...(batchId ? [batchId] : [])],
+            }
           : v,
       );
 }
