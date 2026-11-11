@@ -4,7 +4,7 @@ title: Narration as prose slots; retire the audit loop
 status: In Progress
 assignee: []
 created_date: 2026-11-07 05:13
-updated_date: '2026-11-11T16:37:00Z'
+updated_date: '2026-11-11T18:34:00Z'
 labels:
   - ws:narration
   - replan-2026-11
@@ -73,4 +73,6 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
 Departed-actor fix (7a36c9e9) and phase 6 wiki (5064cba6). Final B2 replay: 25 narrated turns, 0 leak hits, 0 contradiction hits; 3 fallback turns reported, not judged.
 
 AC #3 (R1 playtest shows zero fallback lines) is hosted; it ticks at CP-7, so the card stays In Progress after merge.
+
+C-AUD ruling (operator, 2026-11-11, in chat): "Approve, drop check" — approves the merge after the B2 replay, and OQ-1: the spec 058 reason check stays deleted (320aee54).
 <!-- SECTION:NOTES:END -->
