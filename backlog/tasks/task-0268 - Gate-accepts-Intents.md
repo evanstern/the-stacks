@@ -4,7 +4,7 @@ title: Gate accepts Intents
 status: In Progress
 assignee: []
 created_date: 2026-11-07 05:13
-updated_date: '2026-11-11T06:24:00Z'
+updated_date: '2026-11-11T06:28:00Z'
 labels:
   - ws:intent
   - replan-2026-11
@@ -64,4 +64,7 @@ Phases 1-2 done (6184167b, 14f1ccf6): ci:check green. Beyond plan: Dockerfile CO
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
 Phases 3-4 done (73d10c33, 133bb13c): ci:check green; full server suite REQUIRE_DATABASE=1 2001 pass. Deviation: planner inputs at dm/seed/planner-inputs.ts (write-boundary model-reach test forbids gate/ reaching ai/gateway). A failed ruling call logs dm.ruling.call-failed and leaves the request open. Open: end_turn with ai:dm as actor untested.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
+Phase 5 done (8ba29d64): 24 notes re-pinned; 4 new size_budget_exempt lines (orchestrator corrected 2 reasons).
 <!-- SECTION:NOTES:END -->
