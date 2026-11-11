@@ -4,7 +4,7 @@ title: Narration as prose slots; retire the audit loop
 status: In Progress
 assignee: []
 created_date: 2026-11-07 05:13
-updated_date: '2026-11-11T18:34:00Z'
+updated_date: '2026-11-11T18:42:00Z'
 labels:
   - ws:narration
   - replan-2026-11
@@ -75,4 +75,6 @@ Departed-actor fix (7a36c9e9) and phase 6 wiki (5064cba6). Final B2 replay: 25 n
 AC #3 (R1 playtest shows zero fallback lines) is hosted; it ticks at CP-7, so the card stays In Progress after merge.
 
 C-AUD ruling (operator, 2026-11-11, in chat): "Approve, drop check" — approves the merge after the B2 replay, and OQ-1: the spec 058 reason check stays deleted (320aee54).
+
+spec-bridge sync: all 30 spec tasks done (phases 4/4, 5/5, 10/10, 4/4, 3/3, 4/4). PR #167 merged as 2bb77654. Status held In Progress per runbook "Hosted ACs": AC #3 ticks at CP-7.
 <!-- SECTION:NOTES:END -->
