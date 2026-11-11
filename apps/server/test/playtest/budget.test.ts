@@ -58,7 +58,6 @@ describe("estimate", () => {
       "dm.interpret": [9, 60, 5500],
       "dm.adjudicate": [2, 60, 6500],
       "dm.narrate": [9, 180, 4500],
-      "dm.audit": [9, 180, 2500],
       "dm.chronicle": [9, 60, 3500],
       "dm.companion": [18, 120, 4500],
       "playtest.audit": [9, 120, 5500],
@@ -211,7 +210,7 @@ describe("providerPreflight", () => {
 
   it("orders CI, then missing purposes, then unpriced models", () => {
     const cfg = config({ prices: {} });
-    delete cfg.purposes["dm.audit"];
+    delete cfg.purposes["dm.chronicle"];
     const r = providerPreflight({ CI: "true" }, cfg, needs);
     expect(r.map((x) => x.step)).toEqual([1, 2, 3]);
   });

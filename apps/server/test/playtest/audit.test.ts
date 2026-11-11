@@ -53,6 +53,29 @@ describe("runAudit", () => {
     );
   });
 
+  it("reads a new job's check record for the dm-audit-flag note (spec 103)", async () => {
+    const input = loadDoctored();
+    const jobs = input.jobs.map((j) =>
+      j.audit?.flagged
+        ? {
+            ...j,
+            audit: null,
+            check: {
+              leak: [{ check: "leak", kind: "dm-only-text" }],
+              contradiction: [{ check: "contradiction", kind: "life-state" }],
+              corrected: true,
+              shippedProseSha256: "x",
+            },
+          }
+        : j,
+    );
+    const report = await audit({ ...input, jobs } as never, null);
+    const note = report.findings.find((f) => f.kind === "dm-audit-flag");
+    expect(note?.detail).toBe(
+      "check: leak/dm-only-text, contradiction/life-state",
+    );
+  });
+
   it("passes the clean run and fills the fight statistics", async () => {
     const gw = scriptedGateway(eight());
     const report = await audit(loadClean(), gw);

@@ -6,7 +6,7 @@ export const TURN_NODES = [
   "interpret",
   "adjudicate",
   "resolve",
-  "narrate-audit",
+  "narrate-check",
   "failure",
 ] as const;
 export type TurnNode = (typeof TURN_NODES)[number];
@@ -17,7 +17,7 @@ const NODE_NAMES: Record<TurnNode, string> = {
   interpret: "Interpret",
   adjudicate: "Adjudicate",
   resolve: "Resolve",
-  "narrate-audit": "Narrate and audit",
+  "narrate-check": "Narrate and check",
   failure: "Failure",
 };
 

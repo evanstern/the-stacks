@@ -121,6 +121,19 @@ function parseOutput(
 const MODEL_NOTE =
   "playtest.audit and dm.narrate resolve to the same provider and model; prefer a different model family for the auditor.";
 
+/** The note detail of a pre-TASK-0272 audit record. */
+function legacyDetail(audit: NonNullable<JobItem["audit"]>): string {
+  const kinds = [
+    ...new Set(
+      audit.attempts.flatMap((a) => [
+        ...a.deterministic.issues.map((i) => i.kind),
+        ...("issues" in a.llm ? a.llm.issues.map((i) => i.kind) : []),
+      ]),
+    ),
+  ];
+  return `final: ${audit.final}; attempts: ${audit.attempts.length}; issues: ${kinds.join(", ") || "none"}`;
+}
+
 export async function runAudit(input: AuditInput): Promise<Report> {
   const transcript = [...input.transcript].sort((a, b) => a.seq - b.seq);
   const segments = segment(transcript, input.ledger);
@@ -171,9 +184,12 @@ export async function runAudit(input: AuditInput): Promise<Report> {
     });
   }
 
-  // DM-runtime audit flags become note findings.
+  // DM-runtime check hits (spec 103), or the legacy audit flags of older rows, become note findings.
   for (const job of input.jobs) {
-    if (!job.audit?.flagged) continue;
+    const check = job.check;
+    const legacy = job.audit?.flagged ? job.audit : null;
+    const hits = check ? [...check.leak, ...check.contradiction] : [];
+    if (!(hits.length > 0 || legacy)) continue;
     const next = transcript.find(
       (r) =>
         r.type === "narration" &&
@@ -183,14 +199,9 @@ export async function runAudit(input: AuditInput): Promise<Report> {
     const seg = next
       ? segments.find((s) => s.narrationSeq === next.seq)
       : undefined;
-    const kinds = [
-      ...new Set(
-        job.audit.attempts.flatMap((a) => [
-          ...a.deterministic.issues.map((i) => i.kind),
-          ...("issues" in a.llm ? a.llm.issues.map((i) => i.kind) : []),
-        ]),
-      ),
-    ];
+    const detail = check
+      ? `check: ${hits.map((i) => `${i.check}/${i.kind}`).join(", ")}`
+      : legacyDetail(legacy as NonNullable<typeof legacy>);
     raw.push({
       segment: seg?.index ?? null,
       source: "dm-audit",
@@ -198,7 +209,7 @@ export async function runAudit(input: AuditInput): Promise<Report> {
       kind: "dm-audit-flag",
       doctrineId: null,
       seqs: seg?.narrationSeq ? [seg.narrationSeq] : [],
-      detail: `final: ${job.audit.final}; attempts: ${job.audit.attempts.length}; issues: ${kinds.join(", ") || "none"}`,
+      detail,
     });
   }
 

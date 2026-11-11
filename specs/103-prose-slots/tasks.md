@@ -34,10 +34,10 @@ Tests use the fake gateway only.
 
 ## Phase 4: Job-record consumers
 
-- [ ] T020 `playtest/export.ts` and `routes/dm.ts`: add `check` to `JobItem`; keep `audit` for old rows.
-- [ ] T021 `playtest/auditor/audit.ts`: the `dm-audit-flag` note reads `check`, else legacy `audit`. `playtest/budget.ts`: drop `dm.audit`.
-- [ ] T022 `apps/web/app/debug/{job-view.ts,read-result.ts,labels.ts,components/job-card.tsx}`: section `narrate-check` shows `check` or legacy `audit`. `apps/web/test/no-dialog.test.mjs` stays green.
-- [ ] T023 Update `test/playtest/checks.test.ts` and the web debug tests for both record shapes.
+- [x] T020 `playtest/export.ts` and `routes/dm.ts`: add `check` to `JobItem`; keep `audit` for old rows.
+- [x] T021 `playtest/auditor/audit.ts`: the `dm-audit-flag` note reads `check`, else legacy `audit`. `playtest/budget.ts`: drop `dm.audit`.
+- [x] T022 `apps/web/app/debug/{job-view.ts,read-result.ts,labels.ts,components/job-card.tsx}`: section `narrate-check` shows `check` or legacy `audit`. `apps/web/test/no-dialog.test.mjs` stays green.
+- [x] T023 Update `test/playtest/checks.test.ts` and the web debug tests for both record shapes.
 
 ## Phase 5: C-AUD replay script
 

@@ -8,6 +8,7 @@ import {
 import type { DbClient } from "../auth/session.js";
 import type { LegacyAuditRecord as AuditRecord } from "../dm/jobs.js";
 import { type DmJobRow, listDmJobs, type TurnTrigger } from "../dm/jobs.js";
+import type { CheckRecord } from "../dm/nodes/check.js";
 import { readFrom } from "../events/log.js";
 import { toStoredEvent } from "../session/events.js";
 import { loadProjections } from "../session/projections.js";
@@ -32,6 +33,9 @@ export interface JobItem {
   createdAt: string;
   finishedAt: string | null;
   outcome: string | null;
+  /** The turn's check record (spec 103); null on rows stored before TASK-0272. */
+  check: CheckRecord | null;
+  /** The audit loop's record; null on rows stored after TASK-0272. */
   audit: AuditRecord | null;
   calls: { purpose: string; promptVersion: string; outcome: string }[];
   error: string | null;
@@ -40,6 +44,7 @@ export interface JobItem {
 export function toJobItem(job: DmJobRow): JobItem {
   const result = (job.result ?? {}) as {
     outcome?: { status?: string };
+    check?: CheckRecord | null;
     audit?: AuditRecord | null;
     calls?: { purpose: string; promptVersion: string; outcome: string }[];
   };
@@ -55,6 +60,7 @@ export function toJobItem(job: DmJobRow): JobItem {
     finishedAt: job.finishedAt?.toISOString() ?? null,
     outcome:
       result.outcome?.status ?? (job.status === "failed" ? "failed" : null),
+    check: result.check ?? null,
     audit: result.audit ?? null,
     calls: (result.calls ?? []).map((c) => ({
       purpose: c.purpose,
