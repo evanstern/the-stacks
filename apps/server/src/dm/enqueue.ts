@@ -51,7 +51,9 @@ import {
  * 6. A readable in-character `talk` row (specs/065 D2) queues a coalesced `talk` turn
  *    after a quiet window. A post that names only AI companions queues a `prompt`
  *    companion job instead. A reached chain cap, or any queued turn, queues nothing new.
- * 7. `nudge()` wakes the worker.
+ * 7. A `needs_ruling` `intent.recorded` row under an AI seat queues a `ruling` turn (spec 102
+ *    FR-022); the turn answers every open request first.
+ * 8. `nudge()` wakes the worker.
  *
  * A listener failure is logged; FR-008's reconcile repairs it at next start.
  */
@@ -217,7 +219,22 @@ export function createDmEnqueuer(deps: DmEnqueuerDeps): DmEnqueuer {
     }
   }
 
-  /** Rule 7 (specs/065 D2): a readable IC post queues a talk turn or a companion prompt. */
+  /** Rule 7 (spec 102 FR-022): a `needs_ruling` carrier row under the AI seat queues a ruling turn. */
+  async function rulingTurns(
+    sessionId: string,
+    rows: StoredEvent[],
+  ): Promise<void> {
+    const asked = rows.find(
+      (r) =>
+        r.type === "intent.recorded" &&
+        (r.payload as { outcome?: string }).outcome === "needs_ruling",
+    );
+    if (!asked) return;
+    if (!isAiSeat(await deps.loadProjections(sessionId))) return;
+    await enqueueTurn(deps.db, sessionId, "ruling", asked.seq);
+  }
+
+  /** Rule 6 (specs/065 D2): a readable IC post queues a talk turn or a companion prompt. */
   async function talkReactions(
     sessionId: string,
     rows: StoredEvent[],
@@ -286,6 +303,7 @@ export function createDmEnqueuer(deps: DmEnqueuerDeps): DmEnqueuer {
             await enqueueTurn(deps.db, sessionId, "approval", decision.seq);
           }
         }
+        await rulingTurns(sessionId, rows);
         await talkReactions(sessionId, rows);
         for (const companionId of await reactTargets(sessionId, rows)) {
           await enqueueCompanionReact(deps.db, sessionId, companionId, {

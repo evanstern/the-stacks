@@ -55,10 +55,10 @@ on the worktree stack.
 
 **Goal**: under the AI seat a `needs_ruling` result queues a turn that answers it with one model call.
 
-- [ ] T021 Add trigger `ruling` to `TurnTriggerSchema` in `dm/jobs.ts`. Add rule 8 to `dm/enqueue.ts`: a `needs_ruling` carrier row under the AI seat queues `enqueueTurn(…, "ruling", seq)` (FR-022).
-- [ ] T022 Write `dm/prompts/ruling.ts` (`dm.ruling-v1`: the request, the Intent text form, the ask; output `{ decision, difficulty?, reason? }`, no numbers).
-- [ ] T023 Write `dm/rulings.ts`: answer each `openRulings` entry oldest first with one `callJson` on `PURPOSE_OF.adjudicate` and `gate.submit` a `ruling` Intent from `ai:dm` (FR-023). Call it at the start of every AI-seat turn job; a `ruling` job with no beat ends `empty-beat`.
-- [ ] T024 Test `apps/server/test/dm/rulings.integration.test.ts` with the fake gateway: `attempt` → queued `ruling` turn → accept → carrier with fact `no-roll`, request closed; a scripted `ai:dm` amend with a literal `dc` refuses `MODEL_NUMBER`.
+- [x] T021 Add trigger `ruling` to `TurnTriggerSchema` in `dm/jobs.ts`. Add rule 8 to `dm/enqueue.ts`: a `needs_ruling` carrier row under the AI seat queues `enqueueTurn(…, "ruling", seq)` (FR-022).
+- [x] T022 Write `dm/prompts/ruling.ts` (`dm.ruling-v1`: the request, the Intent text form, the ask; output `{ decision, difficulty?, reason? }`, no numbers).
+- [x] T023 Write `dm/rulings.ts`: answer each `openRulings` entry oldest first with one `callJson` on `PURPOSE_OF.adjudicate` and `gate.submit` a `ruling` Intent from `ai:dm` (FR-023). Call it at the start of every AI-seat turn job; a `ruling` job with no beat ends `empty-beat`.
+- [x] T024 Test `apps/server/test/dm/rulings.integration.test.ts` with the fake gateway: `attempt` → queued `ruling` turn → accept → carrier with fact `no-roll`, request closed; a scripted `ai:dm` amend with a literal `dc` refuses `MODEL_NUMBER`.
 
 ## Phase 5: Wiki re-ground
 

@@ -57,6 +57,7 @@ export const TurnTriggerSchema = z.enum([
   "reconcile", // worker start found an unanswered commit (FR-008)
   "held", // a turn job ended with an AI companion active whose party action was held (TASK-0244)
   "talk", // an in-character post the world may react to (specs/065)
+  "ruling", // a needs_ruling carrier row under the AI seat (spec 102 FR-022)
 ]);
 export type TurnTrigger = z.infer<typeof TurnTriggerSchema>;
 
