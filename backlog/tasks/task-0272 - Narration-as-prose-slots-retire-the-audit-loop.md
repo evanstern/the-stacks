@@ -4,7 +4,7 @@ title: Narration as prose slots; retire the audit loop
 status: In Progress
 assignee: []
 created_date: 2026-11-07 05:13
-updated_date: '2026-11-11T15:36:00Z'
+updated_date: '2026-11-11T15:51:00Z'
 labels:
   - ws:narration
   - replan-2026-11
@@ -60,4 +60,6 @@ Spec 103 authored (39c9ed24, ~19 min, 57 tool calls) against 098 a370041c, 093 b
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
 Phases 1-2 done in one commit (81fe389c): ci:check green, 2020 server tests with REQUIRE_DATABASE=1. renderWhyRows forms (DC 15 / Difficulty: easy / Opposed by X (rule)) are the implementer's reading of spec 098 contract section 6.
+
+C9 (operator go 2026-11-11, "Go, run export"): ran specs/103-prose-slots/c-aud-export.sql read-only against vm-104 stacks-dev-db-1. Export at ~/.cache/stacks-sweep/c-aud-bb4952dc.json (not committed): 231 events, 48 jobs, 141 calls (33 dm.audit, 34 dm.narrate), matching the B2 log's 141 model calls.
 <!-- SECTION:NOTES:END -->
