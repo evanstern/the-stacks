@@ -13,7 +13,7 @@ export function recordIntent(
   intents: IntentView[],
   event: RecordedEvent,
 ): IntentView[] {
-  const { intent, outcome, request, answers } = event.payload;
+  const { intent, outcome, request, answers, batchId } = event.payload;
   const prior = intents.find((v) => v.id === intent.id);
   const view: IntentView = {
     id: intent.id,
@@ -22,6 +22,7 @@ export function recordIntent(
     intent: intent as Intent,
     status: outcome,
     request: request as RulingRequest | null,
+    batchIds: [...(prior?.batchIds ?? []), ...(batchId ? [batchId] : [])],
     proposalId: prior?.proposalId ?? null,
   };
   const next = prior

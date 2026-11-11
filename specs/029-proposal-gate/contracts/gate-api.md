@@ -53,7 +53,7 @@ Rows per kind:
 | `action.comment` | one `action.commented`; when the sign-off quorum is met by this `approve`, `action.commented`, a `presence.recorded` marker (`signoff`) and `action.committed` (`group`) | action exists (`UNKNOWN_ACTION`) and is open (`ACTION_NOT_OPEN`) |
 | `action.commit` | one `action.committed` with the derived authority; for `group` authority with more than one party human, a `presence.recorded` marker (`signoff`) first | `commitAuthority` with `context.present` (policy-and-authority.md) |
 | `action.withdraw` | one `action.withdrawn` | action exists (`UNKNOWN_ACTION`) and is open (`ACTION_NOT_OPEN`); permission in proposals.md (TASK-0114 amendment, W-A ruling) |
-| `action.resolve` | one `action.resolved` | action is `committed` (`ACTION_NOT_COMMITTED`); every `batchId` names a batch in the DM ledger with this `actionId` (`UNKNOWN_BATCH`) |
+| `action.resolve` | one `action.resolved` | action is `committed` (`ACTION_NOT_COMMITTED`); every `batchId` names a batch in the DM ledger with this `actionId`, or a batch named by an `intent.recorded` row whose Intent id is `<actionId>.<n>` (`UNKNOWN_BATCH`). Amended 2026-11-11 (TASK-0269, C-GATE ruling "Relax the gate (a)") |
 | `mechanics` | the engine's events as one batch (`mechanicsRows`) | engine refusal (source `engine`, the engine's code); `actionId`, when set, names an existing action (`UNKNOWN_ACTION`) |
 | `narration` | one `narration` | every `actionIds` entry exists (`UNKNOWN_ACTION`) |
 | `table-mode` | one `table-mode.changed`, `before` = `p.tableMode` | none |
@@ -340,3 +340,14 @@ seated DM. The gate refusal codes gain the Intent codes `DRAFT_NOT_ACCEPTED`, `I
 `NOT_YOUR_ACTOR`, `DM_SEAT_REQUIRED`, `NOT_YOUR_TURN`, `KIND_UNSERVED`, `TARGET_NOT_PRESENT`,
 `TARGET_UNSEEN`, `OUT_OF_REACH`, `OUT_OF_RANGE`, `NO_MOVEMENT_LEFT`, `REQUEST_NOT_OPEN` and
 `MODEL_NUMBER` under source `gate`.
+
+## `action.resolve` Intent-stage batches (TASK-0269 amendment)
+
+Amended 2026-11-11 (TASK-0269, C-GATE ruling "Relax the gate (a)", spec `specs/104-interpret-intents`).
+
+> "Relax the gate (a)" (operator, C-GATE ruling, 2026-11-11)
+
+`action.resolve` also accepts a `batchId` named by an `intent.recorded` row whose Intent id is
+`<actionId>.<n>` for the resolved action. The ledger check by `actionId` is unchanged. Engine rows
+stay `actionId: null` (spec 102 FR-017 unchanged). A batch named only by another action's Intent, or
+by no row, stays `UNKNOWN_BATCH`. `IntentView` gains `batchIds`, the batches its carrier rows named.
