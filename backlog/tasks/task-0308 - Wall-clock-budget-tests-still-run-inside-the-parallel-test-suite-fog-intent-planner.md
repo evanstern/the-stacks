@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-11-11T01:48:00Z'
-updated_date: '2026-11-11T01:48:00Z'
+updated_date: '2026-11-11T02:00:00Z'
 labels:
   - ws:tooling
   - replan-2026-11
@@ -26,8 +26,8 @@ TASK-0303 moved space's SC-005 timing test into the serial pnpm check:timing ste
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 The fog, intent and planner wall-clock budgets run only in pnpm check:timing, serially, with their thresholds unchanged.
-- [ ] #2 A guard fails ci:check when a regular *.test.ts file asserts on a performance.now() duration.
+- [x] #1 The fog, intent and planner wall-clock budgets run only in pnpm check:timing, serially, with their thresholds unchanged.
+- [x] #2 A guard fails ci:check when a regular *.test.ts file asserts on a performance.now() duration.
 - [ ] #3 main CI is green and vm-104 serves the TASK-0307 fix.
 <!-- AC:END -->
 
@@ -43,4 +43,7 @@ TASK-0303 moved space's SC-005 timing test into the serial pnpm check:timing ste
 Claimed 2026-11-10 by the R1 sweep (docs/design/r1-fast-table-runbook.md). Worktree .worktrees/task-0308, branch task-0308-timing-tests, cut from origin/main e503b04a. No spec dir: signed escape line covers this task.
 
 Covered by escape line E8 (TASK-0303 hotfix scope, operator-signed 2026-11-09): this finishes TASK-0303's timing-test move for the three remaining wall-clock assertions. Card AC drive. Tier: haiku.
+
+Dispatch: tier=haiku pinned=cc/claude-haiku-5-5 served=cc/claude-haiku-5-5
+4f0383cb: fog, intent and planner timing tests moved to timing.bench-test.ts per package; apps/server ddb perf test (found by the guard, not in the original list) moved too, per orchestrator decision (no exemption). check:timing runs 5 packages serially. Guard scripts/check-no-wallclock-tests.mjs wired into ci:check; demo fails on a planted offender. ci:check exit 0. Orchestrator re-ran the guard (exit 0), check:timing (5 pass), freshness (OK 65), and verified the 8 unworded re-pins: only package.json test:timing lines changed under their sources. AC #3 reads after merge.
 <!-- SECTION:NOTES:END -->
