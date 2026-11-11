@@ -4,7 +4,7 @@ title: Narration as prose slots; retire the audit loop
 status: In Progress
 assignee: []
 created_date: 2026-11-07 05:13
-updated_date: '2026-11-11T16:27:00Z'
+updated_date: '2026-11-11T16:35:00Z'
 labels:
   - ws:narration
   - replan-2026-11
@@ -68,4 +68,7 @@ Phases 3-4 done (78eaf138, OQ-1 isolated in 320aee54, 842c0ffc, ded794d3): ci:ch
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
 Phase 5 done (61393c1e). B2 replay: 25 narrated turns; 19 passed -> 18 clean + 1 leak; 3 passed-after-regenerate -> 3 clean; 3 fallback reported, not judged; 0 contradiction hits. The one leak (seq 43, absent-actor 'goblin's') is a false positive: goblin-3 went absent at seq 40 in the same beat (fled) and the narration describes that flight. Sent back to fix: exempt actors whose presence changed in the beat's own rows.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
+Departed-actor fix (7a36c9e9) and phase 6 wiki (5064cba6). Final B2 replay: 25 narrated turns, 0 leak hits, 0 contradiction hits; 3 fallback turns reported, not judged.
 <!-- SECTION:NOTES:END -->
