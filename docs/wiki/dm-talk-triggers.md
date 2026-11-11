@@ -1,6 +1,6 @@
 ---
 name: dm-talk-triggers
-description: In-character talk draws a world reaction (TASK-0180, specs/065, decision-0027) - the readable-post rule, code triggers, the 3 s quiet window and coalesced `talk` turn, the model-skip rule, the one `react` call (`dm.react-v2`), code checks, escalation into an unstarted encounter, the two-reaction chain cap, companion prompts, and the reclaim rules.
+description: In-character talk draws a world reaction (TASK-0180, specs/065, decision-0027) - the readable-post rule, code triggers, the 3 s quiet window and coalesced `talk` turn, the model-skip rule, the one `react` call (`dm.react-v3`), code checks, escalation into an unstarted encounter, the two-reaction chain cap, companion prompts, and the reclaim rules.
 kind: pipeline
 sources:
   - apps/server/src/dm/talk-triggers.ts
@@ -13,7 +13,7 @@ sources:
   - apps/server/src/dm/pipeline/context.ts
   - apps/server/src/dm/nodes/schemas.ts
   - apps/server/dm-scripts/greyhollow-talk.json
-verified_against: bfb65a157559c88bf988a6c0f55b7c03824ff412
+verified_against: 7a36c9e9e90450f473fc5e54a082d0ce7c083727
 ---
 
 # DM talk triggers
@@ -45,9 +45,8 @@ full pipeline.
 3. `needsModel` is false when no non-party NPC is named and no post holds `?`: outcome `none`.
 4. One `react` call (`ReactOutput`: `none`, `reply`, `scene`, `escalate`), checkpointed in
    `TurnCheckpoint.react`.
-5. Code checks: `deterministicChecks` over facts with `trigger: "talk"` and no actions
-   ([[dm-narration-quality]]), a DM-only seed text substring check and a present-speaker check.
-   One regenerate; a second refusal records `none`.
+5. Code checks: `checkNarration` (spec 103, TASK-0272) over the reply as the describe slot
+   ([[dm-narration-quality]]): a leak drops the sentence and files a `dm` correction; a reply left empty records `none`. No second model call.
 6. `escalate` runs resolve's opening move through a synthetic Director output when
    `legalEscalation` holds (free mode, no running encounter, encounter not yet run: `encounterRan`, spec 088); else `scene`.
 7. `submitNarration` ships one row with no action ids. A `reply` carries no State line; an `escalate` that opened a fight appends `State: The fight begins. It is <name>'s turn.` (spec 098 OQ-4). The worker stores `jobs.result.talk`
@@ -59,4 +58,4 @@ full pipeline.
 A landed narration is never shipped twice. A reclaimed escalation reads its posts as free mode
 once the opening move landed (commit c2e6d785), because the mode is already `turn`.
 
-`dm.react-v2` uses purpose `dm.narrate` ([[dm-runtime]]); no new purpose or migration.
+`dm.react-v3` uses purpose `dm.narrate` ([[dm-runtime]]); no new purpose or migration.

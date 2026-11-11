@@ -37,7 +37,8 @@ sources:
   - apps/web/app/debug/use-debug-session.ts
   - apps/web/app/debug/waiting.ts
   - apps/web/app/routes/play-debug.tsx
-verified_against: bfb65a157559c88bf988a6c0f55b7c03824ff412
+size_budget_exempt: TASK-0272 renames the narrate-audit section to narrate-check in the one debug-page note; the note sat 126 chars over the budget with that line and its routes, columns and slide-outs are one page that does not split without a TASK of its own
+verified_against: 7a36c9e9e90450f473fc5e54a082d0ce7c083727
 ---
 
 # Debug view API
@@ -116,7 +117,7 @@ job <id>" on `202`, the server message on a refusal, "Not allowed: the operator 
 error, and "Network error. Try again." otherwise. A retry kicks the poller at once.
 
 **Three columns.** Jobs (a timeline of cards, one per job, seven turn sections from Assemble to
-Failure, with "not run" placeholders for stages a failed turn never reached; follow-bottom keeps
+Failure; narrate is `narrate-check`, reading `turn.check` or legacy `turn.audit`, with "not run" placeholders for stages a failed turn never reached; follow-bottom keeps
 a viewer who is at the end of the list at the end as jobs arrive), Events (every event, a type
 filter combobox, no modal) and State (the projection, folded with `project` as the DM viewer).
 `seq-index.ts` joins a job to the seqs it wrote (the "Linking a job to its events" rule). Selecting

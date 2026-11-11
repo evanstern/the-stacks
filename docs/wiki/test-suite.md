@@ -31,7 +31,7 @@ sources:
   - apps/server/vitest.config.ts
   - tsconfig.json
 size_budget_exempt: spec 102 adds the server tsconfig reference to packages/intent in the one test-suite note; the suite map does not split without a TASK of its own
-verified_against: bfb65a157559c88bf988a6c0f55b7c03824ff412
+verified_against: 7a36c9e9e90450f473fc5e54a082d0ce7c083727
 ---
 
 # Test suite

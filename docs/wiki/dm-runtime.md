@@ -1,6 +1,6 @@
 ---
 name: dm-runtime
-description: The AI DM runtime (TASK-0046, apps/server/src/dm/) - the fixed node pipeline (assemble to audit), the actor snapshot behind every prompt's state (see actor-snapshot), resolve as the only gate writer with the engine owning every number, the six-group resolve order, digit-free narration, the bounded audit loop (see dm-narration-quality), seven purposes, failure record and rules-term gates (see dm-failure-and-gates), scene seed, doctrine, companions, chronicle, /dm routes, import boundary.
+description: The AI DM runtime (TASK-0046, apps/server/src/dm/) - the fixed node pipeline (assemble to check), the actor snapshot behind every prompt's state (see actor-snapshot), resolve as the only gate writer with the engine owning every number, the six-group resolve order, digit-free narration, the pure check node (see dm-narration-quality), six purposes, failure record and rules-term gates (see dm-failure-and-gates), scene seed, doctrine, companions, chronicle, /dm routes, import boundary.
 kind: component
 sources:
   - apps/server/src/dm/pipeline/runner.ts
@@ -8,6 +8,7 @@ sources:
   - apps/server/src/dm/pipeline/context.ts
   - apps/server/src/dm/pipeline/call.ts
   - apps/server/src/dm/nodes/assemble.ts
+  - apps/server/src/dm/nodes/check.ts
   - apps/server/src/dm/resume.ts
   - apps/server/src/dm/nodes/director.ts
   - apps/server/src/dm/nodes/schemas.ts
@@ -41,14 +42,14 @@ sources:
   - apps/server/seeds/greyhollow-ford-trio.json
   - biome.json
 size_budget_exempt: both notes sat within 30 chars of the 8000 budget before TASK-0180; the talk path got its own note (dm-talk-triggers) and only a pointer line lands here; the rest is one pipeline each, not splittable without a TASK of its own
-verified_against: bfb65a157559c88bf988a6c0f55b7c03824ff412
+verified_against: 7a36c9e9e90450f473fc5e54a082d0ce7c083727
 ---
 
 # DM runtime
 
 `apps/server/src/dm/` runs the AI dungeon master for a play session. A player commit
 queues a **turn**; the turn reads the log, plans, resolves mechanics through the engine, narrates,
-audits the narration, and writes back through the proposal gate ([[proposal-gate]]) as `ai:dm`. Spec: `specs/031-dm-runtime/`; queue mechanics in [[dm-turn-jobs]].
+checks the narration, and writes back through the proposal gate ([[proposal-gate]]) as `ai:dm`. Spec: `specs/031-dm-runtime/`; queue mechanics in [[dm-turn-jobs]].
 
 ## The pipeline
 
@@ -72,19 +73,19 @@ async function `(TurnContext) => NodeResult`.
 5. **resolve** - code only; the one node that writes. It first seeds the run with each resumed plan's submissions (an approved `pending` one becomes `applied`), so the chain continues without a second roll. After its last gate write it builds **S1** and returns
    `ResolveOutput.snapshot` and `ResolveOutput.diff` (S0 to S1). See below. In turn mode a held party action (`TURN_HELD`, TASK-0244) resolves as outcome `held`: no step, no row, still committed; the turn advance ignores it, and when the turn reaches the companion resolve queues a `turn` job with trigger `held` instead of a companion job ([[dm-turn-jobs]]).
 6. **narrate** - `dm.narrate`. Builds the fact sheet (`dm/fact-sheet.ts`, [[dm-narration-quality]]), asks the model for tagged `[restate]` `[describe]` `[ask]` slots (TASK-0245, spec 098) and ships `composeReply`: slots, then code rows and a `State:` line. Writes prose from code-built facts (including the monster reading's plan, the turn holder, the Off turn list and the Waiting line for a held party action, TASK-0193, TASK-0214, TASK-0244), the player-facing seed view and S1 ([[dm-narration-quality]]).
-7. **audit** - deterministic checks, including the claim gate against S1 and the diff ([[output-claim-gate]]), plus one `dm.audit` call (same S1 sections); decides what ships ([[dm-narration-quality]]).
+7. **check** - pure code, no model call: `checkNarration` tests the describe and ask slots for a leak (dropped, with a `dm` correction) and a contradiction (shipped, with a public correction); nothing blocks play ([[dm-narration-quality]]).
 
 An empty-beat `talk` turn skips this order ([[dm-talk-triggers]]). Spec 102 FR-023: at the start of every turn job under an AI seat the worker calls `answerRulings` (`dm/rulings.ts`, prompt `dm.ruling-v1`): one structured call per open ruling request, oldest first, then a `ruling` Intent from `ai:dm`; the model returns a decision and a difficulty tier, never a number.
 
 Director, interpret and adjudicate outputs are checkpointed in `jobs.result`; a reclaim does not re-pay them. Model output is parsed with Zod through `callJson`/`callText` (`pipeline/call.ts`); every call
 is recorded to `recordCall` ([[dm-turn-jobs]]). Parse order: think strip, strict parse (fence stripped), else the one top-level object inside surrounding prose, then normalize, schema. A capped attempt logs `dm.call.truncated` (with `parse` set to the failure kind, null for `callText`) instead. Each rejected reply logs one line with a 200-char head and tail: `dm.call.invalid-json` when no JSON parses, `dm.call.schema-mismatch` when JSON parses and fails the schema (TASK-0203). The ledger outcome follows the same split (`truncated` wins when the attempt was capped). Excerpts keep raw text (TASK-0181).
 
-`callJson` makes at most two attempts, the second with the first's issues. Three calls pass a `normalize` hook. `normalizeDirector` cuts an over-long `goalNote` or `reason` to 300 characters (spec 033). `normalizeAudit` (`nodes/audit.ts`, spec 086) maps an unknown issue `kind` to `other` with a `[kind]` detail prefix, clips `detail` to 300 and drops a null `actor`. `normalizeChronicle` (`chronicle.ts`) turns numeric `sourceActionIds` into strings. The companion prompt (`dm.companion-v8`) says to write all four keys.
+`callJson` makes at most two attempts, the second with the first's issues. Three calls pass a `normalize` hook. `normalizeDirector` cuts an over-long `goalNote` or `reason` to 300 characters (spec 033). `normalizeChronicle` (`chronicle.ts`) turns numeric `sourceActionIds` into strings. The companion prompt (`dm.companion-v8`) says to write all four keys.
 
 ## Actor snapshot
 
 Every prompt's state comes from one `ActorSnapshot` ([[actor-snapshot]]): S0 for director,
-interpret and adjudicate (`dm` view); S1 for narrate and audit (`fiction` view); the current
+interpret and adjudicate (`dm` view); S1 for narrate (`fiction` view); the current
 state for the companion (`seat` view); the state at `throughSeq` for the chronicle (`fiction`
 view). An over-cap snapshot fails the turn with `state-overflow` ([[dm-failure-and-gates]]).
 
@@ -102,15 +103,13 @@ Spec 100 (TASK-0271): at scene start resolve submits `space.define` from the see
 
 Resolve holds a Director arrival that a check's stake texts name (`splitArrivals`, spec 089): `landHeldArrivals` lands it after the NPC group only when the applied band's texts name it, else it logs `dm.arrival.held`. Resolve's six groups and settling: [[dm-turn-jobs]]; floor guard: [[turn-floor]].
 
-## Narration and audit
+## Narration and check
 
-Prose is **digit-free**; code builds the rows and the State line (`NarrateOutput.sheet`, `slots`). The audit loop makes at most `MAX_NARRATION_ATTEMPTS = 3` attempts and ships
-a code-built in-fiction fallback on exhaustion, with a `dm` journal flag. The claim gate: [[output-claim-gate]]. Facts, audit checks,
-the fallback and the player-facing seed view are in [[dm-narration-quality]].
+Prose is **digit-free**; code builds the rows and the State line (`NarrateOutput.sheet`, `slots`). Each turn makes one `dm.narrate` call; a call error ships restate, rows and the State line. The `check` node (spec 103, TASK-0272) then drops leak sentences and files corrections; it never re-calls the model and there is no fallback summary. The claim gate is retired ([[output-claim-gate]]). Facts, checks and the player-facing seed view are in [[dm-narration-quality]]. The `check` stage reports as `narrate` in `jobs.stage` (no migration).
 
 ## Purposes
 
-`dm/purposes.ts` fixes seven purposes (`dm.director`, `interpret`, `adjudicate`, `narrate`, `audit`, `chronicle`, `companion`). Models: `AI_PURPOSES`; see [[ai-gateway]]. Each `PURPOSE_MAX_TOKENS` default is 4000 (TASK-0192), except `dm.interpret` at 8000 (TASK-0273: a hosted read saturated 4000). `unstructuredDmPurposes` names configured purposes lacking `structured`. `callJson` sends its Zod schema as `ChatRequest.output` (JSON Schema draft-7, input shape; `.refine` rules still run after parsing). In `callJson`/`callText`, an attempt whose usage says `truncated` settles as `truncated`, not `invalid-json`/`ok`.
+`dm/purposes.ts` fixes six purposes (`dm.director`, `interpret`, `adjudicate`, `narrate`, `chronicle`, `companion`; `dm.audit` is retired, old `dm_model_calls` rows stay valid). Models: `AI_PURPOSES`; see [[ai-gateway]]. Each `PURPOSE_MAX_TOKENS` default is 4000 (TASK-0192), except `dm.interpret` at 8000 (TASK-0273: a hosted read saturated 4000). `unstructuredDmPurposes` names configured purposes lacking `structured`. `callJson` sends its Zod schema as `ChatRequest.output` (JSON Schema draft-7, input shape; `.refine` rules still run after parsing). In `callJson`/`callText`, an attempt whose usage says `truncated` settles as `truncated`, not `invalid-json`/`ok`.
 
 ## Seed, doctrine, script
 
@@ -119,7 +118,7 @@ the fallback and the player-facing seed view are in [[dm-narration-quality]].
   the seed id is the scene id.
 - **Doctrine** (`doctrine/doctrine.ts`): DM-craft rules adapted from tabletop-dm (commit
   fe2c29b, Copyright (c) 2026 Brad Bush, MIT). `doctrine/NOTICE.md` carries the licence.
-- **Agency** (specs/074, TASK-0113; `AGENCY_RULE` and `agencyRule(node)` in `doctrine.ts`): one shared rule, rendered into the director, interpret, narrate, audit, companion, react and playtest-auditor prompts. A party member's volitional acts belong to its player. The dice may decide a reflex only, and a reflex must be a fact (`FactInvoluntary`). The Director's goal note is pacing advice; the interpret prompt says so. The DOCTRINE pair 'Never decide the hero's words...' now allows a reflex and shows a club strike as the right example.
+- **Agency** (specs/074, TASK-0113; `AGENCY_RULE` and `agencyRule(node)` in `doctrine.ts`): one shared rule, rendered into the director, interpret, narrate, companion, react and playtest-auditor prompts. A party member's volitional acts belong to its player. The dice may decide a reflex only, and a reflex must be a fact (`FactInvoluntary`). The Director's goal note is pacing advice; the interpret prompt says so. The DOCTRINE pair 'Never decide the hero's words...' now allows a reflex and shows a club strike as the right example.
 - **Scripted DM** (`dm/script/`): per-purpose responses and dice become a strict `FakeProvider` plus
   `scriptedRng`, for tests and evidence runs ([[test-suite]]). `script/env.ts` also loads a shipped
   script (`apps/server/dm-scripts/greyhollow-live.json`) at boot under `DM_FAKE_SCRIPT` on a worktree
@@ -141,5 +140,5 @@ its `throughSeq` (`loadProjectionsThrough`, [[session-model]]) and prints it in 
 
 `routes/dm.ts` (mounted at `/dm`, operator-only, [[server-entrypoint-and-app]]):
 `GET /dm/seeds` (`{ seeds }` from `listSeeds`), `POST /dm/sessions/:id/start` (body `{ seedId, seats }`, 202 `{ jobId }`, 400 when a user holds two seats, 409 unless `sceneStartState` is `none`), `GET /dm/sessions/:id/start` (`{ state }`, TASK-0167), `POST /dm/sessions/:id/turn` (manual retry, 202), and
-`GET /dm/sessions/:id/turns?limit` (job list with outcome, audit record and call metadata). Read-only `events`, `jobs`, `seed` and `calls` routes under `/dm/sessions/:id` serve the debug view ([[debug-view]]). A Biome `noRestrictedImports` override on `apps/server/src/dm/**` forbids log writers, ingestion, the library store, codex and ws ([[ci-pipeline]], [[monorepo-and-toolchain]]):
+`GET /dm/sessions/:id/turns?limit` (job list with outcome, check record (or the legacy audit record on pre-0272 rows) and call metadata). Read-only `events`, `jobs`, `seed` and `calls` routes under `/dm/sessions/:id` serve the debug view ([[debug-view]]). A Biome `noRestrictedImports` override on `apps/server/src/dm/**` forbids log writers, ingestion, the library store, codex and ws ([[ci-pipeline]], [[monorepo-and-toolchain]]):
 session state is written only through the gate.

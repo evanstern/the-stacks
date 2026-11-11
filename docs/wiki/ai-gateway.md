@@ -16,7 +16,7 @@ sources:
   - .env.example
   - apps/server/src/dm/script/env.ts
   - apps/server/dm-scripts/greyhollow-live.json
-verified_against: bfb65a157559c88bf988a6c0f55b7c03824ff412
+verified_against: 7a36c9e9e90450f473fc5e54a082d0ce7c083727
 ---
 
 # AI gateway
@@ -67,12 +67,12 @@ ingestion, are skipped) rather than no-op silently.
 **Script mode** (TASK-0158, specs/053). `DM_FAKE_SCRIPT=<name>` makes `createAiRuntime` load
 `apps/server/dm-scripts/<name>.json` (shipped in the image, [[container-image]]) through
 `loadDmScript` and `createScriptedDm` (`dm/script/load.ts`): a strict `FakeProvider` queues each
-call per purpose, and the returned `aiConfig` names it for the seven `dm.*` purposes and the
+call per purpose, and the returned `aiConfig` names it for the six `dm.*` purposes and the
 `embedding` purpose, with `prices: {}`. That config replaces the whole AI config: `AI_*` are not
 read, and the `adapters` map registers `fake` to that one provider instance. `gateRng` is the
 script's dice, then `seededRng(0)` (`facesThenSeed`); a face outside `1..sides` throws. A spent
 queue fails the call loudly; `dm_model_calls` rows read provider `scripted`, cost null. Boot throws `DmScriptEnvError` on a bad `STACKS_ENV` (unset, empty, `default`, `main`, `dev`), a bad name, a missing file or an invalid script. Unset, `createAiRuntime`
-is exactly `loadAiConfig(env)`. `greyhollow-live.json` (9 calls, 1 die) scripts scene start and
+is exactly `loadAiConfig(env)`. `greyhollow-live.json` (7 calls, 1 die) scripts scene start and
 one `act-search` turn. Walkthrough: `specs/053-env-fake-dm-script/quickstart.md`.
 
 `index.ts` passes `aiGateway` into `startIngestWorker({db, gateway: aiGateway,
@@ -85,10 +85,10 @@ embedPurpose, uploadDir})`. `embedPurpose` is [[retrieval]]'s name, only when
 degrades to a terminal SSE `error` event, never a crash.
 
 Since TASK-0046 (specs/031-dm-runtime), the DM runtime is the gateway's third caller. It uses
-seven `op: "chat"` purposes whose names are code constants in `dm/purposes.ts` (`DM_PURPOSES`):
-`dm.director`, `dm.interpret`, `dm.adjudicate`, `dm.narrate`, `dm.audit`, `dm.chronicle`,
+six `op: "chat"` purposes whose names are code constants in `dm/purposes.ts` (`DM_PURPOSES`):
+`dm.director`, `dm.interpret`, `dm.adjudicate`, `dm.narrate`, `dm.chronicle`,
 `dm.companion`. Model choice and `maxTokens` per purpose stay in `AI_PURPOSES` (4000 each; `dm.interpret` 8000); `.env.example`
-carries a commented seven-purpose example with `"structured":"tool"` on every purpose but `dm.narrate`. `index.ts` passes the same `aiGateway` into
+carries a commented six-purpose example with `"structured":"tool"` on every purpose but `dm.narrate`. `index.ts` passes the same `aiGateway` into
 `startDmWorker` and warns `missingDmPurposes(aiConfig.purposes)` and `unstructuredDmPurposes(aiConfig.purposes)` at boot; a missing purpose
 never blocks boot, it fails only its node.
 

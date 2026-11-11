@@ -47,7 +47,7 @@ Tests use the fake gateway only.
 
 ## Phase 6: Wiki re-ground
 
-- [ ] T027 `docs/wiki/dm-narration-quality.md` (NEEDS-REVIEW): replace the audit loop and fallback sections with the check node, corrections and `why` rows; record `dm.narrate-v24`, `dm.react-v3`, `dm.audit-v17` retired. Re-point sources.
-- [ ] T028 `docs/wiki/output-claim-gate.md` (NEEDS-REVIEW): mark the note retired by TASK-0272, point to `narration-check.ts`, and drop deleted sources. Follow the corpus's retired-note convention.
-- [ ] T029 `docs/wiki/dm-runtime.md` (NEEDS-REVIEW): pipeline ends in `check`; seven purposes become six; one narration call per turn.
-- [ ] T030 Update `docs/wiki/INDEX.md` and `docs/wiki/CAPSULES.md`. Re-pin honestly. The freshness gate prints `OK`.
+- [x] T027 `docs/wiki/dm-narration-quality.md` (NEEDS-REVIEW): replace the audit loop and fallback sections with the check node, corrections and `why` rows; record `dm.narrate-v24`, `dm.react-v3`, `dm.audit-v17` retired. Re-point sources.
+- [x] T028 `docs/wiki/output-claim-gate.md` (NEEDS-REVIEW): mark the note retired by TASK-0272, point to `narration-check.ts`, and drop deleted sources. Follow the corpus's retired-note convention.
+- [x] T029 `docs/wiki/dm-runtime.md` (NEEDS-REVIEW): pipeline ends in `check`; seven purposes become six; one narration call per turn.
+- [x] T030 Update `docs/wiki/INDEX.md` and `docs/wiki/CAPSULES.md`. Re-pin honestly. The freshness gate prints `OK`.

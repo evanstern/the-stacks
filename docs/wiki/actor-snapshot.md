@@ -10,7 +10,7 @@ sources:
   - apps/server/src/dm/snapshot/render.ts
   - apps/server/src/dm/snapshot/index.ts
   - specs/040-actor-snapshot/contracts/actor-snapshot.md
-verified_against: f1676535f62847ef4ac0571639c6ca60b993bb94
+verified_against: 7a36c9e9e90450f473fc5e54a082d0ce7c083727
 ---
 
 # Actor snapshot
@@ -49,7 +49,7 @@ throw `SnapshotBuildError` (`ACTOR_ID_COLLISION`).
 
 `aliases` holds the name, the id, the combatant id, the given name after leading title words
 (`snapshot/aliases.ts` `nameTerms`, `TITLE_WORDS`) and the engine and seed names and the seed NPC's `identity.aliases` (spec 050), deduped.
-`partyNameTerms` in the audit calls `nameTerms`; its output is unchanged.
+`partyNameTerms` called `nameTerms` (the audit that used it is retired); `nameTerms` output is unchanged.
 
 ## The diff
 
@@ -70,7 +70,7 @@ overflow detail; `snapshotSection` returns `## <label>` plus the lines or throws
 |---|---|---|
 | `dm` | director (with tracker lines), interpret, adjudicate | ids, HP, AC, life state, conditions, initiative, resources, sheet, a `Zones:` line (fogged zones marked `(hidden)`), `zone <id>; reach <ids\|none>` per placed actor |
 | `seat` | companion | full line for the party and `self`; others get HP, life state, conditions, initiative; only revealed zones, and no zone or reach for an actor in a fogged zone |
-| `fiction` | narrate, audit, chronicle | name, kind, life state, conditions, presence, a `Places:` line and `in <zone name>` for revealed zones only; no digit, no id, no tracker |
+| `fiction` | narrate, chronicle | name, kind, life state, conditions, presence, a `Places:` line and `in <zone name>` for revealed zones only; no digit, no id, no tracker |
 
 Caps (`prompts/common.ts` `CAPS`): `snapshotDm` 2000, `snapshotSeat` 2000, `snapshotFiction` 800.
 The schema-maximum seed (6 party, 12 monsters, 20 NPCs) fits every view uncompressed. Over the
@@ -84,7 +84,7 @@ node failure for a turn ([[dm-failure-and-gates]]), an `error` play for a compan
 | Reader | Snapshot | Built by |
 |---|---|---|
 | director, interpret, adjudicate | S0 | `assemble` |
-| narrate, audit (and its regenerate) | S1 | `resolve` |
+| narrate | S1 | `resolve` |
 | companion | current state, `seat` view | the companion job, per companion |
 | chronicle | state at the job's `throughSeq` | the chronicle job, from `loadProjections(..., { throughSeq })` |
 
@@ -93,7 +93,7 @@ node failure for a turn ([[dm-failure-and-gates]]), an `error` play for a compan
 TASK-0141 built the presence read (spec 048; the plan gate gains the `absent` reason, same
 `UNKNOWN_COMBATANT` code); TASK-0142 built seed aliases and the seed rows, the only path from the seed to `presence` ([[seed-npc-presence]]);
 TASK-0104 adds monster stats to `sheet`; TASK-0112 built the plan gate: it checks plan step ids against S0 actors' `combatantId` ([[dm-failure-and-gates]]);
-TASK-0143 built the alias matcher (`checkClaims` in `dm/claims.ts`, spec 051), which reads `aliases`, `kind`, `lifeState`, `presence` and the diff and reads no other field; TASK-0144 and TASK-0161 reuse it ([[output-claim-gate]]); TASK-0145 reads S0 for the Director's
-hostility rules; TASK-0146 renders the diff in the audit prompt; TASK-0147 maps batch effect
+TASK-0143 built the alias matcher (`checkClaims` in `dm/claims.ts`, spec 051; deleted by TASK-0272, the matcher now serves `narration-check.ts` through `namedActorIds` and `aliasOccurrences` in `snapshot/aliases.ts`), which reads `aliases`, `kind`, `lifeState`, `presence` and the diff and reads no other field; TASK-0144 and TASK-0161 reused it ([[output-claim-gate]], retired); TASK-0145 reads S0 for the Director's
+hostility rules; TASK-0146 rendered the diff in the audit prompt; TASK-0147 maps batch effect
 targets through `combatantId`. Each card amends the contract file. A new field is additive and
 keeps `SNAPSHOT_VERSION` at 1 unless a field changes meaning.
