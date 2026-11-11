@@ -4,7 +4,7 @@ title: Interpret emits Intents
 status: In Progress
 assignee: []
 created_date: 2026-11-07 05:13
-updated_date: '2026-11-11T19:52:00Z'
+updated_date: '2026-11-11T19:56:00Z'
 labels:
   - ws:intent
   - replan-2026-11
@@ -64,4 +64,6 @@ Spec 104 spec.md + plan.md (2ac78ce1) against 092 06d7ca13, 093 beae54aa, 097 a3
 Operator ruling 2026-11-11 (in chat): "Approve split + OQs" — split per spec 104 plan (this card keeps AC #1, #2, #3, #5, #7; AC #4 and #6 move to a new card that lands after TASK-0223) and spec 104 OQ-1..OQ-9 as recommended.
 
 Spec 104 tasks.md for PR A (f61a0bac): 36 tasks in 6 phases.
+
+Orchestrator ruling (phases 1-2 dispatch): spec 104 changes the interpret reading shape in P1, and its consumers move in P3, so typecheck is red between them. Interim per-phase commits may be red (marked '[red: Phase 3 consumers pending]'); the runbook gate is ci:check green on the final tree. No legacy-union bridge. T004: the 18-kind union converts to JSON schema (draft-7, 0 refs, 18 oneOf); strict provider mode not verified (needs a paid call).
 <!-- SECTION:NOTES:END -->
