@@ -11,7 +11,6 @@ import {
   outcomeWord,
 } from "../facts.js";
 import type { AssembleOutput } from "../nodes/assemble.js";
-import type { AuditIssue } from "../nodes/audit.js";
 import type { PlayerSeedView } from "../seed/views.js";
 import {
   type ActorSnapshot,
@@ -27,7 +26,7 @@ import {
   transcriptEntries,
 } from "./common.js";
 
-export const PROMPT_VERSION = "dm.narrate-v23";
+export const PROMPT_VERSION = "dm.narrate-v24";
 
 /** One turn rule, shared by the narrate and audit prompts (TASK-0214). */
 export const TURN_RULE =
@@ -292,7 +291,6 @@ export interface NarratePromptInput {
   facts: NarrationFacts;
   /** Spec 098: the fact sheet; absent only in tests that read the facts alone. */
   sheet?: FactSheet;
-  prior: { prose: string; issues: AuditIssue[] } | null;
 }
 
 /** The Slots, Restate, Speakers and Settled question sections (spec 098 D4). */
@@ -308,6 +306,12 @@ export function sheetSections(sheet: FactSheet): string[] {
     section(
       "Speakers",
       sheet.speakers.map((s) => (s.say ? `${s.name} says: ${s.say}` : s.name)),
+      400,
+      "end",
+    ),
+    section(
+      "Why (settled by the rules; weave in words, no digits)",
+      sheet.rows.filter((r) => r.kind === "why").map((r) => r.text),
       400,
       "end",
     ),
@@ -330,13 +334,6 @@ export function buildNarratePrompt(input: NarratePromptInput): {
   const npcs = facts.presentNpcs.map(
     (n) => `${n.name}: voice ${n.voice}; wants ${n.want}; detail ${n.detail}`,
   );
-  const prior = input.prior
-    ? [
-        "Your previous text was rejected. Write it again and fix every issue.",
-        `Previous text: ${input.prior.prose}`,
-        ...input.prior.issues.map((i) => `Issue (${i.kind}): ${i.detail}`),
-      ]
-    : [];
   const user = joinSections([
     openingSection(seed, facts),
     ...characterSections(input.snapshot),
@@ -350,7 +347,6 @@ export function buildNarratePrompt(input: NarratePromptInput): {
       CAPS.transcript,
       "start",
     ),
-    prior.join("\n"),
   ]);
   return { system, user };
 }

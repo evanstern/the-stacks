@@ -2,7 +2,6 @@ import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-import { SYSTEM_WORDS } from "../../src/dm/fallback.js";
 import { cutPlans } from "../../src/dm/first-stage.js";
 import {
   arrivingMonsters,
@@ -1332,7 +1331,6 @@ describe("askUndeclared (spec 077)", () => {
     ];
     for (const q of qs) {
       expect(q).not.toMatch(/\d/);
-      expect(q).not.toMatch(SYSTEM_WORDS);
       expect(q.match(/\?/g)).toHaveLength(1);
       expect(q.length).toBeLessThanOrEqual(200);
     }

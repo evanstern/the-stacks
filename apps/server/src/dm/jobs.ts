@@ -22,7 +22,7 @@ import {
 } from "./floor-state.js";
 import type { PlanVerdict } from "./gates/plan-gate.js";
 import type { AdjudicateOutput } from "./nodes/adjudicate.js";
-import type { AuditRecord } from "./nodes/audit.js";
+import type { CheckRecord } from "./nodes/check.js";
 import type { DirectorNodeOutput } from "./nodes/director.js";
 import type { Submission } from "./nodes/resolve.js";
 import type { InterpretOutput, ReactOutput } from "./nodes/schemas.js";
@@ -146,11 +146,38 @@ export interface TurnFailure {
 export interface TurnFailureResult {
   checkpoint: TurnCheckpoint;
   outcome: { status: "failed" };
-  audit: null;
+  check: null;
   calls: ModelCallRecord[];
   failure: TurnFailure;
   /** Seq of the presence marker this turn recorded; null when none. */
   presenceSeq?: number | null;
+}
+
+/**
+ * The audit loop's job record, kept only to read rows stored before TASK-0272 (spec 103).
+ * ponytail: delete with the last pre-0272 job row; nothing writes it.
+ */
+export interface LegacyAuditIssue {
+  kind: string;
+  detail: string;
+  actor?: string;
+  blocking: boolean;
+}
+export interface LegacyAuditAttempt {
+  attempt: number;
+  words: number;
+  deterministic: { pass: boolean; issues: LegacyAuditIssue[] };
+  llm:
+    | { verdict: "pass" | "fail"; issues: LegacyAuditIssue[] }
+    | { skipped: true }
+    | { error: string };
+  proseSha256: string;
+}
+export interface LegacyAuditRecord {
+  attempts: LegacyAuditAttempt[];
+  final: "passed" | "passed-after-regenerate" | "fallback";
+  flagged: boolean;
+  shippedProseSha256: string;
 }
 
 export interface TurnCheckpoint {
@@ -170,7 +197,9 @@ export interface TurnCheckpoint {
   /** The plan gate's verdict per action group; absent on rows stored before TASK-0112. */
   planGate?: PlanVerdict[];
   narration: {
-    attempts: AuditRecord["attempts"];
+    check?: CheckRecord;
+    /** Rows stored before TASK-0272 hold the audit loop's attempts. */
+    attempts?: LegacyAuditRecord["attempts"];
     shipped: boolean;
     /** The shipped narration's event seqs, ascending; absent on rows stored before TASK-0116. */
     seqs: number[];

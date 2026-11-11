@@ -35,7 +35,7 @@ afterAll(async () => {
 clearDmJobsBeforeEach();
 
 describe.skipIf(!reachable)("one full turn (database)", () => {
-  it("runs the search turn end to end and passes its audit", async () => {
+  it("runs the search turn end to end and passes its check", async () => {
     const s = script("exploration-check.json");
     const w = await createWorld({
       dice: s.dice,
@@ -64,10 +64,10 @@ describe.skipIf(!reachable)("one full turn (database)", () => {
     const turn = turns[0];
     const result = turn?.result as {
       outcome: { status: string };
-      audit: {
-        final: string;
-        flagged: boolean;
-        attempts: { deterministic: { pass: boolean } }[];
+      check: {
+        leak: unknown[];
+        contradiction: unknown[];
+        corrected: boolean;
       };
       calls: { purpose: string; outcome: string; attempt: number }[];
     };
@@ -78,7 +78,6 @@ describe.skipIf(!reachable)("one full turn (database)", () => {
       PURPOSE_OF.director,
       PURPOSE_OF.interpret,
       PURPOSE_OF.narrate,
-      PURPOSE_OF.audit,
     ]);
     expect(
       result.calls.every((c) => c.outcome === "ok" && c.attempt === 1),
@@ -119,10 +118,10 @@ describe.skipIf(!reachable)("one full turn (database)", () => {
       expect(row.outputTokens).not.toBeNull();
     }
 
-    // AC #8: the audit passed on the first attempt.
-    expect(result.audit.final).toBe("passed");
-    expect(result.audit.flagged).toBe(false);
-    expect(result.audit.attempts[0]?.deterministic.pass).toBe(true);
+    // AC #8: the check found nothing to correct.
+    expect(result.check.corrected).toBe(false);
+    expect(result.check.leak).toEqual([]);
+    expect(result.check.contradiction).toEqual([]);
 
     // The ledger rows the turn wrote carry the job's marker; the roll is the scripted one.
     const p = await w.projections();
@@ -163,7 +162,6 @@ describe.skipIf(!reachable)("one full turn (database)", () => {
         "dm.interpret": 0,
         "dm.adjudicate": 0,
         "dm.narrate": 0,
-        "dm.audit": 0,
         "dm.companion": 0,
         "dm.chronicle": 0,
       }),
@@ -185,7 +183,7 @@ describe.skipIf(!reachable)("one full turn (database)", () => {
             rollCount: rolls.length,
             ledger: mine,
             narration: text,
-            audit: result.audit,
+            check: result.check,
           },
           null,
           2,

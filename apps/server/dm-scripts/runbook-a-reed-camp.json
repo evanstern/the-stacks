@@ -38,16 +38,6 @@
       }
     },
     {
-      "purpose": "dm.audit",
-      "respond": {
-        "type": "json",
-        "value": {
-          "verdict": "pass",
-          "issues": []
-        }
-      }
-    },
-    {
       "purpose": "dm.narrate",
       "note": "react: Wenna answers and turns to Odo (TASK-0189)",
       "respond": {
@@ -147,16 +137,6 @@
       }
     },
     {
-      "purpose": "dm.audit",
-      "respond": {
-        "type": "json",
-        "value": {
-          "verdict": "pass",
-          "issues": []
-        }
-      }
-    },
-    {
       "purpose": "dm.director",
       "note": "Snag's turn: a parley, no mechanics",
       "respond": {
@@ -213,16 +193,6 @@
       "respond": {
         "type": "text",
         "value": "Snag lowers his scimitar and calls across the mud, offering a parley with his hands held open."
-      }
-    },
-    {
-      "purpose": "dm.audit",
-      "respond": {
-        "type": "json",
-        "value": {
-          "verdict": "pass",
-          "issues": []
-        }
       }
     },
     {
@@ -311,16 +281,6 @@
       }
     },
     {
-      "purpose": "dm.audit",
-      "respond": {
-        "type": "json",
-        "value": {
-          "verdict": "pass",
-          "issues": []
-        }
-      }
-    },
-    {
       "purpose": "dm.companion",
       "note": "Odo's turn",
       "respond": {
@@ -401,16 +361,6 @@
       }
     },
     {
-      "purpose": "dm.audit",
-      "respond": {
-        "type": "json",
-        "value": {
-          "verdict": "pass",
-          "issues": []
-        }
-      }
-    },
-    {
       "purpose": "dm.director",
       "note": "Kestrel's turn, human",
       "respond": {
@@ -472,16 +422,6 @@
       "respond": {
         "type": "text",
         "value": "Kestrel's arrow whistles across the island and bites the goblin by the fire, who howls and ducks behind the smoke."
-      }
-    },
-    {
-      "purpose": "dm.audit",
-      "respond": {
-        "type": "json",
-        "value": {
-          "verdict": "pass",
-          "issues": []
-        }
       }
     },
     {
@@ -549,16 +489,6 @@
       }
     },
     {
-      "purpose": "dm.audit",
-      "respond": {
-        "type": "json",
-        "value": {
-          "verdict": "pass",
-          "issues": []
-        }
-      }
-    },
-    {
       "purpose": "dm.director",
       "note": "goblin-3 turn",
       "respond": {
@@ -615,16 +545,6 @@
       "respond": {
         "type": "text",
         "value": "The goblin lookout hangs back at the edge of the firelight, watching the party and gripping his spear."
-      }
-    },
-    {
-      "purpose": "dm.audit",
-      "respond": {
-        "type": "json",
-        "value": {
-          "verdict": "pass",
-          "issues": []
-        }
       }
     },
     {
@@ -687,16 +607,6 @@
       }
     },
     {
-      "purpose": "dm.audit",
-      "respond": {
-        "type": "json",
-        "value": {
-          "verdict": "pass",
-          "issues": []
-        }
-      }
-    },
-    {
       "purpose": "dm.director",
       "note": "Pell's turn",
       "respond": {
@@ -753,16 +663,6 @@
       "respond": {
         "type": "text",
         "value": "Pell scrambles across the mud toward the party, rubbing his freed wrists and blinking at the smoke."
-      }
-    },
-    {
-      "purpose": "dm.audit",
-      "respond": {
-        "type": "json",
-        "value": {
-          "verdict": "pass",
-          "issues": []
-        }
       }
     },
     {
@@ -825,16 +725,6 @@
       "respond": {
         "type": "text",
         "value": "Snag lowers his blade and calls out, offering the bell's clapper in return for safe passage out of his reeds."
-      }
-    },
-    {
-      "purpose": "dm.audit",
-      "respond": {
-        "type": "json",
-        "value": {
-          "verdict": "pass",
-          "issues": []
-        }
       }
     },
     {

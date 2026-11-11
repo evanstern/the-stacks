@@ -689,9 +689,9 @@ describe("loose parse (TASK-0203)", () => {
 describe("output spec and truncated log (TASK-0273)", () => {
   it("sends the same output spec on both attempts, named after the purpose", async () => {
     const { gateway, requests } = gatewayOf([text("nope"), text('{"n":1}')]);
-    await callJson({ gateway }, { ...req(), purpose: "dm.audit" });
+    await callJson({ gateway }, { ...req(), purpose: "dm.companion" });
     expect(requests).toHaveLength(2);
-    expect(requests[0]?.output?.name).toBe("dm_audit");
+    expect(requests[0]?.output?.name).toBe("dm_companion");
     expect(requests[0]?.output?.schema).toMatchObject({ type: "object" });
     expect(requests[0]?.output?.schema).not.toHaveProperty("$schema");
     expect(requests[1]?.output).toBe(requests[0]?.output);

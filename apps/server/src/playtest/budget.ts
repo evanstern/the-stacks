@@ -40,7 +40,6 @@ export const ESTIMATE_TABLE: Record<string, Row> = {
   "dm.interpret": { expected: (t) => t, upper: (m) => m, inputTokens: 5500 },
   "dm.adjudicate": { expected: () => 2, upper: (m) => m, inputTokens: 6500 },
   "dm.narrate": { expected: (t) => t, upper: (m) => 3 * m, inputTokens: 4500 },
-  "dm.audit": { expected: (t) => t, upper: (m) => 3 * m, inputTokens: 2500 },
   "dm.chronicle": { expected: (t) => t, upper: (m) => m, inputTokens: 3500 },
   "dm.companion": {
     expected: (t) => 2 * t,

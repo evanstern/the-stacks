@@ -1,6 +1,6 @@
 {
   "v": 1,
-  "name": "audit-regenerate",
+  "name": "shutter-check",
   "dice": [15],
   "calls": [
     {
@@ -74,27 +74,9 @@
       "purpose": "dm.narrate",
       "respond": {
         "type": "text",
-        "value": "Tamsin fails to move the shutter, and it stays stubbornly shut."
-      },
-      "note": "contradicts the recorded success"
-    },
-    {
-      "purpose": "dm.narrate",
-      "respond": {
-        "type": "text",
         "value": "The shutter shrieks on its rusted hinge and swings wide, spilling grey light across the ferry house floor. Somewhere below, a boot scrapes stone."
       },
       "note": "regenerated, consistent"
-    },
-    {
-      "purpose": "dm.audit",
-      "respond": {
-        "type": "json",
-        "value": {
-          "verdict": "pass",
-          "issues": []
-        }
-      }
     }
   ]
 }

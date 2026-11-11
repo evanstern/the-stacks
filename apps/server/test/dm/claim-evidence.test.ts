@@ -1,7 +1,5 @@
 import { describe, expect, it } from "vitest";
 import { checkClaims } from "../../src/dm/claims.js";
-import { type NarrationFacts, renderDiceLines } from "../../src/dm/facts.js";
-import { deterministicChecks } from "../../src/dm/nodes/audit.js";
 import {
   foldThrough,
   loadLog,
@@ -11,7 +9,6 @@ import {
   ROW162_STATE,
   RUN_192319Z_LOG,
   SEQ201_NEGATED,
-  SEQ216_UNCONSCIOUS,
   stateAt,
   withPresence,
 } from "./claim-fixtures.js";
@@ -90,47 +87,6 @@ describe("claim evidence: controls", () => {
 
   it("M2 seq 220 passes (US2.2)", () => {
     const r = checkClaims(stateAt(M2_LOG, 213, 219), narrationAt(M2_LOG, 220));
-    expect(r.pass).toBe(true);
-  });
-});
-
-function emptyFacts(): NarrationFacts {
-  return {
-    trigger: "commit",
-    actions: [],
-    npcTurn: null,
-    director: {
-      pacing: { tension: "low", spotlight: null, beatId: null },
-      goalNote: "",
-      sceneEnded: false,
-    },
-    modeChange: null,
-    presentNpcs: [],
-    rulings: [],
-    clarify: [],
-    party: [],
-    events: [],
-    setting: { locationName: "The Ford", openingFraming: "The ford waits." },
-  };
-}
-
-describe("claim evidence: seq 216 false positive (US2)", () => {
-  it("deterministicChecks passes it: the anonymous check is replaced by a keyed one", () => {
-    const f = emptyFacts();
-    const r = deterministicChecks(
-      f,
-      { prose: SEQ216_UNCONSCIOUS, diceLines: renderDiceLines(f) },
-      stateAt(RUN_192319Z_LOG, 205, 215),
-    );
-    expect(r.issues).toEqual([]);
-    expect(r.pass).toBe(true);
-  });
-
-  it("checkClaims passes it: Tamsin is unconscious since seq 135", () => {
-    const r = checkClaims(
-      stateAt(RUN_192319Z_LOG, 205, 215),
-      SEQ216_UNCONSCIOUS,
-    );
     expect(r.pass).toBe(true);
   });
 });

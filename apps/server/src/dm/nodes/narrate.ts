@@ -1,4 +1,4 @@
-import { type ClaimState, checkClaims } from "../claims.js";
+import type { PlanFact } from "../fact-sheet.js";
 import {
   buildFactSheet,
   clipProse,
@@ -15,6 +15,7 @@ import {
   nothingToNarrate,
 } from "../facts.js";
 import { openFollowUps, priorActionIds } from "../follow-ups.js";
+import { type CheckIssue, checkNarration } from "../narration-check.js";
 import { hasCountClaim } from "../narration-words.js";
 import { callText } from "../pipeline/call.js";
 import type {
@@ -26,10 +27,9 @@ import type {
 import { rosterOf } from "../prompts/common.js";
 import { buildNarratePrompt, PROMPT_VERSION } from "../prompts/narrate.js";
 import { PURPOSE_OF } from "../purposes.js";
-import { playerFacingSeed } from "../seed/views.js";
+import { dmOnlySeedText, playerFacingSeed } from "../seed/views.js";
 import type { ActorSnapshot } from "../snapshot/index.js";
 import type { AssembleOutput } from "./assemble.js";
-import type { AuditIssue } from "./audit.js";
 
 /**
  * The narrate node (contracts/nodes.md "narrate"). It receives resolved
@@ -60,31 +60,40 @@ export interface NarrateOutput {
   slots: NarrationSlots;
   /**
    * Refused ruling and `goalNote` texts (spec 051, OQ-2). Always present;
-   * empty when nothing was withheld. The audit node records them as advisory.
+   * empty when nothing was withheld. The check node records them.
    */
-  withheld: AuditIssue[];
+  withheld: CheckIssue[];
+  /** Set when the narrate call errored; the slots are then empty and the reply is rows only. */
+  narrateError: string | null;
+}
+
+/** The state a withheld-text check runs against (spec 103 plan D3). */
+export interface WithholdState {
+  snapshot: ActorSnapshot;
+  /** `dmOnlySeedText(seed)`, lower-cased. */
+  dmOnlyText: readonly string[];
 }
 
 /**
- * Checks the ruling texts and the `goalNote` once against S1 and the diff.
+ * Checks the ruling texts and the `goalNote` once against S1 and the DM-only seed text.
  * A refused ruling leaves the facts; a refused `goalNote` becomes "".
  */
 export function withholdRefusedInputs(
   facts: NarrationFacts,
-  state: ClaimState,
-): { facts: NarrationFacts; withheld: AuditIssue[] } {
-  const withheld: AuditIssue[] = [];
+  state: WithholdState,
+): { facts: NarrationFacts; withheld: CheckIssue[] } {
+  const withheld: CheckIssue[] = [];
   const refuse = (label: string, text: string): boolean => {
-    // An input text need not name this turn's death or drop, so omission
-    // claims do not apply to it; the narration itself still owes them.
-    const issues = checkClaims(state, text).issues.filter(
-      (c) => c.claim !== "omission",
-    );
+    const issues = checkNarration({
+      slots: { restate: "", describe: text, ask: "" },
+      rows: [],
+      hasRoll: true,
+      snapshot: state.snapshot,
+      dmOnlyText: state.dmOnlyText,
+      unmetSuccess: [],
+    }).filter((c) => c.kind === "life-state" || c.kind === "dm-only-text");
     for (const c of issues) {
-      withheld.push({
-        kind: "ledger-mismatch",
-        detail: `Actor state: withheld ${label}: ${c.detail}`,
-      });
+      withheld.push({ ...c, detail: `withheld ${label}: ${c.detail}` });
     }
     return issues.length > 0;
   };
@@ -107,8 +116,12 @@ export function withholdRefusedInputs(
   const countNote = !refusedNote && hasCountClaim(facts.director.goalNote);
   if (countNote) {
     withheld.push({
-      kind: "doctrine",
-      detail: `Withheld goalNote: it states a count ("${facts.director.goalNote.slice(0, 60)}").`,
+      check: "leak",
+      kind: "dm-only-text",
+      actorIds: [],
+      matched: facts.director.goalNote.slice(0, 60),
+      sentence: facts.director.goalNote,
+      detail: "withheld goalNote: it states a count.",
     });
   }
   // TASK-0237: the note is written before the dice; a failed check may have falsified it.
@@ -121,9 +134,13 @@ export function withholdRefusedInputs(
     );
   if (failedCheck) {
     withheld.push({
-      kind: "doctrine",
+      check: "leak",
+      kind: "unmet-success",
+      actorIds: [],
+      matched: facts.director.goalNote.slice(0, 60),
+      sentence: facts.director.goalNote,
       detail:
-        "Withheld goalNote: a check this beat failed, and the note was written before the dice.",
+        "withheld goalNote: a check this beat failed, and the note was written before the dice.",
     });
   }
   const goalNote =
@@ -148,7 +165,7 @@ export function withholdRefusedInputs(
   };
 }
 
-/** The slots as one prose string, for the audit's checks. */
+/** The slots as one prose string. */
 export function proseOf(slots: NarrationSlots): string {
   return [slots.restate, slots.describe, slots.ask]
     .filter(Boolean)
@@ -164,14 +181,13 @@ export type AttemptResult =
     }
   | { ok: false; error: NodeError; calls: ModelCallRecord[] };
 
-/** One `dm.narrate` call; regeneration passes the prior text and issues. */
+/** One `dm.narrate` call. */
 export async function narrateAttempt(
   ctx: TurnContext,
   assembled: AssembleOutput,
   facts: NarrationFacts,
   snapshot: ActorSnapshot,
   sheet: FactSheet,
-  prior: { prose: string; issues: AuditIssue[] } | null,
 ): Promise<AttemptResult> {
   const prompt = buildNarratePrompt({
     seed: playerFacingSeed(ctx.seed),
@@ -180,7 +196,6 @@ export async function narrateAttempt(
     snapshot,
     facts,
     sheet,
-    prior,
   });
   const result = await callText(ctx.deps, {
     purpose: PURPOSE_OF.narrate,
@@ -272,8 +287,14 @@ export const narrate: Node<"narrate"> = async (ctx) => {
   });
   const { facts, withheld } = withholdRefusedInputs(built, {
     snapshot: resolve.snapshot,
-    diff: resolve.diff,
+    dmOnlyText: dmOnlySeedText(ctx.seed).map((t) => t.toLowerCase()),
   });
+  // Spec 103 OQ-8: the planner's facts ride the beat's `intent.recorded` rows, in seq order.
+  // ponytail: reads resolve's appended rows only; add a log read for rows landed before this job.
+  const planFacts: PlanFact[] = resolve.appendedRows
+    .filter((r) => r.type === "intent.recorded")
+    .sort((x, y) => x.seq - y.seq)
+    .flatMap((r) => (r.payload as { facts?: PlanFact[] }).facts ?? []);
   const actionIds = facts.actions.map((a) => a.actionId);
   const nameOf = (id: string | null): string => {
     if (id === null) return "The scene";
@@ -289,6 +310,8 @@ export const narrate: Node<"narrate"> = async (ctx) => {
     projections,
     nameOf,
     submissions: resolve.submissions,
+    planFacts,
+    ruleTitle: (id) => ctx.deps.srd.getById("rule", id)?.title,
   });
 
   if (nothingToNarrate(facts)) {
@@ -307,6 +330,7 @@ export const narrate: Node<"narrate"> = async (ctx) => {
         sheet,
         slots: { restate: "", describe: "", ask: "" },
         withheld,
+        narrateError: null,
       },
     };
   }
@@ -317,14 +341,35 @@ export const narrate: Node<"narrate"> = async (ctx) => {
     facts,
     resolve.snapshot,
     sheet,
-    null,
   );
   if (!result.ok) {
+    if (result.error.kind === "aborted" || result.error.kind === "fenced") {
+      return {
+        ok: false,
+        node: "narrate",
+        error: result.error,
+        calls: result.calls,
+      };
+    }
+    // Spec 103: a narrate error never fails the turn; restate, rows and State ship.
+    const slots = parseSlots("", sheet);
     return {
-      ok: false,
+      ok: true,
       node: "narrate",
-      error: result.error,
       calls: result.calls,
+      output: {
+        prose: proseOf(slots),
+        diceLines: sheet.rows.map((r) => r.text),
+        text: composeReply(slots, sheet),
+        actionIds,
+        attempt: 1,
+        skipped: false,
+        facts,
+        sheet,
+        slots,
+        withheld,
+        narrateError: result.error.kind,
+      },
     };
   }
   return {
@@ -342,6 +387,7 @@ export const narrate: Node<"narrate"> = async (ctx) => {
       sheet,
       slots: result.slots,
       withheld,
+      narrateError: null,
     },
   };
 };

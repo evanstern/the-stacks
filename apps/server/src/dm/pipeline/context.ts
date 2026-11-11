@@ -7,7 +7,7 @@ import type { RetrievalResult } from "../../library/retrieve.js";
 import type { TurnCheckpoint, TurnTrigger } from "../jobs.js";
 import type { AdjudicateOutput } from "../nodes/adjudicate.js";
 import type { AssembleOutput } from "../nodes/assemble.js";
-import type { AuditOutput } from "../nodes/audit.js";
+import type { CheckOutput } from "../nodes/check.js";
 import type { DirectorNodeOutput } from "../nodes/director.js";
 import type { NarrateOutput } from "../nodes/narrate.js";
 import type { ResolveOutput } from "../nodes/resolve.js";
@@ -31,7 +31,7 @@ export const NODE_NAMES = [
   "adjudicate",
   "resolve",
   "narrate",
-  "audit",
+  "check",
 ] as const;
 export type NodeName = (typeof NODE_NAMES)[number];
 
@@ -101,7 +101,7 @@ export interface NodeOutputs {
   adjudicate: AdjudicateOutput;
   resolve: ResolveOutput;
   narrate: NarrateOutput;
-  audit: AuditOutput;
+  check: CheckOutput;
 }
 
 export interface TurnContext {

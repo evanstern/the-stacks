@@ -37,7 +37,7 @@ clearDmJobsBeforeEach();
 
 describe.skipIf(!reachable)("DM worker (database)", () => {
   it("a committed action enqueues one turn; a second commit does not add another", async () => {
-    const s = script("audit-regenerate.json");
+    const s = script("shutter-check.json");
     const w = await createWorld({ dice: s.dice, calls: s.calls });
     const { nudges } = workerFor(w);
     await startScene(w);

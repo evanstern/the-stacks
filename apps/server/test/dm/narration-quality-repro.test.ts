@@ -10,13 +10,8 @@ import {
   type NarrationFacts,
   renderDiceLines,
 } from "../../src/dm/facts.js";
-import { factualSummary } from "../../src/dm/fallback.js";
 import { assemble } from "../../src/dm/nodes/assemble.js";
-import {
-  audit,
-  deterministicChecks,
-  MAX_NARRATION_ATTEMPTS,
-} from "../../src/dm/nodes/audit.js";
+import { check } from "../../src/dm/nodes/check.js";
 import type { DirectorNodeOutput } from "../../src/dm/nodes/director.js";
 import { narrate } from "../../src/dm/nodes/narrate.js";
 import type { ResolveOutput } from "../../src/dm/nodes/resolve.js";
@@ -158,37 +153,6 @@ describe("run-5 fixture", () => {
   });
 });
 
-describe("F23: the fallback states the ledger in the fiction (T012, flipped)", () => {
-  it("seq 88 says the fight stops and drops 'nothing changes'", () => {
-    const facts = noEffectFacts(
-      87,
-      "turn",
-      KESTREL,
-      [],
-      fixture.transcript.filter((r) => r.seq >= 85 && r.seq <= 87),
-    );
-    expect(facts.modeChange).toEqual({ from: "turn", to: "free" });
-    expect(factualSummary(facts)).toBe(
-      "Kestrel goes ahead with it. The fighting stops.",
-    );
-  });
-
-  it("seq 53 states the fight, the joiners and the first mover, and asks", () => {
-    const facts = noEffectFacts(
-      52,
-      "free",
-      TAMSIN_PT4,
-      [{ actionId: "pt-4", question: "Which way do you press on?" }],
-      fixture.transcript.filter((r) => r.seq >= 39 && r.seq <= 52),
-    );
-    const out = factualSummary(facts);
-    expect(out).toBe(
-      "A fight breaks out. Snag, Goblin with a pot-helm, Goblin lookout and Goblin by the fire join the fight. Snag moves first. Which way do you press on?",
-    );
-    expect(out).not.toContain("clearer description");
-  });
-});
-
 describe("leaks: DM-only seed facts no longer reach player-facing prompts (T013)", () => {
   const assembled = {
     transcriptTail: [],
@@ -203,7 +167,6 @@ describe("leaks: DM-only seed facts no longer reach player-facing prompts (T013)
       assembled,
       snapshot: buildSnapshot(projectedThrough(87), SEED),
       facts,
-      prior: null,
     });
     expect(prompt.system).not.toMatch(/river[- ]things?/i);
   });
@@ -233,7 +196,6 @@ describe("leaks: DM-only seed facts no longer reach player-facing prompts (T013)
       assembled,
       snapshot: buildSnapshot(projectedThrough(87), SEED),
       facts,
-      prior: null,
     });
     expect(prompt.user).toContain("make the big-feet pay");
     expect(prompt.user).not.toMatch(/river[- ]things?/i);
@@ -349,7 +311,6 @@ describe("A3 and A4: clarify relay and craft judgments (T015)", () => {
       assembled,
       snapshot: buildSnapshot(projectedThrough(87), SEED),
       facts,
-      prior: null,
     });
     expect(prompt.system).toContain(
       "describe the moment and stop. Code asks the question.",
@@ -362,49 +323,18 @@ describe("A3 and A4: clarify relay and craft judgments (T015)", () => {
     );
   });
 
-  it("A3 (flipped by spec 073): prose ending with the clarify question passes the option-menu check", () => {
-    const facts = noEffectFacts(194, "free", TAMSIN_PT4, [
-      { actionId: "pt-4", question: CLARIFY_QUESTION },
-    ]);
-    const r = deterministicChecks(
-      facts,
-      {
-        prose: `Snag's spear stays level and the reeds hold their breath. ${CLARIFY_QUESTION}`,
-        diceLines: renderDiceLines(facts),
-      },
-      EMPTY_RESOLVE_SNAPSHOT,
-    );
-    expect(r.pass).toBe(true);
-  });
-
-  it("A4 (flipped): a doctrine-only dm.audit failure ships the narration on attempt 1", async () => {
-    expect(MAX_NARRATION_ATTEMPTS).toBe(3);
+  it("A4 (flipped): atmosphere-only prose ships with no correction (spec 103: no craft audit)", async () => {
     type Call = { purpose: string; respond: unknown };
     const text = (value: string): Call => ({
       purpose: "dm.narrate",
       respond: { type: "text", value },
     });
-    const doctrineOnly: Call = {
-      purpose: "dm.audit",
-      respond: {
-        type: "json",
-        value: {
-          verdict: "fail",
-          issues: [
-            {
-              kind: "doctrine",
-              detail: "Ends on atmosphere rather than a demand.",
-            },
-          ],
-        },
-      },
-    };
     const scripted = createScriptedDm(
       loadDmScript({
         v: 1,
-        name: "audit-doctrine-only",
+        name: "check-atmosphere",
         dice: [],
-        calls: [text(CLEAN), doctrineOnly],
+        calls: [text(CLEAN)],
       }),
     );
     const gateway = createGateway({
@@ -428,15 +358,13 @@ describe("A3 and A4: clarify relay and craft judgments (T015)", () => {
     };
     const narrated = await narrate(ctx0);
     if (!narrated.ok) throw new Error("narrate failed");
-    const out = await audit({
+    const out = await check({
       ...ctx0,
       results: { ...ctx0.results, narrate: narrated.output },
     });
-    if (!out.ok) throw new Error("audit failed");
-    expect(out.output.record.attempts).toHaveLength(1);
-    expect(out.output.record.final).toBe("passed");
-    expect(out.output.record.flagged).toBe(false);
-    expect(out.output.shipped?.fallback).toBe(false);
+    if (!out.ok) throw new Error("check failed");
+    expect(out.output.record.corrected).toBe(false);
+    expect(out.output.shipped?.corrections).toEqual([]);
     expect(out.output.shipped?.prose).toContain(CLEAN);
   });
 });

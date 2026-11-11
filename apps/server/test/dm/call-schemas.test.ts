@@ -4,7 +4,6 @@ import { describe, expect, it } from "vitest";
 import { z } from "zod";
 import { ChronicleOutput } from "../../src/dm/chronicle.js";
 import { CompanionOutput } from "../../src/dm/companion.js";
-import { AuditModelOutput } from "../../src/dm/nodes/audit.js";
 import {
   AdjudicateModelOutput,
   DirectorOutput,
@@ -22,7 +21,6 @@ describe("DM schemas convert to JSON Schema", () => {
     InterpretOutput,
     DirectorOutput,
     AdjudicateModelOutput,
-    AuditModelOutput,
     ChronicleOutput,
     CompanionOutput,
     ReactOutput,

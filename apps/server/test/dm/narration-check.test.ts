@@ -6,6 +6,7 @@ import {
 } from "../../src/dm/narration-check.js";
 import { buildSnapshot } from "../../src/dm/snapshot/index.js";
 import type { LifeState, ScenePresence } from "../../src/dm/snapshot/types.js";
+import { M2_LOG, narrationAt, stateAt } from "./claim-fixtures.js";
 import { greyhollowFight } from "./snapshot-fixtures.js";
 
 /** Spec 103 Phase 1: leak and contradiction kinds. Cases ported from claims.test.ts and audit.test.ts. */
@@ -148,5 +149,33 @@ describe("dropSentences", () => {
   it("removes only the listed sentences", () => {
     expect(dropSentences("One. Two 2. Three.", ["Two 2."])).toBe("One. Three.");
     expect(dropSentences("Only 1.", ["Only 1."])).toBe("");
+  });
+});
+
+describe("recorded evidence (ported from claim-evidence.test.ts)", () => {
+  const at = (
+    text: string,
+    s: number,
+    e: number,
+    extra: Partial<CheckInput> = {},
+  ) =>
+    checkNarration({
+      slots: { restate: "", describe: text, ask: "" },
+      rows: [],
+      hasRoll: true,
+      snapshot: stateAt(M2_LOG, s, e).snapshot,
+      dmOnlyText: [],
+      unmetSuccess: [],
+      ...extra,
+    }).map((i) => i.kind);
+
+  it("shipped M2 seq 225 and seq 220 prose raise no life-state or leak hit", () => {
+    expect(at(narrationAt(M2_LOG, 225), 220, 224)).not.toContain("life-state");
+    expect(at(narrationAt(M2_LOG, 220), 213, 219)).not.toContain("life-state");
+  });
+
+  it("a dead actor called dead passes; a live one called dead is flagged", () => {
+    expect(at("Goblin lookout is dead.", 220, 224)).toEqual([]);
+    expect(at("Snag is dead.", 220, 224)).toEqual(["life-state"]);
   });
 });

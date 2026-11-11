@@ -21,16 +21,16 @@ Tests use the fake gateway only.
 
 ## Phase 3: Turn pipeline swap and deletions
 
-- [ ] T010 Write `apps/server/src/dm/nodes/check.ts` per plan D2. Rename node `audit` to `check` in `pipeline/context.ts`, `pipeline/runner.ts` and `worker.ts` `DEFAULT_NODES`.
-- [ ] T011 In `nodes/narrate.ts`: remove `prior` from `narrateAttempt`; return empty slots on a call error; collect `planFacts` from the beat's `intent.recorded` rows (spec OQ-8); rewrite `withholdRefusedInputs` on `checkNarration` (plan D3).
-- [ ] T012 In `prompts/narrate.ts`: remove the regenerate section; render `why` rows; bump to `dm.narrate-v24`.
-- [ ] T013 In `nodes/resolve.ts`: `submitNarration` takes `CheckOutput` and submits each correction as an AI-DM `talk` proposal. Remove the `audit-flag` journal entry.
-- [ ] T014 In `jobs.ts`: checkpoint `narration.check: CheckRecord`; move `AuditRecord` there as `LegacyAuditRecord` for old rows.
-- [ ] T015 In `talk-turn.ts` and `prompts/react.ts`: remove the second react call and the `prior` section; run `checkNarration`; bump to `dm.react-v3`.
+- [x] T010 Write `apps/server/src/dm/nodes/check.ts` per plan D2. Rename node `audit` to `check` in `pipeline/context.ts`, `pipeline/runner.ts` and `worker.ts` `DEFAULT_NODES`.
+- [x] T011 In `nodes/narrate.ts`: remove `prior` from `narrateAttempt`; return empty slots on a call error; collect `planFacts` from the beat's `intent.recorded` rows (spec OQ-8); rewrite `withholdRefusedInputs` on `checkNarration` (plan D3).
+- [x] T012 In `prompts/narrate.ts`: remove the regenerate section; render `why` rows; bump to `dm.narrate-v24`.
+- [x] T013 In `nodes/resolve.ts`: `submitNarration` takes `CheckOutput` and submits each correction as an AI-DM `talk` proposal. Remove the `audit-flag` journal entry.
+- [x] T014 In `jobs.ts`: checkpoint `narration.check: CheckRecord`; move `AuditRecord` there as `LegacyAuditRecord` for old rows.
+- [x] T015 In `talk-turn.ts` and `prompts/react.ts`: remove the second react call and the `prior` section; run `checkNarration`; bump to `dm.react-v3`.
 - [ ] T016 In `gates/plan-gate.ts`: delete the spec 058 reason check and `REASON_CONTRADICTS_STATE` (spec OQ-1). Delete its tests.
-- [ ] T017 Remove `dm.audit` from `purposes.ts` and any AI config purpose list (`git grep dm.audit`).
+- [x] T017 Remove `dm.audit` from `purposes.ts` and any AI config purpose list (`git grep dm.audit`).
 - [ ] T018 Delete `dm/claims.ts`, `dm/fallback.ts`, `dm/nodes/audit.ts`, `dm/prompts/audit.ts` and the test files plan.md lists. `git grep -E "claims\.js|fallback\.js|nodes/audit|prompts/audit"` returns nothing.
-- [ ] T019 Write `apps/server/test/dm/check-node.test.ts`: one `dm.narrate` call and no `dm.audit` call per turn; a leak drops the sentence and appends a `dm` correction; a life-state contradiction ships and appends a public correction; a narrate error ships restate, rows and State; the turn job completes in every case. Fix the remaining tests that imported deleted modules.
+- [x] T019 Write `apps/server/test/dm/check-node.test.ts`: one `dm.narrate` call and no `dm.audit` call per turn; a leak drops the sentence and appends a `dm` correction; a life-state contradiction ships and appends a public correction; a narrate error ships restate, rows and State; the turn job completes in every case. Fix the remaining tests that imported deleted modules.
 
 ## Phase 4: Job-record consumers
 

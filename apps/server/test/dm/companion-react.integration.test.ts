@@ -172,7 +172,6 @@ const turnCalls = (actionId: string) => [
       value: "Odo lowers his voice and tells the party to wait and listen.",
     },
   },
-  jsonCall("dm.audit", { verdict: "pass", issues: [] }),
   jsonCall("dm.chronicle", { entries: [] }),
 ];
 

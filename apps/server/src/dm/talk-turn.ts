@@ -4,10 +4,9 @@ import type {
   StoredEvent,
   TranscriptEntry,
 } from "@the-stacks/session-model";
-import type { NarrationFacts } from "./facts.js";
 import { encounterRan, encounterToStart } from "./gates/plan-gate.js";
-import type { AuditIssue } from "./nodes/audit.js";
-import { deterministicChecks } from "./nodes/audit.js";
+import { checkNarration, dropSentences } from "./narration-check.js";
+import { type CheckRecord, correctionsFor } from "./nodes/check.js";
 import type { DirectorNodeOutput } from "./nodes/director.js";
 import type { ResolveOutput } from "./nodes/resolve.js";
 import {
@@ -39,8 +38,9 @@ import {
 
 /**
  * The talk path (specs/065-talk-triggers plan D3): a `talk` turn with no
- * committed beat. Assemble ran; this reads the posts, asks `react` once (twice
- * after a code refusal), checks the text in code and ships one narration row.
+ * committed beat. Assemble ran; this reads the posts, asks `react` once, checks the
+ * text in code (spec 103: a leak drops the sentence, a contradiction ships with a
+ * correction) and ships one narration row.
  * An `escalate` reaction runs resolve's opening move (plan D5) when legal and
  * ships as `scene` otherwise.
  */
@@ -105,34 +105,6 @@ function mergeTriggers(all: CodeTrigger[][]): CodeTrigger[] {
     if (!cur || RANK[t.kind] > RANK[cur.kind]) best.set(t.actorId, t);
   }
   return [...best.values()];
-}
-
-/** Facts for the code checks: a talk turn has no actions, rolls or events. */
-function talkFacts(ctx: TurnContext, p: SessionProjections): NarrationFacts {
-  return {
-    trigger: "talk",
-    actions: [],
-    npcTurn: null,
-    director: {
-      pacing: { tension: "low", spotlight: null, beatId: null },
-      goalNote: "",
-      sceneEnded: false,
-    },
-    modeChange: null,
-    presentNpcs: [],
-    rulings: [],
-    clarify: [],
-    party: p.party.map((m) => ({
-      characterId: m.characterId,
-      name: m.name,
-      controller: m.controller.kind === "player" ? "human" : "ai-companion",
-    })),
-    events: [],
-    setting: {
-      locationName: ctx.seed.location.name,
-      openingFraming: ctx.seed.opening.framing,
-    },
-  };
 }
 
 export async function runTalkTurn(
@@ -202,7 +174,7 @@ export async function runTalkTurn(
   const secrets = dmOnlySeedText(ctx.seed).map((s) => s.toLowerCase());
   const view = playerFacingSeed(ctx.seed);
 
-  const ask = async (prior: { text: string; issues: AuditIssue[] } | null) => {
+  const ask = async () => {
     const prompt = buildReactPrompt({
       seed: view,
       roster: rosterOf(p.party),
@@ -217,7 +189,6 @@ export async function runTalkTurn(
             .map((e) => e.id)
         : [],
       reachesCap,
-      prior,
     });
     return callJson(ctx.deps, {
       purpose: PURPOSE_OF.narrate,
@@ -228,36 +199,10 @@ export async function runTalkTurn(
       signal: ctx.signal,
     });
   };
-  const refusals = (react: ReactOutput): AuditIssue[] => {
-    if (react.outcome === "none") return [];
-    const issues: AuditIssue[] = deterministicChecks(
-      talkFacts(ctx, p),
-      { prose: react.text, diceLines: [] },
-      { snapshot: assembled.snapshot, diff: null },
-    ).issues;
-    const lower = react.text.toLowerCase();
-    for (const s of secrets) {
-      if (lower.includes(s))
-        issues.push({
-          kind: "other",
-          detail: "The text states something outside the player view.",
-        });
-    }
-    if (
-      react.outcome === "reply" &&
-      !presentNpcIds.includes(react.speaker ?? "")
-    )
-      issues.push({
-        kind: "doctrine",
-        detail: "The speaker is not a present character.",
-      });
-    return issues;
-  };
-
   // Step 3: one react call; a reclaim reuses the checkpointed output.
   let react = ctx.checkpoint.react ?? null;
   if (!react) {
-    const first = await ask(null);
+    const first = await ask();
     calls.push(...first.calls);
     if (!first.ok)
       return { status: "failed", node: "narrate", error: first.error, calls };
@@ -266,20 +211,46 @@ export async function runTalkTurn(
       return fenced();
   }
 
-  // Step 5: code checks; one regenerate, then drop.
-  let issues = refusals(react);
-  if (issues.length > 0) {
-    const second = await ask({ text: react.text, issues });
-    calls.push(...second.calls);
-    if (!second.ok)
-      return { status: "failed", node: "narrate", error: second.error, calls };
-    react = second.value;
-    if (!(await ctx.deps.saveCheckpoint({ ...ctx.checkpoint, react })))
-      return fenced();
-    issues = refusals(react);
-    if (issues.length > 0) {
-      result.reason =
-        `refused twice: ${issues.map((i) => i.detail).join(" ")}`.slice(0, 300);
+  // Step 5: code checks (spec 103). No second call: a leak drops the sentence, a contradiction ships.
+  let corrections: ReturnType<typeof correctionsFor> = [];
+  let shownText = react.text;
+  let record: CheckRecord = {
+    leak: [],
+    contradiction: [],
+    corrected: false,
+    shippedProseSha256: sha(react.text),
+  };
+  if (react.outcome !== "none") {
+    const found = [
+      ...checkNarration({
+        slots: { restate: "", describe: react.text, ask: "" },
+        rows: [],
+        hasRoll: false,
+        snapshot: assembled.snapshot,
+        dmOnlyText: secrets,
+        unmetSuccess: [],
+      }),
+    ];
+    const drop = found
+      .filter((i) => i.check === "leak" || i.kind === "digit")
+      .map((i) => i.sentence);
+    shownText = dropSentences(react.text, drop);
+    corrections = correctionsFor(found);
+    record = {
+      leak: found.filter((i) => i.check === "leak"),
+      contradiction: found.filter((i) => i.check === "contradiction"),
+      corrected: drop.length > 0 || corrections.length > 0,
+      shippedProseSha256: sha(shownText),
+    };
+    if (!shownText.trim()) {
+      result.reason = "every sentence was dropped by the check (leak)";
+      return done(false, []);
+    }
+    if (
+      react.outcome === "reply" &&
+      !presentNpcIds.includes(react.speaker ?? "")
+    ) {
+      result.reason = "the speaker is not a present character";
       return done(false, []);
     }
   }
@@ -335,7 +306,7 @@ export async function runTalkTurn(
   }
 
   // Spec 098 OQ-4: an escalation that started a fight names whose move it is. A reply has no State line.
-  let text = react.text;
+  let text = shownText;
   if (result.outcome === "escalate") {
     const after = await ctx.deps.loadProjections(ctx.job.sessionId);
     const active = after.encounter?.activeCombatantId;
@@ -350,18 +321,12 @@ export async function runTalkTurn(
   const shipped = await submitNarration(
     ctx,
     {
-      record: {
-        attempts: [],
-        final: "passed",
-        flagged: false,
-        shippedProseSha256: sha(react.text),
-      },
+      record,
       shipped: {
-        prose: react.text,
+        prose: shownText,
         text,
         actionIds: [],
-        fallback: false,
-        flagBody: null,
+        corrections,
       },
     },
     checkpoint,

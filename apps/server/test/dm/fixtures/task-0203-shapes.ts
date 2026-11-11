@@ -6,10 +6,6 @@ import {
 } from "../../../src/dm/chronicle.js";
 import { CompanionOutput } from "../../../src/dm/companion.js";
 import {
-  AuditModelOutput,
-  normalizeAudit,
-} from "../../../src/dm/nodes/audit.js";
-import {
   DirectorOutput,
   InterpretOutput,
 } from "../../../src/dm/nodes/schemas.js";
@@ -42,15 +38,6 @@ export const wrap = (shape: Pick<Shape, "wrapper">, o: unknown): string => {
   return json;
 };
 
-export const auditIssue = (over: Record<string, unknown> = {}) => ({
-  kind: "doctrine",
-  detail: "ok",
-  ...over,
-});
-export const audit = (issue: Record<string, unknown>) => ({
-  verdict: "fail",
-  issues: [issue],
-});
 export const chronicle = (ids: unknown[]) => ({
   entries: [
     { title: "t", body: "b", sourceActionIds: ids, visibility: "public" },
@@ -106,50 +93,8 @@ const { comment: _c, ...companionNoComment } = companion;
 const { goalNote: _g, ...directorRest } = director;
 const { attack: _a, ...attackNoAttack } = attack;
 const stakes = { success: "s", cost: "c", failure: "f" };
-const longDetail = "word ".repeat(90).trim();
 
 export const SHAPES: Shape[] = [
-  {
-    id: "S1",
-    purpose: "dm.audit",
-    schema: AuditModelOutput,
-    normalize: normalizeAudit,
-    wrapper: "fence",
-    reply: audit(auditIssue({ kind: "turn-mode", detail: "Rook acts." })),
-    expect: "ok",
-    check: (v) =>
-      expect((v as { issues: unknown[] }).issues[0]).toMatchObject({
-        kind: "other",
-        detail: "[turn-mode] Rook acts.",
-      }),
-  },
-  {
-    id: "S2",
-    purpose: "dm.audit",
-    schema: AuditModelOutput,
-    normalize: normalizeAudit,
-    wrapper: "think",
-    reply: audit(auditIssue({ detail: longDetail })),
-    expect: "ok",
-    check: (v) => {
-      const d = (v as { issues: { detail: string }[] }).issues[0]?.detail ?? "";
-      expect(d.length).toBeLessThanOrEqual(300);
-      expect(d.endsWith("word")).toBe(true);
-    },
-  },
-  {
-    id: "S3",
-    purpose: "dm.audit",
-    schema: AuditModelOutput,
-    normalize: normalizeAudit,
-    wrapper: "fence",
-    reply: audit(auditIssue({ actor: null })),
-    expect: "ok",
-    check: (v) =>
-      expect("actor" in ((v as { issues: object[] }).issues[0] ?? {})).toBe(
-        false,
-      ),
-  },
   {
     id: "S4",
     purpose: "dm.chronicle",

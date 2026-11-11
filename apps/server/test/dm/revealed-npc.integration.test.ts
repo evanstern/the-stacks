@@ -58,7 +58,7 @@ async function run(variant: Variant) {
   const start = script("scene-start.json");
   const calls = structuredClone(s.calls);
   const director2 = (
-    calls[4] as { respond: { value: Record<string, unknown> } }
+    calls[3] as { respond: { value: Record<string, unknown> } }
   ).respond.value;
   let dice = s.dice;
   if (variant === "control") delete director2.arrivals;

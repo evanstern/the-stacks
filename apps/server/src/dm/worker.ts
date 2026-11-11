@@ -35,7 +35,7 @@ import {
 import { insertModelCall } from "./model-calls.js";
 import { adjudicate } from "./nodes/adjudicate.js";
 import { assemble } from "./nodes/assemble.js";
-import { audit } from "./nodes/audit.js";
+import { check } from "./nodes/check.js";
 import { director } from "./nodes/director.js";
 import { interpret } from "./nodes/interpret.js";
 import { narrate } from "./nodes/narrate.js";
@@ -67,7 +67,7 @@ export const DEFAULT_NODES: Nodes = {
   adjudicate,
   resolve,
   narrate,
-  audit,
+  check,
 };
 
 export interface DmWorkerDeps {
@@ -234,7 +234,7 @@ export function createDmWorker(deps: DmWorkerDeps): DmWorker {
       const failed: TurnFailureResult = {
         checkpoint: latest,
         outcome: { status: "failed" },
-        audit: null,
+        check: null,
         calls: [],
         failure: presenceFailure,
         presenceSeq: null,
@@ -256,7 +256,7 @@ export function createDmWorker(deps: DmWorkerDeps): DmWorker {
         result: {
           checkpoint: latest,
           outcome: { status: "empty-beat" },
-          audit: null,
+          check: null,
           calls: [],
           presenceSeq,
         },
@@ -267,7 +267,7 @@ export function createDmWorker(deps: DmWorkerDeps): DmWorker {
       const failed: TurnFailureResult = {
         checkpoint: latest,
         outcome: { status: "failed" },
-        audit: null,
+        check: null,
         calls: [],
         failure: {
           node: "assemble",
@@ -371,7 +371,7 @@ export function createDmWorker(deps: DmWorkerDeps): DmWorker {
       const failed: TurnFailureResult = {
         checkpoint: latest,
         outcome: { status: "failed" },
-        audit: null,
+        check: null,
         calls: outcome.calls,
         failure: {
           node: outcome.node,
@@ -398,7 +398,7 @@ export function createDmWorker(deps: DmWorkerDeps): DmWorker {
             status:
               outcome.talk.outcome === "none" ? "empty-beat" : "completed",
           },
-          audit: null,
+          check: null,
           calls: outcome.calls,
           presenceSeq,
           talk: outcome.talk,
@@ -441,13 +441,13 @@ export function createDmWorker(deps: DmWorkerDeps): DmWorker {
       outcome.status === "completed" || outcome.status === "held"
         ? outcome.calls
         : [];
-    const auditRecord =
-      outcome.status === "completed" ? outcome.results.audit.record : null;
+    const checkRecord =
+      outcome.status === "completed" ? outcome.results.check.record : null;
     const finished = await finishJob(db, job, {
       result: {
         checkpoint: latest,
         outcome: { status: outcome.status },
-        audit: auditRecord,
+        check: checkRecord,
         calls,
         presenceSeq,
       },

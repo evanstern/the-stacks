@@ -6,8 +6,8 @@ import {
   StoredEventSchema,
 } from "@the-stacks/session-model";
 import type { DbClient } from "../auth/session.js";
+import type { LegacyAuditRecord as AuditRecord } from "../dm/jobs.js";
 import { type DmJobRow, listDmJobs, type TurnTrigger } from "../dm/jobs.js";
-import type { AuditRecord } from "../dm/nodes/audit.js";
 import { readFrom } from "../events/log.js";
 import { toStoredEvent } from "../session/events.js";
 import { loadProjections } from "../session/projections.js";

@@ -138,7 +138,7 @@ describe.skipIf(!reachable)(
       expect((job?.result as TurnResult | undefined)?.outcome.status).toBe(
         "completed",
       );
-      expect(purposes(job)).toEqual(["dm.director", "dm.narrate", "dm.audit"]);
+      expect(purposes(job)).toEqual(["dm.director", "dm.narrate"]);
 
       // One roll proposal ever, and it is the approved one.
       const allRolls = await mechanics(w, "check.roll");
@@ -167,7 +167,6 @@ describe.skipIf(!reachable)(
         "dm.director": 0,
         "dm.interpret": 0,
         "dm.narrate": 0,
-        "dm.audit": 0,
       });
     });
 
@@ -224,11 +223,7 @@ describe.skipIf(!reachable)(
         (j) => (j.input as { trigger?: string }).trigger === "approval",
       );
       expect(jobs).toHaveLength(2);
-      expect(purposes(jobs[1])).toEqual([
-        "dm.director",
-        "dm.narrate",
-        "dm.audit",
-      ]);
+      expect(purposes(jobs[1])).toEqual(["dm.director", "dm.narrate"]);
       expect(await mechanics(w, "check.roll")).toHaveLength(1);
 
       const p = await w.projections();

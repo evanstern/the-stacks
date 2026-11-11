@@ -15,6 +15,7 @@ import {
   createWorld,
   db,
   loudSkip,
+  payloadOf,
   player,
   reachable,
   readRows,
@@ -130,7 +131,7 @@ describe.skipIf(!reachable)("talk turn (database)", () => {
       expect.objectContaining({ kind: "addressed", actorId: "wenna" }),
     );
     expect(result.calls.map((c) => [c.purpose, c.promptVersion])).toEqual([
-      [PURPOSE_OF.narrate, "dm.react-v2"],
+      [PURPOSE_OF.narrate, "dm.react-v3"],
     ]);
   });
 
@@ -153,25 +154,30 @@ describe.skipIf(!reachable)("talk turn (database)", () => {
     });
   });
 
-  it("a DM-only leak is refused, regenerated once, then dropped", async () => {
+  it("a DM-only leak drops its sentence, ships the rest and appends a dm correction (spec 103)", async () => {
     const leak =
       "Wenna leans in. Four goblins took the clapper into the reeds.";
-    const { w, worker } = await table([
-      reactCall({ text: leak }),
-      reactCall({ text: leak }),
-    ]);
+    const { w, worker } = await table([reactCall({ text: leak })]);
     const before = (await readRows(w)).length;
     await say(w, "Wenna, what do you know?");
     await drainAll(worker);
-    expect(
-      (await readRows(w)).slice(before).filter((r) => r.type === "narration"),
-    ).toEqual([]);
+    const after = (await readRows(w)).slice(before);
+    const narrations = after.filter((r) => r.type === "narration");
+    expect(narrations).toHaveLength(1);
+    const shown = payloadOf<{ text: string }>(narrations[0]).text;
+    expect(shown).toContain("Wenna leans in.");
+    expect(shown).not.toContain("clapper");
+    const fixes = after.filter(
+      (r) =>
+        r.type === "talk" &&
+        r.actor === "ai:dm" &&
+        payloadOf<{ text: string }>(r).text.startsWith("Correction (hidden)"),
+    );
+    expect(fixes).toHaveLength(1);
+    expect(fixes[0]?.visibility).toBe("dm");
     expect(w.scripted.remaining().calls["dm.narrate"]).toBe(0);
     const [job] = await talkJobs(w);
     expect(job?.status).toBe("succeeded");
-    expect(job?.result).toMatchObject({
-      talk: { outcome: "none", reason: expect.stringContaining("refused") },
-    });
   });
 
   it("a talk job with a committed beat runs the full pipeline", async () => {

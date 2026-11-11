@@ -85,16 +85,6 @@
         "type": "text",
         "value": "Tamsin crouches beside the cut bell rope and reads the damage: first gnawed through, then sliced clean. The bell hangs whole above her, but its clapper is gone."
       }
-    },
-    {
-      "purpose": "dm.audit",
-      "respond": {
-        "type": "json",
-        "value": {
-          "verdict": "pass",
-          "issues": []
-        }
-      }
     }
   ]
 }

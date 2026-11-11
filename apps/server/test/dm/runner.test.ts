@@ -122,7 +122,7 @@ function stubNodes(
     adjudicate: make("adjudicate", () => ({ rulings: [] })),
     resolve: make("resolve", () => ({}) as never),
     narrate: make("narrate", () => ({}) as never),
-    audit: make("audit", () => ({}) as never),
+    check: make("check", () => ({}) as never),
   };
   return { order, nodes, gates };
 }
@@ -138,7 +138,7 @@ describe("runTurn", () => {
       "interpret",
       "resolve",
       "narrate",
-      "audit",
+      "check",
     ]);
     if (outcome.status === "completed") {
       expect(outcome.results.adjudicate).toEqual({ rulings: [] });
@@ -150,7 +150,7 @@ describe("runTurn", () => {
       "adjudicate",
       "resolve",
       "narrate",
-      "audit",
+      "check",
     ]);
   });
 
@@ -196,7 +196,7 @@ describe("runTurn", () => {
     const ctx = makeCtx({ checkpoint });
     const outcome = await runTurn(ctx, spy.nodes);
     expect(outcome.status).toBe("completed");
-    expect(spy.order).toEqual(["assemble", "resolve", "narrate", "audit"]);
+    expect(spy.order).toEqual(["assemble", "resolve", "narrate", "check"]);
   });
 
   it("saves the checkpoint after each planning node and freezes the beat", async () => {

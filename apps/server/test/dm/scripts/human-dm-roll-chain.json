@@ -139,16 +139,6 @@
         "type": "text",
         "value": "Tamsin heaves at the chain and the wet planks slide out from under her. She lands hard on the boards, but the rusted links groan loose and show a bright scar where something cut them."
       }
-    },
-    {
-      "purpose": "dm.audit",
-      "respond": {
-        "type": "json",
-        "value": {
-          "verdict": "pass",
-          "issues": []
-        }
-      }
     }
   ]
 }

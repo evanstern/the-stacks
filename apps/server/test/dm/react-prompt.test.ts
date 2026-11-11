@@ -21,12 +21,11 @@ const base = {
   presentNpcIds: ["wenna"],
   encounterIds: ["reed-camp"],
   reachesCap: false,
-  prior: null,
 };
 
 describe("react prompt (specs/065 D4)", () => {
-  it("is versioned dm.react-v2", () => {
-    expect(PROMPT_VERSION).toBe("dm.react-v2");
+  it("is versioned dm.react-v3", () => {
+    expect(PROMPT_VERSION).toBe("dm.react-v3");
   });
 
   it("states the outcome, voice, digit, dice and player-view rules", () => {
@@ -51,17 +50,5 @@ describe("react prompt (specs/065 D4)", () => {
     expect(buildReactPrompt({ ...base, reachesCap: true }).user).toContain(
       CAP_LINE,
     );
-  });
-
-  it("carries the prior text and issues on a regenerate", () => {
-    const { user } = buildReactPrompt({
-      ...base,
-      prior: {
-        text: "Too long.",
-        issues: [{ kind: "doctrine", detail: "Over the limit." }],
-      },
-    });
-    expect(user).toContain("Previous text: Too long.");
-    expect(user).toContain("Issue (doctrine): Over the limit.");
   });
 });

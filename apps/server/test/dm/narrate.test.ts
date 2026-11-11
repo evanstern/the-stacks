@@ -6,6 +6,7 @@ import { describe, expect, it } from "vitest";
 import { createGateway } from "../../src/ai/gateway.js";
 import { memorySink } from "../../src/ai/usage.js";
 import { agencyRule } from "../../src/dm/doctrine/doctrine.js";
+import { composeReply } from "../../src/dm/fact-sheet.js";
 import { assemble } from "../../src/dm/nodes/assemble.js";
 import type { DirectorNodeOutput } from "../../src/dm/nodes/director.js";
 import {
@@ -14,10 +15,6 @@ import {
   withholdRefusedInputs,
 } from "../../src/dm/nodes/narrate.js";
 import type { ResolveOutput } from "../../src/dm/nodes/resolve.js";
-import {
-  PROMPT_VERSION as AUDIT_VERSION,
-  buildAuditPrompt,
-} from "../../src/dm/prompts/audit.js";
 import { rosterOf } from "../../src/dm/prompts/common.js";
 import {
   buildNarratePrompt,
@@ -238,7 +235,6 @@ describe("narrate", () => {
       assembled,
       snapshot,
       facts: n.facts,
-      prior: null,
     });
     expect(prompt.user).toContain("act-lockpick");
     expect(prompt.user).toContain("applied");
@@ -290,29 +286,15 @@ describe("narrate", () => {
     expect(commit).toEqual((beat?.npcIds ?? []).filter((id) => id === "wenna"));
   });
 
-  it("includes the previous text and issues when regenerating", async () => {
-    const { ctx, assembled, snapshot } = await setup(["x"]);
-    const out = await narrate(ctx);
-    if (!out.ok) throw new Error("narrate failed");
-    const prompt = buildNarratePrompt({
-      seed: playerFacingSeed(ctx.seed),
-      roster: rosterOf(assembled.projections.party),
-      assembled,
-      snapshot,
-      facts: out.output.facts,
-      prior: {
-        prose: "Too long.",
-        issues: [{ kind: "doctrine", detail: "Over the word limit." }],
-      },
-    });
-    expect(prompt.user).toContain("Previous text: Too long.");
-    expect(prompt.user).toContain("Over the word limit.");
-  });
-
-  it("returns a gateway error as a node failure", async () => {
+  it("ships empty slots, not a failure, when the call errors (spec 103)", async () => {
     const { ctx } = await setup([]);
     const out = await narrate(ctx);
-    expect(out.ok).toBe(false);
+    if (!out.ok) throw new Error("narrate failed");
+    expect(out.output.narrateError).toBe("gateway");
+    expect(out.output.slots.describe).toBe("");
+    expect(out.output.text).toBe(
+      composeReply(out.output.slots, out.output.sheet),
+    );
   });
 
   it("skips with no call when there is nothing to narrate", async () => {
@@ -384,9 +366,8 @@ describe("narrate", () => {
       assembled,
       snapshot,
       facts,
-      prior: null,
     });
-    expect(NARRATE_VERSION).toBe("dm.narrate-v23");
+    expect(NARRATE_VERSION).toBe("dm.narrate-v24");
     expect(prompt.system).toContain(
       "A refused action did not happen: no roll and no result. Never show it succeed, fail or land, and never show anyone react to its result.",
     );
@@ -484,14 +465,8 @@ describe("narrate", () => {
       assembled,
       snapshot,
       facts: reflexFacts,
-      prior: null,
     }).user;
-    const reflexAudit = buildAuditPrompt({
-      facts: reflexFacts,
-      snapshot,
-      prose: "P.",
-    }).user;
-    for (const u of [reflexNarrate, reflexAudit]) {
+    for (const u of [reflexNarrate]) {
       expect(u).toContain(
         "Reflex: Tamsin Vale may flinch as it misses (missed by Snag)",
       );
@@ -505,7 +480,6 @@ describe("narrate", () => {
       assembled,
       snapshot,
       facts: { ...facts, trigger: "scene-start" },
-      prior: null,
     }).user;
     expect(opening).toContain(
       "The opening shows the place and what the party finds. It never moves, leads or voices a party member.",
@@ -664,22 +638,21 @@ describe("narrate", () => {
         assembled: base.assembled,
         snapshot,
         facts: out.output.facts,
-        prior: null,
       });
       return { n: out.output, prompt };
     }
 
     it("removes a refused ruling from the facts the prompt receives", async () => {
       const { n, prompt } = await withheldRun(
-        "The goblin lookout rallies the others.",
+        "Snag dies in the mud.",
         "Keep the vault door in view.",
       );
       expect(n.facts.rulings).toEqual([]);
-      expect(prompt.user).not.toContain("rallies the others");
+      expect(prompt.user).not.toContain("dies in the mud");
       expect(n.withheld).toHaveLength(1);
-      expect(n.withheld[0]?.kind).toBe("ledger-mismatch");
+      expect(n.withheld[0]?.kind).toBe("life-state");
       expect(n.withheld[0]?.detail).toMatch(
-        /^Actor state: withheld ruling for act-lockpick: /,
+        /^withheld ruling for act-lockpick: /,
       );
     });
 
@@ -687,14 +660,14 @@ describe("narrate", () => {
       const { n, prompt } = await withheldRun(
         "The lock yields to patient work.",
         "Keep the vault door in view.",
-        ["The goblin lookout rallies the others.", "Search the door."],
+        ["Snag dies in the mud.", "Search the door."],
       );
       expect(n.facts.actions[0]?.followUps).toEqual(["Search the door."]);
       expect(prompt.user).toContain("  not yet attempted: Search the door.");
-      expect(prompt.user).not.toContain("rallies the others");
+      expect(prompt.user).not.toContain("dies in the mud");
       expect(n.withheld).toHaveLength(1);
       expect(n.withheld[0]?.detail).toMatch(
-        /^Actor state: withheld follow-up for act-lockpick: /,
+        /^withheld follow-up for act-lockpick: /,
       );
       expect(prompt.system).toContain(
         "A not-yet-attempted step has not happened, in this beat or an earlier one.",
@@ -708,10 +681,7 @@ describe("narrate", () => {
       for (const a of snapshot.actors) {
         if (a.id === "goblin-3") a.lifeState = "dead";
       }
-      const state = {
-        snapshot,
-        diff: { fromSeq: 0, toSeq: 1, stage: [], actors: [] },
-      };
+      const state = { snapshot, dmOnlyText: [] as string[] };
       const out = await narrate(base.ctx);
       if (!out.ok) throw new Error("narrate failed");
       const withSay = (say: string) => ({
@@ -725,7 +695,7 @@ describe("narrate", () => {
         },
       });
       const bad = withholdRefusedInputs(
-        withSay("The goblin lookout rallies the others."),
+        withSay("Snag dies in the mud."),
         state,
       );
       expect(bad.facts.npcTurn?.plan?.say).toBeNull();
@@ -747,9 +717,7 @@ describe("narrate", () => {
       expect(prompt.user).toMatch(/Private note: (\n|$)/);
       expect(prompt.user).not.toContain("press the survivors");
       expect(n.withheld).toHaveLength(1);
-      expect(n.withheld[0]?.detail).toMatch(
-        /^Actor state: withheld goalNote: /,
-      );
+      expect(n.withheld[0]?.detail).toMatch(/^withheld goalNote: /);
       expect(n.facts.rulings).toHaveLength(1);
     });
 
@@ -762,7 +730,7 @@ describe("narrate", () => {
       for (const a of snapshot.actors) {
         if (a.id === "goblin-2" || a.id === "goblin-3") a.lifeState = "dead";
       }
-      const state = { snapshot, diff: null };
+      const state = { snapshot, dmOnlyText: [] as string[] };
       const note = "Two goblins down; Snag eyes a bargain.";
       const r = withholdRefusedInputs(
         {
@@ -773,9 +741,9 @@ describe("narrate", () => {
       );
       expect(r.facts.director.goalNote).toBe("");
       expect(r.withheld).toHaveLength(1);
-      expect(r.withheld[0]?.kind).toBe("doctrine");
+      expect(r.withheld[0]?.kind).toBe("dm-only-text");
       expect(r.withheld[0]?.detail).toMatch(
-        /^Withheld goalNote: it states a count/,
+        /^withheld goalNote: it states a count/,
       );
     });
 
@@ -816,36 +784,13 @@ describe("narrate", () => {
     expect(out.output.facts.presentNpcs.map((n) => n.id)).toEqual(["snag"]);
   });
 
-  it("builds the v2 audit prompt: party section and the five statements", async () => {
+  it("narrate prompt carries the turn lines and the v24 version", async () => {
     const { ctx } = await setup(["x"]);
     const out = await narrate(ctx);
     if (!out.ok) throw new Error("narrate failed");
     const fight = greyhollowFight();
     const snapshot = buildSnapshot(fight.projections, fight.seed);
-    const p = buildAuditPrompt({
-      facts: out.output.facts,
-      snapshot,
-      prose: "Prose.",
-    });
-    expect(AUDIT_VERSION).toBe("dm.audit-v17");
-    expect(p.system).toContain(
-      "Omit `actor` when no character is named; never write null.",
-    );
-    expect(p.system).toContain("An off-turn act is `invented-mechanics`");
-    expect(p.system).toContain(
-      "6. Turn mode. Only the actors on the Turn line",
-    );
-    expect(p.system).toContain("raise a blade again), is `invented-mechanics`");
-    expect(p.system).toContain(
-      "Watching, waiting and turning toward a noise are not turn actions",
-    );
-    expect(p.system).toContain("7. A roll's band and consequence are decided.");
-    expect(p.system).toContain(
-      "A success outcome listed as one that did not happen must not appear",
-    );
-    expect(p.system).toContain(
-      "does not deliver a roll's settled outcome or learned fact",
-    );
+    expect(NARRATE_VERSION).toBe("dm.narrate-v24");
     const turnFacts = {
       ...out.output.facts,
       turn: { actor: "Snag", next: "Kestrel" },
@@ -856,33 +801,11 @@ describe("narrate", () => {
       assembled: (await setup(["x"])).assembled,
       snapshot,
       facts: turnFacts,
-      prior: null,
     }).user;
-    const auditUser = buildAuditPrompt({
-      facts: turnFacts,
-      snapshot,
-      prose: "P.",
-    }).user;
-    for (const u of [narrateUser, auditUser]) {
-      expect(u).toContain("Turn: Snag acts in this beat.");
-      expect(u).toContain(
-        "Next: Kestrel acts after this beat and has not acted yet.",
-      );
-    }
-    expect(p.user).not.toContain("Turn: ");
-    expect(p.user).not.toContain("Next: ");
-    expect(p.user).toContain("## Party (player characters)");
-    expect(p.user).toContain("Brother Odo (party, AI companion)");
-    expect(p.user).toContain("## Other characters (the world)");
-    expect(p.system).toContain(agencyRule("audit"));
-    expect(p.system).toContain(
-      "Showing a party member carry out their declared action is allowed.",
+    expect(narrateUser).toContain("Turn: Snag acts in this beat.");
+    expect(narrateUser).toContain(
+      "Next: Kestrel acts after this beat and has not acted yet.",
     );
-    expect(p.system).toContain("never `player-agency`");
-    expect(p.system).toContain("No rules effect means nothing was rolled");
-    expect(p.system).toContain("ending on that open question is correct");
-    expect(p.system).toContain("Code checks length; do not report length.");
-    expect(p.system).toContain("Report craft concerns as `doctrine`");
   });
 });
 

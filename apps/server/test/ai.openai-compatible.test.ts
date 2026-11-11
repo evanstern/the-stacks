@@ -573,12 +573,6 @@ describe("TASK-0203 shapes streamed as tool-call arguments (TASK-0273)", () => {
     const config: AiConfig = {
       providers: { p: CFG },
       purposes: {
-        "dm.audit": {
-          provider: "p",
-          model: "m",
-          op: "chat",
-          structured: "tool",
-        },
         "dm.chronicle": {
           provider: "p",
           model: "m",

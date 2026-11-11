@@ -6,6 +6,7 @@ import { z } from "zod";
 import type { AuthVariables } from "../auth/middleware.js";
 import { createAuthMiddleware } from "../auth/middleware.js";
 import type { DbClient, ValidateSession } from "../auth/session.js";
+import type { LegacyAuditRecord as AuditRecord } from "../dm/jobs.js";
 import {
   type DmJobRow,
   enqueueTurn,
@@ -14,7 +15,6 @@ import {
   type TurnTrigger,
 } from "../dm/jobs.js";
 import { listModelCalls, modelCallTotals } from "../dm/model-calls.js";
-import type { AuditRecord } from "../dm/nodes/audit.js";
 import { START_CONFLICT_MESSAGE, sceneStartState } from "../dm/scene-start.js";
 import { listSeeds, loadSeed, SeedError } from "../dm/seed/load.js";
 import { dmOnlySeedPaths } from "../dm/seed/views.js";

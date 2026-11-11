@@ -129,7 +129,7 @@ describe.skipIf(!reachable)("usage ledger (database)", () => {
       requireDb(),
       bind,
       call({
-        purpose: "dm.audit",
+        purpose: "dm.companion",
         provider: null,
         model: null,
         costUsd: null,
@@ -153,7 +153,7 @@ describe.skipIf(!reachable)("usage ledger (database)", () => {
     });
     expect(rest.rows).toHaveLength(1);
     expect(rest.hasMore).toBe(false);
-    expect(rest.rows[0]?.purpose).toBe("dm.audit");
+    expect(rest.rows[0]?.purpose).toBe("dm.companion");
 
     const totals = await modelCallTotals(requireDb(), sessionId);
     expect(totals.all).toEqual({
@@ -165,7 +165,7 @@ describe.skipIf(!reachable)("usage ledger (database)", () => {
       durationMs: 80,
     });
     expect(Object.keys(totals.byPurpose).sort()).toEqual([
-      "dm.audit",
+      "dm.companion",
       "dm.director",
       "dm.narrate",
     ]);

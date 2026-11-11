@@ -3,7 +3,6 @@
  */
 import type { TranscriptEntry } from "@the-stacks/session-model";
 import { renderDoctrine } from "../doctrine/doctrine.js";
-import type { AuditIssue } from "../nodes/audit.js";
 import type { PlayerSeedView } from "../seed/views.js";
 import type { ActorSnapshot } from "../snapshot/index.js";
 import type { CodeTrigger } from "../talk-triggers.js";
@@ -18,7 +17,7 @@ import {
 import { characterSections } from "./narrate.js";
 
 /** The talk-turn react prompt (specs/065-talk-triggers plan D4). Purpose `dm.narrate`. */
-export const PROMPT_VERSION = "dm.react-v2";
+export const PROMPT_VERSION = "dm.react-v3";
 
 export const CAP_LINE =
   "This reaction reaches the chain cap. Prompt no companion: leave companionPrompts empty, and end on a beat that hands the scene to the player characters.";
@@ -59,7 +58,6 @@ export interface ReactPromptInput {
   encounterIds: readonly string[];
   /** True when this reaction reaches the chain cap (FR-012). */
   reachesCap: boolean;
-  prior: { text: string; issues: AuditIssue[] } | null;
 }
 
 export function buildReactPrompt(input: ReactPromptInput): {
@@ -92,13 +90,6 @@ export function buildReactPrompt(input: ReactPromptInput): {
   const triggers = input.triggers.map(
     (t) => `${t.kind}: ${nameOf(t.actorId)} (${t.actorId})`,
   );
-  const prior = input.prior
-    ? [
-        "Your previous reaction was rejected. Write it again and fix every issue.",
-        `Previous text: ${input.prior.text}`,
-        ...input.prior.issues.map((i) => `Issue (${i.kind}): ${i.detail}`),
-      ]
-    : [];
   const user = joinSections([
     `Location: ${input.seed.location.name}. Mood: ${input.seed.location.mood}`,
     ...characterSections(input.snapshot),
@@ -118,7 +109,6 @@ export function buildReactPrompt(input: ReactPromptInput): {
       "start",
     ),
     input.reachesCap ? CAP_LINE : "",
-    prior.join("\n"),
   ]);
   return { system, user };
 }
