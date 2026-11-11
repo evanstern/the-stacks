@@ -10,6 +10,7 @@ decision-0030 win. The board is the plan of record. This file carries ordering, 
   operator ruled F1–F5 and the mis-homed cards as recommended (see "CP-5 rulings" below).
   <!-- Only the OPERATOR flips draft → signed-off. An executing session refuses a runbook whose
        status it cannot verify. -->
+- **Handoff:** paused 2026-11-10 at the operator's request. Resume from `docs/design/r1-handoff-2026-11-10.md`.
 - **Milestone:** R1 Fast Table, board id `m-10`, epic TASK-0258 (EP-1). Plan-of-action §5 R1.
 - **Orchestrator:** plans, dispatches and gates. It never implements.
 - **Dispatch rules:** `docs/ops/orchestrator-kit/dispatch-rules.md` binds every dispatched agent.
@@ -474,3 +475,7 @@ updated at each dispatch boundary. `tokens/cost` carries best-effort actuals.
 | 2026-11-10 | TASK-0245 | #157 | ec33b56b | opus spec; sonnet x1 | fact sheet, dm.narrate-v22, dm.audit-v17 |
 | 2026-11-10 | TASK-0274 | #158 | 28735c39 | opus spec; sonnet x2 | close-combat rule in the engine (operator ruling); stand mapping moved here from 0267 |
 | 2026-11-10 | TASK-0271 | #159 | dc12f1fc | opus spec; sonnet x2 | fog in the gate; frozen spec 029 contract amended (operator ruling); TASK-0306 carded |
+| 2026-11-10 | TASK-0306 | #161 | 2cc7c438 | opus spec; sonnet x1 | engaged-only ranged penalty (operator ruling); melee pairs |
+| 2026-11-10 | R1 lane playtest | #162 (log) | dbde6a3a | $2.59 of $15 | encounter ended in code; TASK-0307 found |
+| 2026-11-10 | TASK-0307 | #163 | cdbaf393 | sonnet x1 | E9; slot labels stripped; live-verified on vm-104 |
+| 2026-11-10 | TASK-0308 | #164 | 7d6cde2a | haiku x1 | E8 extended; wall-clock tests serial; guard added |
