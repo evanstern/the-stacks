@@ -3,9 +3,10 @@ id: TASK-0307
 title: >-
   Narration shows raw slot labels (restate:, describe:, ask:) and a doubled
   restate line
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-11-10T21:30:00Z'
+updated_date: '2026-11-11T01:17:00Z'
 labels:
   - playtest
   - ws:narration
@@ -39,3 +40,9 @@ Fix candidates: accept both tag forms (and strip them); or ask the model for str
 - [ ] #1 All tests and checks run green
 - [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Claimed 2026-11-10 by the R1 sweep (docs/design/r1-fast-table-runbook.md). Worktree .worktrees/task-0307, branch task-0307-slot-labels, cut from origin/main 0da0aafb. No spec dir: signed escape line covers this task.
+<!-- SECTION:NOTES:END -->
