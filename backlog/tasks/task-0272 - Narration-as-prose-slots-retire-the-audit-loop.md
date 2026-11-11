@@ -33,7 +33,7 @@ Spec: specs/103-prose-slots
 - [x] #1 No narration path regenerates for audit reasons.
 - [x] #2 Narration writes no digits; fact rows carry every number.
 - [ ] #3 The R1 playtest shows zero fallback lines.
-- [ ] #4 `dm/claims.ts` lexical gate is deleted.
+- [x] #4 `dm/claims.ts` lexical gate is deleted.
 - [ ] #5 Spec phase: Check module and helper moves
 - [ ] #6 Spec phase: `why` rows and the digit drop
 - [ ] #7 Spec phase: Turn pipeline swap and deletions
