@@ -31,7 +31,7 @@ Spec: specs/103-prose-slots
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
 - [x] #1 No narration path regenerates for audit reasons.
-- [ ] #2 Narration writes no digits; fact rows carry every number.
+- [x] #2 Narration writes no digits; fact rows carry every number.
 - [ ] #3 The R1 playtest shows zero fallback lines.
 - [ ] #4 `dm/claims.ts` lexical gate is deleted.
 - [ ] #5 Spec phase: Check module and helper moves
