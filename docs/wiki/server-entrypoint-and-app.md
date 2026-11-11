@@ -9,7 +9,7 @@ sources:
   - apps/server/src/routes/tables.ts
   - apps/server/src/dm/script/env.ts
 size_budget_exempt: spec 102 adds the gate plannerInputs wiring line to the one server-entrypoint-and-app note; the entrypoint does not split without a TASK of its own
-verified_against: bfb65a157559c88bf988a6c0f55b7c03824ff412
+verified_against: 7a36c9e9e90450f473fc5e54a082d0ce7c083727
 ---
 
 # Server entrypoint and app

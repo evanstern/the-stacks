@@ -62,6 +62,20 @@ export interface ReadAttempt {
   proseHash: string | null;
 }
 
+export interface ReadCheckIssue {
+  kind: string;
+  matched: string;
+  detail: string;
+}
+
+/** The turn's check record (spec 103); absent on rows stored before TASK-0272. */
+export interface ReadCheck {
+  leak: ReadCheckIssue[];
+  contradiction: ReadCheckIssue[];
+  corrected: boolean;
+  narrateError: string | null;
+}
+
 export interface ReadExcerpt {
   attempt: number | null;
   chars: number | null;
@@ -84,7 +98,9 @@ export interface ReadCheckpoint {
   adjudicate: unknown;
   submissions: ReadSubmission[];
   narration: {
+    /** Legacy audit-loop attempts; empty on a row with a `check`. */
     attempts: ReadAttempt[];
+    check: ReadCheck | null;
     shipped: boolean;
     seqs: number[] | undefined;
   } | null;
@@ -93,7 +109,9 @@ export interface ReadCheckpoint {
 export interface ReadTurn {
   checkpoint: ReadCheckpoint | null;
   outcome: string | null;
+  /** Legacy audit record of rows stored before TASK-0272. */
   audit: unknown;
+  check: ReadCheck | null;
   calls: ReadCall[];
   failure: ReadFailure | null;
 }
@@ -181,6 +199,26 @@ function readAttempt(v: Rec): ReadAttempt {
   };
 }
 
+function readCheckIssues(v: unknown): ReadCheckIssue[] {
+  return arr(v)
+    .filter(isRec)
+    .map((i) => ({
+      kind: str(i.kind) ?? "unknown",
+      matched: str(i.matched) ?? "",
+      detail: str(i.detail) ?? "",
+    }));
+}
+
+function readCheck(v: unknown): ReadCheck | null {
+  if (!isRec(v)) return null;
+  return {
+    leak: readCheckIssues(v.leak),
+    contradiction: readCheckIssues(v.contradiction),
+    corrected: v.corrected === true,
+    narrateError: str(v.narrateError),
+  };
+}
+
 function readCheckpoint(v: unknown): ReadCheckpoint | null {
   if (!isRec(v)) return null;
   const nar = isRec(v.narration) ? v.narration : null;
@@ -196,6 +234,7 @@ function readCheckpoint(v: unknown): ReadCheckpoint | null {
     narration: nar
       ? {
           attempts: arr(nar.attempts).filter(isRec).map(readAttempt),
+          check: readCheck(nar.check),
           shipped: nar.shipped === true,
           seqs: seqList(nar.seqs),
         }
@@ -231,6 +270,7 @@ export function readTurnResult(result: unknown): ReadTurn {
     checkpoint: readCheckpoint(r.checkpoint),
     outcome,
     audit: r.audit ?? null,
+    check: readCheck(r.check),
     calls: readCalls(r.calls),
     failure: readFailure(r.failure),
   };

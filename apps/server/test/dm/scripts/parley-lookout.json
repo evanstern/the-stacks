@@ -84,16 +84,6 @@
       }
     },
     {
-      "purpose": "dm.audit",
-      "respond": {
-        "type": "json",
-        "value": {
-          "verdict": "pass",
-          "issues": []
-        }
-      }
-    },
-    {
       "purpose": "dm.director",
       "note": "turn B: turn mode for reed-camp, no arrivals (run 1 seq 73-92)",
       "respond": {
@@ -172,16 +162,6 @@
       "respond": {
         "type": "text",
         "value": "Tamsin flips a coin to the lookout and asks for a moment to talk."
-      }
-    },
-    {
-      "purpose": "dm.audit",
-      "respond": {
-        "type": "json",
-        "value": {
-          "verdict": "pass",
-          "issues": []
-        }
       }
     }
   ]

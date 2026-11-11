@@ -9,7 +9,6 @@ export const DM_PURPOSES = [
   "dm.interpret",
   "dm.adjudicate",
   "dm.narrate",
-  "dm.audit",
   "dm.chronicle",
   "dm.companion",
 ] as const;
@@ -21,7 +20,6 @@ export const PURPOSE_OF = {
   interpret: "dm.interpret",
   adjudicate: "dm.adjudicate",
   narrate: "dm.narrate",
-  audit: "dm.audit",
   chronicle: "dm.chronicle",
   companion: "dm.companion",
 } as const;
@@ -38,7 +36,6 @@ export const PURPOSE_MAX_TOKENS: Record<DmPurpose, number> = {
   "dm.interpret": 8000,
   "dm.adjudicate": 4000,
   "dm.narrate": 4000,
-  "dm.audit": 4000,
   "dm.chronicle": 4000,
   "dm.companion": 4000,
 };

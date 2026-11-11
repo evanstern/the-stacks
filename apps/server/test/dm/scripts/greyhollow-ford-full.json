@@ -38,16 +38,6 @@
       }
     },
     {
-      "purpose": "dm.audit",
-      "respond": {
-        "type": "json",
-        "value": {
-          "verdict": "pass",
-          "issues": []
-        }
-      }
-    },
-    {
       "purpose": "dm.director",
       "note": "free mode, resolve, one tracker step",
       "respond": {
@@ -128,16 +118,6 @@
       "respond": {
         "type": "text",
         "value": "Tamsin crouches beside the cut bell rope and reads the damage: first gnawed through, then sliced clean. The bell hangs whole above her, but its clapper is gone."
-      }
-    },
-    {
-      "purpose": "dm.audit",
-      "respond": {
-        "type": "json",
-        "value": {
-          "verdict": "pass",
-          "issues": []
-        }
       }
     },
     {
@@ -236,16 +216,6 @@
       }
     },
     {
-      "purpose": "dm.audit",
-      "respond": {
-        "type": "json",
-        "value": {
-          "verdict": "pass",
-          "issues": []
-        }
-      }
-    },
-    {
       "purpose": "dm.director",
       "note": "enter turn mode; Snag wins initiative",
       "respond": {
@@ -313,16 +283,6 @@
       }
     },
     {
-      "purpose": "dm.audit",
-      "respond": {
-        "type": "json",
-        "value": {
-          "verdict": "pass",
-          "issues": []
-        }
-      }
-    },
-    {
       "purpose": "dm.director",
       "note": "monster turn",
       "respond": {
@@ -387,16 +347,6 @@
       }
     },
     {
-      "purpose": "dm.audit",
-      "respond": {
-        "type": "json",
-        "value": {
-          "verdict": "pass",
-          "issues": []
-        }
-      }
-    },
-    {
       "purpose": "dm.director",
       "note": "human active actor",
       "respond": {
@@ -457,16 +407,6 @@
       "respond": {
         "type": "text",
         "value": "Tamsin's longsword bites into the goblin in the pot-helm, who reels back clutching a shoulder and snarling."
-      }
-    },
-    {
-      "purpose": "dm.audit",
-      "respond": {
-        "type": "json",
-        "value": {
-          "verdict": "pass",
-          "issues": []
-        }
       }
     },
     {
@@ -549,16 +489,6 @@
       }
     },
     {
-      "purpose": "dm.audit",
-      "respond": {
-        "type": "json",
-        "value": {
-          "verdict": "pass",
-          "issues": []
-        }
-      }
-    },
-    {
       "purpose": "dm.companion",
       "note": "Kestrel's turn",
       "respond": {
@@ -638,16 +568,6 @@
       "respond": {
         "type": "text",
         "value": "Kestrel's arrow whistles across the island and bites the goblin by the fire, who howls. Snag lowers his blade and calls out, offering the clapper in return for a safe way off the ford."
-      }
-    },
-    {
-      "purpose": "dm.audit",
-      "respond": {
-        "type": "json",
-        "value": {
-          "verdict": "pass",
-          "issues": []
-        }
       }
     },
     {

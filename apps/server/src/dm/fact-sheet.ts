@@ -1,5 +1,7 @@
-import type { SessionProjections } from "@the-stacks/session-model";
-import { EITHER_OR_END, STOCK_ENDING } from "./audit-words.js";
+import type {
+  IntentRecorded,
+  SessionProjections,
+} from "@the-stacks/session-model";
 import {
   type FactAction,
   type FactChange,
@@ -8,8 +10,8 @@ import {
   renderChangeLine,
   renderRollLine,
 } from "./facts.js";
-import { spellDigits } from "./fallback.js";
 import type { TurnTrigger } from "./jobs.js";
+import { EITHER_OR_END, STOCK_ENDING } from "./narration-words.js";
 
 /**
  * The fact sheet (spec 098, contracts/fact-sheet.md). Pure: it reads settled
@@ -46,7 +48,8 @@ export interface FactRow {
     | "death-saves"
     | "spell-slot"
     | "assist"
-    | "refusal";
+    | "refusal"
+    | "why";
   text: string;
 }
 
@@ -76,8 +79,15 @@ export interface FactSheet {
   settled: NarrationFacts;
 }
 
+/** One planner fact (spec 097 contract §4), as the Intent carrier row stores it. */
+export type PlanFact = IntentRecorded["facts"][number];
+
 export interface FactSheetInput {
   settled: NarrationFacts;
+  /** The planner's facts for the beat's Intents (spec 098 contract §6). */
+  planFacts?: readonly PlanFact[];
+  /** SRD rule title by id; the id renders when absent or unknown. */
+  ruleTitle?: (id: string) => string | undefined;
   beat: readonly {
     actionId: string;
     characterId: string | null;
@@ -91,6 +101,29 @@ export interface FactSheetInput {
     key: string;
     result: "applied" | "pending" | "suggested" | "refused";
   }[];
+}
+
+export const DIGIT_WORDS = [
+  "zero",
+  "one",
+  "two",
+  "three",
+  "four",
+  "five",
+  "six",
+  "seven",
+  "eight",
+  "nine",
+];
+
+/** "Goblin-3" becomes "Goblin three"; every digit becomes its word. */
+export function spellDigits(text: string): string {
+  return text
+    .replace(/-(?=[0-9])/g, " ")
+    .replace(/[0-9]/g, (d) => ` ${DIGIT_WORDS[Number(d)]} `)
+    .replace(/\s+([,.;:!?])/g, "$1")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 /** Refusal reason by gate code (contract §3.2). */
@@ -170,6 +203,53 @@ export function renderRows(facts: NarrationFacts): FactRow[] {
   for (const s of facts.pulled ?? []) push(s.rolls, s.changes);
   if (facts.npcTurn) push(facts.npcTurn.rolls, facts.npcTurn.changes);
   for (const s of facts.settled ?? []) push(s.rolls, s.changes);
+  return rows;
+}
+
+/** One `why` row per PlanFact (spec 098 contract §6). `unserved` renders no row. Pure. */
+export function renderWhyRows(
+  facts: readonly PlanFact[],
+  nameOf: (id: string | null) => string,
+  ruleTitle: (id: string) => string | undefined = () => undefined,
+): FactRow[] {
+  const rows: FactRow[] = [];
+  for (const f of facts) {
+    let text: string | null = null;
+    switch (f.kind) {
+      case "rule":
+        text = `Rule: ${ruleTitle(f.rule) ?? f.rule}`;
+        break;
+      case "dc": {
+        const rule = f.opposition?.rule ?? f.difficulty;
+        if (f.dc !== undefined) text = `DC ${f.dc}${rule ? ` (${rule})` : ""}`;
+        else if (f.opposition)
+          text = `Opposed by ${nameOf(f.opposition.opponentId)} (${f.opposition.rule})`;
+        else if (f.difficulty) text = `Difficulty: ${f.difficulty}`;
+        break;
+      }
+      case "reach":
+        text = `Reach: ${f.band}, ${f.use}`;
+        break;
+      case "pull-in":
+        text = `${nameOf(f.actorId)} joins the fight`;
+        break;
+      case "reaction":
+        text = `${nameOf(f.reactorId)} may react as the mover leaves`;
+        break;
+      case "ruling":
+        text = `DM ruling: ${f.decision}${f.reason ? `: ${f.reason}` : ""}`;
+        break;
+      case "no-roll":
+        text = "No roll needed";
+        break;
+      case "ignored":
+        text = `The DM sets the ${f.field}`;
+        break;
+      case "unserved":
+        break;
+    }
+    if (text) rows.push({ kind: "why", text });
+  }
   return rows;
 }
 
@@ -316,7 +396,10 @@ export function buildFactSheet(input: FactSheetInput): FactSheet {
     trigger: settled.trigger,
     mode: input.projections.tableMode.mode,
     restate,
-    rows: renderRows(settled),
+    rows: [
+      ...renderRows(settled),
+      ...renderWhyRows(input.planFacts ?? [], input.nameOf, input.ruleTitle),
+    ],
     speakers,
     slots,
     ask,
@@ -376,7 +459,14 @@ export function parseSlots(text: string, sheet: FactSheet): NarrationSlots {
     ask = "";
   }
   if (sheet.ask) ask = sheet.ask;
-  const describe = dropStockEnding(clipProse(slot("describe")));
+  // Narration holds no digits (spec 103 FR-004): a sentence with one is dropped; rows carry numbers.
+  const noDigits = (t: string): string =>
+    t
+      .split(/(?<=[.!?]["'”’)]*)\s+/)
+      .filter((x) => !/[0-9]/.test(x))
+      .join(" ");
+  if (!sheet.ask) ask = noDigits(ask);
+  const describe = dropStockEnding(clipProse(noDigits(slot("describe"))));
   return { restate, describe, ask };
 }
 

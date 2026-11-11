@@ -10,7 +10,6 @@ import {
 } from "../../src/dm/facts.js";
 import type { DirectorNodeOutput } from "../../src/dm/nodes/director.js";
 import type { ResolveOutput } from "../../src/dm/nodes/resolve.js";
-import { buildAuditPrompt } from "../../src/dm/prompts/audit.js";
 import { buildChroniclePrompt } from "../../src/dm/prompts/chronicle.js";
 import { rosterOf } from "../../src/dm/prompts/common.js";
 import { buildCompanionPrompt } from "../../src/dm/prompts/companion.js";
@@ -131,14 +130,13 @@ const assembled = {
   projections,
 } as unknown as Parameters<typeof buildNarratePrompt>[0]["assembled"];
 
-function narrate(f: NarrationFacts, prior = null as never) {
+function narrate(f: NarrationFacts) {
   return buildNarratePrompt({
     seed: VIEW,
     roster: rosterOf(projections.party),
     assembled,
     snapshot,
     facts: f,
-    prior,
   });
 }
 
@@ -160,7 +158,6 @@ const reactInput = () => ({
   presentNpcIds: [],
   encounterIds: [],
   reachesCap: false,
-  prior: null,
 });
 
 const prompts: { name: string; text: string }[] = [];
@@ -201,26 +198,6 @@ add(
 );
 add("narrate clarify", narrate(clarifyFacts));
 add(
-  "narrate regenerate",
-  narrate(clarifyFacts, {
-    prose: "Too long.",
-    issues: [{ kind: "doctrine", detail: "Over the word limit." }],
-  } as never),
-);
-add(
-  "audit with the snapshot sections",
-  buildAuditPrompt({
-    facts: facts({
-      trigger: "commit",
-      beatId: "the-keeper",
-      beatNpcIds: ["wenna"],
-      action: true,
-    }),
-    snapshot,
-    prose: "Wenna watches the ford.",
-  }),
-);
-add(
   "chronicle with the snapshot section",
   buildChroniclePrompt({
     snapshot,
@@ -246,7 +223,6 @@ for (const reachesCap of [false, true]) {
       presentNpcIds: ["wenna"],
       encounterIds: ["reed-camp"],
       reachesCap,
-      prior: null,
     }),
   );
 }
@@ -267,7 +243,7 @@ for (const id of ["odo", "kestrel"]) {
 
 describe("player-facing prompts (card AC #1)", () => {
   it("builds every variant", () => {
-    expect(prompts).toHaveLength(13);
+    expect(prompts).toHaveLength(11);
     expect(USER_ID).not.toBe("");
   });
 
@@ -326,12 +302,12 @@ describe("player-facing prompts (card AC #1)", () => {
     expect(`${none.system}\n${none.user}`).not.toContain("learned (settled)");
   });
 
-  it("carries the snapshot sections in the narrate, audit and chronicle prompts", () => {
+  it("carries the snapshot sections in the narrate and chronicle prompts", () => {
     const by = (n: string) => prompts.find((p) => p.name === n)?.text ?? "";
     expect(by("narrate the-keeper action")).toContain(
       "## Party (player characters)",
     );
-    expect(by("audit with the snapshot sections")).toContain(
+    expect(by("narrate the-keeper action")).toContain(
       "## Other characters (the world)",
     );
     expect(by("chronicle with the snapshot section")).toContain(
@@ -409,7 +385,6 @@ describe("narrate prompt: fact-sheet sections (spec 098 D4)", () => {
       snapshot,
       facts: f,
       sheet: sheetOf(f),
-      prior: null,
     });
 
   it("lists Slots, Restate and Speakers for an action", () => {

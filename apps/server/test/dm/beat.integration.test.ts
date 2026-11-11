@@ -82,10 +82,6 @@ const narrate = (value: string) => ({
   purpose: "dm.narrate",
   respond: { type: "text", value },
 });
-const audit = {
-  purpose: "dm.audit",
-  respond: { type: "json", value: { verdict: "pass", issues: [] } },
-};
 
 describe.skipIf(!reachable)("the beat queue (database)", () => {
   it("queues one turn for actions committed during a turn, resolved in commit order", async () => {
@@ -98,7 +94,6 @@ describe.skipIf(!reachable)("the beat queue (database)", () => {
         narrate(
           "The shutter groans, then gives way under Tamsin's shoulder and lets the grey light in.",
         ),
-        audit,
         // Turn 2: act-second then act-third, in commit order.
         director,
         interpret(
@@ -108,7 +103,6 @@ describe.skipIf(!reachable)("the beat queue (database)", () => {
         narrate(
           "Tamsin pries the lintel free and tests the boards, and both hold firm beneath her boots.",
         ),
-        audit,
         {
           purpose: "dm.chronicle",
           respond: { type: "json", value: { entries: [] } },

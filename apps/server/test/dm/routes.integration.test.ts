@@ -682,7 +682,7 @@ describe.skipIf(!reachable)("DM debug routes (database)", () => {
     for (const [purpose, cost] of [
       ["dm.director", 0.25],
       ["dm.narrate", 0.5],
-      ["dm.audit", null],
+      ["dm.companion", null],
     ] as const) {
       await insertModelCall(requireDb(), bind, {
         ...base,
@@ -707,7 +707,7 @@ describe.skipIf(!reachable)("DM debug routes (database)", () => {
     expect(all.calls.map((c) => c.purpose)).toEqual([
       "dm.director",
       "dm.narrate",
-      "dm.audit",
+      "dm.companion",
     ]);
     expect(all.nextAfter).toBe(all.calls[2]?.id);
 
@@ -725,7 +725,7 @@ describe.skipIf(!reachable)("DM debug routes (database)", () => {
     });
     expect(second.totals.byModel["scripted/scripted-chat"]?.calls).toBe(3);
     expect(Object.keys(second.totals.byPurpose).sort()).toEqual([
-      "dm.audit",
+      "dm.companion",
       "dm.director",
       "dm.narrate",
     ]);
@@ -842,6 +842,7 @@ describe.skipIf(!reachable)("DM debug routes (database)", () => {
       "attempts",
       "audit",
       "calls",
+      "check",
       "createdAt",
       "error",
       "finishedAt",

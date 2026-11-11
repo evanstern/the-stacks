@@ -34,7 +34,7 @@ clearDmJobsBeforeEach();
 
 describe.skipIf(!reachable)("chronicle (database)", () => {
   it("runs a committed action to a finished turn and queues one chronicle that writes a journal entry", async () => {
-    const s = script("audit-regenerate.json");
+    const s = script("shutter-check.json");
     const w = await createWorld({
       dice: s.dice,
       calls: [

@@ -65,16 +65,6 @@
       }
     },
     {
-      "purpose": "dm.audit",
-      "respond": {
-        "type": "json",
-        "value": {
-          "verdict": "pass",
-          "issues": []
-        }
-      }
-    },
-    {
       "purpose": "dm.director",
       "note": "Tamsin frees Pell; encounter already active",
       "respond": {
@@ -157,16 +147,6 @@
       "respond": {
         "type": "text",
         "value": "Tamsin runs across the mud to the post where Pell is tied and works at the rope around his wrists."
-      }
-    },
-    {
-      "purpose": "dm.audit",
-      "respond": {
-        "type": "json",
-        "value": {
-          "verdict": "pass",
-          "issues": []
-        }
       }
     }
   ]

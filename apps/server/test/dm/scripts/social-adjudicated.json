@@ -97,16 +97,6 @@
         "type": "text",
         "value": "Wenna lowers her boathook and studies Tamsin for a long breath. Then, counting under her breath, she names the safe path: keep to the old timber posts, and never step off them."
       }
-    },
-    {
-      "purpose": "dm.audit",
-      "respond": {
-        "type": "json",
-        "value": {
-          "verdict": "pass",
-          "issues": []
-        }
-      }
     }
   ]
 }

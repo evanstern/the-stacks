@@ -3,6 +3,7 @@ import { ageText, costText, nodeName } from "../labels.ts";
 import type {
   ReadAttempt,
   ReadCall,
+  ReadCheck,
   ReadFailure,
   ReadSubmission,
 } from "../read-result.ts";
@@ -112,6 +113,28 @@ function Attempts({ attempts }: { attempts: ReadAttempt[] }) {
   );
 }
 
+function Check({ check }: { check: ReadCheck }) {
+  const line = (label: string, xs: ReadCheck["leak"]) => (
+    <div>
+      {label}:{" "}
+      {xs.length === 0
+        ? "none"
+        : xs.map((x) => `${x.kind} "${x.matched}" ${x.detail}`).join("; ")}
+    </div>
+  );
+  return (
+    <div className="mt-1 text-xs" data-narration-check>
+      {line("Leaks dropped", check.leak)}
+      {line("Contradictions corrected", check.contradiction)}
+      {check.narrateError && (
+        <div>
+          Narrate call failed ({check.narrateError}); rows shipped alone.
+        </div>
+      )}
+    </div>
+  );
+}
+
 function Failure({ failure }: { failure: ReadFailure }) {
   return (
     <div className="mt-1 text-xs">
@@ -154,7 +177,7 @@ function SectionBody({
         />
       );
       break;
-    case "narrate-audit": {
+    case "narrate-check": {
       const turn = view.read.kind === "turn" ? view.read.turn : null;
       const nar = turn?.checkpoint?.narration ?? null;
       body = (
@@ -165,7 +188,11 @@ function SectionBody({
                 {nar.shipped ? "Shipped" : "Not shipped"} ·{" "}
                 <SeqLinks seqs={nar.seqs} onSelectSeq={onSelectSeq} />
               </p>
-              <Attempts attempts={nar.attempts} />
+              {nar.check ? (
+                <Check check={nar.check} />
+              ) : (
+                <Attempts attempts={nar.attempts} />
+              )}
             </>
           )}
           {view.badge === "fallback" && (

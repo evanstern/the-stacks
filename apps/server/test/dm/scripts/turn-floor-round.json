@@ -63,16 +63,6 @@
       }
     },
     {
-      "purpose": "dm.audit",
-      "respond": {
-        "type": "json",
-        "value": {
-          "verdict": "pass",
-          "issues": []
-        }
-      }
-    },
-    {
       "purpose": "dm.companion",
       "respond": {
         "type": "json",
@@ -148,16 +138,6 @@
       }
     },
     {
-      "purpose": "dm.audit",
-      "respond": {
-        "type": "json",
-        "value": {
-          "verdict": "pass",
-          "issues": []
-        }
-      }
-    },
-    {
       "purpose": "dm.director",
       "respond": {
         "type": "json",
@@ -219,16 +199,6 @@
       "respond": {
         "type": "text",
         "value": "Snag lunges with his notched scimitar, sing-songing threats, but Tamsin sways aside and the blade only finds air."
-      }
-    },
-    {
-      "purpose": "dm.audit",
-      "respond": {
-        "type": "json",
-        "value": {
-          "verdict": "pass",
-          "issues": []
-        }
       }
     }
   ]

@@ -16,12 +16,12 @@ test("node names", () => {
       "interpret",
       "adjudicate",
       "resolve",
-      "narrate-audit",
+      "narrate-check",
       "failure",
     ],
   );
   assert.equal(nodeName("director"), "Director");
-  assert.equal(nodeName("narrate-audit"), "Narrate and audit");
+  assert.equal(nodeName("narrate-check"), "Narrate and check");
   assert.equal(nodeName("mystery"), "mystery");
 });
 

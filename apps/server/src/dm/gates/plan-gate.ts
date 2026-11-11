@@ -10,20 +10,14 @@ import {
 } from "@the-stacks/dnd5e-engine";
 import {
   REASON_TO_PRESENCE,
-  type ScenePresence,
   type SessionProjections,
 } from "@the-stacks/session-model";
-import { type ClaimIssue, checkClaims } from "../claims.js";
 import type { Ruling } from "../nodes/adjudicate.js";
 import type { BeatItem } from "../nodes/assemble.js";
 import type { DirectorNodeOutput } from "../nodes/director.js";
 import type { Effect, InterpretReading, Step } from "../nodes/schemas.js";
 import type { SceneSeed } from "../seed/schema.js";
-import type {
-  ActorChange,
-  ActorSnapshot,
-  SnapshotDiff,
-} from "../snapshot/index.js";
+import type { ActorSnapshot } from "../snapshot/index.js";
 
 /**
  * The plan gate (specs/046-downed-hero-gate plan D3, decision-0025 §3.2).
@@ -50,14 +44,6 @@ export interface PlanFailure {
   id: string;
   reason: PlanFailureReason;
 }
-
-/**
- * The refusal code of a reason-refused group (spec 058, OQ-2 (a)). The engine
- * enum carries it; `satisfies` ties the literal to that enum.
- */
-export const REASON_REFUSAL_CODE =
-  "REASON_CONTRADICTS_STATE" as const satisfies RefusalCode;
-export type ReasonRefusalCode = typeof REASON_REFUSAL_CODE;
 
 /**
  * The refusal code of a group whose step names a foreign actor (spec 079, OQ-4).
@@ -90,16 +76,6 @@ export type SpellRefusalCode = Extract<
   "SPELL_UNRESOLVED" | "SPELL_UNKNOWN" | "SPELL_NOT_PREPARED"
 >;
 
-/** A model text (step reason or condition source) the claim gate refused. */
-export interface ReasonFailure {
-  stepIndex: number;
-  /** `reason`, `autoFail.reason`, or a condition `source` path such as `onHit[0].source`. */
-  field: string;
-  /** The refused model text, as written. */
-  text: string;
-  issues: ClaimIssue[];
-}
-
 export type PlanVerdict =
   | { actionId: string | null; ok: true; pull?: string[] }
   | {
@@ -107,12 +83,6 @@ export type PlanVerdict =
       ok: false;
       code: "UNKNOWN_COMBATANT";
       failure: PlanFailure;
-    }
-  | {
-      actionId: string | null;
-      ok: false;
-      code: ReasonRefusalCode;
-      failure: ReasonFailure;
     }
   | {
       actionId: string | null;
@@ -437,137 +407,6 @@ function stepIds(step: Step): NamedId[] {
   }
 }
 
-interface NamedText {
-  field: string;
-  text: string;
-}
-
-function effectSources(effects: readonly Effect[], list: string): NamedText[] {
-  const out: NamedText[] = [];
-  for (const [j, e] of effects.entries()) {
-    if (e.effect === "condition") {
-      out.push({ field: `${list}[${j}].source`, text: e.source });
-    }
-  }
-  return out;
-}
-
-/** Spec 070 D5: the declared consequences and the new risk are model-written claims. */
-function stakeTexts(step: Extract<Step, { step: "check" }>): NamedText[] {
-  const out: NamedText[] = [];
-  for (const key of ["success", "cost", "failure", "severe"] as const) {
-    const text = step.stakes[key];
-    if (text !== null) out.push({ field: `stakes.${key}`, text });
-  }
-  if (step.newRisk !== null) out.push({ field: "newRisk", text: step.newRisk });
-  return out;
-}
-
-/** Spec 082 D8: a circumstance's reason is a model-written claim. */
-function circumstanceTexts(
-  step: Extract<Step, { step: "check" | "attack" }>,
-): NamedText[] {
-  return step.circumstance
-    ? [{ field: "circumstance.reason", text: step.circumstance.reason }]
-    : [];
-}
-
-/** Every model-written text a step carries, in the order checked. */
-function stepTexts(step: Step): NamedText[] {
-  switch (step.step) {
-    case "none":
-    case "roll":
-    case "move":
-      return [{ field: "reason", text: step.reason }];
-    case "effect":
-      return [
-        { field: "reason", text: step.reason },
-        ...effectSources(step.effects, "effects"),
-      ];
-    case "check":
-      return [
-        { field: "reason", text: step.reason },
-        ...(step.autoFail
-          ? [{ field: "autoFail.reason", text: step.autoFail.reason }]
-          : []),
-        ...effectSources(step.onSuccess, "onSuccess"),
-        ...effectSources(step.onFailure, "onFailure"),
-        ...effectSources(step.onCost, "onCost"),
-        ...effectSources(step.onSevere, "onSevere"),
-        ...circumstanceTexts(step),
-        ...stakeTexts(step),
-      ];
-    case "attack":
-      return [
-        { field: "reason", text: step.reason },
-        ...circumstanceTexts(step),
-        ...effectSources(step.onHit, "onHit"),
-      ];
-    case "spell":
-    case "help":
-      return [{ field: "reason", text: step.reason }];
-  }
-}
-
-/**
- * The presence-only diff the plan implies (contract rule 5): one change per
- * presence-effect target in any group, and one per arriving NPC. An id with no
- * S0 actor is left out.
- */
-function plannedDiff(
-  snapshot: ActorSnapshot,
-  groups: ReadonlyMap<string | null, readonly Step[]>,
-  arriving: readonly string[],
-): SnapshotDiff {
-  const after = new Map<string, ScenePresence>();
-  const addEffects = (effects: readonly Effect[]) => {
-    for (const e of effects) {
-      if (e.effect === "presence")
-        after.set(e.targetId, REASON_TO_PRESENCE[e.reason]);
-    }
-  };
-  for (const steps of groups.values()) {
-    for (const step of steps) {
-      switch (step.step) {
-        case "effect":
-          addEffects(step.effects);
-          break;
-        case "check":
-          addEffects(step.onSuccess);
-          addEffects(step.onFailure);
-          addEffects(step.onCost);
-          addEffects(step.onSevere);
-          break;
-        case "attack":
-          addEffects(step.onHit);
-          break;
-        default:
-          break;
-      }
-    }
-  }
-  for (const id of arriving) after.set(id, REASON_TO_PRESENCE.arrived);
-  const actors: ActorChange[] = [];
-  for (const [id, to] of after) {
-    const actor = snapshot.actors.find(
-      (a) => a.id === id || a.combatantId === id,
-    );
-    if (!actor) continue;
-    actors.push({
-      kind: "presence",
-      actorId: actor.id,
-      before: actor.presence,
-      after: to,
-    });
-  }
-  return {
-    fromSeq: snapshot.throughSeq,
-    toSeq: snapshot.throughSeq,
-    stage: [],
-    actors,
-  };
-}
-
 /** The first `attack` attacker, `spell` caster or `move` mover that is not the action's actor. */
 function foreignActor(
   steps: readonly Step[],
@@ -856,10 +695,6 @@ export function checkPlan(input: PlanInput): PlanVerdict[] {
   }
   for (const r of input.rulings) groups.set(r.actionId, r.steps);
 
-  const resumed = new Set(input.resumed);
-  const diff = plannedDiff(snapshot, groups, input.arriving);
-  const claimState = { snapshot, diff };
-
   const verdicts: PlanVerdict[] = [];
   for (const [actionId, steps] of groups) {
     let failure: PlanFailure | null = null;
@@ -984,30 +819,10 @@ export function checkPlan(input: PlanInput): PlanVerdict[] {
       });
       continue;
     }
-    // Spec 058: the reason check. A resumed plan skips it (spec 057).
-    let reasonFailure: ReasonFailure | null = null;
-    if (actionId === null || !resumed.has(actionId)) {
-      scan: for (const [stepIndex, step] of steps.entries()) {
-        for (const { field, text } of stepTexts(step)) {
-          const res = checkClaims(claimState, text);
-          if (!res.pass) {
-            reasonFailure = { stepIndex, field, text, issues: res.issues };
-            break scan;
-          }
-        }
-      }
-    }
     verdicts.push(
-      reasonFailure
-        ? {
-            actionId,
-            ok: false,
-            code: REASON_REFUSAL_CODE,
-            failure: reasonFailure,
-          }
-        : pull.size > 0
-          ? { actionId, ok: true, pull: [...pull] }
-          : { actionId, ok: true },
+      pull.size > 0
+        ? { actionId, ok: true, pull: [...pull] }
+        : { actionId, ok: true },
     );
   }
   return verdicts;

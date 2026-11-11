@@ -105,16 +105,6 @@
         "type": "text",
         "value": "Tamsin runs her eyes along the ferry chain but the links are rusted alike from end to end. Whatever kept the bell quiet left no mark she can read from the bank."
       }
-    },
-    {
-      "purpose": "dm.audit",
-      "respond": {
-        "type": "json",
-        "value": {
-          "verdict": "pass",
-          "issues": []
-        }
-      }
     }
   ]
 }

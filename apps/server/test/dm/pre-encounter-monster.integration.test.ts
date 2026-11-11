@@ -60,8 +60,8 @@ async function run(variant: Variant) {
   const s = script("parley-lookout.json");
   const start = script("scene-start.json");
   const calls = structuredClone(s.calls) as Call[];
-  const turnA = calls.slice(0, 4);
-  const turnB = calls.slice(4);
+  const turnA = calls.slice(0, 3);
+  const turnB = calls.slice(3);
   let chosen: Call[];
   let dice: number[];
   if (variant === "unseen" || variant === "same-beat") {

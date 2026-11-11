@@ -38,16 +38,6 @@
       }
     },
     {
-      "purpose": "dm.audit",
-      "respond": {
-        "type": "json",
-        "value": {
-          "verdict": "pass",
-          "issues": []
-        }
-      }
-    },
-    {
       "purpose": "dm.director",
       "note": "approval turn after the human DM carries out the scene: free mode, resolve, no tracker step",
       "respond": {
@@ -148,16 +138,6 @@
       "respond": {
         "type": "text",
         "value": "Tamsin runs her eyes along the ferry chain but the links are rusted alike from end to end. Whatever kept the bell quiet left no mark she can read from the bank."
-      }
-    },
-    {
-      "purpose": "dm.audit",
-      "respond": {
-        "type": "json",
-        "value": {
-          "verdict": "pass",
-          "issues": []
-        }
       }
     },
     {

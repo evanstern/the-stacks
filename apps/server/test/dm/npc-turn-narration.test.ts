@@ -2,12 +2,11 @@ import { describe, expect, it } from "vitest";
 import { createGateway } from "../../src/ai/gateway.js";
 import { memorySink } from "../../src/ai/usage.js";
 import type { AssembleOutput } from "../../src/dm/nodes/assemble.js";
-import { audit } from "../../src/dm/nodes/audit.js";
+import { check } from "../../src/dm/nodes/check.js";
 import type { DirectorNodeOutput } from "../../src/dm/nodes/director.js";
 import { narrate } from "../../src/dm/nodes/narrate.js";
 import type { ResolveOutput } from "../../src/dm/nodes/resolve.js";
 import type { TurnContext } from "../../src/dm/pipeline/context.js";
-import { buildAuditPrompt } from "../../src/dm/prompts/audit.js";
 import { buildNarratePrompt } from "../../src/dm/prompts/narrate.js";
 import { createScriptedDm, loadDmScript } from "../../src/dm/script/load.js";
 import { playerFacingSeed } from "../../src/dm/seed/views.js";
@@ -163,31 +162,20 @@ const text = (value: string) => ({
   purpose: "dm.narrate",
   respond: { type: "text", value },
 });
-const auditJson = (verdict: "pass" | "fail", kind?: string) => ({
-  purpose: "dm.audit",
-  respond: {
-    type: "json",
-    value: {
-      verdict,
-      issues: kind ? [{ kind, detail: "Run 3 refusal." }] : [],
-    },
-  },
-});
-
 async function run(ctx: TurnContext) {
   const n = await narrate(ctx);
   if (!n.ok) throw new Error("narrate failed");
-  const a = await audit({
+  const a = await check({
     ...ctx,
     results: { ...ctx.results, narrate: n.output },
   });
-  if (!a.ok) throw new Error("audit failed");
-  return { narrated: n.output, audited: a.output };
+  if (!a.ok) throw new Error("check failed");
+  return { narrated: n.output, checked: a.output };
 }
 
 describe("run 3 seq 150-157: Snag's turn (spec 071)", () => {
-  it("the narrate and audit prompts name Snag, Kestrel and the plan", async () => {
-    const ctx = ctxFor([text(PROSE), auditJson("pass")]);
+  it("the narrate prompt names Snag, Kestrel and the plan", async () => {
+    const ctx = ctxFor([text(PROSE)]);
     const { narrated } = await run(ctx);
     const assembled = ctx.results.assemble as AssembleOutput;
     const np = buildNarratePrompt({
@@ -196,7 +184,6 @@ describe("run 3 seq 150-157: Snag's turn (spec 071)", () => {
       assembled,
       snapshot: EMPTY_RESOLVE_SNAPSHOT.snapshot,
       facts: narrated.facts,
-      prior: null,
     });
     expect(np.user).toContain("Turn: Snag acts in this beat.");
     expect(np.user).toMatch(/Next: Kestrel .*has not acted yet\./);
@@ -204,64 +191,11 @@ describe("run 3 seq 150-157: Snag's turn (spec 071)", () => {
     expect(np.system).toContain(
       "Only the actors on the Turn line, the Action lines and the roll lines act in this beat.",
     );
-    const ap = buildAuditPrompt({
-      facts: narrated.facts,
-      snapshot: EMPTY_RESOLVE_SNAPSHOT.snapshot,
-      prose: PROSE,
-    });
-    expect(ap.user).toContain("Turn: Snag acts in this beat.");
-    expect(ap.user).toMatch(/Next: Kestrel /);
-    expect(ap.system).toContain(
-      "6. Turn mode. Only the actors on the Turn line",
-    );
   });
 
-  it("passing prose ships as written", async () => {
-    const { audited } = await run(ctxFor([text(PROSE), auditJson("pass")]));
-    expect(audited.shipped?.fallback).toBe(false);
-    expect(audited.shipped?.prose).toBe(PROSE);
-  });
-
-  it("three refused audits ship Snag's planned reason, never 'makes a move'", async () => {
-    const { audited } = await run(
-      ctxFor([
-        text(PROSE),
-        auditJson("fail", "invented-mechanics"),
-        text(PROSE),
-        auditJson("fail", "ledger-mismatch"),
-        text(PROSE),
-        auditJson("fail", "ledger-mismatch"),
-      ]),
-    );
-    expect(audited.shipped?.fallback).toBe(true);
-    expect(audited.shipped?.prose).toContain(REASON.replace(/\.$/, ""));
-    expect(audited.shipped?.text).not.toContain("makes a move");
-  });
-
-  it("a refused plan ships the hold sentence", async () => {
-    const { audited } = await run(
-      ctxFor(
-        [
-          text(PROSE),
-          auditJson("fail", "invented-mechanics"),
-          text(PROSE),
-          auditJson("fail", "ledger-mismatch"),
-          text(PROSE),
-          auditJson("fail", "ledger-mismatch"),
-        ],
-        {
-          planGate: [
-            {
-              actionId: null,
-              ok: false,
-              code: "UNKNOWN_COMBATANT",
-              failure: {} as never,
-            },
-          ],
-        },
-      ),
-    );
-    expect(audited.shipped?.fallback).toBe(true);
-    expect(audited.shipped?.prose).toContain("Snag holds back, watching.");
+  it("clean prose ships as written with no correction", async () => {
+    const { checked } = await run(ctxFor([text(PROSE)]));
+    expect(checked.shipped?.prose).toBe(PROSE);
+    expect(checked.shipped?.corrections).toEqual([]);
   });
 });

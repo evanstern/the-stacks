@@ -83,16 +83,6 @@
         "type": "text",
         "value": "Tamsin and the others edge toward the reed camp, the ford quiet around them. Are you trying to stay unseen, or moving openly?"
       }
-    },
-    {
-      "purpose": "dm.audit",
-      "respond": {
-        "type": "json",
-        "value": {
-          "verdict": "pass",
-          "issues": []
-        }
-      }
     }
   ]
 }

@@ -15,7 +15,6 @@ import {
   renderRollLine,
   stripMarker,
 } from "../../src/dm/facts.js";
-import { factualSummary } from "../../src/dm/fallback.js";
 import type { DirectorNodeOutput } from "../../src/dm/nodes/director.js";
 import type { ResolveOutput } from "../../src/dm/nodes/resolve.js";
 import { factEntries } from "../../src/dm/prompts/narrate.js";
@@ -1045,7 +1044,6 @@ describe("presence fact (spec 048, User Story 2)", () => {
     expect(factEntries(facts)).toContain(
       `Event: ${(ev as { name: string }).name} is now absent (fled)`,
     );
-    expect(factualSummary(facts)).toMatch(/flees\./);
   });
 });
 

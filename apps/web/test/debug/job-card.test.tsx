@@ -93,7 +93,7 @@ test("expanded turn shows seven sections in order with not-run placeholders", ()
     "Interpret",
     "Adjudicate",
     "Resolve",
-    "Narrate and audit",
+    "Narrate and check",
     "Failure",
   ];
   const at = order.map((n) => html.indexOf(`aria-label="${n}"`));
@@ -131,7 +131,7 @@ test("failure section shows excerpts", () => {
         status: "failed",
         result: {
           failure: {
-            node: "narrate-audit",
+            node: "narrate-check",
             kind: "audit-failed",
             message: "bad",
             detail: {
@@ -149,7 +149,7 @@ test("failure section shows excerpts", () => {
       }),
     ),
   );
-  expect(html).toContain("audit-failed at narrate-audit");
+  expect(html).toContain("audit-failed at narrate-check");
   expect(html).toContain("EXCERPT-TEXT");
 });
 

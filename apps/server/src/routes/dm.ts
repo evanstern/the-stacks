@@ -6,6 +6,7 @@ import { z } from "zod";
 import type { AuthVariables } from "../auth/middleware.js";
 import { createAuthMiddleware } from "../auth/middleware.js";
 import type { DbClient, ValidateSession } from "../auth/session.js";
+import type { LegacyAuditRecord as AuditRecord } from "../dm/jobs.js";
 import {
   type DmJobRow,
   enqueueTurn,
@@ -14,7 +15,7 @@ import {
   type TurnTrigger,
 } from "../dm/jobs.js";
 import { listModelCalls, modelCallTotals } from "../dm/model-calls.js";
-import type { AuditRecord } from "../dm/nodes/audit.js";
+import type { CheckRecord } from "../dm/nodes/check.js";
 import { START_CONFLICT_MESSAGE, sceneStartState } from "../dm/scene-start.js";
 import { listSeeds, loadSeed, SeedError } from "../dm/seed/load.js";
 import { dmOnlySeedPaths } from "../dm/seed/views.js";
@@ -107,6 +108,9 @@ interface TurnItem {
   createdAt: string;
   finishedAt: string | null;
   outcome: string | null;
+  /** The turn's check record (spec 103); null on rows stored before TASK-0272. */
+  check: CheckRecord | null;
+  /** The audit loop's record; null on rows stored after TASK-0272. */
   audit: AuditRecord | null;
   calls: { purpose: string; promptVersion: string; outcome: string }[];
   error: string | null;
@@ -115,6 +119,7 @@ interface TurnItem {
 function toItem(job: DmJobRow): TurnItem {
   const result = (job.result ?? {}) as {
     outcome?: { status?: string };
+    check?: CheckRecord | null;
     audit?: AuditRecord | null;
     calls?: { purpose: string; promptVersion: string; outcome: string }[];
   };
@@ -130,6 +135,7 @@ function toItem(job: DmJobRow): TurnItem {
     finishedAt: job.finishedAt?.toISOString() ?? null,
     outcome:
       result.outcome?.status ?? (job.status === "failed" ? "failed" : null),
+    check: result.check ?? null,
     audit: result.audit ?? null,
     calls: (result.calls ?? []).map((c) => ({
       purpose: c.purpose,

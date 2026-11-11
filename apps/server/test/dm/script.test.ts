@@ -31,7 +31,7 @@ const SCRIPT = {
       respond: { type: "json", value: { pace: "slow" } },
     },
     {
-      purpose: "dm.audit",
+      purpose: "dm.companion",
       respond: { type: "error", kind: "upstream", message: "boom" },
     },
   ],
@@ -49,10 +49,10 @@ function gatewayFor(script: unknown) {
 }
 
 describe("DM purposes", () => {
-  it("names seven purposes, one per caller, with no vendor in source", () => {
-    expect(DM_PURPOSES).toHaveLength(7);
+  it("names six purposes, one per caller, with no vendor in source", () => {
+    expect(DM_PURPOSES).toHaveLength(6);
     expect(Object.values(PURPOSE_OF).sort()).toEqual([...DM_PURPOSES].sort());
-    expect(missingDmPurposes({ "dm.narrate": {} })).toHaveLength(6);
+    expect(missingDmPurposes({ "dm.narrate": {} })).toHaveLength(5);
   });
 });
 
@@ -77,9 +77,8 @@ describe("DM script", () => {
         "dm.interpret": 0,
         "dm.adjudicate": 0,
         "dm.narrate": 2,
-        "dm.audit": 1,
         "dm.chronicle": 0,
-        "dm.companion": 0,
+        "dm.companion": 1,
       },
       dice: 2,
     });
@@ -102,10 +101,10 @@ describe("DM script", () => {
       gateway.chat({ purpose: "dm.narrate", messages: [] }),
     );
     expect(narrate2[0]).toEqual({ type: "text", text: "second" });
-    const audit = await collect(
-      gateway.chat({ purpose: "dm.audit", messages: [] }),
+    const companion = await collect(
+      gateway.chat({ purpose: "dm.companion", messages: [] }),
     );
-    expect(audit[0]).toMatchObject({
+    expect(companion[0]).toMatchObject({
       type: "error",
       kind: "upstream",
       message: "boom",

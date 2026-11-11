@@ -4,7 +4,6 @@ import {
   type NarrationFacts,
   renderDiceLines,
 } from "../../src/dm/facts.js";
-import { factualSummary } from "../../src/dm/fallback.js";
 import {
   type CheckId,
   runChecks,
@@ -191,7 +190,7 @@ describe("code checks", () => {
       events: [],
       setting: { locationName: "Greyhollow Ford", openingFraming: "" },
     } as unknown as NarrationFacts;
-    const prose = factualSummary(facts);
+    const prose = "Goblin with a pot-helm falls to the stroke.";
     const text = `${prose}\n\n${renderDiceLines(facts).join("\n")}`;
     const narration = seg.rows.find((r) => r.seq === 61);
     if (!narration) throw new Error("narration missing");

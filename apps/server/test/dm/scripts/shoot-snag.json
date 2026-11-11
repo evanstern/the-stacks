@@ -87,16 +87,6 @@
       }
     },
     {
-      "purpose": "dm.audit",
-      "respond": {
-        "type": "json",
-        "value": {
-          "verdict": "pass",
-          "issues": []
-        }
-      }
-    },
-    {
       "purpose": "dm.director",
       "note": "turn 2: free mode, Kestrel shoots (run 1 seq 45)",
       "respond": {
@@ -158,16 +148,6 @@
       "respond": {
         "type": "text",
         "value": "Kestrel draws the string back and looses an arrow at the goblin on the island."
-      }
-    },
-    {
-      "purpose": "dm.audit",
-      "respond": {
-        "type": "json",
-        "value": {
-          "verdict": "pass",
-          "issues": []
-        }
       }
     }
   ]

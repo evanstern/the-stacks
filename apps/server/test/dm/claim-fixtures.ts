@@ -8,13 +8,19 @@ import {
   type StoredEvent,
   StoredEventSchema,
 } from "@the-stacks/session-model";
-import type { ClaimState } from "../../src/dm/claims.js";
 import { loadSeed } from "../../src/dm/seed/load.js";
 import {
   type ActorSnapshot,
   buildSnapshot,
   diffSnapshots,
+  type SnapshotDiff,
 } from "../../src/dm/snapshot/index.js";
+
+/** The state a recorded turn is checked against: S1 and the S0-to-S1 diff. */
+export interface ClaimState {
+  snapshot: ActorSnapshot;
+  diff: SnapshotDiff | null;
+}
 
 /**
  * Evidence fixtures for the output claim gate (spec 051, plan D9). The

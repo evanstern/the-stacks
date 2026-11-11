@@ -68,9 +68,7 @@ describe("fixture scripts", () => {
     expect(full.calls.filter((c) => c.purpose !== "dm.chronicle")).toEqual(
       parts.flatMap((p) => p.calls),
     );
-    for (const f of ["audit-regenerate.json", "audit-fallback.json"]) {
-      expect(() => loadDmScript(script(f))).not.toThrow();
-    }
+    expect(() => loadDmScript(script("shutter-check.json"))).not.toThrow();
   });
 });
 

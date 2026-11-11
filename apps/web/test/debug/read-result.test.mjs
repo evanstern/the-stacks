@@ -80,6 +80,37 @@ test("a finished turn reads checkpoint, outcome, calls", () => {
   assert.equal(t.failure, null);
 });
 
+test("a new turn reads the check record and tolerates its absence", () => {
+  const t = readTurnResult({
+    checkpoint: {
+      submissions: [],
+      narration: {
+        check: {
+          leak: [{ kind: "dm-only-text", matched: "key", detail: "hidden" }],
+          contradiction: [],
+          corrected: true,
+          narrateError: "gateway",
+        },
+        shipped: true,
+        seqs: [6],
+      },
+    },
+    outcome: { status: "completed" },
+    check: { leak: [], contradiction: [], corrected: false },
+    calls: [],
+  });
+  assert.deepEqual(t.checkpoint.narration.check.leak, [
+    { kind: "dm-only-text", matched: "key", detail: "hidden" },
+  ]);
+  assert.equal(t.checkpoint.narration.check.narrateError, "gateway");
+  assert.equal(t.check.corrected, false);
+  assert.equal(t.checkpoint.narration.attempts.length, 0);
+  assert.equal(
+    readTurnResult({ outcome: { status: "completed" } }).check,
+    null,
+  );
+});
+
 test("a failed turn reads the failure and its excerpts", () => {
   const t = readTurnResult({
     checkpoint: { beat: null, submissions: [] },

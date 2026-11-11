@@ -1,6 +1,6 @@
 ---
 name: dm-failure-and-gates
-description: DM runtime robustness (TASK-0102, specs/033-director-robustness) - the TurnFailureResult stored in jobs.result with bounded model-output excerpts, the director normalizer, the plan gate's reason check and held party action (TASK-0244) (REASON_CONTRADICTS_STATE, spec 058), and the closed rules-term lists (skills, conditions, damage types) rendered into prompts, with spells and modifiers/DCs not yet gated. Read before touching failure handling or model-output schemas.
+description: DM runtime robustness (TASK-0102, specs/033-director-robustness) - the TurnFailureResult stored in jobs.result with bounded model-output excerpts, the director normalizer, the plan gate's held party action (TASK-0244; the spec 058 reason check is removed by TASK-0272), and the closed rules-term lists (skills, conditions, damage types) rendered into prompts, with spells and modifiers/DCs not yet gated. Read before touching failure handling or model-output schemas.
 kind: component
 sources:
   - apps/server/src/dm/jobs.ts
@@ -14,7 +14,7 @@ sources:
   - apps/server/src/dm/prompts/step-grammar.ts
   - apps/server/src/dm/seed/schema.ts
   - specs/033-director-robustness/contracts/rules-terms.md
-verified_against: bfb65a157559c88bf988a6c0f55b7c03824ff412
+verified_against: 7a36c9e9e90450f473fc5e54a082d0ce7c083727
 ---
 
 # DM failure record and rules-term gates
@@ -29,7 +29,7 @@ The Director legality override reasons include, since spec 099, "no foe of the e
 A failed ruling call (spec 102) logs `dm.ruling.call-failed`, leaves the request open and never fails the turn.
 
 When a turn fails, the worker writes `jobs.result` as a `TurnFailureResult` (`dm/jobs.ts`):
-the last checkpoint, `outcome: { status: "failed" }`, `audit: null`, every model call made (each with provider, model, token, cost and duration fields since TASK-0116), and
+the last checkpoint, `outcome: { status: "failed" }`, `check: null`, every model call made (each with provider, model, token, cost and duration fields since TASK-0116), and
 `failure: { node, kind, message, detail }`. `node` is a pipeline node, or `presence` when the
 marker write before the pipeline failed (`kind` `gate` for a refusal, `internal` for a throw;
 `detail` holds the refusal `code` or `null`; [[presence]]). `kind` is a node error kind (one is `state-overflow`: an actor snapshot did not fit its cap; `detail`
@@ -50,7 +50,7 @@ and `DamageTypeSchema` ([[dnd5e-engine]]). The `presence` effect (`{effect, targ
 into the interpret and adjudicate prompts (`dm.interpret-v16`, `dm.adjudicate-v10`; v15 adds the "Arriving this beat" section, spec 088; v5 adds `followUps`, TASK-0182; v6 adds the agency rule, TASK-0113; v7 adds the `move` step, TASK-0208; v13 and v10 add the `help` step and the opposition `difficulty`, spec 084;v10 say), so no list is
 hand-typed; it is split from `prompts/common.ts` because narrate must import no engine value.
 The scene seed's character `skills` keys and clue `check.skill` use the same `SkillSchema`.
-A gate never maps, coerces or drops a term to pass output. The audit
+A gate never maps, coerces or drops a term to pass output. The rules-terms contract
 (`specs/033-director-robustness/contracts/rules-terms.md`) records spells as the term **not gated yet**; since spec 083 (TASK-0105) they are gated. Since TASK-0104 schemas refuse `expression`, `dc`, `targetAc` and `onHit` damage; the plan gate adds `STAT_UNDEFINED`.
 
 Spec 100: `SceneSeedSchema` gained an optional `space` and zone fields, checked in `crossCheckSeed`; a bad zone is a `SeedError` at load, not a turn failure ([[seed-npc-presence]]).

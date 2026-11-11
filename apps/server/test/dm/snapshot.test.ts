@@ -3,7 +3,6 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { estimateTokens } from "@the-stacks/srd";
 import { describe, expect, it } from "vitest";
-import { partyNameTerms } from "../../src/dm/nodes/audit.js";
 import { dmOnlySeedText } from "../../src/dm/seed/views.js";
 import {
   buildSnapshot,
@@ -393,21 +392,7 @@ describe("aliases", () => {
     expect(t?.aliases.filter((x) => x === "the keeper")).toHaveLength(1);
   });
 
-  it("nameTerms matches partyNameTerms output", () => {
-    const party = [
-      { characterId: "odo", name: "Brother Odo" },
-      { characterId: "tamsin", name: "Tamsin Vale" },
-      { characterId: "x", name: "  " },
-    ];
-    expect(partyNameTerms(party as never)).toEqual([
-      "Brother Odo",
-      "odo",
-      "Odo",
-      "Tamsin Vale",
-      "tamsin",
-      "Tamsin",
-      "x",
-    ]);
+  it("nameTerms drops a leading title word", () => {
     expect(nameTerms("Sir Dame", [])).toEqual(["Sir Dame"]);
   });
 });

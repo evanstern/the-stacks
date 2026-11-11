@@ -27,7 +27,7 @@ sources:
   - apps/server/seeds/greyhollow-ford-reed-camp.json
   - apps/server/dm-scripts/runbook-a-reed-camp.json
 size_budget_exempt: the note sat within 40 chars of the 8000 budget before TASK-0195; the per-runbook scenario section is a short pointer to docs/design/playtest-scenarios.md, and the in-process harness above is one pipeline that does not split without a TASK of its own
-verified_against: 34e13e12b755f1537931bba926e15116761ce4ca
+verified_against: 7a36c9e9e90450f473fc5e54a082d0ce7c083727
 ---
 
 # Playtest harness
@@ -125,7 +125,7 @@ error, then a per-segment `error`). With no gateway the audit is `checks-only`. 
 segment whose auditor call errored). Findings carry stable ids `F1`, `F2`, ..., `source`
 (`check`, `auditor`, `dm-audit`), `kind` and a severity from `SEVERITY_OF`: `fail` for ledger
 contradiction, invented mechanics, hidden-info leak, player agency, roll without reason and
-no-scene; `warn` for `doctrine` and `other`; `note` for `dm-audit-flag`, one per job whose DM
+no-scene; `warn` for `doctrine` and `other`; `note` for `dm-audit-flag`, one per job whose DM check hit a leak or contradiction (spec 103, `check: <check>/<kind>`) or, on a pre-0272 row, whose audit
 runtime audit was flagged. `stats.ts` derives fight statistics from the ledger for TASK-0055
 (rounds, attacks, hits, damage, reduced-to-zero, death saves, and `fledOrBargained` from roll
 reasons, `null` plus `fledOrBargainedNote` when not derivable). `reducedToZero` lists every combatant dropped to 0 HP, party and NPC alike (TASK-0134). A note warns when

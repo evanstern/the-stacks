@@ -64,8 +64,9 @@ const PURPOSE_NODE: Record<string, TurnNode> = {
   "dm.director": "director",
   "dm.interpret": "interpret",
   "dm.adjudicate": "adjudicate",
-  "dm.narrate": "narrate-audit",
-  "dm.audit": "narrate-audit",
+  "dm.narrate": "narrate-check",
+  // Rows stored before TASK-0272 still list `dm.audit` calls.
+  "dm.audit": "narrate-check",
 };
 
 const ms = (iso: string | null): number | null => {
@@ -136,10 +137,12 @@ function turnSections(turn: ReadTurn): JobSection[] {
       (cp?.submissions.length ?? 0) > 0,
       cp?.submissions ?? [],
     ),
-    "narrate-audit": section(
-      "narrate-audit",
+    "narrate-check": section(
+      "narrate-check",
       cp?.narration != null,
-      cp?.narration ? { narration: cp.narration, audit: turn.audit } : null,
+      cp?.narration
+        ? { narration: cp.narration, check: turn.check ?? turn.audit }
+        : null,
     ),
     failure: section("failure", turn.failure !== null, turn.failure),
   };

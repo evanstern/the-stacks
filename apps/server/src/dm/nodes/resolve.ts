@@ -19,7 +19,6 @@ import {
   type TableMode,
 } from "@the-stacks/session-model";
 import type { Gate } from "../../gate/index.js";
-import { namedActorIds } from "../claims.js";
 import { clarifyHolds } from "../first-stage.js";
 import {
   arrivingMonsters,
@@ -38,6 +37,7 @@ import { reactors } from "../reactions.js";
 import { refreshSubmission } from "../resume.js";
 import { combatantFromSrd, statsFromCharacter } from "../seed/combatants.js";
 import type { SceneSeed } from "../seed/schema.js";
+import { namedActorIds } from "../snapshot/aliases.js";
 import {
   type ActorSnapshot,
   buildSnapshot,
@@ -46,7 +46,7 @@ import {
 } from "../snapshot/index.js";
 import { bandTexts, clueFor, effectsForBand, isFreeRetry } from "../stakes.js";
 import type { AssembleOutput, BeatItem } from "./assemble.js";
-import type { AuditOutput } from "./audit.js";
+import type { CheckOutput } from "./check.js";
 import type { DirectorNodeOutput } from "./director.js";
 import type { Effect, InterpretReading, Stakes, Step } from "./schemas.js";
 import { settleTurn } from "./settle.js";
@@ -1989,41 +1989,35 @@ export type ShipResult =
   | { ok: false; error: NodeError };
 
 /**
- * Submits the narration audit chose to ship, then the audit flag when it was
- * the fallback (audit.md "What ships"). Runs after resolve's submissions, in
- * the same module so every gate call stays here (AC #5).
+ * Submits the narration check chose to ship, then each correction as an AI-DM `talk` proposal
+ * (spec 103 plan D2). Runs after resolve's submissions, in the same module so every gate call
+ * stays here (AC #5).
  */
 export async function submitNarration(
   ctx: TurnContext,
-  audit: AuditOutput,
+  check: CheckOutput,
   checkpoint: TurnCheckpoint,
 ): Promise<ShipResult> {
-  const shipped = audit.shipped;
+  const shipped = check.shipped;
   if (!shipped) return { ok: true, shipped: false };
   if (checkpoint.narration?.shipped) return { ok: true, shipped: false };
   const run = new Run({ ...ctx, checkpoint });
   try {
     await run.submit("narration", "narration", () => ({
       kind: "narration",
-      ...note("Narrate the beat", "Audit passed."),
+      ...note("Narrate the beat", "Narration checked."),
       narration: {
         text: shipped.text.slice(0, 8000),
         actionIds: shipped.actionIds,
       },
       visibility: "public",
     }));
-    if (shipped.flagBody) {
-      const body = shipped.flagBody;
-      await run.submit("audit-flag", "journal", () => ({
-        kind: "journal",
-        ...note("Audit flag: narration replaced", body.slice(0, 1000)),
-        entry: {
-          entryId: `audit-${ctx.job.id}`,
-          title: "Audit flag: narration replaced",
-          body: body.slice(0, 8000),
-          sourceActionIds: shipped.actionIds,
-        },
-        visibility: "dm",
+    for (const [n, c] of shipped.corrections.entries()) {
+      await run.submit(`correction-${n}`, "talk", () => ({
+        kind: "talk",
+        ...note("Narration correction", c.text),
+        talk: { text: c.text.slice(0, 4000), channel: "ic", characterId: null },
+        visibility: c.visibility,
       }));
     }
     const saved = await ctx.deps.saveCheckpoint({
@@ -2031,7 +2025,7 @@ export async function submitNarration(
       submissions: run.submissions,
       lastSeq: run.lastSeq,
       narration: {
-        attempts: audit.record.attempts,
+        check: check.record,
         shipped: true,
         seqs: run.submissions.find((s) => s.key === "narration")?.seqs ?? [],
       },

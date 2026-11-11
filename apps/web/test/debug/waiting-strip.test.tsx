@@ -36,14 +36,14 @@ test("a running job shows kind, stage, attempts and heartbeat age", () => {
       {
         id: "j1",
         kind: "turn",
-        stage: "narrate-audit",
+        stage: "narrate-check",
         attempts: 2,
         heartbeatAgeMs: 4000,
       },
     ],
   });
   expect(html).toContain("turn");
-  expect(html).toContain("stage narrate-audit");
+  expect(html).toContain("stage narrate-check");
   expect(html).toContain("attempts 2");
   expect(html).toContain("4 s");
   expect(html).not.toContain("nothing queued");

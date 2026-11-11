@@ -151,7 +151,6 @@ describe("duo player-facing prompts", () => {
       } as unknown as Parameters<typeof buildNarratePrompt>[0]["assembled"],
       snapshot,
       facts,
-      prior: null,
     });
     const text = `${system}\n${user}`;
     expect(text).toContain("Tamsin Vale (party, human player)");

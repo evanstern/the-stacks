@@ -67,6 +67,12 @@ test("badges", () => {
     "fallback",
   );
   assert.equal(view(job({ result: finished("held") })).badge, "held");
+  // A new row carries `check`, never a fallback badge.
+  assert.equal(
+    view(job({ result: finished("completed", { check: { corrected: true } }) }))
+      .badge,
+    "shipped",
+  );
   assert.equal(view(job({ result: finished("empty-beat") })).badge, "empty");
   assert.equal(
     view(
@@ -133,7 +139,7 @@ test("seven turn sections in node order; ran false for nodes not run", () => {
       "interpret",
       "adjudicate",
       "resolve",
-      "narrate-audit",
+      "narrate-check",
       "failure",
     ],
   );
@@ -174,7 +180,7 @@ test("calls are grouped by purpose to section", () => {
   assert.deepEqual(by.director, ["dm.director"]);
   assert.deepEqual(by.interpret, ["dm.interpret"]);
   assert.deepEqual(by.adjudicate, ["dm.adjudicate"]);
-  assert.deepEqual(by["narrate-audit"], [
+  assert.deepEqual(by["narrate-check"], [
     "dm.narrate",
     "dm.audit",
     "dm.narrate",

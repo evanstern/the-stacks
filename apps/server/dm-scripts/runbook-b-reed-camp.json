@@ -41,16 +41,6 @@
       "note": "opening framing (0171): characters and Wenna, no player names, no 'What do you do?'"
     },
     {
-      "purpose": "dm.audit",
-      "respond": {
-        "type": "json",
-        "value": {
-          "verdict": "pass",
-          "issues": []
-        }
-      }
-    },
-    {
       "purpose": "dm.director",
       "respond": {
         "type": "json",
@@ -108,16 +98,6 @@
         "value": "Tamsin leads the way along the old timber posts, Kestrel at her shoulder and Wenna a few steps behind, and the smoke thickens as the reeds close in."
       },
       "note": "F1 undeclared method: plain move, no Stealth (0205)"
-    },
-    {
-      "purpose": "dm.audit",
-      "respond": {
-        "type": "json",
-        "value": {
-          "verdict": "pass",
-          "issues": []
-        }
-      }
     },
     {
       "purpose": "dm.director",
@@ -198,16 +178,6 @@
       "note": "F2 reveal: Perception check; the Director reports Snag and Pell as arrivals (0206)"
     },
     {
-      "purpose": "dm.audit",
-      "respond": {
-        "type": "json",
-        "value": {
-          "verdict": "pass",
-          "issues": []
-        }
-      }
-    },
-    {
       "purpose": "dm.director",
       "respond": {
         "type": "json",
@@ -270,16 +240,6 @@
         "value": "Kestrel draws the string back and looses an arrow at Snag, but the shaft whistles past his ear and buries itself in a post."
       },
       "note": "F3 Kestrel shoots Snag in free mode; Snag is pulled in (0206, 0210)"
-    },
-    {
-      "purpose": "dm.audit",
-      "respond": {
-        "type": "json",
-        "value": {
-          "verdict": "pass",
-          "issues": []
-        }
-      }
     },
     {
       "purpose": "dm.director",
@@ -345,16 +305,6 @@
         "value": "Kestrel plants her feet on the posts and steadies Tamsin's arm, ready to haul her back if the timber rolls."
       },
       "note": "F3b Help: Kestrel steadies Tamsin (0128)"
-    },
-    {
-      "purpose": "dm.audit",
-      "respond": {
-        "type": "json",
-        "value": {
-          "verdict": "pass",
-          "issues": []
-        }
-      }
     },
     {
       "purpose": "dm.director",
@@ -432,16 +382,6 @@
         "value": "Tamsin hurdles the sunk log in a single stride and lands light on the next post."
       },
       "note": "F3c Tamsin's Acrobatics check rolls with the assist (0128, 0104)"
-    },
-    {
-      "purpose": "dm.audit",
-      "respond": {
-        "type": "json",
-        "value": {
-          "verdict": "pass",
-          "issues": []
-        }
-      }
     },
     {
       "purpose": "dm.director",
@@ -524,16 +464,6 @@
       "note": "F3d opposition: Tamsin shoves Snag; DC from his stats (0128)"
     },
     {
-      "purpose": "dm.audit",
-      "respond": {
-        "type": "json",
-        "value": {
-          "verdict": "pass",
-          "issues": []
-        }
-      }
-    },
-    {
       "purpose": "dm.director",
       "respond": {
         "type": "json",
@@ -595,16 +525,6 @@
         "value": "Brother Odo lays a hand on Tamsin's shoulder and murmurs a prayer; warmth runs through her armor."
       },
       "note": "F3e Odo casts Cure Wounds, cast 1 (0211)"
-    },
-    {
-      "purpose": "dm.audit",
-      "respond": {
-        "type": "json",
-        "value": {
-          "verdict": "pass",
-          "issues": []
-        }
-      }
     },
     {
       "purpose": "dm.director",
@@ -670,16 +590,6 @@
       "note": "F3e Odo casts Cure Wounds, cast 2 (0211)"
     },
     {
-      "purpose": "dm.audit",
-      "respond": {
-        "type": "json",
-        "value": {
-          "verdict": "pass",
-          "issues": []
-        }
-      }
-    },
-    {
       "purpose": "dm.director",
       "respond": {
         "type": "json",
@@ -743,16 +653,6 @@
       "note": "F3e Odo casts Cure Wounds, cast 3 (0211)"
     },
     {
-      "purpose": "dm.audit",
-      "respond": {
-        "type": "json",
-        "value": {
-          "verdict": "pass",
-          "issues": []
-        }
-      }
-    },
-    {
       "purpose": "dm.director",
       "respond": {
         "type": "json",
@@ -785,16 +685,6 @@
         "value": "The party reaches the end of the causeway as the light goes amber, on the trail of whoever silenced the ferry bell. Tamsin Vale, Brother Odo and Kestrel mean to have the ferry crossing again before full dark. Wenna Marsh keeps close with her boathook, and smoke from the goblins' reed-camp curls up from the reeds ahead. The next move is yours."
       },
       "note": "S2 opening framing (0171)"
-    },
-    {
-      "purpose": "dm.audit",
-      "respond": {
-        "type": "json",
-        "value": {
-          "verdict": "pass",
-          "issues": []
-        }
-      }
     },
     {
       "purpose": "dm.director",
@@ -858,16 +748,6 @@
       "note": "F4 Tamsin rushes the island; turn mode, initiative"
     },
     {
-      "purpose": "dm.audit",
-      "respond": {
-        "type": "json",
-        "value": {
-          "verdict": "pass",
-          "issues": []
-        }
-      }
-    },
-    {
       "purpose": "dm.director",
       "respond": {
         "type": "json",
@@ -920,16 +800,6 @@
         "value": "Tamsin turns on the boy at the post, and the DM asks: longsword in melee, or the light crossbow from range?"
       },
       "note": "F5 clarify: 'I attack Pell' asks which weapon (0209)"
-    },
-    {
-      "purpose": "dm.audit",
-      "respond": {
-        "type": "json",
-        "value": {
-          "verdict": "pass",
-          "issues": []
-        }
-      }
     },
     {
       "purpose": "dm.director",
@@ -996,16 +866,6 @@
       "note": "F6 attack on Pell passes the gate and pulls him in (0210, 0213)"
     },
     {
-      "purpose": "dm.audit",
-      "respond": {
-        "type": "json",
-        "value": {
-          "verdict": "pass",
-          "issues": []
-        }
-      }
-    },
-    {
       "purpose": "dm.director",
       "respond": {
         "type": "json",
@@ -1066,16 +926,6 @@
         "value": "Kestrel breaks for the post, and the goblin in the pot-helm lashes out at her as she runs."
       },
       "note": "F7 Kestrel runs for Pell; goblin-2 reacts as the engine's reaction (0208); free attempt parked as followUp"
-    },
-    {
-      "purpose": "dm.audit",
-      "respond": {
-        "type": "json",
-        "value": {
-          "verdict": "pass",
-          "issues": []
-        }
-      }
     },
     {
       "purpose": "dm.companion",
@@ -1158,16 +1008,6 @@
       "note": "Odo attacks goblin-3"
     },
     {
-      "purpose": "dm.audit",
-      "respond": {
-        "type": "json",
-        "value": {
-          "verdict": "pass",
-          "issues": []
-        }
-      }
-    },
-    {
       "purpose": "dm.director",
       "respond": {
         "type": "json",
@@ -1225,16 +1065,6 @@
         "value": "Snag circles the fire, scimitar low, and sing-songs a threat at the big-feet."
       },
       "note": "NPC turn: snag"
-    },
-    {
-      "purpose": "dm.audit",
-      "respond": {
-        "type": "json",
-        "value": {
-          "verdict": "pass",
-          "issues": []
-        }
-      }
     },
     {
       "purpose": "dm.director",
@@ -1296,16 +1126,6 @@
       "note": "NPC turn: goblin-2"
     },
     {
-      "purpose": "dm.audit",
-      "respond": {
-        "type": "json",
-        "value": {
-          "verdict": "pass",
-          "issues": []
-        }
-      }
-    },
-    {
       "purpose": "dm.director",
       "respond": {
         "type": "json",
@@ -1363,16 +1183,6 @@
         "value": "The goblin lookout hangs back at the edge of the firelight, gripping his spear."
       },
       "note": "NPC turn: goblin-3"
-    },
-    {
-      "purpose": "dm.audit",
-      "respond": {
-        "type": "json",
-        "value": {
-          "verdict": "pass",
-          "issues": []
-        }
-      }
     },
     {
       "purpose": "dm.director",
@@ -1434,16 +1244,6 @@
       "note": "NPC turn: goblin-4"
     },
     {
-      "purpose": "dm.audit",
-      "respond": {
-        "type": "json",
-        "value": {
-          "verdict": "pass",
-          "issues": []
-        }
-      }
-    },
-    {
       "purpose": "dm.director",
       "respond": {
         "type": "json",
@@ -1503,16 +1303,6 @@
       "note": "NPC turn: pell"
     },
     {
-      "purpose": "dm.audit",
-      "respond": {
-        "type": "json",
-        "value": {
-          "verdict": "pass",
-          "issues": []
-        }
-      }
-    },
-    {
       "purpose": "dm.director",
       "respond": {
         "type": "json",
@@ -1570,16 +1360,6 @@
         "value": "Tamsin plants her feet and keeps the pot-helm goblin honest. Pell is still tied to the post; nobody has cut his bonds yet."
       },
       "note": "F8 later beat: the followUp stays undone (0208 AC4)"
-    },
-    {
-      "purpose": "dm.audit",
-      "respond": {
-        "type": "json",
-        "value": {
-          "verdict": "pass",
-          "issues": []
-        }
-      }
     },
     {
       "purpose": "dm.companion",

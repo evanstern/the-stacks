@@ -54,8 +54,8 @@ const chronicle = {
 async function run(opts: { reveal: boolean }) {
   const s = script("shoot-snag.json");
   const start = script("scene-start.json");
-  // Skipping the reveal drops its four calls and its die.
-  const calls = opts.reveal ? s.calls : s.calls.slice(4);
+  // Skipping the reveal drops its three calls and its die.
+  const calls = opts.reveal ? s.calls : s.calls.slice(3);
   const w: World = await createWorld({
     dice: opts.reveal ? s.dice : s.dice.slice(1),
     calls: [...start.calls, ...calls, chronicle, chronicle, chronicle],

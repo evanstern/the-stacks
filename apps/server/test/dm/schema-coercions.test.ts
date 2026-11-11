@@ -1,11 +1,8 @@
 import { describe, expect, it } from "vitest";
 import type { ChatEvent, ChatRequest } from "../../src/ai/types.js";
 import { normalizeChronicle } from "../../src/dm/chronicle.js";
-import { AuditModelOutput, normalizeAudit } from "../../src/dm/nodes/audit.js";
 import { callJson } from "../../src/dm/pipeline/call.js";
 import {
-  audit,
-  auditIssue,
   chronicle,
   SHAPES,
   type Shape,
@@ -62,45 +59,13 @@ describe("TASK-0203 shapes through callJson", () => {
       });
     }
   }
-  it("a non-string audit kind is not coerced and re-asks", async () => {
-    const shape = SHAPES[0] as Shape;
-    const bad = audit(auditIssue({ kind: 7 }));
-    const good = audit(auditIssue());
-    const r = await run({ ...shape, schema: AuditModelOutput }, [
-      text(wrap(shape, bad)),
-      text(wrap(shape, good)),
-    ]);
-    expect(r.calls.map((c) => c.outcome)).toEqual(["schema-mismatch", "ok"]);
-  });
 });
 
 describe("normalizer edge cases", () => {
-  it("clips hard at 300 with no space", () => {
-    const out = normalizeAudit(
-      audit(auditIssue({ detail: "x".repeat(400) })),
-    ) as { issues: { detail: string }[] };
-    expect(out.issues[0]?.detail).toHaveLength(300);
-  });
-  it("adds the prefix before the clip", () => {
-    const out = normalizeAudit(
-      audit(auditIssue({ kind: "zz", detail: "word ".repeat(90) })),
-    ) as { issues: { detail: string }[] };
-    expect(out.issues[0]?.detail.startsWith("[zz] word")).toBe(true);
-    expect(out.issues[0]?.detail.length).toBeLessThanOrEqual(300);
-  });
-  it("leaves empty detail, long actor and non-objects alone", () => {
-    const i = auditIssue({ detail: "", actor: "a".repeat(81) });
-    expect(normalizeAudit(audit(i))).toEqual(audit(i));
-    for (const v of [null, 3, "x", [1], { issues: "x" }]) {
-      expect(normalizeAudit(v)).toEqual(v);
+  it("leaves non-objects alone", () => {
+    for (const v of [null, 3, "x", [1], { entries: "x" }]) {
       expect(normalizeChronicle(v)).toEqual(v);
     }
-  });
-  it("does not mutate its input", () => {
-    const input = audit(auditIssue({ kind: "zz", actor: null }));
-    const copy = structuredClone(input);
-    normalizeAudit(input);
-    expect(input).toEqual(copy);
   });
   it("leaves non-integer, negative and object chronicle ids", () => {
     const ids = [1.5, -1, { a: 1 }, "ok"];

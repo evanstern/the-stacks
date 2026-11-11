@@ -28,7 +28,7 @@ import {
  * one conditional branch (adjudicate or not), checkpoint reuse for the
  * planning nodes, fence checks between nodes. No dynamic routing, no cycle.
  *
- * The final step ships the narration audit chose: `submitNarration`, which
+ * The final step ships the narration check chose: `submitNarration`, which
  * lives in resolve's module so every gate call stays there (AC #5).
  */
 
@@ -125,7 +125,10 @@ export async function runTurn(
       return fail(name, { kind: "aborted", message: "the turn was aborted" });
     }
     if (!(await ctx.deps.fence())) return fenced(name);
-    if (!(await ctx.deps.setStage(name))) return fenced(name);
+    // ponytail: `jobs_stage_valid` has no `check` value and spec 103 plans no migration, so the
+    // pure check node reports as `narrate`. Add `check` to the constraint when a migration is due.
+    if (!(await ctx.deps.setStage(name === "check" ? "narrate" : name)))
+      return fenced(name);
 
     if (name === "narrate" && ctx.job.attempt > 1 && ctx.results.resolve) {
       landedNarration = await findLandedNarration(
@@ -133,21 +136,21 @@ export async function runTurn(
         ctx.results.resolve.lastSeq,
       );
     }
-    if (landedNarration && (name === "narrate" || name === "audit")) {
+    if (landedNarration && (name === "narrate" || name === "check")) {
       // A reclaim after the narration landed: ship nothing, spend no calls.
-      if (name === "audit") {
-        const audit: NodeOutputs["audit"] = {
+      if (name === "check") {
+        const check: NodeOutputs["check"] = {
           record: {
-            attempts: [],
-            final: "passed",
-            flagged: false,
+            leak: [],
+            contradiction: [],
+            corrected: false,
             shippedProseSha256: createHash("sha256")
               .update(landedNarration.text)
               .digest("hex"),
           },
           shipped: null,
         };
-        ctx = { ...ctx, results: { ...ctx.results, audit } };
+        ctx = { ...ctx, results: { ...ctx.results, check } };
       }
       continue;
     }
@@ -298,9 +301,9 @@ export async function runTurn(
     };
   }
 
-  // Final step: ship what audit decided (stub nodes leave `shipped` unset).
-  const audited = ctx.results.audit;
-  if (audited?.shipped) {
+  // Final step: ship what check decided (stub nodes leave `shipped` unset).
+  const checked = ctx.results.check;
+  if (checked?.shipped) {
     const resolved = ctx.results.resolve;
     const checkpoint: TurnCheckpoint = {
       ...ctx.checkpoint,
@@ -309,7 +312,7 @@ export async function runTurn(
       ...(resolved ? { planGate: resolved.planGate } : {}),
     };
     if (!(await ctx.deps.fence())) return fenced("resolve");
-    const shipped = await submitNarration(ctx, audited, checkpoint);
+    const shipped = await submitNarration(ctx, checked, checkpoint);
     if (!shipped.ok) return fail("resolve", shipped.error);
     if (shipped.shipped && resolved) {
       ctx = {

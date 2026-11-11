@@ -16,7 +16,7 @@ sources:
   - packages/session-model/src/gate/proposals.ts
   - packages/session-model/src/gate/plan.ts
 size_budget_exempt: TASK-0237 adds the dependent-arrivals paragraph to the one arrivals note; the note sat 246 chars under the budget before it, and the arrival rules do not split without a TASK of its own
-verified_against: bfb65a157559c88bf988a6c0f55b7c03824ff412
+verified_against: 7a36c9e9e90450f473fc5e54a082d0ce7c083727
 ---
 
 # Seed NPC presence
@@ -95,7 +95,7 @@ Resolve builds these proposals, as it does every `scene-presence` proposal. Seed
 - At scene start `narrate` takes the NPC ids from `seed.beats[0].presence` (every NPC not declared `absent`), not the Director's beat (spec 076; a loft NPC such as Wenna reaches the opening). Seeds also carry a required `opening.premise` (why the party is here), which the opening prompt reads.
 - Otherwise `narrate` filters the beat's NPC ids, or `presentNpcIds` when no seed beat matches,
   against the S1 snapshot and drops each actor that reads `absent`. It then withholds refused
-  rulings, `goalNote` text and a monster `say` line ([[output-claim-gate]]; spec 081); this does not touch the NPC list.
+  rulings, `goalNote` text and a monster `say` line (spec 081; `withholdRefusedInputs` now calls `checkNarration`, [[dm-narration-quality]]); this does not touch the NPC list.
 - `buildSnapshot` adds `identity.aliases` to the NPC actor's `aliases`
   ([[actor-snapshot]]).
 

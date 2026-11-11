@@ -146,16 +146,6 @@
         "type": "text",
         "value": "Tamsin steps out onto the open ground while Kestrel and Odo slip into the reeds behind her. The camp lies ahead, and nobody has called out yet."
       }
-    },
-    {
-      "purpose": "dm.audit",
-      "respond": {
-        "type": "json",
-        "value": {
-          "verdict": "pass",
-          "issues": []
-        }
-      }
     }
   ]
 }
