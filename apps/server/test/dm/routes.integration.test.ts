@@ -842,6 +842,7 @@ describe.skipIf(!reachable)("DM debug routes (database)", () => {
       "attempts",
       "audit",
       "calls",
+      "check",
       "createdAt",
       "error",
       "finishedAt",
