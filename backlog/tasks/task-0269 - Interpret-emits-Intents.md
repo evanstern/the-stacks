@@ -1,10 +1,10 @@
 ---
 id: TASK-0269
 title: Interpret emits Intents
-status: To Do
+status: In Progress
 assignee: []
 created_date: 2026-11-07 05:13
-updated_date: '2026-11-11T16:20:00Z'
+updated_date: '2026-11-11T19:23:00Z'
 labels:
   - ws:intent
   - replan-2026-11
@@ -24,6 +24,8 @@ Change `dm.interpret` to output Intents through structured output. Slash-form te
 Parent epic: TASK-0258.
 
 Source: docs/design/replan-2026-11/board-rework-map.md (N-04).
+
+Spec: specs/104-interpret-intents
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
@@ -37,16 +39,18 @@ Source: docs/design/replan-2026-11/board-rework-map.md (N-04).
 - [ ] #7 A beat narrates the facts of every intent.recorded row it covers, including rows the gate settled before the turn job ran, as why rows (spec 102 OQ-4; spec 103 OQ-8 window: the job input carries only triggerSeq and intent.recorded has no action link).
 <!-- AC:END -->
 
+## Definition of Done
+<!-- DOD:BEGIN -->
+- [ ] #1 All tests and checks run green
+- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
+<!-- DOD:END -->
+
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
 CP-5 ruling 2026-11-08 (docs/design/r1-fast-table-runbook.md) F1: takes AC #4 from TASK-0267.
 
 Operator ruling 2026-11-09 (R1 lane specs 097-100): spec 097 OQ-5 and spec 100 OQ-13 added as AC.
-<!-- SECTION:NOTES:END -->
 
-## Definition of Done
-<!-- DOD:BEGIN -->
-- [ ] #1 All tests and checks run green
-- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
-<!-- DOD:END -->
+Claimed 2026-11-11 by the R1 sweep (docs/design/r1-fast-table-runbook.md). Worktree .worktrees/task-0269, branch task-0269-interpret-intents, cut from origin/main 702390db. Spec number 104 claimed with a stub.
+<!-- SECTION:NOTES:END -->
