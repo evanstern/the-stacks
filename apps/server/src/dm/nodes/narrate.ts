@@ -290,7 +290,7 @@ export const narrate: Node<"narrate"> = async (ctx) => {
     dmOnlyText: dmOnlySeedText(ctx.seed).map((t) => t.toLowerCase()),
   });
   // Spec 103 OQ-8: the planner's facts ride the beat's `intent.recorded` rows, in seq order.
-  // ponytail: reads resolve's appended rows only; add a log read for rows landed before this job.
+  // ponytail: reads resolve's appended rows only; rows landed before the job (gate-settled Intents) are TASK-0269's (spec 102 OQ-4).
   const planFacts: PlanFact[] = resolve.appendedRows
     .filter((r) => r.type === "intent.recorded")
     .sort((x, y) => x.seq - y.seq)

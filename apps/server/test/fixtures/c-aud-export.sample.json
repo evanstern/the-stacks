@@ -1,0 +1,127 @@
+{
+  "sessionId": "11111111-1111-4111-8111-111111111111",
+  "events": [
+    {
+      "seq": 1,
+      "actor": "ai:dm",
+      "type": "narration",
+      "payload": {
+        "text": "The river slams against the pilings and the bell rope hangs cut.",
+        "actionIds": []
+      },
+      "payloadVersion": 1,
+      "visibility": "public",
+      "ts": "2026-11-07T02:13:31+00:00"
+    },
+    {
+      "seq": 2,
+      "actor": "ai:dm",
+      "type": "narration",
+      "payload": {
+        "text": "The safe path keeps to the timber posts. Wenna nods.",
+        "actionIds": []
+      },
+      "payloadVersion": 1,
+      "visibility": "public",
+      "ts": "2026-11-07T02:13:31+00:00"
+    },
+    {
+      "seq": 3,
+      "actor": "ai:dm",
+      "type": "narration",
+      "payload": {
+        "text": "Kestrel goes ahead with it.\n\nKestrel \u2014 Attack: 1d20 \u2192 14 = 17 vs AC 13: Hit",
+        "actionIds": []
+      },
+      "payloadVersion": 1,
+      "visibility": "public",
+      "ts": "2026-11-07T02:13:31+00:00"
+    }
+  ],
+  "jobs": [
+    {
+      "id": "job-clean",
+      "kind": "turn",
+      "status": "succeeded",
+      "attempts": 1,
+      "input": {
+        "seedId": "greyhollow-ford-reed-camp"
+      },
+      "result": {
+        "audit": {
+          "final": "passed",
+          "attempts": []
+        },
+        "checkpoint": {
+          "narration": {
+            "seqs": [1]
+          }
+        }
+      }
+    },
+    {
+      "id": "job-leak",
+      "kind": "turn",
+      "status": "succeeded",
+      "attempts": 1,
+      "input": {
+        "seedId": "greyhollow-ford-reed-camp"
+      },
+      "result": {
+        "audit": {
+          "final": "passed",
+          "attempts": []
+        },
+        "checkpoint": {
+          "narration": {
+            "seqs": [2]
+          }
+        }
+      }
+    },
+    {
+      "id": "job-fallback",
+      "kind": "turn",
+      "status": "succeeded",
+      "attempts": 1,
+      "input": {
+        "seedId": "greyhollow-ford-reed-camp"
+      },
+      "result": {
+        "audit": {
+          "final": "fallback",
+          "attempts": [
+            {
+              "llm": {
+                "issues": [
+                  {
+                    "kind": "doctrine"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "checkpoint": {
+          "narration": {
+            "seqs": [3]
+          }
+        }
+      }
+    }
+  ],
+  "calls": [
+    {
+      "purpose": "dm.narrate"
+    },
+    {
+      "purpose": "dm.narrate"
+    },
+    {
+      "purpose": "dm.audit"
+    },
+    {
+      "purpose": "dm.audit"
+    }
+  ]
+}

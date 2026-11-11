@@ -41,9 +41,9 @@ Tests use the fake gateway only.
 
 ## Phase 5: C-AUD replay script
 
-- [ ] T024 Write `apps/server/src/cli/replay-checks.ts` per plan "C-AUD replay" (c). It reads a file only.
-- [ ] T025 Confirm the B2-era ship format with `git show 087ecb7f:apps/server/src/dm/nodes/audit.ts` and encode the prose/rows split.
-- [ ] T026 Write `apps/server/test/fixtures/c-aud-export.sample.json` (three narrations: one clean, one leak, one fallback) and `apps/server/test/cli/replay-checks.test.ts` asserting the printed counts.
+- [x] T024 Write `apps/server/src/cli/replay-checks.ts` per plan "C-AUD replay" (c). It reads a file only.
+- [x] T025 Confirm the B2-era ship format with `git show 087ecb7f:apps/server/src/dm/nodes/audit.ts` and encode the prose/rows split.
+- [x] T026 Write `apps/server/test/fixtures/c-aud-export.sample.json` (three narrations: one clean, one leak, one fallback) and `apps/server/test/cli/replay-checks.test.ts` asserting the printed counts.
 
 ## Phase 6: Wiki re-ground
 
