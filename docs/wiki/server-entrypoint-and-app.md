@@ -8,7 +8,7 @@ sources:
   - apps/server/src/routes/dm.ts
   - apps/server/src/routes/tables.ts
   - apps/server/src/dm/script/env.ts
-size_budget_exempt: spec 102 adds the intent kind paragraph to the one server-entrypoint-and-app note; it does not split without a TASK of its own
+size_budget_exempt: spec 102 adds the gate plannerInputs wiring line to the one server-entrypoint-and-app note; the entrypoint does not split without a TASK of its own
 verified_against: bfb65a157559c88bf988a6c0f55b7c03824ff412
 ---
 
