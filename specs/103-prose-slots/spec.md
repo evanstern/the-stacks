@@ -180,6 +180,7 @@ the counts to the PR before the operator approves the merge (C-AUD).
 - **OQ-8 — Source of a beat's `PlanFact`s.** **Recommend:** narrate reads the `intent.recorded`
   rows inside the turn's seq window (the rows the beat covers plus `resolve.appendedRows`) and
   concatenates their `facts` in seq order. The implementer confirms the window in `enqueue.ts`.
+  **Resolved (orchestrator, 2026-11-11):** the job input defines no seq window (`triggerSeq` only; `intent.recorded` carries no action link). Narrate reads `resolve.appendedRows` only. Narrating gate-settled Intents, and the window it needs, belongs to TASK-0269 per spec 102 OQ-4.
 - **OQ-9 — The B2 replay cannot re-check rejected attempts.** `AuditRecord` stores only prose
   hashes, and `dm_model_calls` stores no text. **Recommend:** accept it. The replay checks the
   shipped narration of every passed turn, and reports fallback turns as not replayable with the
