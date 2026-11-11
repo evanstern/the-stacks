@@ -4,7 +4,7 @@ title: Narration as prose slots; retire the audit loop
 status: In Progress
 assignee: []
 created_date: 2026-11-07 05:13
-updated_date: '2026-11-11T15:51:00Z'
+updated_date: '2026-11-11T16:18:00Z'
 labels:
   - ws:narration
   - replan-2026-11
@@ -62,4 +62,7 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
 Phases 1-2 done in one commit (81fe389c): ci:check green, 2020 server tests with REQUIRE_DATABASE=1. renderWhyRows forms (DC 15 / Difficulty: easy / Opposed by X (rule)) are the implementer's reading of spec 098 contract section 6.
 
 C9 (operator go 2026-11-11, "Go, run export"): ran specs/103-prose-slots/c-aud-export.sql read-only against vm-104 stacks-dev-db-1. Export at ~/.cache/stacks-sweep/c-aud-bb4952dc.json (not committed): 231 events, 48 jobs, 141 calls (33 dm.audit, 34 dm.narrate), matching the B2 log's 141 model calls.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
+Phases 3-4 done (78eaf138, OQ-1 isolated in 320aee54, 842c0ffc, ded794d3): ci:check green with REQUIRE_DATABASE=1; reverting 320aee54 leaves typecheck and test/dm green. Gap vs spec OQ-8: narrate reads planFacts from resolve.appendedRows only; sent back with Phase 5. Stage 'check' written as 'narrate' (no migration); revisit card at merge.
 <!-- SECTION:NOTES:END -->
