@@ -45,4 +45,6 @@ Fix candidates: accept both tag forms (and strip them); or ask the model for str
 
 <!-- SECTION:NOTES:BEGIN -->
 Claimed 2026-11-10 by the R1 sweep (docs/design/r1-fast-table-runbook.md). Worktree .worktrees/task-0307, branch task-0307-slot-labels, cut from origin/main 0da0aafb. No spec dir: signed escape line covers this task.
+
+Escape line E9 (operator, 2026-11-10, in chat: 'Escape line, Sonnet (Recommended)'): no spec set; the card's AC drive. Tier: sonnet.
 <!-- SECTION:NOTES:END -->
