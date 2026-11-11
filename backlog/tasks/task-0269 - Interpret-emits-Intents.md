@@ -4,7 +4,7 @@ title: Interpret emits Intents
 status: In Progress
 assignee: []
 created_date: 2026-11-07 05:13
-updated_date: '2026-11-11T19:23:00Z'
+updated_date: '2026-11-11T19:50:00Z'
 labels:
   - ws:intent
   - replan-2026-11
@@ -53,4 +53,7 @@ CP-5 ruling 2026-11-08 (docs/design/r1-fast-table-runbook.md) F1: takes AC #4 fr
 Operator ruling 2026-11-09 (R1 lane specs 097-100): spec 097 OQ-5 and spec 100 OQ-13 added as AC.
 
 Claimed 2026-11-11 by the R1 sweep (docs/design/r1-fast-table-runbook.md). Worktree .worktrees/task-0269, branch task-0269-interpret-intents, cut from origin/main 702390db. Spec number 104 claimed with a stub.
+
+Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5
+Spec 104 spec.md + plan.md (2ac78ce1) against 092 06d7ca13, 093 beae54aa, 097 a34d5d39, 100 16ae6147, 102 86d425b6, 103 39c9ed24, base 702390db. Size check: ~52 tasks; split recommended (PR A this card: AC 1,2,3,5,7 ~36 tasks; PR B new card: AC 4,6 ~16 tasks, after TASK-0223). Awaiting operator ruling on the split.
 <!-- SECTION:NOTES:END -->
