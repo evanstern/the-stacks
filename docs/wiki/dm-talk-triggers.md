@@ -13,7 +13,7 @@ sources:
   - apps/server/src/dm/pipeline/context.ts
   - apps/server/src/dm/nodes/schemas.ts
   - apps/server/dm-scripts/greyhollow-talk.json
-verified_against: 803c548b982da9c5a080e8b8cd5832e39521ef40
+verified_against: bfb65a157559c88bf988a6c0f55b7c03824ff412
 ---
 
 # DM talk triggers
@@ -23,7 +23,7 @@ Before TASK-0180 the DM answered only a commit. A public in-character `talk` pos
 Contract amendments: `specs/031-dm-runtime/contracts/turn-jobs.md`, `nodes.md`, `node-seam.md`,
 `purposes.md`. Queue mechanics: [[dm-turn-jobs]]. Pipeline: [[dm-runtime]].
 
-## Enqueue (rule 7)
+## Enqueue (rule 6)
 
 `isReadable` (`talk-triggers.ts`): channel `ic`, visibility `public`, actor a human or
 `ai:companion:*`, an AI DM seat, table mode `free`. `capReached(p, 2)` counts `ai:dm` narration

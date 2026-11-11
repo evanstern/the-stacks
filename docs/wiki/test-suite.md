@@ -30,7 +30,8 @@ sources:
   - apps/server/test/tsconfig.json
   - apps/server/vitest.config.ts
   - tsconfig.json
-verified_against: 4f0383cb9c20dfb8dbcbb561ed416616d5fbaae9
+size_budget_exempt: spec 102 adds the intent kind paragraph to the one test-suite note; it does not split without a TASK of its own
+verified_against: bfb65a157559c88bf988a6c0f55b7c03824ff412
 ---
 
 # Test suite
@@ -106,7 +107,7 @@ floor (TASK-0154). The default stays 5 s. The load is turbo running every packag
 
 **`test/` is now its own typechecked project reference.** `apps/server/test/tsconfig.json`
 (`extends` the shared base, `noEmit: true`, `include: ["."]`, `references` `apps/server`,
-`packages/shared`, `packages/dnd5e-engine` and `packages/session-model`) is an entry in root `tsconfig.json`'s `references` array,
+`packages/shared`, `packages/dnd5e-engine` and `packages/session-model`; the server project also references `packages/intent`) is an entry in root `tsconfig.json`'s `references` array,
 alongside `packages/shared`, `packages/dnd5e-engine` (and its own `test` project, see
 [[dnd5e-engine]]), `packages/session-model` (and its `test` project, see [[session-model]]), `packages/srd` (and its `test` project, see [[srd-data]]), `apps/server`, `apps/web`. `pnpm typecheck` (`tsc -b` at the
 root) now builds this reference too, so a type error introduced only in a test fails

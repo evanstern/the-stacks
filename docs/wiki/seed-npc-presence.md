@@ -16,7 +16,7 @@ sources:
   - packages/session-model/src/gate/proposals.ts
   - packages/session-model/src/gate/plan.ts
 size_budget_exempt: TASK-0237 adds the dependent-arrivals paragraph to the one arrivals note; the note sat 246 chars under the budget before it, and the arrival rules do not split without a TASK of its own
-verified_against: bb1a7c07dd75ce2bb9653424b0adb654209de425
+verified_against: bfb65a157559c88bf988a6c0f55b7c03824ff412
 ---
 
 # Seed NPC presence

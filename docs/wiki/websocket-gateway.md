@@ -4,7 +4,7 @@ description: The WebSocket gateway — upgrade-time authentication (a socket onl
 kind: component
 sources:
   - apps/server/src/ws/gateway.ts
-verified_against: dd1f3dc07c014c9ec753c11615c8b31c52bc6a2b
+verified_against: bfb65a157559c88bf988a6c0f55b7c03824ff412
 ---
 
 # WebSocket gateway
@@ -54,7 +54,7 @@ whether or not it opted in, because the Director's marker counts every human at 
   connection's identity (`userId`, `role`). On success nothing is sent directly: the gate's
   `onAppended` listener calls `publish`. A refusal becomes an `error` frame with the refusal
   `code`; the kind is `forbidden` for `NOT_AUTHORIZED`, `NOT_DM`, `COMMIT_NOT_ALLOWED` and
-  `GROUP_SIGNOFF_REQUIRED`, `internal` for `CONFLICT`, otherwise `validation` (so `FLOOR_NOT_HELD`, `TURN_MOVED` and `NOT_TURN_MODE` arrive as `validation`; the client labels them, [[play-route]]). See [[proposal-gate]].
+  `GROUP_SIGNOFF_REQUIRED`, `NOT_YOUR_ACTOR`, `DM_SEAT_REQUIRED` and `NOT_YOUR_TURN` (spec 102), `internal` for `CONFLICT`, otherwise `validation` (so `FLOOR_NOT_HELD`, `TURN_MOVED` and `NOT_TURN_MODE` arrive as `validation`; the client labels them, [[play-route]]). See [[proposal-gate]].
 - **Any other type**: refused, and nothing is written or broadcast. A catalogued type gets
   `forbidden` with code `CATALOG_TYPE_REQUIRES_GATE`; an uncatalogued type gets `validation`
   with code `UNKNOWN_EVENT_TYPE`. TASK-0099 (specs/043-retire-uncatalogued-send) retired the

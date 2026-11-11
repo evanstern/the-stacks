@@ -20,7 +20,7 @@ sources:
   - apps/server/src/dm/companion.ts
   - apps/server/src/dm/chronicle.ts
 size_budget_exempt: both notes sat within 30 chars of the 8000 budget before TASK-0180; the talk path got its own note (dm-talk-triggers) and only a pointer line lands here; the rest is one pipeline each, not splittable without a TASK of its own
-verified_against: bb1a7c07dd75ce2bb9653424b0adb654209de425
+verified_against: bfb65a157559c88bf988a6c0f55b7c03824ff412
 ---
 
 # DM turn jobs
@@ -43,7 +43,7 @@ carries `firstReactionAt` and `notBefore` (ISO UTC; specs/036-companion-react).
 
 Payloads are Zod schemas in `dm/jobs.ts` (`TurnJobInput`, `FloorJobInput`, `CompanionJobInput`,
 `ChronicleJobInput`, all `v: 1`, each with `sessionId`). `TurnTriggerSchema`: `commit`,
-`approval`, `npc-turn`, `held` (TASK-0244: the turn reached an AI companion whose party action was held), `scene-start`, `manual`, `reconcile`, `talk` ([[dm-talk-triggers]]). `book` is null and `session_id` required (CHECK constraints).
+`approval`, `npc-turn`, `held` (TASK-0244: the turn reached an AI companion whose party action was held), `scene-start`, `manual`, `reconcile`, `talk` ([[dm-talk-triggers]]), `ruling` (spec 102 FR-022: a `needs_ruling` `intent.recorded` row under an AI seat). `book` is null and `session_id` required (CHECK constraints).
 
 ## Enqueue
 
@@ -55,7 +55,7 @@ open action of an AI companion also calls `enqueueCompanionReact`
 (quiet 3 s, max wait 10 s): one queued `react` job per session
 (`jobs_companion_react_queued_key`); a further reaction merges its companion id into it. `enqueueTurn` is `INSERT ... ON CONFLICT
 DO NOTHING` on `jobs_turn_queued_key`, so one beat is queued per session.
-Rule 7: a `talk` row queues a coalesced `talk` turn ([[dm-talk-triggers]]).
+Rule 6: a `talk` row queues a coalesced `talk` turn ([[dm-talk-triggers]]). Rule 7: a `needs_ruling` `intent.recorded` row under an AI seat queues a `ruling` turn; the turn answers every open request first ([[dm-runtime]]).
 
 ## Claim, lease, fencing
 

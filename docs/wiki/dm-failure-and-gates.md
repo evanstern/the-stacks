@@ -14,7 +14,7 @@ sources:
   - apps/server/src/dm/prompts/step-grammar.ts
   - apps/server/src/dm/seed/schema.ts
   - specs/033-director-robustness/contracts/rules-terms.md
-verified_against: bb1a7c07dd75ce2bb9653424b0adb654209de425
+verified_against: bfb65a157559c88bf988a6c0f55b7c03824ff412
 ---
 
 # DM failure record and rules-term gates
@@ -25,6 +25,8 @@ normalizer is described in [[dm-runtime]].
 A `floor` job (spec 049) is code only and has no `TurnFailureResult`: a gate refusal finishes it with outcome `refused`, and a throw logs `dm.floor.threw` and fails it with `stopped at floor: internal` ([[dm-turn-jobs]]).
 
 The Director legality override reasons include, since spec 099, "no foe of the encounter can fight" for a `turn` decision on an ended encounter with no eligible monster ([[dm-runtime]]). A failed `talk` turn (TASK-0180) writes the same record with `node` `narrate` (a `react` call or a fence loss) or `resolve` (an escalation's opening move). A `talk` turn that ends `none` or refused twice is not a failure: it finishes as `empty-beat` with `jobs.result.talk` ([[dm-turn-jobs]]).
+
+A failed ruling call (spec 102) logs `dm.ruling.call-failed`, leaves the request open and never fails the turn.
 
 When a turn fails, the worker writes `jobs.result` as a `TurnFailureResult` (`dm/jobs.ts`):
 the last checkpoint, `outcome: { status: "failed" }`, `audit: null`, every model call made (each with provider, model, token, cost and duration fields since TASK-0116), and

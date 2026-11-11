@@ -16,7 +16,7 @@ sources:
   - .env.example
   - apps/server/src/dm/script/env.ts
   - apps/server/dm-scripts/greyhollow-live.json
-verified_against: beae54aa70dd2338a46f33de801f38e0019624b6
+verified_against: bfb65a157559c88bf988a6c0f55b7c03824ff412
 ---
 
 # AI gateway

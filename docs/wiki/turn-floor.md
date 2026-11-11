@@ -19,7 +19,7 @@ sources:
   - apps/web/app/play/local-log.ts
   - apps/web/app/play/components/floor-controls.tsx
   - apps/web/app/play/components/turn-order.tsx
-verified_against: bb1a7c07dd75ce2bb9653424b0adb654209de425
+verified_against: bfb65a157559c88bf988a6c0f55b7c03824ff412
 ---
 
 # Turn floor
@@ -62,4 +62,4 @@ The human DM leaves or resumes turn mode from the Table mode slide-out ([[play-r
 
 The `turn-floor` fixture ([[session-model]]) walks the whole flow.
 
-Spec 100: a `floor` `end` plan passes through the fog rule too. Its `turn.advance` rows name no zone, so the rule leaves them and the `table-mode.changed` row unchanged ([[session-model]]).
+Since spec 102 the `end` rows come from `endTurnRows` (`gate/floor-end.ts`), shared with the `end_turn` Intent. Spec 100: a `floor` `end` plan passes through the fog rule too. Its `turn.advance` rows name no zone, so the rule leaves them and the `table-mode.changed` row unchanged ([[session-model]]).
