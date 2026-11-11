@@ -7,7 +7,7 @@ import { interpret } from "../../src/dm/nodes/interpret.js";
 import {
   AdjudicateModelOutput,
   InterpretOutput,
-  InterpretReadingSchema,
+  LegacyInterpretReadingSchema as InterpretReadingSchema,
   StepSchema,
 } from "../../src/dm/nodes/schemas.js";
 import type { ResumedPlan } from "../../src/dm/resume.js";
@@ -54,7 +54,8 @@ const checkStep = {
   newRisk: null,
 };
 
-function reading(actionId: string | null, over: object = {}) {
+/** The pre-Intent reading shape, for the legacy schema tests. */
+function legacyReading(actionId: string | null, over: object = {}) {
   return {
     actionId,
     intent: "check",
@@ -63,6 +64,19 @@ function reading(actionId: string | null, over: object = {}) {
     rulesQuestion: null,
     clarify: null,
     steps: [checkStep],
+    ...over,
+  };
+}
+
+/** One Intent reading: a plain `dodge` stage, no beside. */
+function reading(actionId: string | null, over: object = {}) {
+  return {
+    actionId,
+    clarify: null,
+    followUps: [],
+    stages: [
+      { intent: { kind: "dodge", targets: [], params: {} }, beside: null },
+    ],
     ...over,
   };
 }
@@ -113,7 +127,7 @@ describe("interpret", () => {
     expect(scripted.remaining().calls["dm.interpret"]).toBe(0);
     const prompt = scripted.provider.chatCalls[0]?.request;
     expect(prompt?.messages[0]?.content).toContain("act-lockpick");
-    expect(prompt?.system).toContain("INPUTS");
+    expect(prompt?.system).toContain("Intent grammar");
   });
 
   it("fails invalid-output when a beat item has no reading", async () => {
@@ -140,11 +154,82 @@ describe("interpret", () => {
     });
   });
 
-  it("requires a rulesQuestion when adjudication is needed", () => {
+  it("refuses the old step-grammar fields on a reading", () => {
     const bad = InterpretOutput.safeParse({
       readings: [reading("a", { needsAdjudication: true, steps: [] })],
     });
     expect(bad.success).toBe(false);
+  });
+
+  it("stamps each model stage: id, actor, source and commit validate (FR-003)", async () => {
+    const { ctx } = await setup([reading("act-lockpick")]);
+    const result = await interpret(ctx);
+    expect(result.ok).toBe(true);
+  });
+
+  it("fails invalid-output with the issue path when a stamped Intent is invalid", async () => {
+    // A `contest` with no target passes the lenient body arity? It does not: arity is in the body.
+    // An id past 64 chars cannot come from the model, so force the failure through the actor.
+    const events = freeEventsThrough("action.committed");
+    const { ctx } = await setup([reading("act-lockpick")], events);
+    const assembled = ctx.results.assemble;
+    if (!assembled) throw new Error("no assemble");
+    const noActor = {
+      ...assembled,
+      beat: assembled.beat.map((b) => ({ ...b, characterId: null })),
+    };
+    const result = await interpret({
+      ...ctx,
+      results: { ...ctx.results, assemble: noActor },
+    });
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error.kind).toBe("invalid-output");
+      expect(result.error.message).toContain("actor");
+    }
+  });
+
+  it("makes zero dm.interpret calls for a slash-only beat (SC-001)", async () => {
+    const base = freeEventsThrough("narration");
+    const n = base.length;
+    const events = [
+      ...base,
+      declare(n + 1, "act-slash", "ana", '/attack @goblin-2 with "Dagger"'),
+      commit(n + 2, "act-slash"),
+    ];
+    const { ctx, scripted } = await setup(null, events);
+    const result = await interpret(ctx);
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.calls).toEqual([]);
+    expect(scripted.provider.chatCalls).toHaveLength(0);
+    expect(result.output.readings).toHaveLength(1);
+    expect(result.output.readings[0]?.stages[0]?.intent.kind).toBe("attack");
+  });
+
+  it("sends only the prose item to the model when a slash item shares the beat", async () => {
+    const base = freeEventsThrough("narration");
+    const n = base.length;
+    const events = [
+      ...base,
+      declare(n + 1, "act-slash", "ana", "/dodge"),
+      commit(n + 2, "act-slash"),
+      declare(n + 3, "act-prose", "bram", "Bram ducks behind the cart."),
+      commit(n + 4, "act-prose"),
+    ];
+    const { ctx, scripted } = await setup([reading("act-prose")], events);
+    const result = await interpret(ctx);
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.output.readings.map((r) => r.actionId)).toEqual([
+      "act-slash",
+      "act-prose",
+    ]);
+    const user = JSON.stringify(
+      scripted.provider.chatCalls[0]?.request.messages,
+    );
+    expect(user).toContain("act-prose [committed]");
+    expect(user).not.toContain("act-slash [committed]");
   });
 });
 
@@ -214,7 +299,7 @@ describe("step schema (AC #5)", () => {
     });
     it("refuses a damage effect in onHit", () => {
       const r = InterpretReadingSchema.safeParse(
-        reading("act-lockpick", {
+        legacyReading("act-lockpick", {
           intent: "attack",
           steps: [{ ...atk, onHit: [damage] }],
         }),
@@ -302,7 +387,7 @@ describe("interpret: resumed plans (specs/057)", () => {
 describe("check stakes contract (spec 070)", () => {
   const parse = (over: Record<string, unknown>, kind = "ability-check") =>
     InterpretReadingSchema.safeParse(
-      reading("act-1", { steps: [{ ...checkStep, kind, ...over }] }),
+      legacyReading("act-1", { steps: [{ ...checkStep, kind, ...over }] }),
     );
   const stakes = (over: object) => ({ ...checkStep.stakes, ...over });
 

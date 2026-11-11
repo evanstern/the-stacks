@@ -7,22 +7,22 @@ Do not delete resolve's step paths, the adjudicate node or the gathering block: 
 
 ## Phase 1: Schema and slash parse
 
-- [ ] T001 Add `@the-stacks/planner` as a workspace dependency of `apps/server`. Run `pnpm install` to regenerate `pnpm-lock.yaml`. Never hand-edit the lockfile.
-- [ ] T002 In `apps/server/src/dm/nodes/schemas.ts`, add `INTERPRET_KINDS`, `IntentBodySchema`, `BesideSchema` and `InterpretStageSchema` per plan D1. Build each body from `paramsSchemaOf(kind)`; omit `dc` from params.
-- [ ] T003 Replace `InterpretReadingSchema` with `{ actionId, stages, clarify, followUps, say }` per spec FR-001. Keep the old schema as `LegacyInterpretReadingSchema` for resumed plans (plan D7).
-- [ ] T004 Confirm the new `InterpretOutput` converts through `callJson`'s structured-output path (spec 093 D4). If the union fails conversion, use the flat fallback named in plan D1 and record the choice in the card notes.
-- [ ] T005 Write `stampIntent(body, { id, actor, source, commit })` in `apps/server/src/dm/nodes/interpret.ts`. Validate with `IntentSchema`. Build ids per plan D3 and actors per spec FR-005.
-- [ ] T006 Write `parseSlashItem(item, actor)` per plan D2. Return a one-stage reading on success. Return a reading with a clarify question and no stage on a parse refusal (spec OQ-5).
-- [ ] T007 Write `apps/server/test/dm/interpret-intents.test.ts`. Cover: each interpret kind's fixture body passes the schema; a body with `dc`, an actor field or an unknown kind fails; each stamped Intent passes `IntentSchema`; `parse(toText(i))` deep-equals `i`; a slash item parses; a bad slash item yields a clarify.
+- [x] T001 Add `@the-stacks/planner` as a workspace dependency of `apps/server`. Run `pnpm install` to regenerate `pnpm-lock.yaml`. Never hand-edit the lockfile.
+- [x] T002 In `apps/server/src/dm/nodes/schemas.ts`, add `INTERPRET_KINDS`, `IntentBodySchema`, `BesideSchema` and `InterpretStageSchema` per plan D1. Build each body from `paramsSchemaOf(kind)`; omit `dc` from params.
+- [x] T003 Replace `InterpretReadingSchema` with `{ actionId, stages, clarify, followUps, say }` per spec FR-001. Keep the old schema as `LegacyInterpretReadingSchema` for resumed plans (plan D7).
+- [x] T004 Confirm the new `InterpretOutput` converts through `callJson`'s structured-output path (spec 093 D4). If the union fails conversion, use the flat fallback named in plan D1 and record the choice in the card notes.
+- [x] T005 Write `stampIntent(body, { id, actor, source, commit })` in `apps/server/src/dm/nodes/interpret.ts`. Validate with `IntentSchema`. Build ids per plan D3 and actors per spec FR-005.
+- [x] T006 Write `parseSlashItem(item, actor)` per plan D2. Return a one-stage reading on success. Return a reading with a clarify question and no stage on a parse refusal (spec OQ-5).
+- [x] T007 Write `apps/server/test/dm/interpret-intents.test.ts`. Cover: each interpret kind's fixture body passes the schema; a body with `dc`, an actor field or an unknown kind fails; each stamped Intent passes `IntentSchema`; `parse(toText(i))` deep-equals `i`; a slash item parses; a bad slash item yields a clarify.
 
 ## Phase 2: Prompt v17 and interpret node
 
-- [ ] T008 In `apps/server/src/dm/prompts/interpret.ts`, replace `STEP_GRAMMAR` and `OUTPUT_SHAPE` with the Intent body grammar per plan D4. Bump `PROMPT_VERSION` to `dm.interpret-v17`.
-- [ ] T009 Replace `EXAMPLE_OUTPUT` with one `search` stage that carries beside data. Keep the first-stage, follow-up and `say` rules.
-- [ ] T010 In the interpret node, run the slash pre-pass before the call. Send only non-slash fresh items to the model. Make no call when none remain and no monster turn is due (spec FR-006).
-- [ ] T011 Stamp every model body and every parsed item. Return `invalid-output` with the issue path when a stamped Intent fails `IntentSchema`.
-- [ ] T012 Delete `seatActorIds`, its `dm.interpret.seat-actor` log event and `apps/server/test/dm/seat-actor-id.test.ts`.
-- [ ] T013 Update `apps/server/test/dm/interpret.test.ts` and `interpret-prompt.test.ts`. Add a case: a slash-only beat makes zero `dm.interpret` calls (SC-001).
+- [x] T008 In `apps/server/src/dm/prompts/interpret.ts`, replace `STEP_GRAMMAR` and `OUTPUT_SHAPE` with the Intent body grammar per plan D4. Bump `PROMPT_VERSION` to `dm.interpret-v17`.
+- [x] T009 Replace `EXAMPLE_OUTPUT` with one `search` stage that carries beside data. Keep the first-stage, follow-up and `say` rules.
+- [x] T010 In the interpret node, run the slash pre-pass before the call. Send only non-slash fresh items to the model. Make no call when none remain and no monster turn is due (spec FR-006).
+- [x] T011 Stamp every model body and every parsed item. Return `invalid-output` with the issue path when a stamped Intent fails `IntentSchema`.
+- [x] T012 Delete `seatActorIds`, its `dm.interpret.seat-actor` log event and `apps/server/test/dm/seat-actor-id.test.ts`.
+- [x] T013 Update `apps/server/test/dm/interpret.test.ts` and `interpret-prompt.test.ts`. Add a case: a slash-only beat makes zero `dm.interpret` calls (SC-001).
 
 ## Phase 3: Resolve Intent runner and beside data
 

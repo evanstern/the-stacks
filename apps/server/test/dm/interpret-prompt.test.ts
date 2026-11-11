@@ -6,7 +6,9 @@ import { assemble } from "../../src/dm/nodes/assemble.js";
 import type { DirectorNodeOutput } from "../../src/dm/nodes/director.js";
 import {
   CONDITION_KEYS,
+  INTERPRET_KINDS,
   InterpretOutput,
+  LegacyInterpretReadingSchema,
   SKILL_KEYS,
 } from "../../src/dm/nodes/schemas.js";
 import {
@@ -16,10 +18,10 @@ import {
 import {
   buildInterpretPrompt,
   EXAMPLE_OUTPUT,
+  INTENT_GRAMMAR,
   PROMPT_VERSION as INTERPRET_VERSION,
   OUTPUT_SHAPE,
 } from "../../src/dm/prompts/interpret.js";
-import { STEP_GRAMMAR } from "../../src/dm/prompts/step-grammar.js";
 import {
   commit,
   declare,
@@ -58,19 +60,30 @@ async function prompts() {
   const adjudicate = buildAdjudicatePrompt({
     seed: ctx.seed,
     assembled: assembled.output,
-    reading: InterpretOutput.parse(EXAMPLE_OUTPUT).readings[0] as never,
+    reading: LEGACY_READING as never,
     actionText: "x",
     passages: [],
   });
   return { interpret, adjudicate };
 }
 
+/** A pre-Intent reading: the adjudicate prompt still takes one until TASK-0312 deletes it. */
+const LEGACY_READING = LegacyInterpretReadingSchema.parse({
+  actionId: "act-1",
+  intent: "check",
+  uncertain: true,
+  needsAdjudication: true,
+  rulesQuestion: "Can she?",
+  clarify: null,
+  steps: [],
+});
+
 const NARRATIVE =
   "A narrative outcome such as spotting, learning or noticing something is narration, not an effect";
 
 describe("interpret and adjudicate prompts", () => {
   it("bumps the prompt versions", () => {
-    expect(INTERPRET_VERSION).toBe("dm.interpret-v16");
+    expect(INTERPRET_VERSION).toBe("dm.interpret-v17");
     expect(ADJUDICATE_VERSION).toBe("dm.adjudicate-v10");
   });
 
@@ -104,9 +117,8 @@ describe("interpret and adjudicate prompts", () => {
   });
 
   it("states the attack name and the ability-check stakes (TASK-0203)", async () => {
-    const { OUTPUT_SHAPE } = await import("../../src/dm/prompts/interpret.js");
-    expect(OUTPUT_SHAPE).toContain(
-      "Every attack step names `attack`, the attack's name from the attacker's list, on a monster turn too.",
+    expect(INTENT_GRAMMAR).toContain(
+      "the attack's name from the attacker's list",
     );
     expect(OUTPUT_SHAPE).toContain(
       "writes `stakes.cost` and `stakes.severe` as text, never null",
@@ -140,7 +152,7 @@ describe("interpret and adjudicate prompts", () => {
     const adj = buildAdjudicatePrompt({
       seed,
       assembled: assembled.output,
-      reading: InterpretOutput.parse(EXAMPLE_OUTPUT).readings[0] as never,
+      reading: LEGACY_READING as never,
       actionText: "x",
       passages: [],
     });
@@ -189,7 +201,7 @@ describe("interpret and adjudicate prompts", () => {
 
   it("the interpret system prompt holds the first-stage rule", async () => {
     const { interpret } = await prompts();
-    expect(interpret.system).toContain("plan only the first stage");
+    expect(interpret.system).toContain("write only the first stage");
     expect(interpret.system).toContain("followUps");
   });
 
@@ -217,21 +229,37 @@ describe("interpret and adjudicate prompts", () => {
     expect(p.user).toContain("Approach beat: call Stealth");
   });
 
-  it("tells interpret to plan a move step and no reaction attack (spec 079 D6)", () => {
+  it("tells interpret to write a move stage and no reaction attack (spec 079 D6)", () => {
     expect(OUTPUT_SHAPE).toContain(
-      "plan a move step for it that lists that hostile in leavesReachOf. Plan no attack for the hostile: the engine decides any reaction.",
+      "write a move stage for it and no attack for the hostile: the engine decides any reaction.",
     );
   });
 
-  it("the example object parses under InterpretOutput", () => {
-    expect(InterpretOutput.safeParse(EXAMPLE_OUTPUT).success).toBe(true);
+  it("the example object parses under InterpretOutput and is a search stage with beside", () => {
+    const parsed = InterpretOutput.safeParse(EXAMPLE_OUTPUT);
+    expect(parsed.success).toBe(true);
+    const stage = EXAMPLE_OUTPUT.readings[0]?.stages[0];
+    expect(stage?.intent.kind).toBe("search");
+    expect(stage?.beside?.reveals).toBe("ford-crossing#1");
   });
 
-  it("carries the stakes rules and a stakes example (spec 070)", () => {
-    expect(OUTPUT_SHAPE).toContain("Write the stakes of every check");
+  it("carries the stakes rules and the beside shape (spec 070)", () => {
+    expect(OUTPUT_SHAPE).toContain("Write the stakes of every beside block");
     expect(OUTPUT_SHAPE).toContain('"stakes":{"success"');
-    expect(STEP_GRAMMAR).toContain('"stakes":{"success"');
-    expect(STEP_GRAMMAR).toContain("newRisk");
+    expect(OUTPUT_SHAPE).toContain("set reveals to that clue");
+    expect(INTENT_GRAMMAR).toContain("Beside rules");
+  });
+
+  it("describes every interpret kind and states the model writes no actor or DC", () => {
+    for (const k of INTERPRET_KINDS) expect(INTENT_GRAMMAR).toContain(k);
+    expect(INTENT_GRAMMAR).toContain(
+      "You write no id, actor, source, commit or DC",
+    );
+    expect(INTENT_GRAMMAR).toContain("character id");
+    expect(INTENT_GRAMMAR).toContain("seed id");
+    expect(OUTPUT_SHAPE).toContain(
+      "write one help stage for the helper and no check for the ally",
+    );
   });
 
   it("lists the current beat's clues without a DC (spec 080)", async () => {
@@ -263,86 +291,47 @@ describe("interpret and adjudicate prompts", () => {
     expect(lines.join("\n")).not.toMatch(/DC|\b1[0-9]\b/);
     expect(text).not.toContain("the-keeper#");
     expect(build(null).user).not.toMatch(/^[a-z0-9-]+#\d:/m);
-    expect(OUTPUT_SHAPE).toContain("set reveals to that clue");
   });
 
-  it("renders the opposition rules and the help step (spec 084 D10)", () => {
-    expect(STEP_GRAMMAR).toContain(
-      '"difficulty":difficulty tier|{"opposedBy":id,"rule":opposition rule}',
-    );
-    expect(STEP_GRAMMAR).toContain(
-      'Opposition rules (the only allowed values of "rule" in a difficulty): unarmed-strike, influence.',
-    );
-    expect(STEP_GRAMMAR).toContain(
-      "name the creature in opposedBy instead of a tier",
-    );
-    expect(STEP_GRAMMAR).toContain('{"step":"help","reason":str,"helperId":id');
-    expect(OUTPUT_SHAPE).toContain(
-      "plan one help step for the helper and no check for the ally",
-    );
-  });
-  it("renders the spell step and the engine-owns-spell-numbers rule (spec 083 D7)", () => {
-    expect(STEP_GRAMMAR).toContain('{"step":"spell"');
-    expect(STEP_GRAMMAR).toContain("Spell numbers come from the engine");
-    expect(STEP_GRAMMAR).toContain(
-      "never rebuild it from check, attack or effect steps",
-    );
-    const line = STEP_GRAMMAR.split("\n").find((l) =>
-      l.startsWith('{"step":"spell"'),
-    );
-    expect(line).not.toMatch(/"dc"|expression|damage|1d20/);
-  });
-
-  it("renders the tier list and the derivation rule, with no number field (spec 082)", () => {
-    expect(STEP_GRAMMAR).toContain("medium (DC 15)");
-    expect(STEP_GRAMMAR).toContain("nearly-impossible (DC 30)");
-    expect(STEP_GRAMMAR).toContain("The engine derives every modifier, DC, AC");
-    const lines = STEP_GRAMMAR.split("\n").filter(
-      (l) =>
-        l.startsWith('{"step":"check"') || l.startsWith('{"step":"attack"'),
-    );
-    expect(lines).toHaveLength(2);
-    for (const l of lines) expect(l).not.toMatch(/"dc"|targetAc|1d20/);
-  });
-
-  it("matches the step grammar and output shape snapshot", () => {
-    expect(`${STEP_GRAMMAR}\n\n${OUTPUT_SHAPE}`).toMatchInlineSnapshot(`
-      "A step states mechanics INPUTS as data. Allowed steps:
-      {"step":"none","reason":str}  (certain outcome; no roll)
-      {"step":"check","reason":str,"combatantId":id|null,"kind":"ability-check"|"saving-throw","ability":"str"|"dex"|"con"|"int"|"wis"|"cha","skill":skill key|null,"difficulty":difficulty tier|{"opposedBy":id,"rule":opposition rule},"circumstance":{"mode":"advantage"|"disadvantage","reason":str}|null,"autoFail":{"reason":str}|null,"onSuccess":[effect],"onFailure":[effect],"stakes":{"success":str,"cost":str|null,"failure":str,"severe":str|null},"onCost":[effect],"onSevere":[effect],"newRisk":str|null,"reveals":clue ref|null}
-      A check's stakes are declared before the dice. stakes.success: what happens when the attempt succeeds, written as the concrete outcome of this attempt; always written. reveals: the reference of one listed discoverable clue that a success shows, else null. stakes.cost: what happens on success at a cost, a miss by 1 or 2 (the goal is met, with a price). stakes.failure: what a plain failure costs; always written. stakes.severe: what happens on a severe failure, a miss by 5 or more. An ability check needs cost and severe; a saving throw sets them null. onCost and onSevere hold the effects of those bands. newRisk is a new danger that makes a repeat attempt a fresh roll; null otherwise.
-      {"step":"attack","reason":str,"attackerId":id,"targetId":id,"attack":attack name,"circumstance":{"mode":"advantage"|"disadvantage","reason":str}|null,"onHit":[effect]}  (onHit holds conditions, healing or presence, never damage: the engine applies the attack's own damage on a hit)
-      {"step":"spell","reason":str,"casterId":id,"spellId":SRD spell id,"slotLevel":int 1-9|null,"targetId":id}  (slotLevel null for a cantrip)
-      Name the caster, the SRD spell id from the caster's spell list, the slot level (null for a cantrip) and one target. The engine resolves the spell's attack or save, DC, damage, healing and conditions from the SRD record and the caster's stats. Spell numbers come from the engine. A spell the engine cannot resolve is refused; never rebuild it from check, attack or effect steps.
-      {"step":"help","reason":str,"helperId":id,"assist":{"kind":"ability-check","allyId":id,"skill":skill key}|{"kind":"attack","targetId":id}}  (the helper takes the Help action: the ally gets advantage on its next check with that skill, or the next attack against that target gets advantage; the engine applies and ends it. The helper is the declaring character)
-      Difficulty tiers (the only allowed values of "difficulty"): very-easy (DC 5), easy (DC 10), medium (DC 15), hard (DC 20), very-hard (DC 25), nearly-impossible (DC 30)
-      Opposition rules (the only allowed values of "rule" in a difficulty): unarmed-strike, influence. unarmed-strike covers a Strength (Athletics) or Dexterity (Acrobatics) check, or a Strength or Dexterity saving throw, against a creature's grapple or shove. influence covers a Charisma check (Deception, Intimidation, Performance or Persuasion) or a Wisdom (Animal Handling) check to urge a monster. When the check is against a creature's own effort (escaping or resisting a grapple or shove, urging a monster), name the creature in opposedBy instead of a tier. The engine derives the DC from that creature's stats.
-      {"step":"effect","reason":str,"effects":[effect]}
-      {"step":"roll","reason":str,"expression":"1d6","mode":roll mode}
-      {"step":"move","reason":str,"combatantId":id,"leavesReachOf":[id]}  (the mover moves; list each hostile it stands next to and moves away from without Disengage)
-      An effect is one of:
+  it("matches the Intent grammar and output shape snapshot", () => {
+    expect(`${INTENT_GRAMMAR}\n\n${OUTPUT_SHAPE}`).toMatchInlineSnapshot(`
+      "Intent grammar. Each stage is {intent:{kind,targets,params,text?},beside}. You write no id, actor, source, commit or DC: the engine and the server supply them. The actor is the beat item's own character.
+      Target refs: {kind:"actor",id} for a party member (their character id) or an NPC or monster (its seed id); {kind:"entity",id} for a scene object; {kind:"zone",id} for a place; {kind:"item",id}.
+      Kinds:
+      - attempt: any action no other kind fits. targets 0-4 refs; params {scope:"character"|"party"}; text required, the declaration in one sentence.
+      - check: an ability check. targets 0-1 (actor, entity or zone); params {skill?,ability?,mode?}, at least one of skill or ability. Never a dc.
+      - save: a saving throw. targets none; params {ability,mode?}.
+      - contest: an opposed check. targets 1 actor; params {skill?,ability?,opposed?,mode?}.
+      - attack: a weapon attack. targets 1 (actor or entity); params {weapon:"unarmed"|the attack's name from the attacker's list,mode?}.
+      - cast: a spell. targets 0-12 (actors, or one zone); params {spell:slug,slot?,mode?}.
+      - help: the Help action. targets 1 actor; params {assist:{kind:"check",skill}|{kind:"attack"}}.
+      - hide, dash, dodge, disengage, stand, drop_prone: no targets; params {}.
+      - search: targets 0-1 (zone or entity); params {skill:"perception"|"investigation"}.
+      - grapple: targets 1 actor; params {}. shove: targets 1 actor; params {effect:"prone"|"push"}.
+      - use_object: targets 1 entity; params {}.
+      - move: targets 1 zone to go to; params {}.
+      Write one stage for each thing the actor does, in the order they do it, at most 6 stages. Plan only stages that are not already applied (see Already applied).
+      An effect (in a beside list) is one of:
       {"effect":"damage","targetId":id,"components":[{"amount":Amount,"damageType":damage type}],"defenses":{"resistances":[],"vulnerabilities":[],"immunities":[]}|null}
       {"effect":"heal","targetId":id,"amount":Amount}
       {"effect":"condition","op":"apply"|"remove","targetId":id,"condition":condition key,"source":str}
       {"effect":"presence","targetId":id,"reason":presence reason}
       Amount is {"kind":"roll","expression":"1d8+3"} or {"kind":"fixed","value":int}; use fixed only where the SRD names a fixed value.
-      Name the ability, skill, difficulty and attack only. The engine derives every modifier, DC, AC and damage from the combatant's stats, and advantage or disadvantage from conditions. Add a circumstance only for a source no condition states. Never state a total, an applied amount or whether anything succeeds: the engine rolls and decides every number.
       Conditions (the only allowed values of "condition"): blinded, charmed, deafened, frightened, grappled, incapacitated, invisible, paralyzed, petrified, poisoned, prone, restrained, stunned, unconscious
       Presence reasons (the only allowed values of "reason" in a presence effect): arrived, left, fled, removed, surrendered, conceded
-      A presence effect states that an actor arrived, left, fled, was removed, surrendered or conceded. Put another actor's presence change in onSuccess, onFailure or onHit of a roll against that actor. The acting actor's own presence change may stand in an effect step.
-      Skills (the only allowed values of "skill", or null): acrobatics, animal-handling, arcana, athletics, deception, history, insight, intimidation, investigation, medicine, nature, perception, performance, persuasion, religion, sleight-of-hand, stealth, survival
+      Skills (the only allowed values of "skill"): acrobatics, animal-handling, arcana, athletics, deception, history, insight, intimidation, investigation, medicine, nature, perception, performance, persuasion, religion, sleight-of-hand, stealth, survival
       Damage types (the only allowed values of "damageType"): acid, bludgeoning, cold, fire, force, lightning, necrotic, piercing, poison, psychic, radiant, slashing, thunder
-      A condition effect may use only a listed condition. A narrative outcome such as spotting, learning or noticing something is narration, not an effect: leave onSuccess empty; write what is learned in stakes.success and name the clue in reveals.
+      A condition effect may use only a listed condition. A narrative outcome such as spotting, learning or noticing something is narration, not an effect: leave onSuccess empty; write what is learned in stakes.success and name the clue in reveals. Name the ability, skill and attack only: the engine derives every modifier, DC, AC and damage, and decides every number.
+      Beside rules: put \`beside\` only on a check, save, contest, search or hide stage; set \`beside\` null on every other stage. A stage that is certain to succeed or fail with nothing at stake gets no check: use an attempt or no stage.
 
       Reply with one JSON object, no prose, no code fence.
-      {"readings":[{"actionId":id|null,"intent":"talk"|"move"|"check"|"save"|"attack"|"spell"|"help"|"rest"|"other","uncertain":bool,"needsAdjudication":bool,"rulesQuestion":str|null,"clarify":str|null,"followUps":[str],"say":str|null,"steps":[step]}]}
-      Write exactly one reading per beat item, keyed by its actionId. Write one reading with actionId null for a monster turn. Roll only when the outcome is uncertain and failure is interesting; for a certain outcome use a none step. Set needsAdjudication true, with a rulesQuestion, when the rules are unclear or the action is inventive; then leave steps empty. When intent is unclear, set clarify to one short question and leave steps empty. Plan only the steps that are not already applied (see Already applied). When a post holds a plan, an approach and later steps, plan only the first stage: the move or approach, with a check for anyone moving hidden or over hard ground. List each later step that depends on it in followUps, one short sentence each, and plan no step for it. When a party member moves away from a hostile it stands next to, without Disengage, plan a move step for it that lists that hostile in leavesReachOf. Plan no attack for the hostile: the engine decides any reaction. When a character helps another, plan one help step for the helper and no check for the ally.
-      On a monster turn, put the words the monster speaks this beat in say: one short line, at most 200 characters, no quote marks. Otherwise set say null. Never put speech in followUps. Write each reason as what the actor does, with no rules note such as whether a roll is needed.
-      Write the stakes of every check before the dice: one short consequence per outcome band. Write failure as something that happens. When failure would cost nothing, use a none step instead of a check. Write cost as a price the player pays while still getting the goal, and severe as a worse turn, not only a missed goal. Write no stakes text that tells the player's character what they think or do. Write stakes.success as the concrete outcome of this attempt: what happens to the task and the world when the roll succeeds, so a success always delivers what the player declared. When a success would show one listed discoverable clue, name the thing found in stakes.success and set reveals to that clue's reference, such as ford-crossing#1; otherwise set reveals null. Set newRisk only when a failed attempt has changed the situation so that a repeat is dangerous.
-      Keep every field short. Write one sentence per reason, at most 500 characters. Write rulesQuestion at most 500 characters. Write clarify as one short question, at most 200 characters. Write at most 6 steps per reading and at most 4 effects per list. Write source at most 100 characters and expression at most 200 characters.
-      Every attack step names \`attack\`, the attack's name from the attacker's list, on a monster turn too. An ability check writes \`stakes.cost\` and \`stakes.severe\` as text, never null; only a saving throw sets them null.
+      {"readings":[{"actionId":id|null,"clarify":str|null,"followUps":[str],"say":str|null,"stages":[{"intent":{"kind":str,"targets":[ref],"params":{},"text":str?},"beside":{"stakes":{"success":str,"cost":str|null,"failure":str,"severe":str|null},"onSuccess":[effect],"onFailure":[effect],"onCost":[effect],"onSevere":[effect],"newRisk":str|null,"reveals":str|null,"autoFail":{"reason":str}|null}|null}]}]}
+      Write exactly one reading per beat item, keyed by its actionId. Write one reading with actionId null for a monster turn. When intent is unclear, set clarify to one short question and leave stages empty. When a post holds a plan, an approach and later stages, write only the first stage: the move or approach, with a check for anyone moving hidden or over hard ground. List each later stage that depends on it in followUps, one short sentence each, and write no stage for it. When a party member moves away from a hostile it stands next to, write a move stage for it and no attack for the hostile: the engine decides any reaction. When a character helps another, write one help stage for the helper and no check for the ally.
+      On a monster turn, put the words the monster speaks this beat in say: one short line, at most 200 characters, no quote marks. Otherwise set say null. Never put speech in followUps. Write each text as what the actor does, with no rules note such as whether a roll is needed.
+      Write the stakes of every beside block before the dice: one short consequence per outcome band. Write failure as something that happens. Write cost as a price the player pays while still getting the goal, and severe as a worse turn, not only a missed goal. Write no stakes text that tells the player's character what they think or do. Write stakes.success as the concrete outcome of this attempt: what happens to the task and the world when the roll succeeds, so a success always delivers what the player declared. When a success would show one listed discoverable clue, name the thing found in stakes.success and set reveals to that clue's reference, such as ford-crossing#1; otherwise set reveals null. Set newRisk only when a failed attempt has changed the situation so that a repeat is dangerous.
+      Keep every field short. Write at most 6 stages per reading and at most 4 effects per list. Write source at most 100 characters and expression at most 200 characters. An ability check writes \`stakes.cost\` and \`stakes.severe\` as text, never null; only a saving throw sets them null.
       Example of one complete reading:
-      {"readings":[{"actionId":"act-1","intent":"check","uncertain":true,"needsAdjudication":false,"rulesQuestion":null,"clarify":null,"followUps":[],"say":null,"steps":[{"step":"check","reason":"Ana searches the ford for tracks.","combatantId":"pc-ana","kind":"ability-check","ability":"wis","skill":"survival","difficulty":"medium","circumstance":null,"autoFail":null,"onSuccess":[],"onFailure":[],"stakes":{"success":"She finds fresh tracks leading north: three goblins passed here.","cost":"She finds the tracks, but the cold ford soaks her boots.","failure":"The trail goes cold and the light fades.","severe":"She loses the trail and wanders into the reeds, noisily."},"onCost":[],"onSevere":[],"newRisk":null,"reveals":"ford-crossing#1"}]}]}"
+      {"readings":[{"actionId":"act-1","clarify":null,"followUps":[],"say":null,"stages":[{"intent":{"kind":"search","targets":[{"kind":"zone","id":"ford"}],"params":{"skill":"perception"},"text":"Ana searches the ford for tracks."},"beside":{"stakes":{"success":"She finds fresh tracks leading north: three goblins passed here.","cost":"She finds the tracks, but the cold ford soaks her boots.","failure":"The trail goes cold and the light fades.","severe":"She loses the trail and wanders into the reeds, noisily."},"onSuccess":[],"onFailure":[],"onCost":[],"onSevere":[],"newRisk":null,"reveals":"ford-crossing#1","autoFail":null}}]}]}"
     `);
   });
 
