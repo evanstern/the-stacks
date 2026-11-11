@@ -183,6 +183,14 @@ export async function runTurn(
         } as TurnCheckpoint);
         if (!saved) return fenced(name);
       }
+      if (name === "narrate") {
+        // Spec 104 FR-018: the next beat's window starts after what this narrate read.
+        const { factsThrough } = result.output as NodeOutputs["narrate"];
+        if (factsThrough !== undefined) {
+          const saved = await store({ ...ctx.checkpoint, factsThrough });
+          if (!saved) return fenced(name);
+        }
+      }
     }
 
     if (name === "assemble") {

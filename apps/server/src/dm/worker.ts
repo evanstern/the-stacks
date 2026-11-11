@@ -3,6 +3,7 @@ import type { SessionProjections } from "@the-stacks/session-model";
 import { compact, getById, getByName } from "@the-stacks/srd";
 import type { Gateway } from "../ai/gateway.js";
 import type { DbClient } from "../auth/session.js";
+import { readFrom } from "../events/log.js";
 import type { Gate } from "../gate/index.js";
 import {
   finishJob,
@@ -12,6 +13,7 @@ import {
   setStage,
 } from "../jobs/queue.js";
 import type { PresenceReader } from "../presence/index.js";
+import { toStoredEvent } from "../session/events.js";
 import { loadProjections as loadSessionProjections } from "../session/projections.js";
 import { runChronicleJob } from "./chronicle.js";
 import { type CompanionDeps, runCompanionJob } from "./companion.js";
@@ -293,6 +295,16 @@ export function createDmWorker(deps: DmWorkerDeps): DmWorker {
       gate: deps.gate,
       retrieve: deps.retrieve,
       loadProjections: deps.loadProjections,
+      loadEvents: async (sessionId, w) =>
+        (
+          await readFrom(db, {
+            sessionId,
+            afterSeq: w.afterSeq,
+            throughSeq: w.throughSeq,
+            types: w.types,
+            limit: 10_000, // ponytail: one beat's carrier rows; page when a window can pass 10k
+          })
+        ).map(toStoredEvent),
       loadPriorTurns: (sessionId, excludeJobId) =>
         loadPriorTurnCheckpoints(db, sessionId, excludeJobId),
       srd,
@@ -368,8 +380,17 @@ export function createDmWorker(deps: DmWorkerDeps): DmWorker {
         kind: outcome.error.kind,
         detail: outcome.error.detail ? loggable : null,
       });
+      // Spec 104 FR-018: a failure notice must not leave the next beat re-rendering these why rows.
+      const failedCheckpoint =
+        outcome.node === "narrate" || outcome.node === "check"
+          ? {
+              ...latest,
+              factsThrough: (await deps.loadProjections(job.sessionId))
+                .throughSeq,
+            }
+          : latest;
       const failed: TurnFailureResult = {
-        checkpoint: latest,
+        checkpoint: failedCheckpoint,
         outcome: { status: "failed" },
         check: null,
         calls: outcome.calls,

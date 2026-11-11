@@ -14,7 +14,7 @@ export function priorActionIds(
     const mine = p.actions
       .filter((a) => a.characterId === m.characterId)
       .sort((a, b) => b.declaredSeq - a.declaredSeq)[0];
-    if (!mine || mine.status !== "resolved") continue;
+    if (mine?.status !== "resolved") continue;
     if (thisBeat.includes(mine.actionId)) continue;
     out.set(m.characterId, mine.actionId);
   }

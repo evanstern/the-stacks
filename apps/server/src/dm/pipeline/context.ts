@@ -1,4 +1,7 @@
-import type { SessionProjections } from "@the-stacks/session-model";
+import type {
+  SessionProjections,
+  StoredEvent,
+} from "@the-stacks/session-model";
 import type { SrdKind, SrdRecord } from "@the-stacks/srd";
 import type { Gateway } from "../../ai/gateway.js";
 import type { ErrorKind } from "../../ai/types.js";
@@ -70,6 +73,14 @@ export interface NodeDeps {
   }) => Promise<RetrievalResult>;
   /** The DM view of the session. */
   loadProjections: (sessionId: string) => Promise<SessionProjections>;
+  /**
+   * Spec 104 FR-019: log rows of the given types in `(afterSeq, throughSeq]`, seq ascending, every
+   * visibility (the caller filters). Narrate reads carrier rows through it.
+   */
+  loadEvents: (
+    sessionId: string,
+    window: { afterSeq: number; throughSeq: number; types: readonly string[] },
+  ) => Promise<StoredEvent[]>;
   srd: SrdLookup;
   /**
    * Earlier turn checkpoints of the session, newest first, for resume

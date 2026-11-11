@@ -157,6 +157,16 @@ export async function createWorld(
         gateway,
         gate: finalGate,
         loadProjections: () => proj(),
+        loadEvents: async (sessionId, w) =>
+          (
+            await readFrom(requireDb(), {
+              sessionId,
+              afterSeq: w.afterSeq,
+              throughSeq: w.throughSeq,
+              types: w.types,
+              limit: 10_000,
+            })
+          ).map(toStoredEvent),
         saveCheckpoint: async (c) => {
           checkpoint.current = c;
           return true;

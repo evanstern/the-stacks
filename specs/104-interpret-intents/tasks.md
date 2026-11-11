@@ -38,11 +38,11 @@ Do not delete resolve's step paths, the adjudicate node or the gathering block: 
 
 ## Phase 4: Narrate window
 
-- [ ] T023 Add optional `factsThrough` to `TurnCheckpoint` in `apps/server/src/dm/jobs.ts`.
-- [ ] T024 Add `loadEvents(sessionId, { afterSeq, throughSeq, types })` to `NodeDeps` in `pipeline/context.ts`. Wire it in `worker.ts` to the existing event-store read.
-- [ ] T025 In `nodes/narrate.ts`, compute `W0` and `W1` per plan D6. Read public `intent.recorded` rows in `(W0, W1]` and flatten their facts in seq order. Replace the `resolve.appendedRows` filter and its `ponytail` comment.
-- [ ] T026 Record `factsThrough = W1` in the checkpoint after narrate and on the failure-notice path.
-- [ ] T027 Write `apps/server/test/dm/narrate-window.test.ts`. Cover spec User Story 5 scenarios 1–4: a pre-resolve ruling row renders; a narrated row does not repeat; a row landed mid-narration renders next beat; a `dm` row stays out.
+- [x] T023 Add optional `factsThrough` to `TurnCheckpoint` in `apps/server/src/dm/jobs.ts`.
+- [x] T024 Add `loadEvents(sessionId, { afterSeq, throughSeq, types })` to `NodeDeps` in `pipeline/context.ts`. Wire it in `worker.ts` to the existing event-store read.
+- [x] T025 In `nodes/narrate.ts`, compute `W0` and `W1` per plan D6. Read public `intent.recorded` rows in `(W0, W1]` and flatten their facts in seq order. Replace the `resolve.appendedRows` filter and its `ponytail` comment.
+- [x] T026 Record `factsThrough = W1` in the checkpoint after narrate and on the failure-notice path.
+- [x] T027 Write `apps/server/test/dm/narrate-window.test.ts`. Cover spec User Story 5 scenarios 1–4: a pre-resolve ruling row renders; a narrated row does not repeat; a row landed mid-narration renders next beat; a `dm` row stays out.
 
 ## Phase 5: Test and script migration
 

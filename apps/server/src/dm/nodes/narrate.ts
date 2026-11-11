@@ -14,7 +14,7 @@ import {
   type NarrationFacts,
   nothingToNarrate,
 } from "../facts.js";
-import { openFollowUps, priorActionIds } from "../follow-ups.js";
+import { openFollowUps } from "../follow-ups.js";
 import { type CheckIssue, checkNarration } from "../narration-check.js";
 import { hasCountClaim } from "../narration-words.js";
 import { callText } from "../pipeline/call.js";
@@ -30,7 +30,6 @@ import { PURPOSE_OF } from "../purposes.js";
 import { dmOnlySeedText, playerFacingSeed } from "../seed/views.js";
 import type { ActorSnapshot } from "../snapshot/index.js";
 import type { AssembleOutput } from "./assemble.js";
-import { hasStages } from "./schemas.js";
 
 /**
  * The narrate node (contracts/nodes.md "narrate"). It receives resolved
@@ -66,6 +65,8 @@ export interface NarrateOutput {
   withheld: CheckIssue[];
   /** Set when the narrate call errored; the slots are then empty and the reply is rows only. */
   narrateError: string | null;
+  /** Spec 104 FR-018: the window's upper bound `W1`; absent when nothing was narrated. */
+  factsThrough?: number;
 }
 
 /** The state a withheld-text check runs against (spec 103 plan D3). */
@@ -241,7 +242,7 @@ export const narrate: Node<"narrate"> = async (ctx) => {
     (r) => r.actionId === null,
   );
   const npcPlan = reading
-    ? hasStages(reading)
+    ? "stages" in reading // spec 104 shape; a value import of `hasStages` would pull the engine in
       ? {
           // Spec 104: the monster's Intent stages read as plan lines in the text form the player sees.
           intent: reading.stages[0]?.intent.kind ?? "other",
@@ -256,14 +257,12 @@ export const narrate: Node<"narrate"> = async (ctx) => {
           say: reading.say ?? null,
         }
     : null;
-  // ponytail: reads every prior turn checkpoint of the session (one job-table read per narrate
-  // when a member has an open action). Ceiling: a session with many turn jobs; upgrade is a
-  // `limit` on `loadPriorTurnCheckpoints`.
+  // ponytail: reads every prior turn checkpoint of the session (one job-table read per narrate).
+  // Ceiling: a session with many turn jobs; upgrade is a `limit` on `loadPriorTurnCheckpoints`.
   const beatIds = assembled.beat.map((b) => b.actionId);
-  const prior =
-    ctx.deps.loadPriorTurns && priorActionIds(projections, beatIds).size > 0
-      ? await ctx.deps.loadPriorTurns(ctx.job.sessionId, ctx.job.id)
-      : [];
+  const prior = ctx.deps.loadPriorTurns
+    ? await ctx.deps.loadPriorTurns(ctx.job.sessionId, ctx.job.id)
+    : [];
   const open = openFollowUps(projections, prior, beatIds);
   const built = buildNarrationFacts({
     trigger: ctx.job.trigger,
@@ -300,10 +299,31 @@ export const narrate: Node<"narrate"> = async (ctx) => {
     snapshot: resolve.snapshot,
     dmOnlyText: dmOnlySeedText(ctx.seed).map((t) => t.toLowerCase()),
   });
-  // Spec 103 OQ-8: the planner's facts ride the beat's `intent.recorded` rows, in seq order.
-  // ponytail: reads resolve's appended rows only; rows landed before the job (gate-settled Intents) are TASK-0269's (spec 102 OQ-4).
-  const planFacts: PlanFact[] = resolve.appendedRows
-    .filter((r) => r.type === "intent.recorded")
+  // Spec 104 FR-018, FR-019 (plan D6): the planner's facts ride the public `intent.recorded` rows
+  // in the window `(W0, W1]`. W1 is the projections this narrate reads; W0 is the newest prior
+  // turn's `factsThrough`, else the newest earlier `narration` row (a first beat or a deploy
+  // must not re-render history), else 0.
+  const w1 = projections.throughSeq;
+  let w0 = prior.find((t) => t.checkpoint.factsThrough !== undefined)
+    ?.checkpoint.factsThrough;
+  if (w0 === undefined) {
+    const lastNarration = await ctx.deps.loadEvents(ctx.job.sessionId, {
+      afterSeq: 0,
+      throughSeq: w1,
+      types: ["narration"],
+    });
+    w0 = lastNarration.at(-1)?.seq ?? 0;
+  }
+  const carriers =
+    w1 > w0
+      ? await ctx.deps.loadEvents(ctx.job.sessionId, {
+          afterSeq: w0,
+          throughSeq: w1,
+          types: ["intent.recorded"],
+        })
+      : [];
+  const planFacts: PlanFact[] = carriers
+    .filter((r) => r.visibility === "public")
     .sort((x, y) => x.seq - y.seq)
     .flatMap((r) => (r.payload as { facts?: PlanFact[] }).facts ?? []);
   const actionIds = facts.actions.map((a) => a.actionId);
@@ -380,6 +400,7 @@ export const narrate: Node<"narrate"> = async (ctx) => {
         slots,
         withheld,
         narrateError: result.error.kind,
+        factsThrough: w1,
       },
     };
   }
@@ -399,6 +420,7 @@ export const narrate: Node<"narrate"> = async (ctx) => {
       slots: result.slots,
       withheld,
       narrateError: null,
+      factsThrough: w1,
     },
   };
 };
