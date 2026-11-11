@@ -19,6 +19,7 @@
   "dependencies": {
     "@hono/node-server": "^2.1.1",
     "@the-stacks/dnd5e-engine": "workspace:*",
+    "@the-stacks/intent": "workspace:*",
     "@the-stacks/session-model": "workspace:*",
     "@the-stacks/shared": "workspace:*",
     "@the-stacks/space": "workspace:*",

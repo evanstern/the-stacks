@@ -1,5 +1,6 @@
 import { randomInt, randomUUID } from "node:crypto";
 import { type Rng, seededRng } from "@the-stacks/dnd5e-engine";
+import { IntentSchema } from "@the-stacks/intent";
 import {
   actorOf,
   checkPermission,
@@ -8,12 +9,16 @@ import {
   type GateRefusal,
   type GateRequest,
   GateRequestSchema,
+  type IntentRecorded,
+  openRulings,
   type PlannedRow,
+  type PlannerInputs,
   type Proposal,
   ProposalSchema,
   type Proposer,
   planProposal,
   routeProposal,
+  type SessionProjections,
   type StoredEvent,
 } from "@the-stacks/session-model";
 import { type DbClient, SeqConflictError } from "../events/log.js";
@@ -68,6 +73,8 @@ export interface GateDeps {
    * processes that lost a race do not retry in lockstep. Tests inject `() => 0`.
    */
   retryDelayMs?: (attempt: number) => number;
+  /** Seed-derived planner inputs for `intent` requests (spec 102 FR-013). Absent: empty inputs. */
+  plannerInputs?: (p: SessionProjections) => PlannerInputs | undefined;
 }
 
 export type PresencePurpose = "director" | "signoff" | "floor";
@@ -158,8 +165,10 @@ export function createGate(deps: GateDeps): Gate {
   ): Promise<GateResult> {
     const p = await loadProjections(db, sessionId, { role: "dm" });
     const lastSeq = p.throughSeq;
+    const planner = deps.plannerInputs?.(p);
     const context = {
       present: presence.presentUsers(sessionId).map((e) => e.userId),
+      ...(planner ? { planner } : {}),
     };
     const write = async (rows: readonly PlannedRow[]): Promise<StoredEvent[]> =>
       append(
@@ -167,6 +176,108 @@ export function createGate(deps: GateDeps): Gate {
         rows.map((row) => toInput(sessionId, row)),
         { expectedLastSeq: lastSeq },
       );
+
+    type Asked = ReturnType<typeof openRulings>[string];
+    const rulingFor = (state: SessionProjections, proposalId: string) =>
+      Object.values(openRulings(state)).find(
+        (r) => r.proposalId === proposalId,
+      );
+
+    /**
+     * Spec 102 FR-021, FR-024: the proposal rows that ride a planned Intent batch. A
+     * `needs_ruling` carrier under a human seat opens a `proposal.created` (ask); an answer row
+     * closes the open request's proposal.
+     */
+    function ruledRows(
+      state: SessionProjections,
+      who: Proposer,
+      rows: readonly PlannedRow[],
+      batchId: string | null,
+    ): PlannedRow[] {
+      const carrier = rows.find((r) => r.type === "intent.recorded");
+      if (!carrier) return [];
+      const rec = carrier.payload as IntentRecorded;
+      if (rec.outcome === "needs_ruling" && state.gate.seat.kind === "human") {
+        return [
+          {
+            actor: actorOf(who),
+            type: "proposal.created",
+            payload: {
+              proposalId: newId(),
+              policy: "ask",
+              proposal: {
+                kind: "intent",
+                summary: null,
+                rationale: null,
+                intent: rec.intent,
+              },
+            },
+            visibility: "dm",
+          },
+        ];
+      }
+      const open = rec.answers ? openRulings(state)[rec.answers] : undefined;
+      if (!open?.proposalId) return [];
+      const rejected =
+        rec.intent.kind === "ruling" && rec.intent.params.decision === "reject";
+      return [
+        rejected
+          ? {
+              actor: actorOf(who),
+              type: "proposal.rejected",
+              payload: {
+                proposalId: open.proposalId,
+                reason:
+                  (rec.intent.kind === "ruling" && rec.intent.params.reason) ||
+                  null,
+              },
+              visibility: "dm",
+            }
+          : {
+              actor: actorOf(who),
+              type: "proposal.approved",
+              payload: { proposalId: open.proposalId, batchId },
+              visibility: "dm",
+            },
+      ];
+    }
+
+    async function decideRuling(
+      state: SessionProjections,
+      who: Proposer,
+      asked: Asked,
+      decision: "accept" | "reject",
+      reason: string | null,
+      writeRows: (rows: readonly PlannedRow[]) => Promise<StoredEvent[]>,
+    ): Promise<GateResult> {
+      const intent = IntentSchema.parse({
+        id: `ruling-${newId()}`,
+        kind: "ruling",
+        actor: { kind: "dm" },
+        params: {
+          requestId: asked.requestId,
+          decision,
+          ...(reason ? { reason } : {}),
+        },
+        source: "console",
+        commit: "confirmed",
+      });
+      const planned = planProposal(
+        state,
+        who,
+        { kind: "intent", summary: null, rationale: null, intent },
+        newRng(),
+        { batchId: newId() },
+        asked.proposalId,
+        context,
+      );
+      if (!planned.ok) return { ok: false, refusal: planned.refusal };
+      const events = await writeRows([
+        ...planned.rows,
+        ...ruledRows(state, who, planned.rows, planned.batchId),
+      ]);
+      return { ok: true, outcome: "decided", events };
+    }
 
     const permission = checkPermission(p, proposer, request);
     if (!permission.ok) {
@@ -186,6 +297,17 @@ export function createGate(deps: GateDeps): Gate {
         if (view.status !== "pending") {
           return refusal("PROPOSAL_NOT_PENDING", "the proposal is decided");
         }
+        // Spec 102 FR-025: approving a ruling proposal plans a `ruling` Intent from the seated DM.
+        const asked = rulingFor(p, view.proposalId);
+        if (asked) {
+          if (asked.ask === "difficulty") {
+            return refusal(
+              "PROPOSAL_NOT_APPROVABLE",
+              "a difficulty ask needs a tier; send a set_dc or ruling Intent",
+            );
+          }
+          return decideRuling(p, proposer, asked, "accept", null, write);
+        }
         const planned = planProposal(
           p,
           AI_DM,
@@ -198,6 +320,7 @@ export function createGate(deps: GateDeps): Gate {
         if (!planned.ok) return { ok: false, refusal: planned.refusal };
         const events = await write([
           ...planned.rows,
+          ...ruledRows(p, proposer, planned.rows, planned.batchId),
           {
             actor: actorOf(proposer),
             type: "proposal.approved",
@@ -215,6 +338,17 @@ export function createGate(deps: GateDeps): Gate {
         if (!view) return refusal("UNKNOWN_PROPOSAL", "no such proposal");
         if (view.status !== "pending") {
           return refusal("PROPOSAL_NOT_PENDING", "the proposal is decided");
+        }
+        const asked = rulingFor(p, view.proposalId);
+        if (asked) {
+          return decideRuling(
+            p,
+            proposer,
+            asked,
+            "reject",
+            request.reason,
+            write,
+          );
         }
         const events = await write([
           {
@@ -281,7 +415,10 @@ export function createGate(deps: GateDeps): Gate {
         context,
       );
       if (!planned.ok) return { ok: false, refusal: planned.refusal };
-      const events = await write(planned.rows);
+      const events = await write([
+        ...planned.rows,
+        ...ruledRows(p, proposer, planned.rows, planned.batchId),
+      ]);
       return {
         ok: true,
         outcome: "applied",

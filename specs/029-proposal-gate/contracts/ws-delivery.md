@@ -48,7 +48,7 @@ On a gate refusal the sender gets an `error` frame:
 
 | Refusal | `kind` |
 |---|---|
-| source `gate`: `NOT_AUTHORIZED`, `NOT_DM`, `COMMIT_NOT_ALLOWED`, `GROUP_SIGNOFF_REQUIRED` | `forbidden` |
+| source `gate`: `NOT_AUTHORIZED`, `NOT_DM`, `COMMIT_NOT_ALLOWED`, `GROUP_SIGNOFF_REQUIRED`, `NOT_YOUR_ACTOR`, `DM_SEAT_REQUIRED`, `NOT_YOUR_TURN` | `forbidden` |
 | source `gate`: `CONFLICT` | `internal` |
 | every other gate code, every `engine` and `append` code | `validation` |
 
@@ -73,3 +73,7 @@ publish(sessionId: string, events: readonly StoredEvent[]): void;   // broadcast
 ```
 
 `publish` converts a `StoredEvent` (ISO `ts`) to the `event` frame shape directly.
+
+Amended 2026-11-11 (TASK-0268, C-GATE ruling "Approve all"): the `forbidden` row gains `NOT_YOUR_ACTOR`, `DM_SEAT_REQUIRED` and `NOT_YOUR_TURN` (spec 102 FR-028). No frame shape changes.
+
+> "Approve all" (operator, C-GATE ruling, 2026-11-11: approves spec 102 plan.md "C-GATE: frozen contract amendments" and OQ-1 to OQ-14 as recommended)

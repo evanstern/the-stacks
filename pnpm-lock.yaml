@@ -26,6 +26,9 @@ importers:
       '@the-stacks/dnd5e-engine':
         specifier: workspace:*
         version: link:../../packages/dnd5e-engine
+      '@the-stacks/intent':
+        specifier: workspace:*
+        version: link:../../packages/intent
       '@the-stacks/session-model':
         specifier: workspace:*
         version: link:../../packages/session-model
@@ -93,6 +96,9 @@ importers:
       '@react-router/node':
         specifier: ^8.4.0
         version: 8.4.0(react-router@8.4.0(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(typescript@5.9.3)
+      '@the-stacks/intent':
+        specifier: workspace:*
+        version: link:../../packages/intent
       '@the-stacks/session-model':
         specifier: workspace:*
         version: link:../../packages/session-model

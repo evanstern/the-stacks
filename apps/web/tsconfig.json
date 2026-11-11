@@ -17,6 +17,7 @@
     ".react-router/types/**/*"
   ],
   "references": [
+    { "path": "../../packages/intent" },
     { "path": "../../packages/session-model" },
     { "path": "../../packages/shared" },
     { "path": "../../packages/srd" }

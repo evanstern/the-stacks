@@ -44,12 +44,12 @@ on the worktree stack.
 
 **Goal**: the live gate plans Intents with seed inputs and opens a proposal row under a human seat.
 
-- [ ] T015 Add `@the-stacks/intent` to `apps/server/package.json`. Write `apps/server/src/gate/planner-inputs.ts` (plan "Design" 4). Add `plannerInputs?` to `GateDeps`; wire it in `src/index.ts` with `loadSeed`.
-- [ ] T016 In `gate.ts`, pass `planner` in the plan context; append `proposal.created` after a human-seat `needs_ruling` carrier (FR-021); append `proposal.approved`/`proposal.rejected` with an answer row (FR-024).
-- [ ] T017 In `gate.ts`, make `proposal.approve`/`proposal.reject` on an `intent` proposal plan a `ruling` Intent from the seated DM (FR-025).
-- [ ] T018 Add `NOT_YOUR_ACTOR`, `DM_SEAT_REQUIRED`, `NOT_YOUR_TURN` to `FORBIDDEN_GATE_CODES` in `ws/gateway.ts` (FR-028).
-- [ ] T019 Add the `intent` case to `detailsOf` and `actionIdOf` in `apps/web/app/play/proposals.ts`; add `@the-stacks/intent` to `apps/web/package.json`.
-- [ ] T020 Test `apps/server/test/gate.intent.integration.test.ts`: a confirmed player attack over WebSocket appends engine rows and the carrier with a fake gateway that throws on any call (AC #1); human-seat `attempt` writes `proposal.created`; approve and a difficulty `ruling` close it.
+- [x] T015 Add `@the-stacks/intent` to `apps/server/package.json`. Write `apps/server/src/gate/planner-inputs.ts` (plan "Design" 4). Add `plannerInputs?` to `GateDeps`; wire it in `src/index.ts` with `loadSeed`.
+- [x] T016 In `gate.ts`, pass `planner` in the plan context; append `proposal.created` after a human-seat `needs_ruling` carrier (FR-021); append `proposal.approved`/`proposal.rejected` with an answer row (FR-024).
+- [x] T017 In `gate.ts`, make `proposal.approve`/`proposal.reject` on an `intent` proposal plan a `ruling` Intent from the seated DM (FR-025).
+- [x] T018 Add `NOT_YOUR_ACTOR`, `DM_SEAT_REQUIRED`, `NOT_YOUR_TURN` to `FORBIDDEN_GATE_CODES` in `ws/gateway.ts` (FR-028).
+- [x] T019 Add the `intent` case to `detailsOf` and `actionIdOf` in `apps/web/app/play/proposals.ts`; add `@the-stacks/intent` to `apps/web/package.json`.
+- [x] T020 Test `apps/server/test/gate.intent.integration.test.ts`: a confirmed player attack over WebSocket appends engine rows and the carrier with a fake gateway that throws on any call (AC #1); human-seat `attempt` writes `proposal.created`; approve and a difficulty `ruling` close it.
 
 ## Phase 4: AI-seat ruling job (US2 AI seat, AC #2)
 

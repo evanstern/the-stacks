@@ -13,6 +13,7 @@ import { createDmEnqueuer } from "./dm/enqueue.js";
 import { missingDmPurposes, unstructuredDmPurposes } from "./dm/purposes.js";
 import { createAiRuntime } from "./dm/script/env.js";
 import { loadSeed } from "./dm/seed/load.js";
+import { createPlannerInputs } from "./dm/seed/planner-inputs.js";
 import { startDmWorker } from "./dm/worker.js";
 import { createGate } from "./gate/index.js";
 import { loadAnswerConfig } from "./library/answer.js";
@@ -72,6 +73,7 @@ const gate = createGate({
   db,
   presence: presence.reader,
   rng: runtime.gateRng,
+  plannerInputs: createPlannerInputs((id) => loadSeed(id)),
 });
 const loadDmProjections = (sessionId: string) =>
   loadProjections(db, sessionId, { role: "dm" });

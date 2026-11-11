@@ -15,6 +15,8 @@ import {
   loadDmScript,
   type ScriptedDm,
 } from "../../src/dm/script/load.js";
+import { loadSeed } from "../../src/dm/seed/load.js";
+import { createPlannerInputs } from "../../src/dm/seed/planner-inputs.js";
 import type { SceneSeed } from "../../src/dm/seed/schema.js";
 import { readFrom } from "../../src/events/log.js";
 import { createGate, type Gate } from "../../src/gate/index.js";
@@ -126,6 +128,7 @@ export async function createWorld(
     db: requireDb(),
     rng: scripted.gateRng,
     presence: opts.presence,
+    plannerInputs: createPlannerInputs((id) => loadSeed(id)),
     newId: () => `id-${sessionId.slice(0, 8)}-${++n}`,
   });
   const submitCalls = { count: 0 };

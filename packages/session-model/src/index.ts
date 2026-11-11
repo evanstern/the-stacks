@@ -80,6 +80,8 @@ export type {
   PlanResult,
 } from "./gate/plan.js";
 export { mechanicsRows, planProposal } from "./gate/plan.js";
+export type { PlannerInputs } from "./gate/plan-state.js";
+export { buildPlanState, EMPTY_PLANNER_INPUTS } from "./gate/plan-state.js";
 export type { Policy, PolicyTable, Route } from "./gate/policy.js";
 export {
   DEFAULT_POLICIES,

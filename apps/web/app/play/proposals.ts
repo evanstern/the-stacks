@@ -1,3 +1,4 @@
+import { toText } from "@the-stacks/intent";
 import {
   type PartyMemberView,
   type Proposal,
@@ -77,6 +78,8 @@ function actionIdOf(proposal: Proposal): string | null {
       return proposal.narration.actionIds[0] ?? null;
     case "action.declare":
       return proposal.action.actionId;
+    case "intent":
+      return proposal.intent.id;
     default:
       return null;
   }
@@ -210,11 +213,10 @@ function detailsOf(
         { label: "Reason", value: proposal.reason },
         { label: "Visibility", value: "Everyone" },
       ];
-    // ponytail: kind and text only; T019 (phase 3) swaps in toText(intent).
     case "intent":
       return [
         { label: "Intent", value: proposal.intent.kind },
-        { label: "Text", value: proposal.intent.text ?? "" },
+        { label: "Text", value: toText(proposal.intent) },
       ];
   }
 }
