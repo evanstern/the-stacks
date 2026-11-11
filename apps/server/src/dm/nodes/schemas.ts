@@ -8,6 +8,12 @@ import {
   type Skill,
 } from "@the-stacks/dnd5e-engine";
 import {
+  type IntentKind,
+  KIND_RULES,
+  paramsSchemaOf,
+  TargetRefSchema,
+} from "@the-stacks/intent";
+import {
   CombatantIdSchema,
   PresenceReasonSchema,
   ReasonSchema,
@@ -298,7 +304,125 @@ function refineSteps(
   });
 }
 
-export const InterpretReadingSchema = z
+/**
+ * The Intent kinds interpret may emit (specs/104 plan D1). The monster-only kinds
+ * are TASK-0299's. ponytail: add a kind here when its planner owner lands.
+ */
+export const INTERPRET_KINDS = [
+  "attempt",
+  "check",
+  "save",
+  "contest",
+  "attack",
+  "cast",
+  "help",
+  "hide",
+  "search",
+  "grapple",
+  "shove",
+  "use_object",
+  "move",
+  "stand",
+  "drop_prone",
+  "dash",
+  "dodge",
+  "disengage",
+] as const satisfies readonly IntentKind[];
+export type InterpretKind = (typeof INTERPRET_KINDS)[number];
+
+/** The `params` shape of a kind with the model-chosen `dc` left out (CR-004). */
+function bodyParams(kind: IntentKind): z.ZodType {
+  const p = paramsSchemaOf(kind) as unknown as z.ZodObject;
+  const { dc: _dc, ...shape } = p.shape as Record<string, z.ZodType>;
+  // Refinements are dropped; the stamped Intent re-runs the full IntentSchema.
+  return z.strictObject(shape);
+}
+
+const IntentBodyMembers = INTERPRET_KINDS.map((kind) => {
+  const t = KIND_RULES[kind].targets;
+  return z.strictObject({
+    kind: z.literal(kind),
+    targets: z.array(TargetRefSchema).min(t.min).max(t.max),
+    params: bodyParams(kind),
+    text:
+      KIND_RULES[kind].text === "required"
+        ? z.string().trim().min(1).max(4000)
+        : z.string().trim().min(1).max(4000).optional(),
+  });
+});
+/** One Intent body: no id, actor, source or commit; code stamps those. */
+export const IntentBodySchema = z.discriminatedUnion(
+  "kind",
+  IntentBodyMembers as unknown as [
+    (typeof IntentBodyMembers)[number],
+    ...(typeof IntentBodyMembers)[number][],
+  ],
+);
+export type IntentBody = z.infer<typeof IntentBodySchema>;
+
+/** The kinds a `beside` block (stakes, band effects, reveals) may ride on. */
+export const BESIDE_KINDS: readonly IntentKind[] = [
+  "check",
+  "save",
+  "contest",
+  "search",
+  "hide",
+];
+
+/** Spec 070/080 data beside a check Intent, until a card puts stakes on Intents (OQ-6). */
+export const BesideSchema = z.strictObject({
+  stakes: StakesSchema,
+  onSuccess: z.array(EffectSchema).max(4).default([]),
+  onFailure: z.array(EffectSchema).max(4).default([]),
+  onCost: z.array(EffectSchema).max(4).default([]),
+  onSevere: z.array(EffectSchema).max(4).default([]),
+  newRisk: z.string().min(1).max(200).nullable().default(null),
+  reveals: ClueRefSchema.nullable().default(null),
+  autoFail: z.object({ reason: Reason }).nullable().default(null),
+});
+export type Beside = z.infer<typeof BesideSchema>;
+
+export const InterpretStageSchema = z
+  .strictObject({
+    intent: IntentBodySchema,
+    beside: BesideSchema.nullable().default(null),
+  })
+  .superRefine((st, ctx) => {
+    if (!st.beside) return;
+    if (!BESIDE_KINDS.includes(st.intent.kind)) {
+      ctx.addIssue({
+        code: "custom",
+        message: `beside data does not ride on a ${st.intent.kind} Intent`,
+        path: ["beside"],
+      });
+      return;
+    }
+    // Spec 070: an ability check names a cost and a severe consequence; a save may not.
+    if (st.intent.kind === "save") return;
+    for (const key of ["cost", "severe"] as const) {
+      if (st.beside.stakes[key] === null) {
+        ctx.addIssue({
+          code: "custom",
+          message: `an ability check needs stakes.${key}`,
+          path: ["beside", "stakes", key],
+        });
+      }
+    }
+  });
+export type InterpretStage = z.infer<typeof InterpretStageSchema>;
+
+/** Specs/104 FR-001: one reading per beat item, a list of Intent stages. */
+export const InterpretReadingSchema = z.strictObject({
+  actionId: RefIdSchema.nullable(), // null only for the NPC turn
+  stages: z.array(InterpretStageSchema).max(6),
+  clarify: z.string().min(1).max(200).nullable(),
+  followUps: z.array(z.string().min(1).max(200)).max(6).default([]),
+  say: z.string().min(1).max(200).nullable().optional(), // a monster's spoken line (specs/081)
+});
+export type InterpretReading = z.infer<typeof InterpretReadingSchema>;
+
+/** The pre-Intent reading: resumed checkpoints and the legacy resolve path (plan D7). */
+export const LegacyInterpretReadingSchema = z
   .object({
     actionId: RefIdSchema.nullable(), // null only for the NPC turn
     intent: z.enum([
@@ -330,7 +454,9 @@ export const InterpretReadingSchema = z
     }
     refineSteps(r.steps, ctx, ["steps"]);
   });
-export type InterpretReading = z.infer<typeof InterpretReadingSchema>;
+export type LegacyInterpretReading = z.infer<
+  typeof LegacyInterpretReadingSchema
+>;
 
 export const InterpretOutput = z.object({
   readings: z.array(InterpretReadingSchema).max(20),

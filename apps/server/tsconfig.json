@@ -9,6 +9,7 @@
     { "path": "../../packages/shared" },
     { "path": "../../packages/dnd5e-engine" },
     { "path": "../../packages/intent" },
+    { "path": "../../packages/planner" },
     { "path": "../../packages/session-model" },
     { "path": "../../packages/space" },
     { "path": "../../packages/srd" }
