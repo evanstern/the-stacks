@@ -3,10 +3,10 @@ id: TASK-0308
 title: >-
   Wall-clock budget tests still run inside the parallel test suite (fog, intent,
   planner)
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-11-11T01:48:00Z'
-updated_date: '2026-11-11T02:00:00Z'
+updated_date: '2026-11-11T02:12:00Z'
 labels:
   - ws:tooling
   - replan-2026-11
@@ -28,7 +28,7 @@ TASK-0303 moved space's SC-005 timing test into the serial pnpm check:timing ste
 <!-- AC:BEGIN -->
 - [x] #1 The fog, intent and planner wall-clock budgets run only in pnpm check:timing, serially, with their thresholds unchanged.
 - [x] #2 A guard fails ci:check when a regular *.test.ts file asserts on a performance.now() duration.
-- [ ] #3 main CI is green and vm-104 serves the TASK-0307 fix.
+- [x] #3 main CI is green and vm-104 serves the TASK-0307 fix.
 <!-- AC:END -->
 
 ## Definition of Done
@@ -47,3 +47,9 @@ Covered by escape line E8 (TASK-0303 hotfix scope, operator-signed 2026-11-09): 
 Dispatch: tier=haiku pinned=cc/claude-haiku-5-5 served=cc/claude-haiku-5-5
 4f0383cb: fog, intent and planner timing tests moved to timing.bench-test.ts per package; apps/server ddb perf test (found by the guard, not in the original list) moved too, per orchestrator decision (no exemption). check:timing runs 5 packages serially. Guard scripts/check-no-wallclock-tests.mjs wired into ci:check; demo fails on a planted offender. ci:check exit 0. Orchestrator re-ran the guard (exit 0), check:timing (5 pass), freshness (OK 65), and verified the 8 unworded re-pins: only package.json test:timing lines changed under their sources. AC #3 reads after merge.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Wall-clock budgets (fog, intent, planner, server ddb parse) moved into per-package timing.bench-test.ts files run serially by pnpm check:timing; thresholds unchanged. scripts/check-no-wallclock-tests.mjs fails ci:check on any regular test that times itself. Merged in PR #164 (7d6cde2a); main CI green and vm-104 serves 7d6cde2a.
+<!-- SECTION:FINAL_SUMMARY:END -->
