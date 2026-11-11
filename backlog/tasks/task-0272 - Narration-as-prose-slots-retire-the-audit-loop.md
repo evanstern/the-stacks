@@ -4,7 +4,7 @@ title: Narration as prose slots; retire the audit loop
 status: In Progress
 assignee: []
 created_date: 2026-11-07 05:13
-updated_date: '2026-11-11T15:23:00Z'
+updated_date: '2026-11-11T15:36:00Z'
 labels:
   - ws:narration
   - replan-2026-11
@@ -57,4 +57,7 @@ Claimed 2026-11-11 by the R1 sweep (docs/design/r1-fast-table-runbook.md). Workt
 
 Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5
 Spec 103 authored (39c9ed24, ~19 min, 57 tool calls) against 098 a370041c, 093 beae54aa, 097 a34d5d39, 102 86d425b6, base 0b3c378b.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
+Phases 1-2 done in one commit (81fe389c): ci:check green, 2020 server tests with REQUIRE_DATABASE=1. renderWhyRows forms (DC 15 / Difficulty: easy / Opposed by X (rule)) are the implementer's reading of spec 098 contract section 6.
 <!-- SECTION:NOTES:END -->
