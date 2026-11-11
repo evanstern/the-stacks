@@ -4,7 +4,7 @@ title: Narration as prose slots; retire the audit loop
 status: In Progress
 assignee: []
 created_date: 2026-11-07 05:13
-updated_date: '2026-11-11T16:35:00Z'
+updated_date: '2026-11-11T16:37:00Z'
 labels:
   - ws:narration
   - replan-2026-11
@@ -30,7 +30,7 @@ Spec: specs/103-prose-slots
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 No narration path regenerates for audit reasons.
+- [x] #1 No narration path regenerates for audit reasons.
 - [ ] #2 Narration writes no digits; fact rows carry every number.
 - [ ] #3 The R1 playtest shows zero fallback lines.
 - [ ] #4 `dm/claims.ts` lexical gate is deleted.
