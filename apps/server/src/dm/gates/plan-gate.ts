@@ -15,7 +15,14 @@ import {
 import type { Ruling } from "../nodes/adjudicate.js";
 import type { BeatItem } from "../nodes/assemble.js";
 import type { DirectorNodeOutput } from "../nodes/director.js";
-import type { Effect, InterpretReading, Step } from "../nodes/schemas.js";
+import {
+  type AnyInterpretReading,
+  type Effect,
+  hasStages,
+  type InterpretStage,
+  type LegacyInterpretReading,
+  type Step,
+} from "../nodes/schemas.js";
 import type { SceneSeed } from "../seed/schema.js";
 import type { ActorSnapshot } from "../snapshot/index.js";
 
@@ -107,7 +114,7 @@ export type PlanVerdict =
 export interface PlanInput {
   /** S0. */
   snapshot: ActorSnapshot;
-  readings: readonly InterpretReading[];
+  readings: readonly AnyInterpretReading[];
   rulings: readonly { actionId: string | null; steps: readonly Step[] }[];
   /** The combatant ids this turn's Director opening moves add. */
   joining: readonly string[];
@@ -121,6 +128,11 @@ export interface PlanInput {
    * is not actor-checked (spec 079 D5).
    */
   actors?: ReadonlyMap<string, string | null>;
+  /**
+   * Spec 104 FR-012: action id -> the declarer's combatant id, for an Intent reading. The turn
+   * hold names it where a step reading names its steps' actors.
+   */
+  declarers?: ReadonlyMap<string, string>;
   /** The engine combatants (spec 082 D8). A joining or absent id is not stat-checked. */
   combatants: Readonly<Record<string, Combatant>>;
   /** Spec 083 D6: combatant id -> the seed character's spell ids. A caster with no entry has no list. */
@@ -432,6 +444,19 @@ function foreignActor(
   return null;
 }
 
+/**
+ * Spec 104: the combatant ids an Intent group's stages act for. Every stage of an item shares the
+ * declarer (the actor comes from the beat item, FR-005), so the list holds at most one id.
+ */
+export function stageActors(
+  stages: readonly InterpretStage[],
+  party: readonly { characterId: string; combatantId: string | null }[],
+  item: { characterId: string | null },
+): string[] {
+  const id = party.find((m) => m.characterId === item.characterId)?.combatantId;
+  return stages.length > 0 && id ? [id] : [];
+}
+
 /** The distinct actor ids a plan's steps name, in step order (TASK-0244). */
 export function stepActors(steps: readonly Step[]): string[] {
   const out: string[] = [];
@@ -462,6 +487,7 @@ function heldFor(
   steps: readonly Step[],
   snapshot: ActorSnapshot,
   ownActors: ReadonlySet<string>,
+  named: readonly string[] = stepActors(steps),
 ): { held: string } | { offTurn: PlanFailure } | null {
   const enc = snapshot.stage.encounter;
   if (snapshot.stage.tableMode.mode !== "turn" || !enc) return null;
@@ -480,12 +506,12 @@ function heldFor(
       offTurn.add(id);
     }
   }
-  const named = stepActors(steps);
   if (!named.some((id) => offTurn.has(id))) return null;
   const only = named[0];
   if (named.length === 1 && only !== undefined) return { held: only };
-  const stepIndex = steps.findIndex((s) =>
-    stepActors([s]).some((id) => offTurn.has(id)),
+  const stepIndex = Math.max(
+    0,
+    steps.findIndex((s) => stepActors([s]).some((id) => offTurn.has(id))),
   );
   const id = named.find((n) => offTurn.has(n)) ?? "";
   return {
@@ -567,7 +593,7 @@ export type SpellGap = {
  */
 function spellGap(
   steps: readonly Step[],
-  intent: InterpretReading["intent"] | null,
+  intent: LegacyInterpretReading["intent"] | null,
   input: PlanInput,
 ): SpellGap | null {
   const fail = (
@@ -687,8 +713,15 @@ export function checkPlan(input: PlanInput): PlanVerdict[] {
 
   const groups = new Map<string | null, readonly Step[]>();
   /** The intent of a non-clarify reading, for the spell-intent rule (spec 083 D6). */
-  const intents = new Map<string | null, InterpretReading["intent"]>();
+  const intents = new Map<string | null, LegacyInterpretReading["intent"]>();
+  /** Spec 104: Intent readings carry no step; the planner and gate own their legality. */
+  const staged = new Set<string | null>();
   for (const r of input.readings) {
+    if (hasStages(r)) {
+      groups.set(r.actionId, []);
+      if (r.clarify === null && r.stages.length > 0) staged.add(r.actionId);
+      continue;
+    }
     // A clarify reading runs no step: nothing to gate.
     groups.set(r.actionId, r.clarify !== null ? [] : r.steps);
     if (r.clarify === null) intents.set(r.actionId, r.intent);
@@ -724,7 +757,13 @@ export function checkPlan(input: PlanInput): PlanVerdict[] {
         const o = k === null ? null : input.actors.get(k);
         if (o) own.add(o);
       }
-      const h = heldFor(steps, snapshot, own);
+      const declarer = input.declarers?.get(actionId);
+      const h = heldFor(
+        steps,
+        snapshot,
+        own,
+        staged.has(actionId) && declarer ? [declarer] : stepActors(steps),
+      );
       if (h && "held" in h) {
         verdicts.push({
           actionId,
@@ -875,10 +914,10 @@ export interface Asked {
 export function askUndeclared(input: {
   snapshot: ActorSnapshot;
   beat: readonly BeatItem[];
-  readings: readonly InterpretReading[];
+  readings: readonly AnyInterpretReading[];
   rulings: readonly Ruling[];
   resumed: readonly string[];
-}): { readings: InterpretReading[]; rulings: Ruling[]; asked: Asked[] } {
+}): { readings: AnyInterpretReading[]; rulings: Ruling[]; asked: Asked[] } {
   const { snapshot, beat } = input;
   const resumed = new Set(input.resumed);
   const asked: Asked[] = [];
@@ -888,7 +927,32 @@ export function askUndeclared(input: {
     const reading = input.readings.find((r) => r.actionId === item.actionId);
     if (!reading || reading.clarify !== null) continue;
     const ruling = input.rulings.find((r) => r.actionId === item.actionId);
-    const steps = ruling ? ruling.steps : reading.steps;
+    if (hasStages(reading) && !ruling) {
+      // Spec 104 FR-011: the manner rule holds for Intent stages. The other-player rule cannot
+      // fire: the actor of a stage is the declarer, stamped by code.
+      for (const [stepIndex, st] of reading.stages.entries()) {
+        const { kind, params } = st.intent;
+        const skill = (params as { skill?: string }).skill;
+        if (kind !== "check" || item.actor.startsWith("ai:")) continue;
+        const row = MANNER_SKILLS.find((m) => m.skill === skill);
+        if (row && !row.cues.test(item.text)) {
+          questions.set(item.actionId, row.question);
+          asked.push({
+            actionId: item.actionId,
+            stepIndex,
+            rule: "manner",
+            detail: row.skill,
+          });
+          break;
+        }
+      }
+      continue;
+    }
+    const steps = ruling
+      ? ruling.steps
+      : hasStages(reading)
+        ? []
+        : reading.steps;
     for (const [stepIndex, step] of steps.entries()) {
       let question: string | null = null;
       let rule: Asked["rule"] = "manner";
@@ -948,8 +1012,10 @@ export function askUndeclared(input: {
     readings: input.readings.map((r) => {
       const q = r.actionId === null ? undefined : questions.get(r.actionId);
       return q === undefined
-        ? (r as InterpretReading)
-        : { ...r, steps: [], followUps: [], clarify: q };
+        ? r
+        : hasStages(r)
+          ? { ...r, stages: [], followUps: [], clarify: q }
+          : { ...r, steps: [], followUps: [], clarify: q };
     }),
     rulings: input.rulings.filter(
       (r) => r.actionId === null || !questions.has(r.actionId),

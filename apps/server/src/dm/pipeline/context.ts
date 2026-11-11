@@ -11,7 +11,7 @@ import type { CheckOutput } from "../nodes/check.js";
 import type { DirectorNodeOutput } from "../nodes/director.js";
 import type { NarrateOutput } from "../nodes/narrate.js";
 import type { ResolveOutput } from "../nodes/resolve.js";
-import type { InterpretOutput } from "../nodes/schemas.js";
+import type { InterpretResult } from "../nodes/schemas.js";
 import type { DmPurpose } from "../purposes.js";
 import type { PriorTurn } from "../resume.js";
 import type { SceneSeed } from "../seed/schema.js";
@@ -97,7 +97,7 @@ export interface NodeDeps {
 export interface NodeOutputs {
   assemble: AssembleOutput;
   director: DirectorNodeOutput;
-  interpret: InterpretOutput;
+  interpret: InterpretResult;
   adjudicate: AdjudicateOutput;
   resolve: ResolveOutput;
   narrate: NarrateOutput;

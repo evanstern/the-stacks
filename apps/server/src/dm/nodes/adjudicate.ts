@@ -9,7 +9,7 @@ import {
   PROMPT_VERSION,
 } from "../prompts/adjudicate.js";
 import { PURPOSE_OF } from "../purposes.js";
-import { AdjudicateModelOutput, type Step } from "./schemas.js";
+import { AdjudicateModelOutput, hasStages, type Step } from "./schemas.js";
 
 /**
  * The adjudicate node (contracts/nodes.md "adjudicate"). One `retrieve` per
@@ -95,6 +95,8 @@ export const adjudicate: Node<"adjudicate"> = async (ctx) => {
   const resumedIds = new Set((assembled.resumed ?? []).map((r) => r.actionId));
 
   for (const reading of interpret.readings) {
+    // Spec 104 OQ-7: an Intent reading never asks for a ruling; only a resumed legacy one can.
+    if (hasStages(reading)) continue;
     if (!reading.needsAdjudication || reading.rulesQuestion === null) continue;
     // A resumed reading keeps the ruling its paused turn made (specs/057).
     if (reading.actionId !== null && resumedIds.has(reading.actionId)) continue;

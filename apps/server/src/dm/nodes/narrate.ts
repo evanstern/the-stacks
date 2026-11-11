@@ -30,6 +30,7 @@ import { PURPOSE_OF } from "../purposes.js";
 import { dmOnlySeedText, playerFacingSeed } from "../seed/views.js";
 import type { ActorSnapshot } from "../snapshot/index.js";
 import type { AssembleOutput } from "./assemble.js";
+import { hasStages } from "./schemas.js";
 
 /**
  * The narrate node (contracts/nodes.md "narrate"). It receives resolved
@@ -240,11 +241,20 @@ export const narrate: Node<"narrate"> = async (ctx) => {
     (r) => r.actionId === null,
   );
   const npcPlan = reading
-    ? {
-        intent: reading.intent,
-        steps: npcRuling?.steps ?? reading.steps,
-        say: reading.say ?? null,
-      }
+    ? hasStages(reading)
+      ? {
+          // Spec 104: the monster's Intent stages read as plan lines in the text form the player sees.
+          intent: reading.stages[0]?.intent.kind ?? "other",
+          steps: reading.stages.map((st) => ({
+            reason: st.intent.text ?? st.intent.kind,
+          })),
+          say: reading.say ?? null,
+        }
+      : {
+          intent: reading.intent,
+          steps: npcRuling?.steps ?? reading.steps,
+          say: reading.say ?? null,
+        }
     : null;
   // ponytail: reads every prior turn checkpoint of the session (one job-table read per narrate
   // when a member has an open action). Ceiling: a session with many turn jobs; upgrade is a

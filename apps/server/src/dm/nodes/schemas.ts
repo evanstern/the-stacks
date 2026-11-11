@@ -463,6 +463,16 @@ export const InterpretOutput = z.object({
 });
 export type InterpretOutput = z.infer<typeof InterpretOutput>;
 
+/** A reading in a turn: the Intent shape, or the pre-Intent shape of a resumed checkpoint (plan D7). */
+export type AnyInterpretReading = InterpretReading | LegacyInterpretReading;
+/** What the interpret node returns and a checkpoint stores. */
+export interface InterpretResult {
+  readings: AnyInterpretReading[];
+}
+/** True for the Intent shape; the legacy shape has `steps` instead of `stages`. */
+export const hasStages = (r: AnyInterpretReading): r is InterpretReading =>
+  "stages" in r;
+
 export const DirectorOutput = z.object({
   beat: z.discriminatedUnion("decision", [
     z.object({ decision: z.literal("resolve") }),

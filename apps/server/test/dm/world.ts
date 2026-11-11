@@ -8,7 +8,7 @@ import type { AdjudicateOutput } from "../../src/dm/nodes/adjudicate.js";
 import { assemble } from "../../src/dm/nodes/assemble.js";
 import type { DirectorNodeOutput } from "../../src/dm/nodes/director.js";
 import { type ResolveOutput, resolve } from "../../src/dm/nodes/resolve.js";
-import type { InterpretOutput } from "../../src/dm/nodes/schemas.js";
+import type { InterpretResult } from "../../src/dm/nodes/schemas.js";
 import type { NodeResult, TurnContext } from "../../src/dm/pipeline/context.js";
 import {
   createScriptedDm,
@@ -87,7 +87,7 @@ export interface World {
   /** Runs assemble then resolve with the given planning outputs. */
   runResolve: (input: {
     director?: Partial<DirectorNodeOutput>;
-    readings?: InterpretOutput["readings"];
+    readings?: InterpretResult["readings"];
     rulings?: AdjudicateOutput["rulings"];
     job?: Partial<TurnContext["job"]>;
     checkpoint?: TurnCheckpoint;
@@ -303,6 +303,46 @@ export const reading = (
   rulesQuestion: null,
   clarify: null,
   steps,
+  ...over,
+});
+
+/** Spec 104: one stage of a new-shape reading, from an Intent body and optional beside data. */
+export const stage = (
+  intent: { kind: string; targets?: unknown[]; params?: object; text?: string },
+  beside: object | null = null,
+) => ({
+  intent: { targets: [], params: {}, ...intent },
+  beside,
+});
+
+/** The stakes a check's beside block carries; the same text as `checkStep`. */
+export const checkBeside = (over: Record<string, unknown> = {}) => ({
+  stakes: {
+    success: "The attempt works as intended.",
+    cost: "It works, at a small price.",
+    failure: "The attempt comes to nothing.",
+    severe: "It goes badly wrong.",
+  },
+  onSuccess: [],
+  onFailure: [],
+  onCost: [],
+  onSevere: [],
+  newRisk: null,
+  reveals: null,
+  autoFail: null,
+  ...over,
+});
+
+/** Spec 104: a new-shape reading from stages. */
+export const stages = (
+  actionId: string | null,
+  list: unknown[],
+  over: Record<string, unknown> = {},
+) => ({
+  actionId,
+  stages: list,
+  clarify: null,
+  followUps: [],
   ...over,
 });
 

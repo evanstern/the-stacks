@@ -1,7 +1,13 @@
+import { PLAN_KINDS } from "@the-stacks/planner";
 import type { Ruling } from "./nodes/adjudicate.js";
 import type { BeatItem } from "./nodes/assemble.js";
 import type { DirectorNodeOutput } from "./nodes/director.js";
-import type { InterpretReading, Step } from "./nodes/schemas.js";
+import {
+  type AnyInterpretReading,
+  hasStages,
+  type InterpretStage,
+  type Step,
+} from "./nodes/schemas.js";
 
 /**
  * First-stage rule (specs/064-plan-first-step): in free mode a plan resolves
@@ -31,20 +37,67 @@ export function firstStage(steps: readonly Step[]): {
   return { kept: steps.slice(0, end), cut: steps.slice(end) };
 }
 
+/**
+ * Spec 104 FR-011: a stage rolls when its kind is planned and mutates through the engine's dice:
+ * a check, save, contest, search, hide, attack or cast. Keeps stages up to and including the
+ * first roll-bearing run of like stages; the rest become follow-ups.
+ */
+const ROLLS = new Set([
+  "check",
+  "save",
+  "contest",
+  "search",
+  "hide",
+  "attack",
+  "cast",
+  "grapple",
+  "shove",
+]);
+const rolls = (s: InterpretStage): boolean =>
+  ROLLS.has(s.intent.kind) && PLAN_KINDS[s.intent.kind].class !== "unserved";
+const sameStage = (a: InterpretStage, b: InterpretStage): boolean =>
+  a.intent.kind === b.intent.kind &&
+  JSON.stringify(a.intent.params) === JSON.stringify(b.intent.params);
+
+export function firstStages(stages: readonly InterpretStage[]): {
+  kept: InterpretStage[];
+  cut: InterpretStage[];
+} {
+  const first = stages.findIndex(rolls);
+  if (first < 0) return { kept: [...stages], cut: [] };
+  const head = stages[first] as InterpretStage;
+  let end = first + 1;
+  while (end < stages.length && sameStage(head, stages[end] as InterpretStage))
+    end += 1;
+  return { kept: stages.slice(0, end), cut: stages.slice(end) };
+}
+
+/** A cut stage's follow-up line: the Intent's own words when it has them, else its kind. */
+const stageLine = (s: InterpretStage): string =>
+  (s.intent.text ?? `then ${s.intent.kind}`).slice(0, 200);
+
 const merge = (...lists: readonly string[][]): string[] =>
   [...new Set(lists.flat())].slice(0, MAX_FOLLOW_UPS);
 
 /** Cuts each acting reading and ruling after its first stage; free mode only. */
 export function cutPlans(input: {
   mode: "free" | "turn";
-  readings: InterpretReading[];
+  readings: AnyInterpretReading[];
   rulings: Ruling[];
-}): { readings: InterpretReading[]; rulings: Ruling[] } {
+}): { readings: AnyInterpretReading[]; rulings: Ruling[] } {
   const { mode, readings, rulings } = input;
   if (mode !== "free") return { readings, rulings };
   return {
     readings: readings.map((r) => {
       if (r.actionId === null) return r;
+      if (hasStages(r)) {
+        const { kept, cut } = firstStages(r.stages);
+        return {
+          ...r,
+          stages: kept,
+          followUps: merge(r.followUps, cut.map(stageLine)),
+        };
+      }
       const { kept, cut } = firstStage(r.steps);
       return {
         ...r,
@@ -79,7 +132,7 @@ export const CLARIFY_HELD = "held: an action awaits an answer";
  */
 export function clarifyHolds(
   beat: readonly BeatItem[],
-  readings: readonly InterpretReading[],
+  readings: readonly AnyInterpretReading[],
   rulings: readonly Ruling[],
 ): Set<string> {
   const held = new Set<string>();

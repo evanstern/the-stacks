@@ -131,10 +131,9 @@ export const interpret: Node<"interpret"> = async (ctx) => {
     [...xs].sort(
       (a, b) => (order.get(a.actionId) ?? 0) - (order.get(b.actionId) ?? 0),
     );
-  // ponytail: a resumed legacy reading rides through as-is; TASK-0269 Phase 3 (T020) widens the type.
   const resumedReadings = resumed
     .filter((r) => order.has(r.actionId))
-    .map((r) => r.reading as unknown as InterpretReading);
+    .map((r) => r.reading);
 
   // Spec FR-004: slash items never reach the model.
   const fresh = assembled.beat.filter((b) => !resumedIds.has(b.actionId));

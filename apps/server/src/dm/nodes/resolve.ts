@@ -4,6 +4,7 @@ import {
   encounterOver,
   findAttack,
   firstMeleeAttack,
+  RefusalCodeSchema,
 } from "@the-stacks/dnd5e-engine";
 import {
   activeActorFor,
@@ -13,6 +14,7 @@ import {
   mechanicsProposal,
   type Proposal,
   type ProposalKind,
+  type Proposer,
   REASON_TO_PRESENCE,
   type SessionProjections,
   type StoredEvent,
@@ -28,9 +30,15 @@ import {
   encounterPhase,
   encounterToStart,
   type PlanVerdict,
+  stageActors,
   stepActors,
   TURN_HELD_CODE,
 } from "../gates/plan-gate.js";
+import {
+  type ChainResult,
+  effectCommand,
+  runStages,
+} from "../intent-runner.js";
 import type { TurnCheckpoint } from "../jobs.js";
 import type { Node, NodeError, TurnContext } from "../pipeline/context.js";
 import { reactors } from "../reactions.js";
@@ -48,7 +56,15 @@ import { bandTexts, clueFor, effectsForBand, isFreeRetry } from "../stakes.js";
 import type { AssembleOutput, BeatItem } from "./assemble.js";
 import type { CheckOutput } from "./check.js";
 import type { DirectorNodeOutput } from "./director.js";
-import type { Effect, InterpretReading, Stakes, Step } from "./schemas.js";
+import {
+  type AnyInterpretReading,
+  type Beside,
+  type Effect,
+  hasStages,
+  type InterpretStage,
+  type Stakes,
+  type Step,
+} from "./schemas.js";
 import { settleTurn } from "./settle.js";
 
 /**
@@ -64,7 +80,7 @@ import { settleTurn } from "./settle.js";
  * moves and the turn advance.
  */
 
-const AI_DM = { kind: "ai", actor: "ai:dm" } as const;
+export const AI_DM = { kind: "ai", actor: "ai:dm" } as const;
 const CONFLICT_DELAYS_MS = [200, 800];
 
 export interface Submission {
@@ -89,6 +105,8 @@ export interface Submission {
   revealedText?: string | null;
   /** The seqs the gate returned for this submission, ascending; `[]` on a refusal or an unrecoverable replay. */
   seqs: number[];
+  /** Spec 104: the carrier row's outcome of an `intent` submission (`declared`, `settled`, `needs_ruling`). */
+  intentOutcome?: string | null;
 }
 
 export type ActionOutcome =
@@ -177,6 +195,7 @@ interface SubmitResult {
   batchId: string | null;
   outcome: string | null;
   band?: string | null;
+  intentOutcome?: string | null;
 }
 
 /** The engine outcome carried by `check.resolved` / `attack.resolved` rows. */
@@ -199,6 +218,20 @@ function bandOf(events: readonly StoredEvent[]): string | null {
     if (ev?.type === "check.resolved") return ev.band ?? null;
   }
   return null;
+}
+
+/** The outcome of the `intent.recorded` carrier row among `events`, else null. */
+function carrierOutcome(events: readonly StoredEvent[]): string | null {
+  const c = events.find((e) => e.type === "intent.recorded");
+  return c ? ((c.payload as { outcome?: string }).outcome ?? null) : null;
+}
+
+/** The batch the `intent.recorded` carrier among `events` names, else null. */
+function carrierBatch(events: readonly StoredEvent[]): string | null {
+  const c = events.find((e) => e.type === "intent.recorded");
+  return c
+    ? ((c.payload as { batchId?: string | null }).batchId ?? null)
+    : null;
 }
 
 /** Looks for a submission that landed after the last checkpoint save. */
@@ -283,7 +316,7 @@ function findLanded(
   }
 }
 
-class Run {
+export class Run {
   readonly submissions: Submission[];
   readonly appended: StoredEvent[] = [];
   lastSeq: number;
@@ -313,6 +346,7 @@ class Run {
     kind: ProposalKind,
     build: (stepRef: string) => Proposal,
     stakes: Stakes | null = null,
+    who: Proposer = AI_DM,
   ): Promise<Submission> {
     const recorded = this.submissions.find((s) => s.key === key);
     if (recorded) return recorded;
@@ -339,7 +373,7 @@ class Run {
       for (;;) {
         const res = await this.gate.submit(
           this.ctx.job.sessionId,
-          AI_DM,
+          who,
           proposal,
         );
         if (!res.ok) {
@@ -353,7 +387,8 @@ class Run {
             attempt++;
             continue;
           }
-          if (r.source === "engine") {
+          // Spec 104: the planner's refusals reach the gate as `gate` source; a stage is refused, not fatal.
+          if (r.source === "engine" || kind === "intent") {
             outcome = {
               result: "refused",
               refusal: r,
@@ -373,9 +408,11 @@ class Run {
           outcome = {
             result: "applied",
             refusal: null,
-            batchId: res.batchId,
+            // Spec 104: an Intent that planned no engine row has no batch, whatever the gate minted.
+            batchId: kind === "intent" ? carrierBatch(res.events) : res.batchId,
             outcome: outcomeOf(res.events),
             band: bandOf(res.events),
+            intentOutcome: carrierOutcome(res.events),
           };
         } else if (res.outcome === "pending" || res.outcome === "suggested") {
           proposalId = res.proposalId;
@@ -409,6 +446,9 @@ class Run {
       band: outcome.band ?? null,
       stakes,
       seqs: events.map((e) => e.seq).sort((a, b) => a - b),
+      ...(outcome.intentOutcome !== undefined
+        ? { intentOutcome: outcome.intentOutcome }
+        : {}),
     };
     this.submissions.push(sub);
     for (const e of events) {
@@ -465,66 +505,6 @@ function hitDamage(
     critical,
     defenses: null,
   } as EngineCommand;
-}
-
-function effectCommand(
-  effect: Exclude<Effect, { effect: "presence" }>,
-  critical: boolean,
-  reason: string,
-): { key: string; command: Record<string, unknown>; reason: string } {
-  switch (effect.effect) {
-    case "damage":
-      return {
-        key: "damage",
-        reason: `${reason}: damage`,
-        command: {
-          type: "damage.apply",
-          targetId: effect.targetId,
-          components: effect.components,
-          critical,
-          defenses: effect.defenses,
-        },
-      };
-    case "heal":
-      return {
-        key: "heal",
-        reason: `${reason}: healing`,
-        command: {
-          type: "healing.apply",
-          targetId: effect.targetId,
-          amount: effect.amount,
-        },
-      };
-    case "condition":
-      return effect.op === "apply"
-        ? {
-            key: "condition",
-            reason: `${reason}: ${effect.condition}`,
-            command: {
-              type: "condition.apply",
-              targetId: effect.targetId,
-              condition: effect.condition,
-              source: effect.source,
-              expiresAt: null,
-            },
-          }
-        : {
-            key: "condition",
-            reason: `${reason}: ${effect.condition} ends`,
-            command: {
-              type: "condition.remove",
-              targetId: effect.targetId,
-              condition: effect.condition,
-            },
-          };
-  }
-}
-
-interface ChainResult {
-  batchIds: string[];
-  awaiting: boolean;
-  /** The engine refused the first mechanics step and nothing applied. */
-  firstRefusal: GateRefusal | null;
 }
 
 /** Runs one action's (or the NPC turn's) steps, branching on engine events. */
@@ -825,14 +805,27 @@ async function runSteps(
 
 /** Every target of a presence effect in the turn's planned steps. */
 function presenceTargets(
-  readings: readonly { steps: readonly Step[] }[],
+  readings: readonly AnyInterpretReading[],
   rulings: readonly { steps: readonly Step[] }[],
 ): string[] {
   const out: string[] = [];
+  const beside = (b: Beside | null): void => {
+    if (!b) return;
+    for (const list of [b.onSuccess, b.onFailure, b.onCost, b.onSevere]) {
+      for (const e of list) if (e.effect === "presence") out.push(e.targetId);
+    }
+  };
+  for (const r of readings)
+    if (hasStages(r)) for (const st of r.stages) beside(st.beside);
   const effects = (list: readonly Effect[]): void => {
     for (const e of list) if (e.effect === "presence") out.push(e.targetId);
   };
-  for (const { steps } of [...readings, ...rulings]) {
+  for (const { steps } of [
+    ...readings.filter((r) => !hasStages(r)),
+    ...rulings,
+  ] as {
+    steps: readonly Step[];
+  }[]) {
     for (const step of steps) {
       if (step.step === "effect") effects(step.effects);
       else if (step.step === "check") {
@@ -1078,14 +1071,15 @@ export function splitArrivals(
   steps: readonly Step[],
   snapshot: ActorSnapshot,
   seed: SceneSeed,
+  extraStakes: readonly Stakes[] = [],
 ): { unconditional: string[]; dependent: string[] } {
-  const stakeTexts = steps
-    .filter((s): s is CheckStepOf => s.step === "check")
-    .flatMap((s) =>
-      s.stakes
-        ? [s.stakes.success, s.stakes.cost, s.stakes.failure, s.stakes.severe]
-        : [],
-    )
+  const stakeTexts = [
+    ...steps
+      .filter((s): s is CheckStepOf => s.step === "check")
+      .flatMap((s) => (s.stakes ? [s.stakes] : [])),
+    ...extraStakes,
+  ]
+    .flatMap((k) => [k.success, k.cost, k.failure, k.severe])
     .filter((t): t is string => !!t);
   const unconditional: string[] = [];
   const dependent: string[] = [];
@@ -1406,13 +1400,40 @@ async function directorClosing(
 
 // ----------------------------------------------------------------- the node
 
-function actionGroupSteps(
-  reading: InterpretReading | undefined,
+/**
+ * `action.resolved` carries an engine refusal code (the session-events contract); the planner and
+ * gate raise others (`KIND_UNSERVED`, `NOT_YOUR_TURN`, ...). The event keeps `INVALID_COMMAND` for
+ * those, and `actionResults` keeps the real code for the fact sheet.
+ * ponytail: widen `RefusalCodeSchema` (a contract amendment) so the event keeps the real code.
+ */
+function engineCode(code: string | null): string | null {
+  if (code === null) return null;
+  return RefusalCodeSchema.safeParse(code).success ? code : "INVALID_COMMAND";
+}
+
+/** A group's work: legacy steps (a ruling or an old reading), or Intent stages (spec 104). */
+function actionGroup(
+  reading: AnyInterpretReading | undefined,
   ruling: { steps: Step[] } | undefined,
-): { steps: readonly Step[]; clarify: boolean } {
-  if (ruling) return { steps: ruling.steps, clarify: false };
-  if (!reading) return { steps: [], clarify: false };
-  return { steps: reading.steps, clarify: reading.clarify !== null };
+): {
+  steps: readonly Step[];
+  stages: readonly InterpretStage[] | null;
+  clarify: boolean;
+} {
+  if (ruling) return { steps: ruling.steps, stages: null, clarify: false };
+  if (!reading) return { steps: [], stages: null, clarify: false };
+  if (hasStages(reading)) {
+    return {
+      steps: [],
+      stages: reading.stages,
+      clarify: reading.clarify !== null,
+    };
+  }
+  return {
+    steps: reading.steps,
+    stages: null,
+    clarify: reading.clarify !== null,
+  };
 }
 
 /**
@@ -1504,11 +1525,11 @@ async function resolveAction(
   run: Run,
   ctx: TurnContext,
   item: BeatItem,
-  reading: InterpretReading | undefined,
+  reading: AnyInterpretReading | undefined,
   ruling: { steps: Step[] } | undefined,
   verdict: PlanVerdict | undefined,
 ): Promise<ResolveOutput["actionResults"][number]> {
-  const { steps, clarify } = actionGroupSteps(reading, ruling);
+  const { steps, stages, clarify } = actionGroup(reading, ruling);
   // TASK-0244: a held group runs no step and writes no row; it stays committed.
   if (verdict && !verdict.ok && verdict.code === TURN_HELD_CODE) {
     return {
@@ -1520,6 +1541,13 @@ async function resolveAction(
     };
   }
   const planRefused = verdict !== undefined && !verdict.ok;
+  const groupActors = stages
+    ? stageActors(
+        stages,
+        (await ctx.deps.loadProjections(ctx.job.sessionId)).party,
+        item,
+      )
+    : stepActors(steps);
   const pullBatchIds =
     verdict?.ok && !clarify
       ? await pullIn(run, ctx, `act:${item.actionId}`, verdict.pull ?? [])
@@ -1527,7 +1555,12 @@ async function resolveAction(
   const chain: ChainResult =
     planRefused || clarify
       ? { batchIds: [], awaiting: false, firstRefusal: null }
-      : await runSteps(run, `act:${item.actionId}`, steps, item.actionId);
+      : stages
+        ? await runStages(run, `act:${item.actionId}`, stages, item.actionId, {
+            kind: "item",
+            item,
+          })
+        : await runSteps(run, `act:${item.actionId}`, steps, item.actionId);
   if (chain.awaiting) {
     return {
       actionId: item.actionId,
@@ -1556,7 +1589,7 @@ async function resolveAction(
       kind: "action.resolve",
       ...note(
         `Resolve ${item.actionId}: ${outcome}`,
-        reading?.intent
+        reading && !hasStages(reading)
           ? `Intent: ${reading.intent}`
           : "Resolved by the DM runtime",
       ),
@@ -1564,7 +1597,9 @@ async function resolveAction(
         actionId: item.actionId,
         outcome,
         batchIds: outcome === "applied" ? batchIds : [],
-        refusalCode: (outcome === "refused" ? refusalCode : null) as never,
+        refusalCode: (outcome === "refused"
+          ? engineCode(refusalCode)
+          : null) as never,
       },
     }),
   );
@@ -1582,8 +1617,8 @@ async function resolveAction(
     batchIds,
     refusalCode,
     ...(pullBatchIds.length > 0 ? { pullBatchIds } : {}),
-    ...(!planRefused && stepActors(steps).length > 0
-      ? { stepActors: stepActors(steps) }
+    ...(!planRefused && groupActors.length > 0
+      ? { stepActors: groupActors }
       : {}),
   };
 }
@@ -1658,11 +1693,16 @@ export const resolve: Node<"resolve"> = async (ctx) => {
     const { unconditional, dependent } = splitArrivals(
       director.arrivals ?? [],
       [
-        ...planReadings.flatMap((r) => r.steps),
+        ...planReadings.flatMap((r) => (hasStages(r) ? [] : r.steps)),
         ...planRulings.flatMap((r) => r.steps),
       ],
       assembled.snapshot,
       ctx.seed,
+      planReadings.flatMap((r) =>
+        hasStages(r)
+          ? r.stages.flatMap((st) => (st.beside ? [st.beside.stakes] : []))
+          : [],
+      ),
     );
     const startingEncounter = encounterToStart(
       ctx.seed,
@@ -1691,6 +1731,14 @@ export const resolve: Node<"resolve"> = async (ctx) => {
       ],
       resumed: (assembled.resumed ?? []).map((plan) => plan.actionId),
       actors: actionActors(assembled),
+      declarers: new Map(
+        assembled.beat.flatMap((b) => {
+          const id = assembled.projections.party.find(
+            (m) => m.characterId === b.characterId,
+          )?.combatantId;
+          return id ? [[b.actionId, id] as const] : [];
+        }),
+      ),
       combatants: assembled.projections.engine.combatants,
       spellLists: new Map(
         ctx.seed.characters.map((c) => [
@@ -1764,7 +1812,7 @@ export const resolve: Node<"resolve"> = async (ctx) => {
       if (assembled.npcTurn) {
         const reading = readings.find((r) => r.actionId === null);
         const ruling = rulings.find((r) => r.actionId === null);
-        const { steps } = actionGroupSteps(reading, ruling);
+        const { steps, stages } = actionGroup(reading, ruling);
         const npcVerdict = verdictFor(null);
         // The pull's batches (the joiner's initiative roll) belong to the NPC
         // turn's facts, or the shipped dice lines miss the roll (TASK-0213).
@@ -1774,7 +1822,16 @@ export const resolve: Node<"resolve"> = async (ctx) => {
         const chain =
           npcVerdict && !npcVerdict.ok
             ? { batchIds: [] as string[], awaiting: false }
-            : await runSteps(run, "npc", steps, null);
+            : stages
+              ? await runStages(run, "npc", stages, null, {
+                  kind: "npc",
+                  combatantId: assembled.npcTurn.combatantId,
+                  jobShort: ctx.job.id
+                    .replace(/[^a-z0-9]/gi, "")
+                    .toLowerCase()
+                    .slice(0, 8),
+                })
+              : await runSteps(run, "npc", steps, null);
         npcTurn = {
           combatantId: assembled.npcTurn.combatantId,
           batchIds: [...new Set([...pulled, ...chain.batchIds])],

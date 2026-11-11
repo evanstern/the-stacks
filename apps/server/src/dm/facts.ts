@@ -762,7 +762,11 @@ export function buildNarrationFacts(input: BuildFactsInput): NarrationFacts {
       outcome = view.resolved.outcome;
       refusalCode = view.resolved.refusalCode;
     } else continue;
-    const rows = p.ledger.filter((r) => r.actionId === item.actionId);
+    // Spec 104: an Intent's engine rows carry `actionId: null`; the action's own batches find them.
+    const mine = new Set(result?.batchIds ?? []);
+    const rows = p.ledger.filter(
+      (r) => r.actionId === item.actionId || (r.batchId && mine.has(r.batchId)),
+    );
     const c = collectFacts(rows, nameOf, types, stakesByBatch, revealedByBatch);
     actions.push({
       actionId: item.actionId,
@@ -886,9 +890,16 @@ export function buildNarrationFacts(input: BuildFactsInput): NarrationFacts {
   );
   const involuntary = deriveInvoluntary(
     [
-      ...actions.flatMap((a) =>
-        p.ledger.filter((r) => r.actionId === a.actionId),
-      ),
+      ...actions.flatMap((a) => {
+        const mine = new Set(
+          input.resolve.actionResults.find((r) => r.actionId === a.actionId)
+            ?.batchIds ?? [],
+        );
+        return p.ledger.filter(
+          (r) =>
+            r.actionId === a.actionId || (r.batchId && mine.has(r.batchId)),
+        );
+      }),
       ...(input.resolve.npcTurn && !input.resolve.npcTurn.awaitingDm
         ? p.ledger.filter(
             (r) =>
