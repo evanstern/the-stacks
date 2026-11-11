@@ -38,7 +38,7 @@ Spec: specs/102-gate-intents
 - [x] #6 Spec phase: Pure Intent planning in session-model (US1, US4, AC #1, AC #4)
 - [x] #7 Spec phase: Server gate wiring (US1, US2 human seat, AC #1, AC #2)
 - [x] #8 Spec phase: AI-seat ruling job (US2 AI seat, AC #2)
-- [ ] #9 Spec phase: Wiki re-ground
+- [x] #9 Spec phase: Wiki re-ground
 <!-- AC:END -->
 
 ## Definition of Done
