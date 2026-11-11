@@ -33,10 +33,8 @@ Spec: specs/104-interpret-intents
 - [ ] #1 Slash commands produce Intents with zero model calls.
 - [ ] #2 Interpret output validates against the Intent schema on attempt 1 in >= 99% of the playtest corpus.
 - [ ] #3 A compound declaration yields one Intent per stage, each planned in turn.
-- [ ] #4 `resolve.ts` loses the code paths the planner now owns (moved from TASK-0267 by F1).
-- [ ] #5 Band effects and the free retry (autoSuccess) keep working beside the Intent path until a card puts stakes on Intents (spec 097 OQ-5).
-- [ ] #6 The encounter-start gathering in resolve.ts is removed once spatial placement owns it (spec 100 OQ-13).
-- [ ] #7 A beat narrates the facts of every intent.recorded row it covers, including rows the gate settled before the turn job ran, as why rows (spec 102 OQ-4; spec 103 OQ-8 window: the job input carries only triggerSeq and intent.recorded has no action link).
+- [ ] #4 Band effects and the free retry (autoSuccess) keep working beside the Intent path until a card puts stakes on Intents (spec 097 OQ-5).
+- [ ] #5 A beat narrates the facts of every intent.recorded row it covers, including rows the gate settled before the turn job ran, as why rows (spec 102 OQ-4; spec 103 OQ-8 window: the job input carries only triggerSeq and intent.recorded has no action link).
 <!-- AC:END -->
 
 ## Definition of Done
@@ -56,4 +54,6 @@ Claimed 2026-11-11 by the R1 sweep (docs/design/r1-fast-table-runbook.md). Workt
 
 Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5
 Spec 104 spec.md + plan.md (2ac78ce1) against 092 06d7ca13, 093 beae54aa, 097 a34d5d39, 100 16ae6147, 102 86d425b6, 103 39c9ed24, base 702390db. Size check: ~52 tasks; split recommended (PR A this card: AC 1,2,3,5,7 ~36 tasks; PR B new card: AC 4,6 ~16 tasks, after TASK-0223). Awaiting operator ruling on the split.
+
+Operator ruling 2026-11-11 (in chat): "Approve split + OQs" — split per spec 104 plan (this card keeps AC #1, #2, #3, #5, #7; AC #4 and #6 move to a new card that lands after TASK-0223) and spec 104 OQ-1..OQ-9 as recommended.
 <!-- SECTION:NOTES:END -->
