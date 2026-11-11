@@ -4,7 +4,7 @@ title: Gate accepts Intents
 status: In Progress
 assignee: []
 created_date: 2026-11-07 05:13
-updated_date: '2026-11-11T06:28:00Z'
+updated_date: '2026-11-11T06:29:00Z'
 labels:
   - ws:intent
   - replan-2026-11
@@ -30,7 +30,7 @@ Spec: specs/102-gate-intents
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 A confirmed `attack` Intent from a player appends engine events with no model call.
+- [x] #1 A confirmed `attack` Intent from a player appends engine events with no model call.
 - [ ] #2 A `needs_ruling` result enqueues a ruling job (AI seat) or a proposal row (human seat).
 - [ ] #3 Existing `action.declare` clients keep working through the envelope.
 - [ ] #4 A zone reveal Intent maps through the gate, and targetStatus 'ok' maps to seen (spec 100 OQ-4).
