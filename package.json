@@ -17,7 +17,7 @@
     "check:scripts": "node --test 'scripts/*lib.test.mjs'",
     "check:env": "node --test scripts/env.test.mjs",
     "check:host-scripts": "node --experimental-strip-types -e \"await import('./apps/server/src/config.ts'); await import('./apps/server/src/db.ts');\"",
-    "ci:check": "pnpm lint && pnpm typecheck && pnpm build && pnpm test && pnpm check:boundaries && pnpm check:hooks && pnpm check:scripts && pnpm check:host-scripts && pnpm check:timing",
+    "ci:check": "pnpm lint && pnpm typecheck && pnpm build && pnpm test && pnpm check:boundaries && pnpm check:hooks && pnpm check:scripts && pnpm check:host-scripts && pnpm check:timing && node scripts/check-no-wallclock-tests.mjs",
     "env:up": "node scripts/env.mjs up",
     "env:down": "node scripts/env.mjs down",
     "env:status": "node scripts/env.mjs status",
@@ -26,7 +26,7 @@
     "bench:load": "pnpm --filter @the-stacks/server bench:load",
     "bench:retrieval": "pnpm --filter @the-stacks/server bench:retrieval",
     "playtest": "pnpm --filter @the-stacks/server playtest",
-    "check:timing": "pnpm --filter @the-stacks/space test:timing"
+    "check:timing": "pnpm --workspace-concurrency=1 --filter @the-stacks/space --filter @the-stacks/session-model --filter @the-stacks/intent --filter @the-stacks/planner --filter @the-stacks/server test:timing"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.5.14",

@@ -1,3 +1,5 @@
+// Wall-clock budget (moved from ddb.perf.test.ts by TASK-0308). Runs only in
+// `pnpm check:timing`, serially, so parallel turbo load cannot skew it.
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
