@@ -71,4 +71,6 @@ Phase 5 done (61393c1e). B2 replay: 25 narrated turns; 19 passed -> 18 clean + 1
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
 Departed-actor fix (7a36c9e9) and phase 6 wiki (5064cba6). Final B2 replay: 25 narrated turns, 0 leak hits, 0 contradiction hits; 3 fallback turns reported, not judged.
+
+AC #3 (R1 playtest shows zero fallback lines) is hosted; it ticks at CP-7, so the card stays In Progress after merge.
 <!-- SECTION:NOTES:END -->
