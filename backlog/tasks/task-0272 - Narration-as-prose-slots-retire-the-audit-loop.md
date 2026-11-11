@@ -4,7 +4,7 @@ title: Narration as prose slots; retire the audit loop
 status: In Progress
 assignee: []
 created_date: 2026-11-07 05:13
-updated_date: '2026-11-11T15:03:00Z'
+updated_date: '2026-11-11T15:23:00Z'
 labels:
   - ws:narration
   - replan-2026-11
@@ -34,6 +34,12 @@ Spec: specs/103-prose-slots
 - [ ] #2 Narration writes no digits; fact rows carry every number.
 - [ ] #3 The R1 playtest shows zero fallback lines.
 - [ ] #4 `dm/claims.ts` lexical gate is deleted.
+- [ ] #5 Spec phase: Check module and helper moves
+- [ ] #6 Spec phase: `why` rows and the digit drop
+- [ ] #7 Spec phase: Turn pipeline swap and deletions
+- [ ] #8 Spec phase: Job-record consumers
+- [ ] #9 Spec phase: C-AUD replay script
+- [ ] #10 Spec phase: Wiki re-ground
 <!-- AC:END -->
 
 ## Definition of Done
@@ -48,4 +54,7 @@ Spec: specs/103-prose-slots
 From spec 098 OQ-10: TASK-0245 owns the prose slots and the code-composed reply. This card retires the audit loop and renders PlanFact as why rows (spec 098 contract §6).
 
 Claimed 2026-11-11 by the R1 sweep (docs/design/r1-fast-table-runbook.md). Worktree .worktrees/task-0272, branch task-0272-prose-slots, cut from origin/main 0b3c378b. Spec number 103 claimed with a stub.
+
+Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5
+Spec 103 authored (39c9ed24, ~19 min, 57 tool calls) against 098 a370041c, 093 beae54aa, 097 a34d5d39, 102 86d425b6, base 0b3c378b.
 <!-- SECTION:NOTES:END -->
