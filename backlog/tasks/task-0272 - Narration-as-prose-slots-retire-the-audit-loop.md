@@ -39,7 +39,7 @@ Spec: specs/103-prose-slots
 - [x] #7 Spec phase: Turn pipeline swap and deletions
 - [x] #8 Spec phase: Job-record consumers
 - [x] #9 Spec phase: C-AUD replay script
-- [ ] #10 Spec phase: Wiki re-ground
+- [x] #10 Spec phase: Wiki re-ground
 <!-- AC:END -->
 
 ## Definition of Done
