@@ -36,7 +36,7 @@ Spec: specs/103-prose-slots
 - [x] #4 `dm/claims.ts` lexical gate is deleted.
 - [x] #5 Spec phase: Check module and helper moves
 - [x] #6 Spec phase: `why` rows and the digit drop
-- [ ] #7 Spec phase: Turn pipeline swap and deletions
+- [x] #7 Spec phase: Turn pipeline swap and deletions
 - [ ] #8 Spec phase: Job-record consumers
 - [ ] #9 Spec phase: C-AUD replay script
 - [ ] #10 Spec phase: Wiki re-ground
