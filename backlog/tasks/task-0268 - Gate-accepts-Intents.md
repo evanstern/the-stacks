@@ -1,10 +1,10 @@
 ---
 id: TASK-0268
 title: Gate accepts Intents
-status: In Progress
+status: Done
 assignee: []
 created_date: 2026-11-07 05:13
-updated_date: '2026-11-11T06:30:00Z'
+updated_date: '2026-11-11T14:40:00Z'
 labels:
   - ws:intent
   - replan-2026-11
@@ -68,3 +68,9 @@ Phases 3-4 done (73d10c33, 133bb13c): ci:check green; full server suite REQUIRE_
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
 Phase 5 done (8ba29d64): 24 notes re-pinned; 4 new size_budget_exempt lines (orchestrator corrected 2 reasons).
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Request kind, carrier event, projection and declare envelope (US3, AC #3): 7/7 · Pure Intent planning in session-model (US1, US4, AC #1, AC #4): 7/7 · Server gate wiring (US1, US2 human seat, AC #1, AC #2): 6/6 · AI-seat ruling job (US2 AI seat, AC #2): 4/4 · Wiki re-ground: 3/3). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
