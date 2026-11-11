@@ -208,6 +208,12 @@ importers:
       '@the-stacks/dnd5e-engine':
         specifier: workspace:*
         version: link:../dnd5e-engine
+      '@the-stacks/intent':
+        specifier: workspace:*
+        version: link:../intent
+      '@the-stacks/planner':
+        specifier: workspace:*
+        version: link:../planner
       '@the-stacks/space':
         specifier: workspace:*
         version: link:../space

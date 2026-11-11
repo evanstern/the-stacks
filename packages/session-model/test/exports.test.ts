@@ -40,6 +40,12 @@ describe("package entry points", () => {
     }
   });
 
+  it("the main entry exports the Intent vocabulary (spec 102)", () => {
+    for (const name of ["IntentRecordedV1", "declareIntent", "openRulings"]) {
+      expect(name in main, name).toBe(true);
+    }
+  });
+
   it("the main entry exports the spatial vocabulary (spec 100)", () => {
     for (const name of [
       "ZoneRevealedV1",

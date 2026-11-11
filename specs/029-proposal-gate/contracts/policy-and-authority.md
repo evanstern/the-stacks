@@ -180,3 +180,7 @@ is newer than its `readSeq`.
 
 New refusal codes: `SUGGESTION_STALE`, `SUGGESTION_NOT_FOUND`. `commitAuthority` is unchanged and
 still governs direct commits, the spec 044 quorum included (OQ-11 (a)).
+
+Amended 2026-11-11 (TASK-0268, C-GATE ruling "Approve all"): the table gains the `"intent": "ask"` row. `ai:dm` Intents under a human seat route by this policy (spec 102 FR-011, OQ-9). An AI seat still resolves every kind to `auto`.
+
+> "Approve all" (operator, C-GATE ruling, 2026-11-11: approves spec 102 plan.md "C-GATE: frozen contract amendments" and OQ-1 to OQ-14 as recommended)

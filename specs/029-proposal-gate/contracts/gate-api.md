@@ -320,3 +320,23 @@ runtime (TASK-0046) receives the same `gate` instance from `index.ts`.
 > `specs/100-spatial-events/contracts/zone-revealed.md`.
 >
 > Changelog: 2026-11-09 — fog rule runs in the proposal gate (operator ruling 2026-11-09, spec 100 OQ-1).
+
+## Intent request (TASK-0268 amendment)
+
+Amended 2026-11-11 (TASK-0268, C-GATE ruling "Approve all", spec `specs/102-gate-intents`).
+
+> "Approve all" (operator, C-GATE ruling, 2026-11-11: approves spec 102 plan.md "C-GATE: frozen contract amendments" and OQ-1 to OQ-14 as recommended)
+
+`PlanContext` becomes `{ present?: readonly string[]; planner?: PlannerInputs }`. `PlannerInputs` is
+`{ casters, srdSpellIds, inits, tableRules, npcIds }`. An absent `planner` means empty inputs and
+`tableRules` `{ outcomeBands: true, naturals: true }`.
+
+| Kind | Rows | Kind-specific checks (refusal code) |
+|---|---|---|
+| `intent` | the engine batch of the planned commands, then one `intent.recorded` carrier row (last). A `needs_ruling` result under a human seat adds `proposal.created` after the carrier. An answering `ruling` or `set_dc` adds `proposal.approved` (accept, amend, `set_dc`) or `proposal.rejected` (reject) when the request has an open proposal | in order: `DRAFT_NOT_ACCEPTED`; seat (`DM_SEAT_REQUIRED` or `NOT_AUTHORIZED`); `NOT_YOUR_ACTOR`; `INTENT_EXISTS`; `NOT_YOUR_TURN`; `MODEL_NUMBER` (`ai:dm` amend body); then planner refusals (source `gate`, an `IntentRefusalCode`) and engine refusals (source `engine`) |
+
+`proposal.approve` and `proposal.reject` on an `intent` proposal plan a `ruling` Intent from the
+seated DM. The gate refusal codes gain the Intent codes `DRAFT_NOT_ACCEPTED`, `INTENT_EXISTS`,
+`NOT_YOUR_ACTOR`, `DM_SEAT_REQUIRED`, `NOT_YOUR_TURN`, `KIND_UNSERVED`, `TARGET_NOT_PRESENT`,
+`TARGET_UNSEEN`, `OUT_OF_REACH`, `OUT_OF_RANGE`, `NO_MOVEMENT_LEFT`, `REQUEST_NOT_OPEN` and
+`MODEL_NUMBER` under source `gate`.

@@ -192,3 +192,36 @@ Projection rules:
 - Staleness is not folded. It is derived from the transcript (`suggestionState`), so the
   talk-isolation invariant is unchanged.
 - The catalog grows from 37 to 38 entries (20 session entries, 18 mechanics entries).
+
+## Intent carrier (TASK-0268 amendment)
+
+Amended 2026-11-11 (TASK-0268, C-GATE ruling "Approve all", spec `specs/102-gate-intents`).
+
+> "Approve all" (operator, C-GATE ruling, 2026-11-11: approves spec 102 plan.md "C-GATE: frozen contract amendments" and OQ-1 to OQ-14 as recommended)
+
+One catalog entry is added: `intent.recorded` v1, kind `lifecycle`, visibility any, payload
+`IntentRecordedV1`.
+
+```ts
+export const IntentRecordedV1 = z.object({
+  intent: IntentSchema,
+  schemaVersion: z.literal(INTENT_SCHEMA_VERSION),
+  outcome: z.enum(["declared", "settled", "needs_ruling"]),
+  batchId: RefIdSchema.nullable(),                    // the engine batch, else null
+  facts: z.array(PlanFactSchema),                     // [] for gate-handled kinds
+  request: RulingRequestSchema.nullable(),            // outcome needs_ruling only
+  answers: RefIdSchema.nullable(),                    // the requestId a ruling or set_dc closed
+  stopped: z.object({ code: z.string(), message: z.string() }).nullable(),
+});
+```
+
+Each accepted Intent appends exactly one carrier row, last in its batch. Projection rules:
+
+- `SessionProjections` gains `intents: IntentView[]`, `[]` initially, one entry per id in log
+  order. `v` stays 1.
+- `IntentView` is `{ id, seq, actor, intent, status: "declared" | "settled" | "needs_ruling" | "answered", request, proposalId }`.
+- A later row for the same id (a confirm) replaces the entry and keeps its first `seq`.
+- A row with `answers` moves the entry whose request id matches to `answered`.
+- A `proposal.created` row of kind `intent` sets `proposalId` on the entry with the same Intent id.
+- The helper `openRulings(p)` returns the open requests by `requestId`, each with its `proposalId`.
+- The catalog gains one session entry (`intent.recorded`).

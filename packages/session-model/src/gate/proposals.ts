@@ -1,4 +1,5 @@
 import type { EngineCommand } from "@the-stacks/dnd5e-engine";
+import { IntentSchema } from "@the-stacks/intent";
 import { z } from "zod";
 import {
   ActionCommentedV1,
@@ -37,10 +38,11 @@ export const ProposalKindSchema = z.enum([
   "scene-presence",
   "journal",
   "floor",
+  "intent",
 ]);
 export type ProposalKind = z.infer<typeof ProposalKindSchema>;
 
-/** The thirteen kinds the AI DM may propose; the policy table is total over these. */
+/** The fourteen kinds the AI DM may propose; the policy table is total over these. */
 export const DmProposalKindSchema = ProposalKindSchema.exclude([
   "action.declare",
   "action.withdraw",
@@ -153,6 +155,11 @@ export const ProposalSchema = z.discriminatedUnion("kind", [
     }),
     reason: ReasonSchema,
   }),
+  z.object({
+    kind: z.literal("intent"),
+    ...ProposalNote,
+    intent: IntentSchema,
+  }),
 ]);
 export type Proposal = z.infer<typeof ProposalSchema>;
 
@@ -199,7 +206,7 @@ export const GateRequestSchema = z.discriminatedUnion("kind", [
 ]);
 export type GateRequest = z.infer<typeof GateRequestSchema>;
 
-/** The 19 `kind` literals of GateRequestSchema. */
+/** The 20 `kind` literals of GateRequestSchema. */
 export const GATE_REQUEST_KINDS: readonly string[] =
   GateRequestSchema.options.map(
     (option) => (option.shape.kind as unknown as { value: string }).value,

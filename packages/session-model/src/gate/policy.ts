@@ -23,6 +23,7 @@ export const DEFAULT_POLICIES: PolicyTable = {
   "scene-presence": "ask",
   journal: "auto",
   floor: "ask",
+  intent: "ask",
 };
 
 /**

@@ -9,6 +9,7 @@ import { REASON_TO_PRESENCE } from "../events/scene-presence.js";
 import { memberOf } from "../projections/party.js";
 import type { SessionProjections } from "../projections/types.js";
 import { commitAuthority } from "./authority.js";
+import { declareIntent } from "./declare.js";
 import { fogRows } from "./fog.js";
 import { actorOf, type Proposal, type Proposer } from "./proposals.js";
 import type { GateRefusal } from "./refusals.js";
@@ -437,6 +438,11 @@ function plan(
           },
         );
       }
+      // FR-027: the envelope validates the request as an Intent; the rows stay today's.
+      const envelope = declareIntent(action, proposer, p);
+      if (!envelope.ok) {
+        return refuse("INVALID_PROPOSAL", envelope.message);
+      }
       return one(actor, "action.declared", action);
     }
     case "action.comment": {
@@ -759,6 +765,9 @@ function plan(
     }
     case "floor":
       return planFloor(p, proposer, proposal, rng, ids, proposalId, context);
+    case "intent":
+      // Replaced by planIntent in phase 2.
+      return refuse("KIND_UNSERVED", "intents are not planned yet");
     case "journal": {
       if (p.journal.some((j) => j.entryId === proposal.entry.entryId)) {
         return refuse("JOURNAL_ENTRY_EXISTS", "the journal entry exists");

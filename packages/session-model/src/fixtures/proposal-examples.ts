@@ -172,4 +172,19 @@ export const proposalExamples: Readonly<Record<ProposalKind, Proposal>> = {
     turn: { round: 1, combatantId: "ana" },
     reason: "Ana is away from the table.",
   },
+  intent: {
+    kind: "intent",
+    summary: "Ana attacks the goblin",
+    rationale: "Ana's player confirmed the attack.",
+    intent: {
+      id: "i-ana-attack",
+      kind: "attack",
+      actor: { kind: "pc", id: "ana" },
+      targets: [{ kind: "actor", id: "goblin" }],
+      params: { weapon: "Longsword", mode: "normal" },
+      text: "I swing at the goblin.",
+      source: "composer",
+      commit: "confirmed",
+    },
+  },
 };

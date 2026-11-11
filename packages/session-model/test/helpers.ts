@@ -335,6 +335,24 @@ export const sessionPayloads: Record<string, unknown> = {
     edges: [{ from: "house", to: "loft", kind: "climb", feet: 10 }],
     occupants: {},
   },
+  "intent.recorded": {
+    intent: {
+      id: "i-1",
+      kind: "attack",
+      actor: { kind: "pc", id: "ana" },
+      targets: [{ kind: "actor", id: "goblin" }],
+      params: { weapon: "Longsword", mode: "normal" },
+      source: "composer",
+      commit: "confirmed",
+    },
+    schemaVersion: 1,
+    outcome: "settled",
+    batchId: "b-1",
+    facts: [],
+    request: null,
+    answers: null,
+    stopped: null,
+  },
 };
 
 /** A payload that fails the schema of the same type. */
@@ -462,6 +480,17 @@ export const invalidSessionPayloads: Record<string, unknown[]> = {
       occupants: {},
     },
     { reason: "x", reset: false, zones: [], edges: [], occupants: {} },
+  ],
+  "intent.recorded": [
+    { outcome: "settled" },
+    {
+      ...(sessionPayloads["intent.recorded"] as object),
+      outcome: "maybe",
+    },
+    {
+      ...(sessionPayloads["intent.recorded"] as object),
+      schemaVersion: 2,
+    },
   ],
   "presence.recorded": [
     { present: ["not-a-uuid"], purpose: "director" },
