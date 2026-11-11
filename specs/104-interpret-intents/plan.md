@@ -6,35 +6,25 @@
 
 ## Size check (required)
 
-**Estimated task count: about 52 tasks for the whole card** (one PR). That exceeds the ~40-task
-line, and the deletion is separable without breaking play. **Recommend a split. `tasks.md` is not
-written until the orchestrator rules.**
+**36 tasks in 6 phases. Fits one PR.** The first draft counted about 52 tasks for the whole card
+and recommended a split. Operator ruling 2026-11-11, quoted: "Approve split + OQs". The deletion
+(old AC #4, #6) moved to TASK-0312; this plan covers TASK-0269 only.
 
-| PR | Card | ACs | Est. tasks | Phases (one sonnet dispatch each) |
-|---|---|---|---|---|
-| **A** | TASK-0269 (this card) | #1, #2, #3, #5, #7 | ~36 | 1 schema + slash parse (7) · 2 prompt v17 + node (6) · 3 resolve Intent runner + beside (9) · 4 narrate window (5) · 5 test and script migration (6) · 6 wiki (3) |
-| **B** | new card "Resolve loses planner-owned step paths" (lane LI, after A and after TASK-0223) | #4, #6 | ~16 | 1 resolve and plan-gate deletion (7) · 2 adjudicate node, step grammar, gathering deletion (5) · 3 wiki (4) |
-
-**Why the deletion is separable.** After PR A, interpret never emits a step, so resolve's step
-cases run only for resumed old-shape checkpoints (spec OQ-8) and the free-retry / autoFail
-fallback (FR-014). Leaving them in place breaks nothing. The gathering (AC #6) is independent:
-PR A's `move` Intents work beside it; PR B deletes it once A's move stages are proven in CI.
-
-**Why split rather than one PR.** `resolve.ts` (2060 lines) and `plan-gate.ts` are hotspots shared
-with TASK-0274 and TASK-0223. 52 rescripted test files plus a ~600-line deletion in one diff gives
-the reviewer no clean decision. PR A carries the reviewable decision (the Intent seam, OQ-1, the
-narrate window); PR B is a mechanical, one-way deletion (old checkpoints stop resuming).
-
-**AC assignment for the split.** Move AC #4 and AC #6 from TASK-0269 to the new card. Add to the
-new card: "a resumed old-shape plan is dropped and re-interpreted" (spec OQ-8). TASK-0223's
-dependency stays on TASK-0269 (PR A).
+| Phase (one sonnet dispatch each) | Tasks | Card AC |
+|---|---|---|
+| 1 Schema and slash parse | 7 | #1, #2 |
+| 2 Prompt v17 and interpret node | 6 | #1, #2 |
+| 3 Resolve Intent runner and beside data | 9 | #3, #4 |
+| 4 Narrate window | 5 | #5 |
+| 5 Test and script migration | 6 | #2 (CI proxy), all |
+| 6 Wiki | 3 | — |
 
 ## Summary
 
 Interpret returns Intent stages with beside data; slash text skips the model; resolve submits each
 stage through `gate.submit` as an `intent` request (declare, then confirm under `ai:dm`);
-narrate reads carrier rows in a checkpointed seq window. Details below cover both PRs so the
-ruling can re-cut them.
+narrate reads carrier rows in a checkpointed seq window. Resolve's step paths stay for old
+checkpoints and the free-retry fallback; TASK-0312 deletes them.
 
 ## Technical Context
 
@@ -85,7 +75,7 @@ implementer confirms the discriminated union converts under the provider's stric
 flatten to `{ kind, targets, params: z.record }` and validate per kind in a `superRefine`
 (record the choice in the phase notes). Delete the `intent`, `uncertain`, `needsAdjudication`,
 `rulesQuestion`, `steps` fields from the reading. `StepSchema`, `AdjudicateModelOutput` stay for
-PR B.
+TASK-0312.
 
 ### D2 — Slash parse and stamping (`dm/nodes/interpret.ts`)
 
@@ -111,7 +101,7 @@ resubmits the same id and the gate's `INTENT_EXISTS` / confirm rule makes resubm
 target keying (party by character id, NPCs and monsters by seed id), stage order rule ("one stage
 per thing the actor does, in order"), clarify rule, beside rules (today's stakes paragraph, moved).
 Keep the first-stage paragraph, follow-ups and `say`. `EXAMPLE_OUTPUT` becomes one `search` stage
-with beside. Remove the step-grammar import from interpret only (adjudicate keeps it until PR B).
+with beside. Remove the step-grammar import from interpret only (adjudicate keeps it until TASK-0312).
 
 ### D5 — Resolve's Intent runner (`dm/nodes/resolve.ts`, new `dm/intent-runner.ts`)
 
@@ -161,12 +151,12 @@ returns the appended rows for an `intent` request (spec 102 `gate.ts` line ~197 
   records it, so a fallback beat does not re-render on the next one.
 - Delete the `ponytail` comment at narrate.ts:294.
 
-### D7 — Old checkpoints (PR A)
+### D7 — Old checkpoints
 
 `ResumedPlan.reading` is a union of the old and new reading shapes. `resolveAction` routes on
 `"stages" in reading`. Assemble's `findResumedPlans` is unchanged.
 
-### D8 — Deletion inventory (PR B)
+### D8 — Deletion inventory (handed to TASK-0312; not done here)
 
 - `resolve.ts`: `runSteps` cases `roll`, `check` (except the free-retry builder, moved to
   `intent-runner.ts`), `move` (reaction loop), `spell`, `help`, `attack`; `hitDamage`; `pullIn`;
@@ -179,8 +169,6 @@ returns the appended rows for an `intent` request (spec 102 `gate.ts` line ~197 
 - `StepSchema` members no longer referenced.
 
 ## Files touched
-
-PR A:
 
 | File | Change |
 |---|---|
@@ -202,10 +190,6 @@ PR A:
 | `apps/server/test/dm/narrate-window.test.ts` (new) | SC-005 |
 | `apps/server/test/dm/seat-actor-id.test.ts` | deleted |
 | `docs/wiki/*` | phase 6 |
-
-PR B: `resolve.ts`, `plan-gate.ts`, `nodes/adjudicate.ts` (deleted), `prompts/adjudicate.ts`
-(deleted), `prompts/step-grammar.ts`, `nodes/schemas.ts`, `pipeline/runner.ts`, `resume.ts`,
-`test/dm/adjudicate.integration.test.ts` (deleted or retargeted to rulings), affected tests, wiki.
 
 **Migrations:** none (checkpoint JSON gains an optional field; no SQL). **New runtime
 dependencies:** none third-party. **Contract changes:** none (no C-CON, no frozen contract).

@@ -2,10 +2,10 @@
 
 **Feature Branch**: `task-0269-interpret-intents`
 **Created**: 2026-11-11
-**Status**: Draft (spec author, R1 sweep). **Split recommended** (plan.md "Size check"); `tasks.md`
-waits on the orchestrator's ruling.
+**Status**: Draft (spec author, R1 sweep). PR A scope after the split. Operator ruling 2026-11-11:
+"Approve split + OQs" (split as recommended; OQ-1 to OQ-9 adopted as recommended).
 **Card**: TASK-0269 (N-04). Parent epic TASK-0258.
-**Input**: TASK-0269 description and AC #1–#7; spec 092 plan "Migration" step 5; planner contract
+**Input**: TASK-0269 description and AC #1–#5 (renumbered 2026-11-11); spec 092 plan "Migration" step 5; planner contract
 v1 (spec 097); spec 102 (gate accepts Intents); spec 103 OQ-8 resolution; spec 100 OQ-13;
 spec 097 OQ-5.
 
@@ -29,30 +29,28 @@ model. An ambiguous item returns a clarify question. Resolve submits each Intent
 attack, check, spell, help, move and pull-in. Model-written stakes, band effects, clue reveals and
 the free retry ride beside each check Intent until a card puts stakes on Intents. Narrate reads
 the facts of every `intent.recorded` row in the beat's window, including rows the gate settled
-before the job ran.
+before the job ran. Deleting the step paths the planner now owns is TASK-0312.
 
 ## Scope
 
-In scope (PR A, this card after the split):
+In scope:
 
 - The interpret output schema, prompt and node (AC #1–#3).
 - Resolve's Intent runner: declare-then-confirm submission, compound stages, the in-beat ruling,
-  the turn hold, and the "beside" data (AC #3, #5).
-- The narrate window over `intent.recorded` rows (AC #7).
+  the turn hold, and the "beside" data (AC #3, #4).
+- The narrate window over `intent.recorded` rows (AC #5).
 - Migrating every test and script that scripts an interpret reading.
-
-Split out (PR B, a new card; plan.md "Size check"):
-
-- Deleting resolve's step paths the planner owns, the step-based plan-gate checks, the
-  adjudicate node and the step grammar (AC #4).
-- Deleting the encounter-start gathering (AC #6).
 
 Out of scope (owned elsewhere):
 
 - Companion and monster turns emitting Intents without an interpret call: TASK-0299.
 - The declared ring, the confirm row and withdrawal: TASK-0199.
 - Composer pills sending `intent` requests directly: TASK-0247.
-- Stakes as an Intent field: no card yet (OQ-6).
+- Deleting resolve's planner-owned step paths, the step-based plan-gate checks, the adjudicate
+  node, the step grammar and the encounter-start gathering: TASK-0312 (see "Split out to
+  TASK-0312").
+- Stakes as an Intent field: TASK-0313 (R2 revisit, OQ-6).
+- A narrate turn for a directly sent `intent` request: TASK-0247 (OQ-4).
 - The attempt-1 metric on hosted play: TASK-0278 metric, read at CP-7.
 
 ## User Scenarios & Testing *(mandatory)*
@@ -125,7 +123,7 @@ clue reference beside it. The gate rolls the check; resolve reads the band and r
 effects and the reveal exactly as today. A repeat of a failed check with no new risk takes the
 free retry.
 
-**Why this priority**: card AC #5 (spec 097 OQ-5 ruling).
+**Why this priority**: card AC #4 (spec 097 OQ-5 ruling).
 
 **Acceptance Scenarios**:
 
@@ -142,7 +140,7 @@ Under the AI seat a player's `attempt` came back `needs_ruling`. The `ruling` tu
 job start (`answerRulings`), which appends a carrier row before resolve runs. The beat's narration
 shows that row's "why" facts.
 
-**Why this priority**: card AC #7 (spec 102 OQ-4; spec 103 OQ-8).
+**Why this priority**: card AC #5 (spec 102 OQ-4; spec 103 OQ-8).
 
 **Acceptance Scenarios**:
 
@@ -167,7 +165,7 @@ shows that row's "why" facts.
 - A monster-turn reading (`actionId: null`) stamps `actor: npc:<id>` and submits as `ai:dm`,
   `confirmed`, with no declare step.
 - A resumed plan saved before this change (old reading shape) runs through the legacy step path
-  until PR B (plan.md D7).
+  until TASK-0312 (plan.md D7).
 - An Intent id longer than 64 characters cannot happen (plan.md D3).
 
 ## Requirements *(mandatory)*
@@ -198,7 +196,7 @@ shows that row's "why" facts.
   character id, NPCs by seed id; spec 102 FR-013) and the beside fields, and MUST bump
   `PROMPT_VERSION` from `dm.interpret-v16` to `dm.interpret-v17`.
 
-**Resolve's Intent runner (AC #3, #5)**
+**Resolve's Intent runner (AC #3, #4)**
 
 - **FR-008**: For a player or companion item, resolve MUST submit each stage twice: `declared`
   under the item's own proposer, then `confirmed` with an equal body under `ai:dm` (spec 102
@@ -223,7 +221,7 @@ shows that row's "why" facts.
   stage appended a batch, `refused` with the gate's code when stage 1 is refused, `no-effect` when
   no stage ran, `awaiting-dm` when a stage waits on a human DM.
 
-**Narrate window (AC #7)**
+**Narrate window (AC #5)**
 
 - **FR-017**: Narrate MUST render the facts of every public `intent.recorded` row with seq in
   `(W0, W1]`: `W1` is the `throughSeq` of the projections narrate loads; `W0` is the `W1` the last
@@ -232,14 +230,6 @@ shows that row's "why" facts.
   log marker (plan.md D6; OQ-2).
 - **FR-019**: Narrate MUST read carrier rows through a new `NodeDeps` log reader, filtered to
   `visibility: "public"`. The `resolve.appendedRows` filter in `narrate.ts` MUST be replaced.
-
-**Deletion (AC #4, #6; PR B after the split)**
-
-- **FR-020**: `resolve.ts` MUST lose the `check`, `attack`, `spell`, `help`, `move` and `roll`
-  step cases, `hitDamage`, the reaction loop and `pullIn`; `plan-gate.ts` MUST lose the
-  step-based checks the planner and gate now own (plan.md D8).
-- **FR-021**: The encounter-start gathering (`director:gather:*`, spec 100 FR-023a) MUST be
-  deleted. A party member reaches the encounter zone only through a `move` Intent.
 
 ### Constitution-Driven Requirements *(mandatory)*
 
@@ -272,26 +262,32 @@ shows that row's "why" facts.
 - **SC-003**: A two-stage reading yields two carrier rows in order, each planned against the state
   after the previous (AC #3).
 - **SC-004**: Band effects, reveals and the free retry pass their existing spec 070/080 tests,
-  rescripted to the new reading shape (AC #5).
+  rescripted to the new reading shape (AC #4).
 - **SC-005**: A carrier row appended by `answerRulings` before resolve renders as why rows in that
-  beat, and no carrier row renders in two beats (AC #7).
-- **SC-006** (PR B): `resolve.ts` holds no `attack.roll`, `check.roll` (outside the free retry),
-  `spell.cast`, `help.grant` or `combatant.place` construction (AC #4, #6).
-- **SC-007**: Intent PR gate: a schema test, a round-trip test and a resolve test per outcome
+  beat, and no carrier row renders in two beats (AC #5).
+- **SC-006**: Intent PR gate: a schema test, a round-trip test and a resolve test per outcome
   (`settled`, `needs_ruling`, refusal) for each interpret kind group.
-- **SC-008**: `pnpm ci:check` green; wiki freshness `OK`; spec-bridge check exits 0.
+- **SC-007**: `pnpm ci:check` green; wiki freshness `OK`; spec-bridge check exits 0.
 
 ## Card acceptance criteria map
 
-| Card AC | Covered by | PR (after split) |
+Card numbering as of 2026-11-11 (after the split).
+
+| Card AC | Covered by | Phases |
 |---|---|---|
-| #1 Slash commands, zero model calls | FR-004, FR-006, SC-001 | A |
-| #2 ≥ 99 % attempt-1 validity on the playtest corpus | FR-001–FR-003, FR-007, SC-002 (CI proxy). **Hosted: ticks at CP-7** from the playtest watch log (runbook "Hosted ACs") | A |
-| #3 Compound declaration, one Intent per stage, planned in turn | FR-008–FR-011, SC-003 | A |
-| #4 `resolve.ts` loses planner-owned paths | FR-020, SC-006 | B |
-| #5 Band effects and free retry beside the Intent path | FR-013–FR-015, SC-004 | A |
-| #6 Encounter-start gathering removed | FR-021, SC-006 | B |
-| #7 Beat narrates every covered carrier row, gate-settled included | FR-017–FR-019, SC-005 | A |
+| #1 Slash commands, zero model calls | FR-004, FR-006, SC-001 | 1, 2 |
+| #2 ≥ 99 % attempt-1 validity on the playtest corpus | FR-001–FR-003, FR-007, SC-002 (CI proxy). **Hosted: ticks at CP-7** from the playtest watch log (runbook "Hosted ACs") | 1, 2, 5 |
+| #3 Compound declaration, one Intent per stage, planned in turn | FR-008–FR-011, SC-003 | 3 |
+| #4 Band effects and free retry beside the Intent path | FR-013–FR-015, SC-004 | 3 |
+| #5 Beat narrates every covered carrier row, gate-settled included | FR-017–FR-019, SC-005 | 4 |
+
+## Split out to TASK-0312
+
+TASK-0312 "Resolve loses planner-owned step paths" (deps TASK-0269, TASK-0223) takes the old
+AC #4 (resolve loses planner-owned paths), the old AC #6 (encounter-start gathering removed, spec
+100 OQ-13) and the OQ-8 old-checkpoint AC. Its spec reuses plan.md D8 as its starting inventory.
+This card leaves those paths in place: after it, they run only for old resumed checkpoints and
+the free-retry / autoFail fallback.
 
 ## Assumptions
 
@@ -301,7 +297,8 @@ shows that row's "why" facts.
 
 ## Open questions
 
-Each has a recommendation. The orchestrator rules or cards each one.
+All adopted as recommended (operator, 2026-11-11). Homes: OQ-4 → AC on TASK-0247; OQ-6 → TASK-0313;
+OQ-7, OQ-8 → TASK-0312.
 
 - **OQ-1 — How the AI interpreter submits a player's Intent.** The AI DM seat may not set a `pc`
   or `companion` actor (contract §3). **Recommend:** declare-then-confirm (FR-008): `declared`
@@ -331,13 +328,13 @@ Each has a recommendation. The orchestrator rules or cards each one.
   beside path blocks a card, or TASK-0299 needs stakes for AI actors".
 - **OQ-7 — The adjudicate node.** No reading sets `needsAdjudication` after FR-001, so the node never
   runs; inventive actions become `attempt` Intents and reach the ruling path. **Recommend:** delete
-  the node, its prompt and `AdjudicateModelOutput` in PR B. `PURPOSE_OF.adjudicate` stays (the
+  the node, its prompt and `AdjudicateModelOutput` in TASK-0312. `PURPOSE_OF.adjudicate` stays (the
   ruling call uses it).
 - **OQ-8 — Old checkpoints.** A turn paused before deploy holds an old-shape reading. **Recommend:**
-  PR A runs it through the legacy step path. PR B drops an old-shape resumed plan and re-interprets
-  the item; the PR B card states it as a one-way door.
+  this card runs it through the legacy step path. TASK-0312 drops an old-shape resumed plan and
+  re-interprets the item, as a one-way door.
 - **OQ-9 — TASK-0223 ordering.** TASK-0223 waits on TASK-0269 and shares the `resolve.ts` hotspot.
-  **Recommend:** 0223 waits for PR A only; PR B rebases after 0223 (the smaller PR merges first).
+  **Recommend:** 0223 waits for this card only; TASK-0312 follows 0223.
 
 ## Frozen contract and C-CON flags
 
