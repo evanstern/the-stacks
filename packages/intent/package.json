@@ -18,7 +18,8 @@
   "scripts": {
     "build": "tsc -b",
     "typecheck": "tsc -b",
-    "test": "vitest run"
+    "test": "vitest run",
+    "test:timing": "vitest run --config vitest.timing.config.ts"
   },
   "dependencies": {
     "zod": "^4.6.5"

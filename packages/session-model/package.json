@@ -18,7 +18,8 @@
   "scripts": {
     "build": "tsc -b",
     "typecheck": "tsc -b",
-    "test": "vitest run"
+    "test": "vitest run",
+    "test:timing": "vitest run --config vitest.timing.config.ts"
   },
   "dependencies": {
     "@the-stacks/dnd5e-engine": "workspace:*",
