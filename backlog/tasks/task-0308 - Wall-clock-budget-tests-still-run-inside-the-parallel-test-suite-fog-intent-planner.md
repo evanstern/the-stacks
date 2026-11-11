@@ -3,9 +3,10 @@ id: TASK-0308
 title: >-
   Wall-clock budget tests still run inside the parallel test suite (fog, intent,
   planner)
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-11-11T01:48:00Z'
+updated_date: '2026-11-11T01:48:00Z'
 labels:
   - ws:tooling
   - replan-2026-11
@@ -35,3 +36,9 @@ TASK-0303 moved space's SC-005 timing test into the serial pnpm check:timing ste
 - [ ] #1 All tests and checks run green
 - [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Claimed 2026-11-10 by the R1 sweep (docs/design/r1-fast-table-runbook.md). Worktree .worktrees/task-0308, branch task-0308-timing-tests, cut from origin/main e503b04a. No spec dir: signed escape line covers this task.
+<!-- SECTION:NOTES:END -->
