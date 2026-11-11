@@ -1,12 +1,12 @@
 ---
 id: TASK-0268
 title: Gate accepts Intents
-status: To Do
+status: In Progress
 assignee: []
-created_date: '2026-11-07 05:13'
-updated_date: '2026-11-10 03:11'
+created_date: 2026-11-07 05:13
+updated_date: '2026-11-11T03:18:00Z'
 labels:
-  - 'ws:intent'
+  - ws:intent
   - replan-2026-11
   - ep-1
 milestone: m-10
@@ -24,6 +24,8 @@ Add the `intent` request kind to `gate/proposals.ts`. The gate checks seat, turn
 Parent epic: TASK-0258.
 
 Source: docs/design/replan-2026-11/board-rework-map.md (N-03).
+
+Spec: specs/102-gate-intents
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
@@ -34,14 +36,16 @@ Source: docs/design/replan-2026-11/board-rework-map.md (N-03).
 - [ ] #4 A zone reveal Intent maps through the gate, and targetStatus 'ok' maps to seen (spec 100 OQ-4).
 <!-- AC:END -->
 
-## Implementation Notes
-
-<!-- SECTION:NOTES:BEGIN -->
-Operator ruling 2026-11-09 (R1 lane specs 097-100): spec 100 OQ-4 added. After merge, close TASK-0147 as absorbed and trim TASK-0145 to AC #2-#4 (spec 097 OQ-6).
-<!-- SECTION:NOTES:END -->
-
 ## Definition of Done
 <!-- DOD:BEGIN -->
 - [ ] #1 All tests and checks run green
 - [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Operator ruling 2026-11-09 (R1 lane specs 097-100): spec 100 OQ-4 added. After merge, close TASK-0147 as absorbed and trim TASK-0145 to AC #2-#4 (spec 097 OQ-6).
+
+Claimed 2026-11-10 by the R1 sweep (docs/design/r1-fast-table-runbook.md). Worktree .worktrees/task-0268, branch task-0268-gate-intents, cut from origin/main fb396882. Spec number 102 claimed with a stub.
+<!-- SECTION:NOTES:END -->
