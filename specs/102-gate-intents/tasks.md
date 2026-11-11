@@ -62,9 +62,9 @@ on the worktree stack.
 
 ## Phase 5: Wiki re-ground
 
-- [ ] T025 Review and re-pin (NEEDS-REVIEW): `proposal-gate`, `session-model`, `dm-failure-and-gates`, `dm-runtime`, `ws-protocol`. Also re-pin every other note whose sources this PR touched (`dm-turn-jobs`, `turn-floor`, `zone-fog`, `planner`, `intent-contract`, `play-route`, `websocket-gateway`, `server-entrypoint-and-app`, `presence`, `seed-npc-presence`, `debug-view`, `dm-talk-triggers`, `dm-plan-gate`) through the wiki-update plan loop, amending prose before bumping.
-- [ ] T026 Update `docs/wiki/INDEX.md` (state line: TASK-0268 gate accepts Intents) and `docs/wiki/CAPSULES.md` (proposal-gate, session-model capsules). Record the session-model → planner edge (spec OQ-1).
-- [ ] T027 Run the freshness gate (`OK`) and the spec-bridge check (exit 0).
+- [x] T025 Review and re-pin (NEEDS-REVIEW): `proposal-gate`, `session-model`, `dm-failure-and-gates`, `dm-runtime`, `ws-protocol`. Also re-pin every other note whose sources this PR touched (`dm-turn-jobs`, `turn-floor`, `zone-fog`, `planner`, `intent-contract`, `play-route`, `websocket-gateway`, `server-entrypoint-and-app`, `presence`, `seed-npc-presence`, `debug-view`, `dm-talk-triggers`, `dm-plan-gate`) through the wiki-update plan loop, amending prose before bumping.
+- [x] T026 Update `docs/wiki/INDEX.md` (state line: TASK-0268 gate accepts Intents) and `docs/wiki/CAPSULES.md` (proposal-gate, session-model capsules). Record the session-model → planner edge (spec OQ-1).
+- [x] T027 Run the freshness gate (`OK`) and the spec-bridge check (exit 0).
 
 ## Dependencies & Execution Order
 
