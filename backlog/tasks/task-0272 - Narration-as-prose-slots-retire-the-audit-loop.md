@@ -34,7 +34,7 @@ Spec: specs/103-prose-slots
 - [x] #2 Narration writes no digits; fact rows carry every number.
 - [ ] #3 The R1 playtest shows zero fallback lines.
 - [x] #4 `dm/claims.ts` lexical gate is deleted.
-- [ ] #5 Spec phase: Check module and helper moves
+- [x] #5 Spec phase: Check module and helper moves
 - [ ] #6 Spec phase: `why` rows and the digit drop
 - [ ] #7 Spec phase: Turn pipeline swap and deletions
 - [ ] #8 Spec phase: Job-record consumers
