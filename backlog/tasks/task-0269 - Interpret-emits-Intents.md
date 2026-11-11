@@ -4,7 +4,7 @@ title: Interpret emits Intents
 status: In Progress
 assignee: []
 created_date: 2026-11-07 05:13
-updated_date: '2026-11-11T19:56:00Z'
+updated_date: '2026-11-11T20:01:00Z'
 labels:
   - ws:intent
   - replan-2026-11
@@ -66,4 +66,7 @@ Operator ruling 2026-11-11 (in chat): "Approve split + OQs" — split per spec 1
 Spec 104 tasks.md for PR A (f61a0bac): 36 tasks in 6 phases.
 
 Orchestrator ruling (phases 1-2 dispatch): spec 104 changes the interpret reading shape in P1, and its consumers move in P3, so typecheck is red between them. Interim per-phase commits may be red (marked '[red: Phase 3 consumers pending]'); the runbook gate is ci:check green on the final tree. No legacy-union bridge. T004: the 18-kind union converts to JSON schema (draft-7, 0 refs, 18 oneOf); strict provider mode not verified (needs a paid call).
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
+Phases 1-2 (184b6c7b, 0077d599), both red by ruling. Spec slash example corrected in tests to the parse() grammar: /attack @goblin-2 with "Longsword".
 <!-- SECTION:NOTES:END -->
