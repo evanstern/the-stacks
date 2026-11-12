@@ -4,7 +4,7 @@ title: Interpret emits Intents
 status: In Progress
 assignee: []
 created_date: 2026-11-07 05:13
-updated_date: '2026-11-12T00:44:00Z'
+updated_date: '2026-11-12T01:14:00Z'
 labels:
   - ws:intent
   - replan-2026-11
@@ -82,4 +82,6 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
 Phase 6 wiki (b6f9dbc0): 26 notes re-pinned after prose review.
 
 AC #2 (>= 99% attempt-1 schema-valid on the playtest corpus) is hosted; it ticks at CP-7. CI proxy SC-002 passes.
+
+Operator ruling 2026-11-11 (in chat): "Accept, card the gap" — accepts the three behavior changes (unarrived seed NPCs targetable through the planner; planner OUT_OF_RANGE stops shots; one ruling turn per no-DC check under the AI seat) and cards the human-DM ruling resume gap.
 <!-- SECTION:NOTES:END -->
