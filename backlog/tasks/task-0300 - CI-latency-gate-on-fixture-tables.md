@@ -32,7 +32,7 @@ Spec: specs/106-latency-gate
 - [x] #2 CI fails when the fixture p95 exceeds the budget in the constitution.
 - [x] #3 The gate uses the fake model and needs no provider key.
 - [x] #4 Spec phase: The latency gate (AC #1, AC #2, AC #3)
-- [ ] #5 Spec phase: Wiki re-ground
+- [x] #5 Spec phase: Wiki re-ground
 <!-- AC:END -->
 
 ## Definition of Done
