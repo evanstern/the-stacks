@@ -31,7 +31,7 @@ Spec: specs/105-one-composer-web
 - [x] #4 Spec phase: Pure modules — send router, ring, view model (FR-001, FR-015, FR-022 to FR-025, card AC #1)
 - [x] #5 Spec phase: Components and wiring (FR-001 to FR-005, FR-015, FR-017, FR-019, FR-026, card AC #2)
 - [x] #6 Spec phase: Wiki — web share (NEEDS-REVIEW)
-- [ ] #7 Spec phase: Verification **[orchestrator]**
+- [x] #7 Spec phase: Verification **[orchestrator]**
 <!-- AC:END -->
 
 ## Definition of Done
