@@ -4,7 +4,7 @@ title: 'Build: one composer, one Send, Enter commits in combat — web (spec 066
 status: In Progress
 assignee: []
 created_date: '2026-11-12T03:01:00Z'
-updated_date: '2026-11-12T05:58:00Z'
+updated_date: '2026-11-12T06:00:00Z'
 labels:
   - web
   - ws:table-ux
@@ -54,4 +54,7 @@ Spec 105 (7ca305c8): 35 tasks, 5 phases, against origin/main 468069b8. No frozen
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
 Phases 1-3 (46e30aef, 6c2fac10, 66824cbe): ci:check exit 0; web node --test 325 and vitest 161 pass; no-dialog green; mutation guard catches routeSend and readIndicator. Deviations: optional actionId and suggestionId on inputs; readIndicator takes markerTs; the human DM's plain prose still sends as talk; a new view-model item kind 'intent' lets a human DM confirm declared deeds; no player sees Commit in any mode (FR-005). The agent briefly edited root by mistake and restored it; root verified clean.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
+Phase 4 wiki (d34fa871): play-route, turn-floor and scene-panels re-pinned; chat-ui not staled.
 <!-- SECTION:NOTES:END -->
