@@ -4,7 +4,7 @@ title: 'Build: one composer, one Send, Enter commits in combat — web (spec 066
 status: In Progress
 assignee: []
 created_date: '2026-11-12T03:01:00Z'
-updated_date: '2026-11-12T05:28:00Z'
+updated_date: '2026-11-12T05:37:00Z'
 labels:
   - web
   - ws:table-ux
@@ -27,6 +27,11 @@ Spec: specs/105-one-composer-web
 <!-- AC:BEGIN -->
 - [ ] #1 In combat, no quiet ring runs; the active player's Enter commits the Intent, with a test.
 - [ ] #2 The play route has one composer and one Send button, verified live in Brave.
+- [ ] #3 Spec phase: Sources, frames and labels (FR-003, FR-005, FR-W1)
+- [ ] #4 Spec phase: Pure modules — send router, ring, view model (FR-001, FR-015, FR-022 to FR-025, card AC #1)
+- [ ] #5 Spec phase: Components and wiring (FR-001 to FR-005, FR-015, FR-017, FR-019, FR-026, card AC #2)
+- [ ] #6 Spec phase: Wiki — web share (NEEDS-REVIEW)
+- [ ] #7 Spec phase: Verification **[orchestrator]**
 <!-- AC:END -->
 
 ## Definition of Done
@@ -43,4 +48,7 @@ From TASK-0199 phase 4: C-6, C-7 and C-9 contract blocks landed in TASK-0199 (7c
 Claimed 2026-11-12 by the R1 sweep (docs/design/r1-fast-table-runbook.md). Worktree .worktrees/task-0315, branch task-0315-one-composer, cut from origin/main 468069b8. Spec number 105 claimed with a stub.
 
 Spec marker fixed: this card links spec 105 only. Spec 066 stays TASK-0199's (Done); adding web tasks to it would put TASK-0199 ahead of its artifacts. Spec 105 builds on spec 066's design (plan D4) and the C-6/C-7/C-9 contract blocks merged in PR #170.
+
+Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5
+Spec 105 (7ca305c8): 35 tasks, 5 phases, against origin/main 468069b8. No frozen-contract conflict; C-7 wording confirmed (Speaker chip drops 'The party'). Orchestrator adopts OQ-1..OQ-6 as recommended, since each follows from an existing artifact: OQ-1 constitution II (fixture mode writes carrier rows only); OQ-4 the gate's stale check binds ai:dm only; OQ-5 no new dependency (avoids C5); OQ-2, OQ-3 and OQ-6 are presentation details inside spec 066 D4.
 <!-- SECTION:NOTES:END -->
