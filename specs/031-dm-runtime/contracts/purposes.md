@@ -59,3 +59,10 @@ code refusal.
 
 **Amendment (TASK-0188).** decision-0028 §8; operator ruling 2026-11-02: "All (a), amend". Additive (§8.5). The read's call uses purpose `dm.narrate` with
 prompt version `dm.react-v2`. No purpose, `AI_PURPOSES` entry or output cap is added.
+
+**Amendment (TASK-0199).** Amended 2026-11-11 (spec `specs/066-one-chat-stream`, plan.md "Frozen-contract amendments", row C-8; P-04, decision-0030).
+
+> "Approve all" (operator, C-GATE ruling, 2026-11-11: approves C-1 to C-9 as written in spec 066 plan.md)
+
+The read's call uses prompt version `dm.react-v4`, not `dm.react-v2`. The purpose stays `dm.narrate`.
+No purpose, `AI_PURPOSES` entry or output cap is added.

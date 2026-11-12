@@ -366,3 +366,11 @@ The `check` step's `difficulty` is a tier string or `{ opposedBy: id, rule: "una
 cover the check's kind, ability and skill fails at `difficulty.rule`. A new strict `help` step:
 `{ step: "help", reason, helperId, assist: { kind: "ability-check", allyId, skill } | { kind: "attack", targetId } }`.
 An ally or target equal to `helperId` fails at `assist`. Prompt versions: `dm.interpret-v13`, `dm.adjudicate-v10`.
+
+**Amendment (TASK-0199).** Amended 2026-11-11 (spec `specs/066-one-chat-stream`, plan.md "Frozen-contract amendments", row C-8; P-04, decision-0030).
+
+> "Approve all" (operator, C-GATE ruling, 2026-11-11: approves C-1 to C-9 as written in spec 066 plan.md)
+
+The `ReactOutput` `outcome` gains `confirm`, with `confirm` items `{ characterId, text, body }` where
+`body` is an Intent body, and an `answer` field (a string or null) for one `ask_dm` reply. A
+`confirm` outcome has empty `text`. `characterId` is null exactly for a `party` attempt.

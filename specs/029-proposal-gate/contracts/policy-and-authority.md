@@ -184,3 +184,23 @@ still governs direct commits, the spec 044 quorum included (OQ-11 (a)).
 Amended 2026-11-11 (TASK-0268, C-GATE ruling "Approve all"): the table gains the `"intent": "ask"` row. `ai:dm` Intents under a human seat route by this policy (spec 102 FR-011, OQ-9). An AI seat still resolves every kind to `auto`.
 
 > "Approve all" (operator, C-GATE ruling, 2026-11-11: approves spec 102 plan.md "C-GATE: frozen contract amendments" and OQ-1 to OQ-14 as recommended)
+
+**Amendment (TASK-0199).** Amended 2026-11-11 (spec `specs/066-one-chat-stream`, plan.md "Frozen-contract amendments", row C-3; P-04, decision-0030).
+
+> "Approve all" (operator, C-GATE ruling, 2026-11-11: approves C-1 to C-9 as written in spec 066 plan.md)
+
+The first row of the decision-0016 commit-authority table (TASK-0188) is withdrawn.
+`action.accept` plans the item's Intent as `confirmed` through `planIntent`, with `source:
+"composer"` and the acceptor as actor. No commit-authority row applies.
+
+The accept rule becomes, first failure wins:
+
+1. The suggestion and its item exist, else `SUGGESTION_NOT_FOUND`.
+2. The item is not stale (`suggestionState` is not `stale`), else `SUGGESTION_STALE`.
+3. A `character` item: the proposer controls the item's character. A `party` item: the proposer controls a party member. Else `NOT_AUTHORIZED`.
+4. Someone in scope can act, else `CHARACTER_UNABLE` (the `action.declare` rule).
+5. `planIntent` decides the rest (`NOT_YOUR_TURN`, `INTENT_EXISTS`, and the others in spec 102).
+
+A second 👍 on a confirmed item is `INTENT_EXISTS` (it was `ACTION_EXISTS`).
+
+Dated note, 2026-11-11 (T043): the code stamps a `party` item with the first party member the acceptor controls. `ai:dm` `action.accept` is refused `NOT_AUTHORIZED` by `routeProposal` and by the permission matrix (humans only).

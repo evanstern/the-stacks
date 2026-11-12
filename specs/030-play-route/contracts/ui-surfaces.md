@@ -137,3 +137,12 @@ The accessible names "Message type", "Channel", "Scope", "Declare", "Comment on 
 | `StatusStrip` (new, `components/status-strip.tsx`) | One line above the composer: the viewer's character, HP, AC, conditions and whose turn it is. |
 
 Accessible names added: "Table state". The "Turn order" list keeps its name.
+
+**Amendment (TASK-0199).** Amended 2026-11-11 (spec `specs/066-one-chat-stream`, plan.md "Frozen-contract amendments", row C-7; P-04, decision-0030).
+
+> "Approve all" (operator, C-GATE ruling, 2026-11-11: approves C-1 to C-9 as written in spec 066 plan.md)
+
+`Composer` sends `intent` requests as the table-source block above describes. The "Speaker" chip
+leaves the `The party` entry. `ConfirmRow` lines read `<text>` plus the `kindLabel`.
+
+Dated note, 2026-11-11 (T043): no web code changes in this card. TASK-0315 builds C-6 and C-7 against these blocks.

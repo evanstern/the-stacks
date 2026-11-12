@@ -264,3 +264,13 @@ is unchanged, but `action.withdrawn` also closes a `committed` action. Detail:
 (the viewer's space, the players' map, and placements), folded from `zone.revealed` and the
 spatial engine rows. The ledger gains one `change` row per `zone.revealed`. Detail:
 `specs/100-spatial-events/contracts/spatial-projection.md`.
+
+**Amendment (TASK-0199).** Amended 2026-11-11 (spec `specs/066-one-chat-stream`, plan.md "Frozen-contract amendments", row C-4; P-04, decision-0030).
+
+> "Approve all" (operator, C-GATE ruling, 2026-11-11: approves C-1 to C-9 as written in spec 066 plan.md)
+
+`SessionProjections.suggestions` entries carry `items: { itemId, text, intent }[]`. The projection
+also exports the pure `readablePosts`, `suggestionState(p, intentId)` and `readWindowMs` helpers
+from `@the-stacks/session-model`. `IntentView` gains `ts`, the first carrier row's timestamp.
+
+Dated note, 2026-11-11 (T043): `suggestionState` takes `(p, intentId)`, not a suggestion id and item id. An item Intent id is `<suggestionId>.<itemId>`. A state of `confirmed` means the item Intent has a carrier row.

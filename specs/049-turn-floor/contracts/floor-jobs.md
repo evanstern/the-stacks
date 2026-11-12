@@ -69,3 +69,11 @@ The turn-advance group compares the fresh projection with the turn at assemble
 **Amendment (TASK-0188).** Amended 2026-11-02 (decision-0028 §8; operator ruling 2026-11-02: "All (a), amend"). The `stall` check covers direct party
 declares only. An `action.accept` batch holds `action.committed`, so it never arms a stall. No
 floor rule changes.
+
+**Amendment (TASK-0199).** Amended 2026-11-11 (spec `specs/066-one-chat-stream`, plan.md "Frozen-contract amendments", row C-9; P-04, decision-0030).
+
+> "Approve all" (operator, C-GATE ruling, 2026-11-11: approves C-1 to C-9 as written in spec 066 plan.md)
+
+An `action.accept` writes no action rows, so it arms no stall. This replaces the TASK-0188 line
+"an accept batch never arms a stall". The stall check covers direct party declares only. No floor
+rule changes.

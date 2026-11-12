@@ -289,3 +289,28 @@ Matrix row `intent`: every role passes the matrix. `planIntent` decides (spec 10
 FR-012: `DRAFT_NOT_ACCEPTED`, `DM_SEAT_REQUIRED`, `NOT_AUTHORIZED`, `NOT_YOUR_ACTOR`,
 `INTENT_EXISTS`, `NOT_YOUR_TURN`, `MODEL_NUMBER`). `action.declare` keeps its rows and gains a pure
 envelope to a `declared` `attempt` Intent.
+
+**Amendment (TASK-0199).** Amended 2026-11-11 (spec `specs/066-one-chat-stream`, plan.md "Frozen-contract amendments", row C-1; P-04, decision-0030).
+
+> "Approve all" (operator, C-GATE ruling, 2026-11-11: approves C-1 to C-9 as written in spec 066 plan.md)
+
+`action.suggest` items change from `{ itemId, characterId, scope, text, check }` to
+`{ itemId, text, intent }`. `intent` is an `IntentSchema` value with `commit: "declared"`. Item ids
+are unique within the suggestion.
+
+The planner adds two checks to the TASK-0188 rows. Each item Intent names a human-controlled `pc`
+actor, else `INVALID_PROPOSAL`. Each item Intent id is `<suggestionId>.<itemId>`, else
+`INVALID_PROPOSAL`.
+
+Dated note, 2026-11-11 (T043): the code matches. The two planner checks are written down here because plan.md C-1 does not list them.
+
+**Amendment (TASK-0199).** Amended 2026-11-11 (spec `specs/066-one-chat-stream`, row C-2; P-04, decision-0030).
+
+> "Approve all" (operator, C-GATE ruling, 2026-11-11: approves C-1 to C-9 as written in spec 066 plan.md)
+
+The TASK-0188 widening of `action.withdraw` is removed. `action.withdraw` accepts only a `declared`
+or `discussed` action, and refuses `ACTION_NOT_OPEN` otherwise. A direct `action.declare` whose
+`action` carries `suggestionId` is refused `INVALID_PROPOSAL`: a suggestion links to the world only
+through the Intent `action.accept` plans, never through an action row.
+
+Dated note, 2026-11-11 (T043): the code matches. `ActionDeclaredV1` never gained `suggestionId`, so the schema does not know the field and the planner has no `INVALID_PROPOSAL` branch for it. The `withdraw` rule is the pre-TASK-0188 one, as written above.

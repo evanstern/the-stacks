@@ -117,10 +117,10 @@ path>` for add and commit, in separate Bash calls. Serial hotspots: `gate/{propo
 
 ## Phase 4: Frozen-contract amendment blocks (C-GATE ruled 2026-11-11)
 
-- [ ] T042 Append one "**Amendment (TASK-0199).**" block per plan.md rows C-1 to C-9. Cite P-04,
+- [x] T042 Append one "**Amendment (TASK-0199).**" block per plan.md rows C-1 to C-9. Cite P-04,
       decision-0030 and the C-GATE ruling "Approve all" (2026-11-11). Never rewrite an earlier block.
-- [ ] T043 Check each block against the code as built. Correct a block only by a dated note under it.
-- [ ] T044 Run `pnpm ci:check`.
+- [x] T043 Check each block against the code as built. Correct a block only by a dated note under it.
+- [x] T044 Run `pnpm ci:check`.
 
 ## Phase 5: Wiki — server share (NEEDS-REVIEW)
 
