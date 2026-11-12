@@ -6,14 +6,14 @@
 
 ## Phase 1: Sources, frames and labels (FR-003, FR-005, FR-W1)
 
-- [ ] T001 In `apps/web/app/play/frames.ts`, add `intentFrame(intent)`, `acceptFrame` and `suggestFrame`, each schema-validated through `build`. Remove `commentFrame`. Keep `talkFrame`, `declareFrame` and `commitFrame` (plan D1).
-- [ ] T002 In `apps/web/app/play/source.ts`, add `sendIntent`, `accept` and `suggest` to `TableCommands`. Remove `comment` and `CommentInput` (plan D1).
-- [ ] T003 In `apps/web/app/play/use-live-table.ts`, wire the three new commands to `send`. Remove `comment`.
-- [ ] T004 In `apps/web/app/play/local-log.ts`, add `localIntentEvents` and `localAcceptEvents` with carrier rows only and a `ponytail:` comment (spec OQ-1). Wire them in `use-fixture-table.ts`.
-- [ ] T005 In `apps/web/app/play/labels.ts`, word `SUGGESTION_STALE`, `SUGGESTION_NOT_FOUND`, `INTENT_EXISTS` and `NOT_YOUR_TURN` (generic). Add `KIND_LABEL` and `kindLabel()` (spec OQ-6).
-- [ ] T006 In `apps/web/app/play/proposals.ts`, replace both `ponytail:` `detailsOf` cases with real rows (FR-W1).
-- [ ] T007 Amend `apps/web/test/play/{frames,local-log,use-fixture-table,proposals}.test.mjs` for the new frames, local events, labels and detail rows.
-- [ ] T008 Run `pnpm --filter @the-stacks/web test` and `pnpm --filter @the-stacks/web typecheck`. Leave callers of the removed `comment` compiling until Phase 3 by keeping the action-card prop optional.
+- [x] T001 In `apps/web/app/play/frames.ts`, add `intentFrame(intent)`, `acceptFrame` and `suggestFrame`, each schema-validated through `build`. Remove `commentFrame`. Keep `talkFrame`, `declareFrame` and `commitFrame` (plan D1).
+- [x] T002 In `apps/web/app/play/source.ts`, add `sendIntent`, `accept` and `suggest` to `TableCommands`. Remove `comment` and `CommentInput` (plan D1).
+- [x] T003 In `apps/web/app/play/use-live-table.ts`, wire the three new commands to `send`. Remove `comment`.
+- [x] T004 In `apps/web/app/play/local-log.ts`, add `localIntentEvents` and `localAcceptEvents` with carrier rows only and a `ponytail:` comment (spec OQ-1). Wire them in `use-fixture-table.ts`.
+- [x] T005 In `apps/web/app/play/labels.ts`, word `SUGGESTION_STALE`, `SUGGESTION_NOT_FOUND`, `INTENT_EXISTS` and `NOT_YOUR_TURN` (generic). Add `KIND_LABEL` and `kindLabel()` (spec OQ-6).
+- [x] T006 In `apps/web/app/play/proposals.ts`, replace both `ponytail:` `detailsOf` cases with real rows (FR-W1).
+- [x] T007 Amend `apps/web/test/play/{frames,local-log,use-fixture-table,proposals}.test.mjs` for the new frames, local events, labels and detail rows.
+- [x] T008 Run `pnpm --filter @the-stacks/web test` and `pnpm --filter @the-stacks/web typecheck`. Leave callers of the removed `comment` compiling until Phase 3 by keeping the action-card prop optional.
 
 ## Phase 2: Pure modules — send router, ring, view model (FR-001, FR-015, FR-022 to FR-025, card AC #1)
 

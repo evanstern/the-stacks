@@ -120,3 +120,68 @@ test("a floor proposal renders its request, reason and visibility", () => {
     ],
   );
 });
+
+function withProposal(id, proposal) {
+  const last = dmApprovals.events[dmApprovals.events.length - 1];
+  const row = {
+    ...last,
+    seq: last.seq + 1,
+    actor: "ai:dm",
+    type: "proposal.created",
+    visibility: "dm",
+    payloadVersion: 1,
+    payload: { proposalId: id, policy: "ask", proposal },
+  };
+  return selectPendingProposals([...dmApprovals.events, row], dm).find(
+    (p) => p.proposalId === id,
+  );
+}
+
+test("an action.suggest proposal renders a row per item and its read seq", () => {
+  const view = withProposal("prop-sug", {
+    kind: "action.suggest",
+    summary: null,
+    rationale: null,
+    suggestion: {
+      suggestionId: "sug-1",
+      readSeq: 7,
+      items: [
+        {
+          itemId: "i1",
+          text: "Climb the wall",
+          intent: {
+            id: "sug-1.i1",
+            kind: "attempt",
+            actor: { kind: "pc", id: "ana" },
+            params: { scope: "character" },
+            targets: [],
+            text: "climb the wall",
+            source: "ai",
+            commit: "declared",
+          },
+        },
+      ],
+    },
+  });
+  assert.ok(view);
+  assert.deepEqual(
+    view.details.map((d) => d.label),
+    ["Read seq", "Item 1", "Item 1 as typed"],
+  );
+  assert.equal(view.details[0].value, "7");
+  assert.equal(view.details[1].value, "Climb the wall — Action");
+});
+
+test("an action.accept proposal renders the suggestion and item ids", () => {
+  const view = withProposal("prop-acc", {
+    kind: "action.accept",
+    summary: null,
+    rationale: null,
+    suggestionId: "sug-1",
+    itemId: "i1",
+  });
+  assert.deepEqual(view.details, [
+    { label: "Suggestion", value: "sug-1" },
+    { label: "Item", value: "i1" },
+  ]);
+});

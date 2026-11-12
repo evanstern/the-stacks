@@ -238,3 +238,54 @@ test("after both rows, the projection has no encounter and free mode", () => {
   assert.equal(p3.tableMode.mode, "free");
   assert.equal(p3.diagnostics.skippedInvalid, 0);
 });
+
+import { project as projectEvents } from "@the-stacks/session-model";
+import {
+  localAcceptEvents,
+  localIntentEvents,
+} from "../../app/play/local-log.ts";
+
+const SAY_INTENT = {
+  id: "int-1",
+  kind: "say",
+  actor: { kind: "pc", id: "ana" },
+  text: "hello",
+  source: "composer",
+  commit: "declared",
+};
+
+test("localIntentEvents: speech gives a talk row then a carrier row", () => {
+  const rows = localIntentEvents(SAY_INTENT);
+  assert.deepEqual(
+    rows.map((r) => r.eventType),
+    ["talk", "intent.recorded"],
+  );
+  assert.equal(rows[0].payload.channel, "ic");
+  assert.equal(rows[0].payload.characterId, "ana");
+  assert.equal(rows[1].payload.outcome, "declared");
+  assert.equal(rows[1].payload.batchId, null);
+});
+
+test("localIntentEvents: ooc is a party talk row; a deed is a carrier only", () => {
+  const ooc = localIntentEvents({ ...SAY_INTENT, kind: "ooc" });
+  assert.equal(ooc[0].payload.channel, "ooc");
+  const deed = localIntentEvents({
+    ...SAY_INTENT,
+    kind: "attempt",
+    params: { scope: "character" },
+    commit: "confirmed",
+  });
+  assert.deepEqual(
+    deed.map((r) => r.eventType),
+    ["intent.recorded"],
+  );
+  assert.equal(deed[0].payload.outcome, "settled");
+});
+
+test("localAcceptEvents: null for a missing item", () => {
+  const p = projectEvents(dmApprovals.events, dmApprovals.viewers.dm);
+  assert.equal(
+    localAcceptEvents(p, { suggestionId: "sug-none", itemId: "i1" }),
+    null,
+  );
+});

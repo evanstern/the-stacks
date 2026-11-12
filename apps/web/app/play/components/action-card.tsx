@@ -1,8 +1,15 @@
 import { useState } from "react";
 import type { SignoffRowState } from "../signoff.ts";
-import type { CommentInput, CommitInput, WithdrawInput } from "../source.ts";
+import type { CommitInput, WithdrawInput } from "../source.ts";
 import type { ActionCardView } from "../view-model.ts";
 import { CommitControl } from "./commit-control.tsx";
+
+// Phase 3 (TASK-0315) removes the comment form; the prop is optional until then.
+interface CommentInput {
+  actionId: string;
+  stance: "comment" | "approve" | "object";
+  text: string;
+}
 
 const STANCES: { stance: CommentInput["stance"]; label: string }[] = [
   { stance: "comment", label: "Comment" },
@@ -39,7 +46,7 @@ function SignoffList({
 }: {
   actionId: string;
   rows: NonNullable<ActionCardView["signoff"]>;
-  onComment: (input: CommentInput) => boolean;
+  onComment?: (input: CommentInput) => boolean;
 }) {
   return (
     <section aria-label="Sign-off" className="mt-2 text-sm">
@@ -65,7 +72,7 @@ function SignoffList({
                   <button
                     key={stance}
                     type="button"
-                    onClick={() => onComment({ actionId, stance, text: "" })}
+                    onClick={() => onComment?.({ actionId, stance, text: "" })}
                     className="rounded-md border border-border px-3 py-1 text-sm hover:bg-accent"
                   >
                     {stance === "approve" ? "Approve" : "Object"}
@@ -88,12 +95,12 @@ function CommentForm({
   actionId: string;
   /** A non-active party member on the active player's action: the same comment, labelled. */
   suggest: boolean;
-  onComment: (input: CommentInput) => boolean;
+  onComment?: (input: CommentInput) => boolean;
 }) {
   const label = suggest ? "Suggest an alternative" : "Comment on this action";
   const [text, setText] = useState("");
   function send(stance: CommentInput["stance"]) {
-    if (onComment({ actionId, stance, text })) setText("");
+    if (onComment?.({ actionId, stance, text })) setText("");
   }
   const empty = text.trim().length === 0;
   return (
@@ -135,7 +142,7 @@ export function ActionCard({
   onWithdraw,
 }: {
   card: ActionCardView;
-  onComment: (input: CommentInput) => boolean;
+  onComment?: (input: CommentInput) => boolean;
   onCommit: (input: CommitInput) => boolean;
   onWithdraw: (input: WithdrawInput) => boolean;
 }) {

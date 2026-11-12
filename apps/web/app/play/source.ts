@@ -1,3 +1,4 @@
+import type { Intent } from "@the-stacks/intent";
 import type {
   DmSeat,
   StoredEvent,
@@ -45,10 +46,14 @@ export interface DeclareInput {
   characterId: string | null;
   scope: "character" | "party";
 }
-export interface CommentInput {
-  actionId: string;
-  stance: "comment" | "approve" | "object";
-  text: string;
+export interface AcceptInput {
+  suggestionId: string;
+  itemId: string;
+}
+/** The human DM's confirm row: items are `{ itemId, text, intent }` with a declared Intent (C-1). */
+export interface SuggestInput {
+  readSeq: number;
+  items: { itemId: string; text: string; intent: Intent }[];
 }
 export interface CommitInput {
   actionId: string;
@@ -109,7 +114,12 @@ export interface DmSeatInput {
 export interface TableCommands extends ProposalCommands {
   sendTalk(input: TalkInput): boolean;
   declareAction(input: DeclareInput): boolean;
-  comment(input: CommentInput): boolean;
+  /** One `intent` request (spec 105). True when sent/applied. */
+  sendIntent(intent: Intent): boolean;
+  /** A player's 👍: one `action.accept`. */
+  accept(input: AcceptInput): boolean;
+  /** The human DM's confirm row: one `action.suggest`. */
+  suggest(input: SuggestInput): boolean;
   commit(input: CommitInput): boolean;
   withdraw(input: WithdrawInput): boolean;
   floor(input: FloorInput): boolean;

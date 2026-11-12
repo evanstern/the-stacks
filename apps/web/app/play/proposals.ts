@@ -7,9 +7,10 @@ import {
   project,
   REASON_TO_PRESENCE,
   type StoredEvent,
+  type SuggestionView,
   type Viewer,
 } from "@the-stacks/session-model";
-import { actorLabel, characterLabel } from "./labels.ts";
+import { actorLabel, characterLabel, kindLabel } from "./labels.ts";
 
 export interface PendingProposalView {
   proposalId: string;
@@ -88,6 +89,7 @@ function actionIdOf(proposal: Proposal): string | null {
 function detailsOf(
   proposal: Proposal,
   party: readonly PartyMemberView[],
+  suggestions: readonly SuggestionView[] = [],
 ): Detail[] {
   const who = (id: string | null) => characterLabel(id, party) ?? "None";
   switch (proposal.kind) {
@@ -218,30 +220,37 @@ function detailsOf(
         { label: "Intent", value: proposal.intent.kind },
         { label: "Text", value: toText(proposal.intent) },
       ];
-    // ponytail: minimal rows so the switch stays exhaustive; TASK-0315 owns the real rendering.
     case "action.suggest":
       return [
-        { label: "Suggestion", value: proposal.suggestion.suggestionId },
-        {
-          label: "Text",
-          value: proposal.suggestion.items.map((i) => i.text).join(" / "),
-        },
+        { label: "Read seq", value: String(proposal.suggestion.readSeq) },
+        ...proposal.suggestion.items.flatMap((item, n) => [
+          {
+            label: `Item ${n + 1}`,
+            value: `${item.text} — ${kindLabel(item.intent.kind)}`,
+          },
+          { label: `Item ${n + 1} as typed`, value: toText(item.intent) },
+        ]),
       ];
-    // ponytail: minimal rows so the switch stays exhaustive; TASK-0315 owns the real rendering.
-    case "action.accept":
+    case "action.accept": {
+      const item = suggestions
+        .find((s) => s.suggestionId === proposal.suggestionId)
+        ?.items.find((i) => i.itemId === proposal.itemId);
       return [
         { label: "Suggestion", value: proposal.suggestionId },
         { label: "Item", value: proposal.itemId },
+        ...(item ? [{ label: "Text", value: item.text }] : []),
       ];
+    }
   }
 }
 
 function toView(
   view: ProposalView,
   party: readonly PartyMemberView[],
+  suggestions: readonly SuggestionView[],
 ): PendingProposalView {
   const { proposal } = view;
-  const details = detailsOf(proposal, party);
+  const details = detailsOf(proposal, party, suggestions);
   if (proposal.rationale) {
     details.push({ label: "Rationale", value: proposal.rationale });
   }
@@ -271,6 +280,6 @@ export const selectPendingProposals: SelectPendingProposals = (
   if (viewer.role !== "dm") return [];
   const p = project(events, viewer);
   return pendingProposals(p)
-    .map((view) => toView(view, p.party))
+    .map((view) => toView(view, p.party, p.suggestions))
     .sort((a, b) => a.createdSeq - b.createdSeq);
 };

@@ -1,6 +1,7 @@
+import { IntentSchema } from "@the-stacks/intent";
 import {
-  ActionCommentedV1,
   ActionDeclaredV1,
+  ActionSuggestedV1,
   CombatantIdSchema,
   currentVersion,
   DmSeatSchema,
@@ -12,13 +13,14 @@ import {
   TalkV1,
 } from "@the-stacks/session-model";
 import type {
-  CommentInput,
+  AcceptInput,
   CommitInput,
   DeclareInput,
   DmSeatInput,
   EncounterEndInput,
   FloorInput,
   SceneInput,
+  SuggestInput,
   TableModeInput,
   TalkInput,
   WithdrawInput,
@@ -89,16 +91,38 @@ export function declareFrame(
   );
 }
 
-export function commentFrame(input: CommentInput): EventFrame | null {
+/** One `intent` request: the Intent as parsed (spec 105 D1). Null when it fails its schema. */
+export function intentFrame(intent: unknown): EventFrame | null {
+  return build("intent", IntentSchema, intent, (parsed) => ({
+    intent: parsed,
+  }));
+}
+
+/** A player's 👍 on one suggestion item. */
+export function acceptFrame(input: AcceptInput): EventFrame | null {
+  if (
+    !RefIdSchema.safeParse(input.suggestionId).success ||
+    !/^i[1-4]$/.test(input.itemId)
+  ) {
+    return null;
+  }
+  return {
+    eventType: "action.accept",
+    payload: { suggestionId: input.suggestionId, itemId: input.itemId },
+    payloadVersion: GATE_REQUEST_VERSION,
+  };
+}
+
+/** The human DM's confirm row. `suggestionId` is injectable for tests; default `sug-` + UUID. */
+export function suggestFrame(
+  input: SuggestInput,
+  suggestionId: string = `sug-${crypto.randomUUID()}`,
+): EventFrame | null {
   return build(
-    "action.comment",
-    ActionCommentedV1,
-    {
-      actionId: input.actionId,
-      stance: input.stance,
-      text: input.text.trim(),
-    },
-    (comment) => ({ comment }),
+    "action.suggest",
+    ActionSuggestedV1,
+    { suggestionId, readSeq: input.readSeq, items: input.items },
+    (suggestion) => ({ suggestion }),
   );
 }
 
@@ -295,7 +319,7 @@ export function dmSeatFrame(input: DmSeatInput): EventFrame | null {
 const LOCAL_TYPE: Record<string, { type: string; key: string | null }> = {
   talk: { type: "talk", key: "talk" },
   "action.declare": { type: "action.declared", key: "action" },
-  "action.comment": { type: "action.commented", key: "comment" },
+  "action.suggest": { type: "action.suggested", key: "suggestion" },
 };
 
 /**
