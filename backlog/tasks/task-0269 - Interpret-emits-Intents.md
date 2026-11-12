@@ -4,7 +4,7 @@ title: Interpret emits Intents
 status: In Progress
 assignee: []
 created_date: 2026-11-07 05:13
-updated_date: '2026-11-12T00:31:00Z'
+updated_date: '2026-11-12T00:42:00Z'
 labels:
   - ws:intent
   - replan-2026-11
@@ -77,4 +77,7 @@ C-GATE ruling (operator, 2026-11-11, in chat): "Relax the gate (a)": action.reso
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
 Phases 3-5 done (a657c769 gate amendment, 72d7a388, 0e705bb3, 17667717 green). Orchestrator ran ci:check on 17667717: exit 0 (the agent misread 8 pre-existing lint warnings as failures). Full server suite REQUIRE_DATABASE=1: 1798 passed. Beyond the quoted C-GATE ruling: a ruling carrier's batch counts toward the Intent it answers (needed for the AI-seat check confirm). Behavior changes for operator review: seed NPCs not yet arrived are targetable through the planner (legacy refused UNKNOWN_COMBATANT); planner OUT_OF_RANGE now stops shots the old path rolled; each no-DC check under the AI seat queues one ruling turn.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
+Phase 6 wiki (b6f9dbc0): 26 notes re-pinned after prose review.
 <!-- SECTION:NOTES:END -->
