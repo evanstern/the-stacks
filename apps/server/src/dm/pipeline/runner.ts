@@ -8,6 +8,7 @@ import {
 import { askUndeclared } from "../gates/plan-gate.js";
 import type { TurnCheckpoint } from "../jobs.js";
 import { findLandedNarration, submitNarration } from "../nodes/resolve.js";
+import { hasStages } from "../nodes/schemas.js";
 import { SnapshotOverflowError } from "../snapshot/index.js";
 import { runTalkTurn } from "../talk-turn.js";
 import {
@@ -92,6 +93,7 @@ function needsAdjudication(ctx: TurnContext): boolean {
   return (
     ctx.results.interpret?.readings.some(
       (r) =>
+        !hasStages(r) &&
         r.needsAdjudication &&
         !(r.actionId !== null && resumed.has(r.actionId)),
     ) ?? false
@@ -310,6 +312,10 @@ export async function runTurn(
       submissions: resolved?.submissions ?? ctx.checkpoint.submissions,
       lastSeq: resolved?.lastSeq ?? ctx.checkpoint.lastSeq,
       ...(resolved ? { planGate: resolved.planGate } : {}),
+      // Spec 104 FR-018: the next beat's narrate window starts after what this narrate read.
+      ...(ctx.results.narrate?.factsThrough !== undefined
+        ? { factsThrough: ctx.results.narrate.factsThrough }
+        : {}),
     };
     if (!(await ctx.deps.fence())) return fenced("resolve");
     const shipped = await submitNarration(ctx, checked, checkpoint);

@@ -21,12 +21,14 @@ import {
 import { greyhollowDuo, greyhollowFight } from "./snapshot-fixtures.js";
 
 const duo = greyhollowDuo();
+/** The legacy `steps` of a scripted reading (this file stubs the pre-Intent shape; TASK-0312 deletes it). */
+const stepsOf = (r: unknown) => (r as { steps?: unknown[] } | undefined)?.steps;
 const assembled = (over: Partial<NodeOutputs["assemble"]> = {}) =>
   ({
     projections: { party: [] },
     snapshot: buildSnapshot(duo.projections, duo.seed),
     throughSeq: 5,
-    beat: [{ actionId: "a1" }],
+    beat: [{ actionId: "a1", text: "I look around." }],
     npcTurn: null,
     presentNpcIds: [],
     activeEncounterId: null,
@@ -487,13 +489,13 @@ describe("runTurn post-planning cut (specs/064)", () => {
     await runTurn(ctx, spy.nodes);
     expect(seen).toHaveLength(1);
     const i = seen[0]?.interpret as NodeOutputs["interpret"];
-    expect(i.readings[0]?.steps).toHaveLength(1);
+    expect(stepsOf(i.readings[0])).toHaveLength(1);
     expect(i.readings[0]?.followUps).toEqual(["persuasion check"]);
     const d = seen[0]?.director as NodeOutputs["director"];
     expect(d.tableMode).toEqual({ to: "stay" });
     expect(d.trackers).toEqual([]);
     expect(saved.at(-1)?.cut).toBe(true);
-    expect(saved.at(-1)?.interpret?.readings[0]?.steps).toHaveLength(1);
+    expect(stepsOf(saved.at(-1)?.interpret?.readings[0])).toHaveLength(1);
   });
 
   it("asks before an undeclared method and holds the turn (spec 077)", async () => {
@@ -531,7 +533,7 @@ describe("runTurn post-planning cut (specs/064)", () => {
     });
     await runTurn(ctx, spy.nodes);
     const i = seen[0]?.interpret as NodeOutputs["interpret"];
-    expect(i.readings[0]?.steps).toEqual([]);
+    expect(stepsOf(i.readings[0])).toEqual([]);
     expect(i.readings[0]?.clarify).toMatch(/unseen/);
     const d = seen[0]?.director as NodeOutputs["director"];
     expect(d.overrides.some((o) => o.reason === CLARIFY_HELD)).toBe(true);

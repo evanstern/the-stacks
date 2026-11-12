@@ -40,17 +40,9 @@
           "readings": [
             {
               "actionId": "act-advance",
-              "intent": "move",
-              "uncertain": false,
-              "needsAdjudication": false,
-              "rulesQuestion": null,
+              "stages": [],
               "clarify": null,
-              "steps": [
-                {
-                  "step": "none",
-                  "reason": "Moving along the posts needs no roll."
-                }
-              ]
+              "followUps": []
             }
           ]
         }
@@ -99,45 +91,60 @@
           "readings": [
             {
               "actionId": "act-free-pell",
-              "intent": "check",
-              "uncertain": true,
-              "needsAdjudication": false,
-              "rulesQuestion": null,
-              "clarify": null,
-              "steps": [
+              "stages": [
                 {
-                  "step": "check",
-                  "reason": "Tamsin works the rope at Pell's wrists loose",
-                  "combatantId": "tamsin",
-                  "kind": "ability-check",
-                  "ability": "dex",
-                  "skill": "sleight-of-hand",
-                  "difficulty": "medium",
-                  "circumstance": null,
-                  "autoFail": null,
-                  "onSuccess": [
-                    {
-                      "effect": "condition",
-                      "op": "remove",
-                      "targetId": "pell",
-                      "condition": "restrained",
-                      "source": "cut free"
+                  "intent": {
+                    "kind": "check",
+                    "targets": [
+                      {
+                        "kind": "actor",
+                        "id": "pell"
+                      }
+                    ],
+                    "params": {
+                      "skill": "sleight-of-hand"
                     }
-                  ],
-                  "onFailure": [],
-                  "stakes": {
-                    "success": "The attempt works as intended.",
-                    "cost": "It works, but at a small price.",
-                    "failure": "The attempt comes to nothing.",
-                    "severe": "It goes badly wrong."
                   },
-                  "onCost": [],
-                  "onSevere": [],
-                  "newRisk": null
+                  "beside": {
+                    "stakes": {
+                      "success": "The attempt works as intended.",
+                      "cost": "It works, but at a small price.",
+                      "failure": "The attempt comes to nothing.",
+                      "severe": "It goes badly wrong."
+                    },
+                    "onSuccess": [
+                      {
+                        "effect": "condition",
+                        "op": "remove",
+                        "targetId": "pell",
+                        "condition": "restrained",
+                        "source": "cut free"
+                      }
+                    ],
+                    "onFailure": [],
+                    "onCost": [],
+                    "onSevere": [],
+                    "newRisk": null,
+                    "reveals": null,
+                    "autoFail": null
+                  }
                 }
-              ]
+              ],
+              "clarify": null,
+              "followUps": []
             }
           ]
+        }
+      }
+    },
+    {
+      "purpose": "dm.adjudicate",
+      "note": "a ruling on the check's difficulty",
+      "respond": {
+        "type": "json",
+        "value": {
+          "decision": "accept",
+          "difficulty": "medium"
         }
       }
     },

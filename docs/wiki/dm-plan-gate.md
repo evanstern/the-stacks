@@ -1,11 +1,11 @@
 ---
 name: dm-plan-gate
-description: The DM plan gate (dm/gates/plan-gate.ts, TASK-0112, TASK-0161, TASK-0244) - the id and text checks run before resolve, the held party action, the askUndeclared clarify rules, and the help, opposition and spell gates. Read before touching checkPlan, askUndeclared, or refusal codes raised at the plan stage.
+description: The DM plan gate (dm/gates/plan-gate.ts, TASK-0112, TASK-0161, TASK-0244, TASK-0269: Intent readings skip the step checks) - the id and text checks run before resolve, the held party action, the askUndeclared clarify rules, and the help, opposition and spell gates. Read before touching checkPlan, askUndeclared, or refusal codes raised at the plan stage.
 kind: component
 sources:
   - apps/server/src/dm/gates/plan-gate.ts
   - apps/server/src/dm/pipeline/runner.ts
-verified_against: 7a36c9e9e90450f473fc5e54a082d0ce7c083727
+verified_against: 17849584ad75728e4df27bee4a34d3e35cb86229
 ---
 
 # DM plan gate
@@ -17,4 +17,6 @@ Since TASK-0110 a gate-refused action resolves before a Director stage change (e
 **Help and opposition** (spec 084, TASK-0128). A `help` step is a foreign actor if its `helperId` is not the action's own (`STEP_ACTOR_MISMATCH`), and `askUndeclared` reads `helperId` for the other-player question. The gate reads a `help` step's `helperId`, `allyId` or `targetId`, and an opposed check's `opposedBy`, as ids that must exist. An opposed check whose opponent lacks the stat for its rule, or an ability-check `help` whose helper has no `stats`, is refused `STAT_UNDEFINED`; a joining combatant is skipped. `NOT_PROFICIENT` is raised only by the engine at resolve ([[dnd5e-engine]]).
 **Spell rule** (spec 083, `spellGap`). A `spell` step is strict (SRD id, slot level, no numbers). The gate refuses `SPELL_UNKNOWN` (no SRD record), `SPELL_NOT_PREPARED` (not on the caster's seed list), `SPELL_UNRESOLVED` (not in the engine table, or wrong slot level), `STAT_UNDEFINED` (no spellcasting modifier or target save), and an intent `spell` reading with no spell step. Another member's spell is `STEP_ACTOR_MISMATCH`.
 
-The deterministic planner ([[planner]], TASK-0267) ports the id, able-actor, stat and spell checks of this gate onto Intents (`UNKNOWN_COMBATANT`, `ACTOR_UNABLE`, `STAT_UNDEFINED`, `SPELL_UNKNOWN`, `SPELL_NOT_PREPARED`, `SPELL_UNRESOLVED`). This gate and `resolve.ts` are unchanged until TASK-0269.
+The deterministic planner ([[planner]], TASK-0267) ports the id, able-actor, stat and spell checks of this gate onto Intents (`UNKNOWN_COMBATANT`, `ACTOR_UNABLE`, `STAT_UNDEFINED`, `SPELL_UNKNOWN`, `SPELL_NOT_PREPARED`, `SPELL_UNRESOLVED`).
+
+**Intent readings** (spec 104, TASK-0269). `PlanInput.readings` is `AnyInterpretReading[]`. An Intent reading (`hasStages`) contributes no steps: `checkPlan` gives it an empty group and the planner and the proposal gate own the legality of its stages, so none of the id, stat, spell, help or opposition checks above run on it. Two gate rules still hold for a staged action. First, the turn hold: `PlanInput.declarers` maps the action id to the declarer's combatant id, and `heldFor` takes that id as the named actor (`stageActors`, at most one id, since every stage of an item shares the declarer) where a step reading names its steps' actors. Second, `askUndeclared` applies the manner rule to an Intent `check` stage whose skill is Stealth, Deception or Intimidation and whose declaration lacks the cue (an AI companion's check is exempt); the other-player rule cannot fire because code stamps the actor. A clarify reading keeps `stages: []`. The runner skips adjudication for an Intent reading (`needsAdjudication` is read only on a legacy one). The step-reading checks stay for resumed legacy checkpoints; TASK-0312 deletes them.

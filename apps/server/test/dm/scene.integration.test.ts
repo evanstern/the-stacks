@@ -173,24 +173,23 @@ describe.skipIf(!reachable)("the whole scene (database)", () => {
       expect(prose, prose).not.toMatch(/[0-9]/);
     }
 
-    // The ruling carries its verified library citation.
-    const ruling = rows.find(
+    // Spec 104: the social check is ruled by a `ruling` Intent (the adjudicate node's cited
+    // journal entry belongs to the legacy path, which TASK-0312 deletes).
+    const rulings = rows.filter(
       (r) =>
-        r.type === "journal.entry.added" &&
-        payload<{ entryId: string }>(r).entryId.startsWith("ruling-"),
+        r.type === "intent.recorded" &&
+        (r.payload as { answers: string | null }).answers === "act-persuade.0",
     );
-    expect(ruling?.visibility).toBe("dm");
-    const body = payload<{ body: string; sourceActionIds: string[] }>(ruling);
-    expect(body.sourceActionIds).toEqual(["act-persuade"]);
-    expect(body.body).toContain(
-      'Fixture Rules (Social): "making a Charisma check"',
-    );
-    expect(body.body).not.toContain("Improvised");
+    expect(rulings).toHaveLength(1);
 
     // Jobs: every turn succeeded and completed; nothing failed.
     const jobs = await listDmJobs(requireDb(), w.sessionId, 50);
     expect(jobs.filter((j) => j.status === "failed")).toEqual([]);
-    const turns = jobs.filter((j) => j.kind === "turn");
+    const turns = jobs.filter(
+      (j) =>
+        j.kind === "turn" &&
+        (j.input as { trigger?: string }).trigger !== "ruling",
+    );
     expect(turns).toHaveLength(8);
     expect(jobs.filter((j) => j.kind === "companion")).toHaveLength(2);
 

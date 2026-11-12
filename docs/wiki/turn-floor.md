@@ -19,7 +19,7 @@ sources:
   - apps/web/app/play/local-log.ts
   - apps/web/app/play/components/floor-controls.tsx
   - apps/web/app/play/components/turn-order.tsx
-verified_against: 7a36c9e9e90450f473fc5e54a082d0ce7c083727
+verified_against: 17849584ad75728e4df27bee4a34d3e35cb86229
 ---
 
 # Turn floor
@@ -40,7 +40,7 @@ Shape: `{ op: "end" | "take" | "return", turn: { round, combatantId }, reason }`
 
 ## Resolve's "turn moved" guard
 
-Before the closing `turn.advance`, resolve skips the advance, the settle and the mode row when the engine's turn differs from the turn at assemble (a floor batch moved it and wrote its own mode row) or the seated human DM holds the floor. A human's clarify also skips the advance while its question awaits an answer, so the floor stays with the active actor (specs/073; an AI actor's clarify still advances). A reclaim whose checkpoint holds `advance` still replays the group ([[dm-runtime]]). Spec 099: the advance also does not run once the closing group ended the encounter ("No foe still stands."), because `local.encounterActive` is false.
+Before the closing `turn.advance`, resolve skips the advance, the settle and the mode row when the engine's turn differs from the turn at assemble (a floor batch moved it and wrote its own mode row) or the seated human DM holds the floor. A human's clarify also skips the advance while its question awaits an answer, so the floor stays with the active actor (specs/073; an AI actor's clarify still advances). A reclaim whose checkpoint holds `advance` still replays the group ([[dm-runtime]]). For an Intent reading the held-turn check names the declarer's combatant (`PlanInput.declarers`, `stageActors`) where a step reading names its steps' actors ([[dm-plan-gate]], spec 104). Spec 099: the advance also does not run once the closing group ended the encounter ("No foe still stands."), because `local.encounterActive` is false.
 
 ## The `floor` job
 

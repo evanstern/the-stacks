@@ -35,3 +35,22 @@ export async function loadProjections(
   }
   return project(stored, viewer);
 }
+
+/**
+ * Spec 104 FR-019: log rows of `types` in `(afterSeq, throughSeq]`, seq ascending, every
+ * visibility. `NodeDeps.loadEvents` wires to this; `dm/` imports no event-log module.
+ */
+export async function loadEventWindow(
+  db: DbClient,
+  sessionId: string,
+  w: { afterSeq: number; throughSeq: number; types: readonly string[] },
+): Promise<StoredEvent[]> {
+  const rows = await readFrom(db, {
+    sessionId,
+    afterSeq: w.afterSeq,
+    throughSeq: w.throughSeq,
+    types: w.types,
+    limit: 10_000, // ponytail: one beat's carrier rows; page when a window can pass 10k
+  });
+  return rows.map(toStoredEvent);
+}

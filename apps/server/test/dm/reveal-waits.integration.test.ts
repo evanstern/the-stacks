@@ -41,7 +41,8 @@ const chronicle = {
   respond: { type: "json", value: { entries: [] } },
 };
 
-type Json = Record<string, any>; // biome-ignore lint/suspicious/noExplicitAny: script JSON
+// biome-ignore lint/suspicious/noExplicitAny: script JSON
+type Json = Record<string, any>;
 
 async function run(opts: {
   die: number;
@@ -54,17 +55,17 @@ async function run(opts: {
   const calls = structuredClone(s.calls) as { respond: { value: Json } }[];
   if (opts.stakes) {
     Object.assign(
-      calls[1].respond.value.readings[0].steps[0].stakes,
+      calls[1].respond.value.readings[0].stages[0].beside.stakes,
       opts.stakes,
     );
   }
   if (opts.unconditional) {
     for (const k of ["success", "cost", "failure", "severe"]) {
-      calls[1].respond.value.readings[0].steps[0].stakes[k] =
+      calls[1].respond.value.readings[0].stages[0].beside.stakes[k] =
         "Nothing of note.";
     }
   }
-  if (opts.narration) calls[2].respond.value = opts.narration as never;
+  if (opts.narration) calls[3].respond.value = opts.narration as never;
   const logs: Record<string, unknown>[] = [];
   const w = await createWorld({
     dice: [opts.die],

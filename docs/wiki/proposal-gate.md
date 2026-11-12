@@ -19,7 +19,7 @@ sources:
   - apps/server/test/write-boundary.test.ts
   - apps/server/test/helpers/import-graph.ts
 size_budget_exempt: spec 102 adds the intent kind paragraph to the one proposal-gate note; it does not split without a TASK of its own
-verified_against: bfb65a157559c88bf988a6c0f55b7c03824ff412
+verified_against: 17849584ad75728e4df27bee4a34d3e35cb86229
 ---
 
 # Proposal gate
@@ -40,7 +40,7 @@ supervision requests: `proposal.approve`, `proposal.reject`, `dm.seat`, `gate.po
 `GATE_REQUEST_KINDS`; sent over `send`, see [[websocket-gateway]]).
 A `Proposer` is a human (`userId`, role `operator` or `player`) or an AI (`ai:dm`, `ai:companion:<id>`).
 
-The `intent` kind (spec 102, ruling C-GATE) carries one `Intent` ([[intent-contract]]); policy `ask`; `checkPermission` passes it and `planIntent` (`gate/intents.ts`) decides seat, actor and turn, then plans through the planner ([[planner]]) into an `intent.recorded` carrier row plus engine rows. `rows.ts` holds `PlannedRow`, `PlanResult`, `mechanicsRows` and `refuse`; `plan.ts` re-exports them. New refusal codes: `NOT_YOUR_ACTOR`, `DM_SEAT_REQUIRED`, `NOT_YOUR_TURN`. `action.declare` plans through `declareIntent` (`gate/declare.ts`), same rows as before. Server side, `GateDeps.plannerInputs` (seed-derived `PlannerInputs`) rides `PlanContext.planner`. Under a human seat a `needs_ruling` carrier also writes a `proposal.created` row (`ruledRows`); approve or reject of that proposal plans a `ruling` Intent from the DM instead of replaying the proposal (`decideRuling`; a `difficulty` ask is not approvable). Under an AI seat the ruling turn answers it ([[dm-turn-jobs]]).
+Spec 104 (C-GATE ruling "Relax the gate (a)"): `action.resolve` also accepts a batch named by an `intent.recorded` row whose Intent id is `<actionId>.<n>` (`IntentView.batchIds`), because an Intent's engine rows carry `actionId: null`; the contract table in `specs/029-proposal-gate/contracts/gate-api.md` is amended. The `intent` kind (spec 102, ruling C-GATE) carries one `Intent` ([[intent-contract]]); policy `ask`; `checkPermission` passes it and `planIntent` (`gate/intents.ts`) decides seat, actor and turn, then plans through the planner ([[planner]]) into an `intent.recorded` carrier row plus engine rows. `rows.ts` holds `PlannedRow`, `PlanResult`, `mechanicsRows` and `refuse`; `plan.ts` re-exports them. New refusal codes: `NOT_YOUR_ACTOR`, `DM_SEAT_REQUIRED`, `NOT_YOUR_TURN`. `action.declare` plans through `declareIntent` (`gate/declare.ts`), same rows as before. Server side, `GateDeps.plannerInputs` (seed-derived `PlannerInputs`) rides `PlanContext.planner`. Under a human seat a `needs_ruling` carrier also writes a `proposal.created` row (`ruledRows`); approve or reject of that proposal plans a `ruling` Intent from the DM instead of replaying the proposal (`decideRuling`; a `difficulty` ask is not approvable). Under an AI seat the ruling turn answers it ([[dm-turn-jobs]]).
 
 ## Permission, policy, seat
 

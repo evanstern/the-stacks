@@ -31,7 +31,7 @@ sources:
   - apps/server/vitest.config.ts
   - tsconfig.json
 size_budget_exempt: spec 102 adds the server tsconfig reference to packages/intent in the one test-suite note; the suite map does not split without a TASK of its own
-verified_against: 7a36c9e9e90450f473fc5e54a082d0ce7c083727
+verified_against: 17849584ad75728e4df27bee4a34d3e35cb86229
 ---
 
 # Test suite
@@ -45,11 +45,11 @@ load benches, loud-skip-or-throw like this note's three below): see [[benchmarks
 the load bench's tests are always skipped.
 TASK-0048 added `test/playtest/` ([[playtest-harness]]): unit files, three database-gated, one the CI playtest ([[m2-demo]]).
 TASK-0045 added gate suites at the same level: `gate.integration.test.ts` (incl. the absent-declare refusal and the presence-plus-order batch) and
-`gate.restart.integration.test.ts` (database-gated; approvals, restart) and `write-boundary.test.ts` (no database; AC #1 import-graph check, plus only `resolve.ts` builds `scene-presence` and only `dm/floor.ts` builds `floor` proposals, [[turn-floor]]). It extended `events.integration.test.ts` (`expectedLastSeq`,
+`gate.restart.integration.test.ts` (database-gated; approvals, restart) and `write-boundary.test.ts` (no database; AC #1 import-graph check, plus only `resolve.ts` and `intent-runner.ts` (spec 104) build `scene-presence` and only `dm/floor.ts` builds `floor` proposals, [[turn-floor]]). It extended `events.integration.test.ts` (`expectedLastSeq`,
 `SeqConflictError`, `readLatestOfType`), `ws.integration.test.ts` (per-viewer delivery, the
 send-path classification, `UNKNOWN_EVENT_TYPE`, error `code`; `sendTalkAndAwait` no longer resends on `CONFLICT`) and `ws.subscribe.test.ts` (the DM-seat subscribe race).
 TASK-0157 added a retry-wait test and a "per-session ordering" suite (burst fan-out, `recordPresence`, isolation) to `gate.integration.test.ts`, an all-in-flight burst to `ws.integration.test.ts`, and a `CONFLICT` label case to `apps/web/test/play/reduce-frame.test.mjs`.
-TASK-0046 added `apps/server/test/dm/` (unit tests and `skipIf(!reachable)` integration suites over a scripted `FakeProvider`; see [[dm-runtime]]).
+Spec 104 migrated the scripted turn tests and `test/dm/scripts/*.json` to Intent stages and added `intent-runner.integration.test.ts`, `interpret-intents.test.ts` and `narrate-window.test.ts`; `scene.integration.test.ts` now expects the social check ruled by a `ruling` Intent (an `intent.recorded` row answering `act-persuade.0`), not a `ruling-` journal entry. TASK-0046 added `apps/server/test/dm/` (unit tests and `skipIf(!reachable)` integration suites over a scripted `FakeProvider`; see [[dm-runtime]]).
 It also extended `ai.gateway`-level fake scripting (`scriptChatFor`, `strict`; [[ai-gateway]]).
 Their counts are not in the totals below.
 Of these 12, three are integration suites that require a reachable Postgres —
@@ -107,7 +107,7 @@ floor (TASK-0154). The default stays 5 s. The load is turbo running every packag
 
 **`test/` is now its own typechecked project reference.** `apps/server/test/tsconfig.json`
 (`extends` the shared base, `noEmit: true`, `include: ["."]`, `references` `apps/server`,
-`packages/shared`, `packages/dnd5e-engine` and `packages/session-model`; the server project also references `packages/intent`) is an entry in root `tsconfig.json`'s `references` array,
+`packages/shared`, `packages/dnd5e-engine` and `packages/session-model`; the server project also references `packages/intent` and, since spec 104, `packages/planner`) is an entry in root `tsconfig.json`'s `references` array,
 alongside `packages/shared`, `packages/dnd5e-engine` (and its own `test` project, see
 [[dnd5e-engine]]), `packages/session-model` (and its `test` project, see [[session-model]]), `packages/srd` (and its `test` project, see [[srd-data]]), `apps/server`, `apps/web`. `pnpm typecheck` (`tsc -b` at the
 root) now builds this reference too, so a type error introduced only in a test fails

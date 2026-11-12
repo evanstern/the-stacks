@@ -1,7 +1,7 @@
 import { estimateTokens } from "@the-stacks/srd";
 import type { RetrievedPassage } from "../../library/retrieve.js";
 import type { AssembleOutput } from "../nodes/assemble.js";
-import type { InterpretReading } from "../nodes/schemas.js";
+import type { LegacyInterpretReading } from "../nodes/schemas.js";
 import type { SceneSeed } from "../seed/schema.js";
 import {
   CAPS,
@@ -37,7 +37,7 @@ export function selectPassages(
 export function buildAdjudicatePrompt(input: {
   seed: SceneSeed;
   assembled: AssembleOutput;
-  reading: InterpretReading;
+  reading: LegacyInterpretReading;
   actionText: string;
   passages: RetrievedPassage[];
 }): { system: string; user: string; passages: RetrievedPassage[] } {

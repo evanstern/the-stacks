@@ -59,7 +59,12 @@ describe.skipIf(!reachable)("one full turn (database)", () => {
 
     // The job record: one turn job, succeeded, completed.
     const all = (await listDmJobs(requireDb(), w.sessionId, 20)).reverse();
-    const turns = all.filter((j) => j.kind === "turn");
+    // An AI-seat ruling request also queues a `ruling` turn (spec 102); it finds nothing open.
+    const turns = all.filter(
+      (j) =>
+        j.kind === "turn" &&
+        (j.input as { trigger?: string }).trigger !== "ruling",
+    );
     expect(turns.map((j) => j.error ?? j.status)).toEqual(["succeeded"]);
     const turn = turns[0];
     const result = turn?.result as {
@@ -87,7 +92,11 @@ describe.skipIf(!reachable)("one full turn (database)", () => {
     // each matching its stored call entry, with usage recorded.
     const ledger = (
       await listModelCalls(requireDb(), w.sessionId, { after: 0, limit: 100 })
-    ).rows.filter((r) => r.jobId === turn?.id);
+    ).rows
+      // The in-job ruling call (answerRulings) lands in the ledger, not in the node call list.
+      .filter(
+        (r) => r.jobId === turn?.id && r.purpose !== PURPOSE_OF.adjudicate,
+      );
     expect(ledger).toHaveLength(result.calls.length);
     const stored = result.calls as unknown as {
       purpose: string;
@@ -125,11 +134,10 @@ describe.skipIf(!reachable)("one full turn (database)", () => {
 
     // The ledger rows the turn wrote carry the job's marker; the roll is the scripted one.
     const p = await w.projections();
-    const mine = p.ledger.filter((r) => r.reason.includes(`[${turn?.id}#`));
-    expect(mine.length).toBeGreaterThan(0);
-    const rolls = p.ledger.filter(
-      (r) => r.kind === "roll" && r.reason.includes(`[${turn?.id}#`),
-    );
+    // Spec 104: the planner's rows carry the Intent's reason, not the job marker; the one
+    // roll in the ledger is the scripted one.
+    expect(p.ledger.length).toBeGreaterThan(0);
+    const rolls = p.ledger.filter((r) => r.kind === "roll");
     expect(rolls).toHaveLength(1);
 
     // The narration's dice line is the renderer's output, appended by code.
@@ -181,7 +189,7 @@ describe.skipIf(!reachable)("one full turn (database)", () => {
             jobId: turn?.id,
             nodes: result.calls.map((c) => c.purpose),
             rollCount: rolls.length,
-            ledger: mine,
+            ledger: p.ledger.length,
             narration: text,
             check: result.check,
           },

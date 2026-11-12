@@ -14,7 +14,7 @@ sources:
   - apps/server/src/dm/prompts/step-grammar.ts
   - apps/server/src/dm/seed/schema.ts
   - specs/033-director-robustness/contracts/rules-terms.md
-verified_against: 7a36c9e9e90450f473fc5e54a082d0ce7c083727
+verified_against: 17849584ad75728e4df27bee4a34d3e35cb86229
 ---
 
 # DM failure record and rules-term gates
@@ -26,7 +26,7 @@ A `floor` job (spec 049) is code only and has no `TurnFailureResult`: a gate ref
 
 The Director legality override reasons include, since spec 099, "no foe of the encounter can fight" for a `turn` decision on an ended encounter with no eligible monster ([[dm-runtime]]). A failed `talk` turn (TASK-0180) writes the same record with `node` `narrate` (a `react` call or a fence loss) or `resolve` (an escalation's opening move). A `talk` turn that ends `none` or refused twice is not a failure: it finishes as `empty-beat` with `jobs.result.talk` ([[dm-turn-jobs]]).
 
-A failed ruling call (spec 102) logs `dm.ruling.call-failed`, leaves the request open and never fails the turn.
+A failed ruling call (spec 102) logs `dm.ruling.call-failed`, leaves the request open and never fails the turn. A failed `narrate` or `check` stores `factsThrough` (the current `throughSeq`) in the failure's checkpoint, so the next beat's narrate window does not render the same `why` rows again (spec 104 FR-018, [[dm-runtime]]). An interpret stage that is not a valid Intent after stamping fails the turn `invalid-output` with `detail` `{ actionId, stage, path }`.
 
 When a turn fails, the worker writes `jobs.result` as a `TurnFailureResult` (`dm/jobs.ts`):
 the last checkpoint, `outcome: { status: "failed" }`, `check: null`, every model call made (each with provider, model, token, cost and duration fields since TASK-0116), and
@@ -47,10 +47,10 @@ interpret and adjudicate schemas accept only closed lists derived from engine en
 `ConditionKeySchema`, `SkillSchema` (`nodes/schemas.ts`, derived from the engine's
 `condition.apply` and `check.roll` commands, thrown at load if not an enum), `AbilitySchema`
 and `DamageTypeSchema` ([[dnd5e-engine]]). The `presence` effect (`{effect, targetId, reason}`, strict, no `after` field) adds `PresenceReasonSchema` (`arrived`, `left`, `fled`, `removed`, `surrendered`, `conceded`; [[session-model]]) as a closed term; `step-grammar.ts` renders it too. The seed schema adds a required per-beat `presence` map and NPC `aliases` ([[seed-npc-presence]]). `prompts/step-grammar.ts` renders the same lists
-into the interpret and adjudicate prompts (`dm.interpret-v16`, `dm.adjudicate-v10`; v15 adds the "Arriving this beat" section, spec 088; v5 adds `followUps`, TASK-0182; v6 adds the agency rule, TASK-0113; v7 adds the `move` step, TASK-0208; v13 and v10 add the `help` step and the opposition `difficulty`, spec 084;v10 say), so no list is
-hand-typed; it is split from `prompts/common.ts` because narrate must import no engine value.
+into the interpret and adjudicate prompts (`dm.adjudicate-v10` and, for interpret, a `dm.interpret-v17` that no longer uses `step-grammar.ts`: its `INTENT_GRAMMAR` in `prompts/interpret.ts` lists the Intent kinds and renders the effect, condition, presence-reason, skill and damage-type lists; the step grammar renders only the adjudicate prompt; before v17: `dm.interpret-v16`; v15 adds the "Arriving this beat" section, spec 088; v5 adds `followUps`, TASK-0182; v6 adds the agency rule, TASK-0113; v7 adds the `move` step, TASK-0208; v13 and v10 add the `help` step and the opposition `difficulty`, spec 084;v10 say), so no list is
+hand-typed; the interpret body schema is derived the same way from the Intent contract (`IntentBodySchema` in `nodes/schemas.ts`: `INTERPRET_KINDS`, each kind's `KIND_RULES` target bounds and `paramsSchemaOf` with the `dc` key removed, CR-004). The stamped Intent re-runs the full `IntentSchema`. It is split from `prompts/common.ts` because narrate must import no engine value.
 The scene seed's character `skills` keys and clue `check.skill` use the same `SkillSchema`.
-A gate never maps, coerces or drops a term to pass output. The rules-terms contract
+A gate never maps, coerces or drops a term to pass output. The `beside` block is a strict object, and an ability-check stage needs `stakes.cost` and `stakes.severe` (a `superRefine` on the stage; a save may set them null). The rules-terms contract
 (`specs/033-director-robustness/contracts/rules-terms.md`) records spells as the term **not gated yet**; since spec 083 (TASK-0105) they are gated. Since TASK-0104 schemas refuse `expression`, `dc`, `targetAc` and `onHit` damage; the plan gate adds `STAT_UNDEFINED`.
 
 Spec 100: `SceneSeedSchema` gained an optional `space` and zone fields, checked in `crossCheckSeed`; a bad zone is a `SeedError` at load, not a turn failure ([[seed-npc-presence]]).

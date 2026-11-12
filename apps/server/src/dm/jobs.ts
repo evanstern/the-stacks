@@ -25,7 +25,7 @@ import type { AdjudicateOutput } from "./nodes/adjudicate.js";
 import type { CheckRecord } from "./nodes/check.js";
 import type { DirectorNodeOutput } from "./nodes/director.js";
 import type { Submission } from "./nodes/resolve.js";
-import type { InterpretOutput, ReactOutput } from "./nodes/schemas.js";
+import type { InterpretResult, ReactOutput } from "./nodes/schemas.js";
 import type {
   ModelCallRecord,
   NodeErrorKind,
@@ -186,8 +186,13 @@ export interface TurnCheckpoint {
   resumed?: ResumedPlan[] | null;
   npcTurn: { combatantId: string } | null;
   director: DirectorNodeOutput | null;
-  interpret: InterpretOutput | null;
+  interpret: InterpretResult | null;
   adjudicate: AdjudicateOutput | null;
+  /**
+   * Spec 104 FR-018: the `throughSeq` of the projections the last completed narrate read. The
+   * next beat's narrate window starts after it. Absent on rows stored before TASK-0269.
+   */
+  factsThrough?: number;
   /** True once the first-stage cut ran for this turn (specs/064). */
   cut?: boolean;
   /** The talk turn's react output, reused on a reclaim (specs/065 D3). */

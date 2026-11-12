@@ -1,4 +1,5 @@
 import { scriptedRng } from "@the-stacks/dnd5e-engine";
+import { IntentSchema } from "@the-stacks/intent";
 import { describe, expect, it } from "vitest";
 import {
   catalogEntry,
@@ -596,6 +597,73 @@ describe("planProposal refusals (AC #8)", () => {
       }),
     );
     expect(result).toMatchObject({
+      ok: false,
+      refusal: { code: "UNKNOWN_BATCH" },
+    });
+  });
+});
+
+describe("action.resolve naming an Intent stage batch (spec 104 C-GATE)", () => {
+  const carrier = (id: string, batchId: string | null) => ({
+    type: "intent.recorded" as const,
+    payload: {
+      intent: IntentSchema.parse({
+        id,
+        actor: { kind: "pc", id: "ana" },
+        source: "composer",
+        commit: "confirmed",
+        kind: "attempt",
+        text: "I climb.",
+      }),
+      schemaVersion: 1,
+      outcome: "settled",
+      batchId,
+      facts: [],
+      request: null,
+      answers: null,
+      stopped: null,
+    },
+    opts: { actor: "ai:dm" },
+  });
+  const resolve = (intentId: string, batchId: string, batchNamed = "b-int") => {
+    const q = dmFold({
+      extra: [
+        {
+          type: "action.committed",
+          payload: { actionId: "act-ana", authority: "declarer" },
+          opts: { actor: PLAYER_A },
+        },
+        carrier(intentId, batchNamed),
+      ],
+    });
+    return plan(
+      q,
+      aiDm,
+      parse({
+        kind: "action.resolve",
+        resolution: {
+          actionId: "act-ana",
+          outcome: "applied",
+          batchIds: [batchId],
+          refusalCode: null,
+        },
+      }),
+    );
+  };
+
+  it("an Intent stage batch of this action resolves", () => {
+    expect(okRows(resolve("act-ana.1", "b-int"))[0]?.type).toBe(
+      "action.resolved",
+    );
+  });
+  it("a batch from another action's Intent is UNKNOWN_BATCH", () => {
+    expect(resolve("act-bram.1", "b-int")).toMatchObject({
+      ok: false,
+      refusal: { code: "UNKNOWN_BATCH" },
+    });
+  });
+  it("a bare unknown batch is UNKNOWN_BATCH", () => {
+    expect(resolve("act-ana.1", "b-nope")).toMatchObject({
       ok: false,
       refusal: { code: "UNKNOWN_BATCH" },
     });

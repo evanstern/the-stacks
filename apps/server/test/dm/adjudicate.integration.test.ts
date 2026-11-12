@@ -5,7 +5,7 @@ import { memorySink } from "../../src/ai/usage.js";
 import { createDb, probeReachable } from "../../src/db.js";
 import { adjudicate } from "../../src/dm/nodes/adjudicate.js";
 import { assemble } from "../../src/dm/nodes/assemble.js";
-import type { InterpretOutput } from "../../src/dm/nodes/schemas.js";
+import type { LegacyInterpretReading } from "../../src/dm/nodes/schemas.js";
 import { createScriptedDm, loadDmScript } from "../../src/dm/script/load.js";
 import type { Block, ParsedBook } from "../../src/library/ddb/index.js";
 import { retrieve } from "../../src/library/retrieve.js";
@@ -144,7 +144,8 @@ async function setup(opts: { citations: unknown[]; readings: number }) {
   });
   const assembled = await assemble(ctx0);
   if (!assembled.ok) throw new Error("assemble failed");
-  const readings: InterpretOutput["readings"] = Array.from(
+  // The adjudicate node and its needsAdjudication readings are the legacy path (TASK-0312 deletes them).
+  const readings: LegacyInterpretReading[] = Array.from(
     { length: opts.readings },
     (_, i) => ({
       actionId: i === 0 ? "act-lockpick" : null,

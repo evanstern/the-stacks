@@ -1,4 +1,7 @@
-import type { SessionProjections } from "@the-stacks/session-model";
+import type {
+  SessionProjections,
+  StoredEvent,
+} from "@the-stacks/session-model";
 import type { SrdKind, SrdRecord } from "@the-stacks/srd";
 import type { Gateway } from "../../ai/gateway.js";
 import type { ErrorKind } from "../../ai/types.js";
@@ -11,7 +14,7 @@ import type { CheckOutput } from "../nodes/check.js";
 import type { DirectorNodeOutput } from "../nodes/director.js";
 import type { NarrateOutput } from "../nodes/narrate.js";
 import type { ResolveOutput } from "../nodes/resolve.js";
-import type { InterpretOutput } from "../nodes/schemas.js";
+import type { InterpretResult } from "../nodes/schemas.js";
 import type { DmPurpose } from "../purposes.js";
 import type { PriorTurn } from "../resume.js";
 import type { SceneSeed } from "../seed/schema.js";
@@ -70,6 +73,14 @@ export interface NodeDeps {
   }) => Promise<RetrievalResult>;
   /** The DM view of the session. */
   loadProjections: (sessionId: string) => Promise<SessionProjections>;
+  /**
+   * Spec 104 FR-019: log rows of the given types in `(afterSeq, throughSeq]`, seq ascending, every
+   * visibility (the caller filters). Narrate reads carrier rows through it.
+   */
+  loadEvents: (
+    sessionId: string,
+    window: { afterSeq: number; throughSeq: number; types: readonly string[] },
+  ) => Promise<StoredEvent[]>;
   srd: SrdLookup;
   /**
    * Earlier turn checkpoints of the session, newest first, for resume
@@ -97,7 +108,7 @@ export interface NodeDeps {
 export interface NodeOutputs {
   assemble: AssembleOutput;
   director: DirectorNodeOutput;
-  interpret: InterpretOutput;
+  interpret: InterpretResult;
   adjudicate: AdjudicateOutput;
   resolve: ResolveOutput;
   narrate: NarrateOutput;

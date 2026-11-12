@@ -18,7 +18,7 @@ sources:
   - packages/planner/src/outcome.ts
   - packages/planner/test/purity.test.ts
   - specs/097-planner/contracts/planner.md
-verified_against: 4f0383cb9c20dfb8dbcbb561ed416616d5fbaae9
+verified_against: 17849584ad75728e4df27bee4a34d3e35cb86229
 ---
 
 # Planner
@@ -53,4 +53,4 @@ An `ai:dm` actor is refused `DM_SEAT_REQUIRED` for `apply_damage`, `apply_condit
 
 ## Boundary
 
-Seat, turn, policy and held-companion checks stay in the gate. `resolve.ts` and the plan gate are unchanged until TASK-0269 ([[dm-plan-gate]]). Spell range is unchecked (OQ-9, TASK-0227). Unarmed strikes refuse `STAT_UNDEFINED` until TASK-0223 derives the entry (OQ-12).
+Seat, turn, policy and held-companion checks stay in the gate. The server calls the planner only through the gate (`gate/intents.ts`), never from `dm/`; the DM runtime's interpret node emits Intent stages and its Intent runner submits them ([[dm-runtime]], spec 104, TASK-0269), and the plan gate skips an Intent reading ([[dm-plan-gate]]). Under spec 104 the planner reads space for the attack range (an `OUT_OF_RANGE` stops the shot, so no attack row follows a pull-in), seed NPCs that have not yet arrived are targetable through `PlannerInputs.npcIds` and pulled in, and a no-DC check under the AI seat is a `needs_ruling` that queues a ruling turn ([[dm-turn-jobs]]). Spell range is unchecked (OQ-9, TASK-0227). Unarmed strikes refuse `STAT_UNDEFINED` until TASK-0223 derives the entry (OQ-12).

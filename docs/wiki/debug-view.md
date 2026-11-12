@@ -38,7 +38,7 @@ sources:
   - apps/web/app/debug/waiting.ts
   - apps/web/app/routes/play-debug.tsx
 size_budget_exempt: TASK-0272 renames the narrate-audit section to narrate-check in the one debug-page note; the note sat 126 chars over the budget with that line and its routes, columns and slide-outs are one page that does not split without a TASK of its own
-verified_against: 7a36c9e9e90450f473fc5e54a082d0ce7c083727
+verified_against: 17849584ad75728e4df27bee4a34d3e35cb86229
 ---
 
 # Debug view API
@@ -77,7 +77,7 @@ stays as it was.
 
 ## Linking a job to its events
 
-A job wrote seq `s` when `s` is in a `seqs` list of its result: `checkpoint.submissions[].seqs`,
+A turn checkpoint also carries `factsThrough` (spec 104: the `throughSeq` its narrate read; absent on older rows, [[dm-runtime]]) and an interpret result whose readings hold `stages` instead of `steps`; the page shows the stored JSON as is. A job wrote seq `s` when `s` is in a `seqs` list of its result: `checkpoint.submissions[].seqs`,
 `checkpoint.narration.seqs`, `plays[].submissions[].seqs`, or a chronicle's `seqs`
 ([[dm-turn-jobs]]). Three edges: a checkpoint stored before TASK-0116 has no narration `seqs`
 (unknown, not absent); a submission recovered after a reclaim carries `seqs: []`; a fenced or

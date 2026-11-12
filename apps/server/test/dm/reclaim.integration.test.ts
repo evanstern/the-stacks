@@ -51,6 +51,12 @@ function normalized(rows: Awaited<ReturnType<typeof readRows>>): string[] {
     );
 }
 
+/** The beat's turn jobs; an AI-seat `ruling` turn (spec 102) may be queued beside it. */
+const beatTurns = async (sessionId: string) =>
+  (await listDmJobs(requireDb(), sessionId, 5, "turn")).filter(
+    (j) => (j.input as { trigger?: string }).trigger !== "ruling",
+  );
+
 const chronicle = {
   purpose: "dm.chronicle",
   respond: { type: "json", value: { entries: [] } },
@@ -112,13 +118,13 @@ async function runTurn(crashAfter: number | number[] | null) {
   } else {
     await worker.processOne(); // crashes: fenced out, the job stays running
     state.firstClaim = state.count;
-    const [job] = await listDmJobs(requireDb(), w.sessionId, 5, "turn");
+    const [job] = await beatTurns(w.sessionId);
     expect(job?.status).toBe("running");
     expect(job?.attempts).toBe(1);
     for (let i = 1; i < crashes.length; i += 1) {
       await expire();
       await worker.processOne(); // a reclaim that crashes again
-      const [again] = await listDmJobs(requireDb(), w.sessionId, 5, "turn");
+      const [again] = await beatTurns(w.sessionId);
       expect(again?.status).toBe("running");
     }
     await expire();
@@ -148,7 +154,7 @@ describe.skipIf(!reachable)("lease expiry and reclaim (database)", () => {
         base.state.count,
       );
 
-      const turns = await listDmJobs(requireDb(), run.w.sessionId, 5, "turn");
+      const turns = await beatTurns(run.w.sessionId);
       expect(turns).toHaveLength(1);
       expect(turns[0]?.status).toBe("succeeded");
       expect(turns[0]?.attempts).toBe(2);
@@ -174,7 +180,7 @@ describe.skipIf(!reachable)("lease expiry and reclaim (database)", () => {
     expect(run.state.firstClaim).toBe(narrationSubmission);
     expect(run.state.count).toBe(base.state.count);
 
-    const turns = await listDmJobs(requireDb(), run.w.sessionId, 5, "turn");
+    const turns = await beatTurns(run.w.sessionId);
     expect(turns).toHaveLength(1);
     expect(turns[0]?.status).toBe("succeeded");
     expect(turns[0]?.attempts).toBe(2);
@@ -189,25 +195,27 @@ describe.skipIf(!reachable)("lease expiry and reclaim (database)", () => {
   it("a second crash after the tracker lands reclaims to the same log, each step once", async () => {
     const base = await runTurn(null);
     const baseRows = normalized(await readRows(base.w));
-    // Submission 2 is action.resolve (no marker). Submission 3 counts the
-    // reclaim's tracker advance, which lands and then crashes before its checkpoint.
-    const run = await runTurn([2, 3]);
+    // Spec 104: submission 1 declares the Intent, 2 confirms it (the ruling answers in between,
+    // outside the count), 3 is action.resolve (no marker), 4 is the tracker advance, which lands
+    // and then crashes before its checkpoint.
+    const run = await runTurn([3, 4]);
     const rows = await readRows(run.w);
     expect(normalized(rows)).toEqual(baseRows);
     const jobMarkers = rows.flatMap(
       (r) => JSON.stringify(r.payload).match(/\[[0-9a-f-]{36}#\d+\]/g) ?? [],
     );
-    // No two steps of the job share a marker: dice and check rows share #1, the tracker has its own.
+    // The planner's rows carry the Intent's reason, not the job marker; the tracker has its own.
     const byType = rows
       .filter((r) => /#\d+\]/.test(JSON.stringify(r.payload)))
       .filter((r) => r.type === "tracker.changed" || r.type === "dice.rolled")
       .map(
         (r) => `${r.type}:${JSON.stringify(r.payload).match(/#(\d+)\]/)?.[1]}`,
       );
-    expect(byType).toEqual(["dice.rolled:1", "tracker.changed:2"]);
+    expect(byType).toHaveLength(1);
+    expect(byType[0]).toMatch(/^tracker\.changed:/);
     expect(jobMarkers.length).toBeGreaterThan(0);
     expect(rows.filter((r) => r.type === "action.resolved")).toHaveLength(1);
-    const turns = await listDmJobs(requireDb(), run.w.sessionId, 5, "turn");
+    const turns = await beatTurns(run.w.sessionId);
     expect(turns[0]?.status).toBe("succeeded");
     expect(turns[0]?.attempts).toBe(3);
     const left = run.w.scripted.remaining();

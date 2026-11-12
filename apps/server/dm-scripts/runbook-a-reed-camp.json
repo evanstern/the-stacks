@@ -112,17 +112,9 @@
           "readings": [
             {
               "actionId": "act-advance",
-              "intent": "move",
-              "uncertain": false,
-              "needsAdjudication": false,
-              "rulesQuestion": null,
+              "stages": [],
               "clarify": null,
-              "steps": [
-                {
-                  "step": "none",
-                  "reason": "Moving along the posts needs no roll."
-                }
-              ]
+              "followUps": []
             }
           ]
         }
@@ -171,17 +163,9 @@
           "readings": [
             {
               "actionId": null,
-              "intent": "attack",
-              "uncertain": true,
-              "needsAdjudication": false,
-              "rulesQuestion": null,
+              "stages": [],
               "clarify": null,
-              "steps": [
-                {
-                  "step": "none",
-                  "reason": "Snag offers the party a parley, hands open."
-                }
-              ]
+              "followUps": []
             }
           ]
         }
@@ -230,45 +214,55 @@
           "readings": [
             {
               "actionId": "act-free-pell",
-              "intent": "check",
-              "uncertain": true,
-              "needsAdjudication": false,
-              "rulesQuestion": null,
-              "clarify": null,
-              "steps": [
+              "stages": [
                 {
-                  "step": "check",
-                  "reason": "Tamsin works the rope at Pell's wrists loose",
-                  "combatantId": "tamsin",
-                  "kind": "ability-check",
-                  "ability": "dex",
-                  "skill": "sleight-of-hand",
-                  "difficulty": "medium",
-                  "circumstance": null,
-                  "autoFail": null,
-                  "onSuccess": [
-                    {
-                      "effect": "condition",
-                      "op": "remove",
-                      "targetId": "pell",
-                      "condition": "restrained",
-                      "source": "cut free"
+                  "intent": {
+                    "kind": "check",
+                    "targets": [],
+                    "params": {
+                      "skill": "sleight-of-hand"
                     }
-                  ],
-                  "onFailure": [],
-                  "stakes": {
-                    "success": "The attempt works as intended.",
-                    "cost": "It works, but at a small price.",
-                    "failure": "The attempt comes to nothing.",
-                    "severe": "It goes badly wrong."
                   },
-                  "onCost": [],
-                  "onSevere": [],
-                  "newRisk": null
+                  "beside": {
+                    "stakes": {
+                      "success": "The attempt works as intended.",
+                      "cost": "It works, but at a small price.",
+                      "failure": "The attempt comes to nothing.",
+                      "severe": "It goes badly wrong."
+                    },
+                    "onSuccess": [
+                      {
+                        "effect": "condition",
+                        "op": "remove",
+                        "targetId": "pell",
+                        "condition": "restrained",
+                        "source": "cut free"
+                      }
+                    ],
+                    "onFailure": [],
+                    "onCost": [],
+                    "onSevere": [],
+                    "newRisk": null,
+                    "reveals": null,
+                    "autoFail": null
+                  }
                 }
-              ]
+              ],
+              "clarify": null,
+              "followUps": []
             }
           ]
+        }
+      }
+    },
+    {
+      "purpose": "dm.adjudicate",
+      "note": "a ruling on the check's difficulty",
+      "respond": {
+        "type": "json",
+        "value": {
+          "decision": "accept",
+          "difficulty": "medium"
         }
       }
     },
@@ -331,22 +325,25 @@
           "readings": [
             {
               "actionId": "act-odo-1",
-              "intent": "attack",
-              "uncertain": true,
-              "needsAdjudication": false,
-              "rulesQuestion": null,
-              "clarify": null,
-              "steps": [
+              "stages": [
                 {
-                  "step": "attack",
-                  "reason": "Odo swings his mace at the goblin lookout",
-                  "attackerId": "odo",
-                  "targetId": "goblin-3",
-                  "attack": "Mace",
-                  "circumstance": null,
-                  "onHit": []
+                  "intent": {
+                    "kind": "attack",
+                    "targets": [
+                      {
+                        "kind": "actor",
+                        "id": "goblin-3"
+                      }
+                    ],
+                    "params": {
+                      "weapon": "Mace"
+                    }
+                  },
+                  "beside": null
                 }
-              ]
+              ],
+              "clarify": null,
+              "followUps": []
             }
           ]
         }
@@ -395,22 +392,25 @@
           "readings": [
             {
               "actionId": "act-kestrel-1",
-              "intent": "attack",
-              "uncertain": true,
-              "needsAdjudication": false,
-              "rulesQuestion": null,
-              "clarify": null,
-              "steps": [
+              "stages": [
                 {
-                  "step": "attack",
-                  "reason": "Kestrel looses an arrow at the goblin by the fire",
-                  "attackerId": "kestrel",
-                  "targetId": "goblin-4",
-                  "attack": "Shortbow",
-                  "circumstance": null,
-                  "onHit": []
+                  "intent": {
+                    "kind": "attack",
+                    "targets": [
+                      {
+                        "kind": "actor",
+                        "id": "goblin-4"
+                      }
+                    ],
+                    "params": {
+                      "weapon": "Shortbow"
+                    }
+                  },
+                  "beside": null
                 }
-              ]
+              ],
+              "clarify": null,
+              "followUps": []
             }
           ]
         }
@@ -459,22 +459,25 @@
           "readings": [
             {
               "actionId": null,
-              "intent": "attack",
-              "uncertain": true,
-              "needsAdjudication": false,
-              "rulesQuestion": null,
-              "clarify": null,
-              "steps": [
+              "stages": [
                 {
-                  "step": "attack",
-                  "reason": "The goblin in the pot-helm jabs at Tamsin",
-                  "attackerId": "goblin-2",
-                  "targetId": "tamsin",
-                  "attack": "Scimitar",
-                  "circumstance": null,
-                  "onHit": []
+                  "intent": {
+                    "kind": "attack",
+                    "targets": [
+                      {
+                        "kind": "actor",
+                        "id": "tamsin"
+                      }
+                    ],
+                    "params": {
+                      "weapon": "Scimitar"
+                    }
+                  },
+                  "beside": null
                 }
-              ]
+              ],
+              "clarify": null,
+              "followUps": []
             }
           ]
         }
@@ -523,17 +526,9 @@
           "readings": [
             {
               "actionId": null,
-              "intent": "attack",
-              "uncertain": true,
-              "needsAdjudication": false,
-              "rulesQuestion": null,
+              "stages": [],
               "clarify": null,
-              "steps": [
-                {
-                  "step": "none",
-                  "reason": "The goblin lookout hangs back, watching the party."
-                }
-              ]
+              "followUps": []
             }
           ]
         }
@@ -582,17 +577,9 @@
           "readings": [
             {
               "actionId": null,
-              "intent": "attack",
-              "uncertain": true,
-              "needsAdjudication": false,
-              "rulesQuestion": null,
+              "stages": [],
               "clarify": null,
-              "steps": [
-                {
-                  "step": "none",
-                  "reason": "The goblin by the fire stays low behind the smoke."
-                }
-              ]
+              "followUps": []
             }
           ]
         }
@@ -641,17 +628,9 @@
           "readings": [
             {
               "actionId": null,
-              "intent": "attack",
-              "uncertain": true,
-              "needsAdjudication": false,
-              "rulesQuestion": null,
+              "stages": [],
               "clarify": null,
-              "steps": [
-                {
-                  "step": "none",
-                  "reason": "Pell scrambles toward the party, clutching his freed wrists."
-                }
-              ]
+              "followUps": []
             }
           ]
         }
@@ -703,17 +682,9 @@
           "readings": [
             {
               "actionId": null,
-              "intent": "attack",
-              "uncertain": true,
-              "needsAdjudication": false,
-              "rulesQuestion": null,
+              "stages": [],
               "clarify": null,
-              "steps": [
-                {
-                  "step": "none",
-                  "reason": "Snag offers the clapper for safe passage."
-                }
-              ]
+              "followUps": []
             }
           ]
         }

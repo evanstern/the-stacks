@@ -16,7 +16,7 @@ sources:
   - .env.example
   - apps/server/src/dm/script/env.ts
   - apps/server/dm-scripts/greyhollow-live.json
-verified_against: 7a36c9e9e90450f473fc5e54a082d0ce7c083727
+verified_against: 17849584ad75728e4df27bee4a34d3e35cb86229
 ---
 
 # AI gateway
@@ -72,8 +72,8 @@ call per purpose, and the returned `aiConfig` names it for the six `dm.*` purpos
 read, and the `adapters` map registers `fake` to that one provider instance. `gateRng` is the
 script's dice, then `seededRng(0)` (`facesThenSeed`); a face outside `1..sides` throws. A spent
 queue fails the call loudly; `dm_model_calls` rows read provider `scripted`, cost null. Boot throws `DmScriptEnvError` on a bad `STACKS_ENV` (unset, empty, `default`, `main`, `dev`), a bad name, a missing file or an invalid script. Unset, `createAiRuntime`
-is exactly `loadAiConfig(env)`. `greyhollow-live.json` (7 calls, 1 die) scripts scene start and
-one `act-search` turn. Walkthrough: `specs/053-env-fake-dm-script/quickstart.md`.
+is exactly `loadAiConfig(env)`. `greyhollow-live.json` (8 calls, 1 die) scripts scene start and
+one `act-search` turn (Intent stages). Walkthrough: `specs/053-env-fake-dm-script/quickstart.md`.
 
 `index.ts` passes `aiGateway` into `startIngestWorker({db, gateway: aiGateway,
 embedPurpose, uploadDir})`. `embedPurpose` is [[retrieval]]'s name, only when

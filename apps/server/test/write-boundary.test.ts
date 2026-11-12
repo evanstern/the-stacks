@@ -36,7 +36,8 @@ describe("scene-presence write boundary (spec 048, User Story 5)", () => {
     const builders = listTs(root)
       .filter((f) => /kind:\s*"scene-presence"/.test(readFileSync(f, "utf8")))
       .map((f) => relative(root, f).split("\\").join("/"));
-    expect(builders).toEqual(["dm/nodes/resolve.ts"]);
+    // spec 104: the stage runner builds the band effects' presence proposals
+    expect(builders).toEqual(["dm/intent-runner.ts", "dm/nodes/resolve.ts"]);
   });
 });
 

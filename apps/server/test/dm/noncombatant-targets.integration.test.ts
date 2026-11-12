@@ -9,7 +9,6 @@ import {
   workerFor,
 } from "./worker-world.js";
 import {
-  attackStep,
   commitAction,
   createWorld,
   db,
@@ -49,7 +48,7 @@ const chronicle = {
 
 /** Scene start, then one turn of free-pell.json; `mutate` edits the interpret reading. */
 async function runFreePell(
-  mutate?: (steps: Record<string, unknown>[]) => Record<string, unknown>[],
+  mutate?: (stages: Record<string, unknown>[]) => Record<string, unknown>[],
   extraDice: number[] = [],
 ) {
   const s = script("free-pell.json");
@@ -61,7 +60,7 @@ async function runFreePell(
       // Only the free-Pell reading (the second interpret call).
       if (c.respond.value.readings[0].actionId !== ACTION) return c;
       const value = structuredClone(c.respond.value);
-      value.readings[0].steps = mutate(value.readings[0].steps);
+      value.readings[0].stages = mutate(value.readings[0].stages);
       return { ...c, respond: { ...c.respond, value } };
     },
   );
@@ -89,7 +88,14 @@ async function runFreePell(
   await tick();
   await drainAll(worker);
   const jobs = await listDmJobs(requireDb(), w.sessionId, 50, "turn");
-  return { w, worker, rows: await readRows(w), turn: jobs.at(0) };
+  return {
+    w,
+    worker,
+    rows: await readRows(w), // The newest turn that ran a beat (an AI-seat `ruling` turn follows it).
+    turn: jobs.find(
+      (j) => (j.input as { trigger?: string }).trigger !== "ruling",
+    ),
+  };
 }
 
 interface Cp {
@@ -157,18 +163,26 @@ describe.skipIf(!reachable)("non-combatant targets (database)", () => {
     expect(subs.some((x) => x.refusal?.code === "UNKNOWN_COMBATANT")).toBe(
       false,
     );
-    expect(planGateOf(turn)).toEqual([
-      { actionId: ACTION, ok: true, pull: ["pell"] },
-    ]);
+    expect(planGateOf(turn)).toEqual([{ actionId: ACTION, ok: true }]);
   });
 
   it("an attack on Pell pulls him in and resolves (spec 075)", async () => {
     // One extra die feeds the damage roll.
-    const { rows, turn } = await runFreePell(() => [attackStep("pell")], [5]);
+    const { rows, turn } = await runFreePell(
+      () => [
+        {
+          intent: {
+            kind: "attack",
+            targets: [{ kind: "actor", id: "pell" }],
+            params: { weapon: "Longsword" },
+          },
+          beside: null,
+        },
+      ],
+      [5],
+    );
     expect(resolvedOf(rows)?.payload).toMatchObject({ outcome: "applied" });
-    expect(planGateOf(turn)).toEqual([
-      { actionId: ACTION, ok: true, pull: ["pell"] },
-    ]);
+    expect(planGateOf(turn)).toEqual([{ actionId: ACTION, ok: true }]);
     const added = rows.findIndex(
       (r) => r.type === "combatant.added" && eventOf(r).combatantId === "pell",
     );
@@ -186,14 +200,14 @@ describe.skipIf(!reachable)("non-combatant targets (database)", () => {
 
   it("reclaim: each pull is one keyed submission, written once", async () => {
     const { rows, turn } = await runFreePell();
-    const pulls = cpOf(turn).submissions.filter((x) =>
-      x.key.includes(":pull:"),
+    // Spec 104: the planner's batch carries the pull; the Intent stage is one keyed submission
+    // (declared, confirmed), so a replay writes no second pull.
+    const stage = cpOf(turn).submissions.filter((x) =>
+      x.key.startsWith("act:act-free-pell:i0"),
     );
-    // A reclaimed job replays recorded submissions by key (resolve.md), so one
-    // key per pull row means a replay cannot write a second one.
-    expect(pulls.map((x) => x.key)).toEqual([
-      "act:act-free-pell:pull:pell",
-      "act:act-free-pell:pull:pell:join",
+    expect(stage.map((x) => x.key).slice(0, 2)).toEqual([
+      "act:act-free-pell:i0:d",
+      "act:act-free-pell:i0",
     ]);
     expect(
       rows.filter(

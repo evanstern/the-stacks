@@ -45,7 +45,7 @@ sources:
   - specs/021-load-bench/tasks.md
   - specs/021-load-bench/research.md
   - specs/021-load-bench/contracts/results-format.md
-verified_against: bfb65a157559c88bf988a6c0f55b7c03824ff412
+verified_against: 17849584ad75728e4df27bee4a34d3e35cb86229
 ---
 
 # Benchmarks

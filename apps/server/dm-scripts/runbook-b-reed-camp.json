@@ -74,17 +74,9 @@
           "readings": [
             {
               "actionId": "act-approach",
-              "intent": "move",
-              "uncertain": true,
-              "needsAdjudication": false,
-              "rulesQuestion": null,
+              "stages": [],
               "clarify": null,
-              "steps": [
-                {
-                  "step": "none",
-                  "reason": "Walking along the posts needs no roll; the player named no method."
-                }
-              ]
+              "followUps": []
             }
           ]
         }
@@ -134,40 +126,50 @@
           "readings": [
             {
               "actionId": "act-look",
-              "intent": "check",
-              "uncertain": true,
-              "needsAdjudication": false,
-              "rulesQuestion": null,
-              "clarify": null,
-              "steps": [
+              "stages": [
                 {
-                  "step": "check",
-                  "reason": "Kestrel looks and listens across the reeds",
-                  "combatantId": "kestrel",
-                  "kind": "ability-check",
-                  "ability": "wis",
-                  "skill": "perception",
-                  "difficulty": "medium",
-                  "circumstance": null,
-                  "autoFail": null,
-                  "onSuccess": [],
-                  "onFailure": [],
-                  "stakes": {
-                    "success": "She sees Snag on the mud bank and Pell tied to a post.",
-                    "cost": "She sees them, but a reed rattles.",
-                    "failure": "She sees only reeds and smoke.",
-                    "severe": "A reed snaps loud underfoot."
+                  "intent": {
+                    "kind": "check",
+                    "targets": [],
+                    "params": {
+                      "skill": "perception"
+                    }
                   },
-                  "onCost": [],
-                  "onSevere": [],
-                  "newRisk": null
+                  "beside": {
+                    "stakes": {
+                      "success": "She sees Snag on the mud bank and Pell tied to a post.",
+                      "cost": "She sees them, but a reed rattles.",
+                      "failure": "She sees only reeds and smoke.",
+                      "severe": "A reed snaps loud underfoot."
+                    },
+                    "onSuccess": [],
+                    "onFailure": [],
+                    "onCost": [],
+                    "onSevere": [],
+                    "newRisk": null,
+                    "reveals": null,
+                    "autoFail": null
+                  }
                 }
-              ]
+              ],
+              "clarify": null,
+              "followUps": []
             }
           ]
         }
       },
       "note": "F2 reveal: Perception check; the Director reports Snag and Pell as arrivals (0206)"
+    },
+    {
+      "purpose": "dm.adjudicate",
+      "note": "a ruling on the check's difficulty",
+      "respond": {
+        "type": "json",
+        "value": {
+          "decision": "accept",
+          "difficulty": "medium"
+        }
+      }
     },
     {
       "purpose": "dm.narrate",
@@ -211,22 +213,25 @@
           "readings": [
             {
               "actionId": "act-shoot",
-              "intent": "attack",
-              "uncertain": true,
-              "needsAdjudication": false,
-              "rulesQuestion": null,
-              "clarify": null,
-              "steps": [
+              "stages": [
                 {
-                  "step": "attack",
-                  "reason": "Kestrel takes aim and looses an arrow at Snag",
-                  "attackerId": "kestrel",
-                  "targetId": "snag",
-                  "attack": "Shortbow",
-                  "circumstance": null,
-                  "onHit": []
+                  "intent": {
+                    "kind": "attack",
+                    "targets": [
+                      {
+                        "kind": "actor",
+                        "id": "snag"
+                      }
+                    ],
+                    "params": {
+                      "weapon": "Shortbow"
+                    }
+                  },
+                  "beside": null
                 }
-              ]
+              ],
+              "clarify": null,
+              "followUps": []
             }
           ]
         }
@@ -275,23 +280,28 @@
           "readings": [
             {
               "actionId": "act-help",
-              "intent": "help",
-              "uncertain": true,
-              "needsAdjudication": false,
-              "rulesQuestion": null,
-              "clarify": null,
-              "steps": [
+              "stages": [
                 {
-                  "step": "help",
-                  "reason": "Kestrel steadies Tamsin on the slick timbers",
-                  "helperId": "kestrel",
-                  "assist": {
-                    "kind": "ability-check",
-                    "allyId": "tamsin",
-                    "skill": "acrobatics"
-                  }
+                  "intent": {
+                    "kind": "help",
+                    "targets": [
+                      {
+                        "kind": "actor",
+                        "id": "tamsin"
+                      }
+                    ],
+                    "params": {
+                      "assist": {
+                        "kind": "check",
+                        "skill": "acrobatics"
+                      }
+                    }
+                  },
+                  "beside": null
                 }
-              ]
+              ],
+              "clarify": null,
+              "followUps": []
             }
           ]
         }
@@ -340,40 +350,50 @@
           "readings": [
             {
               "actionId": "act-vault",
-              "intent": "check",
-              "uncertain": true,
-              "needsAdjudication": false,
-              "rulesQuestion": null,
-              "clarify": null,
-              "steps": [
+              "stages": [
                 {
-                  "step": "check",
-                  "reason": "Tamsin vaults the sunk log",
-                  "combatantId": "tamsin",
-                  "kind": "ability-check",
-                  "ability": "dex",
-                  "skill": "acrobatics",
-                  "difficulty": "medium",
-                  "circumstance": null,
-                  "autoFail": null,
-                  "onSuccess": [],
-                  "onFailure": [],
-                  "stakes": {
-                    "success": "The attempt works as intended.",
-                    "cost": "It works, at a small price.",
-                    "failure": "The attempt comes to nothing.",
-                    "severe": "It goes badly wrong."
+                  "intent": {
+                    "kind": "check",
+                    "targets": [],
+                    "params": {
+                      "skill": "acrobatics"
+                    }
                   },
-                  "onCost": [],
-                  "onSevere": [],
-                  "newRisk": null
+                  "beside": {
+                    "stakes": {
+                      "success": "The attempt works as intended.",
+                      "cost": "It works, at a small price.",
+                      "failure": "The attempt comes to nothing.",
+                      "severe": "It goes badly wrong."
+                    },
+                    "onSuccess": [],
+                    "onFailure": [],
+                    "onCost": [],
+                    "onSevere": [],
+                    "newRisk": null,
+                    "reveals": null,
+                    "autoFail": null
+                  }
                 }
-              ]
+              ],
+              "clarify": null,
+              "followUps": []
             }
           ]
         }
       },
       "note": "F3c Tamsin's Acrobatics check rolls with the assist (0128, 0104)"
+    },
+    {
+      "purpose": "dm.adjudicate",
+      "note": "a ruling on the check's difficulty",
+      "respond": {
+        "type": "json",
+        "value": {
+          "decision": "accept",
+          "difficulty": "medium"
+        }
+      }
     },
     {
       "purpose": "dm.narrate",
@@ -417,38 +437,39 @@
           "readings": [
             {
               "actionId": "act-shove",
-              "intent": "check",
-              "uncertain": true,
-              "needsAdjudication": false,
-              "rulesQuestion": null,
-              "clarify": null,
-              "steps": [
+              "stages": [
                 {
-                  "step": "check",
-                  "reason": "Tamsin shoves Snag back from the post",
-                  "combatantId": "tamsin",
-                  "kind": "ability-check",
-                  "ability": "str",
-                  "skill": "athletics",
-                  "difficulty": {
-                    "opposedBy": "snag",
-                    "rule": "unarmed-strike"
+                  "intent": {
+                    "kind": "contest",
+                    "targets": [
+                      {
+                        "kind": "actor",
+                        "id": "snag"
+                      }
+                    ],
+                    "params": {
+                      "skill": "athletics"
+                    }
                   },
-                  "circumstance": null,
-                  "autoFail": null,
-                  "onSuccess": [],
-                  "onFailure": [],
-                  "stakes": {
-                    "success": "The attempt works as intended.",
-                    "cost": "It works, at a small price.",
-                    "failure": "The attempt comes to nothing.",
-                    "severe": "It goes badly wrong."
-                  },
-                  "onCost": [],
-                  "onSevere": [],
-                  "newRisk": null
+                  "beside": {
+                    "stakes": {
+                      "success": "The attempt works as intended.",
+                      "cost": "It works, at a small price.",
+                      "failure": "The attempt comes to nothing.",
+                      "severe": "It goes badly wrong."
+                    },
+                    "onSuccess": [],
+                    "onFailure": [],
+                    "onCost": [],
+                    "onSevere": [],
+                    "newRisk": null,
+                    "reveals": null,
+                    "autoFail": null
+                  }
                 }
-              ]
+              ],
+              "clarify": null,
+              "followUps": []
             }
           ]
         }
@@ -497,21 +518,26 @@
           "readings": [
             {
               "actionId": "act-cure-1",
-              "intent": "spell",
-              "uncertain": true,
-              "needsAdjudication": false,
-              "rulesQuestion": null,
-              "clarify": null,
-              "steps": [
+              "stages": [
                 {
-                  "step": "spell",
-                  "reason": "Odo mends Tamsin, cast 1",
-                  "casterId": "odo",
-                  "spellId": "cure-wounds",
-                  "slotLevel": 1,
-                  "targetId": "tamsin"
+                  "intent": {
+                    "kind": "cast",
+                    "targets": [
+                      {
+                        "kind": "actor",
+                        "id": "tamsin"
+                      }
+                    ],
+                    "params": {
+                      "spell": "cure-wounds",
+                      "slot": 1
+                    }
+                  },
+                  "beside": null
                 }
-              ]
+              ],
+              "clarify": null,
+              "followUps": []
             }
           ]
         }
@@ -560,21 +586,26 @@
           "readings": [
             {
               "actionId": "act-cure-2",
-              "intent": "spell",
-              "uncertain": true,
-              "needsAdjudication": false,
-              "rulesQuestion": null,
-              "clarify": null,
-              "steps": [
+              "stages": [
                 {
-                  "step": "spell",
-                  "reason": "Odo mends Tamsin, cast 2",
-                  "casterId": "odo",
-                  "spellId": "cure-wounds",
-                  "slotLevel": 1,
-                  "targetId": "tamsin"
+                  "intent": {
+                    "kind": "cast",
+                    "targets": [
+                      {
+                        "kind": "actor",
+                        "id": "tamsin"
+                      }
+                    ],
+                    "params": {
+                      "spell": "cure-wounds",
+                      "slot": 1
+                    }
+                  },
+                  "beside": null
                 }
-              ]
+              ],
+              "clarify": null,
+              "followUps": []
             }
           ]
         }
@@ -623,21 +654,26 @@
           "readings": [
             {
               "actionId": "act-cure-3",
-              "intent": "spell",
-              "uncertain": true,
-              "needsAdjudication": false,
-              "rulesQuestion": null,
-              "clarify": null,
-              "steps": [
+              "stages": [
                 {
-                  "step": "spell",
-                  "reason": "Odo mends Tamsin, cast 3",
-                  "casterId": "odo",
-                  "spellId": "cure-wounds",
-                  "slotLevel": 1,
-                  "targetId": "tamsin"
+                  "intent": {
+                    "kind": "cast",
+                    "targets": [
+                      {
+                        "kind": "actor",
+                        "id": "tamsin"
+                      }
+                    ],
+                    "params": {
+                      "spell": "cure-wounds",
+                      "slot": 1
+                    }
+                  },
+                  "beside": null
                 }
-              ]
+              ],
+              "clarify": null,
+              "followUps": []
             }
           ]
         }
@@ -722,17 +758,9 @@
           "readings": [
             {
               "actionId": "act-rush",
-              "intent": "move",
-              "uncertain": true,
-              "needsAdjudication": false,
-              "rulesQuestion": null,
+              "stages": [],
               "clarify": null,
-              "steps": [
-                {
-                  "step": "none",
-                  "reason": "Moving along the posts needs no roll."
-                }
-              ]
+              "followUps": []
             }
           ]
         }
@@ -781,12 +809,9 @@
           "readings": [
             {
               "actionId": "act-attack-pell",
-              "intent": "attack",
-              "uncertain": true,
-              "needsAdjudication": false,
-              "rulesQuestion": null,
+              "stages": [],
               "clarify": "Longsword in melee, or the light crossbow from range?",
-              "steps": []
+              "followUps": []
             }
           ]
         }
@@ -835,22 +860,25 @@
           "readings": [
             {
               "actionId": "act-attack-pell-2",
-              "intent": "attack",
-              "uncertain": true,
-              "needsAdjudication": false,
-              "rulesQuestion": null,
-              "clarify": null,
-              "steps": [
+              "stages": [
                 {
-                  "step": "attack",
-                  "reason": "Tamsin swings her longsword at Pell",
-                  "attackerId": "tamsin",
-                  "targetId": "pell",
-                  "attack": "Longsword",
-                  "circumstance": null,
-                  "onHit": []
+                  "intent": {
+                    "kind": "attack",
+                    "targets": [
+                      {
+                        "kind": "actor",
+                        "id": "pell"
+                      }
+                    ],
+                    "params": {
+                      "weapon": "Longsword"
+                    }
+                  },
+                  "beside": null
                 }
-              ]
+              ],
+              "clarify": null,
+              "followUps": []
             }
           ]
         }
@@ -899,19 +927,22 @@
           "readings": [
             {
               "actionId": "act-run",
-              "intent": "move",
-              "uncertain": true,
-              "needsAdjudication": false,
-              "rulesQuestion": null,
-              "clarify": null,
-              "steps": [
+              "stages": [
                 {
-                  "step": "move",
-                  "reason": "Kestrel runs for Pell",
-                  "combatantId": "kestrel",
-                  "leavesReachOf": ["goblin-2"]
+                  "intent": {
+                    "kind": "move",
+                    "targets": [
+                      {
+                        "kind": "zone",
+                        "id": "camp-post"
+                      }
+                    ],
+                    "params": {}
+                  },
+                  "beside": null
                 }
               ],
+              "clarify": null,
               "followUps": ["Kestrel cuts Pell's bonds"]
             }
           ]
@@ -977,22 +1008,25 @@
           "readings": [
             {
               "actionId": "act-odo-1",
-              "intent": "attack",
-              "uncertain": true,
-              "needsAdjudication": false,
-              "rulesQuestion": null,
-              "clarify": null,
-              "steps": [
+              "stages": [
                 {
-                  "step": "attack",
-                  "reason": "Odo swings his mace at the goblin lookout",
-                  "attackerId": "odo",
-                  "targetId": "goblin-3",
-                  "attack": "Mace",
-                  "circumstance": null,
-                  "onHit": []
+                  "intent": {
+                    "kind": "attack",
+                    "targets": [
+                      {
+                        "kind": "actor",
+                        "id": "goblin-3"
+                      }
+                    ],
+                    "params": {
+                      "weapon": "Mace"
+                    }
+                  },
+                  "beside": null
                 }
-              ]
+              ],
+              "clarify": null,
+              "followUps": []
             }
           ]
         }
@@ -1041,17 +1075,9 @@
           "readings": [
             {
               "actionId": null,
-              "intent": "attack",
-              "uncertain": true,
-              "needsAdjudication": false,
-              "rulesQuestion": null,
+              "stages": [],
               "clarify": null,
-              "steps": [
-                {
-                  "step": "none",
-                  "reason": "Snag circles the fire, scimitar low, and sing-songs a threat at the big-feet."
-                }
-              ]
+              "followUps": []
             }
           ]
         }
@@ -1100,17 +1126,9 @@
           "readings": [
             {
               "actionId": null,
-              "intent": "attack",
-              "uncertain": true,
-              "needsAdjudication": false,
-              "rulesQuestion": null,
+              "stages": [],
               "clarify": null,
-              "steps": [
-                {
-                  "step": "none",
-                  "reason": "The goblin in the pot-helm backs toward the fire, scimitar up."
-                }
-              ]
+              "followUps": []
             }
           ]
         }
@@ -1159,17 +1177,9 @@
           "readings": [
             {
               "actionId": null,
-              "intent": "attack",
-              "uncertain": true,
-              "needsAdjudication": false,
-              "rulesQuestion": null,
+              "stages": [],
               "clarify": null,
-              "steps": [
-                {
-                  "step": "none",
-                  "reason": "The goblin lookout hangs back at the edge of the firelight, gripping his spear."
-                }
-              ]
+              "followUps": []
             }
           ]
         }
@@ -1218,17 +1228,9 @@
           "readings": [
             {
               "actionId": null,
-              "intent": "attack",
-              "uncertain": true,
-              "needsAdjudication": false,
-              "rulesQuestion": null,
+              "stages": [],
               "clarify": null,
-              "steps": [
-                {
-                  "step": "none",
-                  "reason": "The goblin by the fire stays low behind the smoke, eyes darting."
-                }
-              ]
+              "followUps": []
             }
           ]
         }
@@ -1277,17 +1279,9 @@
           "readings": [
             {
               "actionId": null,
-              "intent": "attack",
-              "uncertain": true,
-              "needsAdjudication": false,
-              "rulesQuestion": null,
+              "stages": [],
               "clarify": null,
-              "steps": [
-                {
-                  "step": "none",
-                  "reason": "Pell strains at his ropes and shouts for his grandmother."
-                }
-              ]
+              "followUps": []
             }
           ]
         }
@@ -1336,17 +1330,9 @@
           "readings": [
             {
               "actionId": "act-hold",
-              "intent": "other",
-              "uncertain": true,
-              "needsAdjudication": false,
-              "rulesQuestion": null,
+              "stages": [],
               "clarify": null,
-              "steps": [
-                {
-                  "step": "none",
-                  "reason": "Tamsin holds her ground."
-                }
-              ]
+              "followUps": []
             }
           ]
         }

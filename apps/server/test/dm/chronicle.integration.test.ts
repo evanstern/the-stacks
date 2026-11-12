@@ -64,7 +64,12 @@ describe.skipIf(!reachable)("chronicle (database)", () => {
     await worker.drain();
 
     const all = await listDmJobs(requireDb(), w.sessionId, 20);
-    const turns = all.filter((j) => j.kind === "turn");
+    // An AI-seat ruling request also queues a `ruling` turn (spec 102); it finds nothing open.
+    const turns = all.filter(
+      (j) =>
+        j.kind === "turn" &&
+        (j.input as { trigger?: string }).trigger !== "ruling",
+    );
     const chronicles = all.filter((j) => j.kind === "chronicle");
     expect(turns.map((j) => j.error ?? j.status)).toEqual(["succeeded"]);
     expect(chronicles.map((j) => j.status)).toEqual(["succeeded"]);

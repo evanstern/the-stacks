@@ -451,9 +451,19 @@ function plan(
         return refuse("ACTION_NOT_COMMITTED", "the action is not committed");
       }
       for (const batchId of resolution.batchIds) {
-        const named = p.ledger.some(
-          (row) => row.batchId === batchId && row.actionId === action.actionId,
-        );
+        // Spec 104 C-GATE: an Intent stage `<actionId>.<n>` may also name the batch.
+        const stage = `${action.actionId}.`;
+        const named =
+          p.ledger.some(
+            (row) =>
+              row.batchId === batchId && row.actionId === action.actionId,
+          ) ||
+          p.intents.some(
+            (v) =>
+              v.id.startsWith(stage) &&
+              /^\d+$/.test(v.id.slice(stage.length)) &&
+              v.batchIds.includes(batchId),
+          );
         if (!named) {
           return refuse("UNKNOWN_BATCH", `no batch ${batchId} for the action`, {
             batchId,

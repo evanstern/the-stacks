@@ -1,13 +1,13 @@
 import type { OutcomeBand } from "@the-stacks/dnd5e-engine";
 import type { LedgerRow } from "@the-stacks/session-model";
-import type { Effect, Stakes, Step } from "./nodes/schemas.js";
+import type { Beside, Effect, Stakes, Step } from "./nodes/schemas.js";
 import type { SceneSeed } from "./seed/schema.js";
 
 type CheckStep = Extract<Step, { step: "check" }>;
 
 /** FR-013: the ordered effect list for the band. An unknown band reads as a plain failure. */
 export function effectsForBand(
-  step: Pick<CheckStep, "onSuccess" | "onFailure" | "onCost" | "onSevere">,
+  step: Pick<Beside, "onSuccess" | "onFailure" | "onCost" | "onSevere">,
   band: OutcomeBand | string | null,
 ): Effect[] {
   switch (band) {

@@ -13,7 +13,7 @@ sources:
   - apps/server/src/dm/pipeline/context.ts
   - apps/server/src/dm/nodes/schemas.ts
   - apps/server/dm-scripts/greyhollow-talk.json
-verified_against: 7a36c9e9e90450f473fc5e54a082d0ce7c083727
+verified_against: 17849584ad75728e4df27bee4a34d3e35cb86229
 ---
 
 # DM talk triggers
@@ -44,7 +44,7 @@ full pipeline.
    or precedes a comma or `?`), `mentioned` (name, alias or seed role word), else `overheard`.
 3. `needsModel` is false when no non-party NPC is named and no post holds `?`: outcome `none`.
 4. One `react` call (`ReactOutput`: `none`, `reply`, `scene`, `escalate`), checkpointed in
-   `TurnCheckpoint.react`.
+   `TurnCheckpoint.react`. The turn pipeline's interpret output is now `InterpretResult` (Intent or legacy readings, spec 104); the talk path does not read it.
 5. Code checks: `checkNarration` (spec 103, TASK-0272) over the reply as the describe slot
    ([[dm-narration-quality]]): a leak drops the sentence and files a `dm` correction; a reply left empty records `none`. No second model call.
 6. `escalate` runs resolve's opening move through a synthetic Director output when

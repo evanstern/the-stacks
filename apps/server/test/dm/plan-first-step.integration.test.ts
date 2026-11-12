@@ -82,7 +82,11 @@ async function runTurn(turnScript: string, actionId: string) {
   await drainAll(worker);
   const jobs = await listDmJobs(requireDb(), w.sessionId, 50, "turn");
   // Newest first: the action turn follows the scene-start turn.
-  return { w, rows: await readRows(w), turn: jobs.at(0) };
+  // An AI-seat `ruling` turn (spec 102) may follow the beat; it finds nothing open.
+  const beat = jobs.find(
+    (j) => (j.input as { trigger?: string }).trigger !== "ruling",
+  );
+  return { w, rows: await readRows(w), turn: beat };
 }
 
 function checkpointOf(turn: { result: unknown } | undefined): TurnCheckpoint {
@@ -130,8 +134,9 @@ describe.skipIf(!reachable)("plan first step (database)", () => {
     // The facts carry the persuasion and the attack reasons as follow-ups.
     const followUps = cp.interpret?.readings.flatMap((r) => r.followUps) ?? [];
     expect(followUps).toHaveLength(2);
-    expect(followUps.join(" ")).toMatch(/parley/);
-    expect(followUps.join(" ")).toMatch(/attacks Snag/);
+    // Spec 104: a cut stage reads as its Intent text form, not the old step reason.
+    expect(followUps.join(" ")).toMatch(/check/);
+    expect(followUps.join(" ")).toMatch(/attack/);
   });
 
   it("control: exploration-check still advances dusk and stores no follow-ups", async () => {

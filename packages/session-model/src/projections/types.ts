@@ -230,6 +230,8 @@ export interface IntentView {
   intent: Intent;
   status: "declared" | "settled" | "needs_ruling" | "answered";
   request: RulingRequest | null;
+  /** Every engine batch a carrier row for this id named (spec 104 C-GATE). */
+  batchIds: string[];
   /** The `proposal.created` row that mirrors an open request under a human seat. */
   proposalId: string | null;
 }

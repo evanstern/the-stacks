@@ -29,6 +29,9 @@ importers:
       '@the-stacks/intent':
         specifier: workspace:*
         version: link:../../packages/intent
+      '@the-stacks/planner':
+        specifier: workspace:*
+        version: link:../../packages/planner
       '@the-stacks/session-model':
         specifier: workspace:*
         version: link:../../packages/session-model

@@ -12,7 +12,10 @@ import {
   setStage,
 } from "../jobs/queue.js";
 import type { PresenceReader } from "../presence/index.js";
-import { loadProjections as loadSessionProjections } from "../session/projections.js";
+import {
+  loadEventWindow,
+  loadProjections as loadSessionProjections,
+} from "../session/projections.js";
 import { runChronicleJob } from "./chronicle.js";
 import { type CompanionDeps, runCompanionJob } from "./companion.js";
 import { runFloorJob } from "./floor.js";
@@ -293,6 +296,7 @@ export function createDmWorker(deps: DmWorkerDeps): DmWorker {
       gate: deps.gate,
       retrieve: deps.retrieve,
       loadProjections: deps.loadProjections,
+      loadEvents: (sessionId, w) => loadEventWindow(db, sessionId, w),
       loadPriorTurns: (sessionId, excludeJobId) =>
         loadPriorTurnCheckpoints(db, sessionId, excludeJobId),
       srd,
@@ -368,8 +372,17 @@ export function createDmWorker(deps: DmWorkerDeps): DmWorker {
         kind: outcome.error.kind,
         detail: outcome.error.detail ? loggable : null,
       });
+      // Spec 104 FR-018: a failure notice must not leave the next beat re-rendering these why rows.
+      const failedCheckpoint =
+        outcome.node === "narrate" || outcome.node === "check"
+          ? {
+              ...latest,
+              factsThrough: (await deps.loadProjections(job.sessionId))
+                .throughSeq,
+            }
+          : latest;
       const failed: TurnFailureResult = {
-        checkpoint: latest,
+        checkpoint: failedCheckpoint,
         outcome: { status: "failed" },
         check: null,
         calls: outcome.calls,

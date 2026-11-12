@@ -39,38 +39,39 @@
           "readings": [
             {
               "actionId": "act-parley",
-              "intent": "check",
-              "uncertain": true,
-              "needsAdjudication": false,
-              "rulesQuestion": null,
-              "clarify": null,
-              "steps": [
+              "stages": [
                 {
-                  "step": "check",
-                  "reason": "Tamsin calls out to the lookout and talks him down",
-                  "combatantId": "tamsin",
-                  "kind": "ability-check",
-                  "ability": "cha",
-                  "skill": "persuasion",
-                  "difficulty": {
-                    "opposedBy": "goblin-3",
-                    "rule": "influence"
+                  "intent": {
+                    "kind": "contest",
+                    "targets": [
+                      {
+                        "kind": "actor",
+                        "id": "goblin-3"
+                      }
+                    ],
+                    "params": {
+                      "skill": "persuasion"
+                    }
                   },
-                  "circumstance": null,
-                  "autoFail": null,
-                  "onSuccess": [],
-                  "onFailure": [],
-                  "stakes": {
-                    "success": "The lookout listens.",
-                    "cost": "The lookout listens, warily.",
-                    "failure": "The lookout sneers.",
-                    "severe": "The lookout shouts the alarm."
-                  },
-                  "onCost": [],
-                  "onSevere": [],
-                  "newRisk": null
+                  "beside": {
+                    "stakes": {
+                      "success": "The lookout listens.",
+                      "cost": "The lookout listens, warily.",
+                      "failure": "The lookout sneers.",
+                      "severe": "The lookout shouts the alarm."
+                    },
+                    "onSuccess": [],
+                    "onFailure": [],
+                    "onCost": [],
+                    "onSevere": [],
+                    "newRisk": null,
+                    "reveals": null,
+                    "autoFail": null
+                  }
                 }
-              ]
+              ],
+              "clarify": null,
+              "followUps": []
             }
           ]
         }
@@ -120,38 +121,39 @@
           "readings": [
             {
               "actionId": "act-coin",
-              "intent": "check",
-              "uncertain": true,
-              "needsAdjudication": false,
-              "rulesQuestion": null,
-              "clarify": null,
-              "steps": [
+              "stages": [
                 {
-                  "step": "check",
-                  "reason": "Tamsin tosses a coin to the lookout to buy a parley",
-                  "combatantId": "tamsin",
-                  "kind": "ability-check",
-                  "ability": "cha",
-                  "skill": "persuasion",
-                  "difficulty": {
-                    "opposedBy": "goblin-3",
-                    "rule": "influence"
+                  "intent": {
+                    "kind": "contest",
+                    "targets": [
+                      {
+                        "kind": "actor",
+                        "id": "goblin-3"
+                      }
+                    ],
+                    "params": {
+                      "skill": "persuasion"
+                    }
                   },
-                  "circumstance": null,
-                  "autoFail": null,
-                  "onSuccess": [],
-                  "onFailure": [],
-                  "stakes": {
-                    "success": "The lookout listens.",
-                    "cost": "The lookout listens, warily.",
-                    "failure": "The lookout sneers.",
-                    "severe": "The lookout shouts the alarm."
-                  },
-                  "onCost": [],
-                  "onSevere": [],
-                  "newRisk": null
+                  "beside": {
+                    "stakes": {
+                      "success": "The lookout listens.",
+                      "cost": "The lookout listens, warily.",
+                      "failure": "The lookout sneers.",
+                      "severe": "The lookout shouts the alarm."
+                    },
+                    "onSuccess": [],
+                    "onFailure": [],
+                    "onCost": [],
+                    "onSevere": [],
+                    "newRisk": null,
+                    "reveals": null,
+                    "autoFail": null
+                  }
                 }
-              ]
+              ],
+              "clarify": null,
+              "followUps": []
             }
           ]
         }

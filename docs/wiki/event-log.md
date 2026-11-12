@@ -5,7 +5,7 @@ kind: component
 sources:
   - apps/server/src/events/log.ts
   - apps/server/src/schema/events.ts
-verified_against: 49c7de2be46b0cf6b94814c4ed0bb1bd4aa20bb7
+verified_against: 17849584ad75728e4df27bee4a34d3e35cb86229
 ---
 
 # Event Log
@@ -73,7 +73,7 @@ one read in descending primary-key order. The server uses it to find the latest
 
 **`readFrom(db, input)`** returns a session's events strictly after a cursor
 (`afterSeq`, default `0` — the origin), ascending by `seq`, bounded by `input.limit`. It
-applies no filtering by visibility, type, or payload version — that is a projection's job
+takes two optional filters, both applied in the query: `throughSeq` (an inclusive upper bound, so the window is `(afterSeq, throughSeq]`) and `types` (only those event types; spec 104 FR-019, used by `loadEventWindow` in `session/projections.ts`). It applies no filtering by visibility or payload version — that is a projection's job
 downstream (see [[replay-live-boundary]] and [[subscriber-registry]]), and `readFrom` can't
 filter what the log has already hidden, since it hides nothing.
 

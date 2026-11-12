@@ -119,6 +119,7 @@ export function makeDeps(over: Partial<NodeDeps> = {}): NodeDeps {
       throw new Error("no retrieve in this test");
     },
     loadProjections: async () => projectDm([]),
+    loadEvents: async () => [],
     srd: { getById, getByName, compact } as NodeDeps["srd"],
     fence: async () => true,
     setStage: async () => true,

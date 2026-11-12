@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, gt, sql } from "drizzle-orm";
+import { and, asc, desc, eq, gt, inArray, lte, sql } from "drizzle-orm";
 import type { createDb } from "../db.js";
 import { events } from "../schema/events.js";
 
@@ -51,6 +51,10 @@ export interface ReadFromInput {
   sessionId: string;
   /** Cursor: last position already seen. Defaults to the origin (FR-006). */
   afterSeq?: number;
+  /** Inclusive upper bound; absent reads to the end. */
+  throughSeq?: number;
+  /** Only these event types; absent reads every type. */
+  types?: readonly string[];
   limit: number;
 }
 
@@ -203,7 +207,16 @@ export async function readFrom(
   return db
     .select()
     .from(events)
-    .where(and(eq(events.sessionId, input.sessionId), gt(events.seq, afterSeq)))
+    .where(
+      and(
+        eq(events.sessionId, input.sessionId),
+        gt(events.seq, afterSeq),
+        input.throughSeq === undefined
+          ? undefined
+          : lte(events.seq, input.throughSeq),
+        input.types ? inArray(events.type, [...input.types]) : undefined,
+      ),
+    )
     .orderBy(asc(events.seq))
     .limit(input.limit);
 }

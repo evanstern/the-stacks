@@ -291,19 +291,25 @@ describe.skipIf(!reachable)("DM worker presence marker (database)", () => {
     await tick();
     await drainAll(worker);
 
+    // Spec 104: the AI-seat `ruling` turn (one more turn job) records its own marker.
     const found = await markers(w);
-    expect(found).toHaveLength(1);
+    expect(found).toHaveLength(2);
     expect(found[0]).toMatchObject({
       actor: "system",
       visibility: "public",
       payload: { present: [TAMSIN_USER], purpose: "director" },
     });
     const turn = (await listDmJobs(requireDb(), w.sessionId, 20)).find(
-      (j) => j.kind === "turn",
+      (j) =>
+        j.kind === "turn" &&
+        (j.input as { trigger?: string }).trigger !== "ruling",
     );
     expect(
       (turn?.result as { presenceSeq: number } | undefined)?.presenceSeq,
-    ).toBe(found[0]?.seq);
+    ).toBeDefined();
+    expect(found.map((m) => m.seq)).toContain(
+      (turn?.result as { presenceSeq: number } | undefined)?.presenceSeq,
+    );
   });
 
   it("records a second marker for a second turn job and writes none for companion or chronicle jobs", async () => {

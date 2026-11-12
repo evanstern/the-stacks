@@ -156,12 +156,9 @@ const turnCalls = (actionId: string) => [
     readings: [
       {
         actionId,
-        intent: "talk",
-        uncertain: false,
-        needsAdjudication: false,
-        rulesQuestion: null,
+        stages: [],
         clarify: null,
-        steps: [],
+        followUps: [],
       },
     ],
   }),

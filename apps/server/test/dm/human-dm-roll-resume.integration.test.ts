@@ -47,7 +47,12 @@ async function humanDmWorld(scriptName: string) {
   const s = script(scriptName);
   const w = await createWorld({
     dice: s.dice,
-    calls: [...s.calls, CHRONICLE],
+    // Spec 104 adds one resume turn (the confirm's approval) before the ruling's: one more director call.
+    calls: [
+      ...s.calls,
+      s.calls.find((c) => (c as { purpose: string }).purpose === "dm.director"),
+      CHRONICLE,
+    ],
   });
   const { worker } = workerFor(w);
   await startScene(w);
@@ -107,6 +112,40 @@ async function approve(
   await drainAll(worker);
 }
 
+/**
+ * Spec 104: under a human DM seat the stage's confirm is a pending `intent` proposal; approving
+ * it plans a difficulty ask, which the DM answers with a `ruling` Intent (the roll then runs).
+ * Returns the approved confirm proposal's id.
+ */
+async function approveRoll(w: World, worker: { drain: () => Promise<number> }) {
+  const [confirm] = await pending(w, "intent");
+  expect(confirm).toBeDefined();
+  await approve(w, worker, confirm?.proposalId as string);
+  const ruled = await w.as(operator, {
+    kind: "intent",
+    intent: {
+      id: "dc-1",
+      kind: "ruling",
+      actor: { kind: "dm" },
+      params: {
+        requestId: `${ACTION}.0`,
+        decision: "accept",
+        difficulty: "medium",
+      },
+      source: "console",
+      commit: "confirmed",
+    },
+  });
+  expect(ruled.ok ? "ok" : ruled.refusal).toBe("ok");
+  // The ruling's `proposal.approved` row comes from the human DM, not `ai:dm`, so the enqueuer
+  // queues no resume turn. Open question for the orchestrator (spec 102 enqueue rule 2): the
+  // test queues the `approval` turn by hand.
+  await enqueueTurn(requireDb(), w.sessionId, "approval", null);
+  await tick();
+  await drainAll(worker);
+  return confirm?.proposalId as string;
+}
+
 /** The session's turn jobs, oldest first. */
 async function turnJobs(w: World) {
   return (await listDmJobs(requireDb(), w.sessionId, 40, "turn")).reverse();
@@ -121,19 +160,19 @@ describe.skipIf(!reachable)(
     it("(a) approving the roll narrates in the resumed turn, with no second roll proposal", async () => {
       const { w, worker } = await humanDmWorld("human-dm-approval.json");
 
-      const rolls = await pending(w, "mechanics", "check.roll");
-      expect(rolls).toHaveLength(1);
+      expect(await pending(w, "intent")).toHaveLength(1);
       expect(
         (await w.projections()).actions.find((a) => a.actionId === ACTION),
       ).toMatchObject({ status: "committed" });
 
-      await approve(w, worker, rolls[0]?.proposalId as string);
+      const rollView = await approveRoll(w, worker);
 
       const jobs = (await turnJobs(w)).filter(
         (j) => (j.input as { trigger?: string }).trigger === "approval",
       );
-      expect(jobs).toHaveLength(1);
-      const job = jobs[0];
+      // The confirm's approval queues one turn (it finds the ask still open); the ruling, one more.
+      expect(jobs).toHaveLength(2);
+      const job = jobs.at(-1);
       expect(job?.status).toBe("succeeded");
       expect((job?.result as TurnResult | undefined)?.outcome.status).toBe(
         "completed",
@@ -141,13 +180,15 @@ describe.skipIf(!reachable)(
       expect(purposes(job)).toEqual(["dm.director", "dm.narrate"]);
 
       // One roll proposal ever, and it is the approved one.
-      const allRolls = await mechanics(w, "check.roll");
-      expect(allRolls).toHaveLength(1);
-      expect(allRolls[0]).toMatchObject({ status: "approved" });
+      // Spec 104: the confirm is one approved `intent` proposal; the ruling Intent's batch holds the roll.
+      expect(await pending(w, "intent")).toHaveLength(0);
       const view = (await w.projections()).proposals.find(
-        (v) => v.proposalId === rolls[0]?.proposalId,
+        (v) => v.proposalId === rollView,
       );
-      const batchId = view?.decided?.batchId;
+      expect(view).toMatchObject({ status: "approved" });
+      const batchId = (await w.projections()).intents.find(
+        (v) => v.id === `${ACTION}.0`,
+      )?.batchIds[0];
       expect(batchId).toBeTruthy();
 
       const action = (await w.projections()).actions.find(
@@ -172,7 +213,7 @@ describe.skipIf(!reachable)(
 
     it("(b) a manual turn while the roll is pending is an empty beat and proposes no second roll", async () => {
       const { w, worker } = await humanDmWorld("human-dm-approval.json");
-      expect(await pending(w, "mechanics", "check.roll")).toHaveLength(1);
+      expect(await pending(w, "intent")).toHaveLength(1);
       const before = (await turnJobs(w)).length;
 
       await enqueueTurn(requireDb(), w.sessionId, "manual", null);
@@ -190,25 +231,23 @@ describe.skipIf(!reachable)(
         "empty-beat",
       );
       expect(purposes(manual)).toEqual([]);
-      expect(await pending(w, "mechanics", "check.roll")).toHaveLength(1);
-      expect(await mechanics(w, "check.roll")).toHaveLength(1);
+      expect(await pending(w, "intent")).toHaveLength(1);
+      expect(await mechanics(w, "check.roll")).toHaveLength(0);
     });
 
     it("(c) a chain resumes step by step: roll, then effect, then one narration", async () => {
       const { w, worker } = await humanDmWorld("human-dm-roll-chain.json");
 
       // Approve the roll: the next turn only plans, proposes the effect, no second roll.
-      const rolls = await pending(w, "mechanics", "check.roll");
-      expect(rolls).toHaveLength(1);
-      const rollView = rolls[0]?.proposalId as string;
-      await approve(w, worker, rollView);
+      expect(await pending(w, "intent")).toHaveLength(1);
+      const rollView = await approveRoll(w, worker);
 
       let jobs = (await turnJobs(w)).filter(
         (j) => (j.input as { trigger?: string }).trigger === "approval",
       );
-      expect(jobs).toHaveLength(1);
-      expect(purposes(jobs[0])).toEqual(["dm.director"]);
-      expect(await mechanics(w, "check.roll")).toHaveLength(1);
+      expect(jobs).toHaveLength(2);
+      expect(purposes(jobs.at(-1))).toEqual(["dm.director"]);
+      expect(await mechanics(w, "check.roll")).toHaveLength(0);
       const effects = await pending(w, "mechanics", "condition.apply");
       expect(effects).toHaveLength(1);
       expect(
@@ -222,14 +261,17 @@ describe.skipIf(!reachable)(
       jobs = (await turnJobs(w)).filter(
         (j) => (j.input as { trigger?: string }).trigger === "approval",
       );
-      expect(jobs).toHaveLength(2);
-      expect(purposes(jobs[1])).toEqual(["dm.director", "dm.narrate"]);
-      expect(await mechanics(w, "check.roll")).toHaveLength(1);
+      expect(jobs).toHaveLength(3);
+      expect(purposes(jobs.at(-1))).toEqual(["dm.director", "dm.narrate"]);
+      expect(await mechanics(w, "check.roll")).toHaveLength(0);
 
       const p = await w.projections();
-      const batches = [rollView, effects[0]?.proposalId].map(
-        (id) => p.proposals.find((v) => v.proposalId === id)?.decided?.batchId,
-      );
+      const batches = [
+        p.intents.find((v) => v.id === `${ACTION}.0`)?.batchIds[0],
+        p.proposals.find((v) => v.proposalId === effects[0]?.proposalId)
+          ?.decided?.batchId,
+      ];
+      expect(rollView).toBeTruthy();
       expect(batches.every((b) => !!b)).toBe(true);
       const action = p.actions.find((a) => a.actionId === ACTION);
       expect(action?.status).toBe("resolved");
