@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: 2026-11-02 06:46
-updated_date: '2026-11-12T02:19:00Z'
+updated_date: '2026-11-12T02:57:00Z'
 labels:
   - web
   - dm
@@ -51,6 +51,9 @@ CP-5 ruling 2026-11-08 (docs/design/r1-fast-table-runbook.md) F2: this card owns
 T015 (spec 092): amend spec 066 against Intent contract v1.1 (decision-0030 + Amendments) before implementation: confirm row = declared->confirmed; action.suggest carries Intent bodies; quiet ring in exploration only, Enter commits in combat (this card owns it, F2); readable-post rule reads Intent kinds. Review at C-AMD.
 
 Claimed 2026-11-11 by the R1 sweep (docs/design/r1-fast-table-runbook.md). Worktree .worktrees/task-0199, branch task-0199-quiet-ring, cut from origin/main 9e51c948. No spec dir: signed escape line covers this task.
+
+Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5
+Spec 066 amended (282eb567, spec.md + plan.md). 70 tasks in 7 phases: split recommended (0199-server AC 1,2,3,5,6; 0199-web AC 4,7). Frozen-contract amendments C-1..C-9 listed in plan.md. Awaiting C-AMD (and C-GATE) review; tasks.md not re-derived yet.
 <!-- SECTION:NOTES:END -->
 
 ## Acceptance Criteria
