@@ -4,7 +4,7 @@ title: Human DM ruling queues the resume turn
 status: In Progress
 assignee: []
 created_date: '2026-11-12T01:14:00Z'
-updated_date: '2026-11-12T03:02:00Z'
+updated_date: '2026-11-12T03:07:00Z'
 labels:
   - ws:intent
   - replan-2026-11
@@ -37,4 +37,6 @@ Found in TASK-0269 (PR #168). When a human DM answers an open needs_ruling reque
 
 <!-- SECTION:NOTES:BEGIN -->
 Claimed 2026-11-11 by the R1 sweep (docs/design/r1-fast-table-runbook.md). Worktree .worktrees/task-0314, branch task-0314-ruling-resume, cut from origin/main c3eb7cf8. No spec dir: signed escape line covers this task.
+
+Escape line E10 signed by the operator 2026-11-11 in chat ("Sign E10"): card ACs drive, with no spec set.
 <!-- SECTION:NOTES:END -->
