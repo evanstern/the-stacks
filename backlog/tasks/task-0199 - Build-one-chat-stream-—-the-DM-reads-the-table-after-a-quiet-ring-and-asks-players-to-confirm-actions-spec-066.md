@@ -47,6 +47,7 @@ Spec: specs/066-one-chat-stream
 - [x] #10 Spec phase: Frozen-contract amendment blocks (C-GATE ruled 2026-11-11)
 - [x] #11 Spec phase: Wiki — server share (NEEDS-REVIEW)
 - [x] #12 Spec phase: Verification **[orchestrator]**
+- [ ] #13 Spec phase: DM runtime — window, marker, interrupt, read, rule 9 (card AC #1, #2, #5, #7)
 <!-- AC:END -->
 
 ## Definition of Done
