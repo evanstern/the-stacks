@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: 2026-11-02 06:46
-updated_date: '2026-11-12T03:31:00Z'
+updated_date: '2026-11-12T04:39:00Z'
 labels:
   - web
   - dm
@@ -79,4 +79,7 @@ Spec 066 re-scoped to the server half (5d9c8153): 53 tasks in 6 phases. The orch
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
 Phase 1 committed as c87570ed; ci:check green. Phase 2 hit TS2366: widening ProposalKindSchema breaks the exhaustive detailsOf in apps/web/app/play/proposals.ts. Orchestrator ruling: add two minimal case lines carrying a ponytail that names TASK-0315 (the TASK-0268 precedent), with no default case.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
+Phase 3 (797971db): ci:check green with REQUIRE_DATABASE=1, 1843 server tests. TASK-0314 took enqueue rule 8, so the direct-intent narration rule is rule 9 and nudge() is item 10. A ruling that fires both rules queues one turn (tested). Rule 9 is narrowed to settled-with-engine-rows or stopped, so speech and ask_dm do not queue a second narration turn (spec FR-031 note; orchestrator accepted). The intent turn skips the director call.
 <!-- SECTION:NOTES:END -->
