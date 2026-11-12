@@ -43,7 +43,7 @@ Spec: specs/066-one-chat-stream
 - [x] #6 Spec 066 is amended against Intent contract v1.1 and reviewed by the operator at C-AMD before implementation.
 - [x] #7 A direct intent request (not from a turn job) queues a coalesced turn that narrates its intent.recorded facts (moved from TASK-0247 by spec 066 OQ-3(b)).
 - [x] #8 Spec phase: Session model — event, catalog, projection, read rule (card AC #1, #2, #4)
-- [ ] #9 Spec phase: Gate — suggest, accept, `ask_dm` (card AC #3, #5)
+- [x] #9 Spec phase: Gate — suggest, accept, `ask_dm` (card AC #3, #5)
 - [ ] #10 Spec phase: DM runtime — window, marker, interrupt, read, rule 8 (card AC #1, #2, #5, #7)
 - [ ] #11 Spec phase: Frozen-contract amendment blocks (C-GATE ruled 2026-11-11)
 - [ ] #12 Spec phase: Wiki — server share (NEEDS-REVIEW)
