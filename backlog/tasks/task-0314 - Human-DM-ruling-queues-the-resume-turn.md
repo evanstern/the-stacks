@@ -1,10 +1,10 @@
 ---
 id: TASK-0314
 title: Human DM ruling queues the resume turn
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-11-12T01:14:00Z'
-updated_date: '2026-11-12T03:21:00Z'
+updated_date: '2026-11-12T03:30:00Z'
 labels:
   - ws:intent
   - replan-2026-11
@@ -43,3 +43,9 @@ Escape line E10 signed by the operator 2026-11-11 in chat ("Sign E10"): card ACs
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
 Enqueue rule 8 humanRulingResume (980e1c5b); wiki (c6497cd7). Full server suite REQUIRE_DATABASE=1: 1802 passed. TASK-0199's planned rule 8 becomes the next number.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Enqueue rule 8 (humanRulingResume): a human DM's ruling that answers an open request queues one approval turn, coalesced through the one-queued-turn index. human-dm-roll-resume runs with no hand-queued turn; 4 new enqueue cases. Escape line E10; PR #169.
+<!-- SECTION:FINAL_SUMMARY:END -->
