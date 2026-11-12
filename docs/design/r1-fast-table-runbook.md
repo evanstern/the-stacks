@@ -483,3 +483,4 @@ updated at each dispatch boundary. `tokens/cost` carries best-effort actuals.
 | 2026-11-11 | TASK-0268 | (this PR) | — | opus spec (~2h, nudged); sonnet x3 | C-GATE "Approve all"; intent kind, intent.recorded carrier, AI-seat ruling turn; spec 029 contracts amended |
 | 2026-11-11 | TASK-0272 | (this PR) | — | opus spec; sonnet x5 | C-AUD: B2 replay 25 turns, 0 leak, 0 contradiction (after the departed-actor fix); OQ-1 isolated in 320aee54; OQ-8 window moved to TASK-0269 |
 | 2026-11-11 | TASK-0269 | (this PR) | — | opus spec; sonnet x5 | split ruled (AC #4/#6 to TASK-0312); C-GATE "Relax the gate (a)"; red interim commits by ruling |
+| 2026-11-11 | TASK-0314 | (this PR) | — | sonnet x1 | E10; human-DM ruling queues the resume turn (enqueue rule 8) |
