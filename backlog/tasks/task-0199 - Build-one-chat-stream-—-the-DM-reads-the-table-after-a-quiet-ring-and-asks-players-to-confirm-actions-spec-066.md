@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: 2026-11-02 06:46
-updated_date: '2026-11-12T03:05:00Z'
+updated_date: '2026-11-12T03:31:00Z'
 labels:
   - web
   - dm
@@ -76,4 +76,7 @@ C-AMD ruling (operator, 2026-11-11, in chat): "Approve all". This approves: the 
 
 Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5
 Spec 066 re-scoped to the server half (5d9c8153): 53 tasks in 6 phases. The orchestrator keeps contract blocks C-6, C-7 and C-9 in this card's Phase 4, so every frozen-contract change lands in one PR and TASK-0315 builds against them.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
+Phase 1 committed as c87570ed; ci:check green. Phase 2 hit TS2366: widening ProposalKindSchema breaks the exhaustive detailsOf in apps/web/app/play/proposals.ts. Orchestrator ruling: add two minimal case lines carrying a ponytail that names TASK-0315 (the TASK-0268 precedent), with no default case.
 <!-- SECTION:NOTES:END -->
