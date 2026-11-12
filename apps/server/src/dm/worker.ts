@@ -202,7 +202,8 @@ export function createDmWorker(deps: DmWorkerDeps): DmWorker {
     let presenceFailure: TurnFailure | null = null;
     try {
       const recorded = await deps.gate.recordPresence(job.sessionId, {
-        purpose: "director",
+        // Spec 066 FR-009: a `talk` turn is a read; every other turn keeps the Director marker.
+        purpose: job.input.trigger === "talk" ? "read" : "director",
       });
       if (recorded.ok) presenceSeq = recorded.event.seq;
       else {
@@ -355,7 +356,8 @@ export function createDmWorker(deps: DmWorkerDeps): DmWorker {
     }
 
     if (outcome.status === "failed") {
-      // A lost lease or a shutdown leaves the job for a reclaim.
+      // A lost lease or a shutdown leaves the job for a reclaim. An interrupted read
+      // (`interruptRead` already finished the job) writes nothing either.
       if (
         outcome.error.kind === "fenced" ||
         outcome.error.kind === "aborted" ||

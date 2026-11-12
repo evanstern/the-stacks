@@ -24,6 +24,7 @@ export const DEFAULT_POLICIES: PolicyTable = {
   journal: "auto",
   floor: "ask",
   intent: "ask",
+  "action.suggest": "auto",
 };
 
 /**
@@ -52,7 +53,8 @@ export function routeProposal(
   if (!isAiDm(proposer)) return { route: "direct" };
   if (
     proposal.kind === "action.declare" ||
-    proposal.kind === "action.withdraw"
+    proposal.kind === "action.withdraw" ||
+    proposal.kind === "action.accept"
   ) {
     return { route: "refuse", code: "NOT_AUTHORIZED" };
   }

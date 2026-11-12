@@ -110,3 +110,12 @@ export interface ConfirmView {
 
 `ConfirmView` is a pure function of the projection (`suggestionState`). `ProposalCommands`,
 `PendingProposalView` and `CommitAuthority` are unchanged.
+
+**Amendment (TASK-0199).** Amended 2026-11-11 (spec `specs/066-one-chat-stream`, plan.md "Frozen-contract amendments", row C-6; P-04, decision-0030).
+
+> "Approve all" (operator, C-GATE ruling, 2026-11-11: approves C-1 to C-9 as written in spec 066 plan.md)
+
+`ConfirmView` lines change from `{ text, check }` to `{ text, kindLabel }`, built over an Intent
+item. The active player's `commitsOnOwnTurn` leaves `ActionCardView`.
+
+Dated note, 2026-11-11 (T043): TASK-0315 builds this view. The server half exports the data it reads (`SuggestionView`, `suggestionState`).

@@ -5,9 +5,14 @@ import { RefIdSchema } from "../ids.js";
  * The presence marker (decision-0024, option D): a public `system` row that records which
  * human users were present at the table at the instant a decision was taken. Only
  * `apps/server/src/gate/` appends it. `signoff` and `floor` are reserved for TASK-0049 and
- * TASK-0050; this task writes only `director`.
+ * TASK-0050; `read` marks the start of an AI DM table read (spec 066 FR-009).
  */
-export const PRESENCE_PURPOSES = ["director", "signoff", "floor"] as const;
+export const PRESENCE_PURPOSES = [
+  "director",
+  "signoff",
+  "floor",
+  "read",
+] as const;
 export type PresencePurpose = (typeof PRESENCE_PURPOSES)[number];
 
 export const PresenceRecordedV1 = z.object({

@@ -415,3 +415,11 @@ A refusal writes nothing.
 (`state-change`, any, `ZoneRevealedV1`; the gate writes it, always `public`). It carries a map
 delta, so it has no `before` or `after`. Payload versions are unchanged. Detail:
 `specs/100-spatial-events/contracts/zone-revealed.md`.
+
+**Amendment (TASK-0199).** Amended 2026-11-11 (spec `specs/066-one-chat-stream`, plan.md "Frozen-contract amendments", row C-4; P-04, decision-0030).
+
+> "Approve all" (operator, C-GATE ruling, 2026-11-11: approves C-1 to C-9 as written in spec 066 plan.md)
+
+`ActionSuggestedV1` items are `{ itemId, text, intent }` with `intent.commit: "declared"` (see
+`specs/029-proposal-gate/contracts/proposal-events.md`). `ActionDeclaredV1` gains no `suggestionId`.
+The `PresenceRecordedV1.purpose` value `read` stands.

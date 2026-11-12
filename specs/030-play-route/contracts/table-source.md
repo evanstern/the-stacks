@@ -92,3 +92,11 @@ Amendment (TASK-0188, decision-0028 §8; operator ruling 2026-11-02: "All (a), a
 itemId }): boolean` and `suggest(input: { readSeq, items }): boolean`. `commit` stays, used by
 the DM viewer only. Rule 1's UI state gains the speaker choice, the open dropdown, the interrupt
 strip and the open confirm editor. The ring and Thinking are derived from `events` and the clock.
+
+**Amendment (TASK-0199).** Amended 2026-11-11 (spec `specs/066-one-chat-stream`, plan.md "Frozen-contract amendments", row C-7; P-04, decision-0030).
+
+> "Approve all" (operator, C-GATE ruling, 2026-11-11: approves C-1 to C-9 as written in spec 066 plan.md)
+
+The composer sends `intent` requests in place of `talk` lines: parsed Intents, `declared` in free
+mode and `confirmed` in turn mode. The active player's prose in turn mode goes as `action.declare`
+then `action.commit`. `accept` and `suggest` stay. No `The party` speaker remains.

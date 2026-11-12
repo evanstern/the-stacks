@@ -27,7 +27,8 @@ type TalkLike = Extract<
       | "action.commented"
       | "action.committed"
       | "action.resolved"
-      | "action.withdrawn";
+      | "action.withdrawn"
+      | "action.suggested";
   }
 >;
 
@@ -79,6 +80,14 @@ export function transcriptEntry(event: TalkLike): TranscriptEntry {
         ...b,
         kind: "action.withdrawn",
         actionId: event.payload.actionId,
+      };
+    case "action.suggested":
+      return {
+        ...b,
+        kind: "action.suggested",
+        suggestionId: event.payload.suggestionId,
+        readSeq: event.payload.readSeq,
+        items: event.payload.items,
       };
     case "action.resolved":
       return {

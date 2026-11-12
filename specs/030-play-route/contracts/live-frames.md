@@ -70,3 +70,10 @@ Amendment (TASK-0188, decision-0028 §8; operator ruling 2026-11-02: "All (a), a
 
 The `declareAction` and `comment` rows leave the web client; the gate still accepts both requests.
 The `send` frame shape is unchanged.
+
+**Amendment (TASK-0199).** Amended 2026-11-11 (spec `specs/066-one-chat-stream`, plan.md "Frozen-contract amendments", row C-7; P-04, decision-0030).
+
+> "Approve all" (operator, C-GATE ruling, 2026-11-11: approves C-1 to C-9 as written in spec 066 plan.md)
+
+The `intent` request frame carries an `IntentSchema` value. `accept` and `suggest` frames keep their
+shape; the `suggest` payload items are `{ itemId, text, intent }` per C-1.

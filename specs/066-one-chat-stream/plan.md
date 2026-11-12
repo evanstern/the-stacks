@@ -1,470 +1,267 @@
-# Implementation Plan: One chat stream — players talk, the DM confirms each action
+# Implementation Plan: One chat stream — players talk, the DM confirms each Intent
 
-**Branch**: `task-0188-one-chat-stream` | **Date**: 2026-11-02 | **Spec**: [spec.md](spec.md)
+**Branch**: `task-0199-quiet-ring` | **Date**: 2026-11-11 (amended; first written 2026-11-02 on
+`task-0188-one-chat-stream`) | **Spec**: [spec.md](spec.md)
 
-**Input**: `specs/066-one-chat-stream/spec.md` and decision-0028 (D20, accepted). The operator ruled
-every open question (a) and approved the section 8 amendments: "All (a), amend" (2026-11-02). The
-frozen-contract amendment blocks land with this spec set (see "Contract amendments").
+**Input**: spec.md with its "Amendment (2026-11, Intent contract v1.1)" section. P-04, decision-0030
+(v1.1), spec 092 plan "Downstream amendments", CP-5 F2. **Authored against** `origin/main`
+`9e51c948`: spec 102 plan `86d425b6` (merged), spec 104 plan `f61a0bac` (merged), Intent contract
+v1.1. The 2026-11-02 plan is in git history (`3aaf8279`); this file replaces it.
+
+## Split check (runbook "Cards needing spec amendments or splitting")
+
+**Ruled 2026-11-11 (C-AMD, "Approve all"): split.** The amendment derived 70 tasks in 7 phases
+across the server talk path and the web composer. This card (TASK-0199) is now the server half:
+**53 tasks in 6 phases** (see "Phases"). The web half is TASK-0315 (spec.md "Split out to
+TASK-0315"). This card ships no `apps/web` change; D4 below stays as TASK-0315's design input.
+
+| Card | Card ACs | Hotspots |
+|---|---|---|
+| **TASK-0199** (server) | #1 to #7 (2026-11-11 numbering) | `gate/{plan,proposals,intents}.ts`, `catalog.ts`, `events/*.ts`, `dm/{talk-turn,jobs,enqueue}.ts` |
+| **TASK-0315** (web) | Enter commits in combat; one composer verified in Brave | `play/view-model.ts`, `table-view.tsx`, `components/{composer,transcript}.tsx` |
+
+TASK-0314 merges before this card (OQ-4). Its human-ruling resume rule lands in `dm/enqueue.ts`;
+rule 9 here sits beside it (rule 8 is TASK-0314's).
 
 ## Summary
 
-The composer becomes one Send button with a speaker chip. Every line is `talk`. A shared readable
-rule in `@the-stacks/session-model` decides which posts the DM reads. A readable post moves the
-session's `talk` turn to the post's `ts` + 10 s (5 s for the active player in turn mode). The
-worker logs a `presence.recorded` marker with purpose `read` when it claims the turn. The talk
-path returns a D19 outcome or `confirm`, plus an optional `@dm` answer. A `confirm` ships as a new
-DM kind `action.suggest` (event `action.suggested`). A player's 👍 sends a new request
-`action.accept`, which the planner turns into `action.declared` and `action.committed` in one
-batch. `action.withdraw` widens to committed, unresolved actions. The web removes the sign-off UI
-and draws the ring, Thinking, the interrupt strip and the confirm row from logged rows.
+Every composer line becomes an Intent. Send parses the line with the v1.1 grammar and sends one
+`intent` request (spec 102). In free mode the Intent is `declared`; in turn mode it is `confirmed`,
+so the active player's Enter commits (TASK-0315). A pure `readablePosts(p)` in session-model picks the posts the
+AI DM reads: free-mode speech and `declared` mechanical Intents, plus `ask_dm` in any mode. A
+readable post moves the session's `talk` turn to the post's `ts` + 10 s. The read returns a D19
+outcome, or `confirm` with Intent bodies, plus an optional `ask_dm` answer. A `confirm` ships as
+`action.suggest` with `declared` Intents. A 👍 sends `action.accept`, which plans the item's Intent
+as `confirmed` through `planIntent`. A human DM seat reads nothing, so the ring is off. A direct `intent` request outside a turn job
+queues a coalesced `intent` turn that narrates it (card AC #7).
 
 ## Technical Context
 
 **Language/Version**: TypeScript (Node 22), as the repo.
-**Primary Dependencies**: Zod, Vitest, Drizzle, React Router 8. No new dependency.
-**Storage**: Postgres event log; `jobs.input` and `jobs.result` JSON. No migration.
-**Testing**: Vitest unit tests; DB integration tests with `REQUIRE_DATABASE=1`; the fake gateway and
-DM scripts (spec 053); web markup tests under `apps/web/test/play/`.
-**Target Platform**: `packages/session-model`, `apps/server/src/{gate,dm}`, `apps/web/app/play`.
-**Project Type**: monorepo web service.
-**Performance Goals**: one model call per read, as spec 065. A confirm lands about 10 s plus one
-`dm.narrate`-class call after the last readable post.
-**Constraints**: serial hotspots: `gate/plan.ts`, `dm/talk-turn.ts`, `dm/jobs.ts`, `dm/enqueue.ts`,
-`play/view-model.ts`, `play/components/composer.tsx`. No other lane edits them while this branch is
-open.
-**Scale/Scope**: about 30 source files, 15 test files, 2 DM scripts, 18 contract files.
+**Primary Dependencies**: Zod, Vitest, Drizzle, React Router. `@the-stacks/intent` is already a
+dependency of session-model, server and web (spec 102). **New runtime dependencies: none.**
+**Storage**: Postgres event log; `jobs.input` / `jobs.result` JSON. **Migrations: none.** A new turn
+trigger (`intent`, OQ-3 (b)) is a Zod enum value in `jobs.input`, not a column constraint.
+**Prompt versions**: `dm.react-v3` → `dm.react-v4`. No purpose change, no hosted config change.
+**Testing**: Vitest unit tests; DB tests with `REQUIRE_DATABASE=1`; the fake gateway and DM scripts
+(spec 053); web markup tests under `apps/web/test/play/`; `apps/web/test/no-dialog.test.mjs`.
+**Performance Goals**: P-14. A 👍 or combat Enter reaches fact rows in < 1 s p95 (no model call on
+that path). A read is one `dm.narrate`-class call; a read of only declared Intents makes none.
+**Constraints**: runbook hotspots — `gate/{proposals,plan}.ts` (0268 merged; 0276), `catalog.ts` and
+`events/*.ts` (0247, 0276), `dm/{talk-turn,jobs,enqueue}.ts` (0272 merged; TASK-0314), web
+`view-model.ts`, `table-view.tsx`, `composer.tsx`, `transcript.tsx` (0247, 0275, 0276, 0277).
 
 ## Constitution Check
 
-Against `.specify/memory/constitution.md` 2.0.0. Re-checked after design: unchanged.
+Against `.specify/memory/constitution.md` **3.0.0**. Re-checked after design: unchanged.
 
-- [x] **I. Agent-operable**: every gesture is a gate request a VTT or script can send (D20 §5). The
-      read outcome and the interrupt are in `jobs.result.talk`.
-- [x] **II. Content contract**: no codex entity. N/A.
-- [x] **III. Data planes**: session plane only.
-- [x] **IV. Event sourcing**: one new event (`action.suggested`), written only through
-      `gate.submit`/`gate.handle`. The ring, Thinking and staleness are derived from logged rows;
-      none is logged or stored client-side as state.
-- [x] **V. Citations**: no rules claim. N/A.
-- [x] **VI. 5e engine boundary**: no mechanics change. `check` is matched against the engine's
-      `SkillSchema`; it binds no roll.
-- [x] **VII. Structured first**: the read output, the suggestion and the accept request are Zod
-      schemas.
-- [x] **VIII. Operator-owned content**: fixtures and scripts use `greyhollow-ford-duo`.
-- [x] **IX. Self-hostable**: no new purpose, service or config.
+- [x] **I. Agent-operable**: every gesture is a gate request (`intent`, `action.suggest`,
+      `action.accept`) a VTT, a script or the AI can send. The read outcome is in `jobs.result.talk`.
+- [x] **II. One Intent vocabulary**: the composer sends Intents parsed by the contract grammar; the
+      confirm row carries Intents; a 👍 plans through the planner. The one non-Intent path is combat
+      prose (`action.declare` + `action.commit`), which spec 104 turns into Intent stages.
+- [x] **III. Event-sourced, server authority**: one new event (`action.suggested`), written only via
+      `gate.submit` / `gate.handle`. Ring, Thinking and staleness derive from logged rows.
+- [x] **IV. Three data planes**: session plane only.
+- [x] **V. Many views**: `ask_dm` rows carry the asker's user-id visibility; `canSee` filters them.
+- [x] **VI. Engine owns the numbers**: model confirm bodies use the spec 104 interpret body schema
+      (no `dc`); `MODEL_NUMBER` still holds at the gate.
+- [x] **VII. Narration around facts**: a 👍'd check's fact rows come from the engine; narration of
+      them is OQ-3 (b).
+- [x] **VIII. Campaign is data**: fixtures and scripts use `greyhollow-ford-duo`.
+- [x] **IX. UX quality bar**: no modals (inline dropdowns, inline strip, inline editor); 1280 px and
+      390 px; keyboard and screen reader (listbox roles, `role="status"` Thinking); status words
+      beside colour ("Confirmed", "Superseded"); **the quiet ring in exploration only, explicit turns
+      in combat** (P-04).
+- [x] **X. Citations**: no rules claim. N/A.
+- [x] **XI. Operator-owned content**: no codex change. N/A.
+- [x] **XII. Self-hostable**: no new purpose, service or config.
+- [x] **XIII. Plan just-in-time**: every deferral is an open question with a recommended home.
 
-**Stack conformance**: no departure.
-
-## Binding constraints check (decision-0028, round 2 brief)
-
-| Constraint | How this plan holds it |
-|---|---|
-| No modals | The speaker dropdown, the `@` autocomplete, the interrupt strip and the human DM's confirm editor are inline, in normal flow under their control. No `<dialog>`, `aria-modal` or `fixed inset-0` under `app/play/` (030 `ui-surfaces.md` "Forbidden"; the `table-view.test.tsx` no-modal assertion is extended to the new components). |
-| Chat is a view over the log | Every rendered line, the confirm state and the read marker come from `project(events, viewer)`. The ring and Thinking are pure functions of logged `ts` values and the clock (`play/read-ring.ts`). |
-| No client-only state shown as logged | Not quite logs nothing and shows nothing in the transcript. A 👍 renders "Confirmed" only after `action.committed` arrives (no optimistic append, 030 `table-source.md` rule 2). The draft and the open strip are UI state only. |
-| `ai:dm` never declares or withdraws for a player | `ai:dm` `action.accept` is `NOT_AUTHORIZED` in `routeProposal` and `checkPermission`. `action.declare` and `action.withdraw` from `ai:dm` stay refused. A write-boundary test pins that no server file builds `action.accept`. |
-| DM-only text never reaches players | Confirm wording and the `@dm` answer pass `dmOnlySeedText`, `checkClaims` and the digit check (D3). The react prompt reads the `PlayerSeedView` only (`player-facing-prompts.test.ts`). `action.suggested` is public by rule; the planner refuses any other visibility. |
-| Write boundary (`apps/server/test/write-boundary.test.ts`) | No new writer import. `dm/talk-turn.ts` ships through `gate.submit` only. The interrupt is a `jobs` update in `dm/jobs.ts`, not an event write. Two pins are added (D2). |
-| Only a committed action reaches the pipeline | Accept writes `action.committed` in the same batch as the declare. An unanswered suggestion has no action. |
-| Frozen contracts change only on a ruling | Every amendment block cites decision-0028 §8 and the 2026-11-02 ruling. `TalkV1` and the `ws-protocol.md` frames are unchanged. |
-
-## Research
-
-- **R1 — Request routing.** `GATE_REQUEST_KINDS` is derived from `GateRequestSchema`, and the WS
-  gateway forwards any member to `gate.handle` (029 `ws-delivery.md`). New proposal kinds need no
-  gateway or frame change.
-- **R2 — The planner already batches.** `plan()` returns `rows[]` appended atomically
-  (`action.comment` returns three rows today). Accept follows that shape.
-- **R3 — Talk isolation.** `talk-isolation.test.ts` pins that `talk` and `narration` change only
-  `transcript`, `throughSeq` and `diagnostics`. Staleness is therefore derived from the transcript
-  by a helper, not folded into a projection field, so that invariant holds unchanged.
-- **R4 — Withdraw fold.** `applyLifecycle` ignores `action.withdrawn` on a committed action (029
-  `proposal-events.md`, "Action withdrawal"). OQ-R4 (a) needs that rule widened, not only the
-  planner.
-- **R5 — Beats.** `toBeatItem` (`nodes/assemble.ts`) keeps only `committed`/`resolved` actions, so a
-  withdrawn action leaves every later beat. A running beat froze it at assemble, so resolve needs a
-  fresh status check (FR-019).
-- **R6 — Reconcile.** `reconcileTurnJobs` finds committed, unresolved actions. It must skip a later
-  `action.withdrawn`.
-- **R7 — Floor stall.** `floorWaits` cancels a stall on `action.committed` before it arms on
-  `action.declared`, and `isStallCandidate` reads fresh status. An accept batch therefore never
-  arms a stall. No floor change.
-- **R8 — Fencing.** Every fenced write filters on `jobs.claim_token`. Rotating the token of a
-  running job makes the worker's next fence, heartbeat or save fail; the worker then aborts and
-  writes nothing (`worker.ts`, the `fenced`/`aborted` early return).
-- **R9 — Talk path cutoff.** `readPosts` (`dm/talk-turn.ts`) starts after the last `ai:dm`
-  narration. Under D20 a confirm or an `@dm` answer is also a read output, so the cutoff widens.
-- **R10 — Player-facing transcript.** `transcriptEntries` (`prompts/common.ts`) filters to public
-  entries when given a roster. OOC talk passes today.
-- **R11 — Skills.** `SkillSchema` (`packages/dnd5e-engine/src/schema/state.ts`) is the closed skill
-  list.
-- **R12 — Fixture ids.** `RefIdSchema` allows 64 characters. `sug-<uuid>` (40) plus `.i<n>` fits.
+**Quality gate "Intent contract tests"** (runbook Intent PRs): `ask_dm` gets a gate test per
+outcome; `action.accept` gets a test per outcome of the item's Intent (`settled`, `needs_ruling`,
+refusal). **Complexity Tracking**: none.
 
 ## Design
 
-### D1 — Session model: events, catalog, projection, the readable rule
+### D1 — Session model (`packages/session-model/src/`)
 
-`packages/session-model/src/`:
+- `events/actions.ts`: new `ActionSuggestedV1 { suggestionId, readSeq, items: SuggestionItemV1[1..4] }`,
+  `SuggestionItemV1 { itemId /^i[1-4]$/, text 1..500, intent: IntentSchema }`, refined so
+  `intent.commit === "declared"` and the ids are unique. `ActionDeclaredV1` is unchanged.
+- `events/presence.ts`: `PRESENCE_PURPOSES` gains `"read"`.
+- `catalog.ts`: `session("action.suggested", "lifecycle", ActionSuggestedV1)` (+1 entry).
+- `projections/{types,apply}.ts`: `suggestions: SuggestionView[]`; the transcript gains an
+  `action.suggested` entry; `PresenceView.purpose` gains `read`. `action.withdrawn` fold unchanged.
+- `read.ts` (new, pure, exported): `isDmQuestion(text)`, `readablePosts(p)` (spec FR-006 rules 1–4
+  over `p.intents` joined to transcript seqs), `latestReadablePostSeq(p)`, `readWindowMs(post, p)`
+  (10 000; 0 for `ask_dm` in turn mode), `READ_QUIET_MS`, `RING_BLANK_MS`, `isDmReadOutput(entry)`,
+  `suggestionState(p, intentId)` (the item Intent id `<suggestionId>.<itemId>`; stale per FR-018; confirmed when `p.intents` holds that id; `missing` when no suggestion names it). `IntentView` gains `ts` (the first carrier row's `ts`) and the projection gains `suggestions: SuggestionView[]`.
+- `fixtures/one-chat-stream.ts` (new) plus `fixtures/index.ts`: say posts, a declared `hide`, a
+  `read` marker, `sug-1`, a stale reply, a party `attempt` suggestion, its 👍, an `ask_dm` and its
+  answer, and a turn-mode segment.
 
-- `events/actions.ts`:
-  - `ActionDeclaredV1` gains `suggestionId: RefIdSchema.optional()`. Version stays 1; old rows
-    still parse.
-  - New `ActionSuggestedV1`:
-    ```ts
-    export const SuggestionItemV1 = z.object({
-      itemId: z.string().regex(/^i[1-4]$/),
-      characterId: RefIdSchema.nullable(),
-      scope: z.enum(["character", "party"]),
-      text: z.string().min(1).max(500),
-      check: z.string().min(1).max(40).nullable(),
-    }).refine((i) => i.scope === "party" || i.characterId !== null);
-    export const ActionSuggestedV1 = z.object({
-      suggestionId: RefIdSchema,
-      readSeq: z.number().int().min(0),
-      items: z.array(SuggestionItemV1).min(1).max(4),
-    }).refine(unique item ids && RefIdSchema accepts `${suggestionId}.${itemId}`);
-    export const suggestionActionId = (s: string, i: string) => `${s}.${i}`;
-    ```
-- `events/presence.ts`: `PRESENCE_PURPOSES` gains `"read"`. Update the header comment.
-- `catalog.ts`: `session("action.suggested", "lifecycle", ActionSuggestedV1)`. The catalog grows
-  from 37 to 38 entries (20 session entries).
-- `projections/types.ts` and `apply.ts`:
-  - `ActionView` gains `suggestionId: string | null`, copied from `action.declared`.
-  - `SessionProjections` gains `suggestions: SuggestionView[]` (`{ suggestionId, seq, ts, actor,
-    readSeq, items }`), appended by `action.suggested`; a duplicate id counts
-    `ignoredTransitions`. The transcript gains `{ kind: "action.suggested", suggestionId, readSeq,
-    items }`.
-  - `PresenceView.purpose` gains `"read"`.
-  - `action.withdrawn` also moves a `committed` action to `withdrawn` (R4). A resolve on a
-    withdrawn action stays ignored (counted).
-- New `read.ts` (pure, exported from the index):
-  - `isDmQuestion(text)`: `/(^|[^\p{L}\p{N}_@])@dm(?![\p{L}\p{N}_])/iu`.
-  - `isReadablePost(entry, p)`: FR-005 over a transcript `talk` entry (`actor`, `visibility`,
-    `channel`, `text`). Humans are actors that are not `ai:*` and not `system`.
-  - `readWindowMs(entry, p)`: 5000 for FR-005 rule 2, else 10000. Export `READ_QUIET_MS = 10_000`,
-    `READ_QUIET_TURN_MS = 5_000`, `RING_BLANK_MS = 2_000`, `RING_BLANK_TURN_MS = 1_000`.
-  - `isDmReadOutput(entry)`: an `ai:dm` `narration`, an `action.suggested` entry, or an `ai:dm`
-    OOC `talk` entry.
-  - `suggestionState(p, suggestionId)`: `{ stale, staleSeq, items: [{ itemId, actionId,
-    accepted }] }`. Stale per FR-017, from later transcript entries; accepted when
-    `p.actions` holds the derived action id.
-  - `latestReadablePostSeq(p)`.
-- `fixtures/one-chat-stream.ts` (new): AI seat; Tamsin and Kestrel (players), Odo (companion);
-  Tamsin and Kestrel IC posts; a `read` marker; a suggestion `sug-1` (Kestrel, Stealth); a
-  correction post; a reply narration (stale `sug-1`); a party suggestion `sug-2`; Kestrel's accept
-  (`action.declared` with `suggestionId`, `action.committed` `group`); a withdraw of that committed
-  action; an `@dm` post and its `ai:dm` OOC answer. Add it to `fixtures/index.ts` (eleven
-  fixtures).
+### D2 — Gate (`packages/session-model/src/gate/`)
 
-### D2 — Gate core: kinds, permission, planner, refusals
+- `proposals.ts`: kinds `action.suggest { suggestion: ActionSuggestedV1 }` and
+  `action.accept { suggestionId, itemId }`. `DmProposalKindSchema` excludes `action.accept`.
+  Code counts: 16 → 18 kinds, 20 → 22 request literals (the contract already reads 18 / 15 / 22).
+- `policy.ts`: `"action.suggest": "auto"`; `routeProposal` refuses `ai:dm` `action.accept`.
+- `permissions.ts`: `action.suggest` joins the DM-kind row; `action.accept` passes humans only.
+- `refusals.ts`: `SUGGESTION_STALE`, `SUGGESTION_NOT_FOUND`.
+- `plan.ts`: `case "action.suggest"` (id reuse → `INVALID_PROPOSAL`; item Intent ids must be `<suggestionId>.<itemId>` (else `INVALID_PROPOSAL`); the `ai:dm`-only `readSeq` guard →
+  `SUGGESTION_STALE`; item actors must be `pc` controlled by a human → `INVALID_PROPOSAL`; one
+  public row). `case "action.accept"`: the FR-016 checks, then `planIntent(p, proposer,
+  { ...item.intent, commit: "confirmed", source: "composer", actor }, …)`. Extract the declare
+  block's `CHARACTER_UNABLE` test into `unableRefusal(p, proposer, scope, characterId)`.
+- `intents.ts`: `planGateKind` serves `ask_dm` (spec FR-028; visibility = proposer user id; drop the
+  `UNSERVED_OWNER.ask_dm` entry). `notYourTurn` unchanged.
+- `apps/server/src/gate/gate.ts`: `recordPresence` purpose type gains `read`.
+- `apps/server/test/write-boundary.test.ts`: only `dm/talk-turn.ts` builds `kind: "action.suggest"`;
+  no `src/` file builds `kind: "action.accept"`.
 
-`packages/session-model/src/gate/`:
+### D3 — DM runtime (`apps/server/src/dm/`)
 
-- `proposals.ts`: `ProposalKindSchema` gains `"action.suggest"` and `"action.accept"` (17 kinds).
-  `DmProposalKindSchema` excludes `action.declare`, `action.withdraw` and `action.accept` (14 DM
-  kinds). Schemas:
-  ```ts
-  z.object({ kind: z.literal("action.suggest"), ...ProposalNote, suggestion: ActionSuggestedV1 }),
-  z.object({ kind: z.literal("action.accept"), ...ProposalNote,
-    suggestionId: RefIdSchema, itemId: z.string().regex(/^i[1-4]$/) }),
-  ```
-  `GATE_REQUEST_KINDS` grows from 19 to 21.
-- `policy.ts`: `DEFAULT_POLICIES["action.suggest"] = "auto"`. `routeProposal`: `ai:dm` with
-  `action.accept` is `NOT_AUTHORIZED`, beside declare and withdraw.
-- `permissions.ts`: `action.suggest` joins the DM-kind row (seated human DM or `ai:dm`).
-  `action.accept` passes for a human proposer only; AI proposers get `NOT_AUTHORIZED`. The planner
-  decides the item rule.
-- `refusals.ts`: add `SUGGESTION_STALE` and `SUGGESTION_NOT_FOUND`.
-- `plan.ts`:
-  - `action.suggest`: refuse `INVALID_PROPOSAL` when `suggestionId` exists in `p.suggestions` or
-    any derived action id exists. For `ai:dm`, refuse `SUGGESTION_STALE` when
-    `latestReadablePostSeq(p) > readSeq`. Plan one public `action.suggested` row.
-  - `action.accept`: in order: suggestion and item exist (`SUGGESTION_NOT_FOUND`); not stale
-    (`SUGGESTION_STALE`); derived action id unused (`ACTION_EXISTS`); acceptor rule: a character
-    item needs a human controller match (`NOT_AUTHORIZED`), a party item needs a human party
-    member (`NOT_AUTHORIZED`); the `CHARACTER_UNABLE` check shared with declare (extract the
-    existing block into `unableRefusal(p, proposer, scope, characterId)`); in turn mode a character
-    item needs the active actor (`COMMIT_NOT_ALLOWED`). Plan two public rows: `action.declared`
-    `{ actionId, characterId, scope, text: check ? `${text} — ${check}` : text, suggestionId }`
-    and `action.committed` `{ actionId, authority }`. Authority: `group` for party, else
-    `active-player` in turn mode, else `declarer`. No sign-off marker.
-  - `action.declare`: refuse `INVALID_PROPOSAL` when the payload carries `suggestionId`.
-  - `action.withdraw`: accept status `declared`, `discussed` or `committed`.
-- `authority.ts`: unchanged. `commitAuthority` still governs direct commits (OQ-11 (a)).
+- `talk-triggers.ts`: `isReadable` delegates to `readablePosts`; `needsModel` per FR-010.
+- `jobs.ts`: `enqueueTalkTurn(db, sessionId, triggerSeq, { postTs, windowMs })` (no max-wait cap;
+  old rows with `firstPostAt` still parse). New `interruptRead(db, sessionId)` (rotate the claim
+  token of a running empty-beat `talk` turn that has shipped nothing; result `interrupted`).
+  `TurnTriggerSchema` gains `intent` (OQ-3 (b) only).
+- `enqueue.ts`: rule 6 rewritten (interrupt, then queue or move the read; drop `talkQuietMs` and
+  `talkMaxWaitMs`, add the `readWindowMs` seam). New rule 9 (spec FR-031, card AC #7): an
+  `intent.recorded` row with outcome `settled` or a `stopped` refusal, in a batch that no turn job
+  appended, queues a coalesced `intent` turn. Place it beside TASK-0314's resume rule and share its
+  "appended by a job" test. The `intent` turn runs the pipeline with an empty beat, so narrate reads
+  the row through the spec 104 window (`factsThrough`, `loadEvents`).
+- `worker.ts`: purpose `read` when `job.trigger === "talk"`; an interrupted run returns through the
+  fenced/aborted path.
+- `nodes/schemas.ts` `ReactOutput`: outcome gains `confirm`; `confirm: { characterId | null, text,
+  body: IntentBody }[0..4]` (reuse spec 104 `IntentBodySchema`); `answer: string | null`.
+- `prompts/react.ts`: `dm.react-v4`. Rules: speech → `reply`; a deed with an uncertain outcome →
+  `confirm`, one item per acting human character, never a companion; `answer` only for `ask_dm`
+  posts. Inputs gain the human-controlled characters and the `ask_dm` posts.
+- `prompts/common.ts`: player-facing tails drop `ooc` talk; render an `action.suggested` line.
+- `talk-turn.ts`: cutoff after the latest `isDmReadOutput`; code items for rule-2 posts; model items
+  stamped and validated (FR-011); the spec 103 narration check on item text and answer (FR-012);
+  ship order answer → confirm → D19 row, each fenced, with reclaim keys `answer:` / `confirm:`;
+  `SUGGESTION_STALE` records `interrupted`. `jobs.result.talk` gains `confirmItems`, `answered`.
+- `intent-runner.ts`: unchanged; OQ-9's id rule keeps its declares out of the read.
 
-`apps/server/src/gate/`:
+### D4 — Web (`apps/web/app/play/`) — TASK-0315 design input, not built here
 
-- `gate.ts`: `recordPresence` input purpose type gains `"read"`. Nothing else: new kinds flow
-  through `submit`/`handle` and `planProposal` (R1).
-
-`apps/server/test/write-boundary.test.ts`: two pins in a new `describe("confirm write boundary
-(spec 066)")`: only `dm/talk-turn.ts` builds `kind: "action.suggest"`; no file under `src/` builds
-`kind: "action.accept"`.
-
-### D3 — DM runtime: the window, the marker, the interrupt, the read
-
-`apps/server/src/dm/`:
-
-- `talk-triggers.ts`: `isReadable(row, p)` delegates to `isReadablePost` from session-model.
-  `capReached`, `codeTriggers` and `companionOnly` stay. `needsModel(triggers, text, human)` returns
-  true whenever `human` is true (spec gap 2); the companion-only rule is unchanged.
-- `jobs.ts`:
-  - `enqueueTalkTurn(db, sessionId, triggerSeq, { postTs, windowMs })`: insert with `notBefore =
-    postTs + windowMs`; on a queued `talk` turn set `triggerSeq` and `notBefore` to the new values.
-    Drop `firstPostAt` and the max-wait cap from new rows (old rows that carry it still parse).
-    Any other queued turn absorbs the post, as today.
-  - New `interruptRead(db, sessionId): Promise<string | null>`: one `UPDATE jobs` on the session's
-    running `turn` job with `input->>'trigger' = 'talk'`, a checkpoint with an empty or null beat
-    and no submissions, and `result->'checkpoint'->'narration'->>'shipped'` not `true`. It sets
-    `status = 'succeeded'`, `stage = null`, `finished_at = now()`, a fresh `claim_token`, and
-    merges `{ talk: { outcome: "interrupted" } }` into `result`. It returns the job id or null. The
-    worker's next fenced write then fails and it aborts (R8). No migration: the status and kind
-    values exist.
-  - `reconcileTurnJobs`: add `NOT EXISTS` a later `action.withdrawn` for the action (R6).
-- `enqueue.ts` rule 7: for each `talk` row that passes `isReadable` and not `capReached`: call
-  `interruptRead`, then `enqueueTalkTurn` with the row's `ts` and `readWindowMs`. A companion-only
-  post also queues the companion `prompt` job. Remove `talkQuietMs` and `talkMaxWaitMs`; add
-  `readWindowMs?: (entry, p) => number` as the test seam. Update the header comment's rule list.
-- `worker.ts`: `recordPresence` purpose is `"read"` when `job.trigger === "talk"`, else
-  `"director"`. A run whose job `interruptRead` finished returns through the existing
-  fenced/aborted path and writes nothing.
-- `nodes/schemas.ts` `ReactOutput`: `outcome` gains `"confirm"`. New fields:
-  ```ts
-  confirm: z.array(z.object({
-    characterId: RefIdSchema.nullable(),
-    scope: z.enum(["character", "party"]),
-    text: z.string().min(1).max(500),
-    check: z.string().min(1).max(40).nullable(),
-  })).max(4),
-  answer: z.string().max(600).nullable(),
-  ```
-  `superRefine`: `confirm` needs 1 to 4 items, empty `text` and no `companionPrompts`; every other
-  outcome needs an empty `confirm`.
-- `prompts/react.ts`: `PROMPT_VERSION = "dm.react-v2"`, purpose `dm.narrate`. New rules: speech
-  gets `reply`; a deed (a character tries something with an uncertain outcome or a cost) gets
-  `confirm`, worded as "<Name> <does what>", with a check from the listed skills or `attack`; one
-  item per acting character; never confirm for a companion; when a post holds `@dm`, set `answer`
-  from what the characters can see, else `answer` null. The input gains the read posts flagged
-  `@dm`, the human-controlled characters, the skill list and the table mode.
-- `talk-turn.ts` `runTalkTurn`:
-  1. `readPosts`: readable posts after the latest `isDmReadOutput` entry, up to `triggerSeq` (R9).
-  2. Skip the model only when no read post is human-authored and `needsModel` is false.
-  3. One `react` call, checkpointed in `TurnCheckpoint.react` as today.
-  4. `confirm`: keep items per FR-010 and the turn-mode rule; normalize `check` to a
-     `SkillSchema` option or `attack`, else null. No item left: outcome `none`.
-  5. Code checks (`deterministicChecks`, the `dmOnlySeedText` substring check, `checkClaims` via
-     the facts) run on the reply text, each confirm item's text and the answer. One regenerate; a
-     second refusal ships no answer and records `none` for the outcome.
-  6. Ship in order, each guarded by `ctx.deps.fence()` and recorded in `checkpoint.submissions`
-     with keys `answer:` and `confirm:`: the answer as a `talk` proposal (`ai:dm`, `ooc`,
-     `characterId: null`, public); then the confirm as `action.suggest` with `suggestionId =
-     sug-<jobId>`, `readSeq` = the last read post's seq and items `i1`..`in`; or the D19 narration
-     or escalation, as today. On a reclaim, a submission is landed when its row exists after
-     `checkpoint.lastSeq` (an `action.suggested` with that id; an `ai:dm` OOC talk row).
-  7. A gate refusal `SUGGESTION_STALE` records outcome `interrupted` and ships nothing more.
-     The fence before each ship and this gate guard close the interrupt race for a confirm. A
-     reply or an answer has no gate guard: one that passed its fence check just before the
-     interrupt still lands. That window is one fence-to-append round trip; the new read then
-     starts after it (its cutoff), so nothing is read twice.
-  8. `jobs.result.talk` gains `confirmItems` (count) and `answered` (boolean).
-- `prompts/common.ts` `transcriptEntries`: with a roster, also drop OOC talk except `@dm` posts and
-  `ai:dm` answers (FR-013). `transcriptLine` renders an `action.suggested` entry as "DM asked to
-  confirm: <item texts>".
-- `nodes/resolve.ts`: before the action groups, load fresh projections once and skip beat items
-  whose status is `withdrawn`; record them in the resolve output as `skipped: "withdrawn"` (FR-019).
-- `floor.ts`, `floor-state.ts`: unchanged (R7).
-
-### D4 — Web: composer, ring, Thinking, strip, confirm row, human DM editor
-
-`apps/web/app/play/`:
-
-- `source.ts`: `TableCommands` loses `declareAction` and `comment`. It gains
-  `accept(input: AcceptInput): boolean` (`{ suggestionId, itemId }`) and
-  `suggest(input: SuggestInput): boolean` (`{ readSeq, items }`; the frame builds `suggestionId =
-  "sug-" + crypto.randomUUID()`). `commit` stays, used by the DM viewer only.
-- `frames.ts`: remove `declareFrame` and `commentFrame`. Add `acceptFrame` and `suggestFrame`, each
-  schema-validated with `GATE_REQUEST_VERSION`. `localEventOf` maps `action.suggest` to
-  `action.suggested`; `action.accept` maps to null (fixture rows come from `local-log.ts`).
-- `local-log.ts`: `localAcceptEvents(p, input, actor)` builds the two rows the planner would.
-- `read-ring.ts` (new, pure): `readIndicator(p, viewer, nowMs): { kind: "hidden" } | { kind:
-  "ring"; segments: number; filled: number; secondsLeft: number } | { kind: "thinking" }`. Hidden
-  under a human seat or for a DM viewer. Thinking: the latest `read` marker is newer than every
-  `ai:dm` row and readable post, and `nowMs` < marker `ts` + 30 s. Ring: the latest readable post
-  with no later `read` marker or DM read output; elapsed = `nowMs` − post `ts`, clamped to
-  `[0, window]`; hidden during the blank lead.
-- `view-model.ts`:
-  - `TranscriptItem` gains `{ kind: "confirm"; seq; confirm: ConfirmView }` and `{ kind: "aside";
-    seq; text }` (an `ai:dm` OOC `talk`). The `talk` item gains `dmQuestion: boolean` (an `@dm`
-    post; highlighted for the DM viewer) and `confirmable: boolean` (an IC line, for a human DM
-    viewer). OOC talk keeps its marker, labelled "Table talk".
-  - `ConfirmView`: `{ suggestionId; readSeq; lines: { itemId; text; check: string | null; state:
-    "open" | "confirmed" | "superseded"; canAccept: boolean; waitingOn: string | null }[] }` from
-    `suggestionState`.
-  - `ActionCardView` loses `signoff`, `suggest` and `commitsOnOwnTurn`. `commit` becomes
-    `ViewCommitAuthority | null`, null for every non-DM viewer. `canWithdraw`: status `declared`,
-    `discussed` or `committed`, and the viewer is the declarer or the DM.
-  - `ComposerView` becomes `{ speakers: { key; label; channel; characterId }[]; mentions: string[];
-    thinkingInterrupts: boolean }`. Speakers: each controlled character, `The party` (IC,
-    `characterId: null`) for a party member, and `You (out of character)`. Mentions: `@dm`, the
-    party's names, then present combatant names (spec "smaller readings").
+- `frames.ts`: `intentFrame(intent)`, `acceptFrame`, `suggestFrame`, schema-validated; remove
+  `commentFrame`; keep `declareFrame` and `commitFrame` for FR-022 and the DM.
+- `source.ts`, `use-live-table.ts`, `use-fixture-table.ts`, `local-log.ts`: `sendIntent`, `accept`,
+  `suggest`; drop `comment`; `localAcceptEvents` for fixtures.
+- `read-ring.ts` (new, pure): `readIndicator(p, viewer, nowMs)` → hidden | ring | thinking.
+- `view-model.ts`: transcript items `confirm` and `aside`; `askDm` and `confirmable` flags on talk;
+  `ConfirmView { suggestionId, readSeq, lines: { itemId, text, kindLabel, state, canAccept,
+  waitingOn }[] }`; `ActionCardView` loses `signoff`, `suggest`, `commitsOnOwnTurn`; `ComposerView
+  { speakers, mentions, mode: "free" | "turn", active: boolean, thinkingInterrupts }`.
 - `signoff.ts`: delete, with `apps/web/test/play/signoff.test.mjs`.
-- `components/composer.tsx`: rewrite. A speaker chip button (`aria-haspopup="listbox"`,
-  `aria-expanded`) opens an inline listbox under it. `((` or `/ooc` at the start of the draft
-  selects the OOC speaker and strips the prefix. `@` at a word start opens an inline listbox of
-  mentions, filtered as typed; arrow keys, Enter and Escape work. One submit button: "Send", or
-  "Send — interrupts the DM" when `thinkingInterrupts` and the speaker is IC. Its first press opens
-  the strip (`role="group"`, name "Interrupt the DM?") with the D20 §3.5 copy, **I'm sure** and
-  **Wait**. The input takes a forwarded ref so Not quite can focus it. The notice stays inline.
-- `components/read-ring.tsx` (new): an 8- or 4-segment SVG ring and the caption "The DM reads the
-  table in N s. Keep talking to wait."; the Thinking chip "The DM is reading the table…" with
-  `role="status"`. Segment changes carry no animation under `prefers-reduced-motion`.
-- `components/confirm-row.tsx` (new): header "DM · Confirm this action", one line per item:
-  "<text> — <check>. Is this right?", then 👍 Yes and Not quite (named "Yes, that's right" and
-  "Not quite" for assistive tech), "Waiting on <name>", "Confirmed" or "Superseded" (struck through).
-- `components/confirm-editor.tsx` (new): the human DM's inline editor under an IC line: fields
-  "Confirm wording", "Check (optional)", "Who" (the line's character or The party); buttons "Send
-  confirm" and "Cancel". It sends one `suggest` with `readSeq` = the line's seq.
-- `components/transcript.tsx`: render `confirm`, `aside`, the "Table talk" tag, the `@dm`
-  highlight and "Confirm as action…" (DM viewer only, toggles the editor in place).
-- `components/action-card.tsx`: remove the comment form, the sign-off rows and the player commit
-  control. Keep the comment list (read-only), the status chip, the DM's Commit and Withdraw.
-- `table-view.tsx`: own the composer ref and the open-editor key; tick a `now` state once a second
-  only while `readIndicator` is `ring` or `thinking`; render `ReadRing` above the composer.
-- `use-live-table.ts`, `use-fixture-table.ts`: wire `accept` and `suggest`; drop declare and
-  comment.
-- `labels.ts` `refusalLabel`: `SUGGESTION_STALE` "The DM has read the table again. Answer the newer
-  line."; `SUGGESTION_NOT_FOUND` "That confirm is gone. Say it again."; `ACTION_EXISTS` "That
-  action is already confirmed."
-- `authority.ts`, `proposals.ts`, `presence.ts`: unchanged.
+- `components/composer.tsx`: rewrite (speaker listbox; `((` / `/ooc` flip; `@` mention listbox;
+  `parse()` on Send with inline `PARSE_*` refusal text; one Send; FR-022 routing; interrupt strip).
+- `components/read-ring.tsx`, `confirm-row.tsx`, `confirm-editor.tsx` (new).
+- `components/transcript.tsx`: confirm, aside, "Table talk", `ask_dm` highlight, DM "Confirm as
+  action…" and "Confirm".
+- `components/action-card.tsx`, `commit-control.tsx`: remove the comment form, sign-off rows and the
+  player's commit control; keep the DM's Commit and Withdraw.
+- `table-view.tsx`: composer ref, editor key, a 1 s ticker only while the ring or Thinking shows.
+- `labels.ts`: `SUGGESTION_STALE`, `SUGGESTION_NOT_FOUND`, `INTENT_EXISTS`, `NOT_YOUR_TURN` (generic).
 
-### D5 — Fixtures, scripts and tests
+### D5 — Mutation guard
 
-- `packages/session-model/test/`: `read-rule.test.ts` (new: each FR-005 rule, `isDmQuestion`,
-  windows, `isDmReadOutput`, `suggestionState` stale and accepted cases); `gate-suggest.test.ts`
-  (new: suggest rows and refusals, `ai:dm` stale guard, accept authority per mode and scope, the
-  two-row batch, stale and not-found, `ACTION_EXISTS` on a second 👍, `ai:dm` accept refused, a
-  direct declare with `suggestionId` refused); `gate-plan.test.ts` (withdraw of a committed action;
-  of a resolved one refused); `gate-schemas.test.ts`, `gate-policy.test.ts`,
-  `gate-permissions.test.ts` (counts, `auto`, the matrix rows); `catalog.test.ts` (20 and 38);
-  `actions.test.ts` (the withdrawn fold); `presence.test.ts` (`read`); `fixtures.test.ts` (the new
-  fixture's facts); `talk-isolation.test.ts` unchanged and passing.
-- `apps/server/test/dm/talk-triggers.test.ts`: `isReadable` delegation; `needsModel` with a human
-  post.
-- `apps/server/test/dm/enqueue-talk.integration.test.ts` (DB): `notBefore` = post `ts` + 10 s; a
-  second post moves it; OOC does not; `@dm` does; turn-mode active human + 5 s; non-active does
-  not; no cap after 12 posts; `interruptRead` on a running empty-beat talk turn finishes it and
-  queues a fresh one; it leaves a talk turn with a beat or a shipped row alone.
-- `apps/server/test/dm/talk-turn.integration.test.ts` (DB): confirm ships one `action.suggested`;
-  a companion or absent item is dropped; an `@dm` answer ships first as `ai:dm` OOC talk; a DM-only
-  leak in an answer is refused then dropped; a stale suggest records `interrupted`; reclaim reuses
-  the react output and ships once.
-- `apps/server/test/dm/worker.integration.test.ts`: a `talk` turn records the `read` marker; an
-  interrupted run writes nothing after the interrupt.
-- `apps/server/test/dm/resolve.integration.test.ts`: a beat action withdrawn mid-turn is skipped.
-- `apps/server/test/dm/jobs.integration.test.ts`: reconcile skips a withdrawn committed action.
-- `apps/server/test/gate.integration.test.ts`: suggest then accept over the real gate writes the
-  batch and queues a commit turn; two concurrent accepts commit once.
-- `apps/server/test/dm/react-prompt.test.ts`, `player-facing-prompts.test.ts`: `dm.react-v2`, the
-  confirm and answer rules, OOC dropped from the tail.
-- `apps/server/test/write-boundary.test.ts`: D2's pins.
-- `apps/server/test/dm/scripts/talk-confirm.json`, `talk-answer.json` (new fixtures).
-- `apps/server/dm-scripts/greyhollow-confirm.json` (new): scene start, then a read that confirms
-  Kestrel's climb, then a read that answers Tamsin's `@dm` question. `dm-scripts.test.ts` proves
-  the composition.
-- `apps/web/test/play/`: `read-ring.test.mjs` (new: blank lead, segments, clamp, Thinking start
-  and its three ends, human seat hidden); `confirm-row.test.tsx` (new: controller, other player,
-  party, superseded, confirmed); `composer.test.tsx` (rewrite: chip listbox, `((`, `/ooc`, `@`
-  listbox, interrupt label and strip, OOC never strips); `view-model.test.mjs`,
-  `action-card.test.tsx`, `table-view.test.tsx`, `equivalence.test.tsx`, `frames.test.mjs`,
-  `local-log.test.mjs`, `use-fixture-table.test.mjs`, `start-scene-panel.test.tsx` (amended for
-  the removed commands and fields); a no-modal assertion over the new components.
+Stub `readablePosts` to return `[]`; stub `suggestionState` never stale; stub the accept acceptor
+rule to pass; stub `interruptRead` to return null; stub rule 9 to queue nothing. Each fails at least one test. Restore; `git diff` is empty.
 
-### D6 — Mutation guard
+### D6 — Script-mode server check
 
-Stub `isReadablePost` to return `false`; stub `suggestionState` to report never stale; stub the
-accept acceptor rule to pass; stub `interruptRead` to return null without updating. Each fails at
-least one test. Restore; `git diff` is empty.
+`specs/066-one-chat-stream/evidence/post.mjs` posts an Intent as a named player over the WS `send`
+frame. `apps/server/dm-scripts/greyhollow-confirm.json` scripts: scene start, a read that confirms
+Kestrel's climb, a read that answers Tamsin's `ask_dm`, then a turn-mode beat. This card checks it
+on the debug routes; TASK-0315 reuses it for the Brave live check.
 
-### D7 — Script-mode live check
+## Files touched (against `9e51c948`)
 
-`specs/066-one-chat-stream/evidence/post.mjs` posts a line as a named player over the WS `send`
-frame (from 065's `talk.mjs`; channel and text from arguments). The orchestrator runs
-`DM_FAKE_SCRIPT=greyhollow-confirm` on the worktree stack in two Brave windows (Tamsin and
-Kestrel).
+| File | State today | Change | Card |
+|---|---|---|---|
+| `packages/session-model/src/events/actions.ts` | no suggestion event | `ActionSuggestedV1`, `SuggestionItemV1` | server |
+| `packages/session-model/src/events/presence.ts` | `director`, `signoff`, `floor` | + `read` | server |
+| `packages/session-model/src/catalog.ts` | has `intent.recorded` | + `action.suggested` | server |
+| `packages/session-model/src/projections/{types,apply}.ts` | `intents` fold exists | `suggestions`, transcript entry | server |
+| `packages/session-model/src/read.ts` | absent | new | server |
+| `packages/session-model/src/index.ts` | — | exports | server |
+| `packages/session-model/src/fixtures/{one-chat-stream,index}.ts` | — | new fixture | server |
+| `packages/session-model/src/gate/{proposals,policy,permissions,refusals,plan}.ts` | `intent` kind exists; no suggest/accept | kinds, planner | server |
+| `packages/session-model/src/gate/intents.ts` | `ask_dm` → `KIND_UNSERVED` (TASK-0199) | serve `ask_dm` | server |
+| `apps/server/src/gate/gate.ts` | — | `read` purpose type | server |
+| `apps/server/src/dm/talk-triggers.ts` | `isReadable` reads `talk.channel` | delegate | server |
+| `apps/server/src/dm/jobs.ts` | quiet 3 s + max-wait 10 s; trigger `ruling` exists | window, `interruptRead`, `intent` trigger | server |
+| `apps/server/src/dm/enqueue.ts` | rule 6 talk, rule 7 ruling | rule 6 rewrite; rule 9 | server |
+| `apps/server/src/dm/worker.ts` | `director` marker | `read` marker | server |
+| `apps/server/src/dm/nodes/schemas.ts` | `ReactOutput` 4 outcomes; `IntentBodySchema` | `confirm`, `answer` | server |
+| `apps/server/src/dm/prompts/{react,common}.ts` | `dm.react-v3` | `dm.react-v4`; tail filter | server |
+| `apps/server/src/dm/talk-turn.ts` | `readPosts`, `checkNarration` | cutoff, items, answer, ship | server |
+| `apps/server/dm-scripts/greyhollow-confirm.json`, `test/dm/scripts/talk-{confirm,answer}.json` | absent | new | server |
+| `packages/session-model/test/{read-rule,gate-suggest,gate-ask-dm}.test.ts` | absent | new | server |
+| `packages/session-model/test/{gate-schemas,gate-policy,gate-permissions,catalog,presence,fixtures}.test.ts` | — | counts, rows | server |
+| `apps/server/test/dm/{talk-triggers.test,enqueue-talk.integration.test,talk-turn.integration.test,worker.integration.test,react-prompt.test,player-facing-prompts.test,dm-scripts.test}.ts` | exist | amend | server |
+| `apps/server/test/{gate.intent.integration,write-boundary}.test.ts` | exist | accept over the real gate; pins | server |
+| contract files in "Frozen-contract amendments" | TASK-0188 blocks present | appended blocks | server |
+| `apps/server/test/dm/enqueue-intent.integration.test.ts` | absent | new (rule 9) | server |
+| `docs/wiki/{dm-talk-triggers,turn-floor,proposal-gate,session-model,dm-turn-jobs,presence}.md`, `INDEX.md`, `CAPSULES.md` | — | re-ground | server |
 
-## Files touched
+## Frozen-contract amendments (C-GATE ruled)
 
-| File | Change |
-|---|---|
-| `packages/session-model/src/events/actions.ts` | `ActionSuggestedV1`, `SuggestionItemV1`, `suggestionId` on declared (D1) |
-| `packages/session-model/src/events/presence.ts` | purpose `read` (D1) |
-| `packages/session-model/src/catalog.ts` | `action.suggested` entry (D1) |
-| `packages/session-model/src/projections/types.ts`, `apply.ts` | `suggestions`, transcript entry, `ActionView.suggestionId`, withdrawn-from-committed (D1) |
-| `packages/session-model/src/read.ts` | new: readable rule, windows, staleness (D1) |
-| `packages/session-model/src/index.ts` | exports (D1) |
-| `packages/session-model/src/fixtures/one-chat-stream.ts`, `fixtures/index.ts` | new fixture (D1) |
-| `packages/session-model/src/gate/proposals.ts`, `policy.ts`, `permissions.ts`, `refusals.ts`, `plan.ts` | kinds, policy, matrix, codes, planner (D2) |
-| `apps/server/src/gate/gate.ts` | `recordPresence` purpose type (D2) |
-| `apps/server/src/dm/talk-triggers.ts` | delegate the read rule; `needsModel` (D3) |
-| `apps/server/src/dm/jobs.ts` | window, `interruptRead`, reconcile (D3) |
-| `apps/server/src/dm/enqueue.ts` | rule 7 (D3) |
-| `apps/server/src/dm/worker.ts` | `read` marker (D3) |
-| `apps/server/src/dm/nodes/schemas.ts` | `ReactOutput` confirm and answer (D3) |
-| `apps/server/src/dm/prompts/react.ts`, `prompts/common.ts` | `dm.react-v2`; OOC tail filter; suggestion line (D3) |
-| `apps/server/src/dm/talk-turn.ts` | cutoff, confirm, answer, ship order, stale handling (D3) |
-| `apps/server/src/dm/nodes/resolve.ts` | skip withdrawn beat items (D3) |
-| `apps/web/app/play/source.ts`, `frames.ts`, `local-log.ts`, `use-live-table.ts`, `use-fixture-table.ts`, `labels.ts` | commands and frames (D4) |
-| `apps/web/app/play/read-ring.ts` | new (D4) |
-| `apps/web/app/play/view-model.ts` | transcript items, `ConfirmView`, card and composer views (D4) |
-| `apps/web/app/play/signoff.ts` | deleted (D4) |
-| `apps/web/app/play/table-view.tsx` | wiring, ticker, focus (D4) |
-| `apps/web/app/play/components/composer.tsx`, `transcript.tsx`, `action-card.tsx` | rewrite or edit (D4) |
-| `apps/web/app/play/components/read-ring.tsx`, `confirm-row.tsx`, `confirm-editor.tsx` | new (D4) |
-| tests and scripts in D5 | new or amended |
-| `specs/066-one-chat-stream/evidence/post.mjs` | live-check post script (D7) |
-| contract files in "Contract amendments" | amendment blocks (this commit) |
-| `docs/wiki/play-route.md`, `proposal-gate.md`, `session-model.md`, `dm-talk-triggers.md`, `dm-turn-jobs.md`, `turn-floor.md`, `presence.md`, `CAPSULES.md`, `INDEX.md` | re-ground (Phase 6) |
-| `docs/design/m3-table-sweep-runbook.md` | execution-log row (Phase 6) |
+**Already made by spec 102 — dropped here:** the `intent` request kind and its matrix row;
+`DEFAULT_POLICIES.intent = "ask"`; `intent.recorded` and the `intents` projection; `openRulings`;
+the `forbidden` codes `NOT_YOUR_ACTOR`, `DM_SEAT_REQUIRED`, `NOT_YOUR_TURN`; the 18 / 15 / 22 counts.
+**Standing from TASK-0188 (2026-11-02, "All (a), amend") and unchanged here:** `action.suggest`
+(policy `auto`) and `action.accept` exist; `SUGGESTION_STALE`, `SUGGESTION_NOT_FOUND`;
+`presence.recorded` purpose `read`; the `signoff` client section leaves the web; `TalkV1` and the
+`ws-protocol.md` frames unchanged. **Intent contract v1.1: no change** (OQ-6's visibility reading
+may be recorded as a C-CON clarification note, as spec 102 OQ-10 was).
 
-**Migrations**: none. `jobs` kinds, statuses and indexes are unchanged; the new fields live in
-`jobs.input` and `jobs.result` JSON; the event log takes the new type through the catalog.
-**New runtime dependencies**: none.
+Each row below is a new appended block, headed "**Amendment (TASK-0199).**", citing P-04,
+decision-0030 and the C-GATE ruling. Existing blocks are not rewritten.
 
-## Contract amendments
+**Ruled 2026-11-11 (C-GATE, "Approve all"): C-1 to C-9 adopted.** C-6, C-7 and C-9's UI line
+are written by this card's Phase 4 with the rest, so the contracts change in one PR; TASK-0315
+builds against them.
 
-Each file gets one appended block headed "**Amendment (TASK-0188).**" that cites "decision-0028 §8;
-operator ruling 2026-11-02: \"All (a), amend\"". Existing text is not rewritten.
+| # | File | Before → after |
+|---|---|---|
+| C-1 | `specs/029-proposal-gate/contracts/proposals.md` | `action.suggest` items `{ itemId, characterId, scope, text, check }` → `{ itemId, text, intent: IntentSchema (commit "declared") }` |
+| C-2 | same | `action.withdraw` accepts a committed, unresolved action; a declare carrying `suggestionId` is `INVALID_PROPOSAL` → both withdrawn (today's withdraw and declare rules stand) |
+| C-3 | `specs/029-proposal-gate/contracts/policy-and-authority.md` | `action.accept` commits `action.declared` + `action.committed` with authority `declarer` / `active-player` / `group` (D8 table first row) → `action.accept` plans the item's Intent as `confirmed` through `planIntent`; no commit-authority row; a second 👍 is `INTENT_EXISTS` (was `ACTION_EXISTS`) |
+| C-4 | `specs/029-proposal-gate/contracts/proposal-events.md` (+ pointer blocks in `specs/028-session-model/contracts/{session-events,projections}.md`) | `action.declared` gains `suggestionId`; `action.withdrawn` folds a committed action → neither (`ActionDeclaredV1` and the withdraw fold unchanged); `ActionSuggestedV1` items carry Intents per C-1 |
+| C-5 | `specs/029-proposal-gate/contracts/gate-api.md` | accept row "two rows `action.declared`, `action.committed`" → "the item Intent's batch: engine rows or a ruling request, then `intent.recorded`"; widened-withdraw row → removed; gate-handled kinds: `ask_dm` `KIND_UNSERVED` (owner TASK-0199) → served (`talk` `ooc` + carrier, visibility the asker's user id) |
+| C-6 | `specs/030-play-route/contracts/proposal-seam.md` | `ConfirmView` lines `{ text, check }` → `{ text, kindLabel }` over an Intent item; the active player's `commitsOnOwnTurn` leaves `ActionCardView` |
+| C-7 | `specs/030-play-route/contracts/{table-source,live-frames,ui-surfaces}.md` | the composer sends `talk` lines and `accept` / `suggest` → it sends `intent` requests (parsed, `declared` in free mode, `confirmed` in turn mode), `action.declare` + `action.commit` for the active player's prose, `accept`, `suggest`; no `The party` speaker |
+| C-8 | `specs/031-dm-runtime/contracts/{turn-jobs,nodes,node-seam,purposes}.md` | ring window "10 s, or 5 s for the active player in turn mode", reconcile skips a withdrawn committed action, confirm items `{ characterId, scope, text, check }`, `dm.react-v2` → window "10 s in free mode; `ask_dm` 0 s in turn mode; no read otherwise", no reconcile change, confirm items carry Intent bodies, `dm.react-v4`; `TurnTriggerSchema` + `intent` (only if OQ-3 (b) is adopted) |
+| C-9 | `specs/049-turn-floor/contracts/{floor-jobs,ui-floor}.md` | "an accept batch never arms a stall" → "an accept writes no action rows"; the action card keeps the active player's Commit → Enter replaces it (FR-023) |
+| C-10 | `specs/035-presence/contracts/presence-marker.md`, `specs/044-group-signoff/contracts/signoff.md` | unchanged → unchanged (the TASK-0188 blocks stand) |
 
-| File | What the block changes |
-|---|---|
-| `specs/029-proposal-gate/contracts/proposals.md` | §8.1: kinds 15 → 17 (`action.suggest`, `action.accept`), DM kinds 13 → 14, `GATE_REQUEST_KINDS` 19 → 21; both schemas; matrix rows; `action.withdraw` on a committed, unresolved action; `ai:dm` never accepts; a direct declare with `suggestionId` is `INVALID_PROPOSAL` |
-| `specs/029-proposal-gate/contracts/policy-and-authority.md` | §8.2: `"action.suggest": "auto"`; `routeProposal` refuses `ai:dm` accept; the accept authority rule; the D8 table's new first row; the two refusal codes |
-| `specs/029-proposal-gate/contracts/proposal-events.md` | §8.3: `action.suggested`; `suggestionId` on `action.declared`; `presence.recorded` purpose `read`; the `suggestions` projection and transcript entry; `action.withdrawn` folds on a committed action; catalog 37 → 38 |
-| `specs/029-proposal-gate/contracts/gate-api.md` | rows for `action.suggest`, `action.accept` and the widened `action.withdraw`; the refusal list gains the two codes (21 codes) |
-| `specs/028-session-model/contracts/session-events.md`, `projections.md` | pointers to the 029 `proposal-events.md` block, as that contract requires |
-| `specs/035-presence/contracts/presence-marker.md` | purpose `read`, written by the DM worker per claimed `talk` turn |
-| `specs/030-play-route/contracts/proposal-seam.md` | §8.4: `ActionCardView.signoff` leaves; `ConfirmView` rides the transcript |
-| `specs/030-play-route/contracts/table-source.md`, `live-frames.md`, `ui-surfaces.md` | the command, frame and surface changes of D4 (D20 §1) |
-| `specs/031-dm-runtime/contracts/turn-jobs.md`, `nodes.md`, `node-seam.md`, `purposes.md` | §8.5, additive: the ring window, `interruptRead`, the `read` marker, the reconcile skip, `confirm` and the answer, `dm.react-v2` |
-| `specs/044-group-signoff/contracts/signoff.md` | the client section leaves the web; the quorum stays for direct declares (OQ-11 (a)) |
-| `specs/049-turn-floor/contracts/floor-jobs.md` | the stall commit covers direct party declares only; an accept batch never arms it |
-| `specs/049-turn-floor/contracts/ui-floor.md` | the two action-card lines leave the player view |
+## Phases (one phase = one sonnet dispatch)
 
-`docs/wiki/ws-protocol.md` frame shapes and `TalkV1`: unchanged (§8.6).
+| Phase | Scope | Tasks |
+|---|---|---|
+| 1 | Session model: event, catalog, projection, `read.ts`, fixture, tests | 10 |
+| 2 | Gate: suggest, accept via `planIntent`, `ask_dm`, refusals, pins, tests | 13 |
+| 3 | DM runtime: window, `interruptRead`, marker, rule 9, `dm.react-v4`, talk path, scripts, tests | 18 |
+| 4 | Contract amendment blocks C-1 to C-9 | 3 |
+| 5 | Wiki (server share): NEEDS-REVIEW `dm-talk-triggers`, `turn-floor`, `proposal-gate`, `session-model`, `dm-turn-jobs`, `presence`, `INDEX.md`, `CAPSULES.md` | 4 |
+| 6 | Verification **[orchestrator]**: DB suites, mutation guard, script-mode server check, execution-log row, spec-bridge | 5 |
+| **Total** | | **53** |
 
-## Phases
+Dependencies: 1 → 2 → 3 → 4 → 5 → 6. Old plan Phase 4 (web) and the web shares of the wiki and
+verification phases are TASK-0315's. `play-route` and `chat-ui` are re-grounded there.
 
-1. Session model: events, catalog, projection, `read.ts`, fixture (sonnet).
-2. Gate: kinds, policy, permission, planner, refusals, write-boundary pins (sonnet).
-3. DM runtime: window, `interruptRead`, marker, react v2, talk path, resolve and reconcile skips
-   (sonnet).
-4. Web: composer, ring, Thinking, strip, confirm row, editor, sign-off removal (sonnet).
-5. Contract check and wiki re-ground (sonnet).
-6. Verification: DB suites, mutation guard, Brave live check **[orchestrator]**.
+## Server check (Phase 6)
 
-## Live check
-
-Phase 6 runs D7. Expected: Kestrel's IC line starts the ring in both windows; Thinking replaces it;
-Kestrel sees the confirm with 👍 Yes and Not quite; Tamsin sees "Waiting on Kestrel"; Kestrel's 👍
-shows "Confirmed" and a commit turn runs; Tamsin's `@dm` question draws one DM aside; no modal at
-1280 and 390 px, light and dark.
+`DM_FAKE_SCRIPT=greyhollow-confirm` on the worktree stack. Post with `evidence/post.mjs`. Expected on
+the debug page: a `say` Intent queues a `talk` turn at its `ts` + 10 s; a second post moves it; the
+`read` marker; one `action.suggested` row with a `declared` `hide` item; `action.accept` appends the
+engine rows and `intent.recorded` (`confirmed`) and queues one `intent` turn that narrates them; an
+`ask_dm` draws one answer visible to the asker and the DM only; in turn mode no `talk` turn queues;
+under a human seat no `talk` turn queues. The Brave live check is TASK-0315's.

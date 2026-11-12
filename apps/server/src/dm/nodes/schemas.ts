@@ -530,10 +530,19 @@ export const DirectorOutput = z.object({
 });
 export type DirectorOutput = z.infer<typeof DirectorOutput>;
 
-/** The talk-turn `react` output (specs/065-talk-triggers plan D4). */
+/** One model confirm item (spec 066 FR-011): the acting character, the DM's wording, an Intent body. */
+export const ConfirmItem = z.strictObject({
+  /** The acting character; null for a party item (an `attempt` with scope `party`). */
+  characterId: RefIdSchema.nullable(),
+  text: z.string().min(1).max(500),
+  body: IntentBodySchema,
+});
+export type ConfirmItem = z.infer<typeof ConfirmItem>;
+
+/** The talk-turn `react` output (specs/065-talk-triggers plan D4; spec 066 D3 adds `confirm`, `answer`). */
 export const ReactOutput = z
   .object({
-    outcome: z.enum(["none", "reply", "scene", "escalate"]),
+    outcome: z.enum(["none", "reply", "scene", "escalate", "confirm"]),
     triggers: z
       .array(
         z.object({
@@ -552,6 +561,10 @@ export const ReactOutput = z
     text: z.string().max(1200),
     encounterId: RefIdSchema.nullable(),
     companionPrompts: z.array(RefIdSchema).max(2),
+    /** Spec 066: 1 to 4 items for a `confirm`; empty otherwise. */
+    confirm: z.array(ConfirmItem).max(4).default([]),
+    /** Spec 066: the one `ask_dm` answer, or null. */
+    answer: z.string().max(1200).nullable().default(null),
     reason: z.string().min(1).max(300),
   })
   .superRefine((o, ctx) => {
@@ -567,12 +580,35 @@ export const ReactOutput = z
         message: "escalate needs an encounterId",
         path: ["encounterId"],
       });
-    if (o.outcome === "none" && o.text !== "")
+    if ((o.outcome === "none" || o.outcome === "confirm") && o.text !== "")
       ctx.addIssue({
         code: "custom",
-        message: "none needs empty text",
+        message: `${o.outcome} needs empty text`,
         path: ["text"],
       });
+    if (o.outcome === "confirm" && o.confirm.length === 0)
+      ctx.addIssue({
+        code: "custom",
+        message: "confirm needs 1 to 4 items",
+        path: ["confirm"],
+      });
+    if (o.outcome !== "confirm" && o.confirm.length > 0)
+      ctx.addIssue({
+        code: "custom",
+        message: "only a confirm outcome carries items",
+        path: ["confirm"],
+      });
+    for (const [i, item] of o.confirm.entries()) {
+      const party =
+        item.body.kind === "attempt" &&
+        (item.body.params as { scope?: string }).scope === "party";
+      if (party !== (item.characterId === null))
+        ctx.addIssue({
+          code: "custom",
+          message: "characterId is null exactly for a party attempt",
+          path: ["confirm", i, "characterId"],
+        });
+    }
   });
 export type ReactOutput = z.infer<typeof ReactOutput>;
 

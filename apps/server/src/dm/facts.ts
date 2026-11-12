@@ -189,6 +189,8 @@ export interface NarrationFacts {
   pulled?: FactSettled[];
   /** Settled death-save turns (TASK-0112); omitted when settling rolled nothing. */
   settled?: FactSettled[];
+  /** Spec 066 FR-031: engine rows of direct Intents an `intent` turn narrates; omitted otherwise. */
+  direct?: FactSettled[];
   /** A party member's followUps from an earlier beat, still not attempted (spec 079). */
   openFollowUps?: { name: string; text: string }[];
   /** Reflexes derived from this turn's rows (spec 074); always set by `buildNarrationFacts`. */
@@ -646,6 +648,8 @@ export interface BuildFactsInput {
   } | null;
   /** The combatant active at the start of the beat; set only when the table was in turn mode. */
   turnActorId?: string | null;
+  /** Spec 066 FR-031: the engine batches of direct Intents an `intent` turn narrates. */
+  directBatches?: { name: string; batchId: string }[];
 }
 
 /**
@@ -886,6 +890,17 @@ export function buildNarrationFacts(input: BuildFactsInput): NarrationFacts {
     });
   }
 
+  const direct: FactSettled[] = (input.directBatches ?? []).map((d) => ({
+    name: d.name,
+    ...collectFacts(
+      p.ledger.filter((r) => r.batchId === d.batchId),
+      nameOf,
+      types,
+      stakesByBatch,
+      revealedByBatch,
+    ),
+  }));
+
   const partyIds = new Set(
     p.party.flatMap((m) => (m.combatantId ? [m.combatantId] : [])),
   );
@@ -947,6 +962,7 @@ export function buildNarrationFacts(input: BuildFactsInput): NarrationFacts {
     ...(held.length > 0 ? { held } : {}),
     ...(pulled.length > 0 ? { pulled } : {}),
     ...(settled.length > 0 ? { settled } : {}),
+    ...(direct.length > 0 ? { direct } : {}),
     ...(openFollowUps.length > 0 ? { openFollowUps } : {}),
     involuntary,
     director: {
@@ -990,6 +1006,7 @@ export function nothingToNarrate(facts: NarrationFacts): boolean {
     facts.actions.length === 0 &&
     facts.npcTurn === null &&
     (facts.settled?.length ?? 0) === 0 &&
+    (facts.direct?.length ?? 0) === 0 &&
     facts.clarify.length === 0
   );
 }

@@ -225,3 +225,14 @@ Each accepted Intent appends exactly one carrier row, last in its batch. Project
 - A `proposal.created` row of kind `intent` sets `proposalId` on the entry with the same Intent id.
 - The helper `openRulings(p)` returns the open requests by `requestId`, each with its `proposalId`.
 - The catalog gains one session entry (`intent.recorded`).
+
+**Amendment (TASK-0199).** Amended 2026-11-11 (spec `specs/066-one-chat-stream`, plan.md "Frozen-contract amendments", row C-4; P-04, decision-0030).
+
+> "Approve all" (operator, C-GATE ruling, 2026-11-11: approves C-1 to C-9 as written in spec 066 plan.md)
+
+`action.declared` does not gain `suggestionId`. `action.withdrawn` does not fold a committed
+action. `ActionDeclaredV1` and the withdraw fold stay as before TASK-0188. `ActionSuggestedV1`
+items carry Intents per C-1: `{ itemId, text, intent }`. `SuggestionItemV1.intent.commit` is
+`declared`.
+
+Dated note, 2026-11-11 (T043): the code matches. The pointer blocks in `specs/028-session-model/contracts/{session-events,projections}.md` below carry the same change.

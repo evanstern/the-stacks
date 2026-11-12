@@ -1,0 +1,113 @@
+{
+  "v": 1,
+  "name": "greyhollow-confirm",
+  "dice": [],
+  "calls": [
+    {
+      "purpose": "dm.director",
+      "note": "scene start keeps only pacing",
+      "respond": {
+        "type": "json",
+        "value": {
+          "beat": {
+            "decision": "resolve"
+          },
+          "tableMode": {
+            "to": "stay"
+          },
+          "trackers": [],
+          "scene": {
+            "status": "continue"
+          },
+          "pacing": {
+            "tension": "low",
+            "spotlight": null,
+            "beatId": "ferry-house"
+          },
+          "goalNote": "Open at the ford and let the party look around.",
+          "companionPrompts": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.narrate",
+      "note": "opening framing",
+      "respond": {
+        "type": "text",
+        "value": "The party reaches Greyhollow Ford as the light goes amber. Tamsin Vale, Brother Odo and Kestrel came to cross before full dark, and the ferry keeper owes Tamsin a crossing. The ferry sits chained to the near bank, the ferry-house door hangs open, and the bell that should have rung for them stays silent. Above, in the loft, a board creaks: Wenna Marsh, the keeper, is somewhere overhead and has not called down. Where do you start?"
+      }
+    },
+    {
+      "purpose": "dm.chronicle",
+      "respond": {
+        "type": "json",
+        "value": {
+          "entries": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.narrate",
+      "note": "react: Tamsin's deed needs a confirm (hide)",
+      "respond": {
+        "type": "json",
+        "value": {
+          "outcome": "confirm",
+          "triggers": [],
+          "speaker": null,
+          "text": "",
+          "encounterId": null,
+          "companionPrompts": [],
+          "confirm": [
+            {
+              "characterId": "tamsin",
+              "text": "Tamsin slips behind the stacked barrels, quietly",
+              "body": {
+                "kind": "hide",
+                "targets": [],
+                "params": {}
+              }
+            }
+          ],
+          "answer": null,
+          "reason": "Tamsin described hiding; the outcome is uncertain."
+        }
+      }
+    },
+    {
+      "purpose": "dm.narrate",
+      "note": "intent turn: narrates the accepted hide",
+      "respond": {
+        "type": "text",
+        "value": "Tamsin eases behind the stacked barrels and goes still. The ford stays quiet, and nothing at the ferry-house stirs."
+      }
+    },
+    {
+      "purpose": "dm.narrate",
+      "note": "react: an ask_dm answer and no other reaction",
+      "respond": {
+        "type": "json",
+        "value": {
+          "outcome": "none",
+          "triggers": [],
+          "speaker": null,
+          "text": "",
+          "encounterId": null,
+          "companionPrompts": [],
+          "confirm": [],
+          "answer": "The loft sits about a ladder's height above the door. From the doorway you can see its edge, but not what lies on it.",
+          "reason": "Tamsin asked the DM a question."
+        }
+      }
+    },
+    {
+      "purpose": "dm.chronicle",
+      "respond": {
+        "type": "json",
+        "value": {
+          "entries": []
+        }
+      }
+    }
+  ]
+}

@@ -203,6 +203,7 @@ export function renderRows(facts: NarrationFacts): FactRow[] {
   for (const s of facts.pulled ?? []) push(s.rolls, s.changes);
   if (facts.npcTurn) push(facts.npcTurn.rolls, facts.npcTurn.changes);
   for (const s of facts.settled ?? []) push(s.rolls, s.changes);
+  for (const s of facts.direct ?? []) push(s.rolls, s.changes);
   return rows;
 }
 

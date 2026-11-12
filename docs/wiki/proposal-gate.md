@@ -1,6 +1,6 @@
 ---
 name: proposal-gate
-description: The proposal gate (TASK-0045, spec 029) - the 16 proposal kinds and four supervision requests, the permission matrix, the default policy table (auto/ask/suggest) and DM seat, commit authority by table mode and the group sign-off quorum (TASK-0049, spec 044), the `floor` kind (see turn-floor), createGate (submit/handle/onAppended, per-session write order, bounded jittered retry on SeqConflictError, atomic approval, refuse-before-write), and the import-graph write-boundary test (AC #1).
+description: The proposal gate (spec 029; TASK-0199: action.suggest, action.accept, ask_dm) - the 18 proposal kinds and four supervision requests, the permission matrix, the default policy table (auto/ask/suggest) and DM seat, commit authority by table mode and the group sign-off quorum (TASK-0049, spec 044), the `floor` kind (see turn-floor), createGate (submit/handle/onAppended, write order, retry on SeqConflictError, atomic approval, refuse-before-write), and the import-graph write-boundary test (AC #1).
 kind: component
 sources:
   - packages/session-model/src/gate/proposals.ts
@@ -18,8 +18,8 @@ sources:
   - apps/server/src/gate/index.ts
   - apps/server/test/write-boundary.test.ts
   - apps/server/test/helpers/import-graph.ts
-size_budget_exempt: spec 102 adds the intent kind paragraph to the one proposal-gate note; it does not split without a TASK of its own
-verified_against: 17849584ad75728e4df27bee4a34d3e35cb86229
+size_budget_exempt: spec 102 adds the intent kind paragraph and TASK-0199 (spec 066) adds the action.suggest, action.accept and ask_dm paragraph to the one proposal-gate note; the gate does not split without a TASK of its own
+verified_against: 7c0d16130c083a540d3a93f5fc587ec3e95e5cbf
 ---
 
 # Proposal gate
@@ -32,15 +32,17 @@ policy, plans the rows and appends them. Pure decisions live in
 
 ## Kinds and requests
 
-`ProposalKindSchema` has 16 kinds: `talk`, `action.declare`, `action.comment`,
+`ProposalKindSchema` has 18 kinds: `talk`, `action.declare`, `action.comment`,
 `action.commit`, `action.withdraw`, `action.resolve`, `mechanics` (engine command),
-`narration`, `table-mode`, `scene`, `party`, `tracker`, `scene-presence`, `journal`, `floor`, `intent`. The AI DM may propose the
-fourteen in `DmProposalKindSchema` (all but `action.declare` and `action.withdraw`). `GateRequestSchema` adds four
-supervision requests: `proposal.approve`, `proposal.reject`, `dm.seat`, `gate.policy` (20
+`narration`, `table-mode`, `scene`, `party`, `tracker`, `scene-presence`, `journal`, `floor`, `intent`, `action.suggest`, `action.accept`. The AI DM may propose the
+fifteen in `DmProposalKindSchema` (all but `action.declare`, `action.withdraw` and `action.accept`). `GateRequestSchema` adds four
+supervision requests: `proposal.approve`, `proposal.reject`, `dm.seat`, `gate.policy` (22
 `GATE_REQUEST_KINDS`; sent over `send`, see [[websocket-gateway]]).
 A `Proposer` is a human (`userId`, role `operator` or `player`) or an AI (`ai:dm`, `ai:companion:<id>`).
 
 Spec 104 (C-GATE ruling "Relax the gate (a)"): `action.resolve` also accepts a batch named by an `intent.recorded` row whose Intent id is `<actionId>.<n>` (`IntentView.batchIds`), because an Intent's engine rows carry `actionId: null`; the contract table in `specs/029-proposal-gate/contracts/gate-api.md` is amended. The `intent` kind (spec 102, ruling C-GATE) carries one `Intent` ([[intent-contract]]); policy `ask`; `checkPermission` passes it and `planIntent` (`gate/intents.ts`) decides seat, actor and turn, then plans through the planner ([[planner]]) into an `intent.recorded` carrier row plus engine rows. `rows.ts` holds `PlannedRow`, `PlanResult`, `mechanicsRows` and `refuse`; `plan.ts` re-exports them. New refusal codes: `NOT_YOUR_ACTOR`, `DM_SEAT_REQUIRED`, `NOT_YOUR_TURN`. `action.declare` plans through `declareIntent` (`gate/declare.ts`), same rows as before. Server side, `GateDeps.plannerInputs` (seed-derived `PlannerInputs`) rides `PlanContext.planner`. Under a human seat a `needs_ruling` carrier also writes a `proposal.created` row (`ruledRows`); approve or reject of that proposal plans a `ruling` Intent from the DM instead of replaying the proposal (`decideRuling`; a `difficulty` ask is not approvable). Under an AI seat the ruling turn answers it ([[dm-turn-jobs]]).
+
+**Suggest, accept, ask_dm** (TASK-0199, spec 066; amendment blocks in `specs/029-proposal-gate/contracts/`). `action.suggest` (DM kind, policy `auto`, always `public`) carries `ActionSuggestedV1`: `suggestionId`, `readSeq` and 1 to 4 items `{ itemId, text, intent }` (a `declared` Intent). The planner writes one `action.suggested` row; it refuses `INVALID_PROPOSAL` for a duplicate suggestion id, an item whose actor is not a human-controlled `pc`, or an item Intent id other than `<suggestionId>.<itemId>`, and `SUGGESTION_STALE` when an `ai:dm` `readSeq` is below `latestReadablePostSeq`. `action.accept` (`{ suggestionId, itemId }`; humans only, `routeProposal` refuses `ai:dm` `NOT_AUTHORIZED`) is refused `SUGGESTION_NOT_FOUND`, `SUGGESTION_STALE` (`suggestionState(p, intentId)` is `stale`), `NOT_AUTHORIZED` (the proposer must control the item's character, or a party member for a `party` item) or `CHARACTER_UNABLE` (the shared `unableRefusal`), then `planIntent` plans the item Intent as `confirmed`, source `composer`; a second accept is `INTENT_EXISTS`. No commit-authority row applies. `ask_dm` is served: `planGateKind` writes an `ooc` `talk` row and its `intent.recorded` carrier, both with the asker's user id as visibility. `action.withdraw` is as before TASK-0188 (`declared` or `discussed` only). The write-boundary test pins `kind: "action.suggest"` literals to `dm/talk-turn.ts` and bars any `action.accept` literal under `src/`.
 
 ## Permission, policy, seat
 
@@ -54,7 +56,7 @@ The DM seat is `{ kind: "ai" }` or `{ kind: "human", userId }` (`dm.seat.changed
 narration, table-mode, party, tracker, scene-presence, floor; `auto` for action.resolve and journal; `suggest` for
 scene. `effectivePolicy` is `auto` for every kind under an AI seat; under a human seat it is
 the session override (`gate.policy.changed`) else the default. `routeProposal` sends humans
-and companions `direct`, `ai:dm` by policy (`action.declare` and `action.withdraw` from `ai:dm`: `NOT_AUTHORIZED`). `dm`-only rows go only to the human DM seat ([[subscriber-registry]]).
+and companions `direct`, `ai:dm` by policy (`action.declare`, `action.withdraw` and `action.accept` from `ai:dm`: `NOT_AUTHORIZED`); `action.suggest` defaults to `auto`. `dm`-only rows go only to the human DM seat ([[subscriber-registry]]).
 
 ## Commit authority
 

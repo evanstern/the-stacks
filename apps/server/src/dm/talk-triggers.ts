@@ -1,6 +1,7 @@
-import type {
-  SessionProjections,
-  StoredEvent,
+import {
+  type ReadablePost,
+  readablePosts,
+  type SessionProjections,
 } from "@the-stacks/session-model";
 import type { SceneSeed } from "./seed/schema.js";
 import type { ActorSnapshot } from "./snapshot/types.js";
@@ -25,13 +26,15 @@ export interface CodeTrigger {
 const isHumanActor = (actor: string): boolean =>
   !actor.startsWith("ai:") && actor !== "system";
 
-/** FR-001: public IC talk from a human or companion, AI seat, free mode. */
-export function isReadable(row: StoredEvent, p: SessionProjections): boolean {
-  if (row.type !== "talk" || row.visibility !== "public") return false;
-  if ((row.payload as { channel?: string }).channel !== "ic") return false;
-  if (!isHumanActor(row.actor) && !row.actor.startsWith("ai:companion:"))
-    return false;
-  return p.gate.seat.kind === "ai" && p.tableMode.mode === "free";
+/**
+ * Spec 066 FR-006: true when the row at `row.seq` is a post the AI DM reads. Delegates to the
+ * pure `readablePosts` in session-model, so the server and the client agree.
+ */
+export function isReadable(
+  row: { seq: number },
+  p: SessionProjections,
+): boolean {
+  return readablePosts(p).some((post) => post.seq === row.seq);
 }
 
 /** FR-012: true when `cap` DM narration rows follow the latest human row. */
@@ -92,12 +95,12 @@ export function codeTriggers(
   return out;
 }
 
-/** OQ-16: skip the model when no NPC is named and the post asks nothing. */
-export function needsModel(triggers: CodeTrigger[], text: string): boolean {
-  return (
-    triggers.some((t) => !t.party && t.kind !== "overheard") ||
-    text.includes("?")
-  );
+/**
+ * Spec 066 FR-010: the read calls the model when a post is rule 1, 3 or 4 and human-authored.
+ * A read of rule 2 posts only (a declared Intent) or of companion posts only makes no call.
+ */
+export function needsModel(posts: readonly ReadablePost[]): boolean {
+  return posts.some((post) => post.rule !== 2 && isHumanActor(post.actor));
 }
 
 /** FR-004: every addressed actor is a companion and no NPC is named. */
@@ -116,6 +119,10 @@ export interface TalkResult {
   posts: number[];
   codeTriggers: CodeTrigger[];
   modelTriggers: { kind: string; actorId: string | null }[];
-  outcome: "none" | "reply" | "scene" | "escalate";
+  outcome: "none" | "reply" | "scene" | "escalate" | "confirm" | "interrupted";
+  /** Spec 066 FR-013: model and code items the read shipped in an `action.suggested` row. */
+  confirmItems: number;
+  /** Spec 066 FR-013: true when an `ask_dm` answer shipped. */
+  answered: boolean;
   reason: string;
 }

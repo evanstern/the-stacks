@@ -58,6 +58,7 @@ export const TurnTriggerSchema = z.enum([
   "held", // a turn job ended with an AI companion active whose party action was held (TASK-0244)
   "talk", // an in-character post the world may react to (specs/065)
   "ruling", // a needs_ruling carrier row under the AI seat (spec 102 FR-022)
+  "intent", // a direct settled Intent narrated by a coalesced turn (spec 066 FR-031)
 ]);
 export type TurnTrigger = z.infer<typeof TurnTriggerSchema>;
 
@@ -75,7 +76,7 @@ export const TurnJobInput = z.object({
     })
     .nullable()
     .default(null),
-  // Trigger "talk" only (specs/065): first unanswered post and the earliest claim.
+  // Trigger "talk" only: the earliest claim (spec 066 FR-007). `firstPostAt` is a pre-066 field, still parsed.
   firstPostAt: z.iso.datetime().optional(),
   notBefore: z.iso.datetime().optional(),
 });
@@ -524,19 +525,20 @@ export async function enqueueCompanionReact(
 }
 
 /**
- * Queues a `talk` turn, coalesced per session (specs/065 D2). Inserts with
- * `notBefore = least(now() + quietMs, firstPostAt + maxWaitMs)`. A queued talk
- * turn takes the new `triggerSeq` and a later `notBefore`. Any other queued
- * turn absorbs the post: nothing changes and `inserted` is false.
+ * Queues a `talk` turn (the read), coalesced per session (spec 066 FR-007). `notBefore` is the
+ * post's own `ts` plus the window; there is no cap. A queued talk turn takes the new `triggerSeq`
+ * and moves its `notBefore`. Any other queued turn absorbs the post: nothing changes and
+ * `inserted` is false.
  */
 export async function enqueueTalkTurn(
   db: DbClient,
   sessionId: string,
   triggerSeq: number,
-  opts: { quietMs: number; maxWaitMs: number },
+  opts: { postTs: string; windowMs: number },
 ): Promise<EnqueueResult> {
-  const quiet = sql`(interval '1 millisecond' * ${opts.quietMs})`;
-  const maxWait = sql`(interval '1 millisecond' * ${opts.maxWaitMs})`;
+  const notBefore = new Date(
+    Date.parse(opts.postTs) + opts.windowMs,
+  ).toISOString();
   for (;;) {
     const ins = await db.execute(sql`
       INSERT INTO jobs (kind, session_id, input)
@@ -550,8 +552,7 @@ export async function enqueueTalkTurn(
           'triggerSeq', ${triggerSeq}::int,
           'forceResolve', false,
           'start', 'null'::jsonb,
-          'firstPostAt', ${isoUtc(sql`now()`)},
-          'notBefore', ${isoUtc(sql`least(now() + ${quiet}, now() + ${maxWait})`)}
+          'notBefore', ${notBefore}::text
         )
       )
       ON CONFLICT DO NOTHING
@@ -562,7 +563,7 @@ export async function enqueueTalkTurn(
     const upd = await db.execute(sql`
       UPDATE jobs SET input = input || jsonb_build_object(
         'triggerSeq', ${triggerSeq}::int,
-        'notBefore', ${isoUtc(sql`least(now() + ${quiet}, (input->>'firstPostAt')::timestamptz + ${maxWait})`)}
+        'notBefore', ${notBefore}::text
       )
       WHERE session_id = ${sessionId}::uuid
         AND kind = 'turn'
@@ -579,6 +580,36 @@ export async function enqueueTalkTurn(
     if (other) return { jobId: other.id, inserted: false };
     // The queued row was claimed in between; loop to insert a fresh one.
   }
+}
+
+/**
+ * Ends the session's running read, if it has shipped nothing (spec 066 FR-008, plan D3). One
+ * update rotates the claim token, so the worker's next fenced write fails and it stops, and
+ * finishes the job with outcome `interrupted`. Returns the job id, or null when no read ran or
+ * the read had already shipped a row.
+ */
+export async function interruptRead(
+  db: DbClient,
+  sessionId: string,
+): Promise<string | null> {
+  const res = await db.execute(sql`
+    UPDATE jobs SET
+      status = 'succeeded',
+      stage = NULL,
+      claim_token = gen_random_uuid(),
+      finished_at = now(),
+      result = jsonb_build_object(
+        'outcome', jsonb_build_object('status', 'interrupted'),
+        'talk', jsonb_build_object('outcome', 'interrupted', 'reason', 'a later post arrived during the read'))
+    WHERE session_id = ${sessionId}::uuid
+      AND kind = 'turn'
+      AND status = 'running'
+      AND input->>'trigger' = 'talk'
+      AND COALESCE(jsonb_array_length(result->'checkpoint'->'submissions'), 0) = 0
+      AND COALESCE(result->'checkpoint'->'narration'->>'shipped', 'false') <> 'true'
+    RETURNING id
+  `);
+  return (res.rows[0] as { id: string } | undefined)?.id ?? null;
 }
 
 /** `ON CONFLICT DO NOTHING` on `jobs_chronicle_queued_key`: one queued pass per session. */

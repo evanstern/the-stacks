@@ -1,17 +1,23 @@
 import { createHash } from "node:crypto";
-import type {
-  SessionProjections,
-  StoredEvent,
-  TranscriptEntry,
+import { type Intent, IntentSchema, toText } from "@the-stacks/intent";
+import {
+  isDmReadOutput,
+  type Proposal,
+  type ReadablePost,
+  readablePosts,
+  type SessionProjections,
 } from "@the-stacks/session-model";
 import { encounterRan, encounterToStart } from "./gates/plan-gate.js";
 import { checkNarration, dropSentences } from "./narration-check.js";
 import { type CheckRecord, correctionsFor } from "./nodes/check.js";
 import type { DirectorNodeOutput } from "./nodes/director.js";
+import { stampIntent } from "./nodes/interpret.js";
 import type { ResolveOutput } from "./nodes/resolve.js";
 import {
   findLandedNarration,
+  type ReadShip,
   resolve,
+  shipReadRows,
   submitNarration,
 } from "./nodes/resolve.js";
 import { ReactOutput } from "./nodes/schemas.js";
@@ -30,7 +36,6 @@ import {
   type CodeTrigger,
   capReached,
   codeTriggers,
-  isReadable,
   needsModel,
   TALK_CHAIN_CAP,
   type TalkResult,
@@ -63,38 +68,25 @@ export function legalEscalation(
   return enc !== undefined && !encounterRan(p, enc);
 }
 
-type TalkPost = Extract<TranscriptEntry, { kind: "talk" }>;
-
 const RANK = { addressed: 3, mentioned: 2, overheard: 1 } as const;
 
 const sha = (s: string): string => createHash("sha256").update(s).digest("hex");
 
-/** Step 1: the public IC posts after the last DM narration, up to the trigger. */
+/**
+ * Step 1 (spec 066 FR-010): the readable posts after the latest DM read output (an `ai:dm`
+ * narration, an `action.suggested` row or an `ai:dm` `ooc` talk row), up to the trigger.
+ */
 function readPosts(
   p: SessionProjections,
   triggerSeq: number | null,
-): TalkPost[] {
+): ReadablePost[] {
   const upTo = triggerSeq ?? p.throughSeq;
   let cutoff = 0;
   for (const e of p.transcript) {
     if (e.seq > upTo) break;
-    if (e.kind === "narration" && e.actor === "ai:dm") cutoff = e.seq;
+    if (isDmReadOutput(e)) cutoff = e.seq;
   }
-  return p.transcript.filter(
-    (e): e is TalkPost =>
-      e.kind === "talk" &&
-      e.seq > cutoff &&
-      e.seq <= upTo &&
-      isReadable(
-        {
-          type: "talk",
-          actor: e.actor,
-          visibility: e.visibility,
-          payload: { channel: e.channel },
-        } as unknown as StoredEvent,
-        p,
-      ),
-  );
+  return readablePosts(p).filter((r) => r.seq > cutoff && r.seq <= upTo);
 }
 
 /** Merges per-post triggers: one entry per actor, the strongest kind wins. */
@@ -106,6 +98,11 @@ function mergeTriggers(all: CodeTrigger[][]): CodeTrigger[] {
   }
   return [...best.values()];
 }
+
+const AI_NOTE = (summary: string, rationale: string) => ({
+  summary: summary.slice(0, 200),
+  rationale: rationale.slice(0, 2000),
+});
 
 export async function runTalkTurn(
   ctx: TurnContext,
@@ -131,6 +128,8 @@ export async function runTalkTurn(
     codeTriggers: triggers,
     modelTriggers: [],
     outcome: "none",
+    confirmItems: 0,
+    answered: false,
     reason: "",
   };
   let nextJob: ResolveOutput["nextJob"] = null;
@@ -149,9 +148,13 @@ export async function runTalkTurn(
     calls,
   });
 
-  // Step 2: code skips the model when nothing is named and nothing is asked.
-  if (!posts.some((e, i) => needsModel(perPost[i] ?? [], e.text))) {
-    result.reason = "no present NPC named and no question asked";
+  // Rule 2 posts become confirm items in code, with no model call (FR-010, FR-011).
+  const codeItems = codeItemsOf(p, posts, `sug-${ctx.job.id}`);
+  const modelNeeded = needsModel(posts);
+
+  // Step 2: no human-authored read post and no declared Intent means nothing to do.
+  if (!modelNeeded && codeItems.length === 0) {
+    result.reason = "no readable post needs a read";
     return done(false, []);
   }
 
@@ -173,13 +176,35 @@ export async function runTalkTurn(
   const free = p.tableMode.mode === "free";
   const secrets = dmOnlySeedText(ctx.seed).map((s) => s.toLowerCase());
   const view = playerFacingSeed(ctx.seed);
+  const nameOfActor = (actor: string): string => {
+    if (actor.startsWith("ai:companion:"))
+      return (
+        assembled.snapshot.actors.find(
+          (a) => a.id === actor.slice("ai:companion:".length),
+        )?.name ?? actor
+      );
+    return (
+      p.party.find(
+        (m) => m.controller.kind === "player" && m.controller.userId === actor,
+      )?.name ?? "a player"
+    );
+  };
+  const humans = p.party
+    .filter((m) => m.controller.kind === "player")
+    .map((m) => ({ id: m.characterId, name: m.name }));
 
   const ask = async () => {
     const prompt = buildReactPrompt({
       seed: view,
       roster: rosterOf(p.party),
       snapshot: assembled.snapshot,
-      posts,
+      posts: posts.map((e) => ({
+        seq: e.seq,
+        speaker: nameOfActor(e.actor),
+        text: e.text,
+        rule: e.rule,
+      })),
+      humans,
       triggers,
       transcriptTail: assembled.transcriptTail,
       presentNpcIds,
@@ -199,9 +224,9 @@ export async function runTalkTurn(
       signal: ctx.signal,
     });
   };
-  // Step 3: one react call; a reclaim reuses the checkpointed output.
-  let react = ctx.checkpoint.react ?? null;
-  if (!react) {
+  // Step 3: one react call (only when a model post needs it); a reclaim reuses the checkpointed output.
+  let react: ReactOutput | null = ctx.checkpoint.react ?? null;
+  if (!react && modelNeeded) {
     const first = await ask();
     calls.push(...first.calls);
     if (!first.ok)
@@ -210,28 +235,31 @@ export async function runTalkTurn(
     if (!(await ctx.deps.saveCheckpoint({ ...ctx.checkpoint, react })))
       return fenced();
   }
+  const outcome = react?.outcome ?? "none";
+
+  const checked = (text: string) =>
+    checkNarration({
+      slots: { restate: "", describe: text, ask: "" },
+      rows: [],
+      hasRoll: false,
+      snapshot: assembled.snapshot,
+      dmOnlyText: secrets,
+      unmetSuccess: [],
+      departedIds: [],
+    });
 
   // Step 5: code checks (spec 103). No second call: a leak drops the sentence, a contradiction ships.
   let corrections: ReturnType<typeof correctionsFor> = [];
-  let shownText = react.text;
+  let shownText = react?.text ?? "";
   let record: CheckRecord = {
     leak: [],
     contradiction: [],
     corrected: false,
-    shippedProseSha256: sha(react.text),
+    shippedProseSha256: sha(shownText),
   };
-  if (react.outcome !== "none") {
-    const found = [
-      ...checkNarration({
-        slots: { restate: "", describe: react.text, ask: "" },
-        rows: [],
-        hasRoll: false,
-        snapshot: assembled.snapshot,
-        dmOnlyText: secrets,
-        unmetSuccess: [],
-        departedIds: [],
-      }),
-    ];
+  const proseOutcome = outcome !== "none" && outcome !== "confirm";
+  if (react && proseOutcome) {
+    const found = checked(react.text);
     const drop = found
       .filter((i) => i.check === "leak" || i.kind === "digit")
       .map((i) => i.sentence);
@@ -243,27 +271,80 @@ export async function runTalkTurn(
       corrected: drop.length > 0 || corrections.length > 0,
       shippedProseSha256: sha(shownText),
     };
-    if (!shownText.trim()) {
-      result.reason = "every sentence was dropped by the check (leak)";
-      return done(false, []);
-    }
-    if (
-      react.outcome === "reply" &&
-      !presentNpcIds.includes(react.speaker ?? "")
-    ) {
-      result.reason = "the speaker is not a present character";
-      return done(false, []);
+  }
+  const prose =
+    react && proseOutcome
+      ? !shownText.trim()
+        ? "every sentence was dropped by the check (leak)"
+        : outcome === "reply" && !presentNpcIds.includes(react.speaker ?? "")
+          ? "the speaker is not a present character"
+          : null
+      : null;
+
+  // FR-011: model items stamped, validated and filtered; code items first. At most four.
+  const sugId = `sug-${ctx.job.id}`;
+  const items: { itemId: string; text: string; intent: Intent }[] = [
+    ...codeItems,
+  ];
+  if (react && outcome === "confirm") {
+    for (const m of react.confirm) {
+      if (items.length >= 4) break;
+      const actorId =
+        m.characterId ??
+        p.party.find((x) => x.controller.kind === "player")?.characterId ??
+        null;
+      const member = p.party.find((x) => x.characterId === actorId);
+      const snap = assembled.snapshot.actors.find(
+        (a) => a.id === actorId || a.characterId === actorId,
+      );
+      if (
+        !actorId ||
+        member?.controller.kind !== "player" ||
+        snap?.presence !== "present" ||
+        (snap.lifeState !== null && snap.lifeState !== "conscious")
+      )
+        continue;
+      const n = items.length + 1;
+      const stamped = stampIntent(m.body, {
+        id: `${sugId}.i${n}`,
+        actor: { kind: "pc", id: actorId },
+        source: "ai",
+        commit: "declared",
+      });
+      if (!stamped.ok) continue;
+      if (checked(m.text).length > 0) continue;
+      items.push({ itemId: `i${n}`, text: m.text, intent: stamped.intent });
     }
   }
 
-  result.modelTriggers = react.triggers;
-  result.reason = react.reason;
-  if (react.outcome === "none") return done(false, []);
-  result.outcome = react.outcome;
-  let checkpoint = { ...ctx.checkpoint, react };
+  const answerAsker = [...posts].reverse().find((e) => e.rule === 3)?.actor;
+  let answerText = "";
+  if (react?.answer && answerAsker) {
+    const found = checked(react.answer);
+    answerText = dropSentences(
+      react.answer,
+      found.map((i) => i.sentence),
+    );
+  }
 
-  // Steps 4 and 6: a legal escalation runs resolve's opening move; else scene.
-  if (react.outcome === "escalate") {
+  result.modelTriggers = react?.triggers ?? [];
+  result.reason = react?.reason ?? "declared Intents confirmed in code";
+  result.confirmItems = items.length;
+  result.answered = answerText.trim() !== "";
+
+  if (outcome === "none" || outcome === "confirm") {
+    result.outcome =
+      outcome === "confirm" && items.length > 0 ? "confirm" : "none";
+  } else if (prose) {
+    result.reason = prose;
+    result.outcome = "none";
+  } else result.outcome = outcome;
+
+  const shipOnly = result.outcome === "none" || result.outcome === "confirm";
+  let checkpoint = { ...ctx.checkpoint, ...(react ? { react } : {}) };
+
+  // Step 4 and 6: a legal escalation runs resolve's opening move; else scene.
+  if (result.outcome === "escalate" && react) {
     // A resumed run has no unstarted encounter left; resolve skips its landed rows.
     const encounterId = react.encounterId ?? "";
     if (!resumed && !legalEscalation(ctx.seed, p, encounterId)) {
@@ -317,6 +398,55 @@ export async function runTalkTurn(
     }
   }
 
+  // FR-013: answer, then confirm, each fenced with its own reclaim key.
+  const ships: ReadShip[] = [];
+  if (answerText.trim() && answerAsker) {
+    ships.push({
+      key: "answer:1",
+      kind: "talk",
+      build: () => ({
+        kind: "talk",
+        ...AI_NOTE(
+          "Answer the question",
+          "An ask_dm answer; no state changes.",
+        ),
+        talk: {
+          text: answerText.slice(0, 4000),
+          channel: "ooc",
+          characterId: null,
+        },
+        visibility: answerAsker,
+      }),
+    });
+  }
+  if (items.length > 0) {
+    const readSeq = Math.max(...posts.map((e) => e.seq));
+    ships.push({
+      key: "confirm:1",
+      kind: "action.suggest",
+      build: (): Proposal => ({
+        kind: "action.suggest",
+        ...AI_NOTE("Confirm the read", "The DM asks the players to confirm."),
+        suggestion: { suggestionId: sugId, readSeq, items },
+      }),
+    });
+  }
+  if (ships.length > 0) {
+    if (!(await ctx.deps.fence())) return fenced();
+    const sent = await shipReadRows(ctx, checkpoint, ships);
+    if (!sent.ok) {
+      if (sent.error.detail?.code === "SUGGESTION_STALE") {
+        result.outcome = "interrupted";
+        result.confirmItems = 0;
+        result.reason = "a later post arrived during the read";
+        return done(false, []);
+      }
+      return { status: "failed", node: "resolve", error: sent.error, calls };
+    }
+    checkpoint = sent.checkpoint;
+  }
+  if (shipOnly) return done(false, []);
+
   // Step 7: ship one narration row, then name the companions to prompt.
   if (!(await ctx.deps.fence())) return fenced();
   const shipped = await submitNarration(
@@ -337,10 +467,41 @@ export async function runTalkTurn(
   const companions =
     reachesCap || result.outcome === "escalate"
       ? []
-      : react.companionPrompts.filter((id) =>
+      : (react?.companionPrompts ?? []).filter((id) =>
           p.party.some(
             (m) => m.characterId === id && m.controller.kind === "ai-companion",
           ),
         );
   return done(shipped.shipped, companions);
+}
+
+/** FR-011: each rule 2 post becomes one item in code, re-stamped to `<suggestionId>.i<n>`. */
+function codeItemsOf(
+  p: SessionProjections,
+  posts: readonly ReadablePost[],
+  sugId: string,
+): { itemId: string; text: string; intent: Intent }[] {
+  const out: { itemId: string; text: string; intent: Intent }[] = [];
+  for (const post of posts) {
+    if (post.rule !== 2 || out.length >= 4) continue;
+    const view = p.intents.find((v) => v.id === post.intentId);
+    if (!view || view.intent.actor.kind !== "pc") continue;
+    const n = out.length + 1;
+    const parsed = IntentSchema.safeParse({
+      ...view.intent,
+      id: `${sugId}.i${n}`,
+      source: "ai",
+      commit: "declared",
+    });
+    if (!parsed.success) continue;
+    const text = (view.intent.text ?? toText(view.intent) ?? view.intent.kind)
+      .slice(0, 500)
+      .trim();
+    out.push({
+      itemId: `i${n}`,
+      text: text || view.intent.kind,
+      intent: parsed.data,
+    });
+  }
+  return out;
 }

@@ -91,18 +91,40 @@ describe("shipped DM scripts (apps/server/dm-scripts)", () => {
     expect(live.calls[start.calls.length]?.purpose).toBe("dm.chronicle");
     expect(live.dice).toEqual([]);
   });
-  it.each(["talk-reply", "talk-none", "talk-chain"])(
-    "%s react replies parse against ReactOutput",
-    (name) => {
-      const calls = loadDmScript(read(TEST_SCRIPTS, `${name}.json`)).calls;
-      const reacts = calls.filter((c) => c.purpose === "dm.narrate");
-      expect(reacts.length).toBeGreaterThan(0);
-      for (const c of reacts)
-        expect(
-          ReactOutput.safeParse((c.respond as { value: unknown }).value),
-        ).toMatchObject({ success: true });
-    },
-  );
+  it("greyhollow-confirm is scene-start, a confirm read, an intent narration, an answer read, then chronicle (spec 066 D6)", () => {
+    const live = loadDmScript(read(LIVE_DIR, "greyhollow-confirm.json"));
+    const confirm = loadDmScript(read(TEST_SCRIPTS, "talk-confirm.json"));
+    const answer = loadDmScript(read(TEST_SCRIPTS, "talk-answer.json"));
+    expect(live.calls.slice(3, 3 + confirm.calls.length)).toEqual(
+      confirm.calls,
+    );
+    // One plain-text narrate serves the rule 9 `intent` turn the accepted item queues.
+    const intentAt = 3 + confirm.calls.length;
+    expect(live.calls[intentAt]).toMatchObject({
+      purpose: "dm.narrate",
+      respond: { type: "text" },
+    });
+    expect(
+      live.calls.slice(intentAt + 1, intentAt + 1 + answer.calls.length),
+    ).toEqual(answer.calls);
+    expect(live.calls.at(-1)?.purpose).toBe("dm.chronicle");
+    expect(live.dice).toEqual([]);
+  });
+  it.each([
+    "talk-reply",
+    "talk-none",
+    "talk-chain",
+    "talk-confirm",
+    "talk-answer",
+  ])("%s react replies parse against ReactOutput", (name) => {
+    const calls = loadDmScript(read(TEST_SCRIPTS, `${name}.json`)).calls;
+    const reacts = calls.filter((c) => c.purpose === "dm.narrate");
+    expect(reacts.length).toBeGreaterThan(0);
+    for (const c of reacts)
+      expect(
+        ReactOutput.safeParse((c.respond as { value: unknown }).value),
+      ).toMatchObject({ success: true });
+  });
   it.each([
     ["live", LIVE_DIR, "greyhollow-plan-approach.json"],
     ["test", TEST_SCRIPTS, "plan-approach.json"],

@@ -18,6 +18,7 @@ export function recordIntent(
   const view: IntentView = {
     id: intent.id,
     seq: prior?.seq ?? event.seq,
+    ts: prior?.ts ?? event.ts,
     actor: event.actor,
     intent: intent as Intent,
     status: outcome,

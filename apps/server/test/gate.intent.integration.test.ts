@@ -312,3 +312,96 @@ describe.skipIf(!db)("human-seat ruling proposals (database)", () => {
     );
   });
 });
+
+describe.skipIf(!db)(
+  "suggest then accept over the real gate (database)",
+  () => {
+    const tamsin = {
+      kind: "human",
+      userId: TAMSIN_USER,
+      role: "player",
+    } as const;
+    const aiDm = { kind: "ai", actor: "ai:dm" } as const;
+    const suggestion = (id: string) => ({
+      kind: "action.suggest",
+      suggestion: {
+        suggestionId: id,
+        readSeq: 0,
+        items: [
+          {
+            itemId: "i1",
+            text: "Tamsin swings from the rope.",
+            intent: {
+              id: `${id}.i1`,
+              kind: "attempt",
+              actor: { kind: "pc", id: "tamsin" },
+              targets: [],
+              params: { scope: "character" },
+              text: "swing from the rope",
+              source: "ai",
+              commit: "declared",
+            },
+          },
+        ],
+      },
+    });
+    const accept = (id: string) => ({
+      kind: "action.accept",
+      suggestionId: id,
+      itemId: "i1",
+    });
+
+    it("ai:dm suggests; a human 👍 plans the Intent as confirmed; a second 👍 is INTENT_EXISTS", async () => {
+      const w = await createWorld();
+      await startScene(w);
+      const sug = await w.gate.submit(
+        w.sessionId,
+        aiDm,
+        suggestion("sug-1") as never,
+      );
+      expect(sug.ok).toBe(true);
+      const before = (await readRows(w)).length;
+      const res = await w.as(tamsin, accept("sug-1"));
+      expect(res.ok).toBe(true);
+      const rows = (await readRows(w)).slice(before);
+      expect(rows.at(-1)?.type).toBe("intent.recorded");
+      expect(rows.at(-1)?.payload).toMatchObject({
+        intent: { id: "sug-1.i1", commit: "confirmed", source: "composer" },
+      });
+      const again = await w.as(tamsin, accept("sug-1"));
+      expect(again.ok ? "ok" : again.refusal.code).toBe("INTENT_EXISTS");
+    });
+
+    it("two concurrent 👍 plan one Intent: the other is INTENT_EXISTS", async () => {
+      const w = await createWorld();
+      await startScene(w);
+      await w.gate.submit(w.sessionId, aiDm, suggestion("sug-2") as never);
+      const before = (await readRows(w)).length;
+      const results = await Promise.all([
+        w.as(tamsin, accept("sug-2")),
+        w.as(tamsin, accept("sug-2")),
+      ]);
+      const codes = results.map((r) => (r.ok ? "ok" : r.refusal.code)).sort();
+      expect(codes).toEqual(["INTENT_EXISTS", "ok"]);
+      const carriers = (await readRows(w))
+        .slice(before)
+        .filter((r) => r.type === "intent.recorded");
+      expect(carriers).toHaveLength(1);
+    });
+
+    it("ai:dm cannot accept; a later suggestion makes the earlier 👍 SUGGESTION_STALE", async () => {
+      const w = await createWorld();
+      await startScene(w);
+      await w.gate.submit(w.sessionId, aiDm, suggestion("sug-3") as never);
+      const denied = await w.gate.submit(
+        w.sessionId,
+        aiDm,
+        accept("sug-3") as never,
+      );
+      expect(denied.ok ? "ok" : denied.refusal.code).toBe("NOT_AUTHORIZED");
+      await w.gate.submit(w.sessionId, aiDm, suggestion("sug-4") as never);
+      const stale = await w.as(tamsin, accept("sug-3"));
+      expect(stale.ok ? "ok" : stale.refusal.code).toBe("SUGGESTION_STALE");
+    });
+  },
+);

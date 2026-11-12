@@ -264,41 +264,6 @@ export const narrate: Node<"narrate"> = async (ctx) => {
     ? await ctx.deps.loadPriorTurns(ctx.job.sessionId, ctx.job.id)
     : [];
   const open = openFollowUps(projections, prior, beatIds);
-  const built = buildNarrationFacts({
-    trigger: ctx.job.trigger,
-    seed: playerFacingSeed(ctx.seed),
-    beatNpcIds: (ctx.job.trigger === "scene-start"
-      ? // Scene start (spec 076): the first beat's declaration, not the Director's beat.
-        ctx.seed.npcs
-          .map((n) => n.id)
-          .filter((id) => ctx.seed.beats[0]?.presence[id] !== "absent")
-      : (ctx.seed.beats.find((b) => b.id === director.pacing.beatId)?.npcIds ??
-        assembled.presentNpcIds)
-    ).filter(
-      (id) =>
-        resolve.snapshot.actors.find((a) => a.id === id)?.presence !== "absent",
-    ),
-    projections,
-    beat: assembled.beat,
-    director,
-    adjudicate: ctx.results.adjudicate ?? null,
-    resolve,
-    presentNpcIds: assembled.presentNpcIds,
-    modeBefore: assembled.projections.tableMode.mode,
-    appendedRows: resolve.appendedRows,
-    clarify,
-    followUps,
-    openFollowUps: open,
-    npcPlan,
-    turnActorId:
-      assembled.projections.tableMode.mode === "turn"
-        ? (assembled.projections.encounter?.activeCombatantId ?? null)
-        : null,
-  });
-  const { facts, withheld } = withholdRefusedInputs(built, {
-    snapshot: resolve.snapshot,
-    dmOnlyText: dmOnlySeedText(ctx.seed).map((t) => t.toLowerCase()),
-  });
   // Spec 104 FR-018, FR-019 (plan D6): the planner's facts ride the public `intent.recorded` rows
   // in the window `(W0, W1]`. W1 is the projections this narrate reads; W0 is the newest prior
   // turn's `factsThrough`, else the newest earlier `narration` row (a first beat or a deploy
@@ -326,6 +291,59 @@ export const narrate: Node<"narrate"> = async (ctx) => {
     .filter((r) => r.visibility === "public")
     .sort((x, y) => x.seq - y.seq)
     .flatMap((r) => (r.payload as { facts?: PlanFact[] }).facts ?? []);
+  // Spec 066 FR-031: an `intent` turn narrates the engine rows of the direct Intents in the window.
+  const directBatches =
+    ctx.job.trigger === "intent"
+      ? carriers.flatMap((r) => {
+          const pl = r.payload as {
+            batchId?: string | null;
+            intent?: { actor?: { kind?: string; id?: string } };
+          };
+          if (r.visibility !== "public" || !pl.batchId) return [];
+          const id = pl.intent?.actor?.id;
+          const name =
+            projections.party.find((m) => m.characterId === id)?.name ??
+            id ??
+            "The scene";
+          return [{ name, batchId: pl.batchId }];
+        })
+      : [];
+  const built = buildNarrationFacts({
+    trigger: ctx.job.trigger,
+    seed: playerFacingSeed(ctx.seed),
+    beatNpcIds: (ctx.job.trigger === "scene-start"
+      ? // Scene start (spec 076): the first beat's declaration, not the Director's beat.
+        ctx.seed.npcs
+          .map((n) => n.id)
+          .filter((id) => ctx.seed.beats[0]?.presence[id] !== "absent")
+      : (ctx.seed.beats.find((b) => b.id === director.pacing.beatId)?.npcIds ??
+        assembled.presentNpcIds)
+    ).filter(
+      (id) =>
+        resolve.snapshot.actors.find((a) => a.id === id)?.presence !== "absent",
+    ),
+    projections,
+    beat: assembled.beat,
+    director,
+    adjudicate: ctx.results.adjudicate ?? null,
+    resolve,
+    presentNpcIds: assembled.presentNpcIds,
+    modeBefore: assembled.projections.tableMode.mode,
+    appendedRows: resolve.appendedRows,
+    clarify,
+    followUps,
+    openFollowUps: open,
+    npcPlan,
+    directBatches,
+    turnActorId:
+      assembled.projections.tableMode.mode === "turn"
+        ? (assembled.projections.encounter?.activeCombatantId ?? null)
+        : null,
+  });
+  const { facts, withheld } = withholdRefusedInputs(built, {
+    snapshot: resolve.snapshot,
+    dmOnlyText: dmOnlySeedText(ctx.seed).map((t) => t.toLowerCase()),
+  });
   const actionIds = facts.actions.map((a) => a.actionId);
   const nameOf = (id: string | null): string => {
     if (id === null) return "The scene";

@@ -117,6 +117,31 @@ const requests: Record<string, GateRequest> = {
     policy: "ask",
   }),
   "dm.seat": req({ kind: "dm.seat", reason: "r", after: { kind: "ai" } }),
+  "action.suggest": req({
+    kind: "action.suggest",
+    suggestion: {
+      suggestionId: "sug-1",
+      readSeq: 1,
+      items: [
+        {
+          itemId: "i1",
+          text: "Ana hides.",
+          intent: {
+            id: "sug-1.i1",
+            kind: "hide",
+            actor: { kind: "pc", id: "ana" },
+            source: "ai",
+            commit: "declared",
+          },
+        },
+      ],
+    },
+  }),
+  "action.accept": req({
+    kind: "action.accept",
+    suggestionId: "sug-1",
+    itemId: "i1",
+  }),
 };
 
 type Who =
@@ -177,6 +202,8 @@ const allowed: Record<string, Who[]> = {
   "proposal.reject": ["seatedDm"],
   "gate.policy": ["seatedDm", "operator"],
   "dm.seat": ["operator"],
+  // Humans only; the planner narrows who may accept an item (spec 066 FR-016, FR-020).
+  "action.accept": ["seatedDm", "player", "outsider", "operator"],
 };
 for (const key of [
   "action.resolve",
@@ -187,6 +214,7 @@ for (const key of [
   "party",
   "tracker",
   "journal",
+  "action.suggest",
 ]) {
   allowed[key] = (Object.keys(DM_KIND_ROW) as Who[]).filter(
     (w) => DM_KIND_ROW[w],

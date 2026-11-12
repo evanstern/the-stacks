@@ -40,7 +40,18 @@ describe("PresenceRecordedV1 schema", () => {
         actionId: "act-1",
       }).success,
     ).toBe(true);
-    expect([...PRESENCE_PURPOSES]).toEqual(["director", "signoff", "floor"]);
+    expect([...PRESENCE_PURPOSES]).toEqual([
+      "director",
+      "signoff",
+      "floor",
+      "read",
+    ]);
+  });
+
+  it("accepts the read purpose", () => {
+    expect(
+      PresenceRecordedV1.safeParse({ present: [A], purpose: "read" }).success,
+    ).toBe(true);
   });
 
   it("rejects an unsorted set", () => {

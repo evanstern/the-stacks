@@ -36,7 +36,7 @@ sources:
   - apps/web/app/play/components/commit-control.tsx
   - apps/web/app/play/components/table-mode-panel.tsx
   - apps/web/app/play/components/dm-seat-panel.tsx
-verified_against: bfb65a157559c88bf988a6c0f55b7c03824ff412
+verified_against: 7c0d16130c083a540d3a93f5fc587ec3e95e5cbf
 size_budget_exempt: TASK-0236 adds the table margin paragraph to the one play-route note; the note sat near the 8000 budget and the view does not split without a TASK of its own
 ---
 

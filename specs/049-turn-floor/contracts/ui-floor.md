@@ -48,3 +48,12 @@ card, so "Commits on your turn" and "Suggest an alternative" are not shown. The 
 the turn-order strip and the floor lines are unchanged.
 
 **Amendment (TASK-0236).** Spec `specs/090-table-margin`. Operator ruling R2 (a), 2026-11-05. The turn-order strip no longer renders "Under the header". It renders in the `Margin` (desktop, section "Turn order") and in the `MiniStrip` (first three entries, 390 px). The list keeps the accessible name "Turn order" and its active, "next" and "you" marks. The header controls and the floor lines are unchanged.
+
+**Amendment (TASK-0199).** Amended 2026-11-11 (spec `specs/066-one-chat-stream`, plan.md "Frozen-contract amendments", row C-9; P-04, decision-0030).
+
+> "Approve all" (operator, C-GATE ruling, 2026-11-11: approves C-1 to C-9 as written in spec 066 plan.md)
+
+The action card keeps the active player's Commit. The Enter key in the composer replaces it
+(spec 066 FR-023). The TASK-0188 line that hides "Commits on your turn" is withdrawn for turn mode.
+
+Dated note, 2026-11-11 (T043): TASK-0315 builds the UI line. This card writes the contract only.

@@ -38,6 +38,7 @@ export function emptyProjections(viewer: Viewer): SessionProjections {
     gate: { seat: { kind: "ai" }, policyOverrides: {} },
     proposals: [],
     intents: [],
+    suggestions: [],
     presence: null,
     spatial: EMPTY_SPATIAL,
     throughSeq: 0,
@@ -153,6 +154,27 @@ function applyKnown(
         transcript: [...p.transcript, transcriptEntry(event)],
       };
       return result.ignored ? bump(next, "ignoredTransitions") : next;
+    }
+    case "action.suggested": {
+      if (
+        p.suggestions.some((s) => s.suggestionId === event.payload.suggestionId)
+      ) {
+        return bump(p, "ignoredTransitions");
+      }
+      return {
+        ...p,
+        suggestions: [
+          ...p.suggestions,
+          {
+            suggestionId: event.payload.suggestionId,
+            seq: event.seq,
+            actor: event.actor,
+            readSeq: event.payload.readSeq,
+            items: event.payload.items,
+          },
+        ],
+        transcript: [...p.transcript, transcriptEntry(event)],
+      };
     }
     case "table-mode.changed": {
       const checked = checkBefore(p, p.tableMode, event.payload.before);

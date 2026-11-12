@@ -352,3 +352,17 @@ Amended 2026-11-11 (TASK-0269, C-GATE ruling "Relax the gate (a)", spec `specs/1
 stay `actionId: null` (spec 102 FR-017 unchanged). A batch named only by another action's Intent, or
 by no row, stays `UNKNOWN_BATCH`. `IntentView` gains `batchIds`, the batches its carrier rows named.
 A `ruling` or `set_dc` Intent's batch counts for the Intent whose open request it answers (`answers`), so a ruled stage's batch resolves under that stage's id.
+
+**Amendment (TASK-0199).** Amended 2026-11-11 (spec `specs/066-one-chat-stream`, plan.md "Frozen-contract amendments", row C-5; P-04, decision-0030).
+
+> "Approve all" (operator, C-GATE ruling, 2026-11-11: approves C-1 to C-9 as written in spec 066 plan.md)
+
+The `action.accept` row changes. It plans the item Intent's batch: engine rows, or a ruling
+request, then `intent.recorded`. It no longer writes `action.declared` and `action.committed`. The
+widened-withdraw row is removed.
+
+The gate now serves `ask_dm` (it was `KIND_UNSERVED`, owner TASK-0199). `planIntent` writes a `talk`
+row on channel `ooc` and the `intent.recorded` carrier in one batch with no `batchId`. Both rows have
+the asker's user id as `visibility`.
+
+Dated note, 2026-11-11 (T043): the code matches. `action.suggest` also refuses `SUGGESTION_STALE` from `ai:dm` when `readSeq` is lower than `latestReadablePostSeq`.

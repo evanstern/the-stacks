@@ -37,7 +37,6 @@ type Actor = Intent["actor"];
 
 /** Owners of the not-planned kinds the gate does not handle (spec 102 FR-018, OQ-8). */
 const UNSERVED_OWNER: Record<string, string> = {
-  ask_dm: "TASK-0199",
   whisper: "spec 102 OQ-8 (whisper Intents)",
   pause: "spec 102 OQ-8 (session Intents)",
   bookmark: "spec 102 OQ-8 (session Intents)",
@@ -112,6 +111,7 @@ function carrier(
   intent: Intent,
   outcome: IntentRecorded["outcome"],
   extra: Partial<IntentRecorded> = {},
+  visibility = "public",
 ): PlannedRow {
   const payload: IntentRecorded = {
     intent,
@@ -124,7 +124,7 @@ function carrier(
     stopped: null,
     ...extra,
   };
-  return { actor, type: "intent.recorded", payload, visibility: "public" };
+  return { actor, type: "intent.recorded", payload, visibility };
 }
 
 const settled = (rows: PlannedRow[], batchId: string | null): PlanResult => ({
@@ -188,6 +188,17 @@ function planGateKind(
     case "ooc":
     case "party":
       return done([row("talk", { text, channel: "ooc", characterId: null })]);
+    case "ask_dm": {
+      // Spec 066 FR-028, OQ-6: the question and its carrier are the asker's and the DM's.
+      const own = (r: PlannedRow): PlannedRow => ({ ...r, visibility: actor });
+      return settled(
+        [
+          own(row("talk", { text, channel: "ooc", characterId: null })),
+          carrier(actor, intent, "settled", {}, actor),
+        ],
+        null,
+      );
+    }
     case "narrate":
       return done([row("narration", { text, actionIds: [] })]);
     case "reveal": {

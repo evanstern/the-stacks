@@ -1,6 +1,6 @@
 ---
 name: session-model
-description: The session model (packages/session-model) - typed event catalog, incl. zone.revealed, the mechanics envelope, canSee visibility, the pure project() fold into scene/party/encounter/journal/proposal views, the gate core and fog rule (see proposal-gate, zone-fog), ten fixtures, and the server seam (appendSessionEvent(s), loadDmSeat, loadProjections). Read before emitting, replaying or rendering session events.
+description: The session model (packages/session-model) - typed event catalog, incl. zone.revealed and action.suggested, the pure read rule (readablePosts, suggestionState; TASK-0199), the mechanics envelope, canSee visibility, the pure project() fold into scene/party/encounter/journal/proposal views, the gate core and fog rule (see proposal-gate, zone-fog), eleven fixtures, and the server seam (appendSessionEvent(s), loadDmSeat, loadProjections). Read before emitting, replaying or rendering session events.
 kind: component
 sources:
   - packages/session-model/package.json
@@ -12,6 +12,9 @@ sources:
   - packages/session-model/src/projections/apply.ts
   - packages/session-model/src/projections/types.ts
   - packages/session-model/src/events/presence.ts
+  - packages/session-model/src/events/actions.ts
+  - packages/session-model/src/read.ts
+  - packages/session-model/src/fixtures/one-chat-stream.ts
   - packages/session-model/src/events/scene-presence.ts
   - packages/session-model/src/fixtures/index.ts
   - packages/session-model/src/gate/plan.ts
@@ -21,8 +24,8 @@ sources:
   - packages/session-model/src/fixtures/turn-floor.ts
   - apps/server/src/session/events.ts
   - apps/server/src/session/projections.ts
-size_budget_exempt: spec 102 adds the intent kind paragraph to the one session-model note; it does not split without a TASK of its own
-verified_against: 17849584ad75728e4df27bee4a34d3e35cb86229
+size_budget_exempt: spec 102 adds the intent kind paragraph and TASK-0199 (spec 066) adds the suggestion and read-rule paragraph to the one session-model note; it does not split without a TASK of its own
+verified_against: 7c0d16130c083a540d3a93f5fc587ec3e95e5cbf
 ---
 
 # Session model
@@ -42,16 +45,16 @@ Six kinds exist:
 | kind | types |
 |---|---|
 | talk | `talk`, `narration` |
-| lifecycle | `action.declared`, `action.commented`, `action.committed`, `action.resolved`, `action.withdrawn` |
+| lifecycle | `action.declared`, `action.commented`, `action.committed`, `action.resolved`, `action.withdrawn`, `action.suggested` |
 | state-change | `table-mode.changed`, `scene.changed`, `scene-presence.changed`, `party.member.changed`, `tracker.changed` (dm-only), `dm.seat.changed`, `gate.policy.changed`, `zone.revealed` ([[zone-fog]]), plus engine events that change state |
 | marker | engine events `dice.rolled`, `attack.resolved`, `check.resolved`, `rest.completed`, and `presence.recorded` |
 | record | `journal.entry.added` |
 | proposal | `proposal.created`, `proposal.approved`, `proposal.rejected` (all `dm-only`) |
 
-`dm.seat.changed` carries the new `DmSeat`; `gate.policy.changed` carries `proposalKind`, `before` and `after`. `action.withdrawn` (TASK-0114) holds `{ actionId }` and closes the action. `scene-presence.changed` (TASK-0141; `public`, or `dm` for a seed row, [[seed-npc-presence]]) holds `{ actorId, before, after, reason, actionId }`: `reason` is one of `PresenceReasonSchema` (`arrived`, `left`, `fled`, `removed`, `surrendered`, `conceded`) and fixes `after` through `REASON_TO_PRESENCE` (`present`, `absent` or `yielded`). `presence.recorded` (decision-0024; visibility
+`dm.seat.changed` carries the new `DmSeat`; `gate.policy.changed` carries `proposalKind`, `before` and `after`. `action.withdrawn` (TASK-0114) holds `{ actionId }` and closes the action. `scene-presence.changed` (TASK-0141; `public`, or `dm` for a seed row, [[seed-npc-presence]]) holds `{ actorId, before, after, reason, actionId }`: `reason` is one of `PresenceReasonSchema` (`arrived`, `left`, `fled`, `removed`, `surrendered`, `conceded`) and fixes `after` through `REASON_TO_PRESENCE` (`present`, `absent` or `yielded`). `action.suggested` (TASK-0199, spec 066; `public`) holds the DM's confirm row: `suggestionId`, `readSeq` and 1 to 4 items `{ itemId, text, intent }`, each a `declared` Intent. `presence.recorded` (decision-0024; visibility
 `any`, written `public` by `actor: "system"`) holds `{ present, purpose, actionId? }`: `present` is
 the sorted, unique user ids of the humans at the table (at most 64), `purpose` is `director`
-(per DM turn), `signoff` (by the gate in a group commit batch) or `floor` (an AI DM floor pass). See [[presence]].
+(per DM turn), `signoff` (by the gate in a group commit batch), `floor` (an AI DM floor pass) or `read` (a `talk` turn, the AI DM's table read). See [[presence]].
 
 Engine event types derive from `EngineEventSchema`; there is no second list. State-change payloads carry `before` and `after`, except `zone.revealed`.
 
@@ -76,7 +79,7 @@ delivery uses the same function per connection ([[subscriber-registry]]).
 pure, total and never throws. `SessionProjections` holds: `scene`, `tableMode`, `party`,
 `encounter`, `journal`, `transcript`, `actions` (lifecycle status), `ledger`, DM-only
 `trackers`, `scenePresence` (per actor id: `presence`, `reason`, `seq`; no entry means present), `gate` (`seat`, `policyOverrides`; default AI seat), `proposals` (`ProposalView`s with a status, DM view only; `pendingProposals`, `findProposal`), the folded `engine` state (via the engine's `evolve`, never recomputed rules),
-`spatial` (a per-viewer `SpatialView`, [[zone-fog]]), `presence` (a `PresenceView` of `present`, `purpose`, `actionId` and the marker's `seq`; `null`
+`suggestions` (`SuggestionView[]`, one per `action.suggested` row; `IntentView` also gains `ts`), `spatial` (a per-viewer `SpatialView`, [[zone-fog]]), `presence` (a `PresenceView` of `present`, `purpose`, `actionId` and the marker's `seq`; `null`
 until a marker folds, and each marker replaces the last), `throughSeq`, and `diagnostics`. The
 marker adds no transcript entry. Inside `applyEvent`, hidden rows are dropped
 uncounted and do not move `throughSeq`; a row at or below `throughSeq` counts as `outOfOrder`;
@@ -97,11 +100,15 @@ with `DEFAULT_POLICIES` and `effectivePolicy`, and `planProposal` / `mechanicsRo
 proposal into catalog rows, or a refusal, using the engine; refuses `CHARACTER_UNABLE` for a downed or absent declarer; the `scene-presence` kind plans the change row plus an engine `combatant.depart`, `combatant.side` `neutral` (a yielding hostile) or `initiative.join` (spec 099). `planProposal` also runs the fog rule ([[zone-fog]]). Spec 102: the `intent` kind plans through `planIntent` (`gate/intents.ts`, `buildPlanState` in `gate/plan-state.ts` from `PlannerInputs`), `action.declare` through `declareIntent`; the `intent.recorded` v1 event (`events/intents.ts`) is the carrier, folded into `SessionProjections.intents` (`IntentView[]`; spec 104 adds `batchIds`: every engine batch a carrier row for that Intent id named, and a `ruling` carrier's batch counts toward the Intent it answers) and read by `openRulings`. The package now depends on `@the-stacks/intent` and `@the-stacks/planner` (spec 102 OQ-1). All are exported from the package
 index. Kinds, policies, authority and the server wrapper: [[proposal-gate]].
 
+## The read rule
+
+`src/read.ts` (spec 066, pure, shared with the client): `readablePosts(p)` lists what the AI DM reads, in seq order, and is empty under a human seat. Rule 1: human or companion speech Intents in free mode. Rule 2: a `declared` human non-speech Intent in free mode that no action links. Rule 3: a human `ask_dm` Intent. Rule 4: a legacy companion `talk` row. `latestReadablePostSeq`, `readWindowMs` (`READ_QUIET_MS` 10 s; 0 for `ask_dm` in turn mode), `isDmReadOutput`, `isDmQuestion` (`@dm` as a whole word) and `suggestionState(p, intentId)` (`live`, `stale`, `confirmed`, `missing`; an item Intent id is `<suggestionId>.<itemId>`; stale after a later public `action.suggested`, a later public narration with no `actionIds`, or a later public change into turn mode) are exported. No read happens in turn mode except an `ask_dm` post.
+
 ## Fixtures contract
 
-The `@the-stacks/session-model/fixtures` subpath exports ten stored-event streams
+The `@the-stacks/session-model/fixtures` subpath exports eleven stored-event streams
 (`talkOnly`, `freeModeAction`, `turnModeCombat`, `secretTracker`, `unknownAndInvalid`,
-`dmApprovals`, `commitAuthority`, `presenceMarker`, `groupSignoff`, `turnFloor`) as `fixtures`, plus the `proposalExamples` set, plus `recipes`, `fixtureIds`. The `group-signoff` fixture (three humans) walks a party action through approve, object and a
+`dmApprovals`, `commitAuthority`, `presenceMarker`, `groupSignoff`, `turnFloor`, `oneChatStream`) as `fixtures`, plus the `proposalExamples` set, plus `recipes`, `fixtureIds`. The `group-signoff` fixture (three humans) walks a party action through approve, object and a
 quorum commit with its `signoff` marker. The `turn-floor` fixture walks floor passing ([[turn-floor]]).
 They are shared test input on a separate subpath; the main entry holds no test data.
 

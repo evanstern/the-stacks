@@ -33,6 +33,7 @@ describe("DEFAULT_POLICIES (AC #2)", () => {
       journal: "auto",
       floor: "ask",
       intent: "ask",
+      "action.suggest": "auto",
     };
     expect({ ...DEFAULT_POLICIES }).toEqual(expected);
   });
@@ -108,6 +109,52 @@ describe("routeProposal", () => {
       policy: "suggest",
     });
     expect(routeProposal(dmFold(), aiDm, narration)).toEqual({
+      route: "policy",
+      policy: "auto",
+    });
+  });
+
+  it("refuses ai:dm action.accept under any seat (spec 066 FR-020)", () => {
+    const accept = ProposalSchema.parse({
+      kind: "action.accept",
+      suggestionId: "sug-1",
+      itemId: "i1",
+    });
+    for (const p of [dmFold(), dmFold({ humanDm: true })]) {
+      expect(routeProposal(p, aiDm, accept)).toEqual({
+        route: "refuse",
+        code: "NOT_AUTHORIZED",
+      });
+      expect(routeProposal(p, ana, accept)).toEqual({ route: "direct" });
+    }
+  });
+
+  it("ai:dm action.suggest is auto under an AI seat and the default under a human seat", () => {
+    const suggest = ProposalSchema.parse({
+      kind: "action.suggest",
+      suggestion: {
+        suggestionId: "sug-1",
+        readSeq: 1,
+        items: [
+          {
+            itemId: "i1",
+            text: "x",
+            intent: {
+              id: "sug-1.i1",
+              kind: "hide",
+              actor: { kind: "pc", id: "ana" },
+              source: "ai",
+              commit: "declared",
+            },
+          },
+        ],
+      },
+    });
+    expect(routeProposal(dmFold(), aiDm, suggest)).toEqual({
+      route: "policy",
+      policy: "auto",
+    });
+    expect(routeProposal(dmFold({ humanDm: true }), aiDm, suggest)).toEqual({
       route: "policy",
       policy: "auto",
     });

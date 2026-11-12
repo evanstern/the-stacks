@@ -5,6 +5,7 @@ import {
   ActionCommittedV1,
   ActionDeclaredV1,
   ActionResolvedV1,
+  ActionSuggestedV1,
   ActionWithdrawnV1,
 } from "./events/actions.js";
 import { DmSeatChangedV1, GatePolicyChangedV1 } from "./events/gate-config.js";
@@ -93,6 +94,7 @@ const sessionEntries: CatalogEntry[] = [
   session("presence.recorded", "marker", PresenceRecordedV1),
   session("zone.revealed", "state-change", ZoneRevealedV1),
   session("intent.recorded", "lifecycle", IntentRecordedV1),
+  session("action.suggested", "lifecycle", ActionSuggestedV1),
 ];
 
 const mechanicsEntries: CatalogEntry[] = MECHANICS_EVENT_TYPES.map((type) =>
@@ -150,6 +152,7 @@ type SessionPayloads = {
   "presence.recorded": z.infer<typeof PresenceRecordedV1>;
   "zone.revealed": z.infer<typeof ZoneRevealedV1>;
   "intent.recorded": z.infer<typeof IntentRecordedV1>;
+  "action.suggested": z.infer<typeof ActionSuggestedV1>;
 };
 
 export type SessionNativeEvent = {

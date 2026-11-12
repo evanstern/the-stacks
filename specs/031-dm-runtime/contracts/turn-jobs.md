@@ -341,3 +341,14 @@ Amended by specs/065-talk-triggers.
 action was held. The worker enqueues the `next.trigger` the resolve output names (`npc-turn` or `held`). The
 job runs the same pipeline; the plan gate no longer holds the group on the companion's own turn, so it
 resolves. No migration: `jobs.input` is JSON and no CHECK reads the trigger.
+
+**Amendment (TASK-0199).** Amended 2026-11-11 (spec `specs/066-one-chat-stream`, plan.md "Frozen-contract amendments", row C-8; P-04, decision-0030).
+
+> "Approve all" (operator, C-GATE ruling, 2026-11-11: approves C-1 to C-9 as written in spec 066 plan.md)
+
+The read window is 10 s in free mode. An `ask_dm` post has a 0 s window in turn mode. No other post
+is read in turn mode. The 5 s turn-mode window is removed. `reconcileTurnJobs` is unchanged: it
+closes a party action on a later `action.committed` or `action.withdrawn`, as before. `TurnTriggerSchema` gains `intent`: a direct settled
+Intent narrated by a coalesced turn.
+
+Dated note, 2026-11-11 (T043): the enqueue rules renumber. TASK-0314 took rule 8, the human-DM ruling resume. Rule 6 is the read (`readablePosts`, `interruptRead`, no cap). Rule 9 is the direct-Intent narration, and `nudge()` is item 10. Rule 9 fires only on a settled Intent with engine rows (`batchId` set) or a stopped one, so speech and `ask_dm` carriers queue no narration turn. The `intent` turn skips the director call: the runner supplies a stay-put output built in code.

@@ -33,6 +33,19 @@ import {
  * lives in resolve's module so every gate call stays there (AC #5).
  */
 
+/** The code-made Director output of an `intent` turn: resolve, change nothing, no companion prompt. */
+const INTENT_DIRECTOR: NodeOutputs["director"] = {
+  beat: { decision: "resolve" },
+  tableMode: { to: "stay" },
+  trackers: [],
+  scene: { status: "continue" },
+  pacing: { tension: "rising", spotlight: null, beatId: null },
+  goalNote: "",
+  companionPrompts: [],
+  arrivals: [],
+  overrides: [],
+};
+
 export type Nodes = { [N in NodeName]: Node<N> };
 
 const CHECKPOINTED = ["director", "interpret", "adjudicate"] as const;
@@ -157,6 +170,13 @@ export async function runTurn(
       continue;
     }
 
+    // Spec 066 FR-031: an `intent` turn has no beat to direct. Code supplies a stay-put Director
+    // output, so no model call runs; narrate then reads the carrier rows (spec 104 window).
+    if (name === "director" && ctx.job.trigger === "intent") {
+      ctx = { ...ctx, results: { ...ctx.results, director: INTENT_DIRECTOR } };
+      continue;
+    }
+
     // Checkpoint reuse: a reclaimed job skips the calls it already paid for.
     if (isCheckpointed(name) && ctx.checkpoint[name] !== null) {
       ctx = {
@@ -201,7 +221,8 @@ export async function runTurn(
       if (
         assembled.beat.length === 0 &&
         assembled.npcTurn === null &&
-        ctx.job.trigger !== "scene-start"
+        ctx.job.trigger !== "scene-start" &&
+        ctx.job.trigger !== "intent"
       ) {
         // A talk turn with nothing committed reads the posts (specs/065 D3).
         if (ctx.job.trigger === "talk") return runTalkTurn(ctx, assembled);

@@ -1,4 +1,5 @@
 import { RefusalCodeSchema } from "@the-stacks/dnd5e-engine";
+import { IntentSchema } from "@the-stacks/intent";
 import { z } from "zod";
 import { RefIdSchema } from "../ids.js";
 
@@ -87,3 +88,37 @@ export const ActionResolvedV1 = z
       }
     }
   });
+
+/** One line of a DM confirm: the DM's wording and the Intent a 👍 plans (spec 066 D1). */
+export const SuggestionItemV1 = z.object({
+  itemId: z.string().regex(/^i[1-4]$/),
+  text: z.string().min(1).max(500),
+  intent: IntentSchema,
+});
+
+/** The DM's confirm row: 1 to 4 `declared` Intents the players may 👍 (spec 066 FR-011). */
+export const ActionSuggestedV1 = z
+  .object({
+    suggestionId: RefIdSchema,
+    /** The seq of the latest readable post the read took. */
+    readSeq: z.number().int().min(0),
+    items: z.array(SuggestionItemV1).min(1).max(4),
+  })
+  .superRefine((p, ctx) => {
+    if (p.items.some((i) => i.intent.commit !== "declared")) {
+      ctx.addIssue({
+        code: "custom",
+        message: "a suggestion item carries a declared Intent",
+        path: ["items"],
+      });
+    }
+    if (new Set(p.items.map((i) => i.itemId)).size !== p.items.length) {
+      ctx.addIssue({
+        code: "custom",
+        message: "item ids are unique",
+        path: ["items"],
+      });
+    }
+  });
+export type SuggestionItem = z.infer<typeof SuggestionItemV1>;
+export type ActionSuggested = z.infer<typeof ActionSuggestedV1>;

@@ -19,17 +19,18 @@ describe("proposal kinds", () => {
       (o) => (o.shape.kind as unknown as { value: string }).value,
     );
     expect([...options].sort()).toEqual([...ProposalKindSchema.options].sort());
-    expect(ProposalKindSchema.options).toHaveLength(16);
+    expect(ProposalKindSchema.options).toHaveLength(18);
   });
 
-  it("DM kinds are the sixteen minus action.declare and action.withdraw", () => {
-    expect(DmProposalKindSchema.options).toHaveLength(14);
+  it("DM kinds are the eighteen minus action.declare, action.withdraw and action.accept", () => {
+    expect(DmProposalKindSchema.options).toHaveLength(15);
+    expect(DmProposalKindSchema.options).not.toContain("action.accept");
     expect(DmProposalKindSchema.options).not.toContain("action.declare");
     expect(DmProposalKindSchema.options).not.toContain("action.withdraw");
   });
 
-  it("GATE_REQUEST_KINDS has 20 entries", () => {
-    expect(GATE_REQUEST_KINDS).toHaveLength(20);
+  it("GATE_REQUEST_KINDS has 22 entries", () => {
+    expect(GATE_REQUEST_KINDS).toHaveLength(22);
     expect(GATE_REQUEST_KINDS).toContain("proposal.approve");
     expect(GATE_REQUEST_KINDS).toContain("gate.policy");
     expect(GATE_REQUEST_VERSION).toBe(1);
