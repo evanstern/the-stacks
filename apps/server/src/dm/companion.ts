@@ -315,14 +315,15 @@ export async function runCompanionJob(
       if (declared.ok) {
         output = { ...output, act: { text: declared.text, commit: true } };
       } else {
-        if (output.turn !== null) {
-          deps.log({
-            event: "dm.companion.turn-invalid",
-            jobId: job.id,
-            companionId,
-            path: declared.path,
-          });
-        }
+        // A null turn (even with an `act`) holds silently otherwise; log it so a playtest sees it.
+        deps.log({
+          event: "dm.companion.turn-invalid",
+          jobId: job.id,
+          companionId,
+          ...(output.turn === null
+            ? { reason: "missing-turn" }
+            : { path: declared.path }),
+        });
         output = { ...output, act: { text: HOLD_ACT_TEXT, commit: true } };
       }
     }

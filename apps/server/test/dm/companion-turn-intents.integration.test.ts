@@ -55,7 +55,7 @@ const chronicle = ["a", "b", "c"].map(() => ({
   respond: { type: "json", value: { entries: [] } },
 }));
 
-async function odoTurn(turn: unknown) {
+async function odoTurn(turn: unknown, logs: unknown[] = []) {
   const w = await createWorld({
     dice: [15, 12, 12, 12, 12, 12, 12, 12],
     calls: [reply(turn), director, narrate, ...chronicle],
@@ -87,7 +87,7 @@ async function odoTurn(turn: unknown) {
       loadSeed: (id: string) => loadSeed(id),
       enqueueTurnForced: async () => {},
       fence: async () => true,
-      log: () => {},
+      log: (e: unknown) => void logs.push(e),
     },
     {
       id: "00000000-0000-4000-8000-0000000000c9",
@@ -178,5 +178,17 @@ describe.skipIf(!reachable)("companion turns emit Intents (database)", () => {
         (await readRows(w)).some((r) => r.type === "intent.recorded"),
       ).toBe(false);
     }
+  });
+
+  it("a null turn logs dm.companion.turn-invalid with reason missing-turn and still holds", async () => {
+    const logs: unknown[] = [];
+    const { w } = await odoTurn(null, logs);
+    expect(await declaredText(w)).toBe(HOLD_ACT_TEXT);
+    expect(logs).toContainEqual(
+      expect.objectContaining({
+        event: "dm.companion.turn-invalid",
+        reason: "missing-turn",
+      }),
+    );
   });
 });
