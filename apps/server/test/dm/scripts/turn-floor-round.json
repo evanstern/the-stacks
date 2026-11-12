@@ -122,65 +122,6 @@
       }
     },
     {
-      "purpose": "dm.director",
-      "respond": {
-        "type": "json",
-        "value": {
-          "beat": {
-            "decision": "resolve"
-          },
-          "tableMode": {
-            "to": "stay"
-          },
-          "trackers": [],
-          "scene": {
-            "status": "continue"
-          },
-          "pacing": {
-            "tension": "high",
-            "spotlight": null,
-            "beatId": "reed-camp"
-          },
-          "goalNote": "Snag swings at the nearest foe.",
-          "companionPrompts": []
-        }
-      },
-      "note": "Snag's turn"
-    },
-    {
-      "purpose": "dm.interpret",
-      "respond": {
-        "type": "json",
-        "value": {
-          "readings": [
-            {
-              "actionId": null,
-              "stages": [
-                {
-                  "intent": {
-                    "kind": "attack",
-                    "targets": [
-                      {
-                        "kind": "actor",
-                        "id": "tamsin"
-                      }
-                    ],
-                    "params": {
-                      "weapon": "Scimitar"
-                    }
-                  },
-                  "beside": null
-                }
-              ],
-              "clarify": null,
-              "followUps": []
-            }
-          ]
-        }
-      },
-      "note": "NPC reading: actionId null"
-    },
-    {
       "purpose": "dm.narrate",
       "note": "a miss for the NPC",
       "respond": {

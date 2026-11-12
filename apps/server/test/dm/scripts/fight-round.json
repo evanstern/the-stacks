@@ -63,65 +63,6 @@
       }
     },
     {
-      "purpose": "dm.director",
-      "note": "monster turn",
-      "respond": {
-        "type": "json",
-        "value": {
-          "beat": {
-            "decision": "resolve"
-          },
-          "tableMode": {
-            "to": "stay"
-          },
-          "trackers": [],
-          "scene": {
-            "status": "continue"
-          },
-          "pacing": {
-            "tension": "high",
-            "spotlight": null,
-            "beatId": "reed-camp"
-          },
-          "goalNote": "Snag swings at the nearest foe.",
-          "companionPrompts": []
-        }
-      }
-    },
-    {
-      "purpose": "dm.interpret",
-      "note": "NPC reading: actionId null",
-      "respond": {
-        "type": "json",
-        "value": {
-          "readings": [
-            {
-              "actionId": null,
-              "stages": [
-                {
-                  "intent": {
-                    "kind": "attack",
-                    "targets": [
-                      {
-                        "kind": "actor",
-                        "id": "tamsin"
-                      }
-                    ],
-                    "params": {
-                      "weapon": "Scimitar"
-                    }
-                  },
-                  "beside": null
-                }
-              ],
-              "clarify": null,
-              "followUps": []
-            }
-          ]
-        }
-      }
-    },
-    {
       "purpose": "dm.narrate",
       "note": "a miss for the NPC",
       "respond": {

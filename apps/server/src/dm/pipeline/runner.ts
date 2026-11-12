@@ -46,6 +46,9 @@ const INTENT_DIRECTOR: NodeOutputs["director"] = {
   overrides: [],
 };
 
+/** Spec 107 D4: a monster turn with an empty beat has nothing to direct; code stays put. */
+const NPC_DIRECTOR: NodeOutputs["director"] = INTENT_DIRECTOR;
+
 export type Nodes = { [N in NodeName]: Node<N> };
 
 const CHECKPOINTED = ["director", "interpret", "adjudicate"] as const;
@@ -174,6 +177,18 @@ export async function runTurn(
     // output, so no model call runs; narrate then reads the carrier rows (spec 104 window).
     if (name === "director" && ctx.job.trigger === "intent") {
       ctx = { ...ctx, results: { ...ctx.results, director: INTENT_DIRECTOR } };
+      continue;
+    }
+
+    // Spec 107 D4: an `npc-turn` with an empty beat needs no Director call.
+    if (
+      name === "director" &&
+      ctx.job.trigger === "npc-turn" &&
+      ctx.checkpoint.director === null &&
+      ctx.results.assemble?.npcTurn &&
+      ctx.results.assemble.beat.length === 0
+    ) {
+      ctx = { ...ctx, results: { ...ctx.results, director: NPC_DIRECTOR } };
       continue;
     }
 

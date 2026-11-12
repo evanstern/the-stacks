@@ -9,16 +9,16 @@ by hand. Export only `TEST_DATABASE_URL` as `VAR="$(sed …)"`.
 
 ## Phase 1: Monster turns emit Intents in code (AC #2, AC #3 monster half)
 
-- [ ] T001 Add optional `tactics: z.enum(["nearest","weakest"]).default("nearest")` to the encounter monster entry in `apps/server/src/dm/seed/schema.ts`.
-- [ ] T002 Create `apps/server/src/dm/monster-policy.ts` with `monsterStages(p, seed, combatantId)` per plan.md D3.
-- [ ] T003 Write `apps/server/test/dm/monster-policy.test.ts`: one case per D3 step (no combatant, no attacks, no foes, engaged melee, ranged, move then attack, `weakest`, tie by initiative, no placements).
-- [ ] T004 In `apps/server/src/dm/nodes/interpret.ts`, build the monster reading from `monsterStages` with `say: null`, and drop `null` from the model's expected reading ids.
-- [ ] T005 In `apps/server/src/dm/prompts/interpret.ts`, remove the monster-turn instruction lines and the `Monster turn:` user line; bump `PROMPT_VERSION` to `dm.interpret-v18`.
-- [ ] T006 In `apps/server/src/dm/pipeline/runner.ts`, add `NPC_DIRECTOR` and choose it for an `npc-turn` job with an empty beat and a monster turn (plan.md D4).
-- [ ] T007 Update `interpret-intents.test.ts`, `interpret-prompt.test.ts`, `npc-turn-narration.test.ts` and `runner.test.ts` for the code monster reading and the code Director.
-- [ ] T008 Rescript every DM script and fixture that scripts a monster turn: remove its `dm.director` and `dm.interpret` calls (`test/dm/scripts/*.json`, `test/playtest/fixtures/downed-seat.json`).
-- [ ] T009 Write `apps/server/test/dm/npc-turn-intents.integration.test.ts`: spec US-2 scenarios 1, 2, 5 and 6 with a strict fake gateway.
-- [ ] T010 Run `pnpm ci:check` with `REQUIRE_DATABASE=1`; fix until green; commit `TASK-0299: Phase 1 monster turns emit Intents in code (T001-T010)`.
+- [x] T001 Add optional `tactics: z.enum(["nearest","weakest"]).default("nearest")` to the encounter monster entry in `apps/server/src/dm/seed/schema.ts`.
+- [x] T002 Create `apps/server/src/dm/monster-policy.ts` with `monsterStages(p, seed, combatantId)` per plan.md D3.
+- [x] T003 Write `apps/server/test/dm/monster-policy.test.ts`: one case per D3 step (no combatant, no attacks, no foes, engaged melee, ranged, move then attack, `weakest`, tie by initiative, no placements).
+- [x] T004 In `apps/server/src/dm/nodes/interpret.ts`, build the monster reading from `monsterStages` with `say: null`, and drop `null` from the model's expected reading ids.
+- [x] T005 In `apps/server/src/dm/prompts/interpret.ts`, remove the monster-turn instruction lines and the `Monster turn:` user line; bump `PROMPT_VERSION` to `dm.interpret-v18`.
+- [x] T006 In `apps/server/src/dm/pipeline/runner.ts`, add `NPC_DIRECTOR` and choose it for an `npc-turn` job with an empty beat and a monster turn (plan.md D4).
+- [x] T007 Update `interpret-intents.test.ts`, `interpret-prompt.test.ts`, `npc-turn-narration.test.ts` and `runner.test.ts` for the code monster reading and the code Director.
+- [x] T008 Rescript every DM script and fixture that scripts a monster turn: remove its `dm.director` and `dm.interpret` calls (`test/dm/scripts/*.json`, `test/playtest/fixtures/downed-seat.json`).
+- [x] T009 Write `apps/server/test/dm/npc-turn-intents.integration.test.ts`: spec US-2 scenarios 1, 2, 5 and 6 with a strict fake gateway.
+- [x] T010 Run `pnpm ci:check` with `REQUIRE_DATABASE=1`; fix until green; commit `TASK-0299: Phase 1 monster turns emit Intents in code (T001-T010)`.
 
 ## Phase 2: Companion turns emit Intents (AC #1, card note)
 

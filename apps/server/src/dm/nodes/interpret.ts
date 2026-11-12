@@ -1,4 +1,5 @@
 import { type Intent, IntentSchema, parse } from "@the-stacks/intent";
+import { monsterStages } from "../monster-policy.js";
 import { callJson } from "../pipeline/call.js";
 import type { Node } from "../pipeline/context.js";
 import { buildInterpretPrompt, PROMPT_VERSION } from "../prompts/interpret.js";
@@ -103,7 +104,7 @@ const isSlash = (text: string): boolean => text.trimStart().startsWith("/");
 
 /**
  * The interpret node (contracts/nodes.md "interpret"): one reading per beat
- * item, plus one with `actionId: null` for a monster turn. A missing, extra
+ * item, plus one with `actionId: null` for a monster turn (built in code, spec 107). A missing, extra
  * or repeated reading is `invalid-output`. An empty beat with no monster
  * turn (scene start) makes no call.
  */
@@ -140,10 +141,26 @@ export const interpret: Node<"interpret"> = async (ctx) => {
   const slash = fresh.filter((b) => isSlash(b.text));
   const slashReadings = slash.map((b) => parseSlashItem(b, actorOfItem(b)));
   const slashIds = new Set(slash.map((b) => b.actionId));
+  // Spec 107: a monster turn is code; the model never reads it.
+  const npcReadings: InterpretReading[] = assembled.npcTurn
+    ? [
+        {
+          actionId: null,
+          stages: monsterStages(
+            assembled.projections,
+            ctx.seed,
+            assembled.npcTurn.combatantId,
+          ),
+          clarify: null,
+          followUps: [],
+          say: null,
+        },
+      ]
+    : [];
   const expected = full.filter(
-    (id) => id === null || (!resumedIds.has(id) && !slashIds.has(id)),
+    (id) => id !== null && !resumedIds.has(id) && !slashIds.has(id),
   );
-  const local = [...resumedReadings, ...slashReadings];
+  const local = [...resumedReadings, ...slashReadings, ...npcReadings];
   if (expected.length === 0) {
     return {
       ok: true,
