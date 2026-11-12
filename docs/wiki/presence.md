@@ -1,6 +1,6 @@
 ---
 name: presence
-description: Who is at the table (TASK-0051, decision-0024, specs/035-presence) - the in-memory tracker and PresenceReader with a 5 s grace window and a 10 s heartbeat, the opt-in presence frame, the logged presence.recorded marker the gate writes once per DM turn job and (purpose signoff) inside a group commit batch and (purpose floor) in an AI DM floor pass, the floor job's absence wait, how assemble reads it, and the client strip.
+description: Who is at the table (TASK-0051, decision-0024, specs/035-presence) - the in-memory tracker and PresenceReader with a 5 s grace window and a 10 s heartbeat, the opt-in presence frame, the logged presence.recorded marker the gate writes once per DM turn job (purpose read for a talk turn) and (purpose signoff) inside a group commit batch and (purpose floor) in an AI DM floor pass, the floor job's absence wait, how assemble reads it, and the client strip.
 kind: component
 sources:
   - apps/server/src/presence/constants.ts
@@ -14,7 +14,7 @@ sources:
   - apps/server/src/dm/nodes/assemble.ts
   - packages/session-model/src/events/presence.ts
   - apps/web/app/play/presence.ts
-verified_against: 980e1c5bc86640037bc64a95066a7134282356ab
+verified_against: 7c0d16130c083a540d3a93f5fc587ec3e95e5cbf
 ---
 
 # Presence
@@ -61,13 +61,13 @@ ordinary close path and starts its grace window ([[websocket-gateway]]).
 ## The marker
 
 `presence.recorded` v1 (`session-model/src/events/presence.ts`) is a catalogued `marker` with
-`present` (sorted, unique user ids, at most 64), `purpose` (`director`, `signoff` or `floor`) and
+`present` (sorted, unique user ids, at most 64), `purpose` (`director`, `signoff`, `floor` or `read`) and
 optional `actionId` ([[session-model]]). `gate.recordPresence` writes the `director` marker: a `system`
 actor, visibility `public`, no deduplication; the write joins the session's gate queue ([[proposal-gate]]). It reads `present` from the injected `PresenceReader` (default: nobody), skips the projection load and `expectedLastSeq` (the log's advisory lock orders the append), and keeps the bounded conflict retry with its wait. `purpose: "director"` is
-written per DM turn. `purpose: "signoff"` is written by the gate (TASK-0049, specs/044-group-signoff) inside the commit batch of a party action with two or more human players, with the `actionId` and the present set the quorum was decided against; it is not written through `recordPresence`. `purpose: "floor"` (TASK-0050, specs/049-turn-floor) is written by the gate as the first row of an `ai:dm` `floor` `end` batch: the present set when the AI DM passed an absent human's turn; it too skips `recordPresence`. The DM worker
-writes one per claimed `turn` job, before the pipeline, and stores its `seq` as `presenceSeq` in
+written per DM turn; `purpose: "read"` (TASK-0199, spec 066 FR-009) replaces it for a `talk` turn, the AI DM's table read. `purpose: "signoff"` is written by the gate (TASK-0049, specs/044-group-signoff) inside the commit batch of a party action with two or more human players, with the `actionId` and the present set the quorum was decided against; it is not written through `recordPresence`. `purpose: "floor"` (TASK-0050, specs/049-turn-floor) is written by the gate as the first row of an `ai:dm` `floor` `end` batch: the present set when the AI DM passed an absent human's turn; it too skips `recordPresence`. The DM worker
+writes one per claimed `turn` job (`read` for a `talk` trigger, else `director`), before the pipeline, and stores its `seq` as `presenceSeq` in
 the job result; a failed write fails the turn at node `presence`
-([[dm-turn-jobs]], [[dm-failure-and-gates]]). The DM enqueuer ignores the row, so a marker never
+([[dm-turn-jobs]], [[dm-failure-and-gates]]). The DM enqueuer ignores the row (a `read` marker too), so a marker never
 queues a turn. The playtest harness injects a reader that names the scripted seat present
 ([[playtest-harness]]).
 

@@ -20,7 +20,7 @@ sources:
   - apps/server/src/dm/companion.ts
   - apps/server/src/dm/chronicle.ts
 size_budget_exempt: both notes sat within 30 chars of the 8000 budget before TASK-0180; the talk path got its own note (dm-talk-triggers) and only a pointer line lands here; the rest is one pipeline each, not splittable without a TASK of its own
-verified_against: 980e1c5bc86640037bc64a95066a7134282356ab
+verified_against: 7c0d16130c083a540d3a93f5fc587ec3e95e5cbf
 ---
 
 # DM turn jobs
@@ -43,7 +43,7 @@ carries `firstReactionAt` and `notBefore` (ISO UTC; specs/036-companion-react).
 
 Payloads are Zod schemas in `dm/jobs.ts` (`TurnJobInput`, `FloorJobInput`, `CompanionJobInput`,
 `ChronicleJobInput`, all `v: 1`, each with `sessionId`). `TurnTriggerSchema`: `commit`,
-`approval`, `npc-turn`, `held` (TASK-0244: the turn reached an AI companion whose party action was held), `scene-start`, `manual`, `reconcile`, `talk` ([[dm-talk-triggers]]), `ruling` (spec 102 FR-022: a `needs_ruling` `intent.recorded` row under an AI seat). `book` is null and `session_id` required (CHECK constraints).
+`approval`, `npc-turn`, `held` (TASK-0244: the turn reached an AI companion whose party action was held), `scene-start`, `manual`, `reconcile`, `talk` ([[dm-talk-triggers]]), `ruling` (spec 102 FR-022: a `needs_ruling` `intent.recorded` row under an AI seat), `intent` (spec 066 FR-031: a direct settled Intent narrated by a coalesced turn). `book` is null and `session_id` required (CHECK constraints).
 
 ## Enqueue
 
@@ -55,7 +55,7 @@ open action of an AI companion also calls `enqueueCompanionReact`
 (quiet 3 s, max wait 10 s): one queued `react` job per session
 (`jobs_companion_react_queued_key`); a further reaction merges its companion id into it. `enqueueTurn` is `INSERT ... ON CONFLICT
 DO NOTHING` on `jobs_turn_queued_key`, so one beat is queued per session.
-Rule 6: a `talk` row queues a coalesced `talk` turn ([[dm-talk-triggers]]). Rule 7: a `needs_ruling` `intent.recorded` row under an AI seat queues a `ruling` turn; the turn answers every open request first ([[dm-runtime]]).
+Rule 6: a readable post (`readablePosts`) first interrupts a running read that shipped nothing (`interruptRead`), then queues or moves a coalesced `talk` turn to post `ts` + 10 s ([[dm-talk-triggers]]). Rule 7: a `needs_ruling` `intent.recorded` row under an AI seat queues a `ruling` turn; the turn answers every open request first ([[dm-runtime]]). Rule 9 (spec 066 FR-031): an `intent.recorded` row that settled engine rows (`batchId` set) or stopped, written by a non-`ai:` actor, queues one coalesced `intent` turn; a speech or `ask_dm` carrier has no engine rows and queues none. `nudge()` is item 10. The `intent` turn runs the pipeline with a stay-put Director output built in code (no director call); narrate renders the carrier batches (`directBatches`, [[dm-narration-quality]]).
 
 ## Claim, lease, fencing
 
@@ -92,11 +92,11 @@ last seq, and the runner then skips narrate and check. A deploy that shifts step
 ## Failed turns
 
 A failed turn ends `status = 'failed'` with `jobs.error` a fixed string (`stopped at <node>:
-<kind>`) and `jobs.result` a `TurnFailureResult` (shape and excerpt bounds: [[dm-failure-and-gates]]). The worker writes it for a node failure and the bad-seed path (`kind` `seed`). A fenced or aborted run writes nothing.
+<kind>`) and `jobs.result` a `TurnFailureResult` (shape and excerpt bounds: [[dm-failure-and-gates]]). The worker writes it for a node failure and the bad-seed path (`kind` `seed`). A fenced or aborted run writes nothing, and so does an interrupted read (`interruptRead` already finished the job `succeeded` with `result.talk.outcome` `interrupted`).
 
 **The presence marker.** The worker takes `gate: Pick<Gate, "submit" | "recordPresence">`.
 Before the pipeline of each claimed `turn` job it calls `gate.recordPresence(sessionId, {
-purpose: "director" })` once, so the log holds who was at the table (decision-0024, [[presence]]). Every `turn` job result carries `presenceSeq`, the marker's `seq`
+purpose: "director" })` once (purpose `read` for a `talk` turn, spec 066 FR-009), so the log holds who was at the table (decision-0024, [[presence]]). Every `turn` job result carries `presenceSeq`, the marker's `seq`
 (`null` when none was written). A refusal or a throw
 finishes the job `failed` with `failure.node = "presence"` and `jobs.error` `stopped at presence:
 <kind>` (`gate` or `internal`); the pipeline stops.

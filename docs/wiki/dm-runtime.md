@@ -44,7 +44,7 @@ sources:
   - apps/server/seeds/greyhollow-ford-trio.json
   - biome.json
 size_budget_exempt: both notes sat within 30 chars of the 8000 budget before TASK-0180; the talk path got its own note (dm-talk-triggers) and only a pointer line lands here; the rest is one pipeline each, not splittable without a TASK of its own
-verified_against: 17849584ad75728e4df27bee4a34d3e35cb86229
+verified_against: 7c0d16130c083a540d3a93f5fc587ec3e95e5cbf
 ---
 
 # DM runtime
@@ -76,7 +76,7 @@ async function `(TurnContext) => NodeResult`.
 6. **narrate** - `dm.narrate`. Builds the fact sheet (`dm/fact-sheet.ts`, [[dm-narration-quality]]), asks the model for tagged `[restate]` `[describe]` `[ask]` slots (TASK-0245, spec 098) and ships `composeReply`: slots, then code rows and a `State:` line. Renders a `why` row for every public `intent.recorded` row in the window `(W0, W1]` (`NodeDeps.loadEvents`; `factsThrough` on the checkpoint, below). Writes prose from code-built facts (including the monster reading's plan, the turn holder, the Off turn list and the Waiting line for a held party action, TASK-0193, TASK-0214, TASK-0244), the player-facing seed view and S1 ([[dm-narration-quality]]).
 7. **check** - pure code, no model call: `checkNarration` tests the describe and ask slots for a leak (dropped, with a `dm` correction) and a contradiction (shipped, with a public correction); nothing blocks play ([[dm-narration-quality]]).
 
-An empty-beat `talk` turn skips this order ([[dm-talk-triggers]]). Spec 102 FR-023: at the start of every turn job under an AI seat the worker calls `answerRulings` (`dm/rulings.ts`, prompt `dm.ruling-v1`): one structured call per open ruling request, oldest first, then a `ruling` Intent from `ai:dm`; the model returns a decision and a difficulty tier, never a number.
+An empty-beat `talk` turn skips this order ([[dm-talk-triggers]]). A turn with trigger `intent` (spec 066 FR-031) skips the director call: the runner (`pipeline/runner.ts`) sets a code-made stay-put Director output (`resolve`, mode `stay`, no arrivals, no companion prompts) and, with nothing committed, goes on to narrate the direct Intents' batches rather than to the talk path ([[dm-turn-jobs]]). Spec 102 FR-023: at the start of every turn job under an AI seat the worker calls `answerRulings` (`dm/rulings.ts`, prompt `dm.ruling-v1`): one structured call per open ruling request, oldest first, then a `ruling` Intent from `ai:dm`; the model returns a decision and a difficulty tier, never a number.
 
 Director, interpret and adjudicate outputs are checkpointed in `jobs.result`; a reclaim does not re-pay them. Model output is parsed with Zod through `callJson`/`callText` (`pipeline/call.ts`); every call
 is recorded to `recordCall` ([[dm-turn-jobs]]). Parse order: think strip, strict parse (fence stripped), else the one top-level object inside surrounding prose, then normalize, schema. A capped attempt logs `dm.call.truncated` (with `parse` set to the failure kind, null for `callText`) instead. Each rejected reply logs one line with a 200-char head and tail: `dm.call.invalid-json` when no JSON parses, `dm.call.schema-mismatch` when JSON parses and fails the schema (TASK-0203). The ledger outcome follows the same split (`truncated` wins when the attempt was capped). Excerpts keep raw text (TASK-0181).

@@ -14,7 +14,7 @@ sources:
   - apps/server/src/dm/prompts/step-grammar.ts
   - apps/server/src/dm/seed/schema.ts
   - specs/033-director-robustness/contracts/rules-terms.md
-verified_against: 17849584ad75728e4df27bee4a34d3e35cb86229
+verified_against: 7c0d16130c083a540d3a93f5fc587ec3e95e5cbf
 ---
 
 # DM failure record and rules-term gates
@@ -24,7 +24,7 @@ normalizer is described in [[dm-runtime]].
 
 A `floor` job (spec 049) is code only and has no `TurnFailureResult`: a gate refusal finishes it with outcome `refused`, and a throw logs `dm.floor.threw` and fails it with `stopped at floor: internal` ([[dm-turn-jobs]]).
 
-The Director legality override reasons include, since spec 099, "no foe of the encounter can fight" for a `turn` decision on an ended encounter with no eligible monster ([[dm-runtime]]). A failed `talk` turn (TASK-0180) writes the same record with `node` `narrate` (a `react` call or a fence loss) or `resolve` (an escalation's opening move). A `talk` turn that ends `none` or refused twice is not a failure: it finishes as `empty-beat` with `jobs.result.talk` ([[dm-turn-jobs]]).
+The Director legality override reasons include, since spec 099, "no foe of the encounter can fight" for a `turn` decision on an ended encounter with no eligible monster ([[dm-runtime]]). A failed `talk` turn (TASK-0180) writes the same record with `node` `narrate` (a `react` call or a fence loss) or `resolve` (an escalation's opening move). A `talk` turn that ends `none` or refused twice is not a failure: it finishes as `empty-beat` with `jobs.result.talk` ([[dm-turn-jobs]]). Spec 066: `talk.outcome` also takes `confirm` and `interrupted` (a read ended by a later post, by `interruptRead` or `SUGGESTION_STALE`); neither is a failure, and an interrupted read writes no failure record.
 
 A failed ruling call (spec 102) logs `dm.ruling.call-failed`, leaves the request open and never fails the turn. A failed `narrate` or `check` stores `factsThrough` (the current `throughSeq`) in the failure's checkpoint, so the next beat's narrate window does not render the same `why` rows again (spec 104 FR-018, [[dm-runtime]]). An interpret stage that is not a valid Intent after stamping fails the turn `invalid-output` with `detail` `{ actionId, stage, path }`.
 

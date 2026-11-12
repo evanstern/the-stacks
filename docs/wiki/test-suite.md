@@ -31,7 +31,7 @@ sources:
   - apps/server/vitest.config.ts
   - tsconfig.json
 size_budget_exempt: spec 102 adds the server tsconfig reference to packages/intent in the one test-suite note; the suite map does not split without a TASK of its own
-verified_against: 17849584ad75728e4df27bee4a34d3e35cb86229
+verified_against: 7c0d16130c083a540d3a93f5fc587ec3e95e5cbf
 ---
 
 # Test suite
@@ -45,7 +45,7 @@ load benches, loud-skip-or-throw like this note's three below): see [[benchmarks
 the load bench's tests are always skipped.
 TASK-0048 added `test/playtest/` ([[playtest-harness]]): unit files, three database-gated, one the CI playtest ([[m2-demo]]).
 TASK-0045 added gate suites at the same level: `gate.integration.test.ts` (incl. the absent-declare refusal and the presence-plus-order batch) and
-`gate.restart.integration.test.ts` (database-gated; approvals, restart) and `write-boundary.test.ts` (no database; AC #1 import-graph check, plus only `resolve.ts` and `intent-runner.ts` (spec 104) build `scene-presence` and only `dm/floor.ts` builds `floor` proposals, [[turn-floor]]). It extended `events.integration.test.ts` (`expectedLastSeq`,
+`gate.restart.integration.test.ts` (database-gated; approvals, restart) and `write-boundary.test.ts` (no database; AC #1 import-graph check, plus only `resolve.ts` and `intent-runner.ts` (spec 104) build `scene-presence` and only `dm/floor.ts` builds `floor` proposals, [[turn-floor]]; spec 066 adds two pins: only `dm/talk-turn.ts` builds an `action.suggest` proposal and no `src/` file builds `action.accept`). It extended `events.integration.test.ts` (`expectedLastSeq`,
 `SeqConflictError`, `readLatestOfType`), `ws.integration.test.ts` (per-viewer delivery, the
 send-path classification, `UNKNOWN_EVENT_TYPE`, error `code`; `sendTalkAndAwait` no longer resends on `CONFLICT`) and `ws.subscribe.test.ts` (the DM-seat subscribe race).
 TASK-0157 added a retry-wait test and a "per-session ordering" suite (burst fan-out, `recordPresence`, isolation) to `gate.integration.test.ts`, an all-in-flight burst to `ws.integration.test.ts`, and a `CONFLICT` label case to `apps/web/test/play/reduce-frame.test.mjs`.

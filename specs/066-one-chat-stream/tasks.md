@@ -124,13 +124,13 @@ path>` for add and commit, in separate Bash calls. Serial hotspots: `gate/{propo
 
 ## Phase 5: Wiki — server share (NEEDS-REVIEW)
 
-- [ ] T045 Re-ground `docs/wiki/dm-talk-triggers.md`, `dm-turn-jobs.md` and `presence.md` against
+- [x] T045 Re-ground `docs/wiki/dm-talk-triggers.md`, `dm-turn-jobs.md` and `presence.md` against
       the diff (rule 6, rule 9, the window, `interruptRead`, the `read` marker, `dm.react-v4`).
-- [ ] T046 Re-ground `docs/wiki/proposal-gate.md`, `session-model.md` and `turn-floor.md`
+- [x] T046 Re-ground `docs/wiki/proposal-gate.md`, `session-model.md` and `turn-floor.md`
       (`action.suggest`, `action.accept`, `ask_dm`, `readablePosts`, no read in turn mode). Leave
       `play-route` and `chat-ui` to TASK-0315.
-- [ ] T047 Add one TASK-0199 sentence to `docs/wiki/INDEX.md` and `CAPSULES.md`.
-- [ ] T048 Run the wiki freshness gate (`OK`) and `pnpm ci:check`.
+- [x] T047 Add one TASK-0199 sentence to `docs/wiki/INDEX.md` and `CAPSULES.md`.
+- [x] T048 Run the wiki freshness gate (`OK`) and `pnpm ci:check`.
 
 ## Phase 6: Verification **[orchestrator]**
 
