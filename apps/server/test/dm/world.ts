@@ -128,7 +128,9 @@ export async function createWorld(
     db: requireDb(),
     rng: scripted.gateRng,
     presence: opts.presence,
-    plannerInputs: createPlannerInputs((id) => loadSeed(id)),
+    plannerInputs: createPlannerInputs((id) =>
+      opts.seed && opts.seed.seedId === id ? opts.seed : loadSeed(id),
+    ),
     newId: () => `id-${sessionId.slice(0, 8)}-${++n}`,
   });
   const submitCalls = { count: 0 };

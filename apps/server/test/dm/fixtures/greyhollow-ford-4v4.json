@@ -1,0 +1,604 @@
+{
+  "v": 1,
+  "seedId": "greyhollow-ford-4v4",
+  "title": "Greyhollow Ford 4v4 (bench fixture)",
+  "license": {
+    "kind": "original-plus-srd",
+    "note": "Original content written for the-stacks (TASK-0195), derived from greyhollow-ford. Monster and spell references name SRD 5.2.1 records (CC-BY-4.0, see packages/srd/ATTRIBUTION.md). No proprietary text."
+  },
+  "goal": {
+    "statement": "Find out who silenced the ferry bell at Greyhollow Ford and get the ferry crossing again before full dark.",
+    "success": "The bell's clapper is back, the ferry crosses with the party aboard, or the goblins are driven off and the way is clear.",
+    "failure": "Full dark falls with the ferry still idle, or the party retreats from the ford."
+  },
+  "location": {
+    "id": "greyhollow-ford",
+    "name": "Greyhollow Ford",
+    "identity": {
+      "features": [
+        "A slate-roofed ferry-house on stilts above a brown, fast river.",
+        "A bell tower on the ferry-house; its rope hangs cut a yard above the floor.",
+        "A flat ferry chained to the near bank; the far bank is lost in reeds.",
+        "A causeway of sunk timbers runs downriver into a reed marsh."
+      ]
+    },
+    "portrayal": {
+      "mood": "Uneasy dusk; the river is loud and the birds have gone quiet.",
+      "senses": [
+        "The tang of wet iron from the bell tower.",
+        "Woodsmoke from somewhere in the reeds."
+      ]
+    },
+    "hooks": {
+      "secrets": [
+        "The bell's ring drives off the river-things the goblins fear; they want the clapper for their own camp.",
+        "A safe path through the reeds keeps to the old timber posts; off the posts the mud is waist-deep."
+      ]
+    }
+  },
+  "beats": [
+    {
+      "id": "causeway-edge",
+      "kind": "exploration",
+      "summary": "The end of the causeway, one beat before the reed-camp. Wenna Marsh followed the party this far and waits with her boathook; the camp's smoke rises ahead.",
+      "clues": [
+        {
+          "text": "Four sets of small clawed prints cross the mud toward the camp's smoke.",
+          "check": null
+        }
+      ],
+      "npcIds": ["wenna"],
+      "presence": {
+        "wenna": "present",
+        "pell": "absent",
+        "snag": "absent"
+      },
+      "encounterId": null
+    },
+    {
+      "id": "reed-camp",
+      "kind": "combat",
+      "summary": "A goblin camp on a mud island in the reeds: a smoky fire, the clapper hung on a pole as a trophy, Pell tied to a post.",
+      "clues": [],
+      "npcIds": ["snag", "pell"],
+      "presence": {
+        "wenna": "absent",
+        "pell": "present",
+        "snag": "present"
+      },
+      "encounterId": "reed-camp"
+    }
+  ],
+  "space": {
+    "zones": [
+      {
+        "id": "causeway",
+        "name": "Causeway",
+        "kind": "area",
+        "tags": [],
+        "hidden": false
+      },
+      {
+        "id": "reed-marsh",
+        "name": "Reed marsh",
+        "kind": "area",
+        "tags": [],
+        "hidden": false
+      },
+      {
+        "id": "reed-camp",
+        "name": "Reed camp",
+        "kind": "area",
+        "tags": [],
+        "hidden": true
+      },
+      {
+        "id": "camp-post",
+        "name": "Camp post",
+        "kind": "feature",
+        "tags": [],
+        "hidden": true
+      }
+    ],
+    "edges": [
+      {
+        "from": "causeway",
+        "to": "reed-marsh",
+        "kind": "squeeze",
+        "feet": 60
+      },
+      {
+        "from": "reed-marsh",
+        "to": "reed-camp",
+        "kind": "squeeze",
+        "feet": 30
+      },
+      {
+        "from": "reed-camp",
+        "to": "camp-post",
+        "kind": "open",
+        "feet": 5
+      }
+    ],
+    "start": "causeway"
+  },
+  "npcs": [
+    {
+      "id": "wenna",
+      "zone": "causeway",
+      "name": "Wenna Marsh",
+      "identity": {
+        "role": "ferry keeper",
+        "srdMonsterId": null,
+        "combatant": null,
+        "aliases": ["the keeper"]
+      },
+      "portrayal": {
+        "voice": "Clipped river talk; drops the ends of words; swears by 'the old water'.",
+        "want": "Her ferry running and her grandson Pell home before dark.",
+        "detail": "Counts everything in threes under her breath \u2014 steps, coins, goblins.",
+        "appearance": "Small, weathered, a boathook she holds like a spear."
+      },
+      "hooks": {
+        "knows": [
+          "Four goblins took the clapper into the reeds.",
+          "The safe path keeps to the timber posts."
+        ],
+        "secrets": [
+          "She paid the goblins to stay away last winter, and stopped paying this spring."
+        ],
+        "relationships": [
+          {
+            "to": "pell",
+            "kind": "grandmother-of"
+          }
+        ]
+      }
+    },
+    {
+      "id": "pell",
+      "zone": "reed-camp",
+      "name": "Pell Marsh",
+      "identity": {
+        "role": "keeper's grandson, captive",
+        "srdMonsterId": null,
+        "combatant": null,
+        "aliases": ["the boy"]
+      },
+      "portrayal": {
+        "voice": "Too loud when scared; tries to sound older than twelve.",
+        "want": "To not be the one who needed rescuing.",
+        "detail": "A fishing spear with a red rag tied below the blade.",
+        "appearance": "Wiry, mud to the knees, rope-burned wrists."
+      },
+      "hooks": {
+        "knows": [
+          "The goblins fear something in the river and ring the clapper against a pot at night."
+        ],
+        "secrets": [],
+        "relationships": [
+          {
+            "to": "wenna",
+            "kind": "grandson-of"
+          }
+        ]
+      }
+    },
+    {
+      "id": "snag",
+      "name": "Snag",
+      "identity": {
+        "role": "goblin leader",
+        "srdMonsterId": "goblin-warrior",
+        "combatant": "snag",
+        "aliases": ["the goblin leader"]
+      },
+      "portrayal": {
+        "voice": "Sing-song threats; calls everyone 'big-feet'.",
+        "want": "To keep the clapper and make the big-feet pay to cross his reeds.",
+        "detail": "Wears the bell's leather clapper-strap as a belt.",
+        "appearance": "Narrow, yellow-eyed, a notched scimitar."
+      },
+      "hooks": {
+        "knows": ["The river-things come at full dark."],
+        "secrets": [
+          "He will trade the clapper for safe passage if two goblins fall.",
+          "He keeps the clapper because its ring keeps the river-things off his camp."
+        ],
+        "relationships": []
+      }
+    }
+  ],
+  "characters": [
+    {
+      "characterId": "tamsin",
+      "name": "Tamsin Vale",
+      "seat": "human",
+      "identity": {
+        "class": "Fighter",
+        "level": 1,
+        "combatant": {
+          "id": "tamsin",
+          "name": "Tamsin Vale",
+          "hp": {
+            "max": 13
+          },
+          "zeroHpRule": "death-saves",
+          "initiativeBonus": 2,
+          "conModifier": 2,
+          "speed": 30,
+          "ac": 16,
+          "hitDice": [
+            {
+              "die": 10,
+              "total": 1
+            }
+          ]
+        },
+        "abilityMods": {
+          "str": 3,
+          "dex": 2,
+          "con": 2,
+          "int": 0,
+          "wis": 1,
+          "cha": -1
+        },
+        "proficiencyBonus": 2,
+        "saves": {
+          "str": 5,
+          "con": 4
+        },
+        "skills": {
+          "athletics": 5,
+          "perception": 3,
+          "intimidation": 1,
+          "survival": 3
+        },
+        "attacks": [
+          {
+            "name": "Longsword",
+            "expression": "1d20+5",
+            "damage": [
+              {
+                "dice": "1d8+3",
+                "damageType": "slashing"
+              }
+            ]
+          },
+          {
+            "name": "Light crossbow",
+            "expression": "1d20+4",
+            "damage": [
+              {
+                "dice": "1d8+2",
+                "damageType": "piercing"
+              }
+            ]
+          }
+        ],
+        "spells": []
+      },
+      "portrayal": {
+        "voice": "Chosen by the player.",
+        "want": "Chosen by the player.",
+        "detail": "A ferry token from Greyhollow on a cord around her neck.",
+        "appearance": "Tall, scarred knuckles, a soldier's patched cloak."
+      },
+      "hooks": {
+        "knows": [],
+        "secrets": [],
+        "relationships": [
+          {
+            "to": "wenna",
+            "kind": "owes-a-crossing"
+          }
+        ]
+      }
+    },
+    {
+      "characterId": "odo",
+      "name": "Brother Odo",
+      "seat": "companion",
+      "identity": {
+        "class": "Cleric",
+        "level": 1,
+        "combatant": {
+          "id": "odo",
+          "name": "Brother Odo",
+          "hp": {
+            "max": 10
+          },
+          "zeroHpRule": "death-saves",
+          "initiativeBonus": 0,
+          "conModifier": 1,
+          "speed": 30,
+          "ac": 16,
+          "hitDice": [
+            {
+              "die": 8,
+              "total": 1
+            }
+          ],
+          "spellSlots": {
+            "standard": {
+              "1": 2
+            },
+            "pact": null
+          }
+        },
+        "abilityMods": {
+          "str": 1,
+          "dex": 0,
+          "con": 1,
+          "int": 0,
+          "wis": 3,
+          "cha": 1
+        },
+        "proficiencyBonus": 2,
+        "saves": {
+          "wis": 5,
+          "cha": 3
+        },
+        "skills": {
+          "medicine": 5,
+          "insight": 5,
+          "religion": 2,
+          "persuasion": 3
+        },
+        "attacks": [
+          {
+            "name": "Mace",
+            "expression": "1d20+3",
+            "damage": [
+              {
+                "dice": "1d6+1",
+                "damageType": "bludgeoning"
+              }
+            ]
+          }
+        ],
+        "spells": [
+          "sacred-flame",
+          "guidance",
+          "healing-word",
+          "bless",
+          "cure-wounds"
+        ]
+      },
+      "portrayal": {
+        "voice": "Warm, slow, fond of proverbs he gets slightly wrong.",
+        "want": "To end fights without killing; he believes the goblins can be bargained with.",
+        "detail": "Hums the same three-note hymn whenever he is nervous.",
+        "appearance": "Broad, bald, a river-stone holy symbol on a leather thong."
+      },
+      "hooks": {
+        "knows": ["Goblins will bargain for anything that rings or shines."],
+        "secrets": ["He once failed to save a child at a river crossing."],
+        "relationships": [
+          {
+            "to": "kestrel",
+            "kind": "old-friend-who-argues"
+          }
+        ]
+      }
+    },
+    {
+      "characterId": "kestrel",
+      "name": "Kestrel",
+      "seat": "companion",
+      "identity": {
+        "class": "Rogue",
+        "level": 1,
+        "combatant": {
+          "id": "kestrel",
+          "name": "Kestrel",
+          "hp": {
+            "max": 9
+          },
+          "zeroHpRule": "death-saves",
+          "initiativeBonus": 3,
+          "conModifier": 1,
+          "speed": 30,
+          "ac": 14,
+          "hitDice": [
+            {
+              "die": 8,
+              "total": 1
+            }
+          ]
+        },
+        "abilityMods": {
+          "str": 0,
+          "dex": 3,
+          "con": 1,
+          "int": 1,
+          "wis": 1,
+          "cha": 0
+        },
+        "proficiencyBonus": 2,
+        "saves": {
+          "dex": 5,
+          "int": 3
+        },
+        "skills": {
+          "stealth": 5,
+          "perception": 3,
+          "acrobatics": 5,
+          "survival": 3
+        },
+        "attacks": [
+          {
+            "name": "Shortbow",
+            "expression": "1d20+5",
+            "damage": [
+              {
+                "dice": "1d6+3",
+                "damageType": "piercing"
+              }
+            ]
+          },
+          {
+            "name": "Shortsword",
+            "expression": "1d20+5",
+            "damage": [
+              {
+                "dice": "1d6+3",
+                "damageType": "piercing"
+              }
+            ]
+          }
+        ],
+        "spells": []
+      },
+      "portrayal": {
+        "voice": "Chosen by the player.",
+        "want": "Chosen by the player.",
+        "detail": "Flicks a bone die across her knuckles and never rolls it.",
+        "appearance": "Lean, grey-green hood, a bow wrapped in oilcloth."
+      },
+      "hooks": {
+        "knows": ["Goblin camps post a lookout on the highest point."],
+        "secrets": ["She can't swim."],
+        "relationships": [
+          {
+            "to": "odo",
+            "kind": "old-friend-who-argues"
+          }
+        ]
+      }
+    },
+    {
+      "characterId": "wren",
+      "name": "Wren",
+      "seat": "companion",
+      "identity": {
+        "class": "Rogue",
+        "level": 1,
+        "combatant": {
+          "id": "wren",
+          "name": "Wren",
+          "hp": {
+            "max": 9
+          },
+          "zeroHpRule": "death-saves",
+          "initiativeBonus": 3,
+          "conModifier": 1,
+          "speed": 30,
+          "ac": 14,
+          "hitDice": [
+            {
+              "die": 8,
+              "total": 1
+            }
+          ]
+        },
+        "abilityMods": {
+          "str": 0,
+          "dex": 3,
+          "con": 1,
+          "int": 1,
+          "wis": 1,
+          "cha": 0
+        },
+        "proficiencyBonus": 2,
+        "saves": {
+          "dex": 5,
+          "int": 3
+        },
+        "skills": {
+          "stealth": 5,
+          "perception": 3,
+          "acrobatics": 5,
+          "survival": 3
+        },
+        "attacks": [
+          {
+            "name": "Shortbow",
+            "expression": "1d20+5",
+            "damage": [
+              {
+                "dice": "1d6+3",
+                "damageType": "piercing"
+              }
+            ]
+          },
+          {
+            "name": "Shortsword",
+            "expression": "1d20+5",
+            "damage": [
+              {
+                "dice": "1d6+3",
+                "damageType": "piercing"
+              }
+            ]
+          }
+        ],
+        "spells": []
+      },
+      "portrayal": {
+        "voice": "Chosen by the player.",
+        "want": "Chosen by the player.",
+        "detail": "Flicks a bone die across her knuckles and never rolls it.",
+        "appearance": "Lean, grey-green hood, a bow wrapped in oilcloth."
+      },
+      "hooks": {
+        "knows": [],
+        "secrets": [],
+        "relationships": []
+      }
+    }
+  ],
+  "encounters": [
+    {
+      "id": "reed-camp",
+      "name": "The reed-camp",
+      "monsters": [
+        {
+          "combatantId": "snag",
+          "srdMonsterId": "goblin-warrior",
+          "name": "Snag"
+        },
+        {
+          "combatantId": "goblin-2",
+          "srdMonsterId": "goblin-warrior",
+          "name": "Goblin with a pot-helm",
+          "tactics": "weakest"
+        },
+        {
+          "combatantId": "goblin-3",
+          "srdMonsterId": "goblin-minion",
+          "name": "Goblin lookout"
+        },
+        {
+          "combatantId": "goblin-4",
+          "srdMonsterId": "goblin-minion",
+          "name": "Goblin by the fire"
+        }
+      ],
+      "terrain": "A mud island thirty feet across, ringed by reeds; the fire gives half cover to anyone behind it; off the island the mud is difficult terrain.",
+      "trigger": "The party reaches the island, or the lookout spots them on the causeway.",
+      "morale": "When two goblins fall, Snag offers the clapper for safe passage; the rest flee into the reeds if Snag falls.",
+      "zone": "reed-camp"
+    }
+  ],
+  "trackers": [
+    {
+      "trackerId": "dusk",
+      "name": "Full dark falls on the ford",
+      "segments": 4,
+      "note": "When full, the river-things rise; the scene's failure condition is near.",
+      "advanceWhen": "Each beat that spends real time: a long search, a slow approach, a rest."
+    },
+    {
+      "trackerId": "alarm",
+      "name": "The reed-camp is alerted",
+      "segments": 3,
+      "note": "When full, the goblins ambush the party on the causeway instead of waiting at camp.",
+      "advanceWhen": "Noise, light, or a failed Stealth check near the reeds."
+    }
+  ],
+  "opening": {
+    "framing": "The party reaches the end of the causeway as the light goes amber. Wenna Marsh keeps close with her boathook, and smoke from the goblins' reed-camp rises ahead.",
+    "premise": "The party has followed whoever silenced the ferry bell down the causeway from Greyhollow Ford. They mean to have the ferry crossing again before full dark."
+  }
+}

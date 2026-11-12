@@ -1,0 +1,328 @@
+{
+  "v": 1,
+  "name": "ai-round-4v4",
+  "dice": [
+    20, 20, 15, 14, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+    2, 2, 2, 2, 2, 2, 2, 2, 2
+  ],
+  "calls": [
+    {
+      "purpose": "dm.companion",
+      "note": "odo",
+      "respond": {
+        "type": "json",
+        "value": {
+          "say": null,
+          "comment": null,
+          "act": null,
+          "pending": [],
+          "turn": [
+            {
+              "kind": "attack",
+              "targets": [
+                {
+                  "kind": "actor",
+                  "id": "goblin-3"
+                }
+              ],
+              "params": {
+                "weapon": "Mace"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "purpose": "dm.companion",
+      "note": "kestrel",
+      "respond": {
+        "type": "json",
+        "value": {
+          "say": null,
+          "comment": null,
+          "act": null,
+          "pending": [],
+          "turn": [
+            {
+              "kind": "attack",
+              "targets": [
+                {
+                  "kind": "actor",
+                  "id": "goblin-3"
+                }
+              ],
+              "params": {
+                "weapon": "Shortbow"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "purpose": "dm.companion",
+      "note": "wren",
+      "respond": {
+        "type": "json",
+        "value": {
+          "say": null,
+          "comment": null,
+          "act": null,
+          "pending": [],
+          "turn": [
+            {
+              "kind": "attack",
+              "targets": [
+                {
+                  "kind": "actor",
+                  "id": "goblin-3"
+                }
+              ],
+              "params": {
+                "weapon": "Shortbow"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "purpose": "dm.director",
+      "note": "beat 0",
+      "respond": {
+        "type": "json",
+        "value": {
+          "beat": {
+            "decision": "resolve"
+          },
+          "tableMode": {
+            "to": "stay"
+          },
+          "trackers": [],
+          "scene": {
+            "status": "continue"
+          },
+          "pacing": {
+            "tension": "high",
+            "spotlight": null,
+            "beatId": null
+          },
+          "goalNote": "",
+          "companionPrompts": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.director",
+      "note": "beat 1",
+      "respond": {
+        "type": "json",
+        "value": {
+          "beat": {
+            "decision": "resolve"
+          },
+          "tableMode": {
+            "to": "stay"
+          },
+          "trackers": [],
+          "scene": {
+            "status": "continue"
+          },
+          "pacing": {
+            "tension": "high",
+            "spotlight": null,
+            "beatId": null
+          },
+          "goalNote": "",
+          "companionPrompts": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.director",
+      "note": "beat 2",
+      "respond": {
+        "type": "json",
+        "value": {
+          "beat": {
+            "decision": "resolve"
+          },
+          "tableMode": {
+            "to": "stay"
+          },
+          "trackers": [],
+          "scene": {
+            "status": "continue"
+          },
+          "pacing": {
+            "tension": "high",
+            "spotlight": null,
+            "beatId": null
+          },
+          "goalNote": "",
+          "companionPrompts": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.director",
+      "note": "beat 3",
+      "respond": {
+        "type": "json",
+        "value": {
+          "beat": {
+            "decision": "resolve"
+          },
+          "tableMode": {
+            "to": "stay"
+          },
+          "trackers": [],
+          "scene": {
+            "status": "continue"
+          },
+          "pacing": {
+            "tension": "high",
+            "spotlight": null,
+            "beatId": null
+          },
+          "goalNote": "",
+          "companionPrompts": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.narrate",
+      "note": "turn job 1",
+      "respond": {
+        "type": "text",
+        "value": "The round moves on."
+      }
+    },
+    {
+      "purpose": "dm.narrate",
+      "note": "turn job 2",
+      "respond": {
+        "type": "text",
+        "value": "The round moves on."
+      }
+    },
+    {
+      "purpose": "dm.narrate",
+      "note": "turn job 3",
+      "respond": {
+        "type": "text",
+        "value": "The round moves on."
+      }
+    },
+    {
+      "purpose": "dm.narrate",
+      "note": "turn job 4",
+      "respond": {
+        "type": "text",
+        "value": "The round moves on."
+      }
+    },
+    {
+      "purpose": "dm.narrate",
+      "note": "turn job 5",
+      "respond": {
+        "type": "text",
+        "value": "The round moves on."
+      }
+    },
+    {
+      "purpose": "dm.narrate",
+      "note": "turn job 6",
+      "respond": {
+        "type": "text",
+        "value": "The round moves on."
+      }
+    },
+    {
+      "purpose": "dm.narrate",
+      "note": "turn job 7",
+      "respond": {
+        "type": "text",
+        "value": "The round moves on."
+      }
+    },
+    {
+      "purpose": "dm.narrate",
+      "note": "turn job 8",
+      "respond": {
+        "type": "text",
+        "value": "The round moves on."
+      }
+    },
+    {
+      "purpose": "dm.chronicle",
+      "respond": {
+        "type": "json",
+        "value": {
+          "entries": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.chronicle",
+      "respond": {
+        "type": "json",
+        "value": {
+          "entries": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.chronicle",
+      "respond": {
+        "type": "json",
+        "value": {
+          "entries": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.chronicle",
+      "respond": {
+        "type": "json",
+        "value": {
+          "entries": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.chronicle",
+      "respond": {
+        "type": "json",
+        "value": {
+          "entries": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.chronicle",
+      "respond": {
+        "type": "json",
+        "value": {
+          "entries": []
+        }
+      }
+    }
+  ]
+}

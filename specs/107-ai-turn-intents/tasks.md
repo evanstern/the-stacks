@@ -46,10 +46,10 @@ by hand. Export only `TEST_DATABASE_URL` as `VAR="$(sed …)"`.
 
 ## Phase 4: 4v4 round under 60 s (AC #4)
 
-- [ ] T029 Create the fixture seed `apps/server/test/dm/fixtures/greyhollow-ford-4v4.json` (plan.md D6).
-- [ ] T030 Create `apps/server/test/dm/scripts/ai-round-4v4.json` with the scripted calls and dice (plan.md D6).
-- [ ] T031 Create `apps/server/test/ai-round.bench-test.ts`: setup, the timed round, the call-count and time assertions, and the printed per-job times.
-- [ ] T032 Run `pnpm check:timing` and `node scripts/check-no-wallclock-tests.mjs`; then `pnpm ci:check` with `REQUIRE_DATABASE=1`; commit `TASK-0299: Phase 4 4v4 round bench under 60 s (T029-T032)`.
+- [x] T029 Create the fixture seed `apps/server/test/dm/fixtures/greyhollow-ford-4v4.json` (plan.md D6).
+- [x] T030 Create `apps/server/test/dm/scripts/ai-round-4v4.json` with the scripted calls and dice (plan.md D6).
+- [x] T031 Create `apps/server/test/ai-round.bench-test.ts`: setup, the timed round, the call-count and time assertions, and the printed per-job times.
+- [x] T032 Run `pnpm check:timing` and `node scripts/check-no-wallclock-tests.mjs`; then `pnpm ci:check` with `REQUIRE_DATABASE=1`; commit `TASK-0299: Phase 4 4v4 round bench under 60 s (T029-T032)`.
 
 ## Phase 5: Wiki re-ground
 
