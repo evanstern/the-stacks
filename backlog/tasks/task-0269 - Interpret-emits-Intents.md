@@ -39,7 +39,7 @@ Spec: specs/104-interpret-intents
 - [x] #7 Spec phase: Prompt v17 and interpret node
 - [x] #8 Spec phase: Resolve Intent runner and beside data
 - [x] #9 Spec phase: Narrate window
-- [ ] #10 Spec phase: Test and script migration
+- [x] #10 Spec phase: Test and script migration
 - [ ] #11 Spec phase: Wiki
 <!-- AC:END -->
 
