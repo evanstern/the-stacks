@@ -36,7 +36,7 @@ Spec: specs/107-ai-turn-intents
 - [x] #6 Spec phase: Companion turns emit Intents (AC #1, card note)
 - [x] #7 Spec phase: AI-actor parity tests (AC #3)
 - [x] #8 Spec phase: 4v4 round under 60 s (AC #4)
-- [ ] #9 Spec phase: Wiki re-ground
+- [x] #9 Spec phase: Wiki re-ground
 <!-- AC:END -->
 
 ## Definition of Done
