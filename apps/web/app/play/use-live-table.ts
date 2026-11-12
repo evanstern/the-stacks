@@ -3,16 +3,18 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRevalidator } from "react-router";
 import { useSession } from "../ws/useSession.ts";
 import {
+  acceptFrame,
   approveFrame,
-  commentFrame,
   commitFrame,
   declareFrame,
   dmSeatFrame,
   type EventFrame,
   encounterEndFrame,
   floorFrame,
+  intentFrame,
   rejectFrame,
   sceneFrame,
+  suggestFrame,
   tableModeFrame,
   tableModeReason,
   talkFrame,
@@ -82,7 +84,9 @@ export function useLiveTable(sessionId: string, user: LiveUser): TableSource {
     return {
       sendTalk: (input) => send(talkFrame(input)),
       declareAction: (input) => send(declareFrame(input)),
-      comment: (input) => send(commentFrame(input)),
+      sendIntent: (intent) => send(intentFrame(intent)),
+      accept: (input) => send(acceptFrame(input)),
+      suggest: (input) => send(suggestFrame(input)),
       commit: (input) => send(commitFrame(input)),
       withdraw: (input) => send(withdrawFrame(input)),
       floor: (input) => send(floorFrame(input)),

@@ -7,7 +7,6 @@ import type { SessionFixture } from "@the-stacks/session-model/fixtures";
 import { useMemo, useState } from "react";
 import type { PresenceEntry } from "../ws/types.ts";
 import {
-  commentFrame,
   commitFrame,
   declareFrame,
   type EventFrame,
@@ -15,6 +14,7 @@ import {
   floorFrame,
   localEventOf,
   sceneFrame,
+  suggestFrame,
   tableModeFrame,
   talkFrame,
   withdrawFrame,
@@ -22,8 +22,10 @@ import {
 import {
   appendLocal,
   type LocalEventInput,
+  localAcceptEvents,
   localEncounterEndEvents,
   localFloorEvents,
+  localIntentEvents,
   localSceneEvents,
   localTableModeEvents,
 } from "./local-log.ts";
@@ -251,7 +253,12 @@ export function useFixtureTable(
     return {
       sendTalk: (input) => append(talkFrame(input)),
       declareAction: (input) => append(declareFrame(input)),
-      comment: (input) => append(commentFrame(input)),
+      sendIntent: (intent) => appendRows(localIntentEvents(intent)),
+      accept: (input) =>
+        appendRows(
+          localAcceptEvents(project(events, fixture.viewers.dm), input),
+        ),
+      suggest: (input) => append(suggestFrame(input)),
       commit: (input) => append(commitFrame(input), input.authority),
       withdraw: (input) => append(withdrawFrame(input)),
       floor: appendFloor,

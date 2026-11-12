@@ -1,12 +1,15 @@
+import { INTENT_SCHEMA_VERSION, type Intent } from "@the-stacks/intent";
 import {
   activeActorFor,
   currentVersion,
   floorHeld,
   type SessionProjections,
   type StoredEvent,
+  suggestionState,
 } from "@the-stacks/session-model";
 import { floorReason, tableModeReason } from "./frames.ts";
 import type {
+  AcceptInput,
   EncounterEndInput,
   FloorInput,
   SceneInput,
@@ -201,4 +204,80 @@ export function localTableModeEvents(
     payload: { reason: input.reason, before: p.tableMode, after: input.after },
     payloadVersion: version,
   };
+}
+
+const SPEECH_KINDS = new Set(["say", "say_to", "emote"]);
+const OOC_KINDS = new Set(["ooc", "party", "ask_dm"]);
+
+function carrierRow(intent: Intent): LocalEventInput | null {
+  const version = currentVersion("intent.recorded");
+  if (version === undefined) return null;
+  return {
+    eventType: "intent.recorded",
+    payload: {
+      intent,
+      schemaVersion: INTENT_SCHEMA_VERSION,
+      outcome: intent.commit === "declared" ? "declared" : "settled",
+      batchId: null,
+      facts: [],
+      request: null,
+      answers: null,
+      stopped: null,
+    },
+    payloadVersion: version,
+  };
+}
+
+/**
+ * Fixture mode: the rows an `intent` request stands for. The `talk` row for speech and
+ * out-of-character kinds comes first, then the `intent.recorded` carrier.
+ * ponytail: carrier rows only, no engine rows. A fixture has no gate, and a surface never
+ * calls the planner (constitution II), so a fixture shows no mechanical result. Upgrade path:
+ * a fixture gate. Null when the schema version has no catalog entry.
+ */
+export function localIntentEvents(intent: Intent): LocalEventInput[] | null {
+  const rows: LocalEventInput[] = [];
+  const text = intent.text;
+  const talkVersion = currentVersion("talk");
+  if (
+    text !== undefined &&
+    talkVersion !== undefined &&
+    (SPEECH_KINDS.has(intent.kind) || OOC_KINDS.has(intent.kind))
+  ) {
+    rows.push({
+      eventType: "talk",
+      payload: {
+        text,
+        channel: SPEECH_KINDS.has(intent.kind) ? "ic" : "ooc",
+        characterId:
+          SPEECH_KINDS.has(intent.kind) && "id" in intent.actor
+            ? intent.actor.id
+            : null,
+      },
+      payloadVersion: talkVersion,
+    });
+  }
+  const carrier = carrierRow(intent);
+  if (!carrier) return null;
+  return [...rows, carrier];
+}
+
+/**
+ * Fixture mode: the carrier row a 👍 stands for: the item's Intent at `confirmed`. Null when
+ * the item is missing or its suggestion is stale. Carrier row only (see `localIntentEvents`).
+ */
+export function localAcceptEvents(
+  p: SessionProjections,
+  input: AcceptInput,
+): LocalEventInput[] | null {
+  const item = p.suggestions
+    .find((s) => s.suggestionId === input.suggestionId)
+    ?.items.find((i) => i.itemId === input.itemId);
+  if (!item || suggestionState(p, item.intent.id) !== "live") return null;
+  const row = carrierRow({
+    ...item.intent,
+    commit: "confirmed",
+    source: "composer",
+  });
+  return row ? [row] : null;
 }

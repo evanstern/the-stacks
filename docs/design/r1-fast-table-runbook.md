@@ -485,3 +485,4 @@ updated at each dispatch boundary. `tokens/cost` carries best-effort actuals.
 | 2026-11-11 | TASK-0269 | (this PR) | — | opus spec; sonnet x5 | split ruled (AC #4/#6 to TASK-0312); C-GATE "Relax the gate (a)"; red interim commits by ruling |
 | 2026-11-11 | TASK-0314 | (this PR) | — | sonnet x1 | E10; human-DM ruling queues the resume turn (enqueue rule 8) |
 | 2026-11-12 | TASK-0199 | (this PR) | — | opus spec x2; sonnet x6 | C-AMD "Approve all": split (web -> TASK-0315), C-1..C-9 blocks; enqueue rule 9 beside TASK-0314 rule 8; mutation guard 5/5; F1 script fix |
+| 2026-11-12 | TASK-0315 | (this PR) | — | opus spec; sonnet x4 | split from 0199 (C-AMD); live check in Brave on the worktree app; turn mode covered by unit tests only |

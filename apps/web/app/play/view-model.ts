@@ -1,3 +1,4 @@
+import { type Intent, toText } from "@the-stacks/intent";
 import {
   ABSENCE_PASS_REASON,
   type ActionAuthority,
@@ -6,15 +7,15 @@ import {
   floorHeld,
   type PartyMemberView,
   type SessionProjections,
+  suggestionState,
   type TableMode,
   type TurnRef,
 } from "@the-stacks/session-model";
 import { type CommitAuthority, commitAuthorityFor } from "./authority.ts";
-import { actorLabel, characterLabel } from "./labels.ts";
+import { actorLabel, characterLabel, kindLabel } from "./labels.ts";
 import { type LedgerItem, toLedgerItems } from "./ledger-format.ts";
 import type { PendingProposalView } from "./proposals.ts";
 import { type SceneChangeView, sceneChangeView } from "./scene-seeds.ts";
-import { type SignoffRowView, signoffRows } from "./signoff.ts";
 import { type TableModeView, tableModeView } from "./table-mode.ts";
 
 export interface OrderEntry {
@@ -55,23 +56,11 @@ export interface ActionCardView {
   scope: "character" | "party";
   text: string;
   status: ActionView["status"];
-  comments: {
-    seq: number;
-    actorLabel: string;
-    stance: "comment" | "approve" | "object";
-    text: string;
-  }[];
   /** Status is declared or discussed. */
   open: boolean;
   /** The viewer may withdraw this open action: its declarer, or the seated DM. */
   canWithdraw: boolean;
-  /** The viewer's own open character action in turn mode while another player is active. */
-  commitsOnOwnTurn: boolean;
-  /** The comment input reads "Suggest an alternative": a party member on the active player's action. */
-  suggest: boolean;
   commit: ViewCommitAuthority;
-  /** Per-player sign-off rows; null for character scope, closed actions and one-human parties. */
-  signoff: SignoffRowView[] | null;
   committed: { actorLabel: string; authority: ActionAuthority } | null;
   resolved: {
     outcome: "applied" | "refused" | "no-effect";
@@ -83,6 +72,25 @@ export type ViewCommitAuthority =
   | { canCommit: true; authority: ActionAuthority }
   | { canCommit: false; holderLabel: string | null };
 
+/** One line of a DM confirm row (spec 066 FR-011, C-6). */
+export interface ConfirmLine {
+  itemId: string;
+  text: string;
+  kindLabel: string;
+  /** `stale` and `missing` both read "Superseded". */
+  state: "live" | "stale" | "confirmed";
+  /** The viewer may 👍 this line: its character's controller, or any human for a party item. */
+  canAccept: boolean;
+  /** "Kestrel" or "the party" while the line is live and the viewer cannot accept; else null. */
+  waitingOn: string | null;
+}
+
+export interface ConfirmView {
+  suggestionId: string;
+  readSeq: number;
+  lines: ConfirmLine[];
+}
+
 export type TranscriptItem =
   | {
       kind: "talk";
@@ -90,17 +98,57 @@ export type TranscriptItem =
       actorLabel: string;
       text: string;
       channel: "ic" | "ooc";
+      characterId: string | null;
       characterLabel: string | null;
       whisper: boolean;
+      /** The line is a player's `@dm` question: highlighted (FR-019). */
+      askDm: boolean;
+      /** A human DM viewer may turn this `say` line into a suggestion (FR-019). */
+      confirmable: boolean;
+    }
+  | { kind: "aside"; seq: number; text: string }
+  | { kind: "confirm"; seq: number; confirm: ConfirmView }
+  | {
+      /** A player's Intent with no talk row of its own (a deed). */
+      kind: "intent";
+      seq: number;
+      actorLabel: string;
+      text: string;
+      status: "declared" | "settled" | "needs_ruling" | "answered";
+      /** Set for a human DM viewer on a `declared` Intent: **Confirm** sends it again. */
+      declaredIntent: Intent | null;
     }
   | { kind: "narration"; seq: number; text: string }
   | { kind: "action"; seq: number; card: ActionCardView }
   | { kind: "floor"; seq: number; text: string };
 
+export interface SpeakerOption {
+  /** The character id; null for the DM and the out-of-character entry. */
+  id: string | null;
+  label: string;
+  ooc: boolean;
+}
+
+export interface MentionOption {
+  /** The text inserted: `@dm` or `@<id>`. */
+  token: string;
+  label: string;
+  /** The actor id `@name` resolves to; null for `@dm`. */
+  targetId: string | null;
+}
+
 export interface ComposerView {
-  characters: { characterId: string; label: string }[];
-  actionAvailable: boolean;
-  actionHint: string | null;
+  /** The viewer's characters (the DM: "DM") then "You (out of character)". No party entry (C-7). */
+  speakers: SpeakerOption[];
+  mentions: MentionOption[];
+  mode: "free" | "turn";
+  /** Turn mode and this player holds the turn: Enter commits (FR-022). */
+  active: boolean;
+  /** The viewer is the human DM. */
+  dm: boolean;
+  /** False when the viewer controls no party character and is not the DM. */
+  canSend: boolean;
+  hint: string | null;
 }
 
 export interface TableViewModel {
@@ -208,18 +256,33 @@ export function toTableViewModel(
     turn,
   };
 
+  const humanDm = isDm && p.gate.seat.kind === "human";
   const actionsById = new Map(p.actions.map((a) => [a.actionId, a]));
   const transcript: TranscriptItem[] = [];
   for (const entry of p.transcript) {
     if (entry.kind === "talk") {
+      const carrier = p.intents.find(
+        (v) => v.seq === entry.seq + 1 && v.actor === entry.actor,
+      );
+      if (entry.actor === "ai:dm" && entry.channel === "ooc") {
+        transcript.push({ kind: "aside", seq: entry.seq, text: entry.text });
+        continue;
+      }
       transcript.push({
         kind: "talk",
         seq: entry.seq,
         actorLabel: label(entry.actor),
         text: entry.text,
         channel: entry.channel,
+        characterId: entry.characterId,
         characterLabel: characterLabel(entry.characterId, party),
         whisper: entry.visibility !== "public" && entry.visibility !== "dm",
+        askDm: carrier?.intent.kind === "ask_dm",
+        confirmable:
+          humanDm &&
+          entry.channel === "ic" &&
+          carrier?.intent.kind === "say" &&
+          entry.characterId !== null,
       });
     } else if (entry.kind === "narration") {
       transcript.push({ kind: "narration", seq: entry.seq, text: entry.text });
@@ -236,41 +299,17 @@ export function toTableViewModel(
           scope: action.scope,
           text: action.text,
           status: action.status,
-          comments: action.comments.map((c) => ({
-            seq: c.seq,
-            actorLabel: label(c.actor),
-            stance: c.stance,
-            text: c.text,
-          })),
           open: isOpen(action.status),
           canWithdraw:
             isOpen(action.status) && (isDm || action.actor === input.actor),
-          commitsOnOwnTurn:
-            isOpen(action.status) &&
-            action.scope === "character" &&
-            tableMode.mode === "turn" &&
-            viewer.role === "player" &&
-            action.actor === viewer.userId &&
-            tableMode.activeActor !== viewer.userId,
-          suggest:
-            isOpen(action.status) &&
-            action.scope === "character" &&
-            tableMode.mode === "turn" &&
-            viewer.role === "player" &&
-            party.some(
-              (m) =>
-                m.controller.kind === "player" &&
-                m.controller.userId === viewer.userId,
-            ) &&
-            action.actor === tableMode.activeActor &&
-            tableMode.activeActor !== viewer.userId,
-          commit: toViewAuthority(
-            commitAuthorityFor(action, tableMode, viewer, party, present),
-            label,
-          ),
-          signoff: isOpen(action.status)
-            ? signoffRows(action, party, present, viewer, label)
-            : null,
+          // FR-005, FR-023: Commit shows for the DM viewer only; a player's Enter commits.
+          commit:
+            viewer.role === "player"
+              ? { canCommit: false, holderLabel: null }
+              : toViewAuthority(
+                  commitAuthorityFor(action, tableMode, viewer, party, present),
+                  label,
+                ),
           committed: action.committed
             ? {
                 actorLabel: label(action.committed.actor),
@@ -321,25 +360,113 @@ export function toTableViewModel(
             : `${turnLabel(after, party, input.actor)}'s turn`,
     });
   }
+  const mineOf = (characterId: string): boolean =>
+    viewer.role === "player" &&
+    party.some(
+      (m) =>
+        m.characterId === characterId &&
+        m.controller.kind === "player" &&
+        m.controller.userId === viewer.userId,
+    );
+  const humanController = (characterId: string): boolean =>
+    party.some(
+      (m) => m.characterId === characterId && m.controller.kind === "player",
+    );
+  for (const sug of p.suggestions) {
+    const lines: ConfirmLine[] = sug.items.map((item) => {
+      const st = suggestionState(p, item.intent.id);
+      const state = st === "missing" ? "stale" : st;
+      const who = item.intent.actor;
+      const partyItem =
+        item.intent.kind === "attempt" && item.intent.params.scope === "party";
+      const canAccept =
+        state === "live" &&
+        viewer.role === "player" &&
+        (partyItem
+          ? party.some(
+              (m) =>
+                m.controller.kind === "player" &&
+                m.controller.userId === viewer.userId,
+            )
+          : who.kind === "pc" && mineOf(who.id));
+      return {
+        itemId: item.itemId,
+        text: item.text,
+        kindLabel: kindLabel(item.intent.kind),
+        state,
+        canAccept,
+        waitingOn:
+          state === "live" && !canAccept
+            ? partyItem
+              ? "the party"
+              : who.kind === "pc" && humanController(who.id)
+                ? (characterLabel(who.id, party) ?? who.id)
+                : null
+            : null,
+      };
+    });
+    transcript.push({
+      kind: "confirm",
+      seq: sug.seq,
+      confirm: { suggestionId: sug.suggestionId, readSeq: sug.readSeq, lines },
+    });
+  }
+  const suggestionIds = p.suggestions.map((s) => `${s.suggestionId}.`);
+  const NO_ROW = new Set(["say", "say_to", "emote", "ooc", "party", "ask_dm"]);
+  for (const v of p.intents) {
+    if (
+      v.intent.actor.kind !== "pc" ||
+      NO_ROW.has(v.intent.kind) ||
+      suggestionIds.some((id) => v.id.startsWith(id)) ||
+      p.actions.some((a) => v.id.startsWith(`${a.actionId}.`))
+    ) {
+      continue;
+    }
+    transcript.push({
+      kind: "intent",
+      seq: v.seq,
+      actorLabel: label(v.actor),
+      text: toText(v.intent),
+      status: v.status,
+      declaredIntent:
+        humanDm && v.status === "declared" ? (v.intent as Intent) : null,
+    });
+  }
   transcript.sort((a, b) => a.seq - b.seq);
 
-  const characters =
+  const controlled =
     viewer.role === "player"
-      ? party
-          .filter(
-            (m) =>
-              m.controller.kind === "player" &&
-              m.controller.userId === viewer.userId,
-          )
-          .map((m) => ({ characterId: m.characterId, label: m.name }))
+      ? party.filter(
+          (m) =>
+            m.controller.kind === "player" &&
+            m.controller.userId === viewer.userId,
+        )
       : [];
-  const actionAvailable = characters.length > 0;
-  let actionHint: string | null = null;
-  if (!actionAvailable) {
-    actionHint = isDm
-      ? "The DM commits or overrides actions; it does not declare them."
-      : "You control no party character, so you cannot declare an action.";
-  }
+  const speakers: SpeakerOption[] = [
+    ...(isDm ? [{ id: null, label: "DM", ooc: false }] : []),
+    ...controlled.map((m) => ({
+      id: m.characterId,
+      label: m.name,
+      ooc: false,
+    })),
+    { id: null, label: "You (out of character)", ooc: true },
+  ];
+  const mentions: MentionOption[] = [
+    { token: "@dm", label: "DM", targetId: null },
+    ...party.map((m) => ({
+      token: `@${m.characterId}`,
+      label: m.name,
+      targetId: m.characterId,
+    })),
+    ...(p.encounter?.order ?? [])
+      .filter((o) => !party.some((m) => m.combatantId === o.combatantId))
+      .map((o) => ({
+        token: `@${o.combatantId}`,
+        label: o.name,
+        targetId: o.combatantId,
+      })),
+  ];
+  const canSend = isDm || controlled.length > 0;
 
   const d = p.diagnostics;
   return {
@@ -351,7 +478,17 @@ export function toTableViewModel(
     transcript,
     ledger: toLedgerItems(p.ledger),
     proposals: isDm ? [...input.proposals] : [],
-    composer: { characters, actionAvailable, actionHint },
+    composer: {
+      speakers,
+      mentions,
+      mode: tableMode.mode,
+      active: mode.mode === "turn" && mode.isViewersTurn,
+      dm: isDm,
+      canSend,
+      hint: canSend
+        ? null
+        : "You control no party character, so you cannot send a line.",
+    },
     hiddenCount:
       d.skippedUnknownType + d.skippedUnknownVersion + d.skippedInvalid,
     isDm,

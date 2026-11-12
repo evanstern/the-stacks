@@ -75,10 +75,10 @@ test("operator seated as a character: composer holds the character and Action is
     proposals: [],
   });
   assert.deepEqual(
-    model.composer.characters.map((c) => c.characterId),
-    ["ana"],
+    model.composer.speakers.map((c) => c.id),
+    ["ana", null],
   );
-  assert.equal(model.composer.actionAvailable, true);
+  assert.equal(model.composer.canSend, true);
 });
 
 test("unseated operator at an AI seat: player view-model with no DM surface", () => {
@@ -97,8 +97,11 @@ test("unseated operator at an AI seat: player view-model with no DM surface", ()
   });
   assert.equal(model.isDm, false);
   assert.deepEqual(model.proposals, []);
-  assert.deepEqual(model.composer.characters, []);
-  assert.equal(model.composer.actionAvailable, false);
+  assert.deepEqual(
+    model.composer.speakers.map((c) => c.label),
+    ["You (out of character)"],
+  );
+  assert.equal(model.composer.canSend, false);
 });
 
 test("shouldResync: only a seat gain after replay", () => {

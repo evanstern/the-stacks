@@ -2,18 +2,20 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { GATE_REQUEST_VERSION, RefIdSchema } from "@the-stacks/session-model";
 import {
+  acceptFrame,
   approveFrame,
-  commentFrame,
   commitFrame,
   declareFrame,
   dmSeatFrame,
   dmSeatReason,
   encounterEndFrame,
   floorFrame,
+  intentFrame,
   localEventOf,
   rejectFrame,
   sceneFrame,
   sceneSummary,
+  suggestFrame,
   tableModeFrame,
   tableModeReason,
   talkFrame,
@@ -66,20 +68,54 @@ test("declareFrame rejects empty text and a character scope with no character", 
   assert.ok(declareFrame({ text: "x", characterId: null, scope: "party" }));
 });
 
-test("commentFrame builds and rejects", () => {
-  assert.deepEqual(
-    commentFrame({ actionId: "act-1", stance: "object", text: " no " }).payload,
-    { comment: { actionId: "act-1", stance: "object", text: "no" } },
+const SAY = {
+  id: "int-1",
+  kind: "say",
+  actor: { kind: "pc", id: "ana" },
+  text: "hello",
+  source: "composer",
+  commit: "declared",
+};
+
+test("intentFrame wraps a valid Intent and rejects an invalid one", () => {
+  const frame = intentFrame(SAY);
+  assert.equal(frame.eventType, "intent");
+  assert.equal(frame.payload.intent.kind, "say");
+  assert.equal(frame.payload.intent.text, "hello");
+  assert.equal(intentFrame({ ...SAY, kind: "nope" }), null);
+  assert.equal(intentFrame({ ...SAY, text: undefined }), null);
+});
+
+test("acceptFrame builds action.accept and rejects a bad item id", () => {
+  assert.deepEqual(acceptFrame({ suggestionId: "sug-1", itemId: "i1" }), {
+    eventType: "action.accept",
+    payloadVersion: 1,
+    payload: { suggestionId: "sug-1", itemId: "i1" },
+  });
+  assert.equal(acceptFrame({ suggestionId: "sug-1", itemId: "x" }), null);
+  assert.equal(acceptFrame({ suggestionId: "", itemId: "i1" }), null);
+});
+
+test("suggestFrame mints a sug- id and validates the items", () => {
+  const item = {
+    itemId: "i1",
+    text: "Climb",
+    intent: { ...SAY, id: "sug-1.i1", kind: "attempt", text: "climb" },
+  };
+  const frame = suggestFrame({ readSeq: 4, items: [item] }, "sug-1");
+  assert.equal(frame.eventType, "action.suggest");
+  assert.equal(frame.payload.suggestion.suggestionId, "sug-1");
+  assert.equal(frame.payload.suggestion.readSeq, 4);
+  assert.match(
+    suggestFrame({ readSeq: 0, items: [item] }).payload.suggestion.suggestionId,
+    /^sug-/,
   );
-  assert.equal(
-    commentFrame({ actionId: "act-1", stance: "comment", text: " " }),
-    null,
-  );
-  assert.equal(
-    commentFrame({ actionId: "BAD ID", stance: "approve", text: "" }),
-    null,
-  );
-  assert.ok(commentFrame({ actionId: "act-1", stance: "approve", text: "" }));
+  assert.equal(suggestFrame({ readSeq: 4, items: [] }, "sug-1"), null);
+  const confirmed = {
+    ...item,
+    intent: { ...item.intent, commit: "confirmed" },
+  };
+  assert.equal(suggestFrame({ readSeq: 4, items: [confirmed] }, "sug-1"), null);
 });
 
 test("commitFrame builds the action.commit request and rejects a bad id", () => {
@@ -105,7 +141,7 @@ test("no frame carries actor, seq or ts", () => {
   const frames = [
     talkFrame({ text: "x", channel: "ic", characterId: null }),
     declareFrame({ text: "x", characterId: null, scope: "party" }),
-    commentFrame({ actionId: "act-1", stance: "approve", text: "" }),
+    intentFrame(SAY),
     commitFrame({ actionId: "act-1", authority: "dm" }),
   ];
   for (const f of frames) {

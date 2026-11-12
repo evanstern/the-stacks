@@ -18,7 +18,9 @@ const commands = {
   changeScene: yes,
   sendTalk: yes,
   declareAction: yes,
-  comment: yes,
+  sendIntent: yes,
+  accept: yes,
+  suggest: yes,
   commit: yes,
   withdraw: yes,
   approve: yes,
@@ -49,9 +51,10 @@ test("TableView renders every fixture for every viewer with no modal markup (AC 
       const html = renderToStaticMarkup(
         <TableView source={sourceFor(f, viewer)} />,
       );
-      expect(html, f.name).toContain("Message type");
+      expect(html, f.name).toContain('aria-label="Composer"');
       expect(html).not.toContain("<dialog");
       expect(html).not.toContain("aria-modal");
+      expect(html).not.toContain('role="dialog"');
     }
   }
 });
@@ -412,4 +415,31 @@ test("the narration paragraph keeps line breaks and its text role (spec 098 T016
   );
   expect(html).toMatch(/<p class="[^"]*whitespace-pre-line[^"]*">/);
   expect(html).toContain("italic text-muted-foreground");
+});
+
+test("every viewer sees one composer, one Send and none of the SC-005 names (card AC #2)", () => {
+  for (const f of fixtures) {
+    for (const viewer of [f.viewers.dm, ...f.viewers.players]) {
+      const html = renderToStaticMarkup(
+        <TableView source={sourceFor(f, viewer)} />,
+      );
+      const composer = html.slice(html.indexOf('aria-label="Composer"'));
+      const form = composer.slice(0, composer.indexOf("</form>"));
+      expect(form.match(/type="submit"/g)?.length, f.name).toBe(1);
+      for (const name of [
+        "Message type",
+        "Scope",
+        ">Declare<",
+        "Comment on this action",
+        "Suggest an alternative",
+        "Commits on your turn",
+        "The party",
+      ]) {
+        expect(html, `${f.name}: ${name}`).not.toContain(name);
+      }
+      if (viewer.role === "player") {
+        expect(html, f.name).not.toContain(">Commit<");
+      }
+    }
+  }
 });
