@@ -37,7 +37,7 @@ Spec: specs/104-interpret-intents
 - [x] #5 A beat narrates the facts of every intent.recorded row it covers, including rows the gate settled before the turn job ran, as why rows (spec 102 OQ-4; spec 103 OQ-8 window: the job input carries only triggerSeq and intent.recorded has no action link).
 - [x] #6 Spec phase: Schema and slash parse
 - [x] #7 Spec phase: Prompt v17 and interpret node
-- [ ] #8 Spec phase: Resolve Intent runner and beside data
+- [x] #8 Spec phase: Resolve Intent runner and beside data
 - [ ] #9 Spec phase: Narrate window
 - [ ] #10 Spec phase: Test and script migration
 - [ ] #11 Spec phase: Wiki
