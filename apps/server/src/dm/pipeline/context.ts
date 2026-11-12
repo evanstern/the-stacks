@@ -63,6 +63,13 @@ export interface SrdLookup {
   compact: (kind: SrdKind, idOrName: string) => string | undefined;
 }
 
+/** One ephemeral narration-stream part (spec 108). `end` closes the job's stream. */
+export interface NarrationPart {
+  jobId: string;
+  slot: "rows" | "restate" | "describe" | "ask" | "end";
+  text: string;
+}
+
 export interface NodeDeps {
   gateway: Pick<Gateway, "chat">;
   /** Only `resolve` receives the real gate; every other node gets `throwingGate`. */
@@ -101,6 +108,8 @@ export interface NodeDeps {
   log: (line: Record<string, unknown>) => void;
   /** ASK_MIN_SIMILARITY: the relevance floor `adjudicate` applies to retrieved passages. */
   minSimilarity: number;
+  /** Spec 108: receives each checked stream part; absent means no stream (tests, playtest, scripts). */
+  streamNarration?: (part: NarrationPart) => void;
   /** Optional ledger seam: awaited once per model attempt, after it ends. */
   recordCall?: (call: RecordedCall) => Promise<void>;
 }

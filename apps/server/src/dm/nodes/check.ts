@@ -1,12 +1,13 @@
 import { createHash } from "node:crypto";
-import { composeReply, defaultRestate } from "../fact-sheet.js";
-import { unmetRolls } from "../facts.js";
+import { composeReply, defaultRestate, type FactSheet } from "../fact-sheet.js";
+import { type NarrationFacts, unmetRolls } from "../facts.js";
 import {
+  type CheckInput,
   type CheckIssue,
   checkNarration,
   dropSentences,
 } from "../narration-check.js";
-import type { Node } from "../pipeline/context.js";
+import type { Node, TurnContext } from "../pipeline/context.js";
 import { dmOnlySeedText } from "../seed/views.js";
 
 /**
@@ -27,6 +28,12 @@ export interface CheckRecord {
   shippedProseSha256: string;
   /** The narrate call's error kind when it failed and the reply shipped as rows only. */
   narrateError?: string;
+  /** Spec 108 FR-009: ms from the narrate call to its first text delta; null when none arrived. */
+  firstTokenMs?: number | null;
+  /** Ms from narrate start to the first prose part (restate, describe or ask) sent; null when none. */
+  firstProseMs?: number | null;
+  /** ISO time of that part. */
+  firstProseAt?: string | null;
 }
 
 export interface CheckOutput {
@@ -58,6 +65,37 @@ export function correctionsFor(issues: readonly CheckIssue[]): Correction[] {
   return out;
 }
 
+/** The check input minus the slots; narrate's stream parser and the check node share it. */
+export function checkBase(
+  ctx: TurnContext,
+  facts: NarrationFacts,
+  sheet: FactSheet,
+): Omit<CheckInput, "slots"> | null {
+  const resolved = ctx.results.resolve;
+  if (!resolved) return null;
+  return {
+    rows: sheet.rows.map((r) => r.text).concat(sheet.state ?? []),
+    hasRoll:
+      facts.actions.some((a) => a.rolls.length > 0) ||
+      (facts.npcTurn?.rolls ?? []).length > 0 ||
+      (facts.pulled ?? []).some((x) => x.rolls.length > 0) ||
+      (facts.direct ?? []).some((x) => x.rolls.length > 0),
+    snapshot: resolved.snapshot,
+    departedIds: resolved.appendedRows.flatMap((r) => {
+      const pl = r.payload as { actorId?: string; after?: string };
+      return r.type === "scene-presence.changed" &&
+        pl.after === "absent" &&
+        pl.actorId
+        ? [pl.actorId]
+        : [];
+    }),
+    dmOnlyText: dmOnlySeedText(ctx.seed).map((t) => t.toLowerCase()),
+    unmetSuccess: unmetRolls(facts).flatMap((r) =>
+      r.unmetSuccess ? [r.unmetSuccess] : [],
+    ),
+  };
+}
+
 export const check: Node<"check"> = async (ctx) => {
   const narration = ctx.results.narrate;
   const resolved = ctx.results.resolve;
@@ -86,28 +124,9 @@ export const check: Node<"check"> = async (ctx) => {
     };
   }
   const { facts, sheet, slots } = narration;
-  const issues = checkNarration({
-    slots,
-    rows: sheet.rows.map((r) => r.text).concat(sheet.state ?? []),
-    hasRoll:
-      facts.actions.some((a) => a.rolls.length > 0) ||
-      (facts.npcTurn?.rolls ?? []).length > 0 ||
-      (facts.pulled ?? []).some((x) => x.rolls.length > 0) ||
-      (facts.direct ?? []).some((x) => x.rolls.length > 0),
-    snapshot: resolved.snapshot,
-    departedIds: resolved.appendedRows.flatMap((r) => {
-      const pl = r.payload as { actorId?: string; after?: string };
-      return r.type === "scene-presence.changed" &&
-        pl.after === "absent" &&
-        pl.actorId
-        ? [pl.actorId]
-        : [];
-    }),
-    dmOnlyText: dmOnlySeedText(ctx.seed).map((t) => t.toLowerCase()),
-    unmetSuccess: unmetRolls(facts).flatMap((r) =>
-      r.unmetSuccess ? [r.unmetSuccess] : [],
-    ),
-  });
+  const base = checkBase(ctx, facts, sheet);
+  if (!base) throw new Error("unreachable: resolve checked above");
+  const issues = checkNarration({ ...base, slots });
   const drop = issues
     .filter((i) => i.check === "leak" || i.kind === "digit")
     .map((i) => i.sentence);
@@ -119,6 +138,27 @@ export const check: Node<"check"> = async (ctx) => {
   // An empty restate slot falls back to the code-written restate.
   if (sheet.slots.includes("restate") && !kept.restate) {
     kept.restate = defaultRestate(sheet);
+  }
+  // Spec 108: the stream's last parts, from the same kept slots the row ships.
+  const { stream, timing } = narration;
+  if (stream && timing) {
+    for (const p of stream.finish(kept)) {
+      if (timing.firstProseMs === null) {
+        timing.firstProseMs = Math.round(performance.now() - timing.startedAt);
+        timing.firstProseAt = new Date().toISOString();
+      }
+      ctx.deps.streamNarration?.({ jobId: ctx.job.id, ...p });
+    }
+  }
+  if (timing) {
+    ctx.deps.log({
+      event: "dm.narrate.first-token",
+      jobId: ctx.job.id,
+      sessionId: ctx.job.sessionId,
+      firstTokenMs: timing.firstTokenMs,
+      firstProseMs: timing.firstProseMs,
+      firstProseAt: timing.firstProseAt,
+    });
   }
   const prose = [kept.restate, kept.describe, kept.ask]
     .filter(Boolean)
@@ -134,6 +174,13 @@ export const check: Node<"check"> = async (ctx) => {
         contradiction: issues.filter((i) => i.check === "contradiction"),
         corrected: corrections.length > 0 || drop.length > 0,
         shippedProseSha256: sha(prose),
+        ...(timing
+          ? {
+              firstTokenMs: timing.firstTokenMs,
+              firstProseMs: timing.firstProseMs,
+              firstProseAt: timing.firstProseAt,
+            }
+          : {}),
         ...(narration.narrateError
           ? { narrateError: narration.narrateError }
           : {}),

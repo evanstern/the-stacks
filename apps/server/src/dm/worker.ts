@@ -44,6 +44,7 @@ import { interpret } from "./nodes/interpret.js";
 import { narrate } from "./nodes/narrate.js";
 import { resolve, submitFailureNotice } from "./nodes/resolve.js";
 import type {
+  NarrationPart,
   NodeDeps,
   RecordedCall,
   SrdLookup,
@@ -103,6 +104,8 @@ export interface DmWorkerDeps {
   log?: (line: Record<string, unknown>) => void;
   pollMs?: number;
   heartbeatMs?: number;
+  /** Spec 108: receives each checked narration-stream part of a turn job, and `end` when the job finishes. */
+  onNarrationStream?: (sessionId: string, part: NarrationPart) => void;
 }
 
 export interface DmWorker {
@@ -317,6 +320,12 @@ export function createDmWorker(deps: DmWorkerDeps): DmWorker {
       log,
       minSimilarity: deps.minSimilarity,
       recordCall: recorderFor(job),
+      ...(deps.onNarrationStream
+        ? {
+            streamNarration: (part: NarrationPart) =>
+              deps.onNarrationStream?.(job.sessionId, part),
+          }
+        : {}),
     };
     const ctx: TurnContext = {
       job: {
@@ -607,8 +616,22 @@ export function createDmWorker(deps: DmWorkerDeps): DmWorker {
     }, deps.heartbeatMs ?? HEARTBEAT_MS);
 
     try {
-      if (job.kind === "turn") await runTurnJob(job, controller, fence);
-      else if (job.kind === "floor") await runFloorJobFenced(job, controller);
+      if (job.kind === "turn") {
+        try {
+          await runTurnJob(job, controller, fence);
+        } finally {
+          // Spec 108 FR-007: `end` on every outcome (success, failure, skip, throw).
+          try {
+            deps.onNarrationStream?.(job.sessionId, {
+              jobId: job.id,
+              slot: "end",
+              text: "",
+            });
+          } catch {
+            // A delivery fault never fails the job.
+          }
+        }
+      } else if (job.kind === "floor") await runFloorJobFenced(job, controller);
       else await runSideJob(job, controller, fence);
     } finally {
       clearInterval(timer);

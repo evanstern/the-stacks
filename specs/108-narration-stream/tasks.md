@@ -16,12 +16,12 @@ in the brief.
 
 ## Phase 2: Pipeline wiring and timing
 
-- [ ] T007 In `apps/server/src/dm/pipeline/context.ts`, add `NodeDeps.streamNarration?` and the `NarrationPart` type.
-- [ ] T008 In `apps/server/src/dm/nodes/narrate.ts`, send the `rows` part before `narrateAttempt`. Pass `onText` into the parser. Add `stream` and `timing` to `NarrateOutput`.
-- [ ] T009 In `apps/server/src/dm/nodes/check.ts`, call `stream.finish(kept)` and forward the parts. Add `firstTokenMs`, `firstProseMs` and `firstProseAt` to `CheckRecord`. Log `dm.narrate.first-token`.
-- [ ] T010 In `apps/server/src/dm/worker.ts`, add `DmWorkerDeps.onNarrationStream`. Build `streamNarration` per job. Send `end` in a `finally` around each turn job.
-- [ ] T011 Write `apps/server/test/dm/narrate-stream.test.ts`: the `rows` part precedes the gateway `chat()` call; part order; `end` on success, call error and reclaim skip; timing fields in the check record (AC #5).
-- [ ] T012 Extend `apps/server/test/dm/fact-sheet.test.ts`: every digit in any stream part lies in a code-rendered row or the State line (runbook narration-PR gate).
+- [x] T007 In `apps/server/src/dm/pipeline/context.ts`, add `NodeDeps.streamNarration?` and the `NarrationPart` type.
+- [x] T008 In `apps/server/src/dm/nodes/narrate.ts`, send the `rows` part before `narrateAttempt`. Pass `onText` into the parser. Add `stream` and `timing` to `NarrateOutput`.
+- [x] T009 In `apps/server/src/dm/nodes/check.ts`, call `stream.finish(kept)` and forward the parts. Add `firstTokenMs`, `firstProseMs` and `firstProseAt` to `CheckRecord`. Log `dm.narrate.first-token`.
+- [x] T010 In `apps/server/src/dm/worker.ts`, add `DmWorkerDeps.onNarrationStream`. Build `streamNarration` per job. Send `end` in a `finally` around each turn job.
+- [x] T011 Write `apps/server/test/dm/narrate-stream.test.ts`: the `rows` part precedes the gateway `chat()` call; part order; `end` on success, call error and reclaim skip; timing fields in the check record (AC #5).
+- [x] T012 Extend `apps/server/test/dm/fact-sheet.test.ts`: every digit in any stream part lies in a code-rendered row or the State line (runbook narration-PR gate).
 
 ## Phase 3: Delivery and C-GATE amendments
 
