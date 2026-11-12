@@ -1,6 +1,7 @@
 import { IntentSchema, parse, toText } from "@the-stacks/intent";
 import { VALID } from "@the-stacks/intent/fixtures";
 import { describe, expect, it } from "vitest";
+import { HOLD_ACT_TEXT } from "../../src/dm/companion.js";
 import type { BeatItem } from "../../src/dm/nodes/assemble.js";
 import {
   actorOfItem,
@@ -164,6 +165,44 @@ describe("parseSlashItem (plan D2, OQ-5)", () => {
     const r = parseSlashItem(item('/say "hello"'), pc);
     expect(r.stages).toEqual([]);
     expect(r.clarify).toBeTruthy();
+  });
+});
+
+describe("multi-line slash items and the hold reading (spec 107 D2)", () => {
+  const odo = { kind: "companion", id: "odo" } as const;
+  const ai = (text: string) =>
+    item(text, { actor: "ai:companion:odo", characterId: "odo" });
+
+  it("parses every line into one stage, in order", () => {
+    const r = parseSlashItem(ai('/stand\n/attack @goblin-2 with "Mace"'), odo);
+    expect(r.clarify).toBeNull();
+    expect(r.stages.map((s) => s.intent.kind)).toEqual(["stand", "attack"]);
+  });
+
+  it("refuses the whole item at the first bad line and names the line", () => {
+    const r = parseSlashItem(ai("/stand\n/nonsense @@ ??"), odo);
+    expect(r.stages).toEqual([]);
+    expect(r.clarify).toContain("line 2");
+  });
+
+  it("refuses more than 6 lines", () => {
+    const r = parseSlashItem(ai(Array(7).fill("/dodge").join("\n")), odo);
+    expect(r.stages).toEqual([]);
+    expect(r.clarify).toBeTruthy();
+  });
+
+  it("builds a zero-stage reading for a companion's hold, with no clarify", () => {
+    const r = parseSlashItem(ai(HOLD_ACT_TEXT), odo);
+    expect(r).toEqual({
+      actionId: "act-1",
+      stages: [],
+      clarify: null,
+      followUps: [],
+    });
+  });
+
+  it("does not treat a human's hold text as a hold", () => {
+    expect(parseSlashItem(item(HOLD_ACT_TEXT), pc).clarify).toBeTruthy();
   });
 });
 

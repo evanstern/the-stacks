@@ -190,6 +190,7 @@ describe("assemble", () => {
                   combatantId: "goblin",
                   srdMonsterId: "goblin-warrior",
                   name: "Goblin",
+                  tactics: "nearest" as const,
                 },
               ],
             }

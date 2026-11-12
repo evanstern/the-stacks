@@ -189,6 +189,8 @@ export const SceneSeedSchema = z.object({
               combatantId: CombatantIdSchema,
               srdMonsterId: z.string().min(1),
               name: Text(100).nullable(),
+              /** Spec 107: who the monster picks on. */
+              tactics: z.enum(["nearest", "weakest"]).default("nearest"),
             }),
           )
           .min(1)

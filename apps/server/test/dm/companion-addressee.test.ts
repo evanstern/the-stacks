@@ -30,11 +30,11 @@ const prompt = () =>
   });
 
 describe("companion prompt names the speaker (TASK-0189)", () => {
-  it("is v8", () => expect(PROMPT_VERSION).toBe("dm.companion-v8"));
+  it("is v8", () => expect(PROMPT_VERSION).toBe("dm.companion-v9"));
 
-  it("states that all four keys are written (TASK-0203)", () =>
+  it("states that all five keys are written (TASK-0203)", () =>
     expect(prompt().system).toContain(
-      "Write all four keys every time. Set `comment`, `say` or `act` to null when you have none; never leave a key out.",
+      "Write all five keys every time. Set `comment`, `say` or `act` to null when you have none; never leave a key out.",
     ));
 
   it("names Tamsin as the speaker and Odo as addressed, not Wenna", () => {
@@ -45,5 +45,36 @@ describe("companion prompt names the speaker (TASK-0189)", () => {
     );
     expect(section).toContain("Addressed to: you.");
     expect(section).not.toMatch(/Wenna/);
+  });
+});
+
+describe("companion prompt comment labels (spec 096 OQ1, spec 107)", () => {
+  it("renders a human commenter as the seated character id, never a user id", () => {
+    const user = "00000000-0000-4000-8000-000000000001";
+    const withOpen = {
+      ...projections,
+      actions: [
+        {
+          actionId: "act-odo-1",
+          actor: "ai:companion:odo",
+          characterId: "odo",
+          scope: "character",
+          text: "Odo steps forward.",
+          status: "discussed",
+          declaredSeq: 1,
+          comments: [{ actor: user, stance: "object", seq: 2, text: "No." }],
+        },
+      ],
+    } as unknown as typeof projections;
+    const out = buildCompanionPrompt({
+      seed: playerFacingSeed(seed),
+      projections: withOpen,
+      snapshot: buildSnapshot(withOpen, seed),
+      characterId: "odo",
+      active: false,
+      ownOpenActionIds: ["act-odo-1"],
+    }).user;
+    expect(out).toContain("tamsin (object, seq 2): No.");
+    expect(out).not.toContain(user);
   });
 });

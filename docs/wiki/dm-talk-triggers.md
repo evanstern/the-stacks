@@ -14,7 +14,7 @@ sources:
   - apps/server/src/dm/nodes/schemas.ts
   - apps/server/dm-scripts/greyhollow-talk.json
   - apps/server/dm-scripts/greyhollow-confirm.json
-verified_against: 2ddacdbdfb3c30cfa196052250dea8078fba11d2
+verified_against: a13be04e8a7cb8310bd0d5cfa3a518c5c29c310f
 ---
 
 # DM talk triggers

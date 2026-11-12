@@ -3,28 +3,44 @@
  */
 import type { SessionProjections } from "@the-stacks/session-model";
 import { renderDoctrine } from "../doctrine/doctrine.js";
+import { COMPANION_TURN_KINDS } from "../nodes/schemas.js";
 import type { PlayerSeedView } from "../seed/views.js";
 import { type ActorSnapshot, snapshotSection } from "../snapshot/index.js";
 import { codeTriggers } from "../talk-triggers.js";
 import {
   CAPS,
   capEntries,
+  dmActorLabel,
   joinSections,
   rosterOf,
+  seatsOf,
   section,
   transcriptEntries,
 } from "./common.js";
+import { INTENT_GRAMMAR } from "./interpret.js";
 
-export const PROMPT_VERSION = "dm.companion-v8";
+export const PROMPT_VERSION = "dm.companion-v9";
+
+/** The shared grammar lines for the kinds a companion may use (spec 107 D5). */
+const TURN_GRAMMAR = INTENT_GRAMMAR.split("\n")
+  .filter(
+    (l) =>
+      l.startsWith("Target refs:") ||
+      COMPANION_TURN_KINDS.some((k) => l.startsWith(`- ${k}:`)) ||
+      l.startsWith("- hide, dash"),
+  )
+  .join(" ");
 
 const OUTPUT_SHAPE = [
   "Reply with ONE JSON object and nothing else:",
   '{"say":str (400 characters at most)|null,',
   ' "comment":{"actionId":id of an open action,"stance":"approve"|"object"|"comment","text":str}|null,',
   ' "act":{"text":str (what you attempt, 400 characters at most),"commit":bool}|null,',
+  ' "turn":[Intent body] (your own turn only: one to three actions in order, each {"kind":str,"targets":[ref],"params":{},"text":str?})|null,',
   ' "pending":[{"actionId":id of one of YOUR open actions,"decision":"commit"|"withdraw"|"revise","text":str (400 characters at most, required for revise)|null}]}',
   "pending holds one entry for each of your own open actions, up to 4. Decision commit puts the action to the table as declared. Decision withdraw closes the action: use it when a player objected and you agree. Decision revise withdraws the action and declares a new one with your text in its place. Leave text null unless the decision is revise. Leave pending empty when you have no open action. Do not declare a new act while you have an open action.",
-  "Write all four keys every time. Set `comment`, `say` or `act` to null when you have none; never leave a key out.",
+  `On your own turn, put what you do in turn, not act. Kinds allowed in turn: ${COMPANION_TURN_KINDS.join(", ")}. Write no id, actor, DC or number: the engine decides every roll. ${TURN_GRAMMAR}`,
+  "Write all five keys every time. Set `comment`, `say` or `act` to null when you have none; never leave a key out.",
 ].join("\n");
 
 const SYSTEM = [
@@ -118,6 +134,7 @@ export function buildCompanionPrompt(input: CompanionPromptInput): {
   const committed = projections.actions
     .filter((a) => a.status === "committed")
     .map((a) => `${a.actionId} by ${a.characterId ?? a.actor}: ${a.text}`);
+  const seats = seatsOf(projections.party);
   const ownIds = new Set(input.ownOpenActionIds ?? []);
   const openActions = projections.actions.filter(
     (a) => a.status === "declared" || a.status === "discussed",
@@ -128,7 +145,8 @@ export function buildCompanionPrompt(input: CompanionPromptInput): {
       [
         `${a.actionId}: ${a.text}`,
         ...a.comments.map(
-          (c) => `  ${c.actor} (${c.stance}, seq ${c.seq}): ${c.text}`,
+          (c) =>
+            `  ${dmActorLabel(c.actor, null, seats)} (${c.stance}, seq ${c.seq}): ${c.text}`,
         ),
       ].join("\n"),
     );
@@ -163,7 +181,7 @@ export function buildCompanionPrompt(input: CompanionPromptInput): {
     section("Other open actions you may comment on", open, 400, "end"),
     section("Committed actions this beat", committed, 400, "end"),
     active
-      ? "It is YOUR turn. You must act: set act with commit true."
+      ? "It is YOUR turn. You must act: set turn to one to three typed actions (act stays null)."
       : "It is not your turn. You may speak, comment or declare; every field may be null.",
   ]);
   return { system, user };

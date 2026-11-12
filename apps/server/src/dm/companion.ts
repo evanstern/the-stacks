@@ -1,3 +1,4 @@
+import { parse, toText } from "@the-stacks/intent";
 import {
   type Proposal,
   type Proposer,
@@ -8,6 +9,8 @@ import { z } from "zod";
 import type { Gateway } from "../ai/gateway.js";
 import type { Gate } from "../gate/index.js";
 import type { CompanionJobInput } from "./jobs.js";
+import { stampIntent } from "./nodes/interpret.js";
+import { CompanionIntentBodySchema, HOLD_ACT_TEXT } from "./nodes/schemas.js";
 import { callJson } from "./pipeline/call.js";
 import type { ModelCallRecord, RecordedCall } from "./pipeline/context.js";
 import { buildCompanionPrompt, PROMPT_VERSION } from "./prompts/companion.js";
@@ -50,11 +53,12 @@ export const CompanionOutput = z.object({
         }),
     )
     .max(4),
+  /** Spec 107: typed Intent bodies for the companion's own turn, in order. */
+  turn: z.array(CompanionIntentBodySchema).max(3).nullable().default(null),
 });
 export type CompanionOutput = z.infer<typeof CompanionOutput>;
 
-/** The act that replaces a null act for the active companion in turn mode. */
-export const HOLD_ACT_TEXT = "holds position and watches for an opening";
+export { HOLD_ACT_TEXT };
 
 export interface CompanionSubmission {
   kind: string;
@@ -147,6 +151,45 @@ function isActive(p: SessionProjections, companionId: string): boolean {
   );
 }
 
+const ACT_TEXT_MAX = 2000;
+
+/**
+ * Spec 107 D5: stamp each body for the companion, check the text round trip, and join the
+ * lines. `ok: false` for no turn, a refused stamp, a lossy round trip or an over-long text.
+ */
+function turnText(
+  turn: CompanionOutput["turn"],
+  companionId: string,
+  actionId: string,
+): { ok: true; text: string } | { ok: false; path: string } {
+  if (!turn || turn.length === 0) return { ok: false, path: "turn" };
+  const actor = { kind: "companion", id: companionId } as const;
+  const lines: string[] = [];
+  for (const [n, body] of turn.entries()) {
+    const stamp = {
+      id: `${actionId}.${n}`,
+      actor,
+      source: "ai",
+      commit: "declared",
+    } as const;
+    const stamped = stampIntent(body, stamp);
+    if (!stamped.ok) return { ok: false, path: `turn.${n}.${stamped.path}` };
+    const text = toText(stamped.intent);
+    const again = parse(text, stamp);
+    if (
+      !again.ok ||
+      JSON.stringify(again.intent) !== JSON.stringify(stamped.intent)
+    ) {
+      return { ok: false, path: `turn.${n}.round-trip` };
+    }
+    lines.push(text);
+  }
+  const text = lines.join("\n");
+  return text.length > ACT_TEXT_MAX
+    ? { ok: false, path: "turn.length" }
+    : { ok: true, text };
+}
+
 export async function runCompanionJob(
   deps: CompanionDeps,
   job: { id: string; input: CompanionJobInput },
@@ -236,7 +279,7 @@ export async function runCompanionJob(
     ) {
       // The active companion must still advance the turn, and an open action
       // must still get its default decision (FR-012).
-      output = { say: null, comment: null, act: null, pending: [] };
+      output = { say: null, comment: null, act: null, pending: [], turn: null };
       if (!(active && turnMode)) playStatus = "invalid-output";
     } else {
       plays.push({
@@ -262,16 +305,27 @@ export async function runCompanionJob(
 
     // The active companion in turn mode MUST act and commit. With an open
     // action of its own it commits that action instead (FR-014).
-    if (
-      active &&
-      turnMode &&
-      ownOpen.length === 0 &&
-      (output.act === null || !output.act.commit)
-    ) {
-      output = {
-        ...output,
-        act: { text: output.act?.text ?? HOLD_ACT_TEXT, commit: true },
-      };
+    if (active && turnMode && ownOpen.length === 0) {
+      // Spec 107 D5: the typed `turn` becomes slash lines; a bad turn takes the hold act.
+      const declared = turnText(
+        output.turn,
+        companionId,
+        nextActionId(projections, companionId),
+      );
+      if (declared.ok) {
+        output = { ...output, act: { text: declared.text, commit: true } };
+      } else {
+        // A null turn (even with an `act`) holds silently otherwise; log it so a playtest sees it.
+        deps.log({
+          event: "dm.companion.turn-invalid",
+          jobId: job.id,
+          companionId,
+          ...(output.turn === null
+            ? { reason: "missing-turn" }
+            : { path: declared.path }),
+        });
+        output = { ...output, act: { text: HOLD_ACT_TEXT, commit: true } };
+      }
     }
 
     const submissions: CompanionSubmission[] = [];

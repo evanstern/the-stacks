@@ -6,6 +6,7 @@ import { beforeEach } from "vitest";
 import { createDmEnqueuer } from "../../src/dm/enqueue.js";
 import type { Nodes } from "../../src/dm/pipeline/runner.js";
 import { loadSeed } from "../../src/dm/seed/load.js";
+import type { SceneSeed } from "../../src/dm/seed/schema.js";
 import { createDmWorker, type DmWorkerDeps } from "../../src/dm/worker.js";
 import type { PresenceReader } from "../../src/presence/index.js";
 import { db, requireDb, type World } from "./world.js";
@@ -32,6 +33,8 @@ export function workerFor(
     floorAbsenceWaitMs?: number;
     floorStallWindowMs?: number;
     gateway?: DmWorkerDeps["gateway"];
+    /** A seed not in the seeds directory (fixture seeds): spec 107 Phase 4. */
+    loadSeed?: (seedId: string) => SceneSeed;
     heartbeatMs?: number;
     log?: (line: Record<string, unknown>) => void;
   } = {},
@@ -49,7 +52,7 @@ export function workerFor(
       opts.talkQuietMs === undefined
         ? undefined
         : () => opts.talkQuietMs as number,
-    loadSeed: (id) => loadSeed(id),
+    loadSeed: opts.loadSeed ?? ((id) => loadSeed(id)),
     presence: opts.presence,
     floorAbsenceWaitMs: opts.floorAbsenceWaitMs,
     floorStallWindowMs: opts.floorStallWindowMs,
@@ -70,6 +73,7 @@ export function workerFor(
         throw new Error("no retrieval in this test");
       }),
     nodes: opts.nodes,
+    loadSeed: opts.loadSeed,
     loadProjections: base.loadProjections,
     minSimilarity: 0.3,
     presence: opts.presence,

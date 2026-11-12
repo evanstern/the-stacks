@@ -61,11 +61,9 @@
         "value": {
           "say": null,
           "comment": null,
-          "act": {
-            "text": "Odo shuffles closer to the fire and raises his mace.",
-            "commit": true
-          },
-          "pending": []
+          "act": null,
+          "pending": [],
+          "turn": null
         }
       },
       "note": "Pip's (Odo's) turn"
@@ -97,88 +95,12 @@
       "note": "Odo's committed action"
     },
     {
-      "purpose": "dm.interpret",
-      "respond": {
-        "type": "json",
-        "value": {
-          "readings": [
-            {
-              "actionId": "act-odo-1",
-              "stages": [],
-              "clarify": null,
-              "followUps": []
-            }
-          ]
-        }
-      },
-      "note": "Odo's move needs no roll"
-    },
-    {
       "purpose": "dm.narrate",
       "note": "Odo's move",
       "respond": {
         "type": "text",
         "value": "Brother Odo edges toward the smoky fire, mace raised, and the goblins hiss in answer."
       }
-    },
-    {
-      "purpose": "dm.director",
-      "respond": {
-        "type": "json",
-        "value": {
-          "beat": {
-            "decision": "resolve"
-          },
-          "tableMode": {
-            "to": "stay"
-          },
-          "trackers": [],
-          "scene": {
-            "status": "continue"
-          },
-          "pacing": {
-            "tension": "high",
-            "spotlight": null,
-            "beatId": "reed-camp"
-          },
-          "goalNote": "Snag swings at the nearest foe.",
-          "companionPrompts": []
-        }
-      },
-      "note": "Snag's turn"
-    },
-    {
-      "purpose": "dm.interpret",
-      "respond": {
-        "type": "json",
-        "value": {
-          "readings": [
-            {
-              "actionId": null,
-              "stages": [
-                {
-                  "intent": {
-                    "kind": "attack",
-                    "targets": [
-                      {
-                        "kind": "actor",
-                        "id": "tamsin"
-                      }
-                    ],
-                    "params": {
-                      "weapon": "Scimitar"
-                    }
-                  },
-                  "beside": null
-                }
-              ],
-              "clarify": null,
-              "followUps": []
-            }
-          ]
-        }
-      },
-      "note": "NPC reading: actionId null"
     },
     {
       "purpose": "dm.narrate",
