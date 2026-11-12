@@ -107,21 +107,25 @@ test("proposals reach the DM only", () => {
   assert.equal(vm(f.events, f.viewers.dm, [proposal]).proposals.length, 1);
 });
 
-test("composer: players with a character may declare; the DM may not", () => {
+test("composer: speakers are the viewer's characters then out of character; no party entry", () => {
   const f = turnModeCombat;
   const player = vm(f.events, f.viewers.players[0]).composer;
-  assert.equal(player.actionAvailable, true);
   assert.deepEqual(
-    player.characters.map((c) => c.characterId),
-    ["ana"],
+    player.speakers.map((s) => [s.id, s.ooc]),
+    [
+      ["ana", false],
+      [null, true],
+    ],
   );
+  assert.ok(player.speakers.every((s) => !/party/i.test(s.label)));
+  assert.equal(player.canSend, true);
   const dm = vm(f.events, f.viewers.dm).composer;
-  assert.equal(dm.actionAvailable, false);
-  assert.ok(dm.actionHint);
-  assert.equal(
-    vm(f.events, f.viewers.players[1]).composer.actionAvailable,
-    false,
-  );
+  assert.equal(dm.dm, true);
+  assert.equal(dm.speakers[0].label, "DM");
+  const noChar = vm(f.events, f.viewers.players[1]).composer;
+  assert.equal(noChar.canSend, false);
+  assert.ok(noChar.hint);
+  assert.equal(player.mentions[0].token, "@dm");
 });
 
 test("action cards carry labels, comments and commit authority", () => {
@@ -133,7 +137,6 @@ test("action cards carry labels, comments and commit authority", () => {
   const card = ana.transcript.find((i) => i.kind === "action").card;
   assert.equal(card.characterLabel, "Ana");
   assert.equal(card.actorLabel, "You");
-  assert.equal(card.comments[0].actorLabel, "Bram");
   assert.deepEqual(card.commit, { canCommit: true, authority: "declarer" });
   const other = vm(
     f.events.filter((e) => e.seq <= 7),
@@ -206,27 +209,6 @@ test("a 1,000-event talk log projects and maps in under 50 ms", () => {
   }
   assert.equal(out.transcript.length, 1000);
   assert.ok(ms < 50, `took ${ms.toFixed(1)} ms`);
-});
-
-test("sign-off rows ride open party cards only", () => {
-  const [ana, cleo] = groupSignoff.viewers.players;
-  const open = groupSignoff.events.filter((e) => e.seq <= 5);
-  const card = (events, viewer, present) =>
-    toTableViewModel(project(events, viewer), {
-      actor: viewer.userId,
-      proposals: [],
-      present,
-    }).transcript.find((i) => i.kind === "action").card;
-  const c = card(open, cleo, [ana.userId, cleo.userId]);
-  assert.deepEqual(
-    c.signoff.map((r) => [r.userId, r.state, r.isViewer]),
-    [
-      [ana.userId, "approved", false],
-      [cleo.userId, "objects", true],
-    ],
-  );
-  const closed = card(groupSignoff.events, cleo, null);
-  assert.equal(closed.signoff, null);
 });
 
 // ---- spec 049: floor passing ----
@@ -355,48 +337,141 @@ test("floor transcript lines: Your turn, a name, the DM floor; none for free mod
   assert.equal(combat.length, 2, "the free-mode change adds no line");
 });
 
-test("card flags: commitsOnOwnTurn and suggest", () => {
+test("no player Commit in turn mode; the DM keeps it (FR-023)", () => {
   const events = turnFloor.events.filter((e) => e.seq <= 13);
-  const declare = (actor, actionId, characterId, text) => ({
+  const declare = (actor, actionId, characterId) => ({
     sessionId: events[0].sessionId,
-    seq: events.length + 1 + (actionId === "act-b" ? 1 : 0),
+    seq: events.length + 1,
     actor,
     type: "action.declared",
-    payload: { actionId, characterId, scope: "character", text },
+    payload: {
+      actionId,
+      characterId,
+      scope: "character",
+      text: "Ana charges.",
+    },
     payloadVersion: 1,
     visibility: "public",
     ts: "2026-10-27T12:00:00.000Z",
   });
-  const log = [
-    ...events,
-    declare(BRAM, "act-b", "bram", "Bram readies his bow."),
-  ];
+  const log = [...events, declare(ANA, "act-a", "ana")];
   const cardFor = (viewer) =>
     vm(log, viewer).transcript.find((i) => i.kind === "action").card;
-  // Bram's own open action while Ana is active: waits for his turn.
-  const own = cardFor(tfBram);
-  assert.equal(own.commitsOnOwnTurn, true);
-  assert.equal(own.suggest, false);
-  // Ana is active; Bram's card is not hers to suggest on, and not hers to wait on.
-  const active = cardFor(tfAna);
-  assert.equal(active.commitsOnOwnTurn, false);
-  assert.equal(active.suggest, false);
-  // The DM sees neither.
-  const dm = cardFor(turnFloor.viewers.dm);
-  assert.equal(dm.commitsOnOwnTurn, false);
-  assert.equal(dm.suggest, false);
-  // Ana declares on her own turn: Bram may suggest an alternative.
-  const anaLog = [...events, declare(ANA, "act-a", "ana", "Ana charges.")];
-  const forBram = vm(anaLog, tfBram).transcript.find(
-    (i) => i.kind === "action",
-  ).card;
-  assert.equal(forBram.suggest, true);
-  assert.equal(forBram.commitsOnOwnTurn, false);
-  const forAna = vm(anaLog, tfAna).transcript.find(
-    (i) => i.kind === "action",
-  ).card;
-  assert.equal(forAna.suggest, false);
-  assert.equal(forAna.commitsOnOwnTurn, false);
+  assert.equal(cardFor(tfAna).commit.canCommit, false);
+  assert.equal(cardFor(tfBram).commit.canCommit, false);
+  assert.deepEqual(cardFor(turnFloor.viewers.dm).commit, {
+    canCommit: true,
+    authority: "dm",
+  });
+  assert.equal(vm(log, tfAna).composer.active, true);
+  assert.equal(vm(log, tfBram).composer.active, false);
+  assert.equal(vm(log, tfAna).composer.mode, "turn");
+});
+
+// ---- spec 105: the confirm row ----
+
+import { oneChatStream } from "@the-stacks/session-model/fixtures";
+
+const [ocsAna, ocsBram] = oneChatStream.viewers.players;
+// The fixture carries no party rows: two prepended rows make Ana and Bram human-controlled.
+const partyRow = (seq, id, name, userId) => ({
+  ...oneChatStream.events[0],
+  seq,
+  actor: "ai:dm",
+  type: "party.member.changed",
+  payload: {
+    reason: `${name} joins`,
+    characterId: id,
+    before: null,
+    after: {
+      characterId: id,
+      name,
+      controller: { kind: "player", userId },
+      combatantId: id,
+    },
+  },
+});
+const ocs = (through, viewer) =>
+  vm(
+    [
+      partyRow(1, "ana", "Ana", ANA),
+      partyRow(2, "bram", "Bram", BRAM),
+      ...oneChatStream.events
+        .filter((e) => e.seq <= through)
+        .map((e) => ({ ...e, seq: e.seq + 2 })),
+    ],
+    viewer,
+  );
+const confirms = (m) => m.transcript.filter((i) => i.kind === "confirm");
+
+test("confirm row: the item's controller can accept; others wait on her", () => {
+  const forAna = confirms(ocs(5, ocsAna))[0].confirm.lines[0];
+  assert.equal(forAna.state, "live");
+  assert.equal(forAna.canAccept, true);
+  assert.equal(forAna.waitingOn, null);
+  assert.equal(forAna.kindLabel, "Hide");
+  const forBram = confirms(ocs(5, ocsBram))[0].confirm.lines[0];
+  assert.equal(forBram.canAccept, false);
+  assert.equal(forBram.waitingOn, "Ana");
+});
+
+test("confirm row: a later confirm supersedes, and a party item waits on the party", () => {
+  const m = ocs(8, ocsBram);
+  const [first, second] = confirms(m);
+  assert.equal(first.confirm.lines[0].state, "stale");
+  assert.equal(first.confirm.lines[0].waitingOn, null);
+  assert.equal(second.confirm.lines[0].state, "live");
+  assert.equal(second.confirm.lines[0].canAccept, true);
+  const dm = confirms(ocs(8, oneChatStream.viewers.dm))[1].confirm.lines[0];
+  assert.equal(dm.canAccept, false);
+  assert.equal(dm.waitingOn, "the party");
+});
+
+test("confirm row: an intent.recorded row reads Confirmed", () => {
+  const line = confirms(ocs(9, ocsAna))[1].confirm.lines[0];
+  assert.equal(line.state, "confirmed");
+  assert.equal(line.waitingOn, null);
+});
+
+test("the DM aside and the ask_dm line are separate items", () => {
+  const m = ocs(13, ocsBram);
+  assert.ok(m.transcript.some((i) => i.kind === "aside"));
+  const ask = m.transcript.find((i) => i.kind === "talk" && i.askDm);
+  assert.ok(ask);
+  assert.ok(
+    !m.transcript.some((i) => i.kind === "talk" && i.actorLabel === "DM"),
+  );
+});
+
+test("a human DM sees Confirm as action on a say and Confirm on a declared Intent", () => {
+  const seat = {
+    ...oneChatStream.events[0],
+    seq: 1,
+    actor: fixtureIds.dmUserId,
+    type: "dm.seat.changed",
+    payload: {
+      reason: "A human takes the DM seat",
+      before: { kind: "ai" },
+      after: { kind: "human", userId: fixtureIds.dmUserId },
+    },
+  };
+  const log = [
+    seat,
+    ...oneChatStream.events
+      .filter((e) => e.seq <= 5)
+      .map((e) => ({ ...e, seq: e.seq + 1 })),
+  ];
+  const m = vm(log, oneChatStream.viewers.dm);
+  assert.equal(m.transcript.find((i) => i.kind === "talk").confirmable, true);
+  const hide = m.transcript.find((i) => i.kind === "intent");
+  assert.equal(hide.declaredIntent.kind, "hide");
+  // A player never sees either control.
+  const p = vm(log, ocsAna);
+  assert.equal(p.transcript.find((i) => i.kind === "talk").confirmable, false);
+  assert.equal(
+    p.transcript.find((i) => i.kind === "intent").declaredIntent,
+    null,
+  );
 });
 
 test("sceneChange: a DM viewer sees P3 pending; a player viewer gets null", async () => {

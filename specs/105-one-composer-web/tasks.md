@@ -17,14 +17,14 @@
 
 ## Phase 2: Pure modules — send router, ring, view model (FR-001, FR-015, FR-022 to FR-025, card AC #1)
 
-- [ ] T009 Create `apps/web/app/play/send.ts` with `routeSend(text, ctx)`: parse, then `intent`, `declare-commit` or `refused` (plan D2).
-- [ ] T010 Create `apps/web/test/play/send.test.mjs`: active prose yields declare then commit; active slash yields `confirmed`; non-active prose yields `say` at `confirmed`; free mode yields `declared`; `((` and `/ooc` yield `ooc`; `@dm` yields `ask_dm`; a bad slash yields `refused` (card AC #1).
-- [ ] T011 Create `apps/web/app/play/read-ring.ts` with `readIndicator(p, viewer, nowMs)` over `readablePosts`, `RING_BLANK_MS` and `READ_QUIET_MS` (FR-024, FR-025).
-- [ ] T012 Create `apps/web/test/play/read-ring.test.mjs`: blank under 2 s; 5 of 8 at 5 s; clamp; hidden in turn mode, under a human seat and for a DM viewer; Thinking ends on an `ai:dm` row, a readable post or 30 s (card AC #1).
-- [ ] T013 In `apps/web/app/play/view-model.ts`, add the `confirm` and `aside` transcript items, `askDm` and `confirmable` on talk, `declaredIntent` on Intent lines, and `ConfirmView` per C-6 (plan D3).
-- [ ] T014 In `view-model.ts`, reshape `ComposerView` (`speakers`, `mentions`, `mode`, `active`). Remove `signoff`, `suggest`, `comments` and `commitsOnOwnTurn` from `ActionCardView`. The active player's `commit.canCommit` is false in turn mode; the DM's stays (FR-023).
-- [ ] T015 Delete `apps/web/app/play/signoff.ts` and `apps/web/test/play/signoff.test.mjs`.
-- [ ] T016 Amend `apps/web/test/play/view-model.test.mjs`: confirm states (live, stale → "Superseded", confirmed), "Waiting on <name>", "Waiting on the party", no "The party" speaker, no player Commit in turn mode.
+- [x] T009 Create `apps/web/app/play/send.ts` with `routeSend(text, ctx)`: parse, then `intent`, `declare-commit` or `refused` (plan D2).
+- [x] T010 Create `apps/web/test/play/send.test.mjs`: active prose yields declare then commit; active slash yields `confirmed`; non-active prose yields `say` at `confirmed`; free mode yields `declared`; `((` and `/ooc` yield `ooc`; `@dm` yields `ask_dm`; a bad slash yields `refused` (card AC #1).
+- [x] T011 Create `apps/web/app/play/read-ring.ts` with `readIndicator(p, viewer, nowMs)` over `readablePosts`, `RING_BLANK_MS` and `READ_QUIET_MS` (FR-024, FR-025).
+- [x] T012 Create `apps/web/test/play/read-ring.test.mjs`: blank under 2 s; 5 of 8 at 5 s; clamp; hidden in turn mode, under a human seat and for a DM viewer; Thinking ends on an `ai:dm` row, a readable post or 30 s (card AC #1).
+- [x] T013 In `apps/web/app/play/view-model.ts`, add the `confirm` and `aside` transcript items, `askDm` and `confirmable` on talk, `declaredIntent` on Intent lines, and `ConfirmView` per C-6 (plan D3).
+- [x] T014 In `view-model.ts`, reshape `ComposerView` (`speakers`, `mentions`, `mode`, `active`). Remove `signoff`, `suggest`, `comments` and `commitsOnOwnTurn` from `ActionCardView`. The active player's `commit.canCommit` is false in turn mode; the DM's stays (FR-023).
+- [x] T015 Delete `apps/web/app/play/signoff.ts` and `apps/web/test/play/signoff.test.mjs`.
+- [x] T016 Amend `apps/web/test/play/view-model.test.mjs`: confirm states (live, stale → "Superseded", confirmed), "Waiting on <name>", "Waiting on the party", no "The party" speaker, no player Commit in turn mode.
 - [ ] T017 Run `pnpm --filter @the-stacks/web test` and `pnpm --filter @the-stacks/web typecheck`.
 
 ## Phase 3: Components and wiring (FR-001 to FR-005, FR-015, FR-017, FR-019, FR-026, card AC #2)
