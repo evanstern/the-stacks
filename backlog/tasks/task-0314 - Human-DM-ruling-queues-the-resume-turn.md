@@ -1,9 +1,10 @@
 ---
 id: TASK-0314
 title: Human DM ruling queues the resume turn
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-11-12T01:14:00Z'
+updated_date: '2026-11-12T03:02:00Z'
 labels:
   - ws:intent
   - replan-2026-11
@@ -31,3 +32,9 @@ Found in TASK-0269 (PR #168). When a human DM answers an open needs_ruling reque
 - [ ] #1 All tests and checks run green
 - [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Claimed 2026-11-11 by the R1 sweep (docs/design/r1-fast-table-runbook.md). Worktree .worktrees/task-0314, branch task-0314-ruling-resume, cut from origin/main c3eb7cf8. No spec dir: signed escape line covers this task.
+<!-- SECTION:NOTES:END -->
