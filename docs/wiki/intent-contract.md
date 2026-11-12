@@ -12,7 +12,7 @@ sources:
   - packages/intent/src/text/parse.ts
   - packages/intent/src/text/to-text.ts
   - packages/intent/src/text/tokens.ts
-verified_against: 4f0383cb9c20dfb8dbcbb561ed416616d5fbaae9
+verified_against: 17849584ad75728e4df27bee4a34d3e35cb86229
 ---
 
 # Intent contract
@@ -21,6 +21,7 @@ verified_against: 4f0383cb9c20dfb8dbcbb561ed416616d5fbaae9
 
 - **Pure.** Runtime dependency is `zod` only. A biome override on `packages/intent/src/**` forbids node modules, workspace packages, clock and network globals ([[monorepo-and-toolchain]]; fixture-backed by [[ci-pipeline]]).
 - **Shape.** `IntentSchema` is a discriminated union over `kind` (57 kinds, 13 groups, `INTENT_KINDS`/`INTENT_GROUPS`). The envelope carries `id`, `actor`, `source`, `commit` and channel; every object is strict. The schema checks shape only; seats are checked by the gate through the single `KIND_RULES` table.
+- **Producers.** The DM interpret node (spec 104, TASK-0269) emits 18 of the kinds (`INTERPRET_KINDS` in `apps/server/src/dm/nodes/schemas.ts`) as a body with no id, actor, source, commit or `dc` (`IntentBodySchema`, built from `KIND_RULES` and `paramsSchemaOf`); server code stamps the envelope and re-validates it with `IntentSchema`. A slash item is parsed with `parse`; `toText` renders the reason on each submission. See [[dm-runtime]].
 - **Refusals.** `IntentRefusalCodeSchema` lists the closed refusal codes (for example `INTENT_SCHEMA` for an unknown kind, `PARSE_UNKNOWN_VERB`, `PARSE_BAD_TARGET`). A consumer that meets an unknown `kind` renders its `text` and the gate refuses it.
 - **Text form.** `toText(intent)` is total and emits only canonical forms; `parse(text, ctx)` is total up to 4000 characters and returns a refusal, never a throw, with no model call and no I/O. `parse(toText(i), ctxOf(i))` deep-equals the schema-parsed `i`, and `toText` is idempotent (seeded property tests in `packages/intent/test`). Sigils: `@` actor, `&` entity, `$` item, `#` zone, `sq:`, `pt:`.
 - **v1.1 additions** (contract 8.2.1): explicit speech verbs `/say /to /ask /ooc /npc`; `text="…"` and `reason="…"` keys; quoted `@"dm"` is the literal id, bare `@dm` the seat; bare `party` in `/reveal to=` is the keyword, quoted `"party"` a pc id; trailing `ability=`; leading `dc= diff= text= reason=` keys on `/rule amend`.

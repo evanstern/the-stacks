@@ -22,7 +22,7 @@ sources:
   - apps/server/src/session/events.ts
   - apps/server/src/session/projections.ts
 size_budget_exempt: spec 102 adds the intent kind paragraph to the one session-model note; it does not split without a TASK of its own
-verified_against: bfb65a157559c88bf988a6c0f55b7c03824ff412
+verified_against: 17849584ad75728e4df27bee4a34d3e35cb86229
 ---
 
 # Session model
@@ -94,7 +94,7 @@ transitions, `before` mismatches, engine rejections and incomplete batches.
 `src/gate/` is the pure decision core: `checkPermission`, `commitAuthority`, `signoffState`
 (the group sign-off rule over public projections; see [[proposal-gate]]), the turn rules in `gate/turn.ts` ([[turn-floor]]), `routeProposal`
 with `DEFAULT_POLICIES` and `effectivePolicy`, and `planProposal` / `mechanicsRows` (`gate/rows.ts`; the `end` rows live in `gate/floor-end.ts`; turn a
-proposal into catalog rows, or a refusal, using the engine; refuses `CHARACTER_UNABLE` for a downed or absent declarer; the `scene-presence` kind plans the change row plus an engine `combatant.depart`, `combatant.side` `neutral` (a yielding hostile) or `initiative.join` (spec 099). `planProposal` also runs the fog rule ([[zone-fog]]). Spec 102: the `intent` kind plans through `planIntent` (`gate/intents.ts`, `buildPlanState` in `gate/plan-state.ts` from `PlannerInputs`), `action.declare` through `declareIntent`; the `intent.recorded` v1 event (`events/intents.ts`) is the carrier, folded into `SessionProjections.intents` (`IntentView[]`) and read by `openRulings`. The package now depends on `@the-stacks/intent` and `@the-stacks/planner` (spec 102 OQ-1). All are exported from the package
+proposal into catalog rows, or a refusal, using the engine; refuses `CHARACTER_UNABLE` for a downed or absent declarer; the `scene-presence` kind plans the change row plus an engine `combatant.depart`, `combatant.side` `neutral` (a yielding hostile) or `initiative.join` (spec 099). `planProposal` also runs the fog rule ([[zone-fog]]). Spec 102: the `intent` kind plans through `planIntent` (`gate/intents.ts`, `buildPlanState` in `gate/plan-state.ts` from `PlannerInputs`), `action.declare` through `declareIntent`; the `intent.recorded` v1 event (`events/intents.ts`) is the carrier, folded into `SessionProjections.intents` (`IntentView[]`; spec 104 adds `batchIds`: every engine batch a carrier row for that Intent id named, and a `ruling` carrier's batch counts toward the Intent it answers) and read by `openRulings`. The package now depends on `@the-stacks/intent` and `@the-stacks/planner` (spec 102 OQ-1). All are exported from the package
 index. Kinds, policies, authority and the server wrapper: [[proposal-gate]].
 
 ## Fixtures contract

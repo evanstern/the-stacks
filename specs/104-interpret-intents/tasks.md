@@ -55,6 +55,6 @@ Do not delete resolve's step paths, the adjudicate node or the gathering block: 
 
 ## Phase 6: Wiki
 
-- [ ] T034 NEEDS-REVIEW, amend prose then re-pin: `dm-runtime`, `dm-plan-gate`, `dm-failure-and-gates`, `proposal-gate`, `session-model`, `intent-contract`, `planner`, `dm-narration-quality`. Re-pin `ws-protocol` only if its sources moved (no frame change).
-- [ ] T035 Update `docs/wiki/INDEX.md` state line and `CAPSULES.md` one-liners for the changed notes.
-- [ ] T036 Run the freshness gate until it prints `OK`. Run the spec-bridge check until it exits 0.
+- [x] T034 NEEDS-REVIEW, amend prose then re-pin: `dm-runtime`, `dm-plan-gate`, `dm-failure-and-gates`, `proposal-gate`, `session-model`, `intent-contract`, `planner`, `dm-narration-quality`. Re-pin `ws-protocol` only if its sources moved (no frame change).
+- [x] T035 Update `docs/wiki/INDEX.md` state line and `CAPSULES.md` one-liners for the changed notes.
+- [x] T036 Run the freshness gate until it prints `OK`. Run the spec-bridge check until it exits 0.
