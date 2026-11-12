@@ -4,6 +4,7 @@ title: 'Revisit: stakes on Intents'
 status: To Do
 assignee: []
 created_date: '2026-11-11T19:51:00Z'
+updated_date: '2026-11-12T18:22:00Z'
 labels:
   - ws:intent
   - replan-2026-11
@@ -30,3 +31,9 @@ Spec 097 OQ-5 and spec 104 OQ-6: band effects and the free retry (autoSuccess) r
 - [ ] #1 All tests and checks run green
 - [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Spec 107 OQ-3 (operator 'Accept all', 2026-11-12): companion acts in free mode stay prose plus interpret, because check stakes still need the beside fields the model writes. Stakes on Intents would let those acts skip interpret too.
+<!-- SECTION:NOTES:END -->
