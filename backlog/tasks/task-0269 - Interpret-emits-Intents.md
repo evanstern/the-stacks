@@ -80,4 +80,6 @@ Phases 3-5 done (a657c769 gate amendment, 72d7a388, 0e705bb3, 17667717 green). O
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
 Phase 6 wiki (b6f9dbc0): 26 notes re-pinned after prose review.
+
+AC #2 (>= 99% attempt-1 schema-valid on the playtest corpus) is hosted; it ticks at CP-7. CI proxy SC-002 passes.
 <!-- SECTION:NOTES:END -->
