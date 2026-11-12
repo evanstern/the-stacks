@@ -4,7 +4,7 @@ title: 'Build: one composer, one Send, Enter commits in combat — web (spec 066
 status: In Progress
 assignee: []
 created_date: '2026-11-12T03:01:00Z'
-updated_date: '2026-11-12T06:25:00Z'
+updated_date: '2026-11-12T06:26:00Z'
 labels:
   - web
   - ws:table-ux
@@ -25,7 +25,7 @@ Spec: specs/105-one-composer-web
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 In combat, no quiet ring runs; the active player's Enter commits the Intent, with a test.
+- [x] #1 In combat, no quiet ring runs; the active player's Enter commits the Intent, with a test.
 - [ ] #2 The play route has one composer and one Send button, verified live in Brave.
 - [ ] #3 Spec phase: Sources, frames and labels (FR-003, FR-005, FR-W1)
 - [ ] #4 Spec phase: Pure modules — send router, ring, view model (FR-001, FR-015, FR-022 to FR-025, card AC #1)
