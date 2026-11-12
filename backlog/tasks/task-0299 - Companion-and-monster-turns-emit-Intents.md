@@ -62,6 +62,8 @@ Phases 1-2 (e29142ea, a74b03fc): ci:check exit 0 on each commit; full server sui
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
 Phases 3-5 plus a missing-turn log fix (7f65fa7d, 8854bbfa, a13be04e, ad13f3d4). 4v4 bench: 'ai-round 4v4 ms=874 budget=60000ms OK model-calls: companion=3 director=4 narrate=8 interpret=0'. Negative proof with BUDGET_MS=1 fails. Gap: monster move-then-attack is covered by unit tests only, because every seed monster has a ranged attack; carded.
+
+spec-bridge sync: Monster turns emit Intents in code (AC #2, AC #3 monster half): 10/10 · Companion turns emit Intents (AC #1, card note): 12/12 · AI-actor parity tests (AC #3): 6/6 · 4v4 round under 60 s (AC #4): 4/4 · Wiki re-ground: 4/4 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
