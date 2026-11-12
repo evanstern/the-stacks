@@ -4,7 +4,7 @@ title: Companion and monster turns emit Intents
 status: In Progress
 assignee: []
 created_date: 2026-11-08 19:56
-updated_date: '2026-11-12T18:22:00Z'
+updated_date: '2026-11-12T18:56:00Z'
 labels:
   - ws:intent
   - replan-2026-11
@@ -56,4 +56,7 @@ Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5
 Spec 107 (98014bc2): 36 tasks, 5 phases, no split, no C-GATE or C-CON. Monster turns are code-only (monster-policy.ts plus a stay-put code Director); companions get a typed 'turn' field, which skips interpret. Awaiting the operator's call on the play-behavior OQs (OQ-3, OQ-7, OQ-8) before implementation.
 
 Operator ruling 2026-11-12 (in chat): "Accept all". This approves the spec 107 design (code-only monster turns; a typed companion turn field) and OQ-1..OQ-8 as recommended. OQ-3 extends TASK-0313. OQ-5 and OQ-7 are carded.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
+Phases 1-2 (e29142ea, a74b03fc): ci:check exit 0 on each commit; full server suite REQUIRE_DATABASE=1: 1862 passed. Measured model calls: a monster turn makes 1 (narrate); a companion's own turn makes 2 (companion, narrate), down from 3 plus Director.
 <!-- SECTION:NOTES:END -->
