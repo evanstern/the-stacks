@@ -55,6 +55,8 @@ Phases 1-2 (45ecfe33, a87b1c0f). Local p95: attack 18.0 ms, check 31.5 ms, again
 Follow-up (d1c7fad9, c6a526d0): reporters ['default'] in vitest.timing.config.ts, so a plain check:timing and ci:check print 'latency gate: PASS' with p95 attack 17.2 ms and check 30.0 ms.
 
 spec-bridge sync: The latency gate (AC #1, AC #2, AC #3): 5/5 · Wiki re-ground: 2/2 — status In Progress → Done
+
+CI run on PR #172 printed: latency attack p95=23.8 ms, check p95=39.4 ms, budget=1000ms OK; latency gate: PASS.
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
