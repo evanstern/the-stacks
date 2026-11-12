@@ -76,6 +76,14 @@
     },
     {
       "purpose": "dm.narrate",
+      "note": "intent turn: narrates the accepted hide",
+      "respond": {
+        "type": "text",
+        "value": "Tamsin eases behind the stacked barrels and goes still. The ford stays quiet, and nothing at the ferry-house stirs."
+      }
+    },
+    {
+      "purpose": "dm.narrate",
       "note": "react: an ask_dm answer and no other reaction",
       "respond": {
         "type": "json",

@@ -91,18 +91,21 @@ describe("shipped DM scripts (apps/server/dm-scripts)", () => {
     expect(live.calls[start.calls.length]?.purpose).toBe("dm.chronicle");
     expect(live.dice).toEqual([]);
   });
-  it("greyhollow-confirm is scene-start, a confirm read, an answer read, then chronicle (spec 066 D6)", () => {
+  it("greyhollow-confirm is scene-start, a confirm read, an intent narration, an answer read, then chronicle (spec 066 D6)", () => {
     const live = loadDmScript(read(LIVE_DIR, "greyhollow-confirm.json"));
     const confirm = loadDmScript(read(TEST_SCRIPTS, "talk-confirm.json"));
     const answer = loadDmScript(read(TEST_SCRIPTS, "talk-answer.json"));
     expect(live.calls.slice(3, 3 + confirm.calls.length)).toEqual(
       confirm.calls,
     );
+    // One plain-text narrate serves the rule 9 `intent` turn the accepted item queues.
+    const intentAt = 3 + confirm.calls.length;
+    expect(live.calls[intentAt]).toMatchObject({
+      purpose: "dm.narrate",
+      respond: { type: "text" },
+    });
     expect(
-      live.calls.slice(
-        3 + confirm.calls.length,
-        3 + confirm.calls.length + answer.calls.length,
-      ),
+      live.calls.slice(intentAt + 1, intentAt + 1 + answer.calls.length),
     ).toEqual(answer.calls);
     expect(live.calls.at(-1)?.purpose).toBe("dm.chronicle");
     expect(live.dice).toEqual([]);
