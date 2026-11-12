@@ -1,7 +1,10 @@
-import type {
-  SessionProjections,
-  StoredEvent,
-  TableMode,
+import {
+  type ReadablePost,
+  readablePosts,
+  readWindowMs,
+  type SessionProjections,
+  type StoredEvent,
+  type TableMode,
 } from "@the-stacks/session-model";
 import type { DbClient } from "../auth/session.js";
 import type { PresenceReader } from "../presence/index.js";
@@ -20,15 +23,11 @@ import {
   enqueueTurn,
   FLOOR_ABSENCE_WAIT_MS,
   FLOOR_STALL_WINDOW_MS,
+  interruptRead,
 } from "./jobs.js";
 import type { SceneSeed } from "./seed/schema.js";
 import { buildSnapshot } from "./snapshot/build.js";
-import {
-  capReached,
-  codeTriggers,
-  companionOnly,
-  isReadable,
-} from "./talk-triggers.js";
+import { capReached, codeTriggers, companionOnly } from "./talk-triggers.js";
 
 /**
  * The gate listener (contracts/turn-jobs.md "Enqueue"). Registered with
@@ -48,16 +47,23 @@ import {
  *    human, a `stall` check for each open multi-human party action (re-armed by each
  *    comment, cancelled by a commit or withdrawal). `onPresenceChange` arms `absence`
  *    when the active human just left.
- * 6. A readable in-character `talk` row (specs/065 D2) queues a coalesced `talk` turn
- *    after a quiet window. A post that names only AI companions queues a `prompt`
- *    companion job instead. A reached chain cap, or any queued turn, queues nothing new.
+ * 6. A readable post (spec 066 FR-006, `readablePosts`) first interrupts a running read that has
+ *    shipped nothing (`interruptRead`, FR-008), then queues or moves the session's coalesced `talk`
+ *    turn to the post's `ts` plus `readWindowMs` (no cap, FR-007). A post that names only AI
+ *    companions also queues a `prompt` companion job. A reached chain cap queues nothing; any other
+ *    queued turn absorbs the post.
  * 7. A `needs_ruling` `intent.recorded` row under an AI seat queues a `ruling` turn (spec 102
  *    FR-022); the turn answers every open request first.
  * 8. Rule 8 (TASK-0314, human-DM ruling resume): an `intent.recorded` carrier that answers an open
  *    request (`answers` set, a `ruling` Intent) from a non-AI actor under a human DM seat queues one
  *    `approval` turn, so the waiting action resumes. `ai:dm` rulings queue none here: their
  *    `proposal.approved` row already fires rule 2. The turn coalesces through the one-queued-turn index.
- * 9. `nudge()` wakes the worker.
+ * 9. Rule 9 (spec 066 FR-031, card AC #7): an `intent.recorded` row that settled engine rows
+ *    (`batchId` set) or stopped on a refusal, in a batch no job appended (the actor is not `ai:`,
+ *    the same test as rule 8), queues one coalesced `intent` turn that narrates it. A row that
+ *    only records speech or a declared Intent has no engine rows and queues none. A single human
+ *    ruling row fires rules 8 and 9 both; the one-queued-turn index coalesces them into one job.
+ * 10. `nudge()` wakes the worker.
  *
  * A listener failure is logged; FR-008's reconcile repairs it at next start.
  */
@@ -71,10 +77,8 @@ export interface DmEnqueuerDeps {
   reactQuietMs?: number;
   /** Cap on the wait, measured from the first reaction (ms). */
   reactMaxWaitMs?: number;
-  /** Quiet window after the latest IC post before a `talk` turn may run (ms; default 3000). */
-  talkQuietMs?: number;
-  /** Cap on the wait, measured from the first IC post (ms; default 10000). */
-  talkMaxWaitMs?: number;
+  /** The read window after a readable post (ms; default `readWindowMs` of session-model, spec 066 FR-007). */
+  readWindowMs?: (post: ReadablePost, p: SessionProjections) => number;
   /** Loads a scene seed by id for role-word triggers; absent means no seed. */
   loadSeed?: (seedId: string) => SceneSeed;
   /** Who is at the table. Floor waits arm only when given. */
@@ -238,6 +242,9 @@ export function createDmEnqueuer(deps: DmEnqueuerDeps): DmEnqueuer {
     await enqueueTurn(deps.db, sessionId, "ruling", asked.seq);
   }
 
+  /** True when a running job appended the row: the actor is an AI (rules 8 and 9 share this test). */
+  const appendedByJob = (r: StoredEvent): boolean => r.actor.startsWith("ai:");
+
   /** Rule 8 (TASK-0314): a human DM's ruling that answers an open request queues the resume turn. */
   async function humanRulingResume(
     sessionId: string,
@@ -246,7 +253,7 @@ export function createDmEnqueuer(deps: DmEnqueuerDeps): DmEnqueuer {
     const ruled = rows.find(
       (r) =>
         r.type === "intent.recorded" &&
-        !r.actor.startsWith("ai:") &&
+        !appendedByJob(r) &&
         (r.payload as { answers?: string | null }).answers != null,
     );
     if (!ruled) return;
@@ -255,15 +262,43 @@ export function createDmEnqueuer(deps: DmEnqueuerDeps): DmEnqueuer {
     await enqueueTurn(deps.db, sessionId, "approval", ruled.seq);
   }
 
-  /** Rule 6 (specs/065 D2): a readable IC post queues a talk turn or a companion prompt. */
+  /**
+   * Rule 9 (spec 066 FR-031): a direct Intent that settled engine rows or stopped queues one
+   * coalesced `intent` turn. ponytail: `settled` alone also covers speech and `ask_dm`, which write
+   * no engine rows and need no narration, so `batchId` set (or `stopped`) is the narrate-worthy test.
+   */
+  async function intentTurns(
+    sessionId: string,
+    rows: StoredEvent[],
+  ): Promise<void> {
+    const direct = rows.find((r) => {
+      if (r.type !== "intent.recorded" || appendedByJob(r)) return false;
+      const pl = r.payload as {
+        outcome?: string;
+        batchId?: string | null;
+        stopped?: unknown;
+      };
+      return (
+        (pl.outcome === "settled" && pl.batchId != null) ||
+        (pl.stopped != null && pl.stopped !== undefined)
+      );
+    });
+    if (!direct) return;
+    await enqueueTurn(deps.db, sessionId, "intent", direct.seq);
+  }
+
+  /** Rule 6 (spec 066 D3): a readable post interrupts a read, then queues or moves the talk turn. */
   async function talkReactions(
     sessionId: string,
     rows: StoredEvent[],
   ): Promise<void> {
-    const talks = rows.filter((r) => r.type === "talk");
-    if (talks.length === 0) return;
+    if (!rows.some((r) => r.type === "talk" || r.type === "intent.recorded"))
+      return;
     const p = await deps.loadProjections(sessionId);
     if (capReached(p)) return;
+    const seqs = new Set(rows.map((r) => r.seq));
+    const posts = readablePosts(p).filter((post) => seqs.has(post.seq));
+    if (posts.length === 0) return;
     let seed: SceneSeed | null = null;
     const sceneId = p.scene?.sceneId;
     if (sceneId && deps.loadSeed) {
@@ -274,11 +309,11 @@ export function createDmEnqueuer(deps: DmEnqueuerDeps): DmEnqueuer {
       }
     }
     const snapshot = buildSnapshot(p, seed);
-    for (const row of talks) {
-      if (!isReadable(row, p)) continue;
-      const text = (row.payload as { text?: string }).text ?? "";
-      const triggers = codeTriggers(text, snapshot, seed);
-      if (companionOnly(triggers)) {
+    // FR-008: a running read that has shipped nothing ends; a new read queues below.
+    await interruptRead(deps.db, sessionId);
+    for (const post of posts) {
+      const triggers = codeTriggers(post.text, snapshot, seed);
+      if (post.rule === 1 && companionOnly(triggers)) {
         const ids = triggers
           .filter((t) => t.kind === "addressed" && t.party)
           .map((t) => t.actorId);
@@ -288,12 +323,12 @@ export function createDmEnqueuer(deps: DmEnqueuerDeps): DmEnqueuer {
           reason: "prompt",
           beatJobId: null,
         });
-      } else {
-        await enqueueTalkTurn(deps.db, sessionId, row.seq, {
-          quietMs: deps.talkQuietMs ?? 3000,
-          maxWaitMs: deps.talkMaxWaitMs ?? 10000,
-        });
       }
+      const windowMs = (deps.readWindowMs ?? readWindowMs)(post, p);
+      await enqueueTalkTurn(deps.db, sessionId, post.seq, {
+        postTs: post.ts,
+        windowMs,
+      });
     }
   }
 
@@ -326,6 +361,7 @@ export function createDmEnqueuer(deps: DmEnqueuerDeps): DmEnqueuer {
         }
         await rulingTurns(sessionId, rows);
         await humanRulingResume(sessionId, rows);
+        await intentTurns(sessionId, rows);
         await talkReactions(sessionId, rows);
         for (const companionId of await reactTargets(sessionId, rows)) {
           await enqueueCompanionReact(deps.db, sessionId, companionId, {

@@ -16,24 +16,53 @@ import {
 } from "../../src/dm/talk-triggers.js";
 import { greyhollowDuo, PLAYER_USER } from "./snapshot-fixtures.js";
 
-const talk = (over: Partial<StoredEvent> = {}, channel = "ic"): StoredEvent =>
-  ({
-    sessionId: "s",
-    seq: 1,
-    actor: PLAYER_USER,
-    type: "talk",
-    payload: { text: "hi", channel, characterId: "odo" },
-    payloadVersion: 1,
-    visibility: "public",
-    ...over,
-  }) as StoredEvent;
-
+/** A free-mode AI-seat table holding one `say` Intent at seq 2 (its `talk` row is seq 1). */
 function aiFree(): SessionProjections {
   const p = emptyProjections({ role: "dm" });
   p.gate = { ...p.gate, seat: { kind: "ai" } } as typeof p.gate;
   p.tableMode = { mode: "free" };
   return p;
 }
+
+const sayIntent = (
+  p: SessionProjections,
+  kind: "say" | "ooc" | "ask_dm" | "hide",
+  over: { actor?: string; id?: string } = {},
+): SessionProjections => {
+  const seq = p.intents.length * 2 + 2;
+  const actor = over.actor ?? PLAYER_USER;
+  p.transcript.push({
+    seq: seq - 1,
+    ts: "2026-11-11T00:00:00.000Z",
+    actor,
+    visibility: "public",
+    kind: "talk",
+    text: "hi",
+    channel: kind === "ooc" || kind === "ask_dm" ? "ooc" : "ic",
+    characterId: "odo",
+  } as never);
+  p.intents.push({
+    id: over.id ?? `i-${seq}`,
+    seq,
+    ts: "2026-11-11T00:00:00.000Z",
+    actor,
+    intent: {
+      id: over.id ?? `i-${seq}`,
+      kind,
+      actor: { kind: "pc", id: "tamsin" },
+      targets: [],
+      params: {},
+      text: "hi",
+      source: "composer",
+      commit: "declared",
+    },
+    status: kind === "hide" ? "declared" : "settled",
+    request: null,
+    batchIds: [],
+    proposalId: null,
+  } as never);
+  return p;
+};
 
 const entry = (seq: number, actor: string, kind: "talk" | "narration") =>
   kind === "talk"
@@ -57,27 +86,42 @@ const entry = (seq: number, actor: string, kind: "talk" | "narration") =>
         actionIds: [],
       };
 
-describe("isReadable", () => {
-  it("accepts public IC talk by a human under an AI seat in free mode", () => {
-    expect(isReadable(talk(), aiFree())).toBe(true);
-    expect(isReadable(talk({ actor: "ai:companion:odo" }), aiFree())).toBe(
-      true,
-    );
+describe("isReadable (spec 066: delegates to readablePosts)", () => {
+  it("accepts a say Intent by a human under an AI seat in free mode", () => {
+    const p = sayIntent(aiFree(), "say");
+    expect(isReadable({ seq: 1 }, p)).toBe(true);
   });
-  it("rejects each failing condition", () => {
-    const p = aiFree();
-    expect(isReadable(talk({}, "ooc"), p)).toBe(false);
-    expect(isReadable(talk({ visibility: "whisper" }), p)).toBe(false);
-    expect(isReadable(talk({ actor: "ai:dm" }), p)).toBe(false);
-    expect(isReadable(talk({ type: "narration" }), p)).toBe(false);
-    p.tableMode = { mode: "turn" } as typeof p.tableMode;
-    expect(isReadable(talk(), p)).toBe(false);
-    const human = aiFree();
+  it("ignores ooc, a turn-mode table and a human seat", () => {
+    expect(isReadable({ seq: 1 }, sayIntent(aiFree(), "ooc"))).toBe(false);
+    const turn = sayIntent(aiFree(), "say");
+    turn.tableMode = { mode: "turn" } as typeof turn.tableMode;
+    expect(isReadable({ seq: 1 }, turn)).toBe(false);
+    const human = sayIntent(aiFree(), "say");
     human.gate = {
       ...human.gate,
       seat: { kind: "human" },
     } as typeof human.gate;
-    expect(isReadable(talk(), human)).toBe(false);
+    expect(isReadable({ seq: 1 }, human)).toBe(false);
+  });
+  it("reads an ask_dm in turn mode and a declared hide (rule 2)", () => {
+    const ask = sayIntent(aiFree(), "ask_dm");
+    ask.tableMode = { mode: "turn" } as typeof ask.tableMode;
+    expect(isReadable({ seq: 1 }, ask)).toBe(true);
+    expect(isReadable({ seq: 1 }, sayIntent(aiFree(), "hide"))).toBe(true);
+  });
+  it("a legacy companion talk row stays readable (rule 4)", () => {
+    const p = aiFree();
+    p.transcript.push({
+      seq: 1,
+      ts: "t",
+      actor: "ai:companion:odo",
+      visibility: "public",
+      kind: "talk",
+      text: "hi",
+      channel: "ic",
+      characterId: "odo",
+    } as never);
+    expect(isReadable({ seq: 1 }, p)).toBe(true);
   });
 });
 
@@ -107,9 +151,6 @@ describe("codeTriggers", () => {
     const k = kinds("Wenna, who's missing from this house?");
     expect(k).toContain("addressed:wenna");
     expect(k).toContain("overheard:pell");
-    expect(
-      needsModel(codeTriggers("Wenna, who's missing?", snap, seed), "x"),
-    ).toBe(true);
   });
   it("matches a role word as mentioned", () => {
     expect(kinds("I ask the ferry keeper for passage")).toContain(
@@ -147,15 +188,26 @@ describe("codeTriggers", () => {
   });
 });
 
-describe("needsModel", () => {
-  it("is false with no named NPC and no question mark", () => {
-    const { projections, seed } = greyhollowDuo();
-    const snap = buildSnapshot(projections, seed);
-    const text = "we should move on";
-    expect(needsModel(codeTriggers(text, snap, seed), text)).toBe(false);
-    expect(needsModel(codeTriggers("shall we?", snap, seed), "shall we?")).toBe(
-      true,
-    );
+describe("needsModel (spec 066 FR-010)", () => {
+  const post = (rule: 1 | 2 | 3 | 4, actor = PLAYER_USER) => ({
+    seq: 1,
+    ts: "t",
+    actor,
+    rule,
+    intentId: null,
+    text: "x",
+  });
+  it("calls the model for a human rule 1, 3 or 4 post", () => {
+    expect(needsModel([post(1)])).toBe(true);
+    expect(needsModel([post(3)])).toBe(true);
+    expect(needsModel([post(4)])).toBe(true);
+  });
+  it("makes no call for rule 2 posts only", () => {
+    expect(needsModel([post(2)])).toBe(false);
+    expect(needsModel([post(2), post(2)])).toBe(false);
+  });
+  it("makes no call for a companion-only read", () => {
+    expect(needsModel([post(1, "ai:companion:odo")])).toBe(false);
   });
 });
 
@@ -169,6 +221,52 @@ describe("ReactOutput", () => {
     companionPrompts: [],
     reason: "r",
   };
+  const body = { kind: "hide", targets: [], params: {} };
+  it("refines confirm and answer (spec 066)", () => {
+    const confirm = {
+      ...base,
+      outcome: "confirm",
+      text: "",
+      confirm: [{ characterId: "kestrel", text: "Kestrel hides", body }],
+    };
+    expect(ReactOutput.safeParse(confirm).success).toBe(true);
+    expect(ReactOutput.safeParse({ ...confirm, confirm: [] }).success).toBe(
+      false,
+    );
+    expect(ReactOutput.safeParse({ ...confirm, text: "x" }).success).toBe(
+      false,
+    );
+    expect(
+      ReactOutput.safeParse({ ...base, confirm: confirm.confirm }).success,
+    ).toBe(false);
+    // a null characterId is only for a party attempt
+    expect(
+      ReactOutput.safeParse({
+        ...confirm,
+        confirm: [{ characterId: null, text: "x", body }],
+      }).success,
+    ).toBe(false);
+    expect(
+      ReactOutput.safeParse({
+        ...confirm,
+        confirm: [
+          {
+            characterId: null,
+            text: "The party climbs",
+            body: {
+              kind: "attempt",
+              targets: [],
+              params: { scope: "party" },
+              text: "climb",
+            },
+          },
+        ],
+      }).success,
+    ).toBe(true);
+    expect(
+      ReactOutput.safeParse({ ...base, answer: "It is high." }).success,
+    ).toBe(true);
+  });
   it("refines each outcome", () => {
     expect(ReactOutput.safeParse(base).success).toBe(true);
     expect(ReactOutput.safeParse({ ...base, outcome: "reply" }).success).toBe(

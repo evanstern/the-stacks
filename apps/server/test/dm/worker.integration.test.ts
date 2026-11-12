@@ -4,7 +4,7 @@ import { afterAll, describe, expect, it } from "vitest";
 import { createApp } from "../../src/app.js";
 import { createSession } from "../../src/auth/session.js";
 import { createDmEnqueuer } from "../../src/dm/enqueue.js";
-import { enqueueTurn, listDmJobs } from "../../src/dm/jobs.js";
+import { enqueueTurn, interruptRead, listDmJobs } from "../../src/dm/jobs.js";
 import { listModelCalls } from "../../src/dm/model-calls.js";
 import type { Gate } from "../../src/gate/index.js";
 import { MAX_ATTEMPTS } from "../../src/jobs/queue.js";
@@ -22,6 +22,7 @@ import {
   createWorld,
   db,
   loudSkip,
+  player,
   reachable,
   readRows,
   requireDb,
@@ -310,6 +311,78 @@ describe.skipIf(!reachable)("DM worker presence marker (database)", () => {
     expect(found.map((m) => m.seq)).toContain(
       (turn?.result as { presenceSeq: number } | undefined)?.presenceSeq,
     );
+  });
+
+  it("a talk turn records a read marker; any other turn keeps director (spec 066 FR-009)", async () => {
+    const w = await createWorld({ calls: [], presence: here });
+    const { worker } = workerFor(w, { listen: false });
+    await startScene(w);
+    await enqueueTurn(requireDb(), w.sessionId, "talk", 1);
+    await worker.drain();
+    const found = await markers(w);
+    expect(found).toHaveLength(1);
+    expect(found[0]).toMatchObject({ payload: { purpose: "read" } });
+  });
+
+  it("an interrupted read writes nothing and ships nothing (spec 066 FR-008)", async () => {
+    const start = script("scene-start.json");
+    const talk = script("talk-reply.json");
+    const w = await createWorld({
+      calls: [...start.calls, chronicle, ...talk.calls],
+      presence: here,
+    });
+    const base = w.ctx().deps.gateway;
+    let armed = false;
+    const gateway = {
+      chat(req: Parameters<typeof base.chat>[0]) {
+        if (!armed) return base.chat(req);
+        armed = false;
+        // A later post lands mid-read: interruptRead rotates the claim and finishes the job.
+        return (async function* () {
+          await interruptRead(requireDb(), w.sessionId);
+          yield* base.chat(req);
+        })();
+      },
+    };
+    const { worker } = workerFor(w, { gateway, listen: false });
+    await enqueueTurn(requireDb(), w.sessionId, "scene-start", null, {
+      start: {
+        seedId: "greyhollow-ford-duo",
+        seats: {
+          tamsin: TAMSIN_USER,
+          kestrel: "00000000-0000-4000-8000-0000000000a2",
+        },
+      },
+    });
+    await drainAll(worker);
+    const said = await w.as(player, {
+      kind: "intent",
+      intent: {
+        id: "say-1",
+        kind: "say",
+        actor: { kind: "pc", id: "tamsin" },
+        text: "Wenna, who is missing from this house?",
+        source: "composer",
+        commit: "declared",
+      },
+    });
+    expect(said.ok).toBe(true);
+    const before = (await readRows(w)).length;
+    armed = true;
+    await enqueueTurn(
+      requireDb(),
+      w.sessionId,
+      "talk",
+      (await w.projections()).throughSeq,
+    );
+    await drainAll(worker);
+    const rows = (await readRows(w)).slice(before);
+    expect(rows.filter((r) => r.type !== "presence.recorded")).toEqual([]);
+    const job = (await listDmJobs(requireDb(), w.sessionId, 20, "turn")).find(
+      (j) => (j.input as { trigger: string }).trigger === "talk",
+    );
+    expect(job?.status).toBe("succeeded");
+    expect(job?.result).toMatchObject({ talk: { outcome: "interrupted" } });
   });
 
   it("records a second marker for a second turn job and writes none for companion or chronicle jobs", async () => {

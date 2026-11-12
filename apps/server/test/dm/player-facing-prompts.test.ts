@@ -11,7 +11,7 @@ import {
 import type { DirectorNodeOutput } from "../../src/dm/nodes/director.js";
 import type { ResolveOutput } from "../../src/dm/nodes/resolve.js";
 import { buildChroniclePrompt } from "../../src/dm/prompts/chronicle.js";
-import { rosterOf } from "../../src/dm/prompts/common.js";
+import { rosterOf, transcriptEntries } from "../../src/dm/prompts/common.js";
 import { buildCompanionPrompt } from "../../src/dm/prompts/companion.js";
 import { buildNarratePrompt } from "../../src/dm/prompts/narrate.js";
 import { buildReactPrompt } from "../../src/dm/prompts/react.js";
@@ -153,6 +153,7 @@ const reactInput = () => ({
   roster: rosterOf(projections.party),
   snapshot,
   posts: [],
+  humans: [],
   triggers: [],
   transcriptTail: [],
   presentNpcIds: [],
@@ -207,8 +208,10 @@ add(
     roster: rosterOf(projections.party),
   }),
 );
+// The read takes readable posts only; a DM-visibility line is never one (spec 066 FR-014).
 const reactPosts = projections.transcript.filter(
-  (e): e is Extract<typeof e, { kind: "talk" }> => e.kind === "talk",
+  (e): e is Extract<typeof e, { kind: "talk" }> =>
+    e.kind === "talk" && e.visibility === "public",
 );
 for (const reachesCap of [false, true]) {
   add(
@@ -217,7 +220,13 @@ for (const reachesCap of [false, true]) {
       seed: VIEW,
       roster: rosterOf(projections.party),
       snapshot,
-      posts: reactPosts.slice(-2),
+      posts: reactPosts.slice(-2).map((e) => ({
+        seq: e.seq,
+        speaker: "a player",
+        text: e.text,
+        rule: 1,
+      })),
+      humans: [],
       triggers: [{ kind: "addressed", actorId: "wenna", party: false }],
       transcriptTail: projections.transcript,
       presentNpcIds: ["wenna"],
@@ -314,6 +323,35 @@ describe("player-facing prompts (card AC #1)", () => {
       "## State at the end of this transcript",
     );
     expect(by("companion odo active=true")).toContain("## State");
+  });
+
+  it("a player-facing tail drops ooc talk and renders an action.suggested line (spec 066 FR-014)", () => {
+    const tail = [
+      {
+        seq: 1,
+        ts: "",
+        actor: "u",
+        visibility: "public",
+        kind: "talk",
+        text: "OOCMARK",
+        channel: "ooc",
+        characterId: null,
+      },
+      {
+        seq: 2,
+        ts: "",
+        actor: "ai:dm",
+        visibility: "public",
+        kind: "action.suggested",
+        suggestionId: "sug-1",
+        readSeq: 1,
+        items: [{ itemId: "i1", text: "Tamsin hides" }],
+      },
+    ] as never;
+    const lines = transcriptEntries(tail, rosterOf(projections.party));
+    expect(lines.join("\n")).not.toContain("OOCMARK");
+    expect(lines.join("\n")).toContain("Tamsin hides");
+    expect(transcriptEntries(tail).join("\n")).toContain("OOCMARK");
   });
 
   it("the react prompt builder takes the player view, never the full seed", () => {

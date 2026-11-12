@@ -1,0 +1,31 @@
+{
+  "v": 1,
+  "name": "talk-confirm",
+  "dice": [],
+  "calls": [
+    {
+      "purpose": "dm.narrate",
+      "note": "react: Tamsin's deed needs a confirm (hide)",
+      "respond": {
+        "type": "json",
+        "value": {
+          "outcome": "confirm",
+          "triggers": [],
+          "speaker": null,
+          "text": "",
+          "encounterId": null,
+          "companionPrompts": [],
+          "confirm": [
+            {
+              "characterId": "tamsin",
+              "text": "Tamsin slips behind the stacked barrels, quietly",
+              "body": { "kind": "hide", "targets": [], "params": {} }
+            }
+          ],
+          "answer": null,
+          "reason": "Tamsin described hiding; the outcome is uncertain."
+        }
+      }
+    }
+  ]
+}

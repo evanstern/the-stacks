@@ -168,6 +168,11 @@ export function factEntries(facts: NarrationFacts): string[] {
     for (const r of st.rolls) out.push(rollEntry(r));
     for (const c of st.changes) out.push(`  change: ${describeChange(c)}`);
   }
+  for (const st of facts.direct ?? []) {
+    out.push(`Direct action: ${st.name}`);
+    for (const r of st.rolls) out.push(rollEntry(r));
+    for (const c of st.changes) out.push(`  change: ${describeChange(c)}`);
+  }
   for (const i of facts.involuntary ?? []) {
     out.push(`Reflex: ${i.name} may ${REFLEX_PHRASE[i.trigger]} (${i.detail})`);
   }

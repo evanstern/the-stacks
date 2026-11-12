@@ -72,47 +72,48 @@ path>` for add and commit, in separate Bash calls. Serial hotspots: `gate/{propo
       over the real gate, and two concurrent accepts (one plans).
 - [x] T023 Run `pnpm ci:check`.
 
-## Phase 3: DM runtime — window, marker, interrupt, read, rule 8 (card AC #1, #2, #5, #7)
+## Phase 3: DM runtime — window, marker, interrupt, read, rule 9 (card AC #1, #2, #5, #7)
 
-- [ ] T024 Merge `origin/main` into the branch (TASK-0314 must be on it). Stop and report if it is not.
-- [ ] T025 In `apps/server/src/dm/talk-triggers.ts`, delegate `isReadable` to `readablePosts`. Make
+- [x] T024 Merge `origin/main` into the branch (TASK-0314 must be on it). Stop and report if it is not.
+      Done by the orchestrator: e0ef496a.
+- [x] T025 In `apps/server/src/dm/talk-triggers.ts`, delegate `isReadable` to `readablePosts`. Make
       `needsModel` follow spec FR-010 (no call for rule-2-only reads).
-- [ ] T026 In `dm/jobs.ts`, change `enqueueTalkTurn` to `notBefore = postTs + windowMs` with no cap.
+- [x] T026 In `dm/jobs.ts`, change `enqueueTalkTurn` to `notBefore = postTs + windowMs` with no cap.
       Old rows with `firstPostAt` still parse.
-- [ ] T027 In `dm/jobs.ts`, add `interruptRead` (plan D3). Add `intent` to `TurnTriggerSchema`.
-- [ ] T028 In `dm/enqueue.ts`, rewrite rule 6: interrupt, then queue or move the read. Replace
+- [x] T027 In `dm/jobs.ts`, add `interruptRead` (plan D3). Add `intent` to `TurnTriggerSchema`.
+- [x] T028 In `dm/enqueue.ts`, rewrite rule 6: interrupt, then queue or move the read. Replace
       `talkQuietMs` and `talkMaxWaitMs` with the `readWindowMs` seam. Update the header comment.
-- [ ] T029 In `dm/enqueue.ts`, add rule 8 beside TASK-0314's resume rule (spec FR-031): a settled or
+- [x] T029 In `dm/enqueue.ts`, add rule 9 beside TASK-0314's resume rule (spec FR-031): a settled or
       stopped carrier row in a batch no turn job appended queues a coalesced `intent` turn. Reuse
       TASK-0314's "appended by a job" test.
-- [ ] T030 In `dm/worker.ts`, record purpose `read` for a `talk` turn. Run an `intent` turn with an
+- [x] T030 In `dm/worker.ts`, record purpose `read` for a `talk` turn. Run an `intent` turn with an
       empty beat so narrate reads the carrier row through the spec 104 window.
-- [ ] T031 In `dm/nodes/schemas.ts`, add outcome `confirm`, the `confirm` items (reuse
+- [x] T031 In `dm/nodes/schemas.ts`, add outcome `confirm`, the `confirm` items (reuse
       `IntentBodySchema`) and `answer` to `ReactOutput`, with their refinements.
-- [ ] T032 In `dm/prompts/react.ts`, ship `dm.react-v4` (plan D3). In `prompts/common.ts`, drop
+- [x] T032 In `dm/prompts/react.ts`, ship `dm.react-v4` (plan D3). In `prompts/common.ts`, drop
       `ooc` talk from player-facing tails and render an `action.suggested` line.
-- [ ] T033 In `dm/talk-turn.ts`, widen the cutoff to the latest `isDmReadOutput`, build code items
+- [x] T033 In `dm/talk-turn.ts`, widen the cutoff to the latest `isDmReadOutput`, build code items
       for rule-2 posts, and stamp and validate model items (spec FR-011).
-- [ ] T034 In `dm/talk-turn.ts`, run the spec 103 narration check on each item text and the answer
+- [x] T034 In `dm/talk-turn.ts`, run the spec 103 narration check on each item text and the answer
       (FR-012). Ship answer, then confirm, then the D19 row, each fenced, with reclaim keys
       `answer:` and `confirm:`. Record `interrupted` on `SUGGESTION_STALE`. Add `confirmItems` and
       `answered` to `jobs.result.talk`.
-- [ ] T035 Create `apps/server/test/dm/scripts/talk-confirm.json`, `talk-answer.json` and
+- [x] T035 Create `apps/server/test/dm/scripts/talk-confirm.json`, `talk-answer.json` and
       `apps/server/dm-scripts/greyhollow-confirm.json` (plan D6). Extend `dm-scripts.test.ts`.
       Create `specs/066-one-chat-stream/evidence/post.mjs`.
-- [ ] T036 Amend `talk-triggers.test.ts` and `enqueue-talk.integration.test.ts`: the window, the
+- [x] T036 Amend `talk-triggers.test.ts` and `enqueue-talk.integration.test.ts`: the window, the
       move, `ooc` ignored, `ask_dm` read, turn mode and a human seat queue nothing, no cap after 12
       posts, a runner declare ignored, `interruptRead` both ways.
-- [ ] T037 Amend `talk-turn.integration.test.ts`: a model confirm, a code item for a declared Intent
+- [x] T037 Amend `talk-turn.integration.test.ts`: a model confirm, a code item for a declared Intent
       with no model call, a dropped companion or absent item, answer order, an answer leak dropped,
       a stale suggest, reclaim ships once.
-- [ ] T038 Create `apps/server/test/dm/enqueue-intent.integration.test.ts` (card AC #7): a direct
+- [x] T038 Create `apps/server/test/dm/enqueue-intent.integration.test.ts` (card AC #7): a direct
       settled Intent queues one `intent` turn that narrates its facts; a job-appended one queues
       none; a 👍 and a human ruling in one window coalesce to one queued turn.
-- [ ] T039 Amend `worker.integration.test.ts` (the `read` marker; an interrupted run writes nothing).
-- [ ] T040 Amend `react-prompt.test.ts` and `player-facing-prompts.test.ts` (`dm.react-v4`, the
+- [x] T039 Amend `worker.integration.test.ts` (the `read` marker; an interrupted run writes nothing).
+- [x] T040 Amend `react-prompt.test.ts` and `player-facing-prompts.test.ts` (`dm.react-v4`, the
       confirm and answer rules, the `ooc` filter).
-- [ ] T041 Run `pnpm ci:check`.
+- [x] T041 Run `pnpm ci:check`.
 
 ## Phase 4: Frozen-contract amendment blocks (C-GATE ruled 2026-11-11)
 
@@ -124,7 +125,7 @@ path>` for add and commit, in separate Bash calls. Serial hotspots: `gate/{propo
 ## Phase 5: Wiki — server share (NEEDS-REVIEW)
 
 - [ ] T045 Re-ground `docs/wiki/dm-talk-triggers.md`, `dm-turn-jobs.md` and `presence.md` against
-      the diff (rule 6, rule 8, the window, `interruptRead`, the `read` marker, `dm.react-v4`).
+      the diff (rule 6, rule 9, the window, `interruptRead`, the `read` marker, `dm.react-v4`).
 - [ ] T046 Re-ground `docs/wiki/proposal-gate.md`, `session-model.md` and `turn-floor.md`
       (`action.suggest`, `action.accept`, `ask_dm`, `readablePosts`, no read in turn mode). Leave
       `play-route` and `chat-ui` to TASK-0315.
@@ -137,7 +138,7 @@ path>` for add and commit, in separate Bash calls. Serial hotspots: `gate/{propo
       session-model, gate and DM DB suites with `REQUIRE_DATABASE=1` and only `TEST_DATABASE_URL`
       exported. Re-run a known flake once and report it.
 - [ ] T050 **[orchestrator]** Mutation guard (plan D5): stub `readablePosts`, `suggestionState`, the
-      accept acceptor rule, `interruptRead` and rule 8 in turn. Record the failing test count for
+      accept acceptor rule, `interruptRead` and rule 9 in turn. Record the failing test count for
       each. Restore, and confirm `git diff` is empty.
 - [ ] T051 **[orchestrator]** Script-mode server check (plan "Server check") on the debug routes.
       Commit the evidence under `specs/066-one-chat-stream/evidence/`.

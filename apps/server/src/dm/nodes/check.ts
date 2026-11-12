@@ -92,7 +92,8 @@ export const check: Node<"check"> = async (ctx) => {
     hasRoll:
       facts.actions.some((a) => a.rolls.length > 0) ||
       (facts.npcTurn?.rolls ?? []).length > 0 ||
-      (facts.pulled ?? []).some((x) => x.rolls.length > 0),
+      (facts.pulled ?? []).some((x) => x.rolls.length > 0) ||
+      (facts.direct ?? []).some((x) => x.rolls.length > 0),
     snapshot: resolved.snapshot,
     departedIds: resolved.appendedRows.flatMap((r) => {
       const pl = r.payload as { actorId?: string; after?: string };

@@ -23,7 +23,7 @@ export function workerFor(
     retrieve?: DmWorkerDeps["retrieve"];
     nodes?: Nodes;
     reactQuietMs?: number;
-    /** Talk turns (specs/065): quiet window in ms (default 3000). */
+    /** Talk turns (spec 066 FR-007): the read window in ms after a post (default 10000). */
     talkQuietMs?: number;
     /** False leaves the gate listener off, so a test queues jobs by hand. */
     listen?: boolean;
@@ -45,7 +45,10 @@ export function workerFor(
     },
     loadProjections: base.loadProjections,
     reactQuietMs: opts.reactQuietMs,
-    talkQuietMs: opts.talkQuietMs,
+    readWindowMs:
+      opts.talkQuietMs === undefined
+        ? undefined
+        : () => opts.talkQuietMs as number,
     loadSeed: (id) => loadSeed(id),
     presence: opts.presence,
     floorAbsenceWaitMs: opts.floorAbsenceWaitMs,

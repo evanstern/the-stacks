@@ -2099,6 +2099,42 @@ export async function submitNarration(
   }
 }
 
+/** One proposal a read ships, keyed for reclaim (spec 066 FR-013, T034). */
+export interface ReadShip {
+  key: string;
+  kind: ProposalKind;
+  build: (stepRef: string) => Proposal;
+}
+
+/**
+ * Submits a read's answer and confirm rows in order, each fenced and keyed for reclaim (`answer:`,
+ * `confirm:`). Lives here so every gate call stays in this module (AC #5). A gate refusal comes
+ * back as `{ ok: false }` with `error.detail.code`; the caller reads `SUGGESTION_STALE` from it.
+ */
+export async function shipReadRows(
+  ctx: TurnContext,
+  checkpoint: TurnCheckpoint,
+  rows: readonly ReadShip[],
+): Promise<
+  { ok: true; checkpoint: TurnCheckpoint } | { ok: false; error: NodeError }
+> {
+  const run = new Run({ ...ctx, checkpoint });
+  try {
+    for (const r of rows) await run.submit(r.key, r.kind, r.build);
+  } catch (error) {
+    if (error instanceof Stop) return { ok: false, error: error.error };
+    throw error;
+  }
+  return {
+    ok: true,
+    checkpoint: {
+      ...checkpoint,
+      submissions: run.submissions,
+      lastSeq: run.lastSeq,
+    },
+  };
+}
+
 /** The failure notice (FR-012): a `dm`-visibility talk row naming the node and error kind. */
 export async function submitFailureNotice(
   deps: Pick<TurnContext["deps"], "gate">,

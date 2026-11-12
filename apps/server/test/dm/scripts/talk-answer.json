@@ -1,0 +1,25 @@
+{
+  "v": 1,
+  "name": "talk-answer",
+  "dice": [],
+  "calls": [
+    {
+      "purpose": "dm.narrate",
+      "note": "react: an ask_dm answer and no other reaction",
+      "respond": {
+        "type": "json",
+        "value": {
+          "outcome": "none",
+          "triggers": [],
+          "speaker": null,
+          "text": "",
+          "encounterId": null,
+          "companionPrompts": [],
+          "confirm": [],
+          "answer": "The loft sits about a ladder's height above the door. From the doorway you can see its edge, but not what lies on it.",
+          "reason": "Tamsin asked the DM a question."
+        }
+      }
+    }
+  ]
+}

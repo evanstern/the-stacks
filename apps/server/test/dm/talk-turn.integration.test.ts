@@ -55,6 +55,8 @@ const reactCall = (value: Record<string, unknown>) => ({
       text: "Wenna nods slowly.",
       encounterId: null,
       companionPrompts: [],
+      confirm: [],
+      answer: null,
       reason: "r",
       ...value,
     },
@@ -80,11 +82,20 @@ async function table(talkCalls: unknown[], dice: number[] = []) {
 }
 
 /** Posts talk, then lets the gate listener enqueue (it runs async). */
+let intentN = 0;
 const say = async (w: World, text: string, channel = "ic") => {
   const res = await w.as(player, {
-    kind: "talk",
-    talk: { text, channel, characterId: "tamsin" },
+    kind: "intent",
+    intent: {
+      id: `say-${++intentN}`,
+      kind: channel === "ooc" ? "ooc" : "say",
+      actor: { kind: "pc", id: "tamsin" },
+      text,
+      source: "composer",
+      commit: "declared",
+    },
   });
+  if (!res.ok) throw new Error(`say refused: ${res.refusal.code}`);
   await tick();
   return res;
 };
@@ -131,7 +142,7 @@ describe.skipIf(!reachable)("talk turn (database)", () => {
       expect.objectContaining({ kind: "addressed", actorId: "wenna" }),
     );
     expect(result.calls.map((c) => [c.purpose, c.promptVersion])).toEqual([
-      [PURPOSE_OF.narrate, "dm.react-v3"],
+      [PURPOSE_OF.narrate, "dm.react-v4"],
     ]);
   });
 
@@ -146,7 +157,7 @@ describe.skipIf(!reachable)("talk turn (database)", () => {
         .slice(before)
         .filter((r) => r.type !== "presence.recorded")
         .map((r) => r.type),
-    ).toEqual(["talk"]);
+    ).toEqual(["talk", "intent.recorded"]);
     const [job] = await talkJobs(w);
     expect(job?.status).toBe("succeeded");
     expect(job?.result).toMatchObject({
@@ -218,6 +229,8 @@ describe.skipIf(!reachable)("talk turn (database)", () => {
       text: "Wenna keeps her counsel, and the fire pops.",
       encounterId: null,
       companionPrompts: [],
+      confirm: [],
+      answer: null,
       reason: "r",
     };
     const seq = (await w.projections()).throughSeq;
@@ -252,6 +265,8 @@ describe.skipIf(!reachable)("talk turn (database)", () => {
       text: "Goblins burst from the rushes with rusted blades raised.",
       encounterId: "reed-camp",
       companionPrompts: [],
+      confirm: [],
+      answer: null,
       reason: "r",
     };
     // Attempt 1 landed the opening move but died before the narration.
@@ -291,31 +306,28 @@ describe.skipIf(!reachable)("talk turn (database)", () => {
     expect(count(after, "narration")).toBe(count(before, "narration") + 1);
   });
 
-  it("a chain stops at two DM reactions and the cap reaction prompts no companion", async () => {
+  it("a companion's line queues a read that makes no model call, so the chain stops (spec 066 FR-010)", async () => {
     const s = script("talk-chain.json");
     const { w, worker } = await table(s.calls);
     const sceneRows = (await dmNarrations(w)).length;
     await say(w, "Wenna, who's missing from this house?");
-    await drainAll(worker); // reply 1, Odo's line, reply 2
-    console.log(
-      JSON.stringify(
-        (await listDmJobs(requireDb(), w.sessionId, 50)).map((j) => [
-          j.kind,
-          j.status,
-          j.error,
-          j.input,
-        ]),
-      ),
-      JSON.stringify(
-        (await readRows(w)).slice(-6).map((r) => [r.seq, r.type, r.actor]),
-      ),
-    );
-    expect((await dmNarrations(w)).length - sceneRows).toBe(2);
+    await drainAll(worker); // reply 1, Odo's line, then a read of Odo's line that calls nothing
+    expect((await dmNarrations(w)).length - sceneRows).toBe(1);
     const rows = await readRows(w);
     expect(
       rows.filter((r) => r.type === "talk" && r.actor === "ai:companion:odo"),
     ).toHaveLength(1);
     expect(await talkJobs(w)).toHaveLength(2);
+    expect(w.scripted.remaining().calls["dm.narrate"]).toBe(1); // react 2 never asked
+    const second = (await talkJobs(w)).find(
+      (j) => (j.result as { talk?: { posts: number[] } }).talk?.posts.length,
+    );
+    expect(second?.result).toMatchObject({
+      talk: {
+        outcome: "none",
+        reason: expect.stringContaining("needs a read"),
+      },
+    });
     const companionJobs = await listDmJobs(
       requireDb(),
       w.sessionId,
@@ -324,20 +336,7 @@ describe.skipIf(!reachable)("talk turn (database)", () => {
     );
     expect(companionJobs).toHaveLength(1); // only reply 1 prompted Odo
 
-    // The next companion line draws no talk turn: the cap holds.
-    const odo = { kind: "ai", actor: "ai:companion:odo" } as const;
-    const res = await w.gate.submit(w.sessionId, odo, {
-      kind: "talk",
-      summary: null,
-      rationale: null,
-      talk: { text: "Wenna?", channel: "ic", characterId: "odo" },
-      visibility: "public",
-    });
-    expect(res.ok).toBe(true);
-    await drainAll(worker);
-    expect(await talkJobs(w)).toHaveLength(2);
-
-    // A human post resets the count.
+    // A human post resets the count and draws a new read.
     await say(w, "Wenna, anything else?");
     expect(await talkJobs(w)).toHaveLength(3);
   });
@@ -426,5 +425,215 @@ describe.skipIf(!reachable)("talk turn (database)", () => {
         "reed-camp",
       ),
     ).toBe(false);
+  });
+});
+
+const KESTREL = "kestrel";
+const hideBody = { kind: "hide", targets: [], params: {} };
+const confirmReact = (over: Record<string, unknown> = {}) => ({
+  outcome: "confirm" as const,
+  triggers: [],
+  speaker: null,
+  text: "",
+  encounterId: null,
+  companionPrompts: [],
+  confirm: [
+    {
+      characterId: "tamsin",
+      text: "Tamsin slips behind the barrels",
+      body: hideBody,
+    },
+  ],
+  answer: null,
+  reason: "r",
+  ...over,
+});
+
+const declareHide = async (w: World, id: string) => {
+  const res = await w.as(player, {
+    kind: "intent",
+    intent: {
+      id,
+      kind: "hide",
+      actor: { kind: "pc", id: "tamsin" },
+      source: "composer",
+      commit: "declared",
+    },
+  });
+  if (!res.ok) throw new Error(`declare refused: ${res.refusal.code}`);
+  await tick();
+};
+
+const suggested = async (w: World) =>
+  (await readRows(w)).filter((r) => r.type === "action.suggested");
+
+/** Runs one talk turn by hand at `triggerSeq` over the current log. */
+async function readAt(
+  w: World,
+  triggerSeq: number,
+  opts: { react?: unknown; attempt?: number } = {},
+) {
+  const base = w.ctx({
+    job: { trigger: "talk", triggerSeq, attempt: opts.attempt ?? 1 },
+    checkpoint: {
+      ...w.checkpoint.current,
+      ...(opts.react ? { react: opts.react as never } : {}),
+    },
+  });
+  const assembled = await assemble(base);
+  if (!assembled.ok) throw new Error("assemble failed");
+  return runTalkTurn(
+    { ...base, results: { assemble: assembled.output } },
+    assembled.output,
+  );
+}
+
+describe.skipIf(!reachable)("the read: confirm and answer (spec 066)", () => {
+  it("a model confirm ships one action.suggested row with a declared Intent, no state change", async () => {
+    const s = script("talk-confirm.json");
+    const { w, worker } = await table(s.calls);
+    const before = (await readRows(w)).length;
+    await say(w, "I slip behind the barrels and wait.");
+    await drainAll(worker);
+    const rows = (await readRows(w)).slice(before);
+    const sug = rows.filter((r) => r.type === "action.suggested");
+    expect(sug).toHaveLength(1);
+    expect(sug[0]?.actor).toBe("ai:dm");
+    const pl = payloadOf<{
+      suggestionId: string;
+      items: {
+        itemId: string;
+        intent: { id: string; commit: string; kind: string };
+      }[];
+    }>(sug[0]);
+    expect(pl.items).toHaveLength(1);
+    expect(pl.items[0]?.intent).toMatchObject({
+      id: `${pl.suggestionId}.i1`,
+      kind: "hide",
+      commit: "declared",
+    });
+    expect(rows.filter((r) => MECHANICS.has(r.type))).toEqual([]);
+    expect(rows.filter((r) => r.type === "narration")).toEqual([]);
+    const [job] = await talkJobs(w);
+    expect(job?.result).toMatchObject({
+      talk: { outcome: "confirm", confirmItems: 1, answered: false },
+    });
+  });
+
+  it("a declared Intent confirms in code with no model call", async () => {
+    const { w, worker } = await table([]);
+    await declareHide(w, "hide-1");
+    await drainAll(worker);
+    const sug = await suggested(w);
+    expect(sug).toHaveLength(1);
+    const pl = payloadOf<{
+      items: { intent: { kind: string; commit: string } }[];
+    }>(sug[0]);
+    expect(pl.items[0]?.intent).toMatchObject({
+      kind: "hide",
+      commit: "declared",
+    });
+    const [job] = await talkJobs(w);
+    expect(job?.result).toMatchObject({ calls: [] });
+  });
+
+  it("drops a companion item and ships nothing when none is left", async () => {
+    const w0 = await table([
+      {
+        purpose: "dm.narrate",
+        respond: {
+          type: "json",
+          value: confirmReact({
+            confirm: [
+              { characterId: "odo", text: "Odo prays", body: hideBody },
+            ],
+          }),
+        },
+      },
+    ]);
+    await say(w0.w, "We should hide.");
+    await drainAll(w0.worker);
+    expect(await suggested(w0.w)).toHaveLength(0);
+    const [job] = await talkJobs(w0.w);
+    expect(job?.result).toMatchObject({
+      talk: { outcome: "none", confirmItems: 0 },
+    });
+  });
+
+  it("answers an ask_dm to the asker only, before any confirm, and drops a leaking sentence", async () => {
+    const reply = confirmReact({
+      answer:
+        "The room above is a ladder high. Four goblins took the clapper into the reeds.",
+    });
+    const { w, worker } = await table([
+      { purpose: "dm.narrate", respond: { type: "json", value: reply } },
+    ]);
+    const before = (await readRows(w)).length;
+    const res = await w.as(player, {
+      kind: "intent",
+      intent: {
+        id: "ask-1",
+        kind: "ask_dm",
+        actor: { kind: "pc", id: "tamsin" },
+        text: "@dm how high is the room above?",
+        source: "composer",
+        commit: "declared",
+      },
+    });
+    expect(res.ok).toBe(true);
+    await tick();
+    await drainAll(worker);
+    const rows = (await readRows(w)).slice(before);
+    const answerIdx = rows.findIndex(
+      (r) => r.type === "talk" && r.actor === "ai:dm",
+    );
+    const confirmIdx = rows.findIndex((r) => r.type === "action.suggested");
+    expect(answerIdx).toBeGreaterThan(-1);
+    expect(confirmIdx).toBeGreaterThan(answerIdx);
+    const answer = rows[answerIdx];
+    expect(answer?.visibility).toBe(TAMSIN_USER);
+    expect(payloadOf<{ text: string; channel: string }>(answer)).toMatchObject({
+      channel: "ooc",
+    });
+    expect(payloadOf<{ text: string }>(answer).text).toContain("ladder high");
+    expect(payloadOf<{ text: string }>(answer).text).not.toContain("clapper");
+    const [job] = await talkJobs(w);
+    expect(job?.result).toMatchObject({ talk: { answered: true } });
+  });
+
+  it("a stale suggest (a later post during the read) is refused and recorded as interrupted", async () => {
+    const { w } = await table([]);
+    await say(w, "I slip behind the barrels.");
+    const first = (await w.projections()).throughSeq;
+    await say(w, "Actually, I wait here instead.");
+    const out = await readAt(w, first, { react: confirmReact() });
+    expect(out).toMatchObject({ status: "talk", shipped: false });
+    expect(out.status === "talk" && out.talk.outcome).toBe("interrupted");
+    expect(await suggested(w)).toHaveLength(0);
+  });
+
+  it("a reclaim ships the confirm once", async () => {
+    const { w } = await table([]);
+    await say(w, "I slip behind the barrels.");
+    const seq = (await w.projections()).throughSeq;
+    await readAt(w, seq, { react: confirmReact(), attempt: 1 });
+    await readAt(w, seq, { react: confirmReact(), attempt: 2 });
+    expect(await suggested(w)).toHaveLength(1);
+  });
+
+  it("a confirm item for an absent character is dropped", async () => {
+    const { w } = await table([]);
+    await say(w, "Kestrel hides.");
+    const seq = (await w.projections()).throughSeq;
+    const out = await readAt(w, seq, {
+      react: confirmReact({
+        confirm: [
+          { characterId: "nobody", text: "Nobody hides", body: hideBody },
+        ],
+      }),
+    });
+    expect(out.status === "talk" && out.talk.confirmItems).toBe(0);
+    expect(await suggested(w)).toHaveLength(0);
+    expect(KESTREL).toBe("kestrel");
   });
 });

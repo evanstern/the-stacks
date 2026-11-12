@@ -21,7 +21,7 @@ TASK-0315"). This card ships no `apps/web` change; D4 below stays as TASK-0315's
 | **TASK-0315** (web) | Enter commits in combat; one composer verified in Brave | `play/view-model.ts`, `table-view.tsx`, `components/{composer,transcript}.tsx` |
 
 TASK-0314 merges before this card (OQ-4). Its human-ruling resume rule lands in `dm/enqueue.ts`;
-rule 8 here sits beside it.
+rule 9 here sits beside it (rule 8 is TASK-0314's).
 
 ## Summary
 
@@ -128,7 +128,7 @@ refusal). **Complexity Tracking**: none.
   token of a running empty-beat `talk` turn that has shipped nothing; result `interrupted`).
   `TurnTriggerSchema` gains `intent` (OQ-3 (b) only).
 - `enqueue.ts`: rule 6 rewritten (interrupt, then queue or move the read; drop `talkQuietMs` and
-  `talkMaxWaitMs`, add the `readWindowMs` seam). New rule 8 (spec FR-031, card AC #7): an
+  `talkMaxWaitMs`, add the `readWindowMs` seam). New rule 9 (spec FR-031, card AC #7): an
   `intent.recorded` row with outcome `settled` or a `stopped` refusal, in a batch that no turn job
   appended, queues a coalesced `intent` turn. Place it beside TASK-0314's resume rule and share its
   "appended by a job" test. The `intent` turn runs the pipeline with an empty beat, so narrate reads
@@ -172,7 +172,7 @@ refusal). **Complexity Tracking**: none.
 ### D5 — Mutation guard
 
 Stub `readablePosts` to return `[]`; stub `suggestionState` never stale; stub the accept acceptor
-rule to pass; stub `interruptRead` to return null; stub rule 8 to queue nothing. Each fails at least one test. Restore; `git diff` is empty.
+rule to pass; stub `interruptRead` to return null; stub rule 9 to queue nothing. Each fails at least one test. Restore; `git diff` is empty.
 
 ### D6 — Script-mode server check
 
@@ -197,7 +197,7 @@ on the debug routes; TASK-0315 reuses it for the Brave live check.
 | `apps/server/src/gate/gate.ts` | — | `read` purpose type | server |
 | `apps/server/src/dm/talk-triggers.ts` | `isReadable` reads `talk.channel` | delegate | server |
 | `apps/server/src/dm/jobs.ts` | quiet 3 s + max-wait 10 s; trigger `ruling` exists | window, `interruptRead`, `intent` trigger | server |
-| `apps/server/src/dm/enqueue.ts` | rule 6 talk, rule 7 ruling | rule 6 rewrite; rule 8 | server |
+| `apps/server/src/dm/enqueue.ts` | rule 6 talk, rule 7 ruling | rule 6 rewrite; rule 9 | server |
 | `apps/server/src/dm/worker.ts` | `director` marker | `read` marker | server |
 | `apps/server/src/dm/nodes/schemas.ts` | `ReactOutput` 4 outcomes; `IntentBodySchema` | `confirm`, `answer` | server |
 | `apps/server/src/dm/prompts/{react,common}.ts` | `dm.react-v3` | `dm.react-v4`; tail filter | server |
@@ -208,7 +208,7 @@ on the debug routes; TASK-0315 reuses it for the Brave live check.
 | `apps/server/test/dm/{talk-triggers.test,enqueue-talk.integration.test,talk-turn.integration.test,worker.integration.test,react-prompt.test,player-facing-prompts.test,dm-scripts.test}.ts` | exist | amend | server |
 | `apps/server/test/{gate.intent.integration,write-boundary}.test.ts` | exist | accept over the real gate; pins | server |
 | contract files in "Frozen-contract amendments" | TASK-0188 blocks present | appended blocks | server |
-| `apps/server/test/dm/enqueue-intent.integration.test.ts` | absent | new (rule 8) | server |
+| `apps/server/test/dm/enqueue-intent.integration.test.ts` | absent | new (rule 9) | server |
 | `docs/wiki/{dm-talk-triggers,turn-floor,proposal-gate,session-model,dm-turn-jobs,presence}.md`, `INDEX.md`, `CAPSULES.md` | — | re-ground | server |
 
 ## Frozen-contract amendments (C-GATE ruled)
@@ -248,7 +248,7 @@ builds against them.
 |---|---|---|
 | 1 | Session model: event, catalog, projection, `read.ts`, fixture, tests | 10 |
 | 2 | Gate: suggest, accept via `planIntent`, `ask_dm`, refusals, pins, tests | 13 |
-| 3 | DM runtime: window, `interruptRead`, marker, rule 8, `dm.react-v4`, talk path, scripts, tests | 18 |
+| 3 | DM runtime: window, `interruptRead`, marker, rule 9, `dm.react-v4`, talk path, scripts, tests | 18 |
 | 4 | Contract amendment blocks C-1 to C-9 | 3 |
 | 5 | Wiki (server share): NEEDS-REVIEW `dm-talk-triggers`, `turn-floor`, `proposal-gate`, `session-model`, `dm-turn-jobs`, `presence`, `INDEX.md`, `CAPSULES.md` | 4 |
 | 6 | Verification **[orchestrator]**: DB suites, mutation guard, script-mode server check, execution-log row, spec-bridge | 5 |

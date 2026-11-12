@@ -16,6 +16,7 @@ const base = {
   roster: [],
   snapshot: buildSnapshot(projections, seed),
   posts: [],
+  humans: [],
   triggers: [{ kind: "addressed" as const, actorId: "wenna", party: false }],
   transcriptTail: [],
   presentNpcIds: ["wenna"],
@@ -24,8 +25,29 @@ const base = {
 };
 
 describe("react prompt (specs/065 D4)", () => {
-  it("is versioned dm.react-v3", () => {
-    expect(PROMPT_VERSION).toBe("dm.react-v3");
+  it("is versioned dm.react-v4", () => {
+    expect(PROMPT_VERSION).toBe("dm.react-v4");
+  });
+
+  it("states the confirm and answer rules and the outcome list (spec 066)", () => {
+    const { system } = buildReactPrompt(base);
+    expect(RULES).toMatch(/confirm/);
+    expect(RULES).toMatch(/never write an item for a companion/i);
+    expect(RULES).toMatch(/ask_dm/);
+    expect(system).toContain('"confirm"');
+    expect(system).toContain('"answer"');
+  });
+
+  it("lists the human characters and marks an ask_dm post", () => {
+    const { user } = buildReactPrompt({
+      ...base,
+      humans: [{ id: "tamsin", name: "Tamsin Vale" }],
+      posts: [
+        { seq: 7, speaker: "Tamsin Vale", text: "@dm how high?", rule: 3 },
+      ],
+    });
+    expect(user).toContain("tamsin (Tamsin Vale)");
+    expect(user).toContain("[7] Tamsin Vale (ask_dm): @dm how high?");
   });
 
   it("states the outcome, voice, digit, dice and player-view rules", () => {
@@ -35,7 +57,9 @@ describe("react prompt (specs/065 D4)", () => {
     expect(RULES).toMatch(/NO digits/);
     expect(RULES).toMatch(/dice/i);
     expect(RULES).toMatch(/outside the player view/i);
-    expect(system).toContain('"outcome":"none"|"reply"|"scene"|"escalate"');
+    expect(system).toContain(
+      '"outcome":"none"|"reply"|"scene"|"escalate"|"confirm"',
+    );
   });
 
   it("lists the present NPC voice and the code triggers", () => {

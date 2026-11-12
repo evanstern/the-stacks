@@ -189,7 +189,7 @@ function transcriptLine(
     case "action.withdrawn":
       return `[${e.seq}] ${e.actionId} withdrawn`;
     case "action.suggested":
-      return `[${e.seq}] the DM suggested: ${e.items.map((i) => i.text).join(" / ")}`;
+      return `[${e.seq}] the DM asked the table to confirm: ${e.items.map((i) => i.text).join(" / ")}`;
   }
 }
 
@@ -203,7 +203,14 @@ export function transcriptEntries(
   roster?: readonly RosterEntry[],
   seats?: ReadonlyMap<string, string>,
 ): string[] {
-  const kept = roster ? tail.filter((e) => e.visibility === "public") : tail;
+  // Spec 066 FR-014: a player-facing tail (a roster) drops `ooc` talk and non-public rows.
+  const kept = roster
+    ? tail.filter(
+        (e) =>
+          e.visibility === "public" &&
+          !(e.kind === "talk" && e.channel === "ooc"),
+      )
+    : tail;
   return kept
     .slice(-CAPS.transcriptEntries)
     .map((e) => transcriptLine(e, roster, seats));

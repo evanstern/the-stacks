@@ -17,14 +17,16 @@ import {
 import { characterSections } from "./narrate.js";
 
 /** The talk-turn react prompt (specs/065-talk-triggers plan D4). Purpose `dm.narrate`. */
-export const PROMPT_VERSION = "dm.react-v3";
+export const PROMPT_VERSION = "dm.react-v4";
 
 export const CAP_LINE =
   "This reaction reaches the chain cap. Prompt no companion: leave companionPrompts empty, and end on a beat that hands the scene to the player characters.";
 
 export const RULES = [
   "You are the world of a tabletop role-playing session. A player character or companion just spoke in character. Decide whether the world reacts, and write that reaction.",
-  "Choose exactly one outcome. none: nothing in the world reacts (text is empty). reply: one present non-player character answers (set speaker to that character's id). scene: the world reacts without one clear speaker. escalate: the talk turns violent or fast; name an encounter id only from the list of unstarted encounters.",
+  "Choose exactly one outcome. none: nothing in the world reacts (text is empty). reply: one present non-player character answers (set speaker to that character's id). scene: the world reacts without one clear speaker. escalate: the talk turns violent or fast; name an encounter id only from the list of unstarted encounters. confirm: a player describes a deed whose outcome is uncertain (text is empty; fill confirm).",
+  "A confirm holds one item for each human character who acts, at most four. Each item names that character's id (characterId, null only for a party attempt), your wording of the deed in one short sentence (text), and an Intent body: kind, targets, params, optional text. Never write an item for a companion, a non-player character or an absent or downed character. Speech alone is a reply or a scene, never a confirm.",
+  "Answer only a post marked ask_dm: set answer to a short out-of-character reply drawn from what the characters can see, or null. An answer changes no game state.",
   "Voice only characters listed under Present characters. A dead, unconscious or absent character does not speak.",
   "Write plain prose of about sixty words, never more than one hundred fifty. No lists, no headings, no bold. Write NO digits.",
   "State nothing outside the player view. If asked about something the character would hide or not know, answer in character without stating it. The substance needs a declared action from the player.",
@@ -35,12 +37,14 @@ export const RULES = [
 
 const OUTPUT_SHAPE = [
   "Reply with ONE JSON object and nothing else:",
-  '{"outcome":"none"|"reply"|"scene"|"escalate",',
+  '{"outcome":"none"|"reply"|"scene"|"escalate"|"confirm",',
   ' "triggers":[{"kind":"addressed"|"mentioned"|"overheard"|"narrator"|"hostile","actorId":id|null}] (8 at most),',
   ' "speaker":id of the replying character|null (required for reply),',
   ' "text":str (1200 characters at most; empty for none),',
   ' "encounterId":id|null (required for escalate),',
   ' "companionPrompts":[id of a companion who should answer next] (2 at most),',
+  ' "confirm":[{"characterId":id|null,"text":str (500 at most),"body":{"kind":str,"targets":[],"params":{},"text":str (optional)}}] (4 at most; empty unless outcome is confirm),',
+  ' "answer":str (1200 characters at most)|null (only for an ask_dm post),',
   ' "reason":str (300 characters at most)}',
 ].join("\n");
 
@@ -49,8 +53,15 @@ export interface ReactPromptInput {
   seed: PlayerSeedView;
   roster: readonly RosterEntry[];
   snapshot: ActorSnapshot;
-  /** The read posts, oldest first. */
-  posts: readonly Extract<TranscriptEntry, { kind: "talk" }>[];
+  /** The read posts, oldest first. `rule` 3 is an `ask_dm` question. */
+  posts: readonly {
+    seq: number;
+    speaker: string;
+    text: string;
+    rule: number;
+  }[];
+  /** The human-controlled characters a confirm item may name. */
+  humans: readonly { id: string; name: string }[];
   triggers: readonly CodeTrigger[];
   transcriptTail: readonly TranscriptEntry[];
   presentNpcIds: readonly string[];
@@ -73,20 +84,17 @@ export function buildReactPrompt(input: ReactPromptInput): {
 
   const nameOf = (id: string): string =>
     input.snapshot.actors.find((a) => a.id === id)?.name ?? id;
-  const speakerOf = (e: { actor: string; characterId: string | null }) =>
-    input.roster.find((r) => r.characterId === e.characterId)?.name ??
-    (e.actor.startsWith("ai:companion:")
-      ? nameOf(e.actor.slice("ai:companion:".length))
-      : "a player");
   const npcs = input.seed.npcs
     .filter((n) => input.presentNpcIds.includes(n.id))
     .map(
       (n) =>
         `${n.id} (${n.name}, ${n.role}): voice ${n.voice}; wants ${n.want}; detail ${n.detail}`,
     );
-  const posts = input.posts
-    .filter((p) => p.visibility === "public")
-    .map((p) => `[${p.seq}] ${speakerOf(p)}: ${p.text}`);
+  const posts = input.posts.map(
+    (p) =>
+      `[${p.seq}] ${p.speaker}${p.rule === 3 ? " (ask_dm)" : ""}: ${p.text}`,
+  );
+  const humans = input.humans.map((h) => `${h.id} (${h.name})`);
   const triggers = input.triggers.map(
     (t) => `${t.kind}: ${nameOf(t.actorId)} (${t.actorId})`,
   );
@@ -94,6 +102,7 @@ export function buildReactPrompt(input: ReactPromptInput): {
     `Location: ${input.seed.location.name}. Mood: ${input.seed.location.mood}`,
     ...characterSections(input.snapshot),
     section("Posts to react to", posts, 800, "start"),
+    section("Human characters (confirm only these)", humans, 300, "end"),
     section("Code triggers", triggers, 400, "end"),
     section("Present characters", npcs, 800, "end"),
     section(

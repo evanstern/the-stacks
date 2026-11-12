@@ -521,11 +521,12 @@ history (`3aaf8279`).
 
 **Direct Intents are narrated (OQ-3 (b); card AC #7)**
 
-- **FR-031**: An `intent.recorded` row with outcome `settled`, or with a `stopped` refusal, appended
+- **FR-031**: An `intent.recorded` row with outcome `settled` and engine rows (`batchId` set), or with a `stopped` refusal, appended
   outside a turn job MUST queue one coalesced `turn` job with trigger `intent`. A row a running turn
   job appended queues nothing. The turn narrates the row's facts through the spec 104 narrate window.
-  The rule sits beside TASK-0314's human-ruling resume rule in `dm/enqueue.ts`, and the
-  one-queued-turn index coalesces them.
+  The rule (rule 9; TASK-0314's resume rule is rule 8) sits beside it in `dm/enqueue.ts`, and the
+  one-queued-turn index coalesces them. Speech and `ask_dm` carriers are `settled` with no engine
+  rows, so they queue nothing here; the read (rule 6) covers them (clarified in Phase 3).
 
 **VTT parity (D20 §5)**
 
