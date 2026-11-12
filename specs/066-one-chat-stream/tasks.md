@@ -142,10 +142,10 @@ path>` for add and commit, in separate Bash calls. Serial hotspots: `gate/{propo
       each. Restore, and confirm `git diff` is empty.
 - [x] T051 **[orchestrator]** Script-mode server check (plan "Server check") on the debug routes.
       Commit the evidence under `specs/066-one-chat-stream/evidence/`.
-- [ ] T052 **[orchestrator]** Add the TASK-0199 execution-log row to
+- [x] T052 **[orchestrator]** Add the TASK-0199 execution-log row to
       `docs/design/r1-fast-table-runbook.md`: dispatches, rulings, test counts, mutation guard,
       contract blocks, no migration.
-- [ ] T053 **[orchestrator]** Run the spec-bridge check (exit 0) and `pnpm ci:check`.
+- [x] T053 **[orchestrator]** Run the spec-bridge check (exit 0) and `pnpm ci:check`.
 
 ## Dependencies
 
