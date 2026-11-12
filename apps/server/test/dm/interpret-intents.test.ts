@@ -166,3 +166,86 @@ describe("parseSlashItem (plan D2, OQ-5)", () => {
     expect(r.clarify).toBeTruthy();
   });
 });
+
+describe("SC-002 proxy: the 2026-10-26 capture's turn reads on attempt 1", () => {
+  // The capture (npc-turn, trigger seq 61) held Kestrel's open action and Snag's turn. Each has a
+  // scripted reading in the Intent shape; each validates, stamps and round-trips.
+  const readings = {
+    readings: [
+      {
+        actionId: "act-kestrel-1",
+        stages: [
+          {
+            intent: {
+              kind: "search",
+              targets: [],
+              params: { skill: "perception" },
+              text: "Kestrel scans the high ground for the goblin lookout.",
+            },
+            beside: {
+              stakes: {
+                success: "She spots the lookout before he spots her.",
+                cost: "She spots him, but he sees her move.",
+                failure: "She sees nothing and the lookout stays hidden.",
+                severe: "The lookout spots her first and shouts.",
+              },
+              onSuccess: [],
+              onFailure: [],
+              onCost: [],
+              onSevere: [],
+              newRisk: null,
+              reveals: null,
+              autoFail: null,
+            },
+          },
+        ],
+        clarify: null,
+        followUps: [],
+      },
+      {
+        actionId: null,
+        stages: [
+          {
+            intent: {
+              kind: "attack",
+              targets: [{ kind: "actor", id: "kestrel" }],
+              params: { weapon: "Scimitar" },
+            },
+            beside: null,
+          },
+        ],
+        clarify: null,
+        followUps: [],
+        say: "Big-feet come to my reeds, pay the toll!",
+      },
+    ],
+  };
+
+  it("validates on attempt 1 and each stage stamps to a round-tripping Intent", () => {
+    const parsed = InterpretOutput.safeParse(readings);
+    expect(parsed.success).toBe(true);
+    if (!parsed.success) return;
+    for (const r of parsed.data.readings) {
+      for (const [n, st] of r.stages.entries()) {
+        const stamped = stampIntent(st.intent, {
+          id: `${r.actionId ?? "npc.job"}.${n}`,
+          actor:
+            r.actionId === null
+              ? { kind: "npc", id: "snag" }
+              : { kind: "pc", id: "kestrel" },
+          source: "ai",
+          commit: r.actionId === null ? "confirmed" : "declared",
+        });
+        expect(stamped.ok).toBe(true);
+        if (!stamped.ok) continue;
+        const again = parse(toText(stamped.intent), {
+          id: stamped.intent.id,
+          actor: stamped.intent.actor,
+          source: "ai",
+          commit: stamped.intent.commit,
+        });
+        expect(again.ok).toBe(true);
+      }
+    }
+  });
+});

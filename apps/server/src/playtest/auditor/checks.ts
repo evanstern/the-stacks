@@ -61,6 +61,13 @@ const str = (v: unknown): string => (typeof v === "string" ? v : "");
  */
 const DICE_LINE =
   /→|: auto-fail| death saves: \d|: \S.* (?:applied|removed)$| spends a level \d+ spell slot$| helps .+ \((?:attack|ability check)\)$|: refused, .+ \([A-Z_]+\)$/;
+/**
+ * A `why` row (spec 098 contract §6, from the planner's facts on `intent.recorded`): rule, DC,
+ * difficulty, opposition, reach, pull-in, reaction, ruling, no-roll and ignored-field lines. Code
+ * writes them; they have no ledger counterpart, so they are accepted but not returned.
+ */
+const WHY_LINE =
+  /^(?:Rule: |DC \d+|Difficulty: |Opposed by |Reach: |DM ruling: |No roll needed$|The DM sets the )|(?: joins the fight| may react as the mover leaves)$/;
 /** The State line closes the code block; it has no ledger counterpart. */
 const STATE_LINE = /^State: /;
 /** A refusal row comes from `action.resolved`, not a ledger row the check replays. */
@@ -88,13 +95,17 @@ export function splitNarration(text: string): {
     .filter((l) => l.trim() !== "");
   if (
     lines.length === 0 ||
-    !lines.every((l) => STATE_LINE.test(l) || DICE_LINE.test(l))
+    !lines.every(
+      (l) => STATE_LINE.test(l) || WHY_LINE.test(l) || DICE_LINE.test(l),
+    )
   ) {
     return { prose: text, diceLines: [] };
   }
   return {
     prose: trimmed.slice(0, i),
-    diceLines: lines.filter((l) => !STATE_LINE.test(l) && !REFUSAL_ROW.test(l)),
+    diceLines: lines.filter(
+      (l) => !STATE_LINE.test(l) && !WHY_LINE.test(l) && !REFUSAL_ROW.test(l),
+    ),
   };
 }
 

@@ -23,7 +23,7 @@ only in `apps/server`), `@the-stacks/session-model` gate and projections.
 `dm.interpret` stops writing step-grammar readings. For each beat item it returns zero or more
 Intent bodies (`kind`, `targets`, `params`, `text`) through structured output. Code stamps `id`,
 `actor`, `source` and `commit`, then validates each with `IntentSchema`. A beat item whose text is
-slash form (`/attack @goblin-2 weapon="Longsword"`) is parsed by `parse()` and never reaches the
+slash form (`/attack @goblin-2 with "Longsword"`) is parsed by `parse()` and never reaches the
 model. An ambiguous item returns a clarify question. Resolve submits each Intent through
 `gate.submit` as an `intent` request, one stage at a time, so the gate and the planner own every
 attack, check, spell, help, move and pull-in. Model-written stakes, band effects, clue reveals and
@@ -57,7 +57,7 @@ Out of scope (owned elsewhere):
 
 ### User Story 1 — A slash command resolves with no model call (Priority: P1)
 
-A player in turn mode on their turn commits `/attack @goblin-2 weapon="Longsword"`. Interpret
+A player in turn mode on their turn commits `/attack @goblin-2 with "Longsword"`. Interpret
 parses it, resolve submits it, the gate plans and executes it. The fake gateway records no
 interpret call.
 

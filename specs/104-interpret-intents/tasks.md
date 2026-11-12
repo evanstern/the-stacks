@@ -46,12 +46,12 @@ Do not delete resolve's step paths, the adjudicate node or the gathering block: 
 
 ## Phase 5: Test and script migration
 
-- [ ] T028 Add a `stages()` helper to `apps/server/test/dm/world.ts` that builds a new-shape reading from Intent bodies and optional beside data.
-- [ ] T029 Rescript `apps/server/test/dm/scripts/*.json` (16 files) to the new reading shape.
-- [ ] T030 Rescript the integration tests that script readings: run `grep -rl readings apps/server/test`. Keep each test's assertion on rows and outcomes.
-- [ ] T031 Update `test/playtest/fixtures/downed-seat.json` and `test/dm/fixtures/task-0203-shapes.ts`. Keep the 2026-10-26 capture fixture as recorded data.
-- [ ] T032 Write the SC-002 proxy in `interpret-intents.test.ts`: each declared text in the 2026-10-26 capture gets a scripted reading that validates on attempt 1.
-- [ ] T033 Run the full DB suite on the worktree stack. Re-run a known flake once and report it. `pnpm ci:check` green.
+- [x] T028 Add a `stages()` helper to `apps/server/test/dm/world.ts` that builds a new-shape reading from Intent bodies and optional beside data.
+- [x] T029 Rescript `apps/server/test/dm/scripts/*.json` (16 files) to the new reading shape.
+- [x] T030 Rescript the integration tests that script readings: run `grep -rl readings apps/server/test`. Keep each test's assertion on rows and outcomes.
+- [x] T031 Update `test/playtest/fixtures/downed-seat.json` and `test/dm/fixtures/task-0203-shapes.ts`. Keep the 2026-10-26 capture fixture as recorded data.
+- [x] T032 Write the SC-002 proxy in `interpret-intents.test.ts`: each declared text in the 2026-10-26 capture gets a scripted reading that validates on attempt 1.
+- [x] T033 Run the full DB suite on the worktree stack. Re-run a known flake once and report it. `pnpm ci:check` green.
 
 ## Phase 6: Wiki
 

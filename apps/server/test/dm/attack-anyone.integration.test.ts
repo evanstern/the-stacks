@@ -116,13 +116,29 @@ describe.skipIf(!reachable)("attack anyone (database)", () => {
   it("replays run 1 seq 45: shooting present Snag pulls him in and resolves applied", async () => {
     const { rows, planGate } = await run({ reveal: true });
     expect(resolvedOf(rows)?.payload).toMatchObject({ outcome: "applied" });
-    expect(planGate).toEqual([{ actionId: ACTION, ok: true, pull: ["snag"] }]);
+    // Spec 104: the planner pulls Snag in (a `pull-in` fact); the plan gate names no pull.
+    expect(planGate).toEqual([{ actionId: ACTION, ok: true }]);
+    expect(
+      rows
+        .filter((r) => r.type === "intent.recorded")
+        .some((r) => JSON.stringify(r.payload).includes('"pull-in"')),
+    ).toBe(true);
     const added = snagAdded(rows);
-    const attack = rows.findIndex(
-      (r) => r.type === "attack.resolved" && eventOf(r).targetId === "snag",
-    );
+    // Spec 104: the planner now reads space. Kestrel's shortbow stops OUT_OF_RANGE after the pull
+    // (the carrier's `stopped`); the old step path rolled the attack with no range check.
+    const settled = rows
+      .filter((r) => r.type === "intent.recorded")
+      .map(
+        (r) =>
+          r.payload as {
+            outcome: string;
+            intent: { id: string };
+            stopped: { code: string } | null;
+          },
+      )
+      .find((c) => c.outcome === "settled" && c.intent.id === "act-shoot.0");
+    expect(settled?.stopped?.code).toBe("OUT_OF_RANGE");
     expect(added).toBeGreaterThan(-1);
-    expect(attack).toBeGreaterThan(added);
     expect(resolvedOf(rows)?.payload).not.toMatchObject({
       refusalCode: "UNKNOWN_COMBATANT",
     });
@@ -132,15 +148,12 @@ describe.skipIf(!reachable)("attack anyone (database)", () => {
 
   it("control: an absent Snag is still refused as absent", async () => {
     const { rows, planGate } = await run({ reveal: false });
+    // Spec 104: the planner refuses TARGET_NOT_PRESENT; the event keeps INVALID_COMMAND.
     expect(resolvedOf(rows)?.payload).toMatchObject({
       outcome: "refused",
-      refusalCode: "UNKNOWN_COMBATANT",
+      refusalCode: "INVALID_COMMAND",
     });
-    expect(planGate?.[0]).toMatchObject({
-      ok: false,
-      code: "UNKNOWN_COMBATANT",
-      failure: { field: "targetId", id: "snag", reason: "absent" },
-    });
+    expect(planGate).toEqual([{ actionId: ACTION, ok: true }]);
     expect(snagAdded(rows)).toBe(-1);
   });
 });

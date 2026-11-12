@@ -75,40 +75,50 @@
           "readings": [
             {
               "actionId": "act-scan",
-              "intent": "check",
-              "uncertain": true,
-              "needsAdjudication": false,
-              "rulesQuestion": null,
-              "clarify": null,
-              "steps": [
+              "stages": [
                 {
-                  "step": "check",
-                  "reason": "Kestrel scans the reeds",
-                  "combatantId": "kestrel",
-                  "kind": "ability-check",
-                  "ability": "wis",
-                  "skill": "perception",
-                  "difficulty": "medium",
-                  "circumstance": null,
-                  "autoFail": null,
-                  "onSuccess": [],
-                  "onFailure": [],
-                  "stakes": {
-                    "success": "She sees Pell tied to a post.",
-                    "cost": "She sees him, but a reed rattles.",
-                    "failure": "She sees only reeds and smoke.",
-                    "severe": "A reed snaps loud underfoot."
+                  "intent": {
+                    "kind": "check",
+                    "targets": [],
+                    "params": {
+                      "skill": "perception"
+                    }
                   },
-                  "onCost": [],
-                  "onSevere": [],
-                  "newRisk": null
+                  "beside": {
+                    "stakes": {
+                      "success": "She sees Pell tied to a post.",
+                      "cost": "She sees him, but a reed rattles.",
+                      "failure": "She sees only reeds and smoke.",
+                      "severe": "A reed snaps loud underfoot."
+                    },
+                    "onSuccess": [],
+                    "onFailure": [],
+                    "onCost": [],
+                    "onSevere": [],
+                    "newRisk": null,
+                    "reveals": null,
+                    "autoFail": null
+                  }
                 }
-              ]
+              ],
+              "clarify": null,
+              "followUps": []
             }
           ]
         }
       },
       "note": "S1 T1 failed reveal: arrivals named, band fails, Pell stays unrevealed (0237)"
+    },
+    {
+      "purpose": "dm.adjudicate",
+      "note": "a ruling on the check's difficulty",
+      "respond": {
+        "type": "json",
+        "value": {
+          "decision": "accept",
+          "difficulty": "medium"
+        }
+      }
     },
     {
       "purpose": "dm.narrate",
@@ -153,38 +163,39 @@
           "readings": [
             {
               "actionId": "act-parley",
-              "intent": "check",
-              "uncertain": true,
-              "needsAdjudication": false,
-              "rulesQuestion": null,
-              "clarify": null,
-              "steps": [
+              "stages": [
                 {
-                  "step": "check",
-                  "reason": "Tamsin calls to the lookout and talks him down",
-                  "combatantId": "tamsin",
-                  "kind": "ability-check",
-                  "ability": "cha",
-                  "skill": "persuasion",
-                  "difficulty": {
-                    "opposedBy": "goblin-3",
-                    "rule": "influence"
+                  "intent": {
+                    "kind": "contest",
+                    "targets": [
+                      {
+                        "kind": "actor",
+                        "id": "goblin-3"
+                      }
+                    ],
+                    "params": {
+                      "skill": "persuasion"
+                    }
                   },
-                  "circumstance": null,
-                  "autoFail": null,
-                  "onSuccess": [],
-                  "onFailure": [],
-                  "stakes": {
-                    "success": "The lookout listens.",
-                    "cost": "The lookout listens, warily.",
-                    "failure": "The lookout sneers.",
-                    "severe": "The lookout shouts the alarm."
-                  },
-                  "onCost": [],
-                  "onSevere": [],
-                  "newRisk": null
+                  "beside": {
+                    "stakes": {
+                      "success": "The lookout listens.",
+                      "cost": "The lookout listens, warily.",
+                      "failure": "The lookout sneers.",
+                      "severe": "The lookout shouts the alarm."
+                    },
+                    "onSuccess": [],
+                    "onFailure": [],
+                    "onCost": [],
+                    "onSevere": [],
+                    "newRisk": null,
+                    "reveals": null,
+                    "autoFail": null
+                  }
                 }
-              ]
+              ],
+              "clarify": null,
+              "followUps": []
             }
           ]
         }
@@ -269,17 +280,9 @@
           "readings": [
             {
               "actionId": "act-rush",
-              "intent": "move",
-              "uncertain": true,
-              "needsAdjudication": false,
-              "rulesQuestion": null,
+              "stages": [],
               "clarify": null,
-              "steps": [
-                {
-                  "step": "none",
-                  "reason": "Moving along the posts needs no roll."
-                }
-              ]
+              "followUps": []
             }
           ]
         }
@@ -328,22 +331,25 @@
           "readings": [
             {
               "actionId": "act-strike",
-              "intent": "attack",
-              "uncertain": true,
-              "needsAdjudication": false,
-              "rulesQuestion": null,
-              "clarify": null,
-              "steps": [
+              "stages": [
                 {
-                  "step": "attack",
-                  "reason": "Tamsin swings her longsword at the goblin in the pot-helm",
-                  "attackerId": "tamsin",
-                  "targetId": "goblin-2",
-                  "attack": "Longsword",
-                  "circumstance": null,
-                  "onHit": []
+                  "intent": {
+                    "kind": "attack",
+                    "targets": [
+                      {
+                        "kind": "actor",
+                        "id": "goblin-2"
+                      }
+                    ],
+                    "params": {
+                      "weapon": "Longsword"
+                    }
+                  },
+                  "beside": null
                 }
-              ]
+              ],
+              "clarify": null,
+              "followUps": []
             }
           ]
         }
@@ -392,21 +398,26 @@
           "readings": [
             {
               "actionId": "act-cast",
-              "intent": "spell",
-              "uncertain": true,
-              "needsAdjudication": false,
-              "rulesQuestion": null,
-              "clarify": null,
-              "steps": [
+              "stages": [
                 {
-                  "step": "spell",
-                  "reason": "Odo mends Tamsin",
-                  "casterId": "odo",
-                  "spellId": "cure-wounds",
-                  "slotLevel": 1,
-                  "targetId": "tamsin"
+                  "intent": {
+                    "kind": "cast",
+                    "targets": [
+                      {
+                        "kind": "actor",
+                        "id": "tamsin"
+                      }
+                    ],
+                    "params": {
+                      "spell": "cure-wounds",
+                      "slot": 1
+                    }
+                  },
+                  "beside": null
                 }
-              ]
+              ],
+              "clarify": null,
+              "followUps": []
             }
           ]
         }
@@ -447,40 +458,48 @@
           "readings": [
             {
               "actionId": "act-cast",
-              "intent": "spell",
-              "uncertain": true,
-              "needsAdjudication": false,
-              "rulesQuestion": null,
-              "clarify": null,
-              "steps": [
+              "stages": [
                 {
-                  "step": "spell",
-                  "reason": "Odo mends Tamsin",
-                  "casterId": "odo",
-                  "spellId": "cure-wounds",
-                  "slotLevel": 1,
-                  "targetId": "tamsin"
+                  "intent": {
+                    "kind": "cast",
+                    "targets": [
+                      {
+                        "kind": "actor",
+                        "id": "tamsin"
+                      }
+                    ],
+                    "params": {
+                      "spell": "cure-wounds",
+                      "slot": 1
+                    }
+                  },
+                  "beside": null
                 }
-              ]
+              ],
+              "clarify": null,
+              "followUps": []
             },
             {
               "actionId": null,
-              "intent": "attack",
-              "uncertain": true,
-              "needsAdjudication": false,
-              "rulesQuestion": null,
-              "clarify": null,
-              "steps": [
+              "stages": [
                 {
-                  "step": "attack",
-                  "reason": "Snag slashes his notched scimitar at Tamsin",
-                  "attackerId": "snag",
-                  "targetId": "tamsin",
-                  "attack": "Scimitar",
-                  "circumstance": null,
-                  "onHit": []
+                  "intent": {
+                    "kind": "attack",
+                    "targets": [
+                      {
+                        "kind": "actor",
+                        "id": "tamsin"
+                      }
+                    ],
+                    "params": {
+                      "weapon": "Scimitar"
+                    }
+                  },
+                  "beside": null
                 }
-              ]
+              ],
+              "clarify": null,
+              "followUps": []
             }
           ]
         }
@@ -529,40 +548,48 @@
           "readings": [
             {
               "actionId": "act-cast",
-              "intent": "spell",
-              "uncertain": true,
-              "needsAdjudication": false,
-              "rulesQuestion": null,
-              "clarify": null,
-              "steps": [
+              "stages": [
                 {
-                  "step": "spell",
-                  "reason": "Odo mends Tamsin",
-                  "casterId": "odo",
-                  "spellId": "cure-wounds",
-                  "slotLevel": 1,
-                  "targetId": "tamsin"
+                  "intent": {
+                    "kind": "cast",
+                    "targets": [
+                      {
+                        "kind": "actor",
+                        "id": "tamsin"
+                      }
+                    ],
+                    "params": {
+                      "spell": "cure-wounds",
+                      "slot": 1
+                    }
+                  },
+                  "beside": null
                 }
-              ]
+              ],
+              "clarify": null,
+              "followUps": []
             },
             {
               "actionId": null,
-              "intent": "attack",
-              "uncertain": true,
-              "needsAdjudication": false,
-              "rulesQuestion": null,
-              "clarify": null,
-              "steps": [
+              "stages": [
                 {
-                  "step": "attack",
-                  "reason": "The goblin in the pot-helm slashes at Kestrel",
-                  "attackerId": "goblin-2",
-                  "targetId": "kestrel",
-                  "attack": "Scimitar",
-                  "circumstance": null,
-                  "onHit": []
+                  "intent": {
+                    "kind": "attack",
+                    "targets": [
+                      {
+                        "kind": "actor",
+                        "id": "kestrel"
+                      }
+                    ],
+                    "params": {
+                      "weapon": "Scimitar"
+                    }
+                  },
+                  "beside": null
                 }
-              ]
+              ],
+              "clarify": null,
+              "followUps": []
             }
           ]
         }
@@ -611,40 +638,48 @@
           "readings": [
             {
               "actionId": "act-cast",
-              "intent": "spell",
-              "uncertain": true,
-              "needsAdjudication": false,
-              "rulesQuestion": null,
-              "clarify": null,
-              "steps": [
+              "stages": [
                 {
-                  "step": "spell",
-                  "reason": "Odo mends Tamsin",
-                  "casterId": "odo",
-                  "spellId": "cure-wounds",
-                  "slotLevel": 1,
-                  "targetId": "tamsin"
+                  "intent": {
+                    "kind": "cast",
+                    "targets": [
+                      {
+                        "kind": "actor",
+                        "id": "tamsin"
+                      }
+                    ],
+                    "params": {
+                      "spell": "cure-wounds",
+                      "slot": 1
+                    }
+                  },
+                  "beside": null
                 }
-              ]
+              ],
+              "clarify": null,
+              "followUps": []
             },
             {
               "actionId": null,
-              "intent": "attack",
-              "uncertain": true,
-              "needsAdjudication": false,
-              "rulesQuestion": null,
-              "clarify": null,
-              "steps": [
+              "stages": [
                 {
-                  "step": "attack",
-                  "reason": "The goblin lookout stabs at Tamsin",
-                  "attackerId": "goblin-3",
-                  "targetId": "tamsin",
-                  "attack": "Dagger",
-                  "circumstance": null,
-                  "onHit": []
+                  "intent": {
+                    "kind": "attack",
+                    "targets": [
+                      {
+                        "kind": "actor",
+                        "id": "tamsin"
+                      }
+                    ],
+                    "params": {
+                      "weapon": "Dagger"
+                    }
+                  },
+                  "beside": null
                 }
-              ]
+              ],
+              "clarify": null,
+              "followUps": []
             }
           ]
         }
@@ -693,40 +728,48 @@
           "readings": [
             {
               "actionId": "act-cast",
-              "intent": "spell",
-              "uncertain": true,
-              "needsAdjudication": false,
-              "rulesQuestion": null,
-              "clarify": null,
-              "steps": [
+              "stages": [
                 {
-                  "step": "spell",
-                  "reason": "Odo mends Tamsin",
-                  "casterId": "odo",
-                  "spellId": "cure-wounds",
-                  "slotLevel": 1,
-                  "targetId": "tamsin"
+                  "intent": {
+                    "kind": "cast",
+                    "targets": [
+                      {
+                        "kind": "actor",
+                        "id": "tamsin"
+                      }
+                    ],
+                    "params": {
+                      "spell": "cure-wounds",
+                      "slot": 1
+                    }
+                  },
+                  "beside": null
                 }
-              ]
+              ],
+              "clarify": null,
+              "followUps": []
             },
             {
               "actionId": null,
-              "intent": "attack",
-              "uncertain": true,
-              "needsAdjudication": false,
-              "rulesQuestion": null,
-              "clarify": null,
-              "steps": [
+              "stages": [
                 {
-                  "step": "attack",
-                  "reason": "The goblin by the fire throws a dagger at Tamsin",
-                  "attackerId": "goblin-4",
-                  "targetId": "tamsin",
-                  "attack": "Dagger",
-                  "circumstance": null,
-                  "onHit": []
+                  "intent": {
+                    "kind": "attack",
+                    "targets": [
+                      {
+                        "kind": "actor",
+                        "id": "tamsin"
+                      }
+                    ],
+                    "params": {
+                      "weapon": "Dagger"
+                    }
+                  },
+                  "beside": null
                 }
-              ]
+              ],
+              "clarify": null,
+              "followUps": []
             }
           ]
         }
@@ -775,21 +818,26 @@
           "readings": [
             {
               "actionId": "act-cast",
-              "intent": "spell",
-              "uncertain": true,
-              "needsAdjudication": false,
-              "rulesQuestion": null,
-              "clarify": null,
-              "steps": [
+              "stages": [
                 {
-                  "step": "spell",
-                  "reason": "Odo mends Tamsin",
-                  "casterId": "odo",
-                  "spellId": "cure-wounds",
-                  "slotLevel": 1,
-                  "targetId": "tamsin"
+                  "intent": {
+                    "kind": "cast",
+                    "targets": [
+                      {
+                        "kind": "actor",
+                        "id": "tamsin"
+                      }
+                    ],
+                    "params": {
+                      "spell": "cure-wounds",
+                      "slot": 1
+                    }
+                  },
+                  "beside": null
                 }
-              ]
+              ],
+              "clarify": null,
+              "followUps": []
             }
           ]
         }

@@ -78,37 +78,47 @@
           "readings": [
             {
               "actionId": "act-search",
-              "intent": "check",
-              "uncertain": true,
-              "needsAdjudication": false,
-              "rulesQuestion": null,
-              "clarify": null,
-              "steps": [
+              "stages": [
                 {
-                  "step": "check",
-                  "reason": "Tamsin searches the ferry-house for whoever cut the bell rope",
-                  "combatantId": "tamsin",
-                  "kind": "ability-check",
-                  "ability": "int",
-                  "skill": "investigation",
-                  "difficulty": "easy",
-                  "circumstance": null,
-                  "autoFail": null,
-                  "onSuccess": [],
-                  "onFailure": [],
-                  "stakes": {
-                    "success": "The attempt works as intended.",
-                    "cost": "It works, but at a small price.",
-                    "failure": "The attempt comes to nothing.",
-                    "severe": "It goes badly wrong."
+                  "intent": {
+                    "kind": "check",
+                    "targets": [],
+                    "params": {
+                      "skill": "investigation"
+                    }
                   },
-                  "onCost": [],
-                  "onSevere": [],
-                  "newRisk": null
+                  "beside": {
+                    "stakes": {
+                      "success": "The attempt works as intended.",
+                      "cost": "It works, but at a small price.",
+                      "failure": "The attempt comes to nothing.",
+                      "severe": "It goes badly wrong."
+                    },
+                    "onSuccess": [],
+                    "onFailure": [],
+                    "onCost": [],
+                    "onSevere": [],
+                    "newRisk": null,
+                    "reveals": null,
+                    "autoFail": null
+                  }
                 }
-              ]
+              ],
+              "clarify": null,
+              "followUps": []
             }
           ]
+        }
+      }
+    },
+    {
+      "purpose": "dm.adjudicate",
+      "note": "a ruling on the check's difficulty",
+      "respond": {
+        "type": "json",
+        "value": {
+          "decision": "accept",
+          "difficulty": "easy"
         }
       }
     },
@@ -155,12 +165,34 @@
           "readings": [
             {
               "actionId": "act-persuade",
-              "intent": "talk",
-              "uncertain": true,
-              "needsAdjudication": true,
-              "rulesQuestion": "How does a character persuade a frightened creature to share what she knows?",
+              "stages": [
+                {
+                  "intent": {
+                    "kind": "check",
+                    "targets": [],
+                    "params": {
+                      "skill": "persuasion"
+                    }
+                  },
+                  "beside": {
+                    "stakes": {
+                      "success": "The attempt works as intended.",
+                      "cost": "It works, but at a small price.",
+                      "failure": "The attempt comes to nothing.",
+                      "severe": "It goes badly wrong."
+                    },
+                    "onSuccess": [],
+                    "onFailure": [],
+                    "onCost": [],
+                    "onSevere": [],
+                    "newRisk": null,
+                    "reveals": null,
+                    "autoFail": null
+                  }
+                }
+              ],
               "clarify": null,
-              "steps": []
+              "followUps": []
             }
           ]
         }
@@ -168,42 +200,12 @@
     },
     {
       "purpose": "dm.adjudicate",
-      "note": "a cited ruling; p 1 is the stubbed library passage",
+      "note": "a ruling on the check's difficulty",
       "respond": {
         "type": "json",
         "value": {
-          "ruling": "A Charisma check settles it, and the keeper's fear sets a moderate difficulty.",
-          "citations": [
-            {
-              "source": "library",
-              "p": 1,
-              "quote": "making a Charisma check"
-            }
-          ],
-          "steps": [
-            {
-              "step": "check",
-              "reason": "Tamsin persuades Wenna to share the safe path",
-              "combatantId": "tamsin",
-              "kind": "ability-check",
-              "ability": "cha",
-              "skill": "persuasion",
-              "difficulty": "easy",
-              "circumstance": null,
-              "autoFail": null,
-              "onSuccess": [],
-              "onFailure": [],
-              "stakes": {
-                "success": "The attempt works as intended.",
-                "cost": "It works, but at a small price.",
-                "failure": "The attempt comes to nothing.",
-                "severe": "It goes badly wrong."
-              },
-              "onCost": [],
-              "onSevere": [],
-              "newRisk": null
-            }
-          ]
+          "decision": "accept",
+          "difficulty": "easy"
         }
       }
     },
@@ -258,17 +260,9 @@
           "readings": [
             {
               "actionId": "act-advance",
-              "intent": "move",
-              "uncertain": false,
-              "needsAdjudication": false,
-              "rulesQuestion": null,
+              "stages": [],
               "clarify": null,
-              "steps": [
-                {
-                  "step": "none",
-                  "reason": "Moving along the posts needs no roll."
-                }
-              ]
+              "followUps": []
             }
           ]
         }
@@ -317,22 +311,25 @@
           "readings": [
             {
               "actionId": null,
-              "intent": "attack",
-              "uncertain": true,
-              "needsAdjudication": false,
-              "rulesQuestion": null,
-              "clarify": null,
-              "steps": [
+              "stages": [
                 {
-                  "step": "attack",
-                  "reason": "Snag swings his notched scimitar at Tamsin",
-                  "attackerId": "snag",
-                  "targetId": "tamsin",
-                  "attack": "Scimitar",
-                  "circumstance": null,
-                  "onHit": []
+                  "intent": {
+                    "kind": "attack",
+                    "targets": [
+                      {
+                        "kind": "actor",
+                        "id": "tamsin"
+                      }
+                    ],
+                    "params": {
+                      "weapon": "Scimitar"
+                    }
+                  },
+                  "beside": null
                 }
-              ]
+              ],
+              "clarify": null,
+              "followUps": []
             }
           ]
         }
@@ -380,22 +377,25 @@
           "readings": [
             {
               "actionId": "act-strike",
-              "intent": "attack",
-              "uncertain": true,
-              "needsAdjudication": false,
-              "rulesQuestion": null,
-              "clarify": null,
-              "steps": [
+              "stages": [
                 {
-                  "step": "attack",
-                  "reason": "Tamsin swings her longsword at the goblin in the pot-helm",
-                  "attackerId": "tamsin",
-                  "targetId": "goblin-2",
-                  "attack": "Longsword",
-                  "circumstance": null,
-                  "onHit": []
+                  "intent": {
+                    "kind": "attack",
+                    "targets": [
+                      {
+                        "kind": "actor",
+                        "id": "goblin-2"
+                      }
+                    ],
+                    "params": {
+                      "weapon": "Longsword"
+                    }
+                  },
+                  "beside": null
                 }
-              ]
+              ],
+              "clarify": null,
+              "followUps": []
             }
           ]
         }
@@ -459,22 +459,25 @@
           "readings": [
             {
               "actionId": "act-odo-1",
-              "intent": "attack",
-              "uncertain": true,
-              "needsAdjudication": false,
-              "rulesQuestion": null,
-              "clarify": null,
-              "steps": [
+              "stages": [
                 {
-                  "step": "attack",
-                  "reason": "Odo swings his mace at the goblin lookout",
-                  "attackerId": "odo",
-                  "targetId": "goblin-3",
-                  "attack": "Mace",
-                  "circumstance": null,
-                  "onHit": []
+                  "intent": {
+                    "kind": "attack",
+                    "targets": [
+                      {
+                        "kind": "actor",
+                        "id": "goblin-3"
+                      }
+                    ],
+                    "params": {
+                      "weapon": "Mace"
+                    }
+                  },
+                  "beside": null
                 }
-              ]
+              ],
+              "clarify": null,
+              "followUps": []
             }
           ]
         }
@@ -541,22 +544,25 @@
           "readings": [
             {
               "actionId": "act-kestrel-1",
-              "intent": "attack",
-              "uncertain": true,
-              "needsAdjudication": false,
-              "rulesQuestion": null,
-              "clarify": null,
-              "steps": [
+              "stages": [
                 {
-                  "step": "attack",
-                  "reason": "Kestrel looses an arrow at the goblin by the fire",
-                  "attackerId": "kestrel",
-                  "targetId": "goblin-4",
-                  "attack": "Shortbow",
-                  "circumstance": null,
-                  "onHit": []
+                  "intent": {
+                    "kind": "attack",
+                    "targets": [
+                      {
+                        "kind": "actor",
+                        "id": "goblin-4"
+                      }
+                    ],
+                    "params": {
+                      "weapon": "Shortbow"
+                    }
+                  },
+                  "beside": null
                 }
-              ]
+              ],
+              "clarify": null,
+              "followUps": []
             }
           ]
         }

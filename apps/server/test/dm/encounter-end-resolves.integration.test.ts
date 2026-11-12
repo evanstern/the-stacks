@@ -96,7 +96,12 @@ describe.skipIf(!reachable)("an encounter-ending action (database)", () => {
     await drainAll(worker);
 
     const jobs = (await listDmJobs(requireDb(), w.sessionId, 20)).reverse();
-    const turns = jobs.filter((j) => j.kind === "turn");
+    // An AI-seat `ruling` turn (spec 102) may follow the beat; it finds nothing open.
+    const turns = jobs.filter(
+      (j) =>
+        j.kind === "turn" &&
+        (j.input as { trigger?: string }).trigger !== "ruling",
+    );
     expect(turns.map((j) => j.error ?? j.status)).toEqual(["succeeded"]);
 
     const rows = await readRows(w);

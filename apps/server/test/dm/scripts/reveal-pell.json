@@ -37,37 +37,47 @@
           "readings": [
             {
               "actionId": "act-listen",
-              "intent": "check",
-              "uncertain": true,
-              "needsAdjudication": false,
-              "rulesQuestion": null,
-              "clarify": null,
-              "steps": [
+              "stages": [
                 {
-                  "step": "check",
-                  "reason": "Tamsin scans the reeds for the lookout post",
-                  "combatantId": "tamsin",
-                  "kind": "ability-check",
-                  "ability": "wis",
-                  "skill": "perception",
-                  "difficulty": "medium",
-                  "circumstance": null,
-                  "autoFail": null,
-                  "onSuccess": [],
-                  "onFailure": [],
-                  "stakes": {
-                    "success": "She spots Pell alive at the post",
-                    "cost": "She sees Pell, but the lookout turns her way",
-                    "failure": "The reeds and dusk give up nothing clear",
-                    "severe": "The lookout turns and sees her instead"
+                  "intent": {
+                    "kind": "check",
+                    "targets": [],
+                    "params": {
+                      "skill": "perception"
+                    }
                   },
-                  "onCost": [],
-                  "onSevere": [],
-                  "newRisk": null
+                  "beside": {
+                    "stakes": {
+                      "success": "She spots Pell alive at the post",
+                      "cost": "She sees Pell, but the lookout turns her way",
+                      "failure": "The reeds and dusk give up nothing clear",
+                      "severe": "The lookout turns and sees her instead"
+                    },
+                    "onSuccess": [],
+                    "onFailure": [],
+                    "onCost": [],
+                    "onSevere": [],
+                    "newRisk": null,
+                    "reveals": null,
+                    "autoFail": null
+                  }
                 }
-              ]
+              ],
+              "clarify": null,
+              "followUps": []
             }
           ]
+        }
+      }
+    },
+    {
+      "purpose": "dm.adjudicate",
+      "note": "a ruling on the check's difficulty",
+      "respond": {
+        "type": "json",
+        "value": {
+          "decision": "accept",
+          "difficulty": "medium"
         }
       }
     },

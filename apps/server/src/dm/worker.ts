@@ -3,7 +3,6 @@ import type { SessionProjections } from "@the-stacks/session-model";
 import { compact, getById, getByName } from "@the-stacks/srd";
 import type { Gateway } from "../ai/gateway.js";
 import type { DbClient } from "../auth/session.js";
-import { readFrom } from "../events/log.js";
 import type { Gate } from "../gate/index.js";
 import {
   finishJob,
@@ -13,8 +12,10 @@ import {
   setStage,
 } from "../jobs/queue.js";
 import type { PresenceReader } from "../presence/index.js";
-import { toStoredEvent } from "../session/events.js";
-import { loadProjections as loadSessionProjections } from "../session/projections.js";
+import {
+  loadEventWindow,
+  loadProjections as loadSessionProjections,
+} from "../session/projections.js";
 import { runChronicleJob } from "./chronicle.js";
 import { type CompanionDeps, runCompanionJob } from "./companion.js";
 import { runFloorJob } from "./floor.js";
@@ -295,16 +296,7 @@ export function createDmWorker(deps: DmWorkerDeps): DmWorker {
       gate: deps.gate,
       retrieve: deps.retrieve,
       loadProjections: deps.loadProjections,
-      loadEvents: async (sessionId, w) =>
-        (
-          await readFrom(db, {
-            sessionId,
-            afterSeq: w.afterSeq,
-            throughSeq: w.throughSeq,
-            types: w.types,
-            limit: 10_000, // ponytail: one beat's carrier rows; page when a window can pass 10k
-          })
-        ).map(toStoredEvent),
+      loadEvents: (sessionId, w) => loadEventWindow(db, sessionId, w),
       loadPriorTurns: (sessionId, excludeJobId) =>
         loadPriorTurnCheckpoints(db, sessionId, excludeJobId),
       srd,

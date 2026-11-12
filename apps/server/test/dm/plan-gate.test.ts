@@ -1232,7 +1232,8 @@ describe("checkPlan actor rule (spec 079 D5)", () => {
       rulings: [],
     });
     // The scripted action belongs to Tamsin; Kestrel's attack is cut as a later stage.
-    const v = plan(cut.readings, {
+    // Spec 104: the script is now stage-shaped; checkPlan takes the union.
+    const v = plan(cut.readings as never, {
       actors: new Map([[parsed.readings[0]?.actionId as string, "tamsin"]]),
     });
     expect(v[0]).toMatchObject({ ok: true });

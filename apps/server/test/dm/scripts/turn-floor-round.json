@@ -37,17 +37,9 @@
           "readings": [
             {
               "actionId": "act-bram",
-              "intent": "move",
-              "uncertain": false,
-              "needsAdjudication": false,
-              "rulesQuestion": null,
+              "stages": [],
               "clarify": null,
-              "steps": [
-                {
-                  "step": "none",
-                  "reason": "The move needs no roll."
-                }
-              ]
+              "followUps": []
             }
           ]
         }
@@ -112,17 +104,9 @@
           "readings": [
             {
               "actionId": "act-odo-1",
-              "intent": "move",
-              "uncertain": false,
-              "needsAdjudication": false,
-              "rulesQuestion": null,
+              "stages": [],
               "clarify": null,
-              "steps": [
-                {
-                  "step": "none",
-                  "reason": "The move needs no roll."
-                }
-              ]
+              "followUps": []
             }
           ]
         }
@@ -171,22 +155,25 @@
           "readings": [
             {
               "actionId": null,
-              "intent": "attack",
-              "uncertain": true,
-              "needsAdjudication": false,
-              "rulesQuestion": null,
-              "clarify": null,
-              "steps": [
+              "stages": [
                 {
-                  "step": "attack",
-                  "reason": "Snag swings his notched scimitar at Tamsin",
-                  "attackerId": "snag",
-                  "targetId": "tamsin",
-                  "attack": "Scimitar",
-                  "circumstance": null,
-                  "onHit": []
+                  "intent": {
+                    "kind": "attack",
+                    "targets": [
+                      {
+                        "kind": "actor",
+                        "id": "tamsin"
+                      }
+                    ],
+                    "params": {
+                      "weapon": "Scimitar"
+                    }
+                  },
+                  "beside": null
                 }
-              ]
+              ],
+              "clarify": null,
+              "followUps": []
             }
           ]
         }

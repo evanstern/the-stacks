@@ -85,91 +85,132 @@
           "readings": [
             {
               "actionId": "act-197dae73",
-              "intent": "check",
-              "uncertain": true,
-              "needsAdjudication": false,
-              "rulesQuestion": null,
-              "clarify": null,
-              "followUps": [],
-              "steps": [
+              "stages": [
                 {
-                  "step": "check",
-                  "reason": "Kestrel slips through the reeds unseen",
-                  "combatantId": "kestrel",
-                  "kind": "ability-check",
-                  "ability": "dex",
-                  "skill": "stealth",
-                  "difficulty": "medium",
-                  "circumstance": null,
-                  "autoFail": null,
-                  "onSuccess": [],
-                  "onFailure": [],
-                  "stakes": {
-                    "success": "The attempt works as intended.",
-                    "cost": "It works, but at a small price.",
-                    "failure": "The attempt comes to nothing.",
-                    "severe": "It goes badly wrong."
+                  "intent": {
+                    "kind": "check",
+                    "targets": [],
+                    "params": {
+                      "skill": "stealth"
+                    }
                   },
-                  "onCost": [],
-                  "onSevere": [],
-                  "newRisk": null
+                  "beside": {
+                    "stakes": {
+                      "success": "The attempt works as intended.",
+                      "cost": "It works, but at a small price.",
+                      "failure": "The attempt comes to nothing.",
+                      "severe": "It goes badly wrong."
+                    },
+                    "onSuccess": [],
+                    "onFailure": [],
+                    "onCost": [],
+                    "onSevere": [],
+                    "newRisk": null,
+                    "reveals": null,
+                    "autoFail": null
+                  }
                 },
                 {
-                  "step": "check",
-                  "reason": "Odo follows Kestrel through the reeds unseen",
-                  "combatantId": "odo",
-                  "kind": "ability-check",
-                  "ability": "dex",
-                  "skill": "stealth",
-                  "difficulty": "easy",
-                  "circumstance": null,
-                  "autoFail": null,
-                  "onSuccess": [],
-                  "onFailure": [],
-                  "stakes": {
-                    "success": "The attempt works as intended.",
-                    "cost": "It works, but at a small price.",
-                    "failure": "The attempt comes to nothing.",
-                    "severe": "It goes badly wrong."
+                  "intent": {
+                    "kind": "check",
+                    "targets": [],
+                    "params": {
+                      "skill": "stealth"
+                    }
                   },
-                  "onCost": [],
-                  "onSevere": [],
-                  "newRisk": null
+                  "beside": {
+                    "stakes": {
+                      "success": "The attempt works as intended.",
+                      "cost": "It works, but at a small price.",
+                      "failure": "The attempt comes to nothing.",
+                      "severe": "It goes badly wrong."
+                    },
+                    "onSuccess": [],
+                    "onFailure": [],
+                    "onCost": [],
+                    "onSevere": [],
+                    "newRisk": null,
+                    "reveals": null,
+                    "autoFail": null
+                  }
                 },
                 {
-                  "step": "check",
-                  "reason": "Tamsin hails the goblin camp and asks for parley",
-                  "combatantId": "tamsin",
-                  "kind": "ability-check",
-                  "ability": "cha",
-                  "skill": "persuasion",
-                  "difficulty": "easy",
-                  "circumstance": null,
-                  "autoFail": null,
-                  "onSuccess": [],
-                  "onFailure": [],
-                  "stakes": {
-                    "success": "The attempt works as intended.",
-                    "cost": "It works, but at a small price.",
-                    "failure": "The attempt comes to nothing.",
-                    "severe": "It goes badly wrong."
+                  "intent": {
+                    "kind": "check",
+                    "targets": [],
+                    "params": {
+                      "skill": "persuasion"
+                    }
                   },
-                  "onCost": [],
-                  "onSevere": [],
-                  "newRisk": null
+                  "beside": {
+                    "stakes": {
+                      "success": "The attempt works as intended.",
+                      "cost": "It works, but at a small price.",
+                      "failure": "The attempt comes to nothing.",
+                      "severe": "It goes badly wrong."
+                    },
+                    "onSuccess": [],
+                    "onFailure": [],
+                    "onCost": [],
+                    "onSevere": [],
+                    "newRisk": null,
+                    "reveals": null,
+                    "autoFail": null
+                  }
                 },
                 {
-                  "step": "attack",
-                  "reason": "Kestrel attacks Snag on Tamsin's signal",
-                  "attackerId": "kestrel",
-                  "targetId": "snag",
-                  "attack": "Shortbow",
-                  "circumstance": null,
-                  "onHit": []
+                  "intent": {
+                    "kind": "attack",
+                    "targets": [
+                      {
+                        "kind": "actor",
+                        "id": "snag"
+                      }
+                    ],
+                    "params": {
+                      "weapon": "Shortbow"
+                    }
+                  },
+                  "beside": null
                 }
-              ]
+              ],
+              "clarify": null,
+              "followUps": []
             }
           ]
+        }
+      }
+    },
+    {
+      "purpose": "dm.adjudicate",
+      "note": "a ruling on the check's difficulty",
+      "respond": {
+        "type": "json",
+        "value": {
+          "decision": "accept",
+          "difficulty": "medium"
+        }
+      }
+    },
+    {
+      "purpose": "dm.adjudicate",
+      "note": "a ruling on the check's difficulty",
+      "respond": {
+        "type": "json",
+        "value": {
+          "decision": "accept",
+          "difficulty": "easy"
+        }
+      }
+    },
+    {
+      "purpose": "dm.adjudicate",
+      "note": "a ruling on the check's difficulty",
+      "respond": {
+        "type": "json",
+        "value": {
+          "decision": "accept",
+          "difficulty": "easy"
         }
       }
     },

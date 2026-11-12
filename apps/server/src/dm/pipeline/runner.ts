@@ -183,14 +183,6 @@ export async function runTurn(
         } as TurnCheckpoint);
         if (!saved) return fenced(name);
       }
-      if (name === "narrate") {
-        // Spec 104 FR-018: the next beat's window starts after what this narrate read.
-        const { factsThrough } = result.output as NodeOutputs["narrate"];
-        if (factsThrough !== undefined) {
-          const saved = await store({ ...ctx.checkpoint, factsThrough });
-          if (!saved) return fenced(name);
-        }
-      }
     }
 
     if (name === "assemble") {
@@ -320,6 +312,10 @@ export async function runTurn(
       submissions: resolved?.submissions ?? ctx.checkpoint.submissions,
       lastSeq: resolved?.lastSeq ?? ctx.checkpoint.lastSeq,
       ...(resolved ? { planGate: resolved.planGate } : {}),
+      // Spec 104 FR-018: the next beat's narrate window starts after what this narrate read.
+      ...(ctx.results.narrate?.factsThrough !== undefined
+        ? { factsThrough: ctx.results.narrate.factsThrough }
+        : {}),
     };
     if (!(await ctx.deps.fence())) return fenced("resolve");
     const shipped = await submitNarration(ctx, checked, checkpoint);

@@ -1,6 +1,10 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { InterpretOutput } from "../../src/dm/nodes/schemas.js";
+import { z } from "zod";
+import {
+  InterpretOutput,
+  LegacyInterpretReadingSchema,
+} from "../../src/dm/nodes/schemas.js";
 import { stripFence } from "../../src/dm/pipeline/call.js";
 
 const FIXTURE = new URL(
@@ -33,7 +37,13 @@ describe("captured interpret failure (reproduction)", () => {
 
   it("attempt 2 fails the strict parse at an invented condition", () => {
     const excerpt = attempts[1]?.excerpt ?? "";
-    const parsed = InterpretOutput.safeParse(JSON.parse(stripFence(excerpt)));
+    // The capture is recorded data of the pre-Intent shape (spec 104 keeps it as such): the
+    // legacy reading schema is the one that fails at the invented condition.
+    const json = JSON.parse(stripFence(excerpt));
+    expect(InterpretOutput.safeParse(json).success).toBe(false);
+    const parsed = z
+      .object({ readings: z.array(LegacyInterpretReadingSchema) })
+      .safeParse(json);
     expect(parsed.success).toBe(false);
     if (parsed.success) return;
     expect(parsed.error.issues.map((i) => i.path.join("."))).toContain(

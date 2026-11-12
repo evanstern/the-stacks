@@ -204,7 +204,10 @@ describe("interpret", () => {
     expect(result.calls).toEqual([]);
     expect(scripted.provider.chatCalls).toHaveLength(0);
     expect(result.output.readings).toHaveLength(1);
-    expect(result.output.readings[0]?.stages[0]?.intent.kind).toBe("attack");
+    expect(
+      (result.output.readings[0] as { stages: { intent: { kind: string } }[] })
+        .stages[0]?.intent.kind,
+    ).toBe("attack");
   });
 
   it("sends only the prose item to the model when a slash item shares the beat", async () => {

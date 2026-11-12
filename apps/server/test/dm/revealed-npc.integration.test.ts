@@ -57,8 +57,13 @@ async function run(variant: Variant) {
   const s = script("reveal-snag.json");
   const start = script("scene-start.json");
   const calls = structuredClone(s.calls);
+  // The second `dm.director` call (a ruling call now follows each interpret).
   const director2 = (
-    calls[3] as { respond: { value: Record<string, unknown> } }
+    (calls as { purpose: string }[]).filter(
+      (c) => c.purpose === "dm.director",
+    )[1] as unknown as {
+      respond: { value: Record<string, unknown> };
+    }
   ).respond.value;
   let dice = s.dice;
   if (variant === "control") delete director2.arrivals;
@@ -147,9 +152,10 @@ describe.skipIf(!reachable)("revealed NPC is present (database)", () => {
       (r) => r.type === "attack.resolved" && eventOf(r).targetId === "snag",
     );
     expect(added).toBeGreaterThan(snagArrived[0]);
-    expect(attack).toBeGreaterThan(added);
+    // Spec 104: the planner pulls Snag in, then stops the shortbow OUT_OF_RANGE (no attack row).
+    expect(attack).toBe(-1);
     expect(resolvedOf(rows)?.payload).toMatchObject({ outcome: "applied" });
-    expect(planGate).toEqual([{ actionId: ACTION, ok: true, pull: ["snag"] }]);
+    expect(planGate).toEqual([{ actionId: ACTION, ok: true }]);
     expect(rows.some((r) => r.type === "encounter.started")).toBe(false);
   });
 
@@ -169,14 +175,12 @@ describe.skipIf(!reachable)("revealed NPC is present (database)", () => {
 
   it("control: no arrivals, Snag is still refused as absent", async () => {
     const { rows, planGate } = await run("control");
+    // Spec 104: the planner refuses TARGET_NOT_PRESENT; the event keeps INVALID_COMMAND.
     expect(resolvedOf(rows)?.payload).toMatchObject({
       outcome: "refused",
-      refusalCode: "UNKNOWN_COMBATANT",
+      refusalCode: "INVALID_COMMAND",
     });
-    expect(planGate?.[0]).toMatchObject({
-      ok: false,
-      failure: { field: "targetId", id: "snag", reason: "absent" },
-    });
+    expect(planGate).toEqual([{ actionId: ACTION, ok: true }]);
     expect(arrivedRows(rows, "snag")).toHaveLength(0);
   });
 });

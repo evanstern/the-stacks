@@ -38,41 +38,48 @@
           "readings": [
             {
               "actionId": "act-approach",
-              "intent": "check",
-              "uncertain": true,
-              "needsAdjudication": false,
-              "rulesQuestion": null,
-              "clarify": null,
-              "followUps": [],
-              "steps": [
+              "stages": [
                 {
-                  "step": "check",
-                  "reason": "Kestrel leads the party toward the reed camp unseen",
-                  "combatantId": "kestrel",
-                  "kind": "ability-check",
-                  "ability": "dex",
-                  "skill": "stealth",
-                  "difficulty": "medium",
-                  "circumstance": {
-                    "mode": "disadvantage",
-                    "reason": "Heavy mail and a boathook make the party hard to keep quiet."
+                  "intent": {
+                    "kind": "check",
+                    "targets": [],
+                    "params": {
+                      "skill": "stealth",
+                      "mode": "disadvantage"
+                    }
                   },
-                  "autoFail": null,
-                  "onSuccess": [],
-                  "onFailure": [],
-                  "stakes": {
-                    "success": "The attempt works as intended.",
-                    "cost": "It works, but at a small price.",
-                    "failure": "The attempt comes to nothing.",
-                    "severe": "It goes badly wrong."
-                  },
-                  "onCost": [],
-                  "onSevere": [],
-                  "newRisk": null
+                  "beside": {
+                    "stakes": {
+                      "success": "The attempt works as intended.",
+                      "cost": "It works, but at a small price.",
+                      "failure": "The attempt comes to nothing.",
+                      "severe": "It goes badly wrong."
+                    },
+                    "onSuccess": [],
+                    "onFailure": [],
+                    "onCost": [],
+                    "onSevere": [],
+                    "newRisk": null,
+                    "reveals": null,
+                    "autoFail": null
+                  }
                 }
-              ]
+              ],
+              "clarify": null,
+              "followUps": []
             }
           ]
+        }
+      }
+    },
+    {
+      "purpose": "dm.adjudicate",
+      "note": "a ruling on the check's difficulty",
+      "respond": {
+        "type": "json",
+        "value": {
+          "decision": "accept",
+          "difficulty": "medium"
         }
       }
     },

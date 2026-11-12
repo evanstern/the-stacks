@@ -1,6 +1,5 @@
 import { afterAll, describe, expect, it } from "vitest";
 import type { ResolveOutput } from "../../src/dm/nodes/resolve.js";
-import { loadSeed } from "../../src/dm/seed/load.js";
 import {
   cmd,
   fresh,
@@ -81,10 +80,6 @@ const prone = (targetId: string) => ({
   targetId,
   condition: "prone",
   source: "intent runner test",
-});
-const withRules = (r: { outcomeBands: boolean; naturals: boolean }) => ({
-  ...loadSeed("greyhollow-ford"),
-  tableRules: { ...r, groupChecks: false },
 });
 const checkStage = (beside = {}) =>
   stage(

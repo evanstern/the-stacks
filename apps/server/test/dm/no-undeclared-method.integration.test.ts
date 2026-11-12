@@ -12,7 +12,6 @@ import {
   workerFor,
 } from "./worker-world.js";
 import {
-  checkStep,
   commitAction,
   createWorld,
   db,
@@ -64,7 +63,7 @@ async function run(
     (c) => {
       if (c.purpose !== "dm.interpret" || !mutate) return c;
       const value = structuredClone(c.respond.value);
-      value.readings[0].steps = value.readings[0].steps.map(mutate);
+      value.readings[0].stages = value.readings[0].stages.map(mutate);
       return { ...c, respond: { ...c.respond, value } };
     },
   );
@@ -112,24 +111,31 @@ describe.skipIf(!reachable)("no undeclared method (database)", () => {
     expect(count(after, "check.resolved")).toBe(0);
     expect(resolvedOf(after)).toMatchObject({ outcome: "no-effect" });
     const r = cp.interpret?.readings.find((x) => x.actionId === ACTION);
-    expect(r?.steps).toEqual([]);
+    expect((r as { stages?: unknown[] }).stages).toEqual([]);
     expect(r?.clarify).toBe("Are you trying to stay unseen, or moving openly?");
     expect(count(after, "turn.advanced")).toBe(0);
   });
 
-  it("asks before rolling for another human's PC", async () => {
-    const { after, cp } = await run("We sneak toward the reed camp.");
-    expect(count(after, "check.resolved")).toBe(0);
-    const r = cp.interpret?.readings.find((x) => x.actionId === ACTION);
-    expect(r?.clarify).toBe(
-      "Kestrel's player decides what Kestrel does. What does Tamsin Vale do instead?",
+  it("another human's PC cannot be named: the stage actor is the declarer, stamped by code (spec 104)", async () => {
+    // The legacy plan gate asked before rolling for another human's PC. An Intent stage names no
+    // actor: the model cannot name Kestrel, so the rule cannot fire and the check is Tamsin's.
+    const { after } = await run(
+      "We sneak toward the reed camp.",
+      undefined,
+      [12, 14],
     );
+    const checks = after.filter((r) => r.type === "check.resolved");
+    for (const c of checks) {
+      expect(
+        (c.payload as { event: { combatantId: string } }).event.combatantId,
+      ).toBe("tamsin");
+    }
   });
 
   it("control: a stated manner for the declarer rolls", async () => {
     const { after } = await run(
       "We sneak toward the reed camp.",
-      (step) => ({ ...checkStep(), ...step, combatantId: "tamsin" }),
+      (stage) => stage,
       [12, 14],
     );
     const checks = after.filter((r) => r.type === "check.resolved");

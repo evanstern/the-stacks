@@ -53,45 +53,38 @@ const director = {
   companionPrompts: [],
 };
 const companion = { say: null, comment: null, act: null, pending: [] };
+/** Spec 104: a `check` stage with beside data; `stakes` is the part a shape breaks. */
 const check = (stakes: object) => ({
-  step: "check",
-  reason: "r",
-  combatantId: null,
-  kind: "ability-check",
-  ability: "dex",
-  skill: null,
-  difficulty: "medium",
-  circumstance: null,
-  autoFail: null,
-  onSuccess: [],
-  onFailure: [],
-  stakes,
+  intent: { kind: "check", targets: [], params: { skill: "athletics" } },
+  beside: {
+    stakes,
+    onSuccess: [],
+    onFailure: [],
+    onCost: [],
+    onSevere: [],
+    newRisk: null,
+    reveals: null,
+    autoFail: null,
+  },
 });
-export const reading = (steps: unknown[]) => ({
-  readings: [
-    {
-      actionId: "a1",
-      intent: "attack",
-      uncertain: false,
-      needsAdjudication: false,
-      rulesQuestion: null,
-      clarify: null,
-      steps,
-    },
-  ],
+export const reading = (stages: unknown[]) => ({
+  readings: [{ actionId: "a1", stages, clarify: null, followUps: [] }],
 });
+/** An `attack` stage; a missing `weapon` is the shape that fails attempt 1. */
 const attack = {
-  step: "attack",
-  reason: "r",
-  attackerId: "goblin",
-  targetId: "rook",
-  attack: "Scimitar",
-  circumstance: null,
-  onHit: [],
+  intent: {
+    kind: "attack",
+    targets: [{ kind: "actor", id: "rook" }],
+    params: { weapon: "Scimitar" },
+  },
+  beside: null,
 };
 const { comment: _c, ...companionNoComment } = companion;
 const { goalNote: _g, ...directorRest } = director;
-const { attack: _a, ...attackNoAttack } = attack;
+const attackNoAttack = {
+  ...attack,
+  intent: { ...attack.intent, params: { mode: "sideways" } },
+};
 const stakes = { success: "s", cost: "c", failure: "f" };
 
 export const SHAPES: Shape[] = [

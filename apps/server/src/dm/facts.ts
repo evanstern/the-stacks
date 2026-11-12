@@ -763,7 +763,8 @@ export function buildNarrationFacts(input: BuildFactsInput): NarrationFacts {
       refusalCode = view.resolved.refusalCode;
     } else continue;
     // Spec 104: an Intent's engine rows carry `actionId: null`; the action's own batches find them.
-    const mine = new Set(result?.batchIds ?? []);
+    // A reclaim after `action.resolve` landed has no result: the resolved row names the batches.
+    const mine = new Set(result?.batchIds ?? view?.resolved?.batchIds ?? []);
     const rows = p.ledger.filter(
       (r) => r.actionId === item.actionId || (r.batchId && mine.has(r.batchId)),
     );
@@ -893,7 +894,10 @@ export function buildNarrationFacts(input: BuildFactsInput): NarrationFacts {
       ...actions.flatMap((a) => {
         const mine = new Set(
           input.resolve.actionResults.find((r) => r.actionId === a.actionId)
-            ?.batchIds ?? [],
+            ?.batchIds ??
+            p.actions.find((v) => v.actionId === a.actionId)?.resolved
+              ?.batchIds ??
+            [],
         );
         return p.ledger.filter(
           (r) =>

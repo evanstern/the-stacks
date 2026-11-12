@@ -33,6 +33,7 @@ describe("dm/ write boundary (AC #5)", () => {
       "chronicle.ts",
       "companion.ts",
       "floor.ts",
+      "intent-runner.ts", // spec 104: resolve's stage runner, extracted from nodes/resolve.ts
       "nodes/resolve.ts",
       "rulings.ts",
     ]);

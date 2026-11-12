@@ -38,37 +38,47 @@
           "readings": [
             {
               "actionId": "act-listen",
-              "intent": "check",
-              "uncertain": true,
-              "needsAdjudication": false,
-              "rulesQuestion": null,
-              "clarify": null,
-              "steps": [
+              "stages": [
                 {
-                  "step": "check",
-                  "reason": "Tamsin listens and looks across the reeds",
-                  "combatantId": "tamsin",
-                  "kind": "ability-check",
-                  "ability": "wis",
-                  "skill": "perception",
-                  "difficulty": "medium",
-                  "circumstance": null,
-                  "autoFail": null,
-                  "onSuccess": [],
-                  "onFailure": [],
-                  "stakes": {
-                    "success": "The attempt works as intended.",
-                    "cost": "It works, but at a small price.",
-                    "failure": "The attempt comes to nothing.",
-                    "severe": "It goes badly wrong."
+                  "intent": {
+                    "kind": "check",
+                    "targets": [],
+                    "params": {
+                      "skill": "perception"
+                    }
                   },
-                  "onCost": [],
-                  "onSevere": [],
-                  "newRisk": null
+                  "beside": {
+                    "stakes": {
+                      "success": "The attempt works as intended.",
+                      "cost": "It works, but at a small price.",
+                      "failure": "The attempt comes to nothing.",
+                      "severe": "It goes badly wrong."
+                    },
+                    "onSuccess": [],
+                    "onFailure": [],
+                    "onCost": [],
+                    "onSevere": [],
+                    "newRisk": null,
+                    "reveals": null,
+                    "autoFail": null
+                  }
                 }
-              ]
+              ],
+              "clarify": null,
+              "followUps": []
             }
           ]
+        }
+      }
+    },
+    {
+      "purpose": "dm.adjudicate",
+      "note": "a ruling on the check's difficulty",
+      "respond": {
+        "type": "json",
+        "value": {
+          "decision": "accept",
+          "difficulty": "medium"
         }
       }
     },
@@ -116,22 +126,25 @@
           "readings": [
             {
               "actionId": "act-shoot",
-              "intent": "attack",
-              "uncertain": true,
-              "needsAdjudication": false,
-              "rulesQuestion": null,
-              "clarify": null,
-              "steps": [
+              "stages": [
                 {
-                  "step": "attack",
-                  "reason": "Kestrel takes aim and looses an arrow at Snag",
-                  "attackerId": "kestrel",
-                  "targetId": "snag",
-                  "attack": "Shortbow",
-                  "circumstance": null,
-                  "onHit": []
+                  "intent": {
+                    "kind": "attack",
+                    "targets": [
+                      {
+                        "kind": "actor",
+                        "id": "snag"
+                      }
+                    ],
+                    "params": {
+                      "weapon": "Shortbow"
+                    }
+                  },
+                  "beside": null
                 }
-              ]
+              ],
+              "clarify": null,
+              "followUps": []
             }
           ]
         }

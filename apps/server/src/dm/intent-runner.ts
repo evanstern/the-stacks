@@ -219,7 +219,10 @@ export async function runStages(
 
     // FR-014: a free retry and an auto-fail keep today's `check.roll` proposal.
     const rollerId = actorCombatant(fresh0, confirmed.actor);
+    // A stage whose Intent the log already holds is a resume or a reclaim, not a retry: its own
+    // failed check must not read as the earlier one.
     const legacyRoll =
+      !fresh0.intents.some((v) => v.id === confirmed.id) &&
       beside !== null &&
       RETRY_KINDS.includes(confirmed.kind) &&
       rollerId !== null &&
@@ -268,31 +271,71 @@ export async function runStages(
       if (!take(sub, n === 0)) break;
     } else {
       // A reclaim whose earlier attempt landed this stage before its checkpoint save: skip the
-      // submissions the log already holds (the same id would refuse INTENT_EXISTS).
-      // ponytail: the landed stage's batch id is not recovered (IntentView holds none), so its
-      // band effects and fact rows reach this beat through the narrate window only.
-      const landed = fresh0.intents.find((v) => v.id === confirmed.id)?.status;
+      // submissions the log already holds (the same id would refuse INTENT_EXISTS) and recover the
+      // stage's batch from the Intent view, so the band effects and the resolve row still follow.
+      const view = fresh0.intents.find((v) => v.id === confirmed.id);
+      const landed = view?.status;
       const recorded = run.submissions.some((s) => s.key === key);
-      if (!recorded && (landed === "settled" || landed === "answered"))
+      if (!recorded && (landed === "settled" || landed === "answered")) {
+        const landedBatches = view?.batchIds ?? [];
+        const batchId = landedBatches.at(-1) ?? null;
+        chain.batchIds.push(...landedBatches);
+        sub = {
+          stepRef: "",
+          key,
+          kind: "intent",
+          result: "applied",
+          refusal: null,
+          batchId,
+          proposalId: null,
+          outcome: null,
+          band: null,
+          stakes: beside?.stakes ?? null,
+          seqs: [],
+        };
+        if (!beside) continue;
+        const events = batchId ? batchEvents(fresh0.ledger, [batchId]) : [];
+        const band = events.length > 0 ? stepOutcome(events) : null;
+        sub.reveals = beside.reveals ?? null;
+        sub.revealedText = clueFor(ctx.seed, sub.reveals);
+        await runEffects(key, effectsForBand(beside, band), reason);
         continue;
-      if (source.kind === "item" && landed !== "declared") {
-        const d = await run.submit(
-          `${key}:d`,
-          "intent",
-          () => intentProposal(declared, key, reason),
-          null,
-          proposerOf(source.item),
-        );
-        if (!take(d, n === 0)) break;
       }
-      sub = await run.submit(
-        key,
-        "intent",
-        () => intentProposal(confirmed, key, reason),
-        beside?.stakes ?? null,
-        AI_DM,
-      );
-      if (!take(sub, n === 0)) break;
+      if (!recorded && landed === "needs_ruling") {
+        // The crash fell between the confirm and its ruling: do not resubmit, go on to the ruling.
+        sub = {
+          stepRef: "",
+          key,
+          kind: "intent",
+          result: "applied",
+          refusal: null,
+          batchId: null,
+          proposalId: null,
+          outcome: null,
+          band: null,
+          stakes: beside?.stakes ?? null,
+          seqs: [],
+        };
+      } else {
+        if (source.kind === "item" && landed !== "declared") {
+          const d = await run.submit(
+            `${key}:d`,
+            "intent",
+            () => intentProposal(declared, key, reason),
+            null,
+            proposerOf(source.item),
+          );
+          if (!take(d, n === 0)) break;
+        }
+        sub = await run.submit(
+          key,
+          "intent",
+          () => intentProposal(confirmed, key, reason),
+          beside?.stakes ?? null,
+          AI_DM,
+        );
+        if (!take(sub, n === 0)) break;
+      }
       // The carrier row says whether the planner settled the Intent.
       let p = await ctx.deps.loadProjections(ctx.job.sessionId);
       let status = p.intents.find((v) => v.id === confirmed.id)?.status;
@@ -325,6 +368,12 @@ export async function runStages(
         if (sub.batchId) chain.batchIds.push(sub.batchId);
       } else if (status === "declared" || status === undefined) {
         break; // the confirm left no carrier: nothing settled
+      } else if (status === "answered") {
+        // A reclaim: the ruling landed in the crashed attempt; the view holds the batch.
+        const batches =
+          p.intents.find((v) => v.id === confirmed.id)?.batchIds ?? [];
+        sub.batchId = batches.at(-1) ?? null;
+        chain.batchIds.push(...batches);
       } else if (sub.batchId) {
         chain.batchIds.push(sub.batchId);
       }
@@ -338,6 +387,8 @@ export async function runStages(
       sub.band ??
       sub.outcome ??
       (events.length > 0 ? stepOutcome(events) : null);
+    // Held arrivals (spec 089) read the applied band from the submission.
+    if (sub.band === null && typeof band === "string") sub.band = band;
     sub.reveals = beside.reveals ?? null;
     sub.revealedText = clueFor(ctx.seed, sub.reveals);
     if (sub.reveals && sub.revealedText === null) {

@@ -9,7 +9,10 @@ import {
 import type { Ruling } from "../../src/dm/nodes/adjudicate.js";
 import type { BeatItem } from "../../src/dm/nodes/assemble.js";
 import type { DirectorNodeOutput } from "../../src/dm/nodes/director.js";
-import type { InterpretReading, Step } from "../../src/dm/nodes/schemas.js";
+import type {
+  LegacyInterpretReading as InterpretReading,
+  Step,
+} from "../../src/dm/nodes/schemas.js";
 
 function check(
   reason: string,
@@ -117,7 +120,7 @@ describe("cutPlans", () => {
       readings: [reading("act-1", plan)],
       rulings: [ruling("act-1", plan)],
     });
-    expect(out.readings[0]?.steps).toHaveLength(2);
+    expect((out.readings[0] as InterpretReading).steps).toHaveLength(2);
     expect(out.readings[0]?.followUps).toEqual([
       "tamsin hails the camp",
       "kestrel attacks snag",
@@ -139,7 +142,7 @@ describe("cutPlans", () => {
       readings: [reading(null, plan)],
       rulings: [ruling(null, plan)],
     });
-    expect(out.readings[0]?.steps).toHaveLength(4);
+    expect((out.readings[0] as InterpretReading).steps).toHaveLength(4);
     expect(out.rulings[0]?.steps).toHaveLength(4);
   });
   it("keeps model follow-ups, merges, dedupes and caps at six", () => {

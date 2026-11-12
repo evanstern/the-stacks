@@ -38,12 +38,34 @@
           "readings": [
             {
               "actionId": "act-persuade",
-              "intent": "talk",
-              "uncertain": true,
-              "needsAdjudication": true,
-              "rulesQuestion": "How does a character persuade a frightened creature to share what she knows?",
+              "stages": [
+                {
+                  "intent": {
+                    "kind": "check",
+                    "targets": [],
+                    "params": {
+                      "skill": "persuasion"
+                    }
+                  },
+                  "beside": {
+                    "stakes": {
+                      "success": "The attempt works as intended.",
+                      "cost": "It works, but at a small price.",
+                      "failure": "The attempt comes to nothing.",
+                      "severe": "It goes badly wrong."
+                    },
+                    "onSuccess": [],
+                    "onFailure": [],
+                    "onCost": [],
+                    "onSevere": [],
+                    "newRisk": null,
+                    "reveals": null,
+                    "autoFail": null
+                  }
+                }
+              ],
               "clarify": null,
-              "steps": []
+              "followUps": []
             }
           ]
         }
@@ -51,42 +73,12 @@
     },
     {
       "purpose": "dm.adjudicate",
-      "note": "a cited ruling; p 1 is the stubbed library passage",
+      "note": "a ruling on the check's difficulty",
       "respond": {
         "type": "json",
         "value": {
-          "ruling": "A Charisma check settles it, and the keeper's fear sets a moderate difficulty.",
-          "citations": [
-            {
-              "source": "library",
-              "p": 1,
-              "quote": "making a Charisma check"
-            }
-          ],
-          "steps": [
-            {
-              "step": "check",
-              "reason": "Tamsin persuades Wenna to share the safe path",
-              "combatantId": "tamsin",
-              "kind": "ability-check",
-              "ability": "cha",
-              "skill": "persuasion",
-              "difficulty": "easy",
-              "circumstance": null,
-              "autoFail": null,
-              "onSuccess": [],
-              "onFailure": [],
-              "stakes": {
-                "success": "The attempt works as intended.",
-                "cost": "It works, but at a small price.",
-                "failure": "The attempt comes to nothing.",
-                "severe": "It goes badly wrong."
-              },
-              "onCost": [],
-              "onSevere": [],
-              "newRisk": null
-            }
-          ]
+          "decision": "accept",
+          "difficulty": "easy"
         }
       }
     },
