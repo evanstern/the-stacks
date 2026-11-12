@@ -134,13 +134,13 @@ path>` for add and commit, in separate Bash calls. Serial hotspots: `gate/{propo
 
 ## Phase 6: Verification **[orchestrator]**
 
-- [ ] T049 **[orchestrator]** `pnpm env:up`, migrate both databases by hand, and run the
+- [x] T049 **[orchestrator]** `pnpm env:up`, migrate both databases by hand, and run the
       session-model, gate and DM DB suites with `REQUIRE_DATABASE=1` and only `TEST_DATABASE_URL`
       exported. Re-run a known flake once and report it.
-- [ ] T050 **[orchestrator]** Mutation guard (plan D5): stub `readablePosts`, `suggestionState`, the
+- [x] T050 **[orchestrator]** Mutation guard (plan D5): stub `readablePosts`, `suggestionState`, the
       accept acceptor rule, `interruptRead` and rule 9 in turn. Record the failing test count for
       each. Restore, and confirm `git diff` is empty.
-- [ ] T051 **[orchestrator]** Script-mode server check (plan "Server check") on the debug routes.
+- [x] T051 **[orchestrator]** Script-mode server check (plan "Server check") on the debug routes.
       Commit the evidence under `specs/066-one-chat-stream/evidence/`.
 - [ ] T052 **[orchestrator]** Add the TASK-0199 execution-log row to
       `docs/design/r1-fast-table-runbook.md`: dispatches, rulings, test counts, mutation guard,
