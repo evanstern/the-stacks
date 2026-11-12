@@ -29,7 +29,7 @@ Spec: specs/107-ai-turn-intents
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
 - [x] #1 An AI companion turn emits a typed Intent and makes no interpret call.
-- [ ] #2 A monster turn emits typed Intents from its stat block and tactics with no Director prose call on the mechanics path.
+- [x] #2 A monster turn emits typed Intents from its stat block and tactics with no Director prose call on the mechanics path.
 - [ ] #3 AI-actor Intents pass the same gate and planner as player Intents, with a test.
 - [ ] #4 A fixture 4v4 round with three companions and four monsters completes under 60 s with the fake model.
 - [ ] #5 Spec phase: Monster turns emit Intents in code (AC #2, AC #3 monster half)
