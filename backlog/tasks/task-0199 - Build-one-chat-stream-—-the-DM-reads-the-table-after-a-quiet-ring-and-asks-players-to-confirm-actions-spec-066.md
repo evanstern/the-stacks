@@ -38,7 +38,7 @@ Spec: specs/066-one-chat-stream
 - [x] #1 Spec 066 is amended after CP-4 so the quiet ring runs on the Intent declared state.
 - [x] #2 In exploration and social play, a declared Intent waits for the quiet ring, then gets a DM reaction or confirm row.
 - [x] #3 A 👍 on the confirm row moves the Intent from declared to confirmed and sends it to the gate.
-- [ ] #4 A human-DM table setting turns the quiet ring off, with a test.
+- [x] #4 A human-DM table setting turns the quiet ring off, with a test.
 - [ ] #5 @dm produces one read-only ask_dm answer that changes no state, with a test.
 - [ ] #6 Spec 066 is amended against Intent contract v1.1 and reviewed by the operator at C-AMD before implementation.
 - [ ] #7 A direct intent request (not from a turn job) queues a coalesced turn that narrates its intent.recorded facts (moved from TASK-0247 by spec 066 OQ-3(b)).
