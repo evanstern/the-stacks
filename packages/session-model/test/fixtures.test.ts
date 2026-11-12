@@ -7,6 +7,7 @@ import {
   fixtures,
   freeModeAction,
   groupSignoff,
+  oneChatStream,
   proposalExamples,
   recipes,
   type SessionFixture,
@@ -746,5 +747,35 @@ describe("proposalExamples (contracts/fixtures.md)", () => {
       dm,
     );
     expect(execute(p.engine, example.command, scriptedRng([13])).ok).toBe(true);
+  });
+});
+
+describe("one-chat-stream facts (spec 066)", () => {
+  const f = oneChatStream;
+  it("every row decodes and the rows are valid", () => {
+    for (const e of f.events) {
+      expect(StoredEventSchema.safeParse(e).success).toBe(true);
+      expect(decodeEvent(e).status, `seq ${e.seq} ${e.type}`).toBe("known");
+    }
+  });
+  it("folds suggestions, a read marker, a confirmed item and turn mode", () => {
+    const p = project(f.events, dm);
+    expect(p.diagnostics).toEqual(cleanDiagnostics);
+    expect(p.suggestions.map((s) => s.suggestionId)).toEqual([
+      "sug-1",
+      "sug-2",
+    ]);
+    expect(p.presence?.purpose).toBe("read");
+    expect(p.tableMode.mode).toBe("turn");
+    expect(p.intents.find((v) => v.id === "sug-2.i1")?.status).toBe(
+      "needs_ruling",
+    );
+  });
+  it("the asker sees the ask_dm rows; the other player does not", () => {
+    const asked = (v: Viewer) =>
+      project(f.events, v).intents.some((i) => i.id === "i-4");
+    expect(asked(dm)).toBe(true);
+    expect(asked(other)).toBe(true);
+    expect(asked(ana)).toBe(false);
   });
 });

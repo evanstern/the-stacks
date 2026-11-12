@@ -16,12 +16,15 @@ export {
   MECHANICS_EVENT_TYPES,
   SESSION_EVENT_TYPES,
 } from "./catalog.js";
+export type { ActionSuggested, SuggestionItem } from "./events/actions.js";
 export {
   ActionCommentedV1,
   ActionCommittedV1,
   ActionDeclaredV1,
   ActionResolvedV1,
+  ActionSuggestedV1,
   ActionWithdrawnV1,
+  SuggestionItemV1,
 } from "./events/actions.js";
 export {
   DmSeatChangedV1,
@@ -163,8 +166,24 @@ export type {
   ProposalView,
   ScenePresenceEntry,
   SessionProjections,
+  SuggestionView,
   TranscriptEntry,
 } from "./projections/types.js";
+export type {
+  ReadablePost,
+  ReadRule,
+  SuggestionState,
+} from "./read.js";
+export {
+  isDmQuestion,
+  isDmReadOutput,
+  latestReadablePostSeq,
+  READ_QUIET_MS,
+  RING_BLANK_MS,
+  readablePosts,
+  readWindowMs,
+  suggestionState,
+} from "./read.js";
 export type { StoredEvent } from "./stored-event.js";
 export { StoredEventSchema } from "./stored-event.js";
 export type { Viewer } from "./visibility.js";

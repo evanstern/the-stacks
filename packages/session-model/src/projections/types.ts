@@ -5,6 +5,7 @@ import type {
 } from "@the-stacks/dnd5e-engine";
 import type { Intent } from "@the-stacks/intent";
 import type { RulingRequest } from "@the-stacks/planner";
+import type { SuggestionItem } from "../events/actions.js";
 import type { PartyMember } from "../events/party.js";
 import type { Scene } from "../events/scene.js";
 import type {
@@ -86,6 +87,12 @@ export type TranscriptEntry = {
   | { kind: "action.commented"; actionId: string; stance: Stance; text: string }
   | { kind: "action.committed"; actionId: string; authority: ActionAuthority }
   | { kind: "action.withdrawn"; actionId: string }
+  | {
+      kind: "action.suggested";
+      suggestionId: string;
+      readSeq: number;
+      items: SuggestionItem[];
+    }
   | {
       kind: "action.resolved";
       actionId: string;
@@ -225,6 +232,8 @@ export interface IntentView {
   id: string;
   /** The seq of the first carrier row for this id. */
   seq: number;
+  /** The first carrier row's `ts` (spec 066: the read window starts here). */
+  ts: string;
   /** The carrier row's actor. */
   actor: string;
   intent: Intent;
@@ -236,10 +245,20 @@ export interface IntentView {
   proposalId: string | null;
 }
 
+/** One DM confirm row (spec 066 FR-011). Staleness is derived: see `suggestionState`. */
+export interface SuggestionView {
+  suggestionId: string;
+  /** The seq of the `action.suggested` row. */
+  seq: number;
+  actor: string;
+  readSeq: number;
+  items: SuggestionItem[];
+}
+
 export interface PresenceView {
   /** The latest marker's present set (sorted ascending user ids). */
   present: string[];
-  purpose: "director" | "signoff" | "floor";
+  purpose: "director" | "signoff" | "floor" | "read";
   actionId: string | null;
   /** The marker's seq. */
   seq: number;
@@ -275,6 +294,8 @@ export interface SessionProjections {
   proposals: ProposalView[];
   /** One entry per recorded Intent id, in log order. */
   intents: IntentView[];
+  /** One entry per `action.suggested` row, in log order (spec 066). */
+  suggestions: SuggestionView[];
   /** The latest presence marker; null until one is folded (decision-0024). */
   presence: PresenceView | null;
   /** This viewer's space, the players' map and placements (spec 100). */

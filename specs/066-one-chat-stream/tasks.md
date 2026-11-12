@@ -18,27 +18,27 @@ path>` for add and commit, in separate Bash calls. Serial hotspots: `gate/{propo
 
 ## Phase 1: Session model — event, catalog, projection, read rule (card AC #1, #2, #4)
 
-- [ ] T001 In `packages/session-model/src/events/actions.ts`, add `SuggestionItemV1` and
+- [x] T001 In `packages/session-model/src/events/actions.ts`, add `SuggestionItemV1` and
       `ActionSuggestedV1` (plan D1). Refine: each item Intent has `commit: "declared"`; item ids are
       unique. Leave `ActionDeclaredV1` unchanged.
-- [ ] T002 In `events/presence.ts`, add `"read"` to `PRESENCE_PURPOSES`. Update the header comment.
-- [ ] T003 In `catalog.ts`, add `session("action.suggested", "lifecycle", ActionSuggestedV1)`.
-- [ ] T004 In `projections/types.ts` and `apply.ts`, add `suggestions`, the `action.suggested`
+- [x] T002 In `events/presence.ts`, add `"read"` to `PRESENCE_PURPOSES`. Update the header comment.
+- [x] T003 In `catalog.ts`, add `session("action.suggested", "lifecycle", ActionSuggestedV1)`.
+- [x] T004 In `projections/types.ts` and `apply.ts`, add `suggestions`, the `action.suggested`
       transcript entry and `PresenceView` purpose `read`. Count a duplicate suggestion id in
       `ignoredTransitions`.
-- [ ] T005 Create `packages/session-model/src/read.ts`: `isDmQuestion`, `readablePosts` (spec FR-006
+- [x] T005 Create `packages/session-model/src/read.ts`: `isDmQuestion`, `readablePosts` (spec FR-006
       rules 1 to 4, including the OQ-9 id rule), `latestReadablePostSeq`, `readWindowMs`,
       `READ_QUIET_MS`, `RING_BLANK_MS`, `isDmReadOutput`, `suggestionState` (spec FR-018).
-- [ ] T006 Export the T005 names from `src/index.ts`.
-- [ ] T007 Create `fixtures/one-chat-stream.ts` (plan D1) and add it to `fixtures/index.ts`.
-- [ ] T008 Create `packages/session-model/test/read-rule.test.ts`. Cover each FR-006 rule and its
+- [x] T006 Export the T005 names from `src/index.ts`.
+- [x] T007 Create `fixtures/one-chat-stream.ts` (plan D1) and add it to `fixtures/index.ts`.
+- [x] T008 Create `packages/session-model/test/read-rule.test.ts`. Cover each FR-006 rule and its
       negations: turn mode (rules 1, 2, 4 return nothing), a human seat (every rule returns nothing),
       a runner declare `<actionId>.<n>`, a whisper, `ai:dm`, an `ooc` line, `@dmx`. Cover both
       windows, `isDmReadOutput`, and `suggestionState` (stale by a later suggestion, by a no-action
       narration, by a switch to turn mode; not stale by a commit narration; confirmed).
-- [ ] T009 Amend `catalog.test.ts`, `presence.test.ts` and `fixtures.test.ts` for the new entry,
+- [x] T009 Amend `catalog.test.ts`, `presence.test.ts` and `fixtures.test.ts` for the new entry,
       purpose and fixture. Confirm `talk-isolation.test.ts` passes unchanged.
-- [ ] T010 Run `pnpm ci:check`.
+- [x] T010 Run `pnpm ci:check`.
 
 ## Phase 2: Gate — suggest, accept, `ask_dm` (card AC #3, #5)
 

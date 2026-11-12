@@ -335,6 +335,25 @@ export const sessionPayloads: Record<string, unknown> = {
     edges: [{ from: "house", to: "loft", kind: "climb", feet: 10 }],
     occupants: {},
   },
+  "action.suggested": {
+    suggestionId: "sug-1",
+    readSeq: 3,
+    items: [
+      {
+        itemId: "i1",
+        text: "Ana hides.",
+        intent: {
+          id: "sug-1.i1",
+          kind: "hide",
+          actor: { kind: "pc", id: "ana" },
+          targets: [],
+          params: {},
+          source: "ai",
+          commit: "declared",
+        },
+      },
+    ],
+  },
   "intent.recorded": {
     intent: {
       id: "i-1",
@@ -480,6 +499,54 @@ export const invalidSessionPayloads: Record<string, unknown[]> = {
       occupants: {},
     },
     { reason: "x", reset: false, zones: [], edges: [], occupants: {} },
+  ],
+  "action.suggested": [
+    { suggestionId: "sug-1", readSeq: 3, items: [] },
+    {
+      suggestionId: "sug-1",
+      readSeq: 3,
+      items: [
+        {
+          itemId: "i1",
+          text: "x",
+          intent: {
+            id: "sug-1.i1",
+            kind: "hide",
+            actor: { kind: "pc", id: "ana" },
+            source: "ai",
+            commit: "confirmed",
+          },
+        },
+      ],
+    },
+    {
+      suggestionId: "sug-1",
+      readSeq: 3,
+      items: [
+        {
+          itemId: "i1",
+          text: "x",
+          intent: {
+            id: "a",
+            kind: "hide",
+            actor: { kind: "pc", id: "ana" },
+            source: "ai",
+            commit: "declared",
+          },
+        },
+        {
+          itemId: "i1",
+          text: "y",
+          intent: {
+            id: "b",
+            kind: "hide",
+            actor: { kind: "pc", id: "ana" },
+            source: "ai",
+            commit: "declared",
+          },
+        },
+      ],
+    },
   ],
   "intent.recorded": [
     { outcome: "settled" },

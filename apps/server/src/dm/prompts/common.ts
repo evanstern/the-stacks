@@ -188,6 +188,8 @@ function transcriptLine(
       return `[${e.seq}] ${e.actionId} resolved: ${e.outcome}`;
     case "action.withdrawn":
       return `[${e.seq}] ${e.actionId} withdrawn`;
+    case "action.suggested":
+      return `[${e.seq}] the DM suggested: ${e.items.map((i) => i.text).join(" / ")}`;
   }
 }
 

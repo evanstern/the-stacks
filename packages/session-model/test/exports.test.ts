@@ -74,7 +74,12 @@ describe("package entry points", () => {
 
   it("the main entry exports the presence vocabulary", () => {
     expect("PresenceRecordedV1" in main).toBe(true);
-    expect(main.PRESENCE_PURPOSES).toEqual(["director", "signoff", "floor"]);
+    expect(main.PRESENCE_PURPOSES).toEqual([
+      "director",
+      "signoff",
+      "floor",
+      "read",
+    ]);
   });
 
   it("the fixtures subpath exports the contract, with types", () => {
@@ -84,6 +89,8 @@ describe("package entry points", () => {
     expect(recipes.length).toBeGreaterThan(0);
     expect(fx.fixtureIds.dmActor).toBe("ai:dm");
     expect(fx.presenceMarker.name).toBe("presence-marker");
+    expect(fx.oneChatStream.name).toBe("one-chat-stream");
+    expect(list).not.toContain(fx.oneChatStream);
     expect(list).not.toContain(fx.presenceMarker);
     expect(fx.talkOnly.name).toBe("talk-only");
     expect(fx.unknownAndInvalid.name).toBe("unknown-and-invalid");

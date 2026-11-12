@@ -3,6 +3,7 @@ import { commitAuthority } from "./commit-authority.js";
 import { dmApprovals } from "./dm-approvals.js";
 import { freeModeAction } from "./free-mode-action.js";
 import { groupSignoff } from "./group-signoff.js";
+import { oneChatStream } from "./one-chat-stream.js";
 import { presenceMarker } from "./presence-marker.js";
 import { proposalExamples } from "./proposal-examples.js";
 import { secretTracker } from "./secret-tracker.js";
@@ -20,6 +21,7 @@ export {
   dmApprovals,
   freeModeAction,
   groupSignoff,
+  oneChatStream,
   presenceMarker,
   proposalExamples,
   secretTracker,
