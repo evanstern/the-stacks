@@ -60,6 +60,8 @@ Phase 4 wiki (d34fa871): play-route, turn-floor and scene-panels re-pinned; chat
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
 Live check (40cbd19f) on the worktree app in script mode, two isolated Brave contexts, no vm-104 page touched. Passed: one composer and one Send, ring, Thinking, interrupt strip, confirm row then Confirmed, chips, no 'The party'; no modal and no clipping at 1280 or 390 px; a11y tree and keyboard pass. Not run live: turn mode, because greyhollow-confirm never starts an encounter. AC #1 rests on send.test.mjs (declare then commit; slash at confirmed; non-active say) and read-ring.test.mjs (hidden in turn mode). Minor finding: after a keyboard pick in the Speaker listbox, focus drops to body instead of the Speaker button.
+
+spec-bridge sync: Sources, frames and labels (FR-003, FR-005, FR-W1): 8/8 · Pure modules — send router, ring, view model (FR-001, FR-015, FR-022 to FR-025, card AC #1): 9/9 · Components and wiring (FR-001 to FR-005, FR-015, FR-017, FR-019, FR-026, card AC #2): 9/9 · Wiki — web share (NEEDS-REVIEW): 4/4 · Verification **[orchestrator]**: 5/5 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
