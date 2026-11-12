@@ -22,18 +22,18 @@ by hand. Export only `TEST_DATABASE_URL` as `VAR="$(sed …)"`.
 
 ## Phase 2: Companion turns emit Intents (AC #1, card note)
 
-- [ ] T011 Export `COMPANION_TURN_KINDS` and `CompanionIntentBodySchema` from `apps/server/src/dm/nodes/schemas.ts` (plan.md D1).
-- [ ] T012 In `apps/server/src/dm/nodes/interpret.ts`, make `isSlash` and `parseSlashItem` multi-line (plan.md D2).
-- [ ] T013 In `apps/server/src/dm/nodes/interpret.ts`, build the zero-stage hold reading for an AI companion item whose text is `HOLD_ACT_TEXT` (plan.md D2).
-- [ ] T014 Add `turn` to `CompanionOutput` in `apps/server/src/dm/companion.ts`.
-- [ ] T015 In `runCompanionJob`, on the active turn with no open action: stamp, validate, check the round trip, declare the slash lines and commit; else take the hold act and log `dm.companion.turn-invalid` (plan.md D5).
-- [ ] T016 In `apps/server/src/dm/prompts/companion.ts`, describe the `turn` field and its kinds; ask for `turn` on the companion's own turn; bump `PROMPT_VERSION` to `dm.companion-v9`.
-- [ ] T017 In `apps/server/src/dm/prompts/companion.ts`, render each comment actor with `dmActorLabel` and `seatsOf` (spec 096 OQ1).
-- [ ] T018 Update `interpret-intents.test.ts` for multi-line slash items (all ok, one refused line, over 6 lines) and the hold reading.
-- [ ] T019 Update `companion.integration.test.ts`, `companion-own-turn.integration.test.ts`, `companion-react.integration.test.ts` and `companion-addressee.test.ts` for the `turn` field and the comment label.
-- [ ] T020 Rescript every DM script and fixture that scripts a companion's own turn: add `turn` to the `dm.companion` reply and remove that turn job's `dm.interpret` call.
-- [ ] T021 Write `apps/server/test/dm/companion-turn-intents.integration.test.ts`: spec US-1 scenarios 1–4 with a strict fake gateway.
-- [ ] T022 Run `pnpm ci:check` with `REQUIRE_DATABASE=1`; fix until green; commit `TASK-0299: Phase 2 companion turns emit Intents (T011-T022)`.
+- [x] T011 Export `COMPANION_TURN_KINDS` and `CompanionIntentBodySchema` from `apps/server/src/dm/nodes/schemas.ts` (plan.md D1).
+- [x] T012 In `apps/server/src/dm/nodes/interpret.ts`, make `isSlash` and `parseSlashItem` multi-line (plan.md D2).
+- [x] T013 In `apps/server/src/dm/nodes/interpret.ts`, build the zero-stage hold reading for an AI companion item whose text is `HOLD_ACT_TEXT` (plan.md D2).
+- [x] T014 Add `turn` to `CompanionOutput` in `apps/server/src/dm/companion.ts`.
+- [x] T015 In `runCompanionJob`, on the active turn with no open action: stamp, validate, check the round trip, declare the slash lines and commit; else take the hold act and log `dm.companion.turn-invalid` (plan.md D5).
+- [x] T016 In `apps/server/src/dm/prompts/companion.ts`, describe the `turn` field and its kinds; ask for `turn` on the companion's own turn; bump `PROMPT_VERSION` to `dm.companion-v9`.
+- [x] T017 In `apps/server/src/dm/prompts/companion.ts`, render each comment actor with `dmActorLabel` and `seatsOf` (spec 096 OQ1).
+- [x] T018 Update `interpret-intents.test.ts` for multi-line slash items (all ok, one refused line, over 6 lines) and the hold reading.
+- [x] T019 Update `companion.integration.test.ts`, `companion-own-turn.integration.test.ts`, `companion-react.integration.test.ts` and `companion-addressee.test.ts` for the `turn` field and the comment label.
+- [x] T020 Rescript every DM script and fixture that scripts a companion's own turn: add `turn` to the `dm.companion` reply and remove that turn job's `dm.interpret` call.
+- [x] T021 Write `apps/server/test/dm/companion-turn-intents.integration.test.ts`: spec US-1 scenarios 1–4 with a strict fake gateway.
+- [x] T022 Run `pnpm ci:check` with `REQUIRE_DATABASE=1`; fix until green; commit `TASK-0299: Phase 2 companion turns emit Intents (T011-T022)`.
 
 ## Phase 3: AI-actor parity tests (AC #3)
 

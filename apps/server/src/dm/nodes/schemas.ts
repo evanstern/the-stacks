@@ -360,6 +360,38 @@ export const IntentBodySchema = z.discriminatedUnion(
 );
 export type IntentBody = z.infer<typeof IntentBodySchema>;
 
+/** The act that replaces a null act for the active companion in turn mode. */
+export const HOLD_ACT_TEXT = "holds position and watches for an opening";
+
+/**
+ * Spec 107 D1: the kinds a companion may declare on its own turn. No check-family kind: a
+ * check needs model-written stakes, which ride only on the interpret path (spec OQ-3).
+ */
+export const COMPANION_TURN_KINDS = [
+  "attack",
+  "cast",
+  "help",
+  "grapple",
+  "shove",
+  "move",
+  "dash",
+  "disengage",
+  "stand",
+  "drop_prone",
+  "attempt",
+] as const satisfies readonly InterpretKind[];
+const CompanionMembers = IntentBodyMembers.filter((m) =>
+  (COMPANION_TURN_KINDS as readonly string[]).includes(m.shape.kind.value),
+);
+export const CompanionIntentBodySchema = z.discriminatedUnion(
+  "kind",
+  CompanionMembers as unknown as [
+    (typeof IntentBodyMembers)[number],
+    ...(typeof IntentBodyMembers)[number][],
+  ],
+);
+export type CompanionIntentBody = z.infer<typeof CompanionIntentBodySchema>;
+
 /** The kinds a `beside` block (stakes, band effects, reveals) may ride on. */
 export const BESIDE_KINDS: readonly IntentKind[] = [
   "check",

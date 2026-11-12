@@ -6,6 +6,7 @@ import { buildInterpretPrompt, PROMPT_VERSION } from "../prompts/interpret.js";
 import { PURPOSE_OF } from "../purposes.js";
 import type { BeatItem } from "./assemble.js";
 import {
+  HOLD_ACT_TEXT,
   type IntentBody,
   IntentBodySchema,
   InterpretOutput,
@@ -56,6 +57,11 @@ function bodyOf(intent: Intent): unknown {
   };
 }
 
+const MAX_SLASH_LINES = 6;
+const isHold = (item: BeatItem): boolean =>
+  (item.actor ?? "").startsWith("ai:companion:") &&
+  item.text?.trim() === HOLD_ACT_TEXT;
+
 const clarifyReading = (
   actionId: string,
   question: string,
@@ -78,29 +84,55 @@ export function parseSlashItem(
   if (!actor) {
     return clarifyReading(item.actionId, "I cannot tell who is acting.");
   }
-  const res = parse(item.text.trim(), {
-    id: `${item.actionId}.0`,
-    actor,
-    source: "composer",
-    commit: "declared",
-  });
-  if (!res.ok) return clarifyReading(item.actionId, res.refusal.message);
-  const body = IntentBodySchema.safeParse(bodyOf(res.intent));
-  if (!body.success) {
+  // Spec 107 D2: an AI companion's hold is a zero-stage reading, built in code.
+  if (isHold(item)) {
+    return {
+      actionId: item.actionId,
+      stages: [],
+      clarify: null,
+      followUps: [],
+    };
+  }
+  const lines = item.text
+    .split("\n")
+    .map((l) => l.trim())
+    .filter((l) => l !== "");
+  if (lines.length > MAX_SLASH_LINES) {
     return clarifyReading(
       item.actionId,
-      `/${res.intent.kind} is not an action command here, or carries a number the engine owns.`,
+      `Send at most ${MAX_SLASH_LINES} commands in one action.`,
     );
   }
-  return {
-    actionId: item.actionId,
-    stages: [{ intent: body.data, beside: null }],
-    clarify: null,
-    followUps: [],
-  };
+  const stages: InterpretReading["stages"] = [];
+  for (const [n, line] of lines.entries()) {
+    const res = parse(line, {
+      id: `${item.actionId}.${n}`,
+      actor,
+      source: item.actor.startsWith("ai:") ? "ai" : "composer",
+      commit: "declared",
+    });
+    const at = lines.length > 1 ? ` (line ${n + 1})` : "";
+    if (!res.ok) {
+      return clarifyReading(item.actionId, `${res.refusal.message}${at}`);
+    }
+    const body = IntentBodySchema.safeParse(bodyOf(res.intent));
+    if (!body.success) {
+      return clarifyReading(
+        item.actionId,
+        `/${res.intent.kind} is not an action command here, or carries a number the engine owns${at}.`,
+      );
+    }
+    stages.push({ intent: body.data, beside: null });
+  }
+  return { actionId: item.actionId, stages, clarify: null, followUps: [] };
 }
 
-const isSlash = (text: string): boolean => text.trimStart().startsWith("/");
+/** Every non-blank line starts with `/` (spec 107 D2); one line behaves as before. */
+const isSlash = (item: BeatItem): boolean => {
+  if (isHold(item)) return true;
+  const lines = (item.text ?? "").split("\n").filter((l) => l.trim() !== "");
+  return lines.length > 0 && lines.every((l) => l.trimStart().startsWith("/"));
+};
 
 /**
  * The interpret node (contracts/nodes.md "interpret"): one reading per beat
@@ -138,7 +170,7 @@ export const interpret: Node<"interpret"> = async (ctx) => {
 
   // Spec FR-004: slash items never reach the model.
   const fresh = assembled.beat.filter((b) => !resumedIds.has(b.actionId));
-  const slash = fresh.filter((b) => isSlash(b.text));
+  const slash = fresh.filter((b) => isSlash(b));
   const slashReadings = slash.map((b) => parseSlashItem(b, actorOfItem(b)));
   const slashIds = new Set(slash.map((b) => b.actionId));
   // Spec 107: a monster turn is code; the model never reads it.

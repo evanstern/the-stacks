@@ -292,11 +292,22 @@
         "value": {
           "say": "Peace, friends, but I will not stand idle.",
           "comment": null,
-          "act": {
-            "text": "Odo swings his mace at the goblin lookout.",
-            "commit": true
-          },
-          "pending": []
+          "act": null,
+          "pending": [],
+          "turn": [
+            {
+              "kind": "attack",
+              "targets": [
+                {
+                  "kind": "actor",
+                  "id": "goblin-3"
+                }
+              ],
+              "params": {
+                "weapon": "Mace"
+              }
+            }
+          ]
         }
       }
     },
@@ -327,38 +338,6 @@
       }
     },
     {
-      "purpose": "dm.interpret",
-      "respond": {
-        "type": "json",
-        "value": {
-          "readings": [
-            {
-              "actionId": "act-odo-1",
-              "stages": [
-                {
-                  "intent": {
-                    "kind": "attack",
-                    "targets": [
-                      {
-                        "kind": "actor",
-                        "id": "goblin-3"
-                      }
-                    ],
-                    "params": {
-                      "weapon": "Mace"
-                    }
-                  },
-                  "beside": null
-                }
-              ],
-              "clarify": null,
-              "followUps": []
-            }
-          ]
-        }
-      }
-    },
-    {
       "purpose": "dm.narrate",
       "note": "a hit, no death",
       "respond": {
@@ -374,11 +353,22 @@
         "value": {
           "say": null,
           "comment": null,
-          "act": {
-            "text": "Kestrel looses an arrow at the goblin by the fire.",
-            "commit": true
-          },
-          "pending": []
+          "act": null,
+          "pending": [],
+          "turn": [
+            {
+              "kind": "attack",
+              "targets": [
+                {
+                  "kind": "actor",
+                  "id": "goblin-4"
+                }
+              ],
+              "params": {
+                "weapon": "Shortbow"
+              }
+            }
+          ]
         }
       }
     },
@@ -406,38 +396,6 @@
           },
           "goalNote": "The fight is over; the party tends its fallen.",
           "companionPrompts": []
-        }
-      }
-    },
-    {
-      "purpose": "dm.interpret",
-      "respond": {
-        "type": "json",
-        "value": {
-          "readings": [
-            {
-              "actionId": "act-kestrel-1",
-              "stages": [
-                {
-                  "intent": {
-                    "kind": "attack",
-                    "targets": [
-                      {
-                        "kind": "actor",
-                        "id": "goblin-4"
-                      }
-                    ],
-                    "params": {
-                      "weapon": "Shortbow"
-                    }
-                  },
-                  "beside": null
-                }
-              ],
-              "clarify": null,
-              "followUps": []
-            }
-          ]
         }
       }
     },
