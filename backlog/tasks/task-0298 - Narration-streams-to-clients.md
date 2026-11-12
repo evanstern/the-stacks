@@ -4,7 +4,7 @@ title: Narration streams to clients
 status: In Progress
 assignee: []
 created_date: 2026-11-08 19:56
-updated_date: '2026-11-12T21:15:00Z'
+updated_date: '2026-11-12T21:45:00Z'
 labels:
   - ws:narration
   - replan-2026-11
@@ -53,4 +53,7 @@ Claimed 2026-11-12 by the R1 sweep (docs/design/r1-fast-table-runbook.md). Workt
 
 Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5
 Spec 108 (da6ee720): 29 tasks, 5 phases, no split. Streams one checked sentence at a time, so a dropped sentence is never streamed. New narration-stream frame (C-GATE). AC #4 needs no code change. AC #5 goes in the job checkpoint, with no migration. Awaiting the C-GATE ruling before phase 3.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
+Phases 1-2 (e1ff0321, d1d012e7): ci:check exit 0; server suite REQUIRE_DATABASE=1 1905 passed. Prefix property holds at 1-, 3- and 17-char splits over 16 hand cases and 106 narrate fixtures, and no dropped sentence ever streamed. Fogged-zone and absent-actor cases assert string absence only. No frozen frame touched (verified by diff). checkBase() is shared from nodes/check.ts into narrate.ts; check-boundaries passes.
 <!-- SECTION:NOTES:END -->
