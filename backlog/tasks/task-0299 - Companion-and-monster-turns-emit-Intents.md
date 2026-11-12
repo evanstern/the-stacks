@@ -4,7 +4,7 @@ title: Companion and monster turns emit Intents
 status: In Progress
 assignee: []
 created_date: 2026-11-08 19:56
-updated_date: '2026-11-12T18:56:00Z'
+updated_date: '2026-11-12T19:17:00Z'
 labels:
   - ws:intent
   - replan-2026-11
@@ -59,4 +59,7 @@ Operator ruling 2026-11-12 (in chat): "Accept all". This approves the spec 107 d
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
 Phases 1-2 (e29142ea, a74b03fc): ci:check exit 0 on each commit; full server suite REQUIRE_DATABASE=1: 1862 passed. Measured model calls: a monster turn makes 1 (narrate); a companion's own turn makes 2 (companion, narrate), down from 3 plus Director.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
+Phases 3-5 plus a missing-turn log fix (7f65fa7d, 8854bbfa, a13be04e, ad13f3d4). 4v4 bench: 'ai-round 4v4 ms=874 budget=60000ms OK model-calls: companion=3 director=4 narrate=8 interpret=0'. Negative proof with BUDGET_MS=1 fails. Gap: monster move-then-attack is covered by unit tests only, because every seed monster has a ranged attack; carded.
 <!-- SECTION:NOTES:END -->
