@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: 2026-11-02 06:46
-updated_date: '2026-11-12T03:01:00Z'
+updated_date: '2026-11-12T03:05:00Z'
 labels:
   - web
   - dm
@@ -42,6 +42,12 @@ Spec: specs/066-one-chat-stream
 - [ ] #5 @dm produces one read-only ask_dm answer that changes no state, with a test.
 - [ ] #6 Spec 066 is amended against Intent contract v1.1 and reviewed by the operator at C-AMD before implementation.
 - [ ] #7 A direct intent request (not from a turn job) queues a coalesced turn that narrates its intent.recorded facts (moved from TASK-0247 by spec 066 OQ-3(b)).
+- [ ] #8 Spec phase: Session model — event, catalog, projection, read rule (card AC #1, #2, #4)
+- [ ] #9 Spec phase: Gate — suggest, accept, `ask_dm` (card AC #3, #5)
+- [ ] #10 Spec phase: DM runtime — window, marker, interrupt, read, rule 8 (card AC #1, #2, #5, #7)
+- [ ] #11 Spec phase: Frozen-contract amendment blocks (C-GATE ruled 2026-11-11)
+- [ ] #12 Spec phase: Wiki — server share (NEEDS-REVIEW)
+- [ ] #13 Spec phase: Verification **[orchestrator]**
 <!-- AC:END -->
 
 ## Definition of Done
@@ -67,4 +73,7 @@ Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5
 Spec 066 amended (282eb567, spec.md + plan.md). 70 tasks in 7 phases: split recommended (0199-server AC 1,2,3,5,6; 0199-web AC 4,7). Frozen-contract amendments C-1..C-9 listed in plan.md. Awaiting C-AMD (and C-GATE) review; tasks.md not re-derived yet.
 
 C-AMD ruling (operator, 2026-11-11, in chat): "Approve all". This approves: the spec 066 amendment (282eb567); the split (OQ-1: this card keeps AC #1, #2, #3, #5, #6 and #8, and AC #4 and #7 move to a new web card); the frozen-contract amendments C-1..C-9 in plan.md (C-GATE); and OQ-2..OQ-9 as recommended. Per OQ-3(b), the AC "a direct intent request queues a coalesced turn that narrates it" moves here from TASK-0247. Per OQ-4, TASK-0314 merges before this card.
+
+Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5
+Spec 066 re-scoped to the server half (5d9c8153): 53 tasks in 6 phases. The orchestrator keeps contract blocks C-6, C-7 and C-9 in this card's Phase 4, so every frozen-contract change lands in one PR and TASK-0315 builds against them.
 <!-- SECTION:NOTES:END -->
