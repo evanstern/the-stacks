@@ -33,7 +33,7 @@ sources:
   - apps/server/test/intent-latency.bench-test.ts
   - tsconfig.json
 size_budget_exempt: spec 102 adds the server tsconfig reference to packages/intent in the one test-suite note; the suite map does not split without a TASK of its own
-verified_against: 45ecfe33bfbd1121f1487ffef7614f71913db4c2
+verified_against: d1c7fad940de2e69270dba99d0c32b15e611d2f4
 ---
 
 # Test suite
@@ -121,7 +121,7 @@ scopes `"include": ["src"]` (its `references` now also name the engine, session-
 
 `apps/server/test/intent-latency.bench-test.ts` runs in `pnpm check:timing` (the server's
 `test:timing`, config `vitest.timing.config.ts`, which sets `fileParallelism: false` so the ddb
-bench never overlaps it), never in `pnpm test`. It loud-skips without a database and throws
+bench never overlaps it, and `reporters: ["default"]` so the stdout latency lines show in the CI log), never in `pnpm test`. It loud-skips without a database and throws
 under `REQUIRE_DATABASE=1`. `BUDGET_MS = 1000` is constitution IX's p95, one constant with no
 retry and no multiplier. Clock seam: `performance.now()` before `gate.handle`, stopped inside a
 `gate.onAppended` listener on the batch whose `intent.recorded` row carries the sample's Intent
