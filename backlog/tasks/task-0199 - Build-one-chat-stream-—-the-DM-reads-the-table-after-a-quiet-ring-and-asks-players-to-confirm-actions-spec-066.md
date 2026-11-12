@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: 2026-11-02 06:46
-updated_date: '2026-11-12T04:49:00Z'
+updated_date: '2026-11-12T05:16:00Z'
 labels:
   - web
   - dm
@@ -85,4 +85,7 @@ Phase 3 (797971db): ci:check green with REQUIRE_DATABASE=1, 1843 server tests. T
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
 Phases 4-5 done. Contract blocks C-1..C-9 are in 7c0d1613, with dated notes recording the code as built. The wiki is in a499bc73: 10 NEEDS-REVIEW notes and 7 RE-PIN-ONLY. Open for TASK-0315: confirm the C-7 wording on dropping 'The party' from the speaker chip.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
+Phase 6 T049-T051 (1eaf4785, 2ddacdbd). DB suites: session-model 1035, gate 62, dm 1167. Mutation guard: every stub fails tests (readablePosts 9, suggestionState 5, acceptor 2, interruptRead 2, rule 9 3). Script-mode server check on the worktree app passed after F1, a missing dm.narrate entry in greyhollow-confirm.json for the rule 9 turn, now fixed. No paid calls; no vm-104 credential used.
 <!-- SECTION:NOTES:END -->
