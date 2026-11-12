@@ -48,11 +48,11 @@
 
 ## Phase 5: Verification **[orchestrator]**
 
-- [ ] T031 **[orchestrator]** Run `pnpm ci:check` on the final tree and the spec-bridge gate.
+- [x] T031 **[orchestrator]** Run `pnpm ci:check` on the final tree and the spec-bridge gate.
 - [x] T032 **[orchestrator]** Brave live check, script mode `DM_FAKE_SCRIPT=greyhollow-confirm`, two windows (Tamsin, Kestrel). Record in `specs/105-one-composer-web/evidence/live-check.md`: one composer and one Send; a free-mode post entering the ring; Thinking; the confirm row's 👍 for Kestrel and "Waiting on Kestrel" for Tamsin; the line turning "Confirmed"; in turn mode no ring and the active player's Enter committing.
 - [x] T033 **[orchestrator]** Screenshots at 1280 px and 390 px; no modal at either width.
 - [x] T034 **[orchestrator]** Accessibility check: the Brave accessibility-tree read and a keyboard-only pass (Speaker, Mention, Send, 👍, Not quite, I'm sure, Wait). Record it (spec OQ-5).
-- [ ] T035 **[orchestrator]** Record the `Dispatch:` lines on the card and run `spec-bridge:sync`.
+- [x] T035 **[orchestrator]** Record the `Dispatch:` lines on the card and run `spec-bridge:sync`.
 
 ## Dependencies
 
