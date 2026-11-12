@@ -1,0 +1,33 @@
+---
+id: TASK-0314
+title: Human DM ruling queues the resume turn
+status: To Do
+assignee: []
+created_date: '2026-11-12T01:14:00Z'
+labels:
+  - ws:intent
+  - replan-2026-11
+  - bug
+milestone: m-10
+dependencies:
+  - TASK-0269
+ordinal: 298000
+---
+
+## Description
+
+<!-- SECTION:DESCRIPTION:BEGIN -->
+Found in TASK-0269 (PR #168). When a human DM answers an open needs_ruling request with a ruling Intent, no turn is queued to resume the waiting action. Enqueue rule 2 fires only for ai:dm proposals. The confirm's approval queues one turn, which finds the ask still open. The human-dm-roll-resume test queues the approval turn by hand. This breaks human-DM play whenever a ruling is needed (spec 104, spec 102 FR-021..FR-025).
+<!-- SECTION:DESCRIPTION:END -->
+
+## Acceptance Criteria
+<!-- AC:BEGIN -->
+- [ ] #1 A ruling Intent from a seated human DM that answers an open request queues one resume turn for the waiting action.
+- [ ] #2 human-dm-roll-resume runs with no hand-queued turn.
+<!-- AC:END -->
+
+## Definition of Done
+<!-- DOD:BEGIN -->
+- [ ] #1 All tests and checks run green
+- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
+<!-- DOD:END -->
