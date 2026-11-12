@@ -37,8 +37,8 @@ Spec: specs/106-latency-gate
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
-- [ ] #1 All tests and checks run green
-- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
+- [x] #1 All tests and checks run green
+- [x] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
 
 ## Implementation Notes
@@ -51,4 +51,6 @@ Spec 106 (bb6d6beb): 7 tasks, 2 phases. Budget: constitution IX, under 1 s p95 (
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
 Phases 1-2 (45ecfe33, a87b1c0f). Local p95: attack 18.0 ms, check 31.5 ms, against a 1000 ms budget. Negative proof with BUDGET_MS=0.001 exits 1 and prints FAIL. OQ-5 confirmed: check.resolved and intent.recorded land in one append batch for both kinds (440 samples). The gate adds about 12 s to check:timing. Sent back: the PASS lines were hidden from plain check:timing output, which AC #1 ('records') needs visible.
+
+Follow-up (d1c7fad9, c6a526d0): reporters ['default'] in vitest.timing.config.ts, so a plain check:timing and ci:check print 'latency gate: PASS' with p95 attack 17.2 ms and check 30.0 ms.
 <!-- SECTION:NOTES:END -->
