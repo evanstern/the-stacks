@@ -4,7 +4,7 @@ title: Interpret emits Intents
 status: In Progress
 assignee: []
 created_date: 2026-11-07 05:13
-updated_date: '2026-11-11T23:33:00Z'
+updated_date: '2026-11-12T00:31:00Z'
 labels:
   - ws:intent
   - replan-2026-11
@@ -74,4 +74,7 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
 Phases 3-5 dispatch stopped at a blocker (WIP 74ac752c, red): action.resolve refuses UNKNOWN_BATCH for Intent stages. Frozen contract 029 gate-api.md:56 requires every batchId to name a ledger row with this actionId, and spec 102 FR-017 writes Intent engine rows with actionId null. Spec 104 FR-016 cannot be met as written. Awaiting operator ruling (C-GATE).
 
 C-GATE ruling (operator, 2026-11-11, in chat): "Relax the gate (a)": action.resolve also accepts a batchId that an intent.recorded row names, when that row's Intent id is <actionId>.<n> for this action. Engine rows stay actionId null (spec 102 FR-017 unchanged). Amend specs/029-proposal-gate/contracts/gate-api.md line 56 additively, quoting this ruling.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
+Phases 3-5 done (a657c769 gate amendment, 72d7a388, 0e705bb3, 17667717 green). Orchestrator ran ci:check on 17667717: exit 0 (the agent misread 8 pre-existing lint warnings as failures). Full server suite REQUIRE_DATABASE=1: 1798 passed. Beyond the quoted C-GATE ruling: a ruling carrier's batch counts toward the Intent it answers (needed for the AI-seat check confirm). Behavior changes for operator review: seed NPCs not yet arrived are targetable through the planner (legacy refused UNKNOWN_COMBATANT); planner OUT_OF_RANGE now stops shots the old path rolled; each no-DC check under the AI seat queues one ruling turn.
 <!-- SECTION:NOTES:END -->
