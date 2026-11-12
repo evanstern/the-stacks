@@ -14,7 +14,7 @@ sources:
   - apps/server/src/dm/prompts/step-grammar.ts
   - apps/server/src/dm/seed/schema.ts
   - specs/033-director-robustness/contracts/rules-terms.md
-verified_against: 7c0d16130c083a540d3a93f5fc587ec3e95e5cbf
+verified_against: a13be04e8a7cb8310bd0d5cfa3a518c5c29c310f
 ---
 
 # DM failure record and rules-term gates
@@ -47,7 +47,7 @@ interpret and adjudicate schemas accept only closed lists derived from engine en
 `ConditionKeySchema`, `SkillSchema` (`nodes/schemas.ts`, derived from the engine's
 `condition.apply` and `check.roll` commands, thrown at load if not an enum), `AbilitySchema`
 and `DamageTypeSchema` ([[dnd5e-engine]]). The `presence` effect (`{effect, targetId, reason}`, strict, no `after` field) adds `PresenceReasonSchema` (`arrived`, `left`, `fled`, `removed`, `surrendered`, `conceded`; [[session-model]]) as a closed term; `step-grammar.ts` renders it too. The seed schema adds a required per-beat `presence` map and NPC `aliases` ([[seed-npc-presence]]). `prompts/step-grammar.ts` renders the same lists
-into the interpret and adjudicate prompts (`dm.adjudicate-v10` and, for interpret, a `dm.interpret-v17` that no longer uses `step-grammar.ts`: its `INTENT_GRAMMAR` in `prompts/interpret.ts` lists the Intent kinds and renders the effect, condition, presence-reason, skill and damage-type lists; the step grammar renders only the adjudicate prompt; before v17: `dm.interpret-v16`; v15 adds the "Arriving this beat" section, spec 088; v5 adds `followUps`, TASK-0182; v6 adds the agency rule, TASK-0113; v7 adds the `move` step, TASK-0208; v13 and v10 add the `help` step and the opposition `difficulty`, spec 084;v10 say), so no list is
+into the interpret and adjudicate prompts (`dm.adjudicate-v10` and, for interpret, a `dm.interpret-v18` (spec 107 drops the monster-turn lines) that no longer uses `step-grammar.ts`: its `INTENT_GRAMMAR` in `prompts/interpret.ts` lists the Intent kinds and renders the effect, condition, presence-reason, skill and damage-type lists; the step grammar renders only the adjudicate prompt; before v17: `dm.interpret-v16`; v15 adds the "Arriving this beat" section, spec 088; v5 adds `followUps`, TASK-0182; v6 adds the agency rule, TASK-0113; v7 adds the `move` step, TASK-0208; v13 and v10 add the `help` step and the opposition `difficulty`, spec 084;v10 say), so no list is
 hand-typed; the interpret body schema is derived the same way from the Intent contract (`IntentBodySchema` in `nodes/schemas.ts`: `INTERPRET_KINDS`, each kind's `KIND_RULES` target bounds and `paramsSchemaOf` with the `dc` key removed, CR-004). The stamped Intent re-runs the full `IntentSchema`. It is split from `prompts/common.ts` because narrate must import no engine value.
 The scene seed's character `skills` keys and clue `check.skill` use the same `SkillSchema`.
 A gate never maps, coerces or drops a term to pass output. The `beside` block is a strict object, and an ability-check stage needs `stakes.cost` and `stakes.severe` (a `superRefine` on the stage; a save may set them null). The rules-terms contract

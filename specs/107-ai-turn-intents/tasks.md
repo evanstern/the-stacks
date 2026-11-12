@@ -56,7 +56,7 @@ by hand. Export only `TEST_DATABASE_URL` as `VAR="$(sed …)"`.
 Run the wiki-update plan loop. Classify each note RE-PIN-ONLY or NEEDS-REVIEW from
 `git diff <old-pin>..HEAD -- <sources>`. Amend prose before bumping a pin.
 
-- [ ] T033 NEEDS-REVIEW `docs/wiki/dm-runtime.md`: monster policy, code Director on monster turns, companion `turn`, multi-line slash items, `dm.interpret-v18`, `dm.companion-v9`.
-- [ ] T034 NEEDS-REVIEW `docs/wiki/dm-turn-jobs.md`, `docs/wiki/turn-floor.md` and `docs/wiki/seed-npc-presence.md` (the `tactics` field); re-pin any other note whose sources list a touched file.
-- [ ] T035 NEEDS-REVIEW `docs/wiki/test-suite.md`: the 4v4 bench test in `check:timing`.
-- [ ] T036 Update `docs/wiki/INDEX.md` state line and `docs/wiki/CAPSULES.md`; run the freshness gate (prints `OK`) and the spec-bridge check (exit 0); commit `TASK-0299: Phase 5 wiki re-ground (T033-T036)`.
+- [x] T033 NEEDS-REVIEW `docs/wiki/dm-runtime.md`: monster policy, code Director on monster turns, companion `turn`, multi-line slash items, `dm.interpret-v18`, `dm.companion-v9`.
+- [x] T034 NEEDS-REVIEW `docs/wiki/dm-turn-jobs.md`, `docs/wiki/turn-floor.md` and `docs/wiki/seed-npc-presence.md` (the `tactics` field); re-pin any other note whose sources list a touched file.
+- [x] T035 NEEDS-REVIEW `docs/wiki/test-suite.md`: the 4v4 bench test in `check:timing`.
+- [x] T036 Update `docs/wiki/INDEX.md` state line and `docs/wiki/CAPSULES.md`; run the freshness gate (prints `OK`) and the spec-bridge check (exit 0); commit `TASK-0299: Phase 5 wiki re-ground (T033-T036)`.

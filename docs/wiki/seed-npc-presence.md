@@ -16,7 +16,7 @@ sources:
   - packages/session-model/src/gate/proposals.ts
   - packages/session-model/src/gate/plan.ts
 size_budget_exempt: TASK-0237 adds the dependent-arrivals paragraph to the one arrivals note; the note sat 246 chars under the budget before it, and the arrival rules do not split without a TASK of its own
-verified_against: 7c0d16130c083a540d3a93f5fc587ec3e95e5cbf
+verified_against: a13be04e8a7cb8310bd0d5cfa3a518c5c29c310f
 ---
 
 # Seed NPC presence
@@ -43,6 +43,7 @@ the same three NPCs and presence maps and three party characters: `tamsin` and `
 `crossCheckSeed` (`seed/load.ts`) reports an issue for each of these:
 
 - a character whose `identity.combatant` carries `stats` (the loader builds them from the sheet), or whose attack expression is not `1d20` plus or minus a number, or whose attack names no SRD weapon (spec 082);
+- an encounter monster may carry `tactics` (`nearest` default, or `weakest`; spec 107), read by `monsterStages` to pick its target;
 - an NPC whose `identity.combatant` differs from its id, or names no encounter monster;
 - a beat that lists an NPC in `npcIds` and declares no presence for it;
 - a beat whose `presence` names an unknown NPC;

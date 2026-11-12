@@ -31,9 +31,10 @@ sources:
   - apps/server/vitest.config.ts
   - apps/server/vitest.timing.config.ts
   - apps/server/test/intent-latency.bench-test.ts
+  - apps/server/test/ai-round.bench-test.ts
   - tsconfig.json
 size_budget_exempt: spec 102 adds the server tsconfig reference to packages/intent in the one test-suite note; the suite map does not split without a TASK of its own
-verified_against: d1c7fad940de2e69270dba99d0c32b15e611d2f4
+verified_against: a13be04e8a7cb8310bd0d5cfa3a518c5c29c310f
 ---
 
 # Test suite
@@ -149,3 +150,15 @@ manual demo is still run and pasted into each PR by hand.
 `packages/shared` must be built (`tsc -b`) before the server's tests can resolve
 `@the-stacks/shared` — a fresh `pnpm install` alone is not sufficient; Turborepo's task graph
 normally handles this ordering, but a bare `vitest run` in `apps/server` does not.
+
+## 4v4 round bench (TASK-0299, spec 107)
+
+`apps/server/test/ai-round.bench-test.ts` also runs in `pnpm check:timing`. It loads the fixture seed
+`test/dm/fixtures/greyhollow-ford-4v4.json` (one human seat, three companions, four goblins) with
+the script `test/dm/scripts/ai-round-4v4.json`, and times one round through the real gate, queue and
+worker: from the human's `action.commit` of a slash attack to the `table-mode.changed` row that makes
+the human active in round 2. `BUDGET_MS = 60000` is constitution IX's round budget. The strict fake
+gateway scripts no `dm.interpret`; the test asserts zero interpret calls, three `dm.companion`
+calls and eight `dm.narrate` calls, prints one `ai-round 4v4 ms=... budget=60000ms OK` line with
+the per-purpose counts and each job's duration, and fails past the budget. `createWorld({ seed })`
+now also feeds that seed to the planner inputs.
