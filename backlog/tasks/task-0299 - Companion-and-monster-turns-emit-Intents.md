@@ -34,7 +34,7 @@ Spec: specs/107-ai-turn-intents
 - [x] #4 A fixture 4v4 round with three companions and four monsters completes under 60 s with the fake model.
 - [x] #5 Spec phase: Monster turns emit Intents in code (AC #2, AC #3 monster half)
 - [x] #6 Spec phase: Companion turns emit Intents (AC #1, card note)
-- [ ] #7 Spec phase: AI-actor parity tests (AC #3)
+- [x] #7 Spec phase: AI-actor parity tests (AC #3)
 - [ ] #8 Spec phase: 4v4 round under 60 s (AC #4)
 - [ ] #9 Spec phase: Wiki re-ground
 <!-- AC:END -->
