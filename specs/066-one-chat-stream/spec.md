@@ -4,7 +4,10 @@
 
 **Created**: 2026-11-02
 
-**Status**: Draft, written against an accepted decision. decision-0028 (D20) is **accepted**
+**Status**: Draft, **amended 2026-11-11 against Intent contract v1.1** (see "Amendment (2026-11,
+Intent contract v1.1)"). The amendment waits on the operator's C-AMD review and a split ruling
+(plan.md "Split check"). Where the amendment and the 2026-11-02 text disagree, the amendment wins.
+Original status: written against an accepted decision. decision-0028 (D20) is **accepted**
 (2026-11-02). The operator ruled every open question (a) and approved the section 8 frozen-contract
 amendments: "All (a), amend". This spec has no open question of its own. Three gaps the record
 leaves open are settled under "Decision gaps settled here", each without a new frozen-contract
@@ -17,6 +20,114 @@ option: round 2 A, "Just talk" (`docs/design/one-chat-stream/round-2/a-just-talk
 `speckit-specify` ran as authoring guidance only: the branch and the spec number were already
 claimed, so its branch and directory steps were skipped. `speckit-clarify` was skipped: the decision
 record and its ruling settle every design question.
+
+## Amendment (2026-11, Intent contract v1.1)
+
+Amended 2026-11-11 for TASK-0199 by the R1 sweep spec author. Operator review: C-AMD (pending).
+Authored against `origin/main` `9e51c948`: spec 092 contract `intent-schema.md` v1.1, spec 102
+(`86d425b6`, merged), spec 104 (`f61a0bac`, merged).
+
+**Sources.** P-04 (approved 2026-11-07: quiet ring in exploration only; combat uses explicit turns;
+human-DM tables may turn the ring off). decision-0030 (D22, Intent contract v1 frozen; v1.1 at
+C-CON 2026-11-08). Spec 092 plan "Downstream amendments (specs 066 and 091)". CP-5 ruling F2
+(2026-11-08): this card owns the combat Enter-commit rule; TASK-0275 builds the banner, pips,
+action bar and off-turn refusal on top. Constitution 3.0.0 IX ("Exploration may use the quiet
+ring. Combat MUST use explicit turns").
+
+**What changes.**
+
+- **A1 — The ring runs in exploration only.** Free mode is exploration and social play. Turn mode
+  is combat: no ring, no read for speech or a declared Intent. The 5 s turn-mode ring (OQ-R5 (a),
+  the 2026-11-02 US7) is withdrawn.
+- **A2 — The composer sends Intents.** Send runs `parse(text, ctx)` from `@the-stacks/intent`
+  (contract §8). Plain text is `say`; `((…))` and `/ooc` are `ooc`; `@dm …` is `ask_dm`; `/do` is
+  `attempt`; any other verb is its kind. Free mode sends `declared`. Turn mode sends `confirmed`.
+- **A3 — The readable-post rule reads Intent kinds** (`p.intents`), not `talk.channel`. A legacy
+  companion `talk` row stays readable until TASK-0299 moves companions to Intents.
+- **A4 — The confirm row carries Intent bodies.** Each `action.suggested` item holds one Intent at
+  commit `declared` (contract §7 rule 3). The read builds an item in code, with no model call, for
+  a player's own declared Intent.
+- **A5 — 👍 moves the Intent from `declared` to `confirmed`.** `action.accept` plans the item's
+  Intent as `confirmed` through the spec 102 Intent path. The batch is engine rows (or a ruling
+  request) plus one `intent.recorded` row. The `action.declared` + `action.committed` pair and
+  `suggestionId` on `action.declared` are withdrawn.
+- **A6 — In combat, the active player's Enter commits** (F2). A parsed Intent goes as `confirmed`.
+  Plain prose goes as `action.declare` then `action.commit` (authority `active-player`), and
+  interpret turns it into Intent stages (spec 104). TASK-0275 owns everything built on this rule.
+- **A7 — `ask_dm` is served.** The gate stops refusing it `KIND_UNSERVED`. The question and its
+  answer are visible to the asker and the DM only (contract §4, channel `dm`). The answer changes
+  no state.
+- **A8 — The human-DM ring-off setting is the DM seat** (OQ-5). A human seat reads no post, so no
+  ring and no talk turn appear.
+- **A9 — Withdrawn from the 2026-11-02 design:** retract after 👍 (US9, old FR-018, FR-019, gap 3),
+  the widened `action.withdraw`, the `INVALID_PROPOSAL` refusal for a declare carrying
+  `suggestionId`, the `The party` speaker (OQ-8), and the turn-mode ring.
+- **A10 — Kept unchanged in intent:** one Send, the speaker chip, the `@` dropdown, the ring and
+  Thinking visuals, the interrupt strip, the chain cap, the stale rule, the `read` marker, the human
+  DM's inline confirm editor, and the removal of the sign-off and comment UI.
+- **A11 — Prompt:** `dm.react-v3` becomes `dm.react-v4`. No purpose change.
+
+**Card acceptance criteria (TASK-0199, re-authored by replan-2026-11).**
+
+| Card AC | Covered by | Evidence | Split card (plan.md) |
+|---|---|---|---|
+| #1 The quiet ring runs on the Intent `declared` state | A1, A3; FR-006, FR-007, FR-024 | `read-rule.test.ts`, `enqueue-talk.integration.test.ts` | 0199-server |
+| #2 Exploration: a declared Intent waits for the ring, then a reaction or a confirm row | A4; FR-010 to FR-013 | `talk-turn.integration.test.ts` | 0199-server |
+| #3 👍 moves the Intent from declared to confirmed and sends it to the gate | A5; FR-015, FR-016 | `gate-suggest.test.ts`, `gate.integration.test.ts` | 0199-server |
+| #4 Combat: no ring; the active player's Enter commits, with a test | A1, A6; FR-022, FR-023 | `composer.test.tsx`, `read-rule.test.ts` (turn mode) | 0199-web |
+| #5 A human-DM setting turns the ring off, with a test | A8; FR-027 | `read-rule.test.ts` (human seat), `read-ring.test.mjs` | 0199-server |
+| #6 `@dm` yields one read-only `ask_dm` answer that changes no state, with a test | A7; FR-028, FR-013 | `gate-ask-dm.test.ts`, `talk-turn.integration.test.ts` | 0199-server |
+| #7 One composer, one Send, verified live in Brave | FR-001 to FR-005; SC-008 | live check (plan "Live check") | 0199-web |
+| #8 Spec 066 amended against v1.1 and reviewed at C-AMD | this section; plan.md | this commit; the C-AMD record | both (done before either) |
+
+**Open questions** (each needs a ruling before the implementation dispatch; recommendations
+follow).
+
+- **OQ-1 — Split.** The amended task list is 70 tasks in 7 phases across the server talk path and the web
+  composer. **Recommend:** split into 0199-server and 0199-web, with the AC assignment above
+  (plan.md "Split check").
+- **OQ-2 — TASK-0275 (F2) seam.** 0199 sends the active player's Enter as a commit and removes the
+  active player's Commit button from the action card. 0199 shows an off-turn refusal with the
+  existing generic refusal label only. Combat prose rides `action.declare` + `action.commit` so
+  interpret (spec 104) still turns "I shoot the goblin" into an `attack`. **Recommend:** adopt.
+  TASK-0275 adds no commit control; it owns the banner, pips, legal-action bar and the worded
+  off-turn reason. Alternative: send combat prose as `attempt`; rejected, because every prose
+  attack would become a ruling instead of an attack.
+- **OQ-3 — TASK-0247 (spec 091) overlaps.** (a) Send must parse `((`, `/ooc`, `@dm` and `/do`, which
+  are contract grammar, so 0199 sends every parsed slash verb. That covers most of 0247 AC #3.
+  **Recommend:** narrow 0247 AC #3 to pills, Tab completion and inline `PARSE_*` refusal wording,
+  and amend spec 091 against this design. (b) 0247 AC #10 says a direct `intent` request queues a
+  coalesced turn that narrates it. 0199 ships the first direct producers: 👍 and the combat Enter.
+  Without that rule, a 👍'd check settles its fact rows but nothing narrates them until 0247 lands.
+  **Recommend:** move 0247 AC #10 into 0199-server: one enqueue rule and a new turn trigger
+  `intent` (an additive 031 amendment, plan.md row C-8). Alternative: keep it on 0247 and accept
+  un-narrated 👍 results in the 0199 live check.
+- **OQ-4 — TASK-0314 (a human DM's ruling queues the resume turn).** A 👍'd `attempt` under a human
+  seat yields `needs_ruling` and a DM proposal. The human DM's ruling then settles with no turn
+  queued; that is the TASK-0314 bug. Both cards edit `dm/enqueue.ts`. **Recommend:** merge 0314
+  before 0199-server. If OQ-3 (b) is adopted, the `intent` rule also fires on the human ruling's
+  carrier row. The one-queued-turn index coalesces the two queues, so the overlap is harmless.
+  Each card keeps its own test.
+- **OQ-5 — What "a human-DM table setting" is (AC #5).** **Recommend:** the human DM seat is the
+  setting. A human seat reads no post (FR-027), with a test. No new event or request. Alternative:
+  a `quietRing` table toggle a human DM can turn on as a pacing cue. That needs a new request and
+  event (a frozen-contract amendment); card it as an R2 revisit with trigger "a human-DM table asks
+  for a pacing cue".
+- **OQ-6 — `ask_dm` visibility.** D20 drew the question and answer for the whole table. Contract §6.2
+  fixes channel `dm` ("the DM seat only"). **Recommend:** follow the contract: both rows carry
+  visibility = the asker's user id, which `canSee` already shows to that user and the DM.
+- **OQ-7 — Withdrawing a declared Intent (spec 102 OQ-7 sends it here).** With A5, a 👍 settles at
+  once, so nothing waits after a confirm. A suggestion item never reaches `p.intents` until 👍. A
+  player's own declared Intent stays `declared` if nobody confirms it. **Recommend:** no withdraw
+  request in this card. Stale suggestions are derived (FR-018). Card "withdraw a declared Intent"
+  as a revisit with trigger "a player needs to retract a declared slash Intent before the read".
+- **OQ-8 — The `The party` speaker.** A `say` Intent needs a `pc` actor, and contract kind `party`
+  means party-only table talk, not a party voice. **Recommend:** drop the speaker. Party deeds come
+  from the read (`attempt` with scope `party`) or from `/do +party`.
+- **OQ-9 — Runner declares are not posts.** Spec 104's runner declares a player's Intent under that
+  player inside a turn job, then confirms it. Read naively, that row would queue a read.
+  **Recommend:** FR-006 rule 2 skips a declared Intent whose id starts with an existing action id
+  and a dot (the runner's id form `<actionId>.<n>`). It is pure and testable.
 
 ## Decision records and rules this card implements
 
@@ -62,27 +173,27 @@ reads the table and asks, in its own words, whether it understood the action. Ke
 feature exists.
 
 **Independent Test**: a scripted DM over the duo seed. Kestrel's line "I'll get up there and see
-who's hiding." draws one `action.suggested` row. Kestrel's `action.accept` appends
-`action.declared` (with `suggestionId`) and `action.committed` in one batch, and a commit turn
-queues.
+who's hiding." draws one `action.suggested` row whose item holds a `declared` `hide` Intent.
+Kestrel's `action.accept` plans that Intent as `confirmed`: one batch of engine rows and one
+`intent.recorded` row (amended 2026-11, A5).
 
 **Acceptance Scenarios**:
 
 1. **Given** free mode under an AI seat, **When** Kestrel sends an in-character line, **Then** a
-   `talk` row (channel `ic`) is logged and a talk turn queues with `notBefore` = the post's `ts`
-   + 10 s (round 2 state 1).
+   `say` Intent is recorded (a `talk` row, channel `ic`, plus its `intent.recorded` row) and a talk
+   turn queues with `notBefore` = the post's `ts` + 10 s (round 2 state 1).
 2. **Given** the post is 5 s old, **When** any viewer looks at the table, **Then** the ring shows 5
    of 8 segments and the caption "The DM reads the table in 5 s. Keep talking to wait." (state 2).
 3. **Given** the read returns `confirm`, **When** it ships, **Then** one public `action.suggested`
-   row by `ai:dm` holds one item: Kestrel, scope `character`, "Kestrel climbs the ladder to the
-   loft, quietly", check "Stealth".
+   row by `ai:dm` holds one item: a `declared` `hide` Intent, actor `pc:kestrel`, text "Kestrel
+   climbs the ladder to the loft, quietly".
 4. **Given** that row, **When** Kestrel views it, **Then** the line reads "Kestrel climbs the ladder
    to the loft, quietly — Stealth. Is this right?" with **👍 Yes** and **Not quite** (state 6a).
 5. **Given** that row, **When** Tamsin views it, **Then** the line reads "Waiting on Kestrel" and
    offers no button (state 6b).
-6. **Given** Kestrel presses 👍 Yes, **When** the gate plans it, **Then** `action.declared`
-   (Kestrel's actor, the DM's wording, `suggestionId`) and `action.committed` (authority
-   `declarer`) land in one append, and the line reads "Confirmed".
+6. **Given** Kestrel presses 👍 Yes, **When** the gate plans it, **Then** the item's Intent is
+   planned as `confirmed`: the engine's Stealth rows and one `intent.recorded` row (id
+   `<suggestionId>.i1`) land in one append, and the line reads "Confirmed".
 7. **Given** a confirm that nobody answers, **When** a later read lands, **Then** nothing was
    committed and the line reads "Superseded".
 
@@ -164,13 +275,14 @@ present human party member to press 👍 commits it.
 
 **Acceptance Scenarios**:
 
-1. **Given** the speaker chip set to `The party`, **When** Tamsin posts "We follow the clawed tracks
-   down to the causeway.", **Then** a `talk` row (channel `ic`, `characterId` null) lands (state 9).
+1. **Given** Tamsin's character speaker, **When** Tamsin posts "We follow the clawed tracks down to
+   the causeway.", **Then** a `say` Intent lands, and the read may confirm an `attempt` with scope
+   `party` (state 9; the `The party` speaker is withdrawn, OQ-8).
 2. **Given** a confirm with one `party` item, **When** Tamsin and Kestrel view it, **Then** both see
    **👍 Yes**.
-3. **Given** Kestrel presses 👍 first, **When** the gate plans it, **Then** the action commits with
-   authority `group`, no sign-off marker is written, and Tamsin's later 👍 is refused
-   `ACTION_EXISTS` (OQ-R2 (a)).
+3. **Given** Kestrel presses 👍 first, **When** the gate plans it, **Then** the `attempt` Intent
+   (scope `party`, actor re-stamped to Kestrel's character) is planned as `confirmed`, no sign-off
+   marker is written, and Tamsin's later 👍 is refused `INTENT_EXISTS` (OQ-R2 (a); amended A5).
 
 ### User Story 6 - `@dm` questions (Priority: P2)
 
@@ -179,31 +291,38 @@ table, from what the characters can see.
 
 **Acceptance Scenarios**:
 
-1. **Given** Tamsin's OOC post "@dm how high is the loft? Can I see up there from the door?",
-   **When** it lands under an AI seat, **Then** the ring restarts (state 10).
-2. **Given** the read, **When** it answers, **Then** one public `talk` row by `ai:dm`, channel
-   `ooc`, `characterId` null, ships, and it is drawn as a "DM aside".
-3. **Given** the answer text states a DM-only seed item, **When** code checks it, **Then** it is
-   refused, regenerated once, and a second refusal ships no answer.
-4. **Given** turn mode, **When** an `@dm` post lands, **Then** it is answered too (OQ-10 (a)).
+1. **Given** Tamsin's post "@dm how high is the loft? Can I see up there from the door?",
+   **When** it lands under an AI seat, **Then** it is an `ask_dm` Intent whose `talk` row is
+   visible to Tamsin and the DM only, and the ring restarts (state 10; amended A7, OQ-6).
+2. **Given** the read, **When** it answers, **Then** one `talk` row by `ai:dm`, channel `ooc`,
+   `characterId` null, visibility Tamsin's user id, ships, and it is drawn as a "DM aside".
+3. **Given** the answer text leaks a DM-only seed item, **When** the spec 103 narration check runs,
+   **Then** the leaking sentences are dropped, and an empty answer ships nothing.
+4. **Given** turn mode, **When** an `ask_dm` lands, **Then** it is answered with no ring
+   (window 0; OQ-10 (a), amended A1).
 5. **Given** a human DM seat, **When** an `@dm` post lands, **Then** nothing is generated and the
    human DM's transcript highlights the post.
 6. **Given** an `@dm` answer, **When** the state is compared before and after, **Then** no state
    changed.
 
-### User Story 7 - Turn mode (Priority: P2)
+### User Story 7 - Combat: Enter commits (Priority: P1; amended 2026-11, A6)
 
-On Kestrel's turn her in-character line runs a short ring, then the DM confirms her attack.
+In combat there is no ring. On Kestrel's turn her Enter commits what she typed.
+
+**Why this priority**: P-04 and card AC #4 (F2: this card owns the rule).
 
 **Acceptance Scenarios**:
 
-1. **Given** turn mode with Kestrel active, **When** Kestrel posts "I shoot the goblin lookout.",
-   **Then** the ring is 1 s blank then 4 segments, and `notBefore` = the post + 5 s (state 11a,
-   OQ-R5 (a)).
-2. **Given** the read returns `confirm`, **When** Kestrel presses 👍, **Then** the action commits
-   with authority `active-player` (state 11b).
-3. **Given** turn mode, **When** Tamsin (not active) posts in character, **Then** no ring and no talk
-   turn; the next beat's narrate reads it (D19 §2 rule 4).
+1. **Given** turn mode with Kestrel active, **When** Kestrel sends `/attack @goblin-1 with
+   shortbow`, **Then** one `intent` request with `commit: "confirmed"` is sent, the gate plans it,
+   and no ring or read appears.
+2. **Given** turn mode with Kestrel active, **When** Kestrel sends "I shoot the goblin lookout.",
+   **Then** the client sends `action.declare` then `action.commit`, the action commits with
+   authority `active-player`, and interpret (spec 104) plans its Intent stages.
+3. **Given** turn mode, **When** Tamsin (not active) sends plain text, **Then** a `say` Intent lands,
+   no ring and no talk turn appear, and the next beat's narrate reads it (D19 §2 rule 4).
+4. **Given** turn mode, **When** Tamsin (not active) sends a slash Intent, **Then** the gate refuses
+   `NOT_YOUR_TURN` and the composer shows the refusal label. The worded reason is TASK-0275's.
 
 ### User Story 8 - The human DM confirms by hand (Priority: P2)
 
@@ -218,24 +337,17 @@ action…**, which opens an inline editor. The DM writes the wording and sends t
    the line's wording, its character (or party when the line has none) and an empty check field,
    with **Send confirm** and **Cancel**. No modal.
 3. **Given** the DM presses Send confirm, **When** the gate applies it, **Then** one public
-   `action.suggested` row by the DM's user id lands, and the player sees 👍 Yes as in US1.
-4. **Given** any action, **When** the DM uses the action card, **Then** the DM may commit or
+   `action.suggested` row by the DM's user id lands (an `attempt` item with the DM's wording, or the
+   parsed Intent when the wording starts with `/`), and the player sees 👍 Yes as in US1.
+4. **Given** a player's `declared` slash Intent under a human seat, **When** the DM views it,
+   **Then** it carries **Confirm**, which sends the same Intent as `confirmed` (spec 102 FR-007).
+5. **Given** any action, **When** the DM uses the action card, **Then** the DM may commit or
    withdraw it, as today.
 
-### User Story 9 - Retract after 👍 (Priority: P2)
+### User Story 9 - Retract after 👍 (withdrawn 2026-11, A9)
 
-A player who confirmed by mistake withdraws the action before it resolves.
-
-**Acceptance Scenarios**:
-
-1. **Given** Kestrel's committed, unresolved action, **When** Kestrel presses Withdraw, **Then** the
-   gate appends `action.withdrawn` and the card reads "Withdrawn" (OQ-R4 (a)).
-2. **Given** a resolved action, **When** anyone tries to withdraw it, **Then** the gate refuses
-   `ACTION_NOT_OPEN`.
-3. **Given** a withdrawn committed action, **When** the worker restarts, **Then** reconcile queues no
-   turn for it.
-4. **Given** the action was in a running beat, **When** resolve reaches it after the withdrawal,
-   **Then** resolve skips it and records the skip. Rows already landed for it stand.
+Withdrawn. A 👍 now plans the Intent at once, so no committed-but-unresolved window remains. See
+OQ-7 for declared-Intent withdrawal.
 
 ### Edge Cases
 
@@ -254,11 +366,12 @@ A player who confirmed by mistake withdraws the action before it resolves.
 - **A reload during the ring**: the ring is drawn from the post's `ts`, so it resumes where it was.
 - **Fixture routes**: fixture rows carry old `ts` values, so no ring or Thinking shows.
 - **Two humans press 👍 on a party line at once**: the per-session write queue orders them. The
-  first commits; the second gets `ACTION_EXISTS`.
+  first is planned; the second gets `INTENT_EXISTS`.
 - **An interrupt after the read already shipped a row**: the shipped row stands. The new read
   starts after it, because its cutoff is the latest DM read output.
-- **A direct `action.declare` that carries `suggestionId`**: refused `INVALID_PROPOSAL`. Only
-  `action.accept` links an action to a suggestion.
+- **A 👍 after the table enters combat**: the suggestion is stale (FR-018) and refused
+  `SUGGESTION_STALE`.
+- **A spec 104 runner declare** (`<actionId>.<n>`): never a readable post (FR-006 rule 2, OQ-9).
 - **A direct declare from a VTT or the API**: today's rules, including the 044 quorum and the 120 s
   stall commit, still hold (OQ-11 (a)).
 
@@ -266,134 +379,151 @@ A player who confirmed by mistake withdraws the action before it resolves.
 
 ### Functional Requirements
 
-**Composer and transcript (D20 §1, §2)**
+Rewritten in place by the 2026-11 amendment. Numbers changed; the 2026-11-02 list is in git
+history (`3aaf8279`).
 
-- **FR-001**: The play route has one composer with one Send button. A speaker chip left of the input
-  opens an inline dropdown: the viewer's characters, `The party`, and `You (out of character)`. A
-  line starting `((` or `/ooc` flips the chip to out of character, and the prefix is removed.
-- **FR-002**: Typing `@` opens an inline autocomplete dropdown: `@dm` first, then the party's
+**Composer and transcript (D20 §1, §2; A2)**
+
+- **FR-001**: The play route MUST have one composer with one Send button. A speaker chip left of
+  the input opens an inline dropdown: the viewer's characters and `You (out of character)`. A line
+  starting `((` or `/ooc` flips the chip to out of character.
+- **FR-002**: Typing `@` MUST open an inline autocomplete dropdown: `@dm` first, then the party's
   characters, then present named combatants. Choosing an entry inserts its token.
-- **FR-003**: The player view shows no Talk/Action radios, scope radios, Declare button, action
-  comment form, Approve, Object, Commit or sign-off rows. The web client never sends
-  `action.declare`, `action.comment` or a player `action.commit`.
-- **FR-004**: An out-of-character line is drawn as "Table talk". An `@dm` answer is drawn as a "DM
-  aside". A confirm row is drawn apart from both and from narration.
+- **FR-003**: Send MUST run `parse(text, { id, actor, source: "composer", commit })`. A parse
+  refusal shows inline under the composer and sends nothing. Otherwise Send sends one `intent`
+  request. `commit` is `declared` in free mode and `confirmed` in turn mode. The out-of-character
+  chip sends `ooc`. FR-022 covers the active player's prose in turn mode.
+- **FR-004**: An `ooc` line MUST be drawn as "Table talk". An `ask_dm` answer MUST be drawn as a
+  "DM aside". A confirm row MUST be drawn apart from both and from narration.
+- **FR-005**: The player view MUST NOT show Talk/Action radios, scope radios, a Declare button, the
+  action comment form, Approve, Object or sign-off rows. The web client MUST NOT send
+  `action.comment`. It sends `action.declare` only under FR-022. Commit shows for the DM viewer only.
 
-**The read (D20 §2, §3, §6, §7)**
+**The read (D20 §2, §3, §6, §7; A1, A3, A4)**
 
-- **FR-005**: A post is **readable** when it is a public `talk` row under an AI seat and one of
-  these holds:
-  1. channel `ic`, by a human or an AI companion, in free mode;
-  2. channel `ic`, in turn mode, by the active actor when that actor is a human;
-  3. channel `ooc`, by a human, its text holds the token `@dm`, in any mode.
-  The D19 chain cap still applies. The rule is one pure function in `@the-stacks/session-model`,
-  shared by the server and the client.
-- **FR-006**: A readable post queues or moves the session's talk turn to `notBefore` = the post's
-  `ts` + 10 s, or + 5 s for rule 2. Every later readable post moves it again. There is no cap.
-- **FR-007**: A readable post that lands while a read runs, before the read ships anything,
-  cancels it: the job is fenced, finishes with outcome `interrupted`, and ships nothing. The post
-  queues a fresh read by FR-006. The gate refuses an `ai:dm` `action.suggest` whose `readSeq` is
-  older than the latest readable post (`SUGGESTION_STALE`), so a confirm never lands against a
-  reading the table has moved past, even in the race between the fence and the ship.
-- **FR-008**: When the worker claims a `talk` turn it appends one `presence.recorded` row with
+- **FR-006**: `readablePosts(p)` in `@the-stacks/session-model` (pure, shared by server and client)
+  MUST return, under an AI seat only:
+  1. a `say`, `say_to` or `emote` Intent by a human or an AI companion, in free mode;
+  2. a `declared` mechanical Intent by a human, in free mode, still `declared`, whose id does not
+     start with an existing action id and a dot (OQ-9);
+  3. an `ask_dm` Intent by a human, in any mode;
+  4. a public `ic` `talk` row by an AI companion whose batch holds no `intent.recorded` row, in free
+     mode (legacy; until TASK-0299).
+  The D19 chain cap MUST still apply.
+- **FR-007**: A readable post MUST queue or move the session's talk turn to `notBefore` = the post's
+  `ts` + 10 s, or the post's `ts` for rule 3 in turn mode. Every later readable post moves it again.
+  There is no cap.
+- **FR-008**: A readable post that lands while a read runs, before the read ships anything, MUST
+  cancel it: the job is fenced, finishes with outcome `interrupted`, and ships nothing. The gate
+  MUST refuse an `ai:dm` `action.suggest` whose `readSeq` is older than the latest readable post
+  (`SUGGESTION_STALE`).
+- **FR-009**: When the worker claims a `talk` turn it MUST append one `presence.recorded` row with
   purpose `read`, in place of the `director` marker.
-- **FR-009**: The read takes every readable post after the latest DM read output (an `ai:dm`
-  narration, an `action.suggested` row, or an `ai:dm` OOC `talk` row). It makes one model call
-  whenever a read post is human-authored. It returns one outcome: `none`, `reply`, `scene`,
-  `escalate` or `confirm`, and at most one `@dm` answer.
-- **FR-010**: A `confirm` holds 1 to 4 items. Each has a character id or null, a scope (`character`
-  or `party`), the DM's wording, and a check or null. Code keeps a `character` item only when it
-  names a present, conscious party member controlled by a human. A `party` item needs at least one
-  human party member. In turn mode code keeps only items for the active character. Each item
-  becomes one confirm line.
-- **FR-011**: Confirm wording and the `@dm` answer pass `checkClaims`, the DM-only seed text check
-  and the digit check. One refusal regenerates once; a second ships neither.
-- **FR-012**: A `confirm` ships as an `action.suggest` proposal through `gate.submit` as `ai:dm`. An
-  `@dm` answer ships as a `talk` proposal by `ai:dm`, channel `ooc`, `characterId` null, public.
-  Neither counts toward the chain cap. A confirm prompts no companion.
-- **FR-013**: No player-facing prompt sees out-of-character talk, except `@dm` posts and `ai:dm`
-  answers.
+- **FR-010**: The read MUST take every readable post after the latest DM read output (an `ai:dm`
+  narration, an `action.suggested` row, or an `ai:dm` `ooc` `talk` row). It MUST make one model call
+  when a read post is rule 1, 3 or 4 and human-authored. A read of rule 2 posts only MUST make no
+  call. It returns one outcome (`none`, `reply`, `scene`, `escalate`, `confirm`) and at most one
+  `ask_dm` answer.
+- **FR-011**: A `confirm` MUST hold 1 to 4 items. A model item is an acting character id (or null
+  for party scope), an Intent body from the interpret body schema (spec 104: its kinds, no `dc`),
+  and the DM's wording. Code stamps id `<suggestionId>.i<n>`, actor `pc:<id>`, source `ai` and
+  commit `declared`, and validates it with `IntentSchema`. A party item is `attempt` with scope
+  `party`, actor the first human party member. Code drops an item for a companion, an NPC, an absent
+  or downed character, or a character no human controls. Each rule 2 post becomes one item in code,
+  with its own id and body.
+- **FR-012**: Confirm wording and the answer MUST pass the spec 103 narration check (leak and
+  contradiction). A failing item is dropped. Failing answer sentences are dropped; an empty answer
+  ships nothing.
+- **FR-013**: A `confirm` MUST ship as an `action.suggest` proposal through `gate.submit` as
+  `ai:dm`. An answer MUST ship as a `talk` proposal by `ai:dm`, channel `ooc`, `characterId` null,
+  visibility the asker's user id. Neither counts toward the chain cap. A confirm prompts no
+  companion.
+- **FR-014**: No player-facing prompt may see `ooc` talk. `ask_dm` rows are not public, so the
+  public filter already drops them. The read (DM side) sees them.
 
-**The confirm row (D20 §4)**
+**The confirm row (D20 §4; A4, A5)**
 
-- **FR-014**: A confirm line offers **👍 Yes** and **Not quite** to whoever may accept it: the
-  human controller of the item's character, or any human party member for a `party` item. The
-  acceptor counts as present, as the spec 044 committer does, so no presence read is needed. Every other
-  viewer sees "Waiting on <name>" (a `party` item names "the party").
-- **FR-015**: 👍 Yes sends one `action.accept` `{ suggestionId, itemId }`. The planner appends
-  `action.declared` (actor the acceptor, id `<suggestionId>.<itemId>`, text the DM's wording plus
-  " — <check>" when a check is set, scope, character, `suggestionId`) and `action.committed` in one batch. Authority: `declarer` in free
-  mode, `active-player` in turn mode, `group` for a `party` item. No sign-off marker is written.
-- **FR-016**: Not quite moves focus to the composer. It logs nothing.
-- **FR-017**: A suggestion is **stale** when a later public `action.suggested` row or a later public
-  `narration` row with no `actionIds` exists. A stale line reads "Superseded". An accepted item
-  reads "Confirmed" whatever its staleness. A 👍 on a stale suggestion is refused
-  `SUGGESTION_STALE`. An unanswered confirm commits nothing.
-- **FR-018**: `action.withdraw` also accepts a `committed` action that has not resolved. The
-  declarer and the seated human DM may withdraw it. The card's Withdraw shows until it resolves.
-- **FR-019**: Resolve skips a beat action that is withdrawn when its group runs. Reconcile skips a
-  committed action with a later `action.withdrawn`.
-- **FR-020**: A human DM viewer sees no ring and no Thinking. Each IC line carries **Confirm as
-  action…**, which opens an inline editor and sends `action.suggest`. The human DM keeps commit and
-  withdraw on every action card. The human DM's transcript highlights `@dm` posts.
-- **FR-021**: `ai:dm` never sends `action.accept`, `action.declare` or `action.withdraw`. AI
-  companions declare and commit their own actions as today.
-- **FR-022**: `action.declare`, `action.comment` and `action.commit` keep today's rules, the 044
-  quorum and the 049 stall commit included. A direct `action.declare` carrying `suggestionId` is
-  refused `INVALID_PROPOSAL`.
+- **FR-015**: A confirm line MUST offer **👍 Yes** and **Not quite** to whoever may accept it: the
+  human controller of the item's `pc` actor, or any human party member for a party item. Every
+  other viewer sees "Waiting on <name>" ("the party" for a party item).
+- **FR-016**: 👍 Yes MUST send one `action.accept` `{ suggestionId, itemId }`. The planner checks,
+  in order: the item exists (`SUGGESTION_NOT_FOUND`); not stale (`SUGGESTION_STALE`); the acceptor
+  may accept (`NOT_AUTHORIZED`); the character can act (`CHARACTER_UNABLE`). It then plans the item's
+  Intent with `commit: "confirmed"` and `source: "composer"` through `planIntent` (spec 102). For a
+  party item the actor is re-stamped to the acceptor's first controlled character. A second 👍 is
+  refused `INTENT_EXISTS`. A line reads "Confirmed" once an `intent.recorded` row with its id exists.
+- **FR-017**: Not quite MUST move focus to the composer. It logs nothing.
+- **FR-018**: A suggestion is **stale** when a later public `action.suggested` row, a later public
+  `narration` row with no `actionIds`, or a later `table-mode.changed` into turn mode exists. A
+  stale line reads "Superseded". A confirmed item reads "Confirmed" whatever its staleness. An
+  unanswered confirm plans nothing.
+- **FR-019**: A human DM viewer MUST see no ring and no Thinking. Each `say` line carries **Confirm
+  as action…**, an inline editor that sends `action.suggest` (an `attempt` item with the DM's
+  wording, or the parsed Intent when the wording starts with `/`). Each `declared` Intent line
+  carries **Confirm**, which sends that Intent as `confirmed`. `ask_dm` posts are highlighted. The
+  DM keeps commit and withdraw on every action card.
+- **FR-020**: `ai:dm` MUST NOT send `action.accept`, `action.declare` or `action.withdraw`.
+- **FR-021**: `action.declare`, `action.comment`, `action.commit` and `action.withdraw` MUST keep
+  today's rules, the 044 quorum and the 049 stall commit included.
+
+**Combat (P-04; F2; A6)**
+
+- **FR-022**: In turn mode no ring or read MUST run for FR-006 rules 1, 2 and 4. The active
+  player's Enter commits: a parsed non-`say` Intent goes as `confirmed`; plain prose goes as
+  `action.declare` (scope `character`) then `action.commit`, authority `active-player`. A non-active
+  player's prose goes as `say`. A non-active player's slash Intent goes as `confirmed`; the gate
+  refuses it `NOT_YOUR_TURN`, and the composer shows the refusal label.
+- **FR-023**: The active player's Commit control MUST leave the action card. Enter replaces it.
 
 **The ring and Thinking in the client (D20 §3)**
 
-- **FR-023**: Under an AI seat the client draws the ring from the latest readable post's `ts` and
-  the client clock: blank for 2 s, then 8 segments, one emptying per second (turn-mode rule 2: 1 s,
-  then 4). Caption: "The DM reads the table in N s. Keep talking to wait." Typing does not restart
-  it. A remaining time above the window is clamped to the window. The ring hides when a later
-  `read` marker or a later `ai:dm` row exists.
-- **FR-024**: Thinking shows "The DM is reading the table…" from the latest `read` marker until the
-  first of: a later row by `ai:dm`, a later readable post, or 30 s after the marker's `ts`.
-- **FR-025**: During Thinking, with the chip on a character or the party, Send reads "Send —
+- **FR-024**: Under an AI seat, in free mode, the client MUST draw the ring from the latest readable
+  post's `ts` and the client clock: blank for 2 s, then 8 segments, one emptying per second.
+  Caption: "The DM reads the table in N s. Keep talking to wait." Typing does not restart it. A
+  remaining time above the window is clamped. The ring hides on a later `read` marker or `ai:dm`
+  row, in turn mode, under a human seat, and for a DM viewer.
+- **FR-025**: Thinking MUST show "The DM is reading the table…" from the latest `read` marker until
+  the first of: a later row by `ai:dm`, a later readable post, or 30 s after the marker's `ts`.
+- **FR-026**: During Thinking, in free mode, with a character speaker, Send MUST read "Send —
   interrupts the DM". Pressing it opens the inline strip with **I'm sure** and **Wait**. I'm sure
-  sends; Wait closes the strip and keeps the draft. An out-of-character line never opens it.
+  sends; Wait closes the strip and keeps the draft. An `ooc` or `ask_dm` line never opens it.
 
-**Frozen-contract amendments (decision-0028 §8; operator ruling 2026-11-02: "All (a), amend")**
+**Human-DM tables (P-04; A8)**
 
-- **FR-026** (§8.1, `specs/029-proposal-gate/contracts/proposals.md`): a new DM kind
-  `action.suggest`, policy `auto`. A new player request `action.accept`. `action.withdraw` also
-  accepts a committed, unresolved action.
-- **FR-027** (§8.2, `policy-and-authority.md`): `action.accept` authority is the controller of the
-  item's character, or for `party` any present human party member. New refusal codes
-  `SUGGESTION_STALE` and `SUGGESTION_NOT_FOUND`.
-- **FR-028** (§8.3, `proposal-events.md` and the session-model catalog): a new event
-  `action.suggested`. `action.declared` gains optional `suggestionId`. `presence.recorded` gains
-  purpose `read`.
-- **FR-029** (§8.4, `specs/030-play-route/contracts/proposal-seam.md`): `ActionCardView.signoff`
-  leaves the view. A new `ConfirmView` (the items, who may accept, stale) rides the transcript.
-- **FR-030** (§8.5, `specs/031-dm-runtime/contracts/`, additive): the `confirm` outcome, the `@dm`
-  answer, the ring window and the read marker.
-- **FR-031** (§8.6): no change to the `ws-protocol.md` frame shapes or to `TalkV1`.
+- **FR-027**: The human DM seat MUST be the ring-off setting. Under a human seat `readablePosts`
+  returns nothing, so no talk turn, ring or Thinking appears (OQ-5).
+
+**`ask_dm` (A7)**
+
+- **FR-028**: The gate MUST serve `ask_dm`: one `talk` row (`ooc`, the text, `characterId` null) and
+  its `intent.recorded` row, both with visibility the proposer's user id. The answer (FR-013)
+  changes no projection except `transcript`, `throughSeq`, `diagnostics` and `intents`.
+
+**Frozen-contract amendments (plan.md "Frozen-contract amendments", C-GATE ruling needed)**
+
+- **FR-029**: The TASK-0188 amendment blocks (2026-11-02) are re-amended per plan.md rows C-1 to
+  C-10. `TalkV1` and the `ws-protocol.md` frame shapes stay unchanged (D20 §8.6; spec 092
+  "FR-031 holds").
 
 **VTT parity (D20 §5)**
 
-- **FR-032**: Every gesture maps to D20 §5's table. The ring and Thinking are derived from logged
-  rows and their arrival, never logged themselves.
+- **FR-030**: Every gesture MUST be a gate request a VTT can send: `intent`, `action.accept`,
+  `action.suggest`, or the existing kinds. The ring and Thinking derive from logged rows and are
+  never logged.
 
 ### Card acceptance criteria map
 
-| Card AC | Covered by | Evidence |
-|---|---|---|
-| #1 What an IC, an OOC and an `@dm` post mean to the DM | D20 §2, §6; FR-004, FR-005, FR-009, FR-012, FR-013 | `read-rule.test.ts`, `enqueue-talk.integration.test.ts`, `talk-turn.integration.test.ts` |
-| #2 What replaces sign-off; how a player retracts or amends | D20 §4; FR-003, FR-014 to FR-020 | `gate-suggest.test.ts`, `gate-plan.test.ts`, `confirm-row.test.tsx` |
-| #3 How the model maps onto events a VTT could emit | D20 §5; FR-026 to FR-032 | the contract amendments; `catalog.test.ts` |
-| #4 A spec is written against the decision; implementation tasks are carded | this spec set | the orchestrator cards the phases of `tasks.md` |
+Superseded by the table in "Amendment (2026-11, Intent contract v1.1)". The 2026-11-02 card ACs
+were re-authored by replan-2026-11.
 
 ### Key Entities
 
-- **Readable post**: a `talk` row that passes FR-005. Not a new event.
+- **Readable post**: an entry `readablePosts(p)` returns (FR-006). Not a new event.
 - **Read**: a `turn` job with trigger `talk` (spec 065's talk turn). It ends with one outcome.
 - **Read marker**: `presence.recorded` with purpose `read`.
 - **Suggestion**: an `action.suggested` row `{ suggestionId, readSeq, items[] }`.
-- **Item**: `{ itemId, characterId | null, scope, text, check | null }`. Its action id is
-  `<suggestionId>.<itemId>`.
+- **Item**: `{ itemId, text, intent }`; `intent` is a full Intent at commit `declared`. Its id is
+  `<suggestionId>.<itemId>`, or a player's declared Intent id (FR-011).
 - **Confirm view**: the client's view of one suggestion: its lines, who may accept each, and
   whether each is open, confirmed or superseded.
 
@@ -410,7 +540,7 @@ Each is settled inside the ruled scope. None adds a frozen-contract change beyon
    read would leave a ring with no read behind it. Settled: a read with a human-authored post always
    calls the model (FR-009). A companion-only post still queues the companion prompt, and the read
    queues too.
-3. **What a withdrawal after 👍 does to a running beat.** D20 §4.7 widens `action.withdraw` but says
+3. *(Withdrawn 2026-11, A9.)* **What a withdrawal after 👍 does to a running beat.** D20 §4.7 widens `action.withdraw` but says
    nothing about a beat that already froze the action. Settled: resolve skips a withdrawn action
    when its group runs, and reconcile ignores it (FR-019). Rows already landed stand.
 
@@ -418,8 +548,8 @@ Smaller readings, recorded so a reviewer can check them:
 
 - The round 2 mock marks a confirm "Superseded" as soon as the correction posts (state 7). D20 §4.6
   says it goes stale when the next read lands. This spec follows D20 (FR-017).
-- An already-accepted item is refused with the existing code `ACTION_EXISTS`, because its action id
-  is derived (FR-015). D20 §8.2 adds only the two `SUGGESTION_*` codes.
+- An already-accepted item is refused `INTENT_EXISTS` (amended A5), because its Intent id is
+  derived. D20 §8.2 adds only the two `SUGGESTION_*` codes.
 - `ActionCardView.signoff` and the action comment form are removed outright, for the DM viewer
   too: nothing in the web sends a direct declare any more, the DM's commit ignores the quorum, and
   D20 gives the DM commit and withdraw only. The Commit button shows for the DM viewer only.
@@ -435,9 +565,10 @@ Smaller readings, recorded so a reviewer can check them:
   projection holds no seed NPC names. A public NPC-name source is follow-up work, not this card.
 - FR-013 removes OOC talk from every player-facing prompt's transcript tail, not only the read's:
   D20 §2 says the DM never reads it. DM-side prompts keep the full tail.
-- `check` rides into the declared text (FR-015), so interpret reads it as part of the action. It
-  does not bind adjudicate. Code keeps it only when it is a closed-list skill or `attack`; any
-  other value becomes null.
+- *(Superseded 2026-11, A4.)* The check is now the Intent kind and its params (`check`, `hide`,
+  `search`, `attack`…), validated by `IntentSchema`. The model writes no DC.
+- The confirm line shows the item's `text` plus a code-rendered kind label (for example
+  "Stealth check"), not `toText(intent)`: slash form reads badly to a player.
 
 ## Non-goals
 
@@ -449,7 +580,10 @@ Smaller readings, recorded so a reviewer can check them:
   the existing event frame.
 - No Do flag or deed marker (round 2 B, rejected).
 - No removal of direct declares, comments, commits or the 044 quorum from the gate (OQ-11 (a)).
-- No new DM purpose, no hosted AI config change, no migration.
+- No banner, economy pips, legal-action bar or worded off-turn reason (TASK-0275, F2).
+- No Intent pills, Tab completion or clickable nouns (TASK-0247).
+- No withdraw of a declared Intent (OQ-7). No quiet-ring toggle event (OQ-5).
+- No new DM purpose, no hosted AI config change, no migration, no new runtime dependency.
 - No change to companion behaviour (D20 §4.10), to the 049 stall commit or to its 120 s window.
 - No VTT adapter (TASK-0072); this card only keeps the events VTT-drivable.
 
@@ -458,23 +592,27 @@ Smaller readings, recorded so a reviewer can check them:
 ### Measurable Outcomes
 
 - **SC-001**: In the confirm fixture, one IC deed yields exactly 1 `action.suggested` row, and one
-  👍 yields exactly 1 `action.declared` and 1 `action.committed` in one batch.
+  👍 yields exactly 1 `intent.recorded` row with `commit: "confirmed"` and 0 `action.declared` rows.
 - **SC-002**: OOC posts move `notBefore` 0 times; each readable post moves it exactly once; 12 posts
   5 s apart force 0 reads before the last post + 10 s.
 - **SC-003**: An interrupt during the talk path ships 0 rows from the fenced read and leaves exactly
   1 queued talk turn.
 - **SC-004**: `ai:dm` `action.accept`, `action.declare` and `action.withdraw` are refused 3 of 3
-  times. A 👍 on a stale suggestion is refused 1 of 1 times.
+  times. A 👍 on a stale suggestion is refused 1 of 1 times. In turn mode a readable-rule test
+  returns 0 posts for rules 1, 2 and 4, and under a human seat 0 posts for every rule.
+- **SC-004a**: An `ask_dm` and its answer leave `engine`, `actions`, `party`, `encounter` and
+  `tableMode` deep-equal before and after.
 - **SC-005**: The player view's markup holds 0 of these names: "Message type", "Scope", "Declare",
-  "Approve", "Object", "Commit", "Comment on this action". No `<dialog>` or `aria-modal` under
-  `app/play/`.
+  "Approve", "Object", "Commit", "Comment on this action". `apps/web/test/no-dialog.test.mjs` is
+  green.
 - **SC-006**: Every existing DM script, DB suite and web markup test passes, amended only where
   this spec changes the rule it checks.
 - **SC-007**: Stubbing the readable rule, the stale rule, the accept authority or the interrupt
   fence fails at least one test each; restoring leaves an empty diff.
-- **SC-008**: In the script-mode live check in Brave, two browsers see the ring, Thinking, the
-  confirm row (👍 for Kestrel, "Waiting on Kestrel" for Tamsin), and the commit after 👍, with no
-  modal at 1280 and 390 px.
+- **SC-008**: In the script-mode live check in Brave, two browsers see one composer with one Send,
+  the ring, Thinking, the confirm row (👍 for Kestrel, "Waiting on Kestrel" for Tamsin), the
+  `intent.recorded` row after 👍, and no ring in turn mode, with no modal at 1280 and 390 px and an
+  accessibility check passed.
 
 ## Assumptions
 
