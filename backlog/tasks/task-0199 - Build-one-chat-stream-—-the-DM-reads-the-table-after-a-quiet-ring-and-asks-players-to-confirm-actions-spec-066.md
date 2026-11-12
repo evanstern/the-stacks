@@ -88,6 +88,8 @@ Phases 4-5 done. Contract blocks C-1..C-9 are in 7c0d1613, with dated notes reco
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
 Phase 6 T049-T051 (1eaf4785, 2ddacdbd). DB suites: session-model 1035, gate 62, dm 1167. Mutation guard: every stub fails tests (readablePosts 9, suggestionState 5, acceptor 2, interruptRead 2, rule 9 3). Script-mode server check on the worktree app passed after F1, a missing dm.narrate entry in greyhollow-confirm.json for the rule 9 turn, now fixed. No paid calls; no vm-104 credential used.
+
+spec-bridge sync: Session model — event, catalog, projection, read rule (card AC #1, #2, #4): 10/10 · Gate — suggest, accept, `ask_dm` (card AC #3, #5): 13/13 · DM runtime — window, marker, interrupt, read, rule 9 (card AC #1, #2, #5, #7): 18/18 · Frozen-contract amendment blocks (C-GATE ruled 2026-11-11): 3/3 · Wiki — server share (NEEDS-REVIEW): 4/4 · Verification **[orchestrator]**: 5/5 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
