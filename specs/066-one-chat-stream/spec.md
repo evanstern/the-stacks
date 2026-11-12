@@ -5,8 +5,9 @@
 **Created**: 2026-11-02
 
 **Status**: Draft, **amended 2026-11-11 against Intent contract v1.1** (see "Amendment (2026-11,
-Intent contract v1.1)"). The amendment waits on the operator's C-AMD review and a split ruling
-(plan.md "Split check"). Where the amendment and the 2026-11-02 text disagree, the amendment wins.
+Intent contract v1.1)"). Operator C-AMD ruling 2026-11-11: "Approve all" (the amendment `282eb567`, the
+split, C-1 to C-9 at C-GATE, and OQ-2 to OQ-9 as recommended). **Scope since the split: the server
+half.** The web half is TASK-0315 (see "Split out to TASK-0315"). Where the amendment and the 2026-11-02 text disagree, the amendment wins.
 Original status: written against an accepted decision. decision-0028 (D20) is **accepted**
 (2026-11-02). The operator ruled every open question (a) and approved the section 8 frozen-contract
 amendments: "All (a), amend". This spec has no open question of its own. Three gaps the record
@@ -23,7 +24,7 @@ record and its ruling settle every design question.
 
 ## Amendment (2026-11, Intent contract v1.1)
 
-Amended 2026-11-11 for TASK-0199 by the R1 sweep spec author. Operator review: C-AMD (pending).
+Amended 2026-11-11 for TASK-0199 by the R1 sweep spec author. Operator review: C-AMD 2026-11-11, "Approve all".
 Authored against `origin/main` `9e51c948`: spec 092 contract `intent-schema.md` v1.1, spec 102
 (`86d425b6`, merged), spec 104 (`f61a0bac`, merged).
 
@@ -67,24 +68,37 @@ ring. Combat MUST use explicit turns").
   DM's inline confirm editor, and the removal of the sign-off and comment UI.
 - **A11 — Prompt:** `dm.react-v3` becomes `dm.react-v4`. No purpose change.
 
-**Card acceptance criteria (TASK-0199, re-authored by replan-2026-11).**
+**Card acceptance criteria (TASK-0199 after the split, numbering of 2026-11-11).**
 
-| Card AC | Covered by | Evidence | Split card (plan.md) |
-|---|---|---|---|
-| #1 The quiet ring runs on the Intent `declared` state | A1, A3; FR-006, FR-007, FR-024 | `read-rule.test.ts`, `enqueue-talk.integration.test.ts` | 0199-server |
-| #2 Exploration: a declared Intent waits for the ring, then a reaction or a confirm row | A4; FR-010 to FR-013 | `talk-turn.integration.test.ts` | 0199-server |
-| #3 👍 moves the Intent from declared to confirmed and sends it to the gate | A5; FR-015, FR-016 | `gate-suggest.test.ts`, `gate.integration.test.ts` | 0199-server |
-| #4 Combat: no ring; the active player's Enter commits, with a test | A1, A6; FR-022, FR-023 | `composer.test.tsx`, `read-rule.test.ts` (turn mode) | 0199-web |
-| #5 A human-DM setting turns the ring off, with a test | A8; FR-027 | `read-rule.test.ts` (human seat), `read-ring.test.mjs` | 0199-server |
-| #6 `@dm` yields one read-only `ask_dm` answer that changes no state, with a test | A7; FR-028, FR-013 | `gate-ask-dm.test.ts`, `talk-turn.integration.test.ts` | 0199-server |
-| #7 One composer, one Send, verified live in Brave | FR-001 to FR-005; SC-008 | live check (plan "Live check") | 0199-web |
-| #8 Spec 066 amended against v1.1 and reviewed at C-AMD | this section; plan.md | this commit; the C-AMD record | both (done before either) |
+| Card AC | Covered by | Evidence |
+|---|---|---|
+| #1 The quiet ring runs on the Intent `declared` state | A1, A3; FR-006, FR-007 | `read-rule.test.ts`, `enqueue-talk.integration.test.ts` |
+| #2 Exploration: a declared Intent waits for the ring, then a reaction or a confirm row | A4; FR-010 to FR-013 | `talk-turn.integration.test.ts` |
+| #3 👍 moves the Intent from declared to confirmed and sends it to the gate | A5; FR-016, FR-018 | `gate-suggest.test.ts`, `gate.intent.integration.test.ts` |
+| #4 A human-DM setting turns the ring off, with a test | A8; FR-027 | `read-rule.test.ts` (human seat) |
+| #5 `@dm` yields one read-only `ask_dm` answer that changes no state, with a test | A7; FR-013, FR-028 | `gate-ask-dm.test.ts`, `talk-turn.integration.test.ts` |
+| #6 Spec 066 amended against v1.1 and reviewed at C-AMD | this section; plan.md | `282eb567`; the 2026-11-11 ruling |
+| #7 A direct `intent` request queues a coalesced turn that narrates its facts | OQ-3 (b); FR-031 | `enqueue-intent.integration.test.ts` |
+
+## Split out to TASK-0315
+
+Ruled 2026-11-11 (OQ-1). TASK-0315 is the web half: one composer, one Send, and the combat Enter
+commit. Its card ACs are TASK-0199's old #4 (Enter commits in combat, with a test) and #7 (one
+composer and one Send, verified live in Brave). It owns plan Phase 4 (the web), the web share of
+the wiki phase (`play-route`, `chat-ui`, the `turn-floor` UI lines, plus its INDEX/CAPSULES line), and the web
+share of verification (the Brave live check at 1280 px and 390 px, the accessibility check, the
+screenshots). It takes FR-001 to FR-005, FR-015, FR-017, FR-019's client half, FR-022 to FR-026
+and SC-005, SC-008 as written here. It draft-holds until TASK-0199 merges. This card ships no
+`apps/web` change.
 
 **Open questions** (each needs a ruling before the implementation dispatch; recommendations
 follow).
 
+Ruled 2026-11-11: "Approve all" (each as recommended). Homes: OQ-1 → TASK-0315; OQ-3 (b) →
+this card's AC #7; OQ-4 → TASK-0314 merges first; OQ-5 → TASK-0316; OQ-7 → TASK-0317.
+
 - **OQ-1 — Split.** The amended task list is 70 tasks in 7 phases across the server talk path and the web
-  composer. **Recommend:** split into 0199-server and 0199-web, with the AC assignment above
+  composer. **Recommend:** split into 0199-server (this card) and 0199-web (TASK-0315)
   (plan.md "Split check").
 - **OQ-2 — TASK-0275 (F2) seam.** 0199 sends the active player's Enter as a commit and removes the
   active player's Commit button from the action card. 0199 shows an off-turn refusal with the
@@ -108,7 +122,7 @@ follow).
   before 0199-server. If OQ-3 (b) is adopted, the `intent` rule also fires on the human ruling's
   carrier row. The one-queued-turn index coalesces the two queues, so the overlap is harmless.
   Each card keeps its own test.
-- **OQ-5 — What "a human-DM table setting" is (AC #5).** **Recommend:** the human DM seat is the
+- **OQ-5 — What "a human-DM table setting" is (AC #4).** **Recommend:** the human DM seat is the
   setting. A human seat reads no post (FR-027), with a test. No new event or request. Alternative:
   a `quietRing` table toggle a human DM can turn on as a pacing cue. That needs a new request and
   event (a frozen-contract amendment); card it as an R2 revisit with trigger "a human-DM table asks
@@ -309,7 +323,7 @@ table, from what the characters can see.
 
 In combat there is no ring. On Kestrel's turn her Enter commits what she typed.
 
-**Why this priority**: P-04 and card AC #4 (F2: this card owns the rule).
+**Why this priority**: P-04 and TASK-0315 AC (old TASK-0199 AC #4; F2). Built by TASK-0315 after the split.
 
 **Acceptance Scenarios**:
 
@@ -499,11 +513,19 @@ history (`3aaf8279`).
   its `intent.recorded` row, both with visibility the proposer's user id. The answer (FR-013)
   changes no projection except `transcript`, `throughSeq`, `diagnostics` and `intents`.
 
-**Frozen-contract amendments (plan.md "Frozen-contract amendments", C-GATE ruling needed)**
+**Frozen-contract amendments (plan.md "Frozen-contract amendments"; C-GATE ruled 2026-11-11, "Approve all")**
 
 - **FR-029**: The TASK-0188 amendment blocks (2026-11-02) are re-amended per plan.md rows C-1 to
   C-10. `TalkV1` and the `ws-protocol.md` frame shapes stay unchanged (D20 §8.6; spec 092
   "FR-031 holds").
+
+**Direct Intents are narrated (OQ-3 (b); card AC #7)**
+
+- **FR-031**: An `intent.recorded` row with outcome `settled`, or with a `stopped` refusal, appended
+  outside a turn job MUST queue one coalesced `turn` job with trigger `intent`. A row a running turn
+  job appended queues nothing. The turn narrates the row's facts through the spec 104 narrate window.
+  The rule sits beside TASK-0314's human-ruling resume rule in `dm/enqueue.ts`, and the
+  one-queued-turn index coalesces them.
 
 **VTT parity (D20 §5)**
 

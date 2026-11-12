@@ -10,33 +10,30 @@ v1.1. The 2026-11-02 plan is in git history (`3aaf8279`); this file replaces it.
 
 ## Split check (runbook "Cards needing spec amendments or splitting")
 
-**Verdict: split recommended.** The re-derived work is **70 tasks in 7 phases** (see "Phases").
-It spans the server talk path (Phases 1–3 and 5: 46 tasks) and the web composer (Phase 4: 15
-tasks), above the runbook's ~40-task trigger. `tasks.md` is therefore **not** re-derived. It waits
-for the operator's split ruling.
+**Ruled 2026-11-11 (C-AMD, "Approve all"): split.** The amendment derived 70 tasks in 7 phases
+across the server talk path and the web composer. This card (TASK-0199) is now the server half:
+**53 tasks in 6 phases** (see "Phases"). The web half is TASK-0315 (spec.md "Split out to
+TASK-0315"). This card ships no `apps/web` change; D4 below stays as TASK-0315's design input.
 
-| Card | Phases | Card ACs | Hotspots |
-|---|---|---|---|
-| **0199-server** (ring on `declared`, confirm row, `ask_dm`) | 1 session model, 2 gate, 3 DM runtime, 5 contracts, 6a wiki, 7a verification | #1, #2, #3, #5, #6 | `gate/{plan,proposals,intents}.ts`, `catalog.ts`, `events/*.ts`, `dm/{talk-turn,jobs,enqueue}.ts` |
-| **0199-web** (one composer, one Send) | 4 web, 6b wiki, 7b verification and live check | #4, #7 | `play/view-model.ts`, `table-view.tsx`, `components/{composer,transcript}.tsx` |
-| both | — | #8 (this amendment, before either) | — |
+| Card | Card ACs | Hotspots |
+|---|---|---|
+| **TASK-0199** (server) | #1 to #7 (2026-11-11 numbering) | `gate/{plan,proposals,intents}.ts`, `catalog.ts`, `events/*.ts`, `dm/{talk-turn,jobs,enqueue}.ts` |
+| **TASK-0315** (web) | Enter commits in combat; one composer verified in Brave | `play/view-model.ts`, `table-view.tsx`, `components/{composer,transcript}.tsx` |
 
-- AC #4 sits on 0199-web because Enter is the client's commit. Its "no ring in combat" half is
-  proven in 0199-server by the turn-mode `read-rule.test.ts` cases (T-P1). 0199-web cites them.
-- 0199-web depends on 0199-server: it sends `action.accept` and draws `action.suggested`. Draft-hold
-  0199-web until 0199-server merges (memory: merge order follows green).
-- Without a split, the work stays one PR on this branch, and `tasks.md` is written from "Phases".
+TASK-0314 merges before this card (OQ-4). Its human-ruling resume rule lands in `dm/enqueue.ts`;
+rule 8 here sits beside it.
 
 ## Summary
 
 Every composer line becomes an Intent. Send parses the line with the v1.1 grammar and sends one
 `intent` request (spec 102). In free mode the Intent is `declared`; in turn mode it is `confirmed`,
-so the active player's Enter commits. A pure `readablePosts(p)` in session-model picks the posts the
+so the active player's Enter commits (TASK-0315). A pure `readablePosts(p)` in session-model picks the posts the
 AI DM reads: free-mode speech and `declared` mechanical Intents, plus `ask_dm` in any mode. A
 readable post moves the session's `talk` turn to the post's `ts` + 10 s. The read returns a D19
 outcome, or `confirm` with Intent bodies, plus an optional `ask_dm` answer. A `confirm` ships as
 `action.suggest` with `declared` Intents. A 👍 sends `action.accept`, which plans the item's Intent
-as `confirmed` through `planIntent`. A human DM seat reads nothing, so the ring is off.
+as `confirmed` through `planIntent`. A human DM seat reads nothing, so the ring is off. A direct `intent` request outside a turn job
+queues a coalesced `intent` turn that narrates it (card AC #7).
 
 ## Technical Context
 
@@ -131,8 +128,11 @@ refusal). **Complexity Tracking**: none.
   token of a running empty-beat `talk` turn that has shipped nothing; result `interrupted`).
   `TurnTriggerSchema` gains `intent` (OQ-3 (b) only).
 - `enqueue.ts`: rule 6 rewritten (interrupt, then queue or move the read; drop `talkQuietMs` and
-  `talkMaxWaitMs`, add the `readWindowMs` seam). New rule 8 (OQ-3 (b)): a `settled` or `stopped`
-  `intent.recorded` row with no running job queues a coalesced `intent` turn that narrates it.
+  `talkMaxWaitMs`, add the `readWindowMs` seam). New rule 8 (spec FR-031, card AC #7): an
+  `intent.recorded` row with outcome `settled` or a `stopped` refusal, in a batch that no turn job
+  appended, queues a coalesced `intent` turn. Place it beside TASK-0314's resume rule and share its
+  "appended by a job" test. The `intent` turn runs the pipeline with an empty beat, so narrate reads
+  the row through the spec 104 window (`factsThrough`, `loadEvents`).
 - `worker.ts`: purpose `read` when `job.trigger === "talk"`; an interrupted run returns through the
   fenced/aborted path.
 - `nodes/schemas.ts` `ReactOutput`: outcome gains `confirm`; `confirm: { characterId | null, text,
@@ -147,7 +147,7 @@ refusal). **Complexity Tracking**: none.
   `SUGGESTION_STALE` records `interrupted`. `jobs.result.talk` gains `confirmItems`, `answered`.
 - `intent-runner.ts`: unchanged; OQ-9's id rule keeps its declares out of the read.
 
-### D4 — Web (`apps/web/app/play/`)
+### D4 — Web (`apps/web/app/play/`) — TASK-0315 design input, not built here
 
 - `frames.ts`: `intentFrame(intent)`, `acceptFrame`, `suggestFrame`, schema-validated; remove
   `commentFrame`; keep `declareFrame` and `commitFrame` for FR-022 and the DM.
@@ -172,14 +172,14 @@ refusal). **Complexity Tracking**: none.
 ### D5 — Mutation guard
 
 Stub `readablePosts` to return `[]`; stub `suggestionState` never stale; stub the accept acceptor
-rule to pass; stub `interruptRead` to return null; stub the turn-mode branch of the composer to send
-`declared`. Each fails at least one test. Restore; `git diff` is empty.
+rule to pass; stub `interruptRead` to return null; stub rule 8 to queue nothing. Each fails at least one test. Restore; `git diff` is empty.
 
-### D6 — Script-mode live check
+### D6 — Script-mode server check
 
 `specs/066-one-chat-stream/evidence/post.mjs` posts an Intent as a named player over the WS `send`
 frame. `apps/server/dm-scripts/greyhollow-confirm.json` scripts: scene start, a read that confirms
-Kestrel's climb, a read that answers Tamsin's `ask_dm`, then a turn-mode beat.
+Kestrel's climb, a read that answers Tamsin's `ask_dm`, then a turn-mode beat. This card checks it
+on the debug routes; TASK-0315 reuses it for the Brave live check.
 
 ## Files touched (against `9e51c948`)
 
@@ -207,21 +207,11 @@ Kestrel's climb, a read that answers Tamsin's `ask_dm`, then a turn-mode beat.
 | `packages/session-model/test/{gate-schemas,gate-policy,gate-permissions,catalog,presence,fixtures}.test.ts` | — | counts, rows | server |
 | `apps/server/test/dm/{talk-triggers.test,enqueue-talk.integration.test,talk-turn.integration.test,worker.integration.test,react-prompt.test,player-facing-prompts.test,dm-scripts.test}.ts` | exist | amend | server |
 | `apps/server/test/{gate.intent.integration,write-boundary}.test.ts` | exist | accept over the real gate; pins | server |
-| `apps/web/app/play/{frames,source,local-log,use-live-table,use-fixture-table,labels}.ts` | declare/comment frames | intent/accept/suggest | web |
-| `apps/web/app/play/read-ring.ts` | absent | new | web |
-| `apps/web/app/play/view-model.ts` (363 lines) | `signoff`, `commitsOnOwnTurn` | reshape | web |
-| `apps/web/app/play/signoff.ts`, `apps/web/test/play/signoff.test.mjs` | exist | delete | web |
-| `apps/web/app/play/components/composer.tsx` (210 lines) | Talk/Action radios | rewrite | web |
-| `apps/web/app/play/components/{read-ring,confirm-row,confirm-editor}.tsx` | absent | new | web |
-| `apps/web/app/play/components/{transcript,action-card,commit-control}.tsx`, `table-view.tsx` | — | edit | web |
-| `apps/web/test/play/{read-ring.test.mjs,confirm-row.test.tsx}` | absent | new | web |
-| `apps/web/test/play/{composer.test.tsx,view-model.test.mjs,action-card.test.tsx,table-view.test.tsx,equivalence.test.tsx,frames.test.mjs,local-log.test.mjs,use-fixture-table.test.mjs}` | exist | amend | web |
-| `specs/066-one-chat-stream/evidence/post.mjs` | absent | new | web |
 | contract files in "Frozen-contract amendments" | TASK-0188 blocks present | appended blocks | server |
-| `docs/wiki/{dm-talk-triggers,proposal-gate,session-model,dm-turn-jobs,presence}.md` | — | re-ground | server |
-| `docs/wiki/{play-route,chat-ui,turn-floor}.md`, `INDEX.md`, `CAPSULES.md` | — | re-ground | web (INDEX/CAPSULES: both) |
+| `apps/server/test/dm/enqueue-intent.integration.test.ts` | absent | new (rule 8) | server |
+| `docs/wiki/{dm-talk-triggers,turn-floor,proposal-gate,session-model,dm-turn-jobs,presence}.md`, `INDEX.md`, `CAPSULES.md` | — | re-ground | server |
 
-## Frozen-contract amendments (C-GATE ruling needed)
+## Frozen-contract amendments (C-GATE ruled)
 
 **Already made by spec 102 — dropped here:** the `intent` request kind and its matrix row;
 `DEFAULT_POLICIES.intent = "ask"`; `intent.recorded` and the `intents` projection; `openRulings`;
@@ -234,6 +224,10 @@ may be recorded as a C-CON clarification note, as spec 102 OQ-10 was).
 
 Each row below is a new appended block, headed "**Amendment (TASK-0199).**", citing P-04,
 decision-0030 and the C-GATE ruling. Existing blocks are not rewritten.
+
+**Ruled 2026-11-11 (C-GATE, "Approve all"): C-1 to C-9 adopted.** C-6, C-7 and C-9's UI line
+are written by this card's Phase 4 with the rest, so the contracts change in one PR; TASK-0315
+builds against them.
 
 | # | File | Before → after |
 |---|---|---|
@@ -248,26 +242,26 @@ decision-0030 and the C-GATE ruling. Existing blocks are not rewritten.
 | C-9 | `specs/049-turn-floor/contracts/{floor-jobs,ui-floor}.md` | "an accept batch never arms a stall" → "an accept writes no action rows"; the action card keeps the active player's Commit → Enter replaces it (FR-023) |
 | C-10 | `specs/035-presence/contracts/presence-marker.md`, `specs/044-group-signoff/contracts/signoff.md` | unchanged → unchanged (the TASK-0188 blocks stand) |
 
-## Phases (one phase = one sonnet dispatch; counts for the split ruling)
+## Phases (one phase = one sonnet dispatch)
 
-| Phase | Scope | Tasks | Card if split |
-|---|---|---|---|
-| 1 | Session model: event, catalog, projection, `read.ts`, fixture, tests | 10 | server |
-| 2 | Gate: suggest, accept via `planIntent`, `ask_dm`, refusals, pins, tests | 13 | server |
-| 3 | DM runtime: window, `interruptRead`, marker, rule 8, `dm.react-v4`, talk path, scripts, tests | 17 | server |
-| 4 | Web: frames, parse-on-Send, Enter commit, ring, Thinking, strip, confirm row, editor, sign-off removal, tests (no modals; `no-dialog.test.mjs` green; 1280 px and 390 px; accessibility check) | 15 | web |
-| 5 | Contract amendment blocks C-1 to C-10, checked against the code as built | 3 | server |
-| 6 | Wiki: NEEDS-REVIEW `play-route`, `chat-ui`, `dm-talk-triggers`, `turn-floor` (+ `proposal-gate`, `session-model`, `dm-turn-jobs`, `presence`), `INDEX.md`, `CAPSULES.md`; freshness `OK` | 5 | split per "Files touched" |
-| 7 | Verification **[orchestrator]**: DB suites, mutation guard, Brave live check at 1280 / 390 px, light and dark, accessibility check, evidence, execution-log row, spec-bridge check | 7 | split: server DB + guard; web live check |
-| **Total** | | **70** | server ≈ 50, web ≈ 22 (incl. its wiki and live check) |
+| Phase | Scope | Tasks |
+|---|---|---|
+| 1 | Session model: event, catalog, projection, `read.ts`, fixture, tests | 10 |
+| 2 | Gate: suggest, accept via `planIntent`, `ask_dm`, refusals, pins, tests | 13 |
+| 3 | DM runtime: window, `interruptRead`, marker, rule 8, `dm.react-v4`, talk path, scripts, tests | 18 |
+| 4 | Contract amendment blocks C-1 to C-9 | 3 |
+| 5 | Wiki (server share): NEEDS-REVIEW `dm-talk-triggers`, `turn-floor`, `proposal-gate`, `session-model`, `dm-turn-jobs`, `presence`, `INDEX.md`, `CAPSULES.md` | 4 |
+| 6 | Verification **[orchestrator]**: DB suites, mutation guard, script-mode server check, execution-log row, spec-bridge | 5 |
+| **Total** | | **53** |
 
-Dependencies: 1 → 2 → {3, 4}; 3 and 4 share no file; 5 after 3; 6 after 3–5; 7 last.
+Dependencies: 1 → 2 → 3 → 4 → 5 → 6. Old plan Phase 4 (web) and the web shares of the wiki and
+verification phases are TASK-0315's. `play-route` and `chat-ui` are re-grounded there.
 
-## Live check (Phase 7, Brave)
+## Server check (Phase 6)
 
-`DM_FAKE_SCRIPT=greyhollow-confirm` on the worktree stack, two Brave windows (Tamsin, Kestrel).
-Expected: one composer and one Send; Kestrel's line starts the ring in both windows; Thinking;
-Kestrel sees 👍 Yes and Not quite, Tamsin sees "Waiting on Kestrel"; 👍 shows "Confirmed" and the
-debug page shows the `intent.recorded` row; Tamsin's `@dm` question draws one DM aside that only
-Tamsin and the DM see; after the switch to turn mode no ring shows and Kestrel's Enter commits. No
-modal at 1280 px and 390 px, light and dark; the accessibility check passes.
+`DM_FAKE_SCRIPT=greyhollow-confirm` on the worktree stack. Post with `evidence/post.mjs`. Expected on
+the debug page: a `say` Intent queues a `talk` turn at its `ts` + 10 s; a second post moves it; the
+`read` marker; one `action.suggested` row with a `declared` `hide` item; `action.accept` appends the
+engine rows and `intent.recorded` (`confirmed`) and queues one `intent` turn that narrates them; an
+`ask_dm` draws one answer visible to the asker and the DM only; in turn mode no `talk` turn queues;
+under a human seat no `talk` turn queues. The Brave live check is TASK-0315's.
