@@ -27,8 +27,8 @@ fails at p95 ≥ 1000 ms.
 
 ## Phase 2: Wiki re-ground
 
-- [ ] T006 Review and re-pin `test-suite` (NEEDS-REVIEW): add the latency gate to the timing-budget section, with its file, clock seam, sample design and budget. Re-pin every other note whose sources list a file this PR touched, through the wiki-update plan loop.
-- [ ] T007 Update `docs/wiki/INDEX.md` (state line: TASK-0300 CI latency gate) and `docs/wiki/CAPSULES.md` (test-suite capsule). Run the freshness gate (`OK`) and the spec-bridge check (exit 0).
+- [x] T006 Review and re-pin `test-suite` (NEEDS-REVIEW): add the latency gate to the timing-budget section, with its file, clock seam, sample design and budget. Re-pin every other note whose sources list a file this PR touched, through the wiki-update plan loop.
+- [x] T007 Update `docs/wiki/INDEX.md` (state line: TASK-0300 CI latency gate) and `docs/wiki/CAPSULES.md` (test-suite capsule). Run the freshness gate (`OK`) and the spec-bridge check (exit 0).
 
 ## Dependencies & Execution Order
 

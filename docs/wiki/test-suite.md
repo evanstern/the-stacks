@@ -1,6 +1,6 @@
 ---
 name: test-suite
-description: What this note's 12 core server test files / 93 tests cover, the environment-gated integration suites that loud-skip without a database (or throw under REQUIRE_DATABASE=1), and that apps/server/test/ is its own typechecked project reference. DB scene and playtest tests carry load-sized timeouts (TASK-0154). The larger ingestion suite is [[ingestion]]; the bench suite is [[benchmarks]]; the web app's own SSR suite is [[react-router-app]].
+description: What this note's 12 core server test files / 93 tests cover, the environment-gated integration suites that loud-skip without a database (or throw under REQUIRE_DATABASE=1), and that apps/server/test/ is its own typechecked project reference. DB scene tests carry load-sized timeouts (TASK-0154). The CI latency gate (TASK-0300) is in a section below. The larger ingestion suite is [[ingestion]]; the bench suite is [[benchmarks]]; the web app's own SSR suite is [[react-router-app]].
 kind: concept
 sources:
   - apps/server/test/auth.integration.test.ts
@@ -29,9 +29,11 @@ sources:
   - apps/server/tsconfig.json
   - apps/server/test/tsconfig.json
   - apps/server/vitest.config.ts
+  - apps/server/vitest.timing.config.ts
+  - apps/server/test/intent-latency.bench-test.ts
   - tsconfig.json
 size_budget_exempt: spec 102 adds the server tsconfig reference to packages/intent in the one test-suite note; the suite map does not split without a TASK of its own
-verified_against: 7c0d16130c083a540d3a93f5fc587ec3e95e5cbf
+verified_against: 45ecfe33bfbd1121f1487ffef7614f71913db4c2
 ---
 
 # Test suite
@@ -114,6 +116,24 @@ root) now builds this reference too, so a type error introduced only in a test f
 `typecheck` — it is no longer invisible until Vitest transpiles and runs the file. This
 closes the gap TASK-0017 tracked; `apps/server/tsconfig.json` still
 scopes `"include": ["src"]` (its `references` now also name the engine, session-model and srd packages), so `test/` stays out of the `src` build's own output).
+
+## Latency gate (TASK-0300, spec 106)
+
+`apps/server/test/intent-latency.bench-test.ts` runs in `pnpm check:timing` (the server's
+`test:timing`, config `vitest.timing.config.ts`, which sets `fileParallelism: false` so the ddb
+bench never overlaps it), never in `pnpm test`. It loud-skips without a database and throws
+under `REQUIRE_DATABASE=1`. `BUDGET_MS = 1000` is constitution IX's p95, one constant with no
+retry and no multiplier. Clock seam: `performance.now()` before `gate.handle`, stopped inside a
+`gate.onAppended` listener on the batch whose `intent.recorded` row carries the sample's Intent
+id (rows stored); that batch must hold `attack.resolved` or `check.resolved`, so a refusal is
+never a sample. Two `createWorld` tables in turn mode: an AI-seat `attack` (Tamsin, a miss every
+time) and a human-seat `check` (the DM's `ruling` that rolls the player's open check). Each kind
+runs 20 discarded warm-up samples then 200 serial samples. p95 is nearest-rank via `percentile()`
+in `src/bench/load/stats.ts`. Dice are scripted (1993 faces of 2 after initiative; the script
+schema caps dice at 2000), and the gate asserts zero model calls. It prints one `latency <kind>`
+line per kind and `latency gate: PASS`; a breach prints the five slowest samples and fails. Hit
+samples and the hosted half (TASK-0278) are out of scope. `scripts/check-no-wallclock-tests.mjs`
+requires wall-clock assertions to live in `*.bench-test.ts`.
 
 ## Connections
 
