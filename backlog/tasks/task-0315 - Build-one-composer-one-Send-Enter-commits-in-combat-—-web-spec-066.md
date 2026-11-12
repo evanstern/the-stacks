@@ -4,7 +4,7 @@ title: 'Build: one composer, one Send, Enter commits in combat — web (spec 066
 status: In Progress
 assignee: []
 created_date: '2026-11-12T03:01:00Z'
-updated_date: '2026-11-12T06:00:00Z'
+updated_date: '2026-11-12T06:25:00Z'
 labels:
   - web
   - ws:table-ux
@@ -57,4 +57,7 @@ Phases 1-3 (46e30aef, 6c2fac10, 66824cbe): ci:check exit 0; web node --test 325 
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
 Phase 4 wiki (d34fa871): play-route, turn-floor and scene-panels re-pinned; chat-ui not staled.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
+Live check (40cbd19f) on the worktree app in script mode, two isolated Brave contexts, no vm-104 page touched. Passed: one composer and one Send, ring, Thinking, interrupt strip, confirm row then Confirmed, chips, no 'The party'; no modal and no clipping at 1280 or 390 px; a11y tree and keyboard pass. Not run live: turn mode, because greyhollow-confirm never starts an encounter. AC #1 rests on send.test.mjs (declare then commit; slash at confirmed; non-active say) and read-ring.test.mjs (hidden in turn mode). Minor finding: after a keyboard pick in the Speaker listbox, focus drops to body instead of the Speaker button.
 <!-- SECTION:NOTES:END -->
