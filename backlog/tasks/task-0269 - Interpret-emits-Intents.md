@@ -4,7 +4,7 @@ title: Interpret emits Intents
 status: In Progress
 assignee: []
 created_date: 2026-11-07 05:13
-updated_date: '2026-11-12T00:42:00Z'
+updated_date: '2026-11-12T00:44:00Z'
 labels:
   - ws:intent
   - replan-2026-11
@@ -30,7 +30,7 @@ Spec: specs/104-interpret-intents
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Slash commands produce Intents with zero model calls.
+- [x] #1 Slash commands produce Intents with zero model calls.
 - [ ] #2 Interpret output validates against the Intent schema on attempt 1 in >= 99% of the playtest corpus.
 - [ ] #3 A compound declaration yields one Intent per stage, each planned in turn.
 - [ ] #4 Band effects and the free retry (autoSuccess) keep working beside the Intent path until a card puts stakes on Intents (spec 097 OQ-5).
