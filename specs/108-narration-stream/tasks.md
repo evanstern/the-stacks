@@ -7,12 +7,12 @@ in the brief.
 
 ## Phase 1: Stream core (pure)
 
-- [ ] T001 In `apps/server/src/dm/pipeline/call.ts`, add `onText?: (delta: string) => void` to `CallRequest`. Call it per `text` event inside a `try`.
-- [ ] T002 In `collect()`, record `firstTokenMs` from the `chat()` call to the first non-empty delta. Return it on `TextResult` ok. Extend `apps/server/test/dm/call.test.ts`.
-- [ ] T003 Export `sentencesOf` from `apps/server/src/dm/narration-check.ts`. Export `TAG` and a new `dropDigitSentences` from `apps/server/src/dm/fact-sheet.ts`; `parseSlots` uses `dropDigitSentences`.
-- [ ] T004 Write `apps/server/src/dm/narration-stream.ts` per plan D2: `createNarrationStream`, `push`, `finish`, `NarrationPart`.
-- [ ] T005 Write `apps/server/test/dm/narration-stream.test.ts`. Cover: held last sentence, tag switch, slot not in `sheet.slots`, think strip, unclosed quote, cap, stock ending, leak drop (fogged zone, DM-only text, absent actor), digit drop.
-- [ ] T006 Add a prefix property test: for every narrate fixture and 1-, 3- and 17-character delta splits, each slot's joined parts are a prefix of the check node's kept slot.
+- [x] T001 In `apps/server/src/dm/pipeline/call.ts`, add `onText?: (delta: string) => void` to `CallRequest`. Call it per `text` event inside a `try`.
+- [x] T002 In `collect()`, record `firstTokenMs` from the `chat()` call to the first non-empty delta. Return it on `TextResult` ok. Extend `apps/server/test/dm/call.test.ts`.
+- [x] T003 Export `sentencesOf` from `apps/server/src/dm/narration-check.ts`. Export `TAG` and a new `dropDigitSentences` from `apps/server/src/dm/fact-sheet.ts`; `parseSlots` uses `dropDigitSentences`.
+- [x] T004 Write `apps/server/src/dm/narration-stream.ts` per plan D2: `createNarrationStream`, `push`, `finish`, `NarrationPart`.
+- [x] T005 Write `apps/server/test/dm/narration-stream.test.ts`. Cover: held last sentence, tag switch, slot not in `sheet.slots`, think strip, unclosed quote, cap, stock ending, leak drop (fogged zone, DM-only text, absent actor), digit drop.
+- [x] T006 Add a prefix property test: for every narrate fixture and 1-, 3- and 17-character delta splits, each slot's joined parts are a prefix of the check node's kept slot.
 
 ## Phase 2: Pipeline wiring and timing
 
