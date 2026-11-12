@@ -20,7 +20,7 @@ sources:
   - apps/server/src/dm/companion.ts
   - apps/server/src/dm/chronicle.ts
 size_budget_exempt: both notes sat within 30 chars of the 8000 budget before TASK-0180; the talk path got its own note (dm-talk-triggers) and only a pointer line lands here; the rest is one pipeline each, not splittable without a TASK of its own
-verified_against: 17849584ad75728e4df27bee4a34d3e35cb86229
+verified_against: 980e1c5bc86640037bc64a95066a7134282356ab
 ---
 
 # DM turn jobs
@@ -50,7 +50,7 @@ Payloads are Zod schemas in `dm/jobs.ts` (`TurnJobInput`, `FloorJobInput`, `Comp
 `createDmEnqueuer(...).onAppended` (`dm/enqueue.ts`) is registered with `gate.onAppended` in
 `index.ts` ([[server-entrypoint-and-app]]). An `action.committed` row enqueues a `commit` turn.
 A `proposal.approved` or `proposal.rejected` row for an `ai:dm` proposal (found
-in the DM projection) enqueues an `approval` turn so the DM resumes. Floor follow-ups and waits arm here too ([[turn-floor]]). Then it calls `nudge()`; reconcile repairs a failure. A human `action.commented` row on an
+in the DM projection) enqueues an `approval` turn so the DM resumes. Rule 8 (TASK-0314): a human DM's `ruling` Intent whose `intent.recorded` carrier has `answers` set queues one `approval` turn under a human seat, so the waiting action resumes; an `ai:dm` ruling queues none there (rule 2 covers it), and the one-queued-turn index coalesces it. Floor follow-ups and waits arm here too ([[turn-floor]]). Then it calls `nudge()`; reconcile repairs a failure. A human `action.commented` row on an
 open action of an AI companion also calls `enqueueCompanionReact`
 (quiet 3 s, max wait 10 s): one queued `react` job per session
 (`jobs_companion_react_queued_key`); a further reaction merges its companion id into it. `enqueueTurn` is `INSERT ... ON CONFLICT

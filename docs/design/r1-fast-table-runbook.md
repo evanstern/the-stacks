@@ -327,6 +327,7 @@ Then **stop for CP-7** (the R1 playtest).
   - **E7 — TASK-0101 (+0037):** card ACs drive. Ops work; every vm-104 command at C9.
   - **E8 — TASK-0303 (hotfix, operator-signed 2026-11-09):** card ACs drive. Dockerfile package copies plus a guard test; stabilize the SC-005 timing test.
   - **E9 — TASK-0307 (operator-signed 2026-11-10):** card ACs drive. Accept and strip both slot-label forms; no doubled restate; ask only for a real clarification.
+  - **E10 — TASK-0314 (operator-signed 2026-11-11, "Sign E10"):** card ACs drive. One enqueue rule: a human DM's ruling Intent queues the resume turn; plus its test. Merges before TASK-0199 phase 3.
 
 ## Concurrency & conflict doctrine
 
@@ -482,3 +483,4 @@ updated at each dispatch boundary. `tokens/cost` carries best-effort actuals.
 | 2026-11-11 | TASK-0268 | (this PR) | — | opus spec (~2h, nudged); sonnet x3 | C-GATE "Approve all"; intent kind, intent.recorded carrier, AI-seat ruling turn; spec 029 contracts amended |
 | 2026-11-11 | TASK-0272 | (this PR) | — | opus spec; sonnet x5 | C-AUD: B2 replay 25 turns, 0 leak, 0 contradiction (after the departed-actor fix); OQ-1 isolated in 320aee54; OQ-8 window moved to TASK-0269 |
 | 2026-11-11 | TASK-0269 | (this PR) | — | opus spec; sonnet x5 | split ruled (AC #4/#6 to TASK-0312); C-GATE "Relax the gate (a)"; red interim commits by ruling |
+| 2026-11-11 | TASK-0314 | (this PR) | — | sonnet x1 | E10; human-DM ruling queues the resume turn (enqueue rule 8) |

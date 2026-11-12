@@ -137,10 +137,7 @@ async function approveRoll(w: World, worker: { drain: () => Promise<number> }) {
     },
   });
   expect(ruled.ok ? "ok" : ruled.refusal).toBe("ok");
-  // The ruling's `proposal.approved` row comes from the human DM, not `ai:dm`, so the enqueuer
-  // queues no resume turn. Open question for the orchestrator (spec 102 enqueue rule 2): the
-  // test queues the `approval` turn by hand.
-  await enqueueTurn(requireDb(), w.sessionId, "approval", null);
+  // Enqueue rule 8 (TASK-0314): the human DM's ruling queues the resume turn itself.
   await tick();
   await drainAll(worker);
   return confirm?.proposalId as string;

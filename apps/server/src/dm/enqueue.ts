@@ -53,7 +53,11 @@ import {
  *    companion job instead. A reached chain cap, or any queued turn, queues nothing new.
  * 7. A `needs_ruling` `intent.recorded` row under an AI seat queues a `ruling` turn (spec 102
  *    FR-022); the turn answers every open request first.
- * 8. `nudge()` wakes the worker.
+ * 8. Rule 8 (TASK-0314, human-DM ruling resume): an `intent.recorded` carrier that answers an open
+ *    request (`answers` set, a `ruling` Intent) from a non-AI actor under a human DM seat queues one
+ *    `approval` turn, so the waiting action resumes. `ai:dm` rulings queue none here: their
+ *    `proposal.approved` row already fires rule 2. The turn coalesces through the one-queued-turn index.
+ * 9. `nudge()` wakes the worker.
  *
  * A listener failure is logged; FR-008's reconcile repairs it at next start.
  */
@@ -234,6 +238,23 @@ export function createDmEnqueuer(deps: DmEnqueuerDeps): DmEnqueuer {
     await enqueueTurn(deps.db, sessionId, "ruling", asked.seq);
   }
 
+  /** Rule 8 (TASK-0314): a human DM's ruling that answers an open request queues the resume turn. */
+  async function humanRulingResume(
+    sessionId: string,
+    rows: StoredEvent[],
+  ): Promise<void> {
+    const ruled = rows.find(
+      (r) =>
+        r.type === "intent.recorded" &&
+        !r.actor.startsWith("ai:") &&
+        (r.payload as { answers?: string | null }).answers != null,
+    );
+    if (!ruled) return;
+    if ((await deps.loadProjections(sessionId)).gate.seat.kind !== "human")
+      return;
+    await enqueueTurn(deps.db, sessionId, "approval", ruled.seq);
+  }
+
   /** Rule 6 (specs/065 D2): a readable IC post queues a talk turn or a companion prompt. */
   async function talkReactions(
     sessionId: string,
@@ -304,6 +325,7 @@ export function createDmEnqueuer(deps: DmEnqueuerDeps): DmEnqueuer {
           }
         }
         await rulingTurns(sessionId, rows);
+        await humanRulingResume(sessionId, rows);
         await talkReactions(sessionId, rows);
         for (const companionId of await reactTargets(sessionId, rows)) {
           await enqueueCompanionReact(deps.db, sessionId, companionId, {

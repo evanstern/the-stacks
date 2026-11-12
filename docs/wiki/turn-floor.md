@@ -19,7 +19,7 @@ sources:
   - apps/web/app/play/local-log.ts
   - apps/web/app/play/components/floor-controls.tsx
   - apps/web/app/play/components/turn-order.tsx
-verified_against: 17849584ad75728e4df27bee4a34d3e35cb86229
+verified_against: 980e1c5bc86640037bc64a95066a7134282356ab
 ---
 
 # Turn floor
