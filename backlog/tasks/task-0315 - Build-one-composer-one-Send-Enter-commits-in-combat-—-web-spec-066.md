@@ -4,6 +4,7 @@ title: 'Build: one composer, one Send, Enter commits in combat — web (spec 066
 status: To Do
 assignee: []
 created_date: '2026-11-12T03:01:00Z'
+updated_date: '2026-11-12T04:49:00Z'
 labels:
   - web
   - ws:table-ux
@@ -33,3 +34,9 @@ Spec: specs/066-one-chat-stream
 - [ ] #1 All tests and checks run green
 - [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+From TASK-0199 phase 4: C-6, C-7 and C-9 contract blocks landed in TASK-0199 (7c0d1613); build against them. Confirm the ui-surfaces.md C-7 wording (the speaker chip drops 'The party') when building the composer. Replace the minimal ponytail detailsOf cases in apps/web/app/play/proposals.ts with real rendering, and document it in play-route.
+<!-- SECTION:NOTES:END -->
