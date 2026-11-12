@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: 2026-11-02 06:46
-updated_date: '2026-11-12T04:39:00Z'
+updated_date: '2026-11-12T04:49:00Z'
 labels:
   - web
   - dm
@@ -82,4 +82,7 @@ Phase 1 committed as c87570ed; ci:check green. Phase 2 hit TS2366: widening Prop
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
 Phase 3 (797971db): ci:check green with REQUIRE_DATABASE=1, 1843 server tests. TASK-0314 took enqueue rule 8, so the direct-intent narration rule is rule 9 and nudge() is item 10. A ruling that fires both rules queues one turn (tested). Rule 9 is narrowed to settled-with-engine-rows or stopped, so speech and ask_dm do not queue a second narration turn (spec FR-031 note; orchestrator accepted). The intent turn skips the director call.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
+Phases 4-5 done. Contract blocks C-1..C-9 are in 7c0d1613, with dated notes recording the code as built. The wiki is in a499bc73: 10 NEEDS-REVIEW notes and 7 RE-PIN-ONLY. Open for TASK-0315: confirm the C-7 wording on dropping 'The party' from the speaker chip.
 <!-- SECTION:NOTES:END -->
