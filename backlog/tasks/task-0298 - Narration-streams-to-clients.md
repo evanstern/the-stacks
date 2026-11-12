@@ -4,7 +4,7 @@ title: Narration streams to clients
 status: In Progress
 assignee: []
 created_date: 2026-11-08 19:56
-updated_date: '2026-11-12T20:36:00Z'
+updated_date: '2026-11-12T21:15:00Z'
 labels:
   - ws:narration
   - replan-2026-11
@@ -33,6 +33,11 @@ Spec: specs/108-narration-stream
 - [ ] #3 A viewer that joins mid-stream sees the settled slot text after the stream ends.
 - [ ] #4 The next turn's Intent is accepted while narration still streams, with a test.
 - [ ] #5 Time to first narration token is recorded per narrate job.
+- [ ] #6 Spec phase: Stream core (pure)
+- [ ] #7 Spec phase: Pipeline wiring and timing
+- [ ] #8 Spec phase: Delivery and C-GATE amendments
+- [ ] #9 Spec phase: Web rendering
+- [ ] #10 Spec phase: Wiki re-ground
 <!-- AC:END -->
 
 ## Definition of Done
@@ -45,4 +50,7 @@ Spec: specs/108-narration-stream
 
 <!-- SECTION:NOTES:BEGIN -->
 Claimed 2026-11-12 by the R1 sweep (docs/design/r1-fast-table-runbook.md). Worktree .worktrees/task-0298, branch task-0298-narration-stream, cut from origin/main 3f85a1bd. Spec number 108 claimed with a stub.
+
+Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5
+Spec 108 (da6ee720): 29 tasks, 5 phases, no split. Streams one checked sentence at a time, so a dropped sentence is never streamed. New narration-stream frame (C-GATE). AC #4 needs no code change. AC #5 goes in the job checkpoint, with no migration. Awaiting the C-GATE ruling before phase 3.
 <!-- SECTION:NOTES:END -->
