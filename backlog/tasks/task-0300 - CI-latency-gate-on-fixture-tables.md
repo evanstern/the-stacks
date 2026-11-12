@@ -1,11 +1,12 @@
 ---
 id: TASK-0300
 title: CI latency gate on fixture tables
-status: To Do
+status: In Progress
 assignee: []
-created_date: '2026-11-08 19:56'
+created_date: 2026-11-08 19:56
+updated_date: '2026-11-12T13:34:00Z'
 labels:
-  - 'ws:tooling'
+  - ws:tooling
   - replan-2026-11
   - ep-1
 milestone: m-10
@@ -21,6 +22,8 @@ ordinal: 284000
 Constitution 3.0.0 requires CI to record the time from a confirmed Intent to fact rows on fixture tables. TASK-0278 measures the hosted run only. This card adds the per-commit gate.
 
 Source: docs/design/r1-fast-table-runbook.md finding F5, CP-5 ruling 2026-11-08. Parent epic: TASK-0258. (gap G3).
+
+Spec: specs/106-latency-gate
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
@@ -35,3 +38,9 @@ Source: docs/design/r1-fast-table-runbook.md finding F5, CP-5 ruling 2026-11-08.
 - [ ] #1 All tests and checks run green
 - [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Claimed 2026-11-12 by the R1 sweep (docs/design/r1-fast-table-runbook.md). Worktree .worktrees/task-0300, branch task-0300-latency-gate, cut from origin/main fa6b3c11. Spec number 106 claimed with a stub.
+<!-- SECTION:NOTES:END -->
