@@ -36,7 +36,7 @@ Spec: specs/066-one-chat-stream
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
 - [x] #1 Spec 066 is amended after CP-4 so the quiet ring runs on the Intent declared state.
-- [ ] #2 In exploration and social play, a declared Intent waits for the quiet ring, then gets a DM reaction or confirm row.
+- [x] #2 In exploration and social play, a declared Intent waits for the quiet ring, then gets a DM reaction or confirm row.
 - [ ] #3 A 👍 on the confirm row moves the Intent from declared to confirmed and sends it to the gate.
 - [ ] #4 A human-DM table setting turns the quiet ring off, with a test.
 - [ ] #5 @dm produces one read-only ask_dm answer that changes no state, with a test.
