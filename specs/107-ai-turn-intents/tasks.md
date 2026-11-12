@@ -37,12 +37,12 @@ by hand. Export only `TEST_DATABASE_URL` as `VAR="$(sed …)"`.
 
 ## Phase 3: AI-actor parity tests (AC #3)
 
-- [ ] T023 Create `apps/server/test/dm/ai-actor-parity.integration.test.ts` with a world at a companion's turn and a monster's turn.
-- [ ] T024 Companion source: `attack` settled, `attack` refused `OUT_OF_REACH`, `attempt` `needs_ruling` answered by the AI seat (spec US-3 #1–#3).
-- [ ] T025 Monster source: `attack` settled, `attack` refused out of reach, `move` then `attack` settled (spec US-3 #4).
-- [ ] T026 A hand-submitted companion Intent with another character's actor is refused `NOT_YOUR_ACTOR` (spec US-3 #5).
-- [ ] T027 Schema and round-trip test: for each `COMPANION_TURN_KINDS` kind and the monster kinds, a stamped Intent parses with `IntentSchema` and `parse(toText(i))` deep-equals `i` (spec US-3 #6).
-- [ ] T028 Run `pnpm ci:check` with `REQUIRE_DATABASE=1`; commit `TASK-0299: Phase 3 AI-actor gate and planner parity tests (T023-T028)`.
+- [x] T023 Create `apps/server/test/dm/ai-actor-parity.integration.test.ts` with a world at a companion's turn and a monster's turn.
+- [x] T024 Companion source: `attack` settled, `attack` refused `OUT_OF_REACH`, `attempt` `needs_ruling` answered by the AI seat (spec US-3 #1–#3).
+- [x] T025 Monster source: `attack` settled, `attack` refused out of reach, `move` then `attack` settled (spec US-3 #4).
+- [x] T026 A hand-submitted companion Intent with another character's actor is refused `NOT_YOUR_ACTOR` (spec US-3 #5).
+- [x] T027 Schema and round-trip test: for each `COMPANION_TURN_KINDS` kind and the monster kinds, a stamped Intent parses with `IntentSchema` and `parse(toText(i))` deep-equals `i` (spec US-3 #6).
+- [x] T028 Run `pnpm ci:check` with `REQUIRE_DATABASE=1`; commit `TASK-0299: Phase 3 AI-actor gate and planner parity tests (T023-T028)`.
 
 ## Phase 4: 4v4 round under 60 s (AC #4)
 
