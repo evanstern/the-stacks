@@ -46,7 +46,7 @@ Two worlds from `apps/server/test/dm/world.ts` (`createWorld`, `startScene`), se
 `greyhollow-ford`, encounter `reed-camp` in turn mode, the same setup as
 `gate.intent.integration.test.ts`'s `turnWorld()`.
 
-- **Dice**: `[20, 1, 1, 1, 1, 1, 1]` (initiative, Tamsin first), then 2000 faces of `2`. A `2` is
+- **Dice**: `[20, 1, 1, 1, 1, 1, 1]` (initiative, Tamsin first), then 1993 faces of `2` (the script schema caps dice at 2000). A `2` is
   valid on every die. A d20 of 2 misses goblin AC and fails a medium check, so no target dies and
   every sample takes the same path. `scriptedRng` throws on exhaustion, so a mis-sized script fails
   loudly.
@@ -82,7 +82,7 @@ Two worlds from `apps/server/test/dm/world.ts` (`createWorld`, `startScene`), se
 
 - **Pass**: one line per kind, then `latency gate: PASS`:
   `latency attack n=200 warmup=20 p50=<ms> p95=<ms> max=<ms> budget=1000ms OK`.
-- **Fail**: the same lines with `FAIL` on each breaching kind, then the 5 slowest sample ids and
+- **Fail**: the same lines with `FAIL` on each breaching kind, then the 5 slowest sample indexes and
   times for that kind, then the assertion failure `p95 <ms> >= budget 1000ms (constitution IX)`.
 - Times print with one decimal.
 
