@@ -41,10 +41,10 @@
 
 ## Phase 4: Wiki — web share (NEEDS-REVIEW)
 
-- [ ] T027 Re-ground `docs/wiki/play-route.md`: the composer, send router, ring, Thinking, confirm row, DM editor, removed sign-off and comment UI, the fixture carrier-only path, and the `detailsOf` rows. Update its sources list.
-- [ ] T028 Re-ground `docs/wiki/chat-ui.md` where it describes the play composer or the no-modal rule, and the `docs/wiki/turn-floor.md` UI lines ("Commits on your turn", "Suggest an alternative", Enter commits).
-- [ ] T029 Update `docs/wiki/INDEX.md` and `docs/wiki/CAPSULES.md` lines for `play-route` and `turn-floor`. Re-pin honestly through the wiki-update plan loop.
-- [ ] T030 Run the wiki freshness gate. It prints `OK`.
+- [x] T027 Re-ground `docs/wiki/play-route.md`: the composer, send router, ring, Thinking, confirm row, DM editor, removed sign-off and comment UI, the fixture carrier-only path, and the `detailsOf` rows. Update its sources list.
+- [x] T028 Re-ground `docs/wiki/chat-ui.md` where it describes the play composer or the no-modal rule, and the `docs/wiki/turn-floor.md` UI lines ("Commits on your turn", "Suggest an alternative", Enter commits).
+- [x] T029 Update `docs/wiki/INDEX.md` and `docs/wiki/CAPSULES.md` lines for `play-route` and `turn-floor`. Re-pin honestly through the wiki-update plan loop.
+- [x] T030 Run the wiki freshness gate. It prints `OK`.
 
 ## Phase 5: Verification **[orchestrator]**
 

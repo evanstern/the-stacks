@@ -1,6 +1,6 @@
 ---
 name: play-route
-description: The play route (TASK-0047, specs/030-play-route) - one shared TableView over live or fixture sources, the pure modules behind it, live writes as gate requests, the DM approvals and ledger slide-outs, the presence strip, sign-off rows, floor controls, turn-order strip and floor lines, the table margin and strips (TASK-0236), the Debug link, scene panels, the Table mode (TASK-0165) and DM seat (TASK-0177) slide-outs and fixture routes.
+description: The play route (TASK-0047, specs/030-play-route) - one shared TableView over live or fixture sources, the pure modules, gate-request writes, the DM approvals and ledger slide-outs, the presence strip, the one composer, send router, read ring and confirm row (TASK-0315), floor controls, turn-order strip and floor lines, the table margin and strips (TASK-0236), the Debug link, scene panels, the Table mode (TASK-0165) and DM seat (TASK-0177) slide-outs and fixture routes.
 kind: component
 sources:
   - apps/web/app/routes/play.tsx
@@ -20,10 +20,16 @@ sources:
   - apps/web/app/play/local-log.ts
   - apps/web/app/play/labels.ts
   - apps/web/app/play/presence.ts
-  - apps/web/app/play/signoff.ts
+  - apps/web/app/play/send.ts
+  - apps/web/app/play/read-ring.ts
   - apps/web/app/play/table-mode.ts
   - apps/web/app/play/dm-seat.ts
   - apps/web/app/play/components/action-card.tsx
+  - apps/web/app/play/components/composer.tsx
+  - apps/web/app/play/components/transcript.tsx
+  - apps/web/app/play/components/confirm-row.tsx
+  - apps/web/app/play/components/confirm-editor.tsx
+  - apps/web/app/play/components/read-ring.tsx
   - apps/web/app/play/components/presence-strip.tsx
   - apps/web/app/play/components/table-header.tsx
   - apps/web/app/play/components/floor-controls.tsx
@@ -36,14 +42,14 @@ sources:
   - apps/web/app/play/components/commit-control.tsx
   - apps/web/app/play/components/table-mode-panel.tsx
   - apps/web/app/play/components/dm-seat-panel.tsx
-verified_against: 7c0d16130c083a540d3a93f5fc587ec3e95e5cbf
-size_budget_exempt: TASK-0236 adds the table margin paragraph to the one play-route note; the note sat near the 8000 budget and the view does not split without a TASK of its own
+verified_against: bd5a8086ffd87f883519b87e12dc3168853e3c94
+size_budget_exempt: spec 105 (TASK-0315) replaces the sign-off paragraph with the composer, send router, read ring and confirm row in the one play-route note; the note sat 806 chars over budget already and the table view does not split without a TASK of its own
 ---
 
 # Play route
 
 TASK-0047 (specs/030-play-route) replaces the M0 echo page at `play/:sessionId` with the
-table: a transcript, a composer, action cards with a commit control and a Withdraw control, a table-mode badge, a
+table: a transcript, one composer, action cards with a DM commit control and a Withdraw control, a table-mode badge, a
 ledger slide-out, and a DM approvals slide-out. Everything lives in `apps/web/app/play/`;
 `routes/play.tsx` is a thin wrapper. Routes are client-only (`clientLoader`, `HydrateFallback`, no server `loader`; [[react-router-app]]).
 
@@ -53,7 +59,7 @@ ledger slide-out, and a DM approvals slide-out. Everything lives in `apps/web/ap
 (`play/source.ts`) carries the `viewer`, the `actor` id writes are recorded as, `events`,
 `status`, `caughtUp`, `notice`, pending `proposals`, `presence` (the humans at the table, or
 `null` when unknown) and `commands` (`sendTalk`,
-`declareAction`, `comment`, `commit`, `withdraw`, `floor`, `changeScene`, `endEncounter`, `setTableMode`, `approve`, `reject`, `seatDm?` (TASK-0177, live operator sources only) and live-only `startScene`), `role` (the account role; absent on fixtures) and `sceneStart` (TASK-0167, specs/059: the operator's scene start state, fetched by `useLiveTable`; absent for a fixture or a non-operator). The view runs
+`declareAction`, `sendIntent`, `accept`, `suggest`, `commit`, `withdraw`, `floor`, `changeScene`, `endEncounter`, `setTableMode`, `approve`, `reject`, `seatDm?` (TASK-0177, live operator sources only) and live-only `startScene`), `role` (the account role; absent on fixtures) and `sceneStart` (TASK-0167, specs/059: the operator's scene start state, fetched by `useLiveTable`; absent for a fixture or a non-operator). The view runs
 `project(events, viewer)` from [[session-model]] and `toTableViewModel` (`view-model.ts`);
 it holds only UI state (which panel is open). Two hooks build a source:
 
@@ -88,18 +94,14 @@ Table margin (TASK-0236, specs/090-table-margin). `table-view.tsx` puts the stre
 With a human DM, a check's roll approval re-proposes the same roll instead of narrating
 (TASK-0168, found in the TASK-0159 live check).
 
- composer, ledger
+The composer, ledger
   and proposal lists, `hiddenCount`, `isDm`. An action card carries `canWithdraw` (open, and the
   viewer is its declarer or the DM); a `withdrawn` card is closed and shows "Withdrawn". Floor controls, the turn-order strip and floor lines: [[turn-floor]].
+  The composer view carries `speakers` (the viewer's characters, or "DM", then "You (out of character)"; no "The party" entry, contract C-7), `mentions`, `mode`, `active`, `dm`, `canSend` and `hint`. Transcript items add `aside`, `confirm` and `intent` kinds (below).
 - `authority.ts` - `commitAuthorityFor` decides what the commit control shows. A DM viewer
-  can always commit; a player goes through `commitAuthority` ([[proposal-gate]]) with the live
-  present set (`null` keeps the pre-sign-off behaviour), so the control shows once the sign-off
-  quorum is met. The gate enforces; this only decides the display.
-- `signoff.ts` - `signoffRows` builds the per-player sign-off rows (Approved, Objects, Waiting,
-  Away) for an open party-scope action from the gate's `signoffState`; null for a character
-  action, a closed action or fewer than two humans. They ride `ActionCardView.signoff`;
-  `ActionCard` renders them, with Approve and Object on the viewer's own row (`commentFrame`).
-- `frames.ts` - builds gate requests (`talkFrame`, `declareFrame`, `commentFrame`,
+  can always commit; a player goes through `commitAuthority` ([[proposal-gate]]), but `view-model.ts` shows the Commit control to a DM viewer only. The gate enforces; this only decides the display.
+- Sign-off and comment UI is removed (spec 105): no `signoff.ts`, no Comment, Approve or Object controls. Only the DM keeps the Commit control; a player's commit goes through Enter (below).
+- `frames.ts` - builds gate requests (`talkFrame`, `declareFrame`, `intentFrame`, `acceptFrame`, `suggestFrame`,
   `commitFrame`, `withdrawFrame`, `floorFrame`, `sceneFrame`, `encounterEndFrame` (a `mechanics` request), `tableModeFrame`, `dmSeatFrame`, `approveFrame`, `rejectFrame`), schema-validated,
   each with `GATE_REQUEST_VERSION`. `localEventOf` maps a frame to its catalog event for fixtures.
 - `reduce-frame.ts` - `reduceFrame` folds each inbound frame into `FrameState` (`events`,
@@ -112,7 +114,15 @@ With a human DM, a check's roll approval re-proposes the same roll instead of na
 - `proposals.ts` - `selectPendingProposals` lists pending `proposal.*` rows for a DM viewer,
   oldest first; a player always gets `[]`. Each `PendingProposalView` carries `policy` (`ask` or
   `suggest`) from the `proposal.created` row. An `intent` proposal shows its kind and `toText` text ([[intent-contract]]).
-- `ledger-format.ts` formats roll, outcome and change rows (`Reaction: `); `labels.ts` names.
+- `ledger-format.ts` formats roll, outcome and change rows (`Reaction: `); `labels.ts` names, with `KIND_LABEL` and `kindLabel` for intent kinds. `detailsOf` in `proposals.ts` renders real rows for each proposal kind.
+
+## The one composer
+
+`components/composer.tsx` is one composer with one Send (TASK-0315, specs/105-one-composer-web). A Speaker listbox and a Mention listbox are inline, not modals. `send.ts`'s `routeSend` parses each line with the intent grammar (every slash verb) and sends an `intent` request through `intentFrame`: `commit` is `declared` in free mode and `confirmed` in turn mode. In turn mode the active player's plain prose sends `action.declare` then `action.commit` back to back, under the hint "Enter commits your turn". A parse refusal sends nothing. Fixture mode appends carrier rows only (`local-log.ts`: `localIntentEvents`, `localAcceptEvents`).
+
+`read-ring.ts`'s `readIndicator` is hidden for 2 s, then an 8-segment ring, then "The DM is reading the table…" from the `read` marker, capped at 30 s from the marker's `ts` (`markerTs`). It is hidden in turn mode, under a human seat and for a DM viewer. While Thinking, Send becomes an interrupt strip in a `<fieldset>` (`components/read-ring.tsx`).
+
+`components/transcript.tsx` adds the chips "Asks the DM" (an `ask_dm` line), "DM aside" and "Table talk". The `confirm` item renders `components/confirm-row.tsx`: each line has "👍 Yes" and "Not quite" (focuses the composer) or one of "Waiting on ...", "Confirmed" and "Superseded". The human DM gets "Confirm as action..." (`components/confirm-editor.tsx`, sends `action.suggest`) on a player's say line, and a Confirm control on a declared deed (kind `intent`).
 
 ## DM seat
 
@@ -133,7 +143,7 @@ strip is inline, not a panel.
 ## Live writes and refusals
 
 Live writes are [[proposal-gate]] requests sent over [[ws-protocol]]'s `send` frame:
-`eventType` is the request kind (`talk`, `action.declare`, `action.comment`, `action.commit`,
+`eventType` is the request kind (`talk`, `action.declare`, `intent`, `action.accept`, `action.suggest`, `action.commit`,
 `action.withdraw`, `floor`, `scene`, `mechanics`, `table-mode`, `dm.seat`, `proposal.approve`, `proposal.reject`) and `payload` is the request without its `kind`.
 `useSession.sendEvent` adds only permitted fields (never actor, seq or ts). A refusal arrives
 as the error frame; `reduceFrame` stores `message (code)` in `notice`, which the composer shows

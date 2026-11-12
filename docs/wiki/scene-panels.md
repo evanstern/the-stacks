@@ -9,7 +9,7 @@ sources:
   - apps/web/app/play/components/scene-panel.tsx
   - apps/web/app/play/frames.ts
   - apps/web/app/play/local-log.ts
-verified_against: 68115fdd4cca3cfcb41f7052b408fd2eef27b9cd
+verified_against: bd5a8086ffd87f883519b87e12dc3168853e3c94
 ---
 
 # Scene panels
