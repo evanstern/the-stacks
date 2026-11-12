@@ -42,6 +42,8 @@ export interface TalkInput {
   characterId: string | null;
 }
 export interface DeclareInput {
+  /** The caller mints it when it commits the action next (FR-022); else `act-` + UUID. */
+  actionId?: string;
   text: string;
   characterId: string | null;
   scope: "character" | "party";
@@ -52,6 +54,8 @@ export interface AcceptInput {
 }
 /** The human DM's confirm row: items are `{ itemId, text, intent }` with a declared Intent (C-1). */
 export interface SuggestInput {
+  /** The caller mints it (`sug-` + UUID) because each item Intent id is `<suggestionId>.<itemId>`. */
+  suggestionId?: string;
   readSeq: number;
   items: { itemId: string; text: string; intent: Intent }[];
 }

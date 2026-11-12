@@ -1,8 +1,8 @@
 import {
   type ActorRef,
   type Intent,
-  parse,
   type ParseContext,
+  parse,
 } from "@the-stacks/intent";
 
 export interface SendContext {

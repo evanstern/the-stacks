@@ -22,8 +22,8 @@ import {
 import {
   appendLocal,
   type LocalEventInput,
-  localEncounterEndEvents,
   localAcceptEvents,
+  localEncounterEndEvents,
   localFloorEvents,
   localIntentEvents,
   localSceneEvents,

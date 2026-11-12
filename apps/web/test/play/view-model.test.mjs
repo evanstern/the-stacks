@@ -4,7 +4,6 @@ import { project } from "@the-stacks/session-model";
 import {
   fixtureIds,
   fixtures,
-  groupSignoff,
   secretTracker,
   talkOnly,
   turnFloor,
@@ -137,13 +136,13 @@ test("action cards carry labels, comments and commit authority", () => {
   const card = ana.transcript.find((i) => i.kind === "action").card;
   assert.equal(card.characterLabel, "Ana");
   assert.equal(card.actorLabel, "You");
-  assert.deepEqual(card.commit, { canCommit: true, authority: "declarer" });
+  assert.deepEqual(card.commit, { canCommit: false, holderLabel: null });
   const other = vm(
     f.events.filter((e) => e.seq <= 7),
     f.viewers.players[1],
   );
   const otherCard = other.transcript.find((i) => i.kind === "action").card;
-  assert.deepEqual(otherCard.commit, { canCommit: false, holderLabel: "Ana" });
+  assert.equal(otherCard.commit.canCommit, false);
   const done = vm(f.events, f.viewers.dm).transcript.find(
     (i) => i.kind === "action",
   ).card;
@@ -337,7 +336,7 @@ test("floor transcript lines: Your turn, a name, the DM floor; none for free mod
   assert.equal(combat.length, 2, "the free-mode change adds no line");
 });
 
-test("no player Commit in turn mode; the DM keeps it (FR-023)", () => {
+test("no player Commit control; the DM keeps it (FR-005, FR-023)", () => {
   const events = turnFloor.events.filter((e) => e.seq <= 13);
   const declare = (actor, actionId, characterId) => ({
     sessionId: events[0].sessionId,

@@ -76,7 +76,7 @@ export function talkFrame(input: TalkInput): EventFrame | null {
 /** `actionId` is injectable for tests; the default is `act-` plus a UUID. */
 export function declareFrame(
   input: DeclareInput,
-  actionId: string = `act-${crypto.randomUUID()}`,
+  actionId: string = input.actionId ?? `act-${crypto.randomUUID()}`,
 ): EventFrame | null {
   return build(
     "action.declare",
@@ -116,7 +116,7 @@ export function acceptFrame(input: AcceptInput): EventFrame | null {
 /** The human DM's confirm row. `suggestionId` is injectable for tests; default `sug-` + UUID. */
 export function suggestFrame(
   input: SuggestInput,
-  suggestionId: string = `sug-${crypto.randomUUID()}`,
+  suggestionId: string = input.suggestionId ?? `sug-${crypto.randomUUID()}`,
 ): EventFrame | null {
   return build(
     "action.suggest",

@@ -302,9 +302,9 @@ export function toTableViewModel(
           open: isOpen(action.status),
           canWithdraw:
             isOpen(action.status) && (isDm || action.actor === input.actor),
-          // FR-023: no player holds a Commit in turn mode; Enter commits (the DM's stays).
+          // FR-005, FR-023: Commit shows for the DM viewer only; a player's Enter commits.
           commit:
-            tableMode.mode === "turn" && viewer.role === "player"
+            viewer.role === "player"
               ? { canCommit: false, holderLabel: null }
               : toViewAuthority(
                   commitAuthorityFor(action, tableMode, viewer, party, present),

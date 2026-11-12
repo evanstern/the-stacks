@@ -9,12 +9,9 @@ export function commitLabel(authority: ActionAuthority): string {
 export function CommitControl({
   commit,
   onCommit,
-  commitsOnOwnTurn = false,
 }: {
   commit: ViewCommitAuthority;
   onCommit: (authority: ActionAuthority) => void;
-  /** The viewer's own action, waiting for their turn (spec 049, FR-003). */
-  commitsOnOwnTurn?: boolean;
 }) {
   if (commit.canCommit) {
     const { authority } = commit;
@@ -26,11 +23,6 @@ export function CommitControl({
       >
         {commitLabel(authority)}
       </button>
-    );
-  }
-  if (commitsOnOwnTurn) {
-    return (
-      <p className="text-sm text-muted-foreground">Commits on your turn</p>
     );
   }
   return (

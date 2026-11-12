@@ -8,6 +8,7 @@ import { Margin } from "./components/margin.tsx";
 import { MiniStrip } from "./components/mini-strip.tsx";
 import { PARTY_PANEL_ID, PartyPanel } from "./components/party-panel.tsx";
 import { ProposalList } from "./components/proposal-list.tsx";
+import { ReadRing } from "./components/read-ring.tsx";
 import { SCENE_PANEL_ID, ScenePanel } from "./components/scene-panel.tsx";
 import { StartScenePanel } from "./components/start-scene-panel.tsx";
 import { StatusStrip } from "./components/status-strip.tsx";
@@ -25,6 +26,7 @@ import { conditionText } from "./conditions.ts";
 import { dmSeatView } from "./dm-seat.ts";
 import { partyRows } from "./party.ts";
 import { presenceRows } from "./presence.ts";
+import { readIndicator } from "./read-ring.ts";
 import type { TableSource } from "./source.ts";
 import { toTableViewModel } from "./view-model.ts";
 
@@ -118,6 +120,28 @@ export function TableView({
     (source.sceneStart === "queued" || source.sceneStart === "pending")
       ? source.sceneStart
       : undefined;
+  const composerRef = useRef<HTMLInputElement>(null);
+  // The projection keeps only the marker's seq; its `ts` starts Thinking's 30 s cap (FR-025).
+  const markerTs = useMemo(
+    () =>
+      projected.presence?.purpose === "read"
+        ? (events.find((e) => e.seq === projected.presence?.seq)?.ts ?? null)
+        : null,
+    [events, projected.presence],
+  );
+  const [now, setNow] = useState(() => Date.now());
+  const indicator = readIndicator(projected, viewer, now, markerTs);
+  // The 1 s ticker runs only while the ring or Thinking shows, or a post is waiting to show it.
+  const ticking =
+    indicator.kind !== "hidden" ||
+    readIndicator(projected, viewer, Number.MAX_SAFE_INTEGER, markerTs).kind ===
+      "ring";
+  useEffect(() => {
+    if (!ticking) return;
+    setNow(Date.now());
+    const timer = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(timer);
+  }, [ticking]);
   const endRef = useRef<HTMLDivElement>(null);
   const count = model.transcript.length;
   // biome-ignore lint/correctness/useExhaustiveDependencies: scroll when the transcript grows.
@@ -161,7 +185,11 @@ export function TableView({
             {!source.caughtUp ? (
               <p className="text-sm text-muted-foreground">Loading history…</p>
             ) : (
-              <Transcript items={model.transcript} commands={source.commands} />
+              <Transcript
+                items={model.transcript}
+                commands={source.commands}
+                onNotQuite={() => composerRef.current?.focus()}
+              />
             )}
             <div ref={endRef} />
           </div>
@@ -174,10 +202,12 @@ export function TableView({
         </div>
         <Margin party={party} mode={model.mode} conditions={conditionLines} />
       </div>
+      <ReadRing indicator={indicator} />
       <Composer
         composer={model.composer}
-        onTalk={source.commands.sendTalk}
-        onDeclare={source.commands.declareAction}
+        commands={source.commands}
+        inputRef={composerRef}
+        thinking={indicator.kind === "thinking"}
         disabled={
           source.status === "connecting" || source.status === "retrying"
         }

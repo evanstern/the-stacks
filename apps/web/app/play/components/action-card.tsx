@@ -1,21 +1,6 @@
-import { useState } from "react";
-import type { SignoffRowState } from "../signoff.ts";
 import type { CommitInput, WithdrawInput } from "../source.ts";
 import type { ActionCardView } from "../view-model.ts";
 import { CommitControl } from "./commit-control.tsx";
-
-// Phase 3 (TASK-0315) removes the comment form; the prop is optional until then.
-interface CommentInput {
-  actionId: string;
-  stance: "comment" | "approve" | "object";
-  text: string;
-}
-
-const STANCES: { stance: CommentInput["stance"]; label: string }[] = [
-  { stance: "comment", label: "Comment" },
-  { stance: "approve", label: "Approve" },
-  { stance: "object", label: "Object" },
-];
 
 const STATUS_LABEL: Record<ActionCardView["status"], string> = {
   declared: "Declared",
@@ -25,124 +10,12 @@ const STATUS_LABEL: Record<ActionCardView["status"], string> = {
   withdrawn: "Withdrawn",
 };
 
-const SIGNOFF_LABEL: Record<SignoffRowState, string> = {
-  approved: "Approved",
-  objects: "Objects",
-  waiting: "Waiting",
-  absent: "Away",
-};
-
-const SIGNOFF_TONE: Record<SignoffRowState, string> = {
-  approved: "bg-secondary text-foreground",
-  objects: "bg-destructive/15 text-destructive",
-  waiting: "bg-muted text-muted-foreground",
-  absent: "bg-muted text-muted-foreground opacity-70",
-};
-
-function SignoffList({
-  actionId,
-  rows,
-  onComment,
-}: {
-  actionId: string;
-  rows: NonNullable<ActionCardView["signoff"]>;
-  onComment?: (input: CommentInput) => boolean;
-}) {
-  return (
-    <section aria-label="Sign-off" className="mt-2 text-sm">
-      <h4 className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-        Sign-off
-      </h4>
-      <ul className="mt-1 flex flex-col gap-1">
-        {rows.map((row) => (
-          <li
-            key={row.userId}
-            className="flex flex-wrap items-center gap-2"
-            data-state={row.state}
-          >
-            <strong>{row.label}</strong>
-            <span
-              className={`rounded-full px-2 py-0.5 text-xs font-medium ${SIGNOFF_TONE[row.state]}`}
-            >
-              {SIGNOFF_LABEL[row.state]}
-            </span>
-            {row.isViewer && (
-              <span className="ml-auto flex gap-2">
-                {(["approve", "object"] as const).map((stance) => (
-                  <button
-                    key={stance}
-                    type="button"
-                    onClick={() => onComment?.({ actionId, stance, text: "" })}
-                    className="rounded-md border border-border px-3 py-1 text-sm hover:bg-accent"
-                  >
-                    {stance === "approve" ? "Approve" : "Object"}
-                  </button>
-                ))}
-              </span>
-            )}
-          </li>
-        ))}
-      </ul>
-    </section>
-  );
-}
-
-function CommentForm({
-  actionId,
-  suggest,
-  onComment,
-}: {
-  actionId: string;
-  /** A non-active party member on the active player's action: the same comment, labelled. */
-  suggest: boolean;
-  onComment?: (input: CommentInput) => boolean;
-}) {
-  const label = suggest ? "Suggest an alternative" : "Comment on this action";
-  const [text, setText] = useState("");
-  function send(stance: CommentInput["stance"]) {
-    if (onComment?.({ actionId, stance, text })) setText("");
-  }
-  const empty = text.trim().length === 0;
-  return (
-    <form
-      className="mt-2 flex flex-col gap-2"
-      onSubmit={(e) => {
-        e.preventDefault();
-        if (!empty) send("comment");
-      }}
-    >
-      <input
-        aria-label={label}
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        placeholder={label}
-        className="h-9 rounded-md border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring"
-      />
-      <div className="flex flex-wrap gap-2">
-        {STANCES.map(({ stance, label }) => (
-          <button
-            key={stance}
-            type="button"
-            disabled={empty}
-            onClick={() => send(stance)}
-            className="rounded-md border border-border px-3 py-1 text-sm hover:bg-accent disabled:opacity-50"
-          >
-            {label}
-          </button>
-        ))}
-      </div>
-    </form>
-  );
-}
-
 export function ActionCard({
   card,
-  onComment,
   onCommit,
   onWithdraw,
 }: {
   card: ActionCardView;
-  onComment?: (input: CommentInput) => boolean;
   onCommit: (input: CommitInput) => boolean;
   onWithdraw: (input: WithdrawInput) => boolean;
 }) {
@@ -162,45 +35,13 @@ export function ActionCard({
       </header>
       <p className="mt-1">{card.text}</p>
 
-      {card.comments.length > 0 && (
-        <ul className="mt-2 flex flex-col gap-1 border-l-2 border-border pl-3 text-sm">
-          {card.comments.map((c) => (
-            <li key={c.seq}>
-              <strong>{c.actorLabel}</strong>{" "}
-              <span className="text-muted-foreground">
-                {c.stance === "comment"
-                  ? "commented"
-                  : c.stance === "approve"
-                    ? "approved"
-                    : "objected"}
-              </span>
-              {c.text ? `: ${c.text}` : null}
-            </li>
-          ))}
-        </ul>
-      )}
-
-      {card.open && card.signoff && (
-        <SignoffList
-          actionId={card.actionId}
-          rows={card.signoff}
-          onComment={onComment}
-        />
-      )}
-
       {card.open && (
         <div className="mt-2">
           <CommitControl
             commit={card.commit}
-            commitsOnOwnTurn={card.commitsOnOwnTurn}
             onCommit={(authority) =>
               onCommit({ actionId: card.actionId, authority })
             }
-          />
-          <CommentForm
-            actionId={card.actionId}
-            suggest={card.suggest}
-            onComment={onComment}
           />
           {card.canWithdraw && (
             <button

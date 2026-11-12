@@ -25,19 +25,19 @@
 - [x] T014 In `view-model.ts`, reshape `ComposerView` (`speakers`, `mentions`, `mode`, `active`). Remove `signoff`, `suggest`, `comments` and `commitsOnOwnTurn` from `ActionCardView`. The active player's `commit.canCommit` is false in turn mode; the DM's stays (FR-023).
 - [x] T015 Delete `apps/web/app/play/signoff.ts` and `apps/web/test/play/signoff.test.mjs`.
 - [x] T016 Amend `apps/web/test/play/view-model.test.mjs`: confirm states (live, stale → "Superseded", confirmed), "Waiting on <name>", "Waiting on the party", no "The party" speaker, no player Commit in turn mode.
-- [ ] T017 Run `pnpm --filter @the-stacks/web test` and `pnpm --filter @the-stacks/web typecheck`.
+- [x] T017 Run `pnpm --filter @the-stacks/web test` and `pnpm --filter @the-stacks/web typecheck`.
 
 ## Phase 3: Components and wiring (FR-001 to FR-005, FR-015, FR-017, FR-019, FR-026, card AC #2)
 
-- [ ] T018 Rewrite `apps/web/app/play/components/composer.tsx`: the "Speaker" chip listbox, the `((` and `/ooc` flip, the "Mention" listbox, one Send, `routeSend`, the inline parse refusal, the active-player hint and the "Interrupt the DM?" strip (plan D4).
-- [ ] T019 Create `apps/web/app/play/components/read-ring.tsx` (8 segments, caption, `role="status"`).
-- [ ] T020 Create `apps/web/app/play/components/confirm-row.tsx` (👍 Yes, Not quite, "Waiting on <name>", "Confirmed", "Superseded").
-- [ ] T021 Create `apps/web/app/play/components/confirm-editor.tsx`, the human DM's inline editor (FR-019).
-- [ ] T022 In `apps/web/app/play/components/transcript.tsx`, render the confirm row, the DM aside, "Table talk", the `ask_dm` highlight, "Confirm as action…" and "Confirm".
-- [ ] T023 In `components/action-card.tsx` and `components/commit-control.tsx`, remove the comment form, the sign-off rows, "Commits on your turn" and the player Commit. Keep the DM's Commit and every allowed Withdraw.
-- [ ] T024 In `apps/web/app/play/table-view.tsx`, wire the composer, the composer ref (Not quite focus), the editor key, the ring slot and the 1 s ticker that runs only while the ring or Thinking shows.
-- [ ] T025 Rewrite `apps/web/test/play/composer.test.tsx`. Create `apps/web/test/play/confirm-row.test.tsx`. Amend `action-card.test.tsx`, `table-view.test.tsx`, `equivalence.test.tsx` and `start-scene-panel.test.tsx`. Assert one Send, the SC-005 absent names and no `role="dialog"` under `app/play/` (card AC #2).
-- [ ] T026 Run `pnpm ci:check`. `apps/web/test/no-dialog.test.mjs` passes.
+- [x] T018 Rewrite `apps/web/app/play/components/composer.tsx`: the "Speaker" chip listbox, the `((` and `/ooc` flip, the "Mention" listbox, one Send, `routeSend`, the inline parse refusal, the active-player hint and the "Interrupt the DM?" strip (plan D4).
+- [x] T019 Create `apps/web/app/play/components/read-ring.tsx` (8 segments, caption, `role="status"`).
+- [x] T020 Create `apps/web/app/play/components/confirm-row.tsx` (👍 Yes, Not quite, "Waiting on <name>", "Confirmed", "Superseded").
+- [x] T021 Create `apps/web/app/play/components/confirm-editor.tsx`, the human DM's inline editor (FR-019).
+- [x] T022 In `apps/web/app/play/components/transcript.tsx`, render the confirm row, the DM aside, "Table talk", the `ask_dm` highlight, "Confirm as action…" and "Confirm".
+- [x] T023 In `components/action-card.tsx` and `components/commit-control.tsx`, remove the comment form, the sign-off rows, "Commits on your turn" and the player Commit. Keep the DM's Commit and every allowed Withdraw.
+- [x] T024 In `apps/web/app/play/table-view.tsx`, wire the composer, the composer ref (Not quite focus), the editor key, the ring slot and the 1 s ticker that runs only while the ring or Thinking shows.
+- [x] T025 Rewrite `apps/web/test/play/composer.test.tsx`. Create `apps/web/test/play/confirm-row.test.tsx`. Amend `action-card.test.tsx`, `table-view.test.tsx`, `equivalence.test.tsx` and `start-scene-panel.test.tsx`. Assert one Send, the SC-005 absent names and no `role="dialog"` under `app/play/` (card AC #2).
+- [x] T026 Run `pnpm ci:check`. `apps/web/test/no-dialog.test.mjs` passes.
 
 ## Phase 4: Wiki — web share (NEEDS-REVIEW)
 

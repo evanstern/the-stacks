@@ -12,30 +12,43 @@ const card = (over: Partial<ActionCardView> = {}): ActionCardView => ({
   scope: "character",
   text: "Ana picks the lock.",
   status: "discussed",
-  comments: [{ seq: 5, actorLabel: "Bram", stance: "approve", text: "Go on." }],
   open: true,
   canWithdraw: false,
-  commitsOnOwnTurn: false,
-  suggest: false,
   commit: { canCommit: true, authority: "declarer" },
-  signoff: null,
   committed: null,
   resolved: null,
   ...over,
 });
 const render = (c: ActionCardView) =>
   renderToStaticMarkup(
-    <ActionCard card={c} onComment={noop} onCommit={noop} onWithdraw={noop} />,
+    <ActionCard card={c} onCommit={noop} onWithdraw={noop} />,
   );
 
-test("an open card shows comments with stance and the comment form", () => {
+test("an open card has no comment form, no sign-off and no stance buttons (FR-005)", () => {
   const html = render(card());
-  expect(html).toContain("Bram");
-  expect(html).toContain("approved");
-  expect(html).toContain("Go on.");
-  expect(html).toContain('aria-label="Comment on this action"');
-  for (const s of ["Comment", "Approve", "Object"]) expect(html).toContain(s);
-  expect(html).toContain(">Commit<");
+  expect(html).not.toContain("Comment on this action");
+  expect(html).not.toContain("Suggest an alternative");
+  expect(html).not.toContain("Sign-off");
+  expect(html).not.toContain("<form");
+  expect(html).not.toContain(">Approve<");
+  expect(html).not.toContain(">Object<");
+  expect(html).not.toContain("Commits on your turn");
+});
+
+test("the DM's card keeps Commit as DM and Withdraw", () => {
+  const html = render(
+    card({ commit: { canCommit: true, authority: "dm" }, canWithdraw: true }),
+  );
+  expect(html).toContain("Commit as DM");
+  expect(html).toContain(">Withdraw<");
+});
+
+test("a player's card shows no Commit button", () => {
+  const html = render(
+    card({ commit: { canCommit: false, holderLabel: null } }),
+  );
+  expect(html).not.toContain(">Commit<");
+  expect(html).toContain("Waiting for a commit");
 });
 
 test("CommitControl renders Commit or who is awaited", () => {
@@ -109,62 +122,4 @@ test("a withdrawn card is closed: no form, no control, no waiting line", () => {
   expect(html).not.toContain("<form");
   expect(html).not.toContain("<button");
   expect(html).not.toContain("Waiting for");
-});
-
-test("a party card with sign-off rows shows state and own-row Approve and Object", () => {
-  const html = renderToStaticMarkup(
-    <ActionCard
-      card={card({
-        scope: "party",
-        signoff: [
-          { userId: "u1", label: "You", state: "approved", isViewer: true },
-          { userId: "u2", label: "Cleo", state: "objects", isViewer: false },
-          { userId: "u3", label: "Dov", state: "absent", isViewer: false },
-        ],
-      })}
-      onComment={noop}
-      onCommit={noop}
-      onWithdraw={noop}
-    />,
-  );
-  expect(html).toContain('aria-label="Sign-off"');
-  expect(html).toContain("Approved");
-  expect(html).toContain("Objects");
-  expect(html).toContain("Away");
-  const section = html.slice(html.indexOf('aria-label="Sign-off"'));
-  const list = section.slice(0, section.indexOf("</section>"));
-  expect(list.match(/>Approve</g)?.length).toBe(1);
-  expect(list.match(/>Object</g)?.length).toBe(1);
-  expect(html).not.toContain("<dialog");
-});
-
-test("a card without sign-off rows has no sign-off section", () => {
-  expect(render(card())).not.toContain('aria-label="Sign-off"');
-});
-
-test("a non-active player's own open action says it commits on their turn", () => {
-  const html = render(
-    card({
-      commit: { canCommit: false, holderLabel: "Ana" },
-      commitsOnOwnTurn: true,
-    }),
-  );
-  expect(html).toContain("Commits on your turn");
-  expect(html).not.toContain("Waiting for Ana to commit");
-});
-
-test("without the flag the card still says who it waits for", () => {
-  const html = render(
-    card({ commit: { canCommit: false, holderLabel: "Ana" } }),
-  );
-  expect(html).toContain("Waiting for Ana to commit");
-  expect(html).not.toContain("Commits on your turn");
-});
-
-test("a suggestion card labels the comment input and keeps the stances", () => {
-  const html = render(card({ suggest: true }));
-  expect(html).toContain('aria-label="Suggest an alternative"');
-  expect(html).toContain('placeholder="Suggest an alternative"');
-  expect(html).not.toContain('aria-label="Comment on this action"');
-  for (const s of ["Comment", "Approve", "Object"]) expect(html).toContain(s);
 });

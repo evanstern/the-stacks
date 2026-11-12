@@ -1,87 +1,106 @@
-import { useState } from "react";
-import type { DeclareInput, TalkInput } from "../source.ts";
+import type { ActorRef } from "@the-stacks/intent";
+import { type Ref, useState } from "react";
+import { routeSend } from "../send.ts";
+import type { TableCommands } from "../source.ts";
 import type { ComposerView } from "../view-model.ts";
 
-type MessageType = "talk" | "action";
+export type ComposerCommands = Pick<
+  TableCommands,
+  "sendIntent" | "sendTalk" | "declareAction" | "commit"
+>;
 
-function Radio({
-  name,
-  value,
-  checked,
-  disabled,
-  label,
-  onChange,
-}: {
-  name: string;
-  value: string;
-  checked: boolean;
-  disabled?: boolean;
-  label: string;
-  onChange: () => void;
-}) {
-  return (
-    <label
-      className={`inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1 text-sm ${
-        checked ? "bg-accent font-medium" : ""
-      } ${disabled ? "opacity-50" : "cursor-pointer hover:bg-accent"}`}
-    >
-      <input
-        type="radio"
-        name={name}
-        value={value}
-        checked={checked}
-        disabled={disabled}
-        onChange={onChange}
-        className="sr-only"
-      />
-      {label}
-    </label>
-  );
-}
+const HINT_ID = "composer-hint";
+const OOC_LABEL = "You (out of character)";
+const isOocLine = (t: string) => /^\s*(\(\(|\/ooc(\s|$))/i.test(t);
+const isAskLine = (t: string) =>
+  /^\s*(@dm(?![\p{L}\p{N}_-])|\/ask(\s|$))/iu.test(t);
 
+/**
+ * The one composer (spec 066 FR-001 to FR-003, FR-022, FR-026). One Send. Every line goes
+ * through `routeSend`; a parse refusal shows here and sends nothing.
+ */
 export function Composer({
   composer,
-  onTalk,
-  onDeclare,
+  commands,
   disabled,
   notice,
-  initialType = "talk",
+  thinking = false,
+  inputRef,
 }: {
   composer: ComposerView;
-  onTalk: (input: TalkInput) => boolean;
-  onDeclare: (input: DeclareInput) => boolean;
+  commands: ComposerCommands;
   disabled: boolean;
   notice: string | null;
-  /** Initial message type; a test seam, the table always starts on Talk. */
-  initialType?: MessageType;
+  /** "The DM is reading the table…" is showing (FR-025). */
+  thinking?: boolean;
+  inputRef?: Ref<HTMLInputElement>;
 }) {
-  const [type, setType] = useState<MessageType>(initialType);
-  const [channel, setChannel] = useState<"ic" | "ooc">("ic");
-  const [scope, setScope] = useState<"character" | "party">("character");
-  const [chosen, setChosen] = useState<string | null>(null);
   const [text, setText] = useState("");
+  const [chosen, setChosen] = useState<number>(0);
+  const [speakerOpen, setSpeakerOpen] = useState(false);
+  const [mentionDismissed, setMentionDismissed] = useState<string | null>(null);
+  const [refusal, setRefusal] = useState<string | null>(null);
+  const [interrupting, setInterrupting] = useState(false);
 
-  const characterId =
-    composer.characters.find((c) => c.characterId === chosen)?.characterId ??
-    composer.characters[0]?.characterId ??
-    null;
-  const effectiveType: MessageType = composer.actionAvailable ? type : "talk";
+  const speaker = composer.speakers[chosen] ?? composer.speakers[0];
+  const lineOoc = isOocLine(text);
+  const ooc = (speaker?.ooc ?? false) || lineOoc;
+  // The character the line is for: the chosen one, else the first real speaker.
+  const real =
+    speaker && !speaker.ooc ? speaker : composer.speakers.find((s) => !s.ooc);
+  const actor: ActorRef | null = real
+    ? real.id === null
+      ? { kind: "dm" }
+      : { kind: "pc", id: real.id }
+    : null;
+  const shownLabel = lineOoc ? OOC_LABEL : (speaker?.label ?? OOC_LABEL);
   const empty = text.trim().length === 0;
+  const mention = /(?:^|\s)@([\p{L}\p{N}_-]*)$/u.exec(text);
+  const mentionOptions =
+    mention && mentionDismissed !== text
+      ? composer.mentions.filter((m) =>
+          m.token.toLowerCase().startsWith(`@${mention[1]?.toLowerCase()}`),
+        )
+      : [];
+  const characterSpeaker = !!real && real.id !== null && !ooc;
+  const wouldInterrupt =
+    thinking &&
+    composer.mode === "free" &&
+    characterSpeaker &&
+    !isAskLine(text);
 
   function submit() {
-    if (empty || disabled) return;
-    const sent =
-      effectiveType === "talk"
-        ? onTalk({
-            text,
-            channel,
-            characterId: channel === "ic" ? characterId : null,
-          })
-        : onDeclare({
-            text,
-            scope,
-            characterId: scope === "character" ? characterId : null,
-          });
+    if (empty || disabled || !composer.canSend || !actor) return;
+    setInterrupting(false);
+    // The human DM's plain prose stays a `talk` line: no Intent kind carries a DM voice.
+    if (composer.dm && !ooc && !/^\s*[/@*"(&$#]/.test(text)) {
+      if (commands.sendTalk({ text, channel: "ic", characterId: null })) {
+        setText("");
+        setRefusal(null);
+      }
+      return;
+    }
+    const route = routeSend(text, {
+      ooc: speaker?.ooc ?? false,
+      actor,
+      characterId: real?.id ?? null,
+      mode: composer.mode,
+      active: composer.active,
+    });
+    if (route.kind === "refused") {
+      setRefusal(route.message);
+      return;
+    }
+    setRefusal(null);
+    let sent: boolean;
+    if (route.kind === "declare-commit") {
+      const actionId = `act-${crypto.randomUUID()}`;
+      // OQ-3: back to back; the source keeps the first refusal.
+      sent = commands.declareAction({ ...route.declare, actionId });
+      if (sent) commands.commit({ actionId, authority: "active-player" });
+    } else {
+      sent = commands.sendIntent(route.intent);
+    }
     if (sent) setText("");
   }
 
@@ -91,118 +110,142 @@ export function Composer({
       className="flex flex-col gap-2 border-t border-border bg-card p-3"
       onSubmit={(e) => {
         e.preventDefault();
+        if (wouldInterrupt && !interrupting) {
+          setInterrupting(true);
+          return;
+        }
         submit();
       }}
     >
-      <div className="flex flex-wrap items-center gap-2">
-        <div
-          role="radiogroup"
-          aria-label="Message type"
-          className="flex flex-wrap gap-2"
-        >
-          <Radio
-            name="message-type"
-            value="talk"
-            label="Talk"
-            checked={effectiveType === "talk"}
-            onChange={() => setType("talk")}
-          />
-          <Radio
-            name="message-type"
-            value="action"
-            label="Action"
-            checked={effectiveType === "action"}
-            disabled={!composer.actionAvailable}
-            onChange={() => setType("action")}
-          />
-        </div>
-
-        {effectiveType === "talk" ? (
-          <div
-            role="radiogroup"
-            aria-label="Channel"
-            className="flex flex-wrap gap-2"
+      <div className="relative flex gap-2">
+        <div className="relative">
+          <button
+            type="button"
+            aria-label="Speaker"
+            aria-haspopup="listbox"
+            aria-expanded={speakerOpen}
+            disabled={composer.speakers.length < 2}
+            onClick={() => setSpeakerOpen((o) => !o)}
+            className="h-10 max-w-40 truncate rounded-md border border-border px-3 text-sm hover:bg-accent disabled:opacity-70"
           >
-            <Radio
-              name="channel"
-              value="ic"
-              label="In character"
-              checked={channel === "ic"}
-              onChange={() => setChannel("ic")}
-            />
-            <Radio
-              name="channel"
-              value="ooc"
-              label="Out of character"
-              checked={channel === "ooc"}
-              onChange={() => setChannel("ooc")}
-            />
-          </div>
-        ) : (
-          <div
-            role="radiogroup"
-            aria-label="Scope"
-            className="flex flex-wrap gap-2"
-          >
-            <Radio
-              name="scope"
-              value="character"
-              label="This character"
-              checked={scope === "character"}
-              onChange={() => setScope("character")}
-            />
-            <Radio
-              name="scope"
-              value="party"
-              label="Whole party"
-              checked={scope === "party"}
-              onChange={() => setScope("party")}
-            />
-          </div>
-        )}
-
-        {composer.characters.length > 0 &&
-          (effectiveType === "action" || channel === "ic") && (
-            <select
-              aria-label="Character"
-              value={characterId ?? ""}
-              onChange={(e) => setChosen(e.target.value)}
-              className="h-8 rounded-md border border-input bg-transparent px-2 text-sm"
+            {shownLabel}
+          </button>
+          {speakerOpen && (
+            <div
+              role="listbox"
+              aria-label="Speaker"
+              className="absolute bottom-11 left-0 z-10 min-w-48 rounded-md border border-border bg-card p-1 shadow"
             >
-              {composer.characters.map((c) => (
-                <option key={c.characterId} value={c.characterId}>
-                  {c.label}
-                </option>
+              {composer.speakers.map((s, i) => (
+                <div
+                  key={`${s.id ?? "none"}-${s.ooc}`}
+                  role="option"
+                  aria-selected={i === chosen}
+                  tabIndex={0}
+                  onClick={() => {
+                    setChosen(i);
+                    setSpeakerOpen(false);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      setChosen(i);
+                      setSpeakerOpen(false);
+                    }
+                  }}
+                  className="cursor-pointer rounded px-2 py-1 text-sm hover:bg-accent aria-selected:font-medium"
+                >
+                  {s.label}
+                </div>
               ))}
-            </select>
+            </div>
           )}
-      </div>
-
-      <div className="flex gap-2">
-        <input
-          aria-label={effectiveType === "talk" ? "Message" : "Action"}
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          placeholder={
-            effectiveType === "talk" ? "Say something" : "Describe your action"
-          }
-          className="h-10 flex-1 rounded-md border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring"
-        />
+        </div>
+        <div className="relative flex-1">
+          <input
+            ref={inputRef}
+            aria-label="Message"
+            aria-describedby={composer.active ? HINT_ID : undefined}
+            value={text}
+            onChange={(e) => {
+              setText(e.target.value);
+              setInterrupting(false);
+            }}
+            placeholder="Say something"
+            className="h-10 w-full rounded-md border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring"
+          />
+          {mentionOptions.length > 0 && (
+            <div
+              role="listbox"
+              aria-label="Mention"
+              className="absolute bottom-11 left-0 z-10 min-w-48 rounded-md border border-border bg-card p-1 shadow"
+            >
+              {mentionOptions.map((m) => (
+                <div
+                  key={m.token}
+                  role="option"
+                  aria-selected={false}
+                  tabIndex={0}
+                  onClick={() =>
+                    setText(text.replace(/@[\p{L}\p{N}_-]*$/u, `${m.token} `))
+                  }
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      setText(
+                        text.replace(/@[\p{L}\p{N}_-]*$/u, `${m.token} `),
+                      );
+                    } else if (e.key === "Escape") setMentionDismissed(text);
+                  }}
+                  className="cursor-pointer rounded px-2 py-1 text-sm hover:bg-accent"
+                >
+                  {m.token}{" "}
+                  <span className="text-muted-foreground">{m.label}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
         <button
           type="submit"
-          disabled={disabled || empty}
+          disabled={disabled || empty || !composer.canSend}
           className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
         >
-          {effectiveType === "talk" ? "Send" : "Declare"}
+          {wouldInterrupt ? "Send — interrupts the DM" : "Send"}
         </button>
       </div>
 
-      {!composer.actionAvailable && composer.actionHint && (
-        <p className="text-xs text-muted-foreground">{composer.actionHint}</p>
+      {interrupting && (
+        <fieldset className="flex flex-wrap items-center gap-2 rounded-md border border-border bg-muted p-2 text-sm">
+          <legend className="sr-only">Interrupt the DM?</legend>
+          <span aria-hidden="true">Interrupt the DM?</span>
+          <button
+            type="button"
+            onClick={submit}
+            className="rounded-md bg-primary px-3 py-1 font-medium text-primary-foreground hover:bg-primary/90"
+          >
+            I'm sure
+          </button>
+          <button
+            type="button"
+            onClick={() => setInterrupting(false)}
+            className="rounded-md border border-border px-3 py-1 hover:bg-accent"
+          >
+            Wait
+          </button>
+        </fieldset>
       )}
-      {notice && (
+      {composer.active && (
+        <p id={HINT_ID} className="text-xs text-muted-foreground">
+          Enter commits your turn
+        </p>
+      )}
+      {!composer.canSend && composer.hint && (
+        <p className="text-xs text-muted-foreground">{composer.hint}</p>
+      )}
+      {(refusal ?? notice) && (
         <p role="alert" className="text-sm text-destructive">
-          {notice}
+          {refusal ?? notice}
         </p>
       )}
     </form>

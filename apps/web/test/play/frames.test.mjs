@@ -2,17 +2,17 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { GATE_REQUEST_VERSION, RefIdSchema } from "@the-stacks/session-model";
 import {
-  approveFrame,
   acceptFrame,
+  approveFrame,
   commitFrame,
   declareFrame,
   dmSeatFrame,
   dmSeatReason,
   encounterEndFrame,
   floorFrame,
+  intentFrame,
   localEventOf,
   rejectFrame,
-  intentFrame,
   sceneFrame,
   sceneSummary,
   suggestFrame,
