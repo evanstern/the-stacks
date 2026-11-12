@@ -1,10 +1,10 @@
 ---
 id: TASK-0300
 title: CI latency gate on fixture tables
-status: In Progress
+status: Done
 assignee: []
 created_date: 2026-11-08 19:56
-updated_date: '2026-11-12T13:59:00Z'
+updated_date: '2026-11-12T14:09:00Z'
 labels:
   - ws:tooling
   - replan-2026-11
@@ -54,3 +54,9 @@ Phases 1-2 (45ecfe33, a87b1c0f). Local p95: attack 18.0 ms, check 31.5 ms, again
 
 Follow-up (d1c7fad9, c6a526d0): reporters ['default'] in vitest.timing.config.ts, so a plain check:timing and ci:check print 'latency gate: PASS' with p95 attack 17.2 ms and check 30.0 ms.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (The latency gate (AC #1, AC #2, AC #3): 5/5 · Wiki re-ground: 2/2). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
