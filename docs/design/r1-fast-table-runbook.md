@@ -487,3 +487,4 @@ updated at each dispatch boundary. `tokens/cost` carries best-effort actuals.
 | 2026-11-12 | TASK-0199 | (this PR) | — | opus spec x2; sonnet x6 | C-AMD "Approve all": split (web -> TASK-0315), C-1..C-9 blocks; enqueue rule 9 beside TASK-0314 rule 8; mutation guard 5/5; F1 script fix |
 | 2026-11-12 | TASK-0315 | (this PR) | — | opus spec; sonnet x4 | split from 0199 (C-AMD); live check in Brave on the worktree app; turn mode covered by unit tests only |
 | 2026-11-12 | TASK-0300 | (this PR) | — | opus spec; sonnet x1 | constitution IX budget 1000 ms p95 per kind; local p95 attack 18 ms, check 31 ms; lines visible in CI; OQ-1 carded TASK-0319 |
+| 2026-11-12 | TASK-0299 | (this PR) | — | opus spec; sonnet x2 | "Accept all"; code-only monster turns (1 call), companion turn 2 calls, interpret 0; 4v4 fixture round 874 ms vs 60 s |
