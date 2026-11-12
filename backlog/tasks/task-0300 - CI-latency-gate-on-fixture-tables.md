@@ -31,7 +31,7 @@ Spec: specs/106-latency-gate
 - [x] #1 `pnpm ci:check` runs a fixture table and records confirmed-Intent-to-fact-rows time.
 - [x] #2 CI fails when the fixture p95 exceeds the budget in the constitution.
 - [x] #3 The gate uses the fake model and needs no provider key.
-- [ ] #4 Spec phase: The latency gate (AC #1, AC #2, AC #3)
+- [x] #4 Spec phase: The latency gate (AC #1, AC #2, AC #3)
 - [ ] #5 Spec phase: Wiki re-ground
 <!-- AC:END -->
 
