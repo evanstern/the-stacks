@@ -1,11 +1,12 @@
 ---
 id: TASK-0298
 title: Narration streams to clients
-status: To Do
+status: In Progress
 assignee: []
-created_date: '2026-11-08 19:56'
+created_date: 2026-11-08 19:56
+updated_date: '2026-11-12T20:36:00Z'
 labels:
-  - 'ws:narration'
+  - ws:narration
   - replan-2026-11
   - ep-1
 milestone: m-10
@@ -21,6 +22,8 @@ ordinal: 282000
 The gateway streams text, but `dm/pipeline/call.ts` collects the whole reply before anything reaches the table. `ws/protocol.ts` has no partial-narration frame. R1 exit criterion 2 (first narration token p50 under 10 s) and the demo rule "narration never blocks the next turn" need streamed prose slots.
 
 Source: docs/design/r1-fast-table-runbook.md finding F5, CP-5 ruling 2026-11-08. Parent epic: TASK-0258. (gap G1).
+
+Spec: specs/108-narration-stream
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
@@ -37,3 +40,9 @@ Source: docs/design/r1-fast-table-runbook.md finding F5, CP-5 ruling 2026-11-08.
 - [ ] #1 All tests and checks run green
 - [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Claimed 2026-11-12 by the R1 sweep (docs/design/r1-fast-table-runbook.md). Worktree .worktrees/task-0298, branch task-0298-narration-stream, cut from origin/main 3f85a1bd. Spec number 108 claimed with a stub.
+<!-- SECTION:NOTES:END -->
