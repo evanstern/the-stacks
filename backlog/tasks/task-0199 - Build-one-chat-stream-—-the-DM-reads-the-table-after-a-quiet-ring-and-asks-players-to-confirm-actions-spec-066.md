@@ -41,7 +41,7 @@ Spec: specs/066-one-chat-stream
 - [x] #4 A human-DM table setting turns the quiet ring off, with a test.
 - [x] #5 @dm produces one read-only ask_dm answer that changes no state, with a test.
 - [x] #6 Spec 066 is amended against Intent contract v1.1 and reviewed by the operator at C-AMD before implementation.
-- [ ] #7 A direct intent request (not from a turn job) queues a coalesced turn that narrates its intent.recorded facts (moved from TASK-0247 by spec 066 OQ-3(b)).
+- [x] #7 A direct intent request (not from a turn job) queues a coalesced turn that narrates its intent.recorded facts (moved from TASK-0247 by spec 066 OQ-3(b)).
 - [ ] #8 Spec phase: Session model — event, catalog, projection, read rule (card AC #1, #2, #4)
 - [ ] #9 Spec phase: Gate — suggest, accept, `ask_dm` (card AC #3, #5)
 - [ ] #10 Spec phase: DM runtime — window, marker, interrupt, read, rule 8 (card AC #1, #2, #5, #7)
