@@ -34,7 +34,7 @@ Spec: specs/104-interpret-intents
 - [ ] #2 Interpret output validates against the Intent schema on attempt 1 in >= 99% of the playtest corpus.
 - [x] #3 A compound declaration yields one Intent per stage, each planned in turn.
 - [x] #4 Band effects and the free retry (autoSuccess) keep working beside the Intent path until a card puts stakes on Intents (spec 097 OQ-5).
-- [ ] #5 A beat narrates the facts of every intent.recorded row it covers, including rows the gate settled before the turn job ran, as why rows (spec 102 OQ-4; spec 103 OQ-8 window: the job input carries only triggerSeq and intent.recorded has no action link).
+- [x] #5 A beat narrates the facts of every intent.recorded row it covers, including rows the gate settled before the turn job ran, as why rows (spec 102 OQ-4; spec 103 OQ-8 window: the job input carries only triggerSeq and intent.recorded has no action link).
 - [ ] #6 Spec phase: Schema and slash parse
 - [ ] #7 Spec phase: Prompt v17 and interpret node
 - [ ] #8 Spec phase: Resolve Intent runner and beside data
