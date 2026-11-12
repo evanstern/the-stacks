@@ -218,6 +218,21 @@ function detailsOf(
         { label: "Intent", value: proposal.intent.kind },
         { label: "Text", value: toText(proposal.intent) },
       ];
+    // ponytail: minimal rows so the switch stays exhaustive; TASK-0315 owns the real rendering.
+    case "action.suggest":
+      return [
+        { label: "Suggestion", value: proposal.suggestion.suggestionId },
+        {
+          label: "Text",
+          value: proposal.suggestion.items.map((i) => i.text).join(" / "),
+        },
+      ];
+    // ponytail: minimal rows so the switch stays exhaustive; TASK-0315 owns the real rendering.
+    case "action.accept":
+      return [
+        { label: "Suggestion", value: proposal.suggestionId },
+        { label: "Item", value: proposal.itemId },
+      ];
   }
 }
 

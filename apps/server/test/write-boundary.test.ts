@@ -63,3 +63,28 @@ describe("floor write boundary (spec 049, FT-3)", () => {
     expect(buildersOf(/override:\s*"stall"/)).toEqual(["dm/floor.ts"]);
   });
 });
+
+describe("suggestion write boundary (spec 066, plan D2)", () => {
+  const listTs = (dir: string): string[] =>
+    readdirSync(dir).flatMap((name) => {
+      const full = join(dir, name);
+      if (statSync(full).isDirectory()) return listTs(full);
+      return name.endsWith(".ts") ? [full] : [];
+    });
+  const buildersOf = (pattern: RegExp) => {
+    const root = here("../src");
+    return listTs(root)
+      .filter((f) => pattern.test(readFileSync(f, "utf8")))
+      .map((f) => relative(root, f).split("\\").join("/"));
+  };
+
+  // Phase 3 adds dm/talk-turn.ts, the only builder of an action.suggest proposal.
+  it("only dm/talk-turn.ts builds an action.suggest proposal", () => {
+    const found = buildersOf(/kind:\s*"action\.suggest"/);
+    expect(found.filter((f) => f !== "dm/talk-turn.ts")).toEqual([]);
+  });
+
+  it("no src/ file builds an action.accept proposal", () => {
+    expect(buildersOf(/kind:\s*"action\.accept"/)).toEqual([]);
+  });
+});

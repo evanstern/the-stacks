@@ -23,6 +23,7 @@ const DM_KINDS: ReadonlySet<string> = new Set([
   "tracker",
   "scene-presence",
   "journal",
+  "action.suggest",
 ]);
 
 const ok: PermissionResult = { ok: true };
@@ -75,6 +76,11 @@ export function checkPermission(
       return seated || ai || isPartyMember(p, proposer)
         ? ok
         : no("a comment needs a party member or the DM");
+    case "action.accept":
+      // Humans only; the planner checks who may accept the item (spec 066 FR-016, FR-020).
+      return proposer.kind === "human"
+        ? ok
+        : no("only a human accepts a suggestion");
     case "action.commit":
     case "intent":
       // `planIntent` decides seat, actor and turn (FR-005 to FR-012).

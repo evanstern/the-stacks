@@ -96,7 +96,7 @@ refusal). **Complexity Tracking**: none.
 - `read.ts` (new, pure, exported): `isDmQuestion(text)`, `readablePosts(p)` (spec FR-006 rules 1–4
   over `p.intents` joined to transcript seqs), `latestReadablePostSeq(p)`, `readWindowMs(post, p)`
   (10 000; 0 for `ask_dm` in turn mode), `READ_QUIET_MS`, `RING_BLANK_MS`, `isDmReadOutput(entry)`,
-  `suggestionState(p, id)` (stale per FR-018; confirmed when `p.intents` holds the item id).
+  `suggestionState(p, intentId)` (the item Intent id `<suggestionId>.<itemId>`; stale per FR-018; confirmed when `p.intents` holds that id; `missing` when no suggestion names it). `IntentView` gains `ts` (the first carrier row's `ts`) and the projection gains `suggestions: SuggestionView[]`.
 - `fixtures/one-chat-stream.ts` (new) plus `fixtures/index.ts`: say posts, a declared `hide`, a
   `read` marker, `sug-1`, a stale reply, a party `attempt` suggestion, its 👍, an `ask_dm` and its
   answer, and a turn-mode segment.
@@ -109,7 +109,7 @@ refusal). **Complexity Tracking**: none.
 - `policy.ts`: `"action.suggest": "auto"`; `routeProposal` refuses `ai:dm` `action.accept`.
 - `permissions.ts`: `action.suggest` joins the DM-kind row; `action.accept` passes humans only.
 - `refusals.ts`: `SUGGESTION_STALE`, `SUGGESTION_NOT_FOUND`.
-- `plan.ts`: `case "action.suggest"` (id reuse → `INVALID_PROPOSAL`; `ai:dm` `readSeq` guard →
+- `plan.ts`: `case "action.suggest"` (id reuse → `INVALID_PROPOSAL`; item Intent ids must be `<suggestionId>.<itemId>` (else `INVALID_PROPOSAL`); the `ai:dm`-only `readSeq` guard →
   `SUGGESTION_STALE`; item actors must be `pc` controlled by a human → `INVALID_PROPOSAL`; one
   public row). `case "action.accept"`: the FR-016 checks, then `planIntent(p, proposer,
   { ...item.intent, commit: "confirmed", source: "composer", actor }, …)`. Extract the declare

@@ -3,6 +3,7 @@ import { catalogEntry, currentVersion } from "../catalog.js";
 import { REASON_TO_PRESENCE } from "../events/scene-presence.js";
 import { memberOf } from "../projections/party.js";
 import type { SessionProjections } from "../projections/types.js";
+import { latestReadablePostSeq, suggestionState } from "../read.js";
 import { commitAuthority } from "./authority.js";
 import { declareIntent } from "./declare.js";
 import { endTurnRows } from "./floor-end.js";
@@ -67,6 +68,43 @@ function validate(result: PlanResult): PlanResult {
 
 function findAction(p: SessionProjections, actionId: string) {
   return p.actions.find((a) => a.actionId === actionId);
+}
+
+/**
+ * The `CHARACTER_UNABLE` test of a declare, shared with `action.accept` (spec 066 FR-016):
+ * null when someone in scope can act, else the refusal. `scope` "character" tests
+ * `characterId`; "party" tests every member the proposer controls.
+ */
+function unableRefusal(
+  p: SessionProjections,
+  proposer: Proposer,
+  scope: "character" | "party",
+  characterId: string | null,
+): PlanResult | null {
+  const downed =
+    scope === "character"
+      ? p.party.filter((m) => m.characterId === characterId)
+      : p.party.filter((m) => controls(p, proposer, m.characterId));
+  const absent = (m: (typeof downed)[number]) =>
+    p.scenePresence[m.characterId]?.presence === "absent";
+  const unable = (m: (typeof downed)[number]) =>
+    absent(m) ||
+    (m.combatant !== null && m.combatant.lifeState !== "conscious");
+  if (downed.length === 0 || !downed.every(unable)) return null;
+  const firstAbsent = downed.find(absent);
+  const first = firstAbsent ?? downed[0];
+  if (firstAbsent) {
+    return refuse(
+      "CHARACTER_UNABLE",
+      "the character cannot act: absent from the scene",
+      { characterId: first.characterId, reason: "absent" },
+    );
+  }
+  return refuse("CHARACTER_UNABLE", "the character cannot act: not conscious", {
+    characterId: first.characterId,
+    reason: "life-state",
+    lifeState: first.combatant?.lifeState,
+  });
 }
 
 function partyHumans(p: SessionProjections): Set<string> {
@@ -295,35 +333,13 @@ function plan(
       if (!allowed) {
         return refuse("NOT_AUTHORIZED", "the proposer cannot declare this");
       }
-      const downed =
-        action.scope === "character"
-          ? p.party.filter((m) => m.characterId === action.characterId)
-          : p.party.filter((m) => controls(p, proposer, m.characterId));
-      const absent = (m: (typeof downed)[number]) =>
-        p.scenePresence[m.characterId]?.presence === "absent";
-      const unable = (m: (typeof downed)[number]) =>
-        absent(m) ||
-        (m.combatant !== null && m.combatant.lifeState !== "conscious");
-      if (downed.length > 0 && downed.every(unable)) {
-        const firstAbsent = downed.find(absent);
-        const first = firstAbsent ?? downed[0];
-        if (firstAbsent) {
-          return refuse(
-            "CHARACTER_UNABLE",
-            "the character cannot act: absent from the scene",
-            { characterId: first.characterId, reason: "absent" },
-          );
-        }
-        return refuse(
-          "CHARACTER_UNABLE",
-          "the character cannot act: not conscious",
-          {
-            characterId: first.characterId,
-            reason: "life-state",
-            lifeState: first.combatant?.lifeState,
-          },
-        );
-      }
+      const unable = unableRefusal(
+        p,
+        proposer,
+        action.scope,
+        action.characterId,
+      );
+      if (unable) return unable;
       // FR-027: the envelope validates the request as an Intent; the rows stay today's.
       const envelope = declareIntent(action, proposer, p);
       if (!envelope.ok) {
@@ -671,6 +687,95 @@ function plan(
         proposalId,
         context,
       );
+    case "action.suggest": {
+      const { suggestion } = proposal;
+      if (
+        p.suggestions.some((s) => s.suggestionId === suggestion.suggestionId)
+      ) {
+        return refuse(
+          "INVALID_PROPOSAL",
+          `suggestion ${suggestion.suggestionId} exists`,
+        );
+      }
+      for (const item of suggestion.items) {
+        const { actor: who } = item.intent;
+        const human =
+          who.kind === "pc" &&
+          p.party.some(
+            (m) => m.characterId === who.id && m.controller.kind === "player",
+          );
+        if (!human) {
+          return refuse(
+            "INVALID_PROPOSAL",
+            `item ${item.itemId} names a character no human controls`,
+          );
+        }
+        if (item.intent.id !== `${suggestion.suggestionId}.${item.itemId}`) {
+          return refuse(
+            "INVALID_PROPOSAL",
+            `item ${item.itemId} id is <suggestionId>.<itemId>`,
+          );
+        }
+      }
+      if (isAiDm(proposer) && suggestion.readSeq < latestReadablePostSeq(p)) {
+        return refuse(
+          "SUGGESTION_STALE",
+          "a later post arrived during the read",
+          {
+            readSeq: suggestion.readSeq,
+            latest: latestReadablePostSeq(p),
+          },
+        );
+      }
+      return one(actor, "action.suggested", suggestion);
+    }
+    case "action.accept": {
+      const sug = p.suggestions.find(
+        (s) => s.suggestionId === proposal.suggestionId,
+      );
+      const item = sug?.items.find((i) => i.itemId === proposal.itemId);
+      if (!sug || !item) {
+        return refuse("SUGGESTION_NOT_FOUND", "no such suggestion item");
+      }
+      const state = suggestionState(p, item.intent.id);
+      if (state === "stale") {
+        return refuse("SUGGESTION_STALE", "the suggestion is superseded");
+      }
+      const partyItem =
+        item.intent.kind === "attempt" && item.intent.params.scope === "party";
+      const owner = item.intent.actor.kind === "pc" ? item.intent.actor.id : "";
+      const mine = p.party.filter((m) => controls(p, proposer, m.characterId));
+      if (partyItem ? mine.length === 0 : !controls(p, proposer, owner)) {
+        return refuse("NOT_AUTHORIZED", "the proposer cannot accept this item");
+      }
+      const unable = unableRefusal(
+        p,
+        proposer,
+        partyItem ? "party" : "character",
+        owner,
+      );
+      if (unable) return unable;
+      const stamped = partyItem
+        ? {
+            kind: "pc" as const,
+            id: (mine[0] as { characterId: string }).characterId,
+          }
+        : item.intent.actor;
+      return planIntent(
+        p,
+        proposer,
+        {
+          ...item.intent,
+          commit: "confirmed",
+          source: "composer",
+          actor: stamped,
+        },
+        rng,
+        ids,
+        proposalId,
+        context,
+      );
+    }
     case "journal": {
       if (p.journal.some((j) => j.entryId === proposal.entry.entryId)) {
         return refuse("JOURNAL_ENTRY_EXISTS", "the journal entry exists");

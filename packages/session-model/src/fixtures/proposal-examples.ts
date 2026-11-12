@@ -187,4 +187,37 @@ export const proposalExamples: Readonly<Record<ProposalKind, Proposal>> = {
       commit: "confirmed",
     },
   },
+  "action.suggest": {
+    kind: "action.suggest",
+    summary: "Confirm Ana's climb",
+    rationale: "Ana's player said they climb the loft ladder.",
+    suggestion: {
+      suggestionId: "sug-1",
+      readSeq: 1,
+      items: [
+        {
+          itemId: "i1",
+          text: "Ana climbs the loft ladder.",
+          intent: {
+            id: "sug-1.i1",
+            kind: "attempt",
+            actor: { kind: "pc", id: "ana" },
+            channel: { kind: "scene" },
+            targets: [],
+            params: { scope: "character" },
+            text: "climb the loft ladder",
+            source: "ai",
+            commit: "declared",
+          },
+        },
+      ],
+    },
+  },
+  "action.accept": {
+    kind: "action.accept",
+    summary: "Ana's thumbs-up",
+    rationale: "Ana's player accepted the DM's suggested climb.",
+    suggestionId: "sug-1",
+    itemId: "i1",
+  },
 };

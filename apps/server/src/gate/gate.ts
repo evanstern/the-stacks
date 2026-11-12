@@ -77,7 +77,7 @@ export interface GateDeps {
   plannerInputs?: (p: SessionProjections) => PlannerInputs | undefined;
 }
 
-export type PresencePurpose = "director" | "signoff" | "floor";
+export type PresencePurpose = "director" | "signoff" | "floor" | "read";
 
 export type RecordPresenceResult =
   | { ok: true; event: StoredEvent }

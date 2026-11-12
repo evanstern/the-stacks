@@ -28,7 +28,7 @@ path>` for add and commit, in separate Bash calls. Serial hotspots: `gate/{propo
       `ignoredTransitions`.
 - [x] T005 Create `packages/session-model/src/read.ts`: `isDmQuestion`, `readablePosts` (spec FR-006
       rules 1 to 4, including the OQ-9 id rule), `latestReadablePostSeq`, `readWindowMs`,
-      `READ_QUIET_MS`, `RING_BLANK_MS`, `isDmReadOutput`, `suggestionState` (spec FR-018).
+      `READ_QUIET_MS`, `RING_BLANK_MS`, `isDmReadOutput`, `suggestionState(p, intentId)` (spec FR-018; takes the item Intent id).
 - [x] T006 Export the T005 names from `src/index.ts`.
 - [x] T007 Create `fixtures/one-chat-stream.ts` (plan D1) and add it to `fixtures/index.ts`.
 - [x] T008 Create `packages/session-model/test/read-rule.test.ts`. Cover each FR-006 rule and its
@@ -42,35 +42,35 @@ path>` for add and commit, in separate Bash calls. Serial hotspots: `gate/{propo
 
 ## Phase 2: Gate — suggest, accept, `ask_dm` (card AC #3, #5)
 
-- [ ] T011 In `packages/session-model/src/gate/proposals.ts`, add the `action.suggest` and
+- [x] T011 In `packages/session-model/src/gate/proposals.ts`, add the `action.suggest` and
       `action.accept` kinds and schemas. Exclude `action.accept` from `DmProposalKindSchema`.
-- [ ] T012 In `policy.ts`, add `"action.suggest": "auto"`. Refuse `ai:dm` `action.accept` in
+- [x] T012 In `policy.ts`, add `"action.suggest": "auto"`. Refuse `ai:dm` `action.accept` in
       `routeProposal`.
-- [ ] T013 In `permissions.ts`, add `action.suggest` to the DM-kind row. Pass `action.accept` for
+- [x] T013 In `permissions.ts`, add `action.suggest` to the DM-kind row. Pass `action.accept` for
       human proposers only.
-- [ ] T014 In `refusals.ts`, add `SUGGESTION_STALE` and `SUGGESTION_NOT_FOUND`.
-- [ ] T015 In `plan.ts`, extract the declare block's `CHARACTER_UNABLE` test into
+- [x] T014 In `refusals.ts`, add `SUGGESTION_STALE` and `SUGGESTION_NOT_FOUND`.
+- [x] T015 In `plan.ts`, extract the declare block's `CHARACTER_UNABLE` test into
       `unableRefusal(p, proposer, scope, characterId)`. Keep the declare rows and codes byte-equal.
-- [ ] T016 In `plan.ts`, plan `action.suggest`: id reuse `INVALID_PROPOSAL`; item actors must be
-      `pc` ids a human controls; the `ai:dm` `readSeq` guard `SUGGESTION_STALE`; one public row.
-- [ ] T017 In `plan.ts`, plan `action.accept` (spec FR-016): the four checks in order, then
+- [x] T016 In `plan.ts`, plan `action.suggest`: id reuse `INVALID_PROPOSAL`; item actors must be
+      `pc` ids a human controls; item Intent ids `<suggestionId>.<itemId>`; the `ai:dm`-only `readSeq` guard `SUGGESTION_STALE`; one public row.
+- [x] T017 In `plan.ts`, plan `action.accept` (spec FR-016): the four checks in order, then
       `planIntent` with the item Intent at `commit: "confirmed"`, `source: "composer"`, and the
       party actor re-stamp. A second 👍 returns `INTENT_EXISTS`.
-- [ ] T018 In `gate/intents.ts`, serve `ask_dm` in `planGateKind` (spec FR-028): a `talk` row
+- [x] T018 In `gate/intents.ts`, serve `ask_dm` in `planGateKind` (spec FR-028): a `talk` row
       (`ooc`, `characterId` null) and the carrier, both with visibility the proposer's user id.
       Remove the `ask_dm` entry from `UNSERVED_OWNER`.
-- [ ] T019 In `apps/server/src/gate/gate.ts`, widen the `recordPresence` purpose type to `read`.
-- [ ] T020 Create `packages/session-model/test/gate-suggest.test.ts`. Cover each suggest and accept
+- [x] T019 In `apps/server/src/gate/gate.ts`, widen the `recordPresence` purpose type to `read`.
+- [x] T020 Create `packages/session-model/test/gate-suggest.test.ts`. Cover each suggest and accept
       rule, one accept test per item-Intent outcome (`settled`, `needs_ruling`, refusal), the party
       re-stamp, `INTENT_EXISTS` on a second 👍, a stale 👍, and `ai:dm` accept refused.
-- [ ] T021 Create `packages/session-model/test/gate-ask-dm.test.ts`. Cover the two rows, their
+- [x] T021 Create `packages/session-model/test/gate-ask-dm.test.ts`. Cover the two rows, their
       visibility, a companion or DM proposer refused, and SC-004a: `engine`, `actions`, `party`,
       `encounter` and `tableMode` deep-equal before and after.
-- [ ] T022 Amend `gate-schemas.test.ts` (18 kinds, 22 request literals), `gate-policy.test.ts`,
+- [x] T022 Amend `gate-schemas.test.ts` (18 kinds, 22 request literals), `gate-policy.test.ts`,
       `gate-permissions.test.ts`. In `apps/server/test/write-boundary.test.ts`, add the two pins
       (plan D2). In `apps/server/test/gate.intent.integration.test.ts`, cover suggest then accept
       over the real gate, and two concurrent accepts (one plans).
-- [ ] T023 Run `pnpm ci:check`.
+- [x] T023 Run `pnpm ci:check`.
 
 ## Phase 3: DM runtime — window, marker, interrupt, read, rule 8 (card AC #1, #2, #5, #7)
 

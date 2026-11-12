@@ -543,7 +543,7 @@ were re-authored by replan-2026-11.
 - **Readable post**: an entry `readablePosts(p)` returns (FR-006). Not a new event.
 - **Read**: a `turn` job with trigger `talk` (spec 065's talk turn). It ends with one outcome.
 - **Read marker**: `presence.recorded` with purpose `read`.
-- **Suggestion**: an `action.suggested` row `{ suggestionId, readSeq, items[] }`.
+- **Suggestion**: an `action.suggested` row `{ suggestionId, readSeq, items[] }`; each item Intent id is `<suggestionId>.<itemId>`.
 - **Item**: `{ itemId, text, intent }`; `intent` is a full Intent at commit `declared`. Its id is
   `<suggestionId>.<itemId>`, or a player's declared Intent id (FR-011).
 - **Confirm view**: the client's view of one suggestion: its lines, who may accept each, and
