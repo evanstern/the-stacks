@@ -80,4 +80,6 @@ Claimed 2026-11-13 by the R1 sweep (docs/design/r1-fast-table-runbook.md). Workt
 Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=cc/claude-opus-5-5
 
 C-AMD ruling (operator, 2026-11-13, verbatim): "Approve all". Applies spec 091 OQ-A1..A15 and the seed note as recommended. Split: AC #1, #2, #3, #6 move to TASK-0329 (Intent pills, spec 091 part 2); this card keeps AC #4, #5, #7, #8, #9. OQ-A8: R1 (a) re-confirmed as the C-GATE ruling for the SceneSchema optional fields. Follow-ups carded: TASK-0330 (OQ-A4), TASK-0331 (OQ-A5), TASK-0332 (OQ-A15). TASK-0318 folded into TASK-0329; TASK-0325 closes on this merge (FR-011). 0275/0277 hold for TASK-0329; 0276 holds for this card.
+
+Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=cc/claude-opus-5-5
 <!-- SECTION:NOTES:END -->
