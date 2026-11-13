@@ -41,9 +41,8 @@ Spec: specs/091-mud-stream-and-composer
 - [x] #4 Spec 091 is amended against Intent contract v1.1 and reviewed by the operator at C-AMD before implementation.
 - [x] #5 Fact rows render from the ledger at resolve time, not from the narration text (spec 098 OQ-3).
 - [x] #6 Spec phase: Scene fields and seed ways (FR-008 data; plan D1, D2, DA4, D8)
-- [x] #7 Spec phase: Stream items and the narration filter (FR-006, FR-007, FR-026, FR-027, FR-029 data)
-- [x] #8 Spec phase: Wiki re-ground
-- [x] #9 Spec phase: Verify
+- [x] #7 Spec phase: Wiki re-ground
+- [x] #8 Spec phase: Verify
 <!-- AC:END -->
 
 ## Definition of Done
