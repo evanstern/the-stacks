@@ -30,7 +30,7 @@ Spec: specs/109-engine-amounts
 - [x] #2 An Unarmed Strike entry is derived for every combatant (1 + Strength modifier bludgeoning, SRD 5.2.1), so weapon 'unarmed' resolves (spec 097 OQ-12).
 - [x] #3 Spec phase: Engine Unarmed Strike (AC #2)
 - [x] #4 Spec phase: AC #1 guard test
-- [ ] #5 Spec phase: Wiki
+- [x] #5 Spec phase: Wiki
 <!-- AC:END -->
 
 ## Definition of Done
