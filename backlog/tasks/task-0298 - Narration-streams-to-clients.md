@@ -30,7 +30,7 @@ Spec: specs/108-narration-stream
 <!-- AC:BEGIN -->
 - [x] #1 Prose slots stream to every permitted viewer as partial frames while the model writes.
 - [x] #2 Fact rows render before the first prose token and never wait for narration.
-- [ ] #3 A viewer that joins mid-stream sees the settled slot text after the stream ends.
+- [x] #3 A viewer that joins mid-stream sees the settled slot text after the stream ends.
 - [ ] #4 The next turn's Intent is accepted while narration still streams, with a test.
 - [ ] #5 Time to first narration token is recorded per narrate job.
 - [ ] #6 Spec phase: Stream core (pure)
