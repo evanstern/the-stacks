@@ -1430,3 +1430,64 @@ describe("ranged attacks in close combat (spec 099)", () => {
     });
   });
 });
+
+describe("Unarmed Strike derived entry (spec 109)", () => {
+  const striker = (mods: Record<string, number> = { str: 3 }) =>
+    hero({
+      stats: {
+        abilityMods: mods,
+        proficiencyBonus: 2,
+        saves: {},
+        skills: {},
+        attacks: [],
+        spellcastingAbility: null,
+      },
+    });
+  const strike = { attack: "Unarmed Strike", expression: undefined };
+  const dmg = {
+    type: "damage.apply",
+    targetId: "gob-1",
+    components: [
+      { amount: { kind: "fixed", value: 4 }, damageType: "bludgeoning" },
+    ],
+    defenses: null,
+    reason: "unarmed",
+  };
+
+  it("rolls d20 + Str + PB", () => {
+    const { result } = run(
+      stateWith(striker(), goblin()),
+      attack(strike),
+      [10],
+    );
+    expect(outcomeOf(expectOk(result))).toMatchObject({
+      outcome: "hit",
+      total: 15,
+    });
+  });
+  it("a hit then applies fixed 4 and draws no damage die", () => {
+    const s0 = stateWith(striker(), goblin());
+    const hit = run(s0, attack(strike), [10]);
+    expectOk(hit.result);
+    const d = run(settle(s0, hit.result), { ...dmg, critical: false }, []);
+    expect(expectOk(d.result).map((e) => e.type)).not.toContain("dice.rolled");
+    expect(d.rng.remaining()).toBe(0);
+    expect(settle(s0, d.result).combatants["gob-1"]?.hp.current).toBe(3);
+  });
+  it("a critical hit still applies 4", () => {
+    const s0 = stateWith(striker(), goblin());
+    const hit = run(s0, attack(strike), [20]);
+    expect(outcomeOf(expectOk(hit.result)).outcome).toBe("critical-hit");
+    const d = run(settle(s0, hit.result), { ...dmg, critical: true }, []);
+    expectOk(d.result);
+    expect(settle(s0, d.result).combatants["gob-1"]?.hp.current).toBe(3);
+  });
+  it("refuses STAT_UNDEFINED without Str", () => {
+    const out = run(
+      stateWith(striker({ dex: 1 }), goblin()),
+      attack(strike),
+      [10],
+    );
+    expectRefusal(out.result, "STAT_UNDEFINED");
+  });
+});

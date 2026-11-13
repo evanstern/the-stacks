@@ -122,11 +122,32 @@ describe("attack", () => {
     expect(r.facts).toEqual([]);
   });
 
-  it("refuses STAT_UNDEFINED for a missing entry and for unarmed (OQ-12)", () => {
-    for (const weapon of ["Warhammer", "unarmed"]) {
-      const f = refusal(run(hit({ params: { weapon } })));
-      expect([f.source, f.code]).toEqual(["engine", "STAT_UNDEFINED"]);
-    }
+  it("refuses STAT_UNDEFINED for a missing entry", () => {
+    const f = refusal(run(hit({ params: { weapon: "Warhammer" } })));
+    expect([f.source, f.code]).toEqual(["engine", "STAT_UNDEFINED"]);
+  });
+
+  it("plans a derived Unarmed Strike with fixed bludgeoning damage (spec 109)", () => {
+    const r = cmds(run(hit({ params: { weapon: "unarmed" } })));
+    expect(r.commands[0]?.command).toMatchObject({
+      type: "attack.roll",
+      attack: "Unarmed Strike",
+    });
+    const dmg = r.commands.slice(1);
+    expect(dmg.map((c) => c.when)).toMatchObject([
+      { step: 0, outcomes: ["hit"] },
+      { step: 0, outcomes: ["critical-hit"] },
+    ]);
+    for (const c of dmg)
+      expect(c.command).toMatchObject({
+        type: "damage.apply",
+        components: [
+          {
+            amount: { kind: "fixed", value: expect.any(Number) },
+            damageType: "bludgeoning",
+          },
+        ],
+      });
   });
 
   it("an attack with no damage entries plans the roll alone", () => {

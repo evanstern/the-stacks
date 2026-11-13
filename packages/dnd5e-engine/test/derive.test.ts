@@ -9,6 +9,7 @@ import {
   checkModifier,
   DIFFICULTY_DC,
   d20Expression,
+  findAttack,
   foldMode,
   helperExpiry,
   oppositionCovers,
@@ -281,5 +282,54 @@ describe("assists (spec 084)", () => {
     expect(helperExpiry(enc(2), "b")?.round).toBe(3);
     expect(helperExpiry(null, "b")).toBeNull();
     expect(helperExpiry(enc(0), "zz")).toBeNull();
+  });
+});
+
+describe("findAttack Unarmed Strike (spec 109)", () => {
+  const unarmed = (
+    c: ReturnType<typeof makeCombatant>,
+    name = "Unarmed Strike",
+  ) => findAttack(c, name);
+  it("derives toHit and fixed bludgeoning damage from Str and PB", () => {
+    const r = unarmed(makeCombatant({ stats: stats() }), "unarmed strike");
+    expect(r).toEqual({
+      ok: true,
+      value: {
+        name: "Unarmed Strike",
+        range: "melee",
+        toHit: 5,
+        damage: [
+          {
+            amount: { kind: "fixed", value: 4 },
+            damageType: "bludgeoning",
+          },
+        ],
+      },
+    });
+  });
+  it("a stored entry wins", () => {
+    const stored: AttackEntry = {
+      name: "Unarmed Strike",
+      range: "melee",
+      toHit: 9,
+      damage: [],
+    };
+    const r = unarmed(makeCombatant({ stats: stats({ attacks: [stored] }) }));
+    expect(r).toEqual({ ok: true, value: stored });
+  });
+  it("a missing Str modifier is undefined", () => {
+    const r = unarmed(
+      makeCombatant({ stats: stats({ abilityMods: { dex: 2 } }) }),
+    );
+    expect(r).toEqual({ ok: false, missing: "str modifier" });
+  });
+  it("floors damage at 0 for Str -3", () => {
+    const r = unarmed(
+      makeCombatant({ stats: stats({ abilityMods: { str: -3 } }) }),
+    );
+    expect(r.ok && r.value.damage[0]?.amount).toEqual({
+      kind: "fixed",
+      value: 0,
+    });
   });
 });
