@@ -4,7 +4,7 @@ title: Narration streams to clients
 status: In Progress
 assignee: []
 created_date: 2026-11-08 19:56
-updated_date: '2026-11-13T00:28:00Z'
+updated_date: '2026-11-13T00:34:00Z'
 labels:
   - ws:narration
   - replan-2026-11
@@ -61,4 +61,7 @@ C-GATE ruling (operator, 2026-11-12, in chat): "Approve all". This approves the 
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
 Phases 3-5 (5a79b4ee, 753a40d2, f0f9319d): ci:check exit 0 with REQUIRE_DATABASE=1 (server 1913, web 164). Contract amendments quote 'Approve all'. AC #4 is tested in free and turn mode with narrate paused mid-call. Gap: canSee(public) is true for every role, so no exclusion case can be tested. Wiki: 21 notes reviewed.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
+Live check in Brave (1c0cf189) on the worktree app in script mode, one isolated context, no vm-104 page touched. The settled row shows once with no leftover block. The in-flight block was caught: label, rows first, then prose, with aria-live=polite and aria-busy=true. No modal and no overflow at 1280 or 390 px. Note: the transcript <ol> has no accessible name; carded.
 <!-- SECTION:NOTES:END -->
