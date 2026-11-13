@@ -47,7 +47,7 @@ Run an accessibility check. The live Brave check is the orchestrator's.
 
 ## Phase 5: Wiki re-ground
 
-- [ ] T026 Re-verify and re-pin `ws-protocol`, `websocket-gateway`, `subscriber-registry` and `replay-live-boundary` (NEEDS-REVIEW: new frame, buffer, in-flight replay).
-- [ ] T027 Re-verify and re-pin `dm-runtime`, `dm-narration-quality` and `debug-view` (NEEDS-REVIEW: parser, timing fields, log line), and `dm-turn-jobs` (end in `finally`).
-- [ ] T028 Re-verify and re-pin `client-session-hook` and `play-route` (NEEDS-REVIEW: `stream`, transcript block).
-- [ ] T029 Update `docs/wiki/INDEX.md` and `docs/wiki/CAPSULES.md`. Run the freshness gate until it prints `OK`.
+- [x] T026 Re-verify and re-pin `ws-protocol`, `websocket-gateway`, `subscriber-registry` and `replay-live-boundary` (NEEDS-REVIEW: new frame, buffer, in-flight replay).
+- [x] T027 Re-verify and re-pin `dm-runtime`, `dm-narration-quality` and `debug-view` (NEEDS-REVIEW: parser, timing fields, log line), and `dm-turn-jobs` (end in `finally`).
+- [x] T028 Re-verify and re-pin `client-session-hook` and `play-route` (NEEDS-REVIEW: `stream`, transcript block).
+- [x] T029 Update `docs/wiki/INDEX.md` and `docs/wiki/CAPSULES.md`. Run the freshness gate until it prints `OK`.

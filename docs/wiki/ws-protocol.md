@@ -1,11 +1,11 @@
 ---
 name: ws-protocol
-description: The WebSocket frame shapes (subscribe, send, event, replay-complete, error), the fields the server silently strips from a client's send frame, and the opt-in `presence` field and frame, the heartbeat, and what the protocol deliberately does not provide (acks, typing indicators, a session registry).
+description: The WebSocket frame shapes (subscribe, send, event, replay-complete, error, the ephemeral narration-stream), the fields the server silently strips from a client's send frame, and the opt-in `presence` field and frame, the heartbeat, and what the protocol deliberately does not provide (acks, typing indicators, a session registry).
 kind: concept
 sources:
   - apps/server/src/ws/protocol.ts
   - specs/006-ws-gateway/contracts/ws-protocol.md
-verified_against: 1eca063f9b93f90e10e81e8678d36a4790fdc6f9
+verified_against: 753a40d24fb9ad9cf5874a29cca6736ed444a8a5
 ---
 
 # WS protocol
@@ -38,7 +38,7 @@ isn't recognized is refused by `parseInboundFrame` and nothing is appended.
   refused with `error { kind: "validation", code: "UNKNOWN_EVENT_TYPE" }` and nothing is
   written (TASK-0099, spec 043). The frame shape itself is unchanged.
 
-**Server → client**:
+**Server → client** (guarantee 1, "appended before broadcast", scopes to `event` frames only):
 
 - `event { event: {...} }` — one recorded event, via `toEventPayload`. Used for **both**
   replayed and live delivery, on purpose (same function, called from both `gateway.ts` and
@@ -56,6 +56,14 @@ isn't recognized is refused by `parseInboundFrame` and nothing is appended.
   `subscribe` had `presence: true`: once right after that subscribe's `replay-complete`, then on
   every change. Never sent to a connection still replaying. A client replaces its set on each
   frame; there are no join or leave deltas. See [[presence]].
+- `narration-stream { sessionId, jobId, slot: "rows" | "restate" | "describe" | "ask" | "end", text }`
+  — one ephemeral part of the AI DM's in-flight narration (spec 108, TASK-0298; operator C-GATE
+  ruling 2026-11-12). It is never appended, never logged and never replayed from the log. The
+  server filters it per recipient with `canSee` at `public`, skips a connection still replaying,
+  and sends a subscriber the in-flight parts after `replay-complete`. `end` closes a job's
+  stream; the settled `narration` event also ends it. `NarrationStreamFrame` is an
+  `OutboundFrame` member in `protocol.ts`; the inbound schema is unchanged, so a client cannot
+  send one. See [[subscriber-registry]] and [[dm-narration-quality]].
 
 **Heartbeat.** The server pings every connection every 10 s (`HEARTBEAT_INTERVAL_MS`) with a
 protocol-level ping, not a frame; a connection that has not answered the previous ping is
@@ -75,9 +83,10 @@ terminated. A client's `pong` is automatic in a browser.
 
 Consumed by [[websocket-gateway]] (upgrade + message loop) and [[replay-live-boundary]]
 (replay). Mirrored on the client in [[client-session-hook]]'s `types.ts`, which is a hand-kept
-copy of this same shape, not a shared import. The frozen contract was amended twice: by
-decision-0024, with the `presence` field, frame and heartbeat, and by spec 043 (TASK-0099), which
-documents the `UNKNOWN_EVENT_TYPE` refusal of an uncatalogued `send`. No frame shape changed.
+copy of this same shape, not a shared import. The frozen contract was amended three times: by
+decision-0024, with the `presence` field, frame and heartbeat, by spec 043 (TASK-0099), which
+documents the `UNKNOWN_EVENT_TYPE` refusal of an uncatalogued `send`, and by spec 108 (TASK-0298),
+which adds the `narration-stream` frame. Only the 108 amendment changes the frame set, additively.
 
 ## Operational notes
 

@@ -9,7 +9,7 @@ sources:
   - apps/server/src/routes/tables.ts
   - apps/server/src/dm/script/env.ts
 size_budget_exempt: spec 102 adds the gate plannerInputs wiring line to the one server-entrypoint-and-app note; the entrypoint does not split without a TASK of its own
-verified_against: 7a36c9e9e90450f473fc5e54a082d0ce7c083727
+verified_against: 753a40d24fb9ad9cf5874a29cca6736ed444a8a5
 ---
 
 # Server entrypoint and app
@@ -51,7 +51,7 @@ Since TASK-0046, `createGate({ db, presence: presence.reader, rng: runtime.gateR
 minSimilarity: answerConfig.minSimilarity })` returns `{ nudge, stop }` (see [[dm-turn-jobs]]);
 and `createDmEnqueuer({ db, nudge: dmWorker.nudge, loadProjections, presence: presence.reader, log })` builds the gate
 listener. `createApp` receives `dm: { nudge: dmWorker.nudge }`. After `createGateway({ db, validateSession, gate, presence })` for the WebSocket side, two listeners
-register: `gate.onAppended(gateway.publish)` so every row the gate appends reaches the entitled
+register: `gate.onAppended(gateway.publish)` (and, since spec 108, a late-bound `narrationSink` set to `gateway.streamNarration`, which the DM worker's `onNarrationStream` calls) so every row the gate appends reaches the entitled
 subscribers, and `gate.onAppended(dmEnqueuer.onAppended)` so a committed action (or a decided
 `ai:dm` proposal) queues a DM turn ([[dm-runtime]]); `presence.reader.onChange` calls `dmEnqueuer.onPresenceChange` ([[turn-floor]]).
 It calls `serve({ fetch: app.fetch, port: config.port, serverOptions: { requestTimeout: 60 *

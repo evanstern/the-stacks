@@ -85,10 +85,10 @@ codex, system modules, or agents yet. `main` is now continuously deployed to a r
 - [[websocket-gateway]] — upgrade-time authentication, the 401/503 split, connection lifetime, and the `send` classification (gate request; any other type refused, `CATALOG_TYPE_REQUIRES_GATE` or `UNKNOWN_EVENT_TYPE`).
 - [[proposal-gate]] — proposal kinds (incl. `intent`), policy table and DM seat, commit authority, `createGate`, atomic approval, and the write-boundary test.
 - [[turn-floor]] — turn-mode floor passing: the `floor` proposal and turn rules, the AI DM stall override, the `floor` job (absence pass, stall commit), migration 0007 and the floor UI.
-- [[ws-protocol]] — the frame shapes (including the opt-in `presence` frame and the heartbeat), what the server ignores, and what the protocol deliberately omits.
+- [[ws-protocol]] — the frame shapes (including the opt-in `presence` frame, the ephemeral `narration-stream` frame and the heartbeat), what the server ignores, and what the protocol deliberately omits.
 - [[presence]] — who is at the table: the in-memory tracker and `PresenceReader`, grace and heartbeat bounds, the `presence.recorded` marker the gate writes per DM turn, and the client strip.
 - [[replay-live-boundary]] — the algorithm that delivers missed events then live ones with no gap or duplicate.
-- [[subscriber-registry]] — who receives what, session isolation, and visibility filtering.
+- [[subscriber-registry]] — who receives what, session isolation, visibility filtering, and the in-flight narration buffer.
 
 ## Client
 

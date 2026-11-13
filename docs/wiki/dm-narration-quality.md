@@ -16,7 +16,7 @@ sources:
   - apps/server/src/dm/narration-words.ts
   - specs/034-narration-quality/contracts/audit-criteria.md
 size_budget_exempt: the prompt-version history (narrate v5 to v24, react, director, interpret) is one running ledger, and the check node, withheld inputs and fact sheet share one import closure; splitting them needs a TASK of its own
-verified_against: 7c0d16130c083a540d3a93f5fc587ec3e95e5cbf
+verified_against: 753a40d24fb9ad9cf5874a29cca6736ed444a8a5
 ---
 
 # DM narration quality
@@ -61,6 +61,8 @@ throws `SnapshotOverflowError` and fails the turn with `state-overflow` ([[dm-ru
 ## Check node (TASK-0272, spec 103)
 
 `nodes/check.ts` replaces the audit loop. It is pure: no model call, no regenerate loop, no fallback summary. One `dm.narrate` call fills the slots; `checkNarration` (`narration-check.ts`, `CheckInput`, `CheckIssue`) then tests the `describe` and `ask` slots sentence by sentence. `restate` is code-validated by `parseSlots`.
+
+Spec 108 (TASK-0298) streams the slots. `narration-stream.ts` (`createNarrationStream`, pure) takes the check input minus the slots (`checkBase` in `nodes/check.ts`, shared with the check node) and the fact sheet. `push(delta)` strips a leading think block, finds slot tags with the exported `TAG`, and emits a `describe` sentence only when it is complete and passes the same rules the check applies: `dropDigitSentences` (the `parseSlots` digit drop), then `checkNarration` with no `leak` or `digit` issue. It holds an unclosed quote, a stock ending and anything past the prose cap. `restate` emits once after the `parseSlots` rule; `ask` waits for `finish(kept)`, which sends the rest of the kept describe only when what was sent is a prefix of it, so the settled row replaces the block when the two disagree. A property test pins the prefix invariant. The check record gains `firstTokenMs`, `firstProseMs` and `firstProseAt`, and `check` logs `dm.narrate.first-token`. `sentencesOf` is exported from `narration-check.ts`.
 
 - **Leak** (hidden information): a unique alias of an actor whose S1 presence is `absent` (kind `absent-actor`, or `unmet-success` when `FactRoll.unmetSuccess` names the actor), a whole-word unrevealed zone name (`fogged-zone`), or a whole `dmOnlySeedText` entry (`dm-only-text`). Quotes, negation, "no sign of" and a question do not count. `CheckInput.departedIds` lists actors whose presence changed to `absent` in this beat's own `scene-presence.changed` rows (the check node reads `resolve.appendedRows`); S1 already shows them absent, so the absent-actor leak skips them (a fled actor may be narrated fleeing).
 - **Contradiction**: a digit (`digit`), dice language with no roll (`dice-language`), or a death or down word whose subject, the unique alias just before it, is not in that life state (`life-state`, subject by proximity).

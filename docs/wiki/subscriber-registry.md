@@ -1,10 +1,10 @@
 ---
 name: subscriber-registry
-description: Connection bookkeeping for the WebSocket gateway — one session per connection, session isolation via a sessionId-to-connections map, per-viewer canSee filtering against a cached DM seat (viewerFor), why a filtered event is never sent (seq gaps are correct), and the replayedThroughSeq replay floor broadcast skips.
+description: Connection bookkeeping for the WebSocket gateway — one session per connection, session isolation via a sessionId-to-connections map, per-viewer canSee filtering against a cached DM seat (viewerFor), why a filtered event is never sent (seq gaps are correct), the replayedThroughSeq replay floor broadcast skips, and the per-session narration-stream buffer for late joiners.
 kind: component
 sources:
   - apps/server/src/ws/registry.ts
-verified_against: f1676535f62847ef4ac0571639c6ca60b993bb94
+verified_against: 753a40d24fb9ad9cf5874a29cca6736ed444a8a5
 ---
 
 # Subscriber registry
@@ -71,6 +71,17 @@ skips any connection without `wantsPresence`, any with a non-null `pendingQueue`
 snapshot after `replay-complete`, [[replay-live-boundary]]), and any whose socket is not open. A
 send that throws is logged and does not stop the rest. It never touches the event queue:
 presence is a snapshot, so a dropped one is replaced by the next. See [[presence]].
+
+**Narration stream (spec 108).** `streamNarration(sessionId, part)` keeps one in-flight buffer
+per session (`{ jobId, frames, lastAt }`). A new `jobId` replaces the buffer. Each part goes to
+every open connection that is not mid-replay and passes `canSee(viewerFor(conn, seat), "public")`;
+today every viewer passes, so the filter is the guard for a future non-public viewer rather than
+a live exclusion. A part is never logged. `end` sends, then deletes the buffer. `endNarration`
+does the same for the in-flight job when the settled `narration` row is about to publish. A
+buffer idle for `LEASE_MS` belongs to a dead worker and is deleted on the next stream call; the
+buffer is also deleted with the session's last subscriber. `bufferedNarration(sessionId, conn)`
+returns the frames a connection may see, for [[replay-live-boundary]]. A trailing `end` for a job
+whose buffer is already gone sends nothing.
 
 A connection whose `pendingQueue` is non-null (replay in flight) gets the event pushed onto
 that queue instead of sent directly — only events that passed `canSee` and the replay floor

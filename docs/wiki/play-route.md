@@ -1,6 +1,6 @@
 ---
 name: play-route
-description: The play route (TASK-0047, specs/030-play-route) - one shared TableView over live or fixture sources, the pure modules, gate-request writes, the DM approvals and ledger slide-outs, the presence strip, the one composer, send router, read ring and confirm row (TASK-0315), floor controls, turn-order strip and floor lines, the table margin and strips (TASK-0236), the Debug link, scene panels, the Table mode (TASK-0165) and DM seat (TASK-0177) slide-outs and fixture routes.
+description: The play route (TASK-0047, specs/030-play-route) - one shared TableView over live or fixture sources, the pure modules, gate-request writes, the DM approvals and ledger slide-outs, the presence strip, the one composer, send router, read ring and confirm row (TASK-0315), the in-flight narration block (spec 108), floor controls, turn-order strip, the table margin (TASK-0236), the Debug link, scene panels, the Table mode (TASK-0165) and DM seat (TASK-0177) slide-outs and fixture routes.
 kind: component
 sources:
   - apps/web/app/routes/play.tsx
@@ -42,7 +42,7 @@ sources:
   - apps/web/app/play/components/commit-control.tsx
   - apps/web/app/play/components/table-mode-panel.tsx
   - apps/web/app/play/components/dm-seat-panel.tsx
-verified_against: bd5a8086ffd87f883519b87e12dc3168853e3c94
+verified_against: 753a40d24fb9ad9cf5874a29cca6736ed444a8a5
 size_budget_exempt: spec 105 (TASK-0315) replaces the sign-off paragraph with the composer, send router, read ring and confirm row in the one play-route note; the note sat 806 chars over budget already and the table view does not split without a TASK of its own
 ---
 
@@ -80,6 +80,10 @@ it holds only UI state (which panel is open). Two hooks build a source:
 `play.tsx`'s `LiveTable` passes `TableView` a `debugHref` of `/play/<sessionId>/debug` only when
 `user.role === "operator"`. `TableHeader` (`components/table-header.tsx`) then renders a "Debug"
 anchor (new tab); the fixture routes pass none. The page is `play/:sessionId/debug` ([[debug-view]]).
+
+## Narration in flight
+
+Spec 108 (TASK-0298). `TableSource.narrationStream` carries the in-flight DM narration (`useSession`'s `stream`, [[client-session-hook]]; `null` in fixtures). `toTableViewModel` appends a `narration-stream` transcript item (`rows`, `prose`: restate, describe and ask joined) after the sorted transcript. `Transcript` renders it as a block with the words "The DM is narrating", the code rows first, then the prose, inside `aria-live="polite"` and `aria-busy="true"`, wrapped with `break-words`. It is inline, not a modal. When the settled `narration` row lands, the reducer clears the stream and the row replaces the block.
 
 ## Start scene
 
