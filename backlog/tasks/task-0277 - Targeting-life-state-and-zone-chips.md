@@ -1,17 +1,17 @@
 ---
 id: TASK-0277
-title: 'Targeting, life state and zone chips'
+title: Targeting, life state and zone chips
 status: To Do
 assignee: []
-created_date: '2026-11-07 05:13'
-updated_date: '2026-11-07 05:19'
+created_date: 2026-11-07 05:13
+updated_date: '2026-11-13T14:27:00Z'
 labels:
-  - 'ws:table-ux'
+  - ws:table-ux
   - replan-2026-11
   - ep-1
 milestone: m-10
 dependencies:
-  - TASK-0271
+  - TASK-0329
 ordinal: 261000
 ---
 
@@ -32,14 +32,16 @@ Source: docs/design/replan-2026-11/board-rework-map.md (N-12).
 - [ ] #3 Targets out of reach are marked, not hidden.
 <!-- AC:END -->
 
-## Implementation Notes
-
-<!-- SECTION:NOTES:BEGIN -->
-Merged from TASK-0252 (The table shows no life state: players can't tell which foes are dead or down) by replan-2026-11: Life state chips.
-<!-- SECTION:NOTES:END -->
-
 ## Definition of Done
 <!-- DOD:BEGIN -->
 - [ ] #1 All tests and checks run green
 - [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Merged from TASK-0252 (The table shows no life state: players can't tell which foes are dead or down) by replan-2026-11: Life state chips.
+
+Operator C-AMD ruling 2026-11-13 on spec 091: "Approve all". Spec 091 OQ-A10: add range order, the HP word and the out-of-reach mark to the shared target listbox; zone chips call draft(seed). Hold until TASK-0329 merges.
+<!-- SECTION:NOTES:END -->
