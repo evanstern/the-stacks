@@ -258,7 +258,9 @@ export const SceneSeedSchema = z
       }
       if (r.intent.kind !== "move") return;
       for (const t of r.intent.targets ?? []) {
-        if (t.kind === "zone" && zones.get(t.id)?.hidden)
+        if (t.kind === "zone" && seed.space && !zones.has(t.id))
+          bad(`way moves into unknown zone ${t.id}`);
+        else if (t.kind === "zone" && zones.get(t.id)?.hidden)
           bad(`way moves into hidden zone ${t.id}`);
       }
     });

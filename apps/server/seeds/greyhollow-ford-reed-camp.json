@@ -36,9 +36,7 @@
       ]
     },
     "ways": [
-      {"label": "ladder to the loft", "draft": "/do I climb the ladder to the loft"},
-      {"label": "causeway downriver", "draft": "/move #causeway"},
-      {"label": "ferry", "draft": "/move #ferry"}
+      {"label": "causeway downriver", "draft": "/move #causeway"}
     ]
   },
   "beats": [

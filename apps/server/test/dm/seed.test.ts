@@ -656,4 +656,10 @@ describe("seed ways (spec 091 D2, DA4)", () => {
     });
     expect(issues.join("\n")).toContain("hidden zone");
   });
+  it("refuses a way that moves into a zone the seed lacks", () => {
+    const issues = issuesFor((s) => {
+      s.location.ways[1].draft = "/move #nowhere";
+    });
+    expect(issues.join("\n")).toContain("unknown zone");
+  });
 });
