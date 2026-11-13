@@ -8,6 +8,191 @@
 names its fallback. Research and design are small, so they live here, as in spec 085: no separate
 research.md, data-model.md, contracts/ or quickstart.md. The margin half is `specs/090-table-margin/`.
 
+## Split verdict (amendment 2026-11-13) — read first
+
+**Task count: about 55 tasks in 11 phases.** The original plan had 28 tasks. The amendment adds the
+Intent-pill path (pill, `draft(seed)`, verb dropdown and `/?`, typed Tab, resolver, keep-until-echo:
+about 12 tasks), the ledger-first roll rows with mode and both d20s, the narration filter, dialogue
+rows and the 1024 px column (about 11 tasks), and the TASK-0318 listbox focus fold (2 tasks). That
+is past the runbook's 28-task trigger ("Cards needing spec amendments or splitting").
+
+**Verdict: split.** No `tasks.md` is written until C-AMD rules the split (spec.md OQ-A1).
+
+| Card | ACs | Phases (from "Phases (amended)") | Tasks |
+|---|---|---|---|
+| **TASK-0247 — MUD stream** | #4, #5, #7, #9, #8 | 1, 2, 3, 4, S-wiki, S-verify | about 30 |
+| **New card — Intent pills in the composer (spec 091 part 2)** | #1, #2, #3, #6 | 5, 6, 7, P-wiki, P-verify | about 25 |
+
+AC #8 (this amendment, reviewed at C-AMD) stays on TASK-0247. AC #6 rides the pill card
+(spec.md OQ-A2). The pill card depends on TASK-0247: noun expansions and way buttons need the
+room block and R1 `cast`. Both keep spec 091 as their spec; the pill card's `tasks.md` is a second
+file, `tasks-pills.md`, in this directory, so one spec dir links two cards with disjoint
+criteria. **Alternative:** give the pill card its own spec number that points to this amendment.
+
+## Constitution Check (amendment, against 3.0.0)
+
+- [x] **I. Agent-operable**: a pill is a client view of `parse`. An agent sends the same `intent`
+      request directly (`say`, `attack`, `move`, `help`, any player verb). Way `draft` strings are
+      contract text, so an agent reads and sends them as is.
+- [x] **II. One Intent vocabulary**: every click and Tab drafts contract text; Send runs `parse`
+      (spec 105 `routeSend`). An unknown `/word` is refused, never sent as speech (§8.3 rule 12).
+      No second write path.
+- [x] **III. Event sourcing**: no new event, request or frame. The stream is a projection;
+      `canSee` filters before the fold. R1 stays additive v1.
+- [x] **IV. Data planes**: session plane only.
+- [x] **V. Many views, one state**: roll rows, rules lines and parity lines put every margin fact
+      in the text stream (SC-002). The Ledger slide-out and the stream read the same rows.
+- [x] **VI. Engine owns the numbers**: rows format engine events; the client computes nothing.
+- [x] **VII. Narration around facts**: roll and change rows now render from the ledger at
+      resolve time and never wait on narration (A1). Partial: `why` and `State:` lines still ride
+      the narration text (spec.md OQ-A4, revisit carded).
+- [x] **VIII. Campaign is data**: seed `ways` are seed data, validated at load.
+- [x] **IX. UX quality bar**: no modals; 1280 and 390 px; keyboard and screen reader for the pill,
+      the listbox and the rows; status pairs colour with a word (✓/✗ plus "success"/"failure",
+      "dropped" on the struck face). No new latency path: rows come from the existing batch.
+- [x] **X–XIII**: no citation, content, hosting or planning change. Every deferral in spec.md
+      "Open questions (amendment)" has a named card or revisit trigger for the orchestrator.
+
+## C-GATE before → after (amendment)
+
+Frozen contracts named by the dispatch rules:
+
+- `docs/wiki/ws-protocol.md` frame shapes: **none.**
+- `specs/030-play-route/contracts/proposal-seam.md`: **none.**
+- `specs/029-proposal-gate/contracts/`: **one pointer block, from R1 (ruled (a) 2026-11-05):**
+  - before: `proposals.md` `scene` proposal `after: SceneSchema` = `{ sceneId, title, summary, location }`.
+  - after: the same `SceneSchema`, plus optional `description`, `ways`, `cast` (spec 028
+    `session-events.md`). No rule, kind, policy or refusal change.
+  - spec.md OQ-A8 asks the operator to re-confirm R1 (a) as the C-GATE ruling for this card.
+
+Other contract amendment blocks (not frozen-listed) are unchanged from "Contract amendments" below,
+plus one line in `specs/030-play-route/contracts/ui-surfaces.md` (R2): the Intent pill
+(`role="status"`, name "Intent preview") and the dialogue row.
+
+**Migrations**: none. **New runtime dependencies**: none. **Prompt-version bumps**: none (the
+narration text keeps its code block; spec.md OQ-A3).
+
+## Design (amendment)
+
+### DA1 — Roll rows from the ledger (`play/stream.ts`) — AC #4, #9
+
+Amends D3 "Roll". Group `roll` and `outcome` rows by `batchId`; the item's seq is the roll row's.
+Check summary: "<actor> — <Skill|Ability|Ability save> <total> ✓ success" (✗ failure; band words
+when present). Mode: from `dice.rolled.mode`, "with advantage" / "with disadvantage" after the
+check name. Faces: from the `dice` terms' `faces` and `kept`; a dropped face renders `<s>` with
+`aria-label="<n>, dropped"`. Reuse `ledger-format.ts` (export its face and outcome helpers; its
+`toLedgerItems` output is unchanged). `ponytail:` web wording mirrors `facts.ts`
+`renderRollLine`; one shared formatter is spec.md OQ-A5.
+
+### DA2 — Narration filter (`play/narration-rows.ts`, new, pure) — AC #9, #7
+
+`narrationRows(text): { prose: Segment[]; rules: string[] }`.
+1. Split the trailing code block with the auditor's regexes. Copy `DICE_LINE`, `WHY_LINE` and
+   `STATE_LINE` from `apps/server/src/playtest/auditor/checks.ts` into this module with a
+   `ponytail:` comment (web cannot import server code; the shared home is spec.md OQ-A5). Keep
+   `why`, refusal and `State:` lines; drop dice and change lines.
+2. Split prose into sentences (`PIECE_SPLIT` form) and tag a sentence with a `"…"` or `“…”` span
+   as `dialogue`. Segments keep source order.
+The streaming block runs step 1 on its `rows` part.
+
+### DA3 — Stream rendering — AC #5, #7
+
+- `transcript.tsx`: the `<ol>` gains `role="log" aria-live="polite" aria-label="Table stream"`.
+  The narration-stream block keeps `aria-busy`, drops `aria-live` (OQ-A14).
+- `narration` items render DA2 segments: prose italic muted; dialogue upright `text-foreground`.
+  `npc_say` talk rows (actor kind `npc`) render as a dialogue row headed by the name.
+- `table-view.tsx`: the scroll column's inner wrapper and the composer get
+  `mx-auto w-full max-w-5xl` (1024 px). The margin stays beside the column.
+
+### DA4 — The pill (`play/pill.ts` new, pure; `components/intent-pill.tsx` new) — AC #1–#3
+
+`pillOf(line, ctx): null | { ok: true; label; targets: string[] } | { ok: false; code; words; detail }`.
+Null for plain prose. `PARSE_WORDS: Record<ParseCode, string>` in `play/labels.ts` beside
+`KIND_LABEL` (for example `PARSE_UNKNOWN_VERB` → "Unknown command: /<verb>"). The component is a
+`role="status" aria-live="polite"` line above the input named "Intent preview". The composer renders
+it from its text state on each change. `routeSend` is unchanged and gains the resolver from DA5.
+
+### DA5 — Tab, verbs and the resolver (`play/commands.ts`, `play/glossary.ts`) — AC #3
+
+`commands.ts`: `PLAYER_VERBS` derived once from `KIND_RULES` (seat P) and the parser's canonical
+verbs, with `KIND_LABEL` hints, plus `{ token: "/?", hint: "help" }`. `glossary.ts`:
+`completions(word, glossary, targets)` switches on the first character (D7 rules for bare words);
+`resolverOf(glossary)` maps a name, case-insensitive, to a `TargetRef`. Zones come from
+`p.spatial.map` (revealed only); entities and actors from the glossary.
+
+### DA6 — `draft(seed)` and keep-until-echo (`components/composer.tsx`) — AC #2, #6
+
+Amends D6. The composer handle exposes `draft(seed: Intent | string)` (FR-019a). Send records
+`pending: { id, kind: "intent" | "action" }` and sets the input read-only; `TableView` passes the
+viewer's own ids seen in `p.intents` and `p.actions`, and the composer clears when `pending.id`
+appears. A refusal (`source.notice` for that request) clears `pending` and keeps the text.
+`ponytail:` the match is by id only; a refused request with no id echo is matched by the next
+notice, which is the source's single-flight rule.
+
+### DA7 — Seed way validation (`apps/server/src/dm/seed/schema.ts`) — AC #2
+
+Amends D2. A `superRefine` parses each `location.ways[].draft` with `parse` (actor a placeholder pc,
+resolver over the seed's zones, NPCs and items) and refuses a hidden-zone `/move`. Duo ways:
+`ladder to the loft` → `/move #loft` is hidden, so it becomes `/do I climb the ladder to the loft`;
+`causeway downriver` → `/move #causeway`; `ferry` → `/move #ferry`.
+
+## Files (amendment additions; the table below still holds)
+
+| File | Change | Card |
+|---|---|---|
+| `apps/web/app/play/stream.ts` (new) | DA1 | 0247 |
+| `apps/web/app/play/narration-rows.ts` (new) | DA2 | 0247 |
+| `apps/web/app/play/ledger-format.ts` | export helpers | 0247 |
+| `apps/web/app/play/components/transcript.tsx`, `room-block.tsx`, `roll-row.tsx`, `filter-chips.tsx` | DA3, D5 | 0247 |
+| `apps/web/app/play/table-view.tsx` | chips, column cap; later `draft` | 0247, pills |
+| `apps/web/app/play/view-model.ts` | stream items replace `transcript` | 0247 |
+| `apps/web/app/play/pill.ts`, `components/intent-pill.tsx` (new) | DA4 | pills |
+| `apps/web/app/play/labels.ts` | `PARSE_WORDS` | pills |
+| `apps/web/app/play/commands.ts`, `glossary.ts`, `history.ts` (new) | DA5, D6, D7 | pills |
+| `apps/web/app/play/components/composer.tsx`, `noun-text.tsx` (new) | DA6, D5 nouns, FR-016 | pills |
+| `apps/web/app/play/send.ts` | resolver passed through (no route change) | pills |
+| `apps/server/src/dm/seed/schema.ts`, `seed/views.ts`, `nodes/resolve.ts`, `apps/server/seeds/greyhollow-ford*.json` (4) | D1, D2, DA7 | 0247 |
+| `packages/session-model/src/events/scene.ts`, `index.ts` | D1 | 0247 |
+| tests new: `stream.test.mjs`, `narration-rows.test.mjs`, `roll-row.test.tsx`, `room-block.test.tsx`, `filter-chips.test.tsx`, `pill.test.mjs`, `glossary.test.mjs`, `history.test.mjs`, `noun-text.test.tsx`; extended: `transcript-stream.test.tsx`, `composer.test.tsx`, `table-view.test.tsx`, `send.test.mjs`, `apps/server/test/dm/seed.test.ts`, `duo-views.test.ts`, `contrast.test.mjs` | — | both |
+| `docs/wiki/play-route.md`, `chat-ui.md`, `session-model.md`, `dm-runtime.md`, `seed-npc-presence.md`, `turn-floor.md`, `CAPSULES.md`, `INDEX.md` | re-ground, NEEDS-REVIEW | both |
+
+## Phases (amended)
+
+Every UI phase: no modals (slide-out panels or autocomplete dropdowns only);
+`apps/web/test/no-dialog.test.mjs` stays green; checked at 1280 px and 390 px; roles, labels and
+keyboard paths tested; the orchestrator runs the live Brave check, not the implementer. Each phase
+is one sonnet dispatch and leaves `pnpm ci:check` green.
+
+**TASK-0247 (stream):**
+1. Scene fields and seed ways (R1, D1, D2, DA7) — server and session model.
+2. Roll rows and rules lines from the ledger (DA1, D3) — web, pure plus tests.
+3. Stream rendering: log region, room blocks (ways as text), chips, narration filter, dialogue
+   rows, 1024 px column (DA2, DA3, D5).
+4. Contrast and contract blocks (D9, R1/R2 amendments).
+- S-wiki. Wiki re-ground (NEEDS-REVIEW: `play-route`, `chat-ui`, `session-model`, `dm-runtime`,
+  `seed-npc-presence`), `CAPSULES.md` and `INDEX.md` lines, honest re-pins.
+- S-verify **[orchestrator]**: Brave live check, both widths, both themes, accessibility read.
+
+**Pill card:**
+5. Glossary, commands, history, resolver (D6, D7, DA5) — pure plus tests.
+6. Composer: shared listbox with focus return (FR-016, TASK-0318), pill, `/?` help, Tab,
+   keep-until-echo (DA4, DA6).
+7. `draft(seed)`, noun expansions, way buttons (FR-019a, FR-020).
+- P-wiki and P-verify as above (`play-route`, `chat-ui`, `turn-floor`).
+
+## Overlap (amendment)
+
+- TASK-0315 and TASK-0298 merged; build on `composer.tsx`, `send.ts`, `transcript.tsx` as merged.
+- TASK-0275, TASK-0277: draft-hold until the pill card merges; they call `draft(seed)` (OQ-A9, OQ-A10).
+- TASK-0276: draft-holds until TASK-0247 merges; its rows are `StreamItem` kinds (OQ-A11).
+- TASK-0318: folded into pill phase 6 (OQ-A12). TASK-0325: covered by FR-011 (OQ-A13).
+- `nodes/resolve.ts` (Phase 1, scene-start branch only): check the runbook for an open lane first.
+
+---
+
+*The sections below are the 2026-11-05 plan. Where the amendment above differs, the amendment wins.
+The old Constitution Check names constitution 2.0.0 and is superseded.*
+
 ## Summary
 
 Turn the transcript into a derived stream of items: today's talk, narration, confirm and action rows,
