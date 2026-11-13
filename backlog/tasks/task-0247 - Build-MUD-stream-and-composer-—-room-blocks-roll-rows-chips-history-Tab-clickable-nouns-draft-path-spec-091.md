@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: 2026-11-05 05:48
-updated_date: '2026-11-13T16:11:00Z'
+updated_date: '2026-11-13T16:28:00Z'
 labels:
   - web
   - ux
@@ -126,4 +126,10 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-
 PR #177 CI failed twice on ai-actor-parity companion attempt test (run 43455978886). Diagnosis: no branch cause (siblings pass, seed load clean, path unchanged vs main, 19/19 local incl. CPU load). Carded TASK-0333 (instrument; trigger: next failure). Full CI re-run.
 
 PR #177 CI run 43459199179 (head e3aa4af0) failed the same ai-actor-parity companion attempt test: 3 of 3 CI runs on this branch, 0 in 100 on main. Treated as branch-specific in CI, not a flake. Merge held; put to operator.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5 (CI root-cause attempt 1; incomplete, instrumentation 294c441d)
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5 (CI root-cause attempt 2)
+
+CI on 294c441d: attempt 1 pass, attempt 2 fail with an empty companion log, so the job exits silently. Branch record 4 fail / 1 pass. Next: expose plays and fake-gateway purposes; merge only after 2 consecutive green runs on the fix.
 <!-- SECTION:NOTES:END -->
