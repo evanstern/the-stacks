@@ -38,12 +38,12 @@ in the brief.
 UI rules: no modals. `apps/web/test/no-dialog.test.mjs` stays green. Render at 1280 px and 390 px.
 Run an accessibility check. The live Brave check is the orchestrator's.
 
-- [ ] T020 In `apps/web/app/ws/types.ts`, add the `narration-stream` `ServerFrame` member.
-- [ ] T021 In `apps/web/app/play/reduce-frame.ts`, add `FrameState.stream` per plan D6. Extend `apps/web/test/play/reduce-frame.test.mjs`: new job, parts, `end`, clear on an `ai:dm` `narration` event.
-- [ ] T022 In `apps/web/app/ws/useSession.ts`, return `stream`. Add `narrationStream` to `TableSource` in `play/source.ts`. Pass it in `use-live-table.ts`; pass `null` in `use-fixture-table.ts`.
-- [ ] T023 In `apps/web/app/play/view-model.ts`, append the `narration-stream` item after the sorted transcript.
-- [ ] T024 In `apps/web/app/play/components/transcript.tsx`, render the block: rows first, then prose, the words "The DM is narrating", `aria-live="polite"`, `aria-busy="true"`.
-- [ ] T025 Write `apps/web/test/play/transcript-stream.test.tsx`: the block renders, the settled row replaces it, the label is text not colour, and the block wraps at 390 px.
+- [x] T020 In `apps/web/app/ws/types.ts`, add the `narration-stream` `ServerFrame` member.
+- [x] T021 In `apps/web/app/play/reduce-frame.ts`, add `FrameState.stream` per plan D6. Extend `apps/web/test/play/reduce-frame.test.mjs`: new job, parts, `end`, clear on an `ai:dm` `narration` event.
+- [x] T022 In `apps/web/app/ws/useSession.ts`, return `stream`. Add `narrationStream` to `TableSource` in `play/source.ts`. Pass it in `use-live-table.ts`; pass `null` in `use-fixture-table.ts`.
+- [x] T023 In `apps/web/app/play/view-model.ts`, append the `narration-stream` item after the sorted transcript.
+- [x] T024 In `apps/web/app/play/components/transcript.tsx`, render the block: rows first, then prose, the words "The DM is narrating", `aria-live="polite"`, `aria-busy="true"`.
+- [x] T025 Write `apps/web/test/play/transcript-stream.test.tsx`: the block renders, the settled row replaces it, the label is text not colour, and the block wraps at 390 px.
 
 ## Phase 5: Wiki re-ground
 

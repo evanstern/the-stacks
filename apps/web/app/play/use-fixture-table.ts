@@ -282,6 +282,7 @@ export function useFixtureTable(
     notice: null,
     proposals,
     presence,
+    narrationStream: null,
     commands,
   };
 }

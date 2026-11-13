@@ -39,8 +39,16 @@ export type { LiveUser };
  */
 export function useLiveTable(sessionId: string, user: LiveUser): TableSource {
   const revalidator = useRevalidator();
-  const { events, status, caughtUp, notice, present, sendEvent, resync } =
-    useSession(sessionId, revalidator.revalidate);
+  const {
+    events,
+    status,
+    caughtUp,
+    notice,
+    present,
+    stream,
+    sendEvent,
+    resync,
+  } = useSession(sessionId, revalidator.revalidate);
   // Seat and party arrive as events after load, so the viewer is re-derived from them. The
   // seed fold reads only the public seat and party rows, so a player seed serves every user.
   const viewer = useMemo<Viewer>(
@@ -135,6 +143,7 @@ export function useLiveTable(sessionId: string, user: LiveUser): TableSource {
     notice,
     proposals,
     presence: present,
+    narrationStream: stream,
     role: user.role,
     ...(isOperator ? { sceneStart: startView } : {}),
     commands,

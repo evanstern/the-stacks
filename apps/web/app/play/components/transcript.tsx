@@ -114,6 +114,23 @@ export function Transcript({
             >
               {item.text}
             </p>
+          ) : item.kind === "narration-stream" ? (
+            <div
+              data-kind="narration-stream"
+              aria-live="polite"
+              aria-busy="true"
+              className="break-words italic text-muted-foreground"
+            >
+              <p className="text-xs font-medium uppercase tracking-wide">
+                The DM is narrating
+              </p>
+              {item.rows && (
+                <p className="whitespace-pre-line not-italic">{item.rows}</p>
+              )}
+              {item.prose && (
+                <p className="whitespace-pre-line">{item.prose}</p>
+              )}
+            </div>
           ) : item.kind === "narration" ? (
             <p className="italic text-muted-foreground whitespace-pre-line">
               {item.text}
