@@ -4,7 +4,7 @@ title: Narration streams to clients
 status: In Progress
 assignee: []
 created_date: 2026-11-08 19:56
-updated_date: '2026-11-13T00:01:00Z'
+updated_date: '2026-11-13T00:28:00Z'
 labels:
   - ws:narration
   - replan-2026-11
@@ -58,4 +58,7 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
 Phases 1-2 (e1ff0321, d1d012e7): ci:check exit 0; server suite REQUIRE_DATABASE=1 1905 passed. Prefix property holds at 1-, 3- and 17-char splits over 16 hand cases and 106 narrate fixtures, and no dropped sentence ever streamed. Fogged-zone and absent-actor cases assert string absence only. No frozen frame touched (verified by diff). checkBase() is shared from nodes/check.ts into narrate.ts; check-boundaries passes.
 
 C-GATE ruling (operator, 2026-11-12, in chat): "Approve all". This approves the spec 108 plan.md "C-GATE: frozen contract amendments": the narration-stream frame in ws-protocol (006 contract, wiki note and protocol.ts), guarantee 1 scoped to event frames, and useSession returning stream (030 live-frames). It also approves OQ-1..OQ-4 as recommended. OQ-1 and OQ-3 are carded with CP-7 triggers.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
+Phases 3-5 (5a79b4ee, 753a40d2, f0f9319d): ci:check exit 0 with REQUIRE_DATABASE=1 (server 1913, web 164). Contract amendments quote 'Approve all'. AC #4 is tested in free and turn mode with narrate paused mid-call. Gap: canSee(public) is true for every role, so no exclusion case can be tested. Wiki: 21 notes reviewed.
 <!-- SECTION:NOTES:END -->
