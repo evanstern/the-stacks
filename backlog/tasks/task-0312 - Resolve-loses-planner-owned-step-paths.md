@@ -34,7 +34,7 @@ Spec: specs/110-resolve-cleanup
 - [x] #4 Spec phase: Step paths in resolve and the plan gate (AC #1)
 - [x] #5 Spec phase: Schemas and old checkpoints (AC #3)
 - [x] #6 Spec phase: Wiki
-- [ ] #7 Spec phase: Adjudicate node (C-GATE approved 2026-11-12)
+- [x] #7 Spec phase: Adjudicate node (C-GATE approved 2026-11-12)
 <!-- AC:END -->
 
 ## Definition of Done
