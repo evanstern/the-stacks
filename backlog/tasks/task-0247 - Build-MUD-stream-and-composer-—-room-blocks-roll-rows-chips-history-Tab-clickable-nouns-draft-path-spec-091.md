@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: 2026-11-05 05:48
-updated_date: '2026-11-13T15:46:00Z'
+updated_date: '2026-11-13T16:05:00Z'
 labels:
   - web
   - ux
@@ -120,4 +120,8 @@ Dispatch: tier=haiku pinned=cc/claude-haiku-5-5 served=cc/claude-haiku-5-5 (play
 Live-check fixes 84636aab (rules lines as Rules items, restate quote-period stripped, roll face list once); play-route re-verified and re-pinned 86c7450d.
 
 Final gates (orchestrator, after merging origin/main): REQUIRE_DATABASE=1 pnpm ci:check exit 0; check-boundaries exit 0; wiki plan empty; freshness OK (65); spec-bridge check exit 0.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5 (CI failure diagnosis)
+
+PR #177 CI failed twice on ai-actor-parity companion attempt test (run 43455978886). Diagnosis: no branch cause (siblings pass, seed load clean, path unchanged vs main, 19/19 local incl. CPU load). Carded TASK-0333 (instrument; trigger: next failure). Full CI re-run.
 <!-- SECTION:NOTES:END -->
