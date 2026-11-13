@@ -156,9 +156,9 @@ UI rules above apply.
 
 **Goal**: every non-browser gate is green; the orchestrator owns the browser check.
 
-- [ ] T029 Run `pnpm ci:check`, the wiki freshness gate and the spec-bridge check (exit 0). Report
+- [x] T029 Run `pnpm ci:check`, the wiki freshness gate and the spec-bridge check (exit 0). Report
       each exit code. Commit nothing unless a gate needs a fix.
-- [ ] T030 **[orchestrator]** Run the live Brave check (plan D10, TASK-0247 states only): a room
+- [x] T030 **[orchestrator]** Run the live Brave check (plan D10, TASK-0247 states only): a room
       block with ways as text, a roll row expanded with both faces, dialogue rows, each chip, the
       streaming block, at 1280 px and 390 px, light and dark. Read the accessibility tree once for
       the "Table stream" log. Commit shots under `specs/091-mud-stream-and-composer/evidence/`.
