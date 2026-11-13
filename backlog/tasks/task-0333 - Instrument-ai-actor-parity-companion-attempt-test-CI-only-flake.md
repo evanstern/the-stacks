@@ -1,10 +1,10 @@
 ---
 id: TASK-0333
 title: Instrument ai-actor-parity companion attempt test (CI-only flake)
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-11-13T16:05:00Z'
-updated_date: '2026-11-13T17:06:00Z'
+updated_date: '2026-11-13T17:13:00Z'
 labels:
   - test
   - flaky
@@ -22,8 +22,8 @@ The test 'AI actor parity: companion source (database) > attempt: needs_ruling, 
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 odoTurn captures the companion job's log lines (dm.companion.refused, play statuses) and prints them when the carrier assertion fails.
-- [ ] #2 The root cause is recorded on this card, or the test is made independent of the live listener timing, with a test.
+- [x] #1 odoTurn captures the companion job's log lines (dm.companion.refused, play statuses) and prints them when the carrier assertion fails.
+- [x] #2 The root cause is recorded on this card, or the test is made independent of the live listener timing, with a test.
 <!-- AC:END -->
 
 ## Definition of Done
@@ -39,3 +39,9 @@ AC #1 delivered on TASK-0247's branch (PR #177, f50f1628/41f191dd): the assertio
 
 Answer to the open question: main CI on bf44d82f (a card commit, before #177 merged, so without the test fix) failed the same test with the same [] carriers. The race was never branch-specific; main hit it once the window was open. Fix 41f191dd is on main via merge 2a1d5189. Remaining: AC #2 (record root cause / decouple from listener timing) is met by 41f191dd; close after main CI is green on 2a1d5189.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Fixed by TASK-0247's PR #177 (merge 2a1d5189). Root cause: odoTurn read carriers before the gate listener's enqueued commit turn (adjudicate/narrate) ran; drainAll returned after one empty pass. The race was not branch-specific (main failed it on bf44d82f). Fix 41f191dd drains until the fake gateway records a call past the companion's; the assertion message carries logs, plays and gateway purposes. Main CI green on b08059da.
+<!-- SECTION:FINAL_SUMMARY:END -->
