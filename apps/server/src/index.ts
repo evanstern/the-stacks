@@ -10,6 +10,7 @@ import { createValidateSession } from "./auth/session.js";
 import { loadConfig } from "./config.js";
 import { createDatabaseProbe, createDb } from "./db.js";
 import { createDmEnqueuer } from "./dm/enqueue.js";
+import type { NarrationPart } from "./dm/pipeline/context.js";
 import { missingDmPurposes, unstructuredDmPurposes } from "./dm/purposes.js";
 import { createAiRuntime } from "./dm/script/env.js";
 import { loadSeed } from "./dm/seed/load.js";
@@ -91,7 +92,12 @@ if (unstructuredPurposes.length > 0) {
     `DM runtime: purposes without a structured mode (JSON parse failures cost retries): ${unstructuredPurposes.join(", ")}`,
   );
 }
+// The gateway is built after the worker; the callback reads it lazily (spec 108).
+let narrationSink:
+  | ((sessionId: string, part: NarrationPart) => void)
+  | undefined;
 const dmWorker = startDmWorker({
+  onNarrationStream: (sessionId, part) => narrationSink?.(sessionId, part),
   db,
   presence: presence.reader,
   gateway: aiGateway,
@@ -147,6 +153,7 @@ const gateway = createGateway({
 });
 // Every row the gate appends reaches the entitled subscribers (ws-delivery.md).
 gate.onAppended(gateway.publish);
+narrationSink = gateway.streamNarration;
 // Every committed action (and AI DM proposal decision) queues a DM turn.
 gate.onAppended(dmEnqueuer.onAppended);
 // The active human leaving arms the AI DM's absence wait (specs/049-turn-floor R10).

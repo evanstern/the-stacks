@@ -92,6 +92,7 @@ describe("replay/live boundary (research D1, deterministic)", () => {
       },
       seatOf: () => ({ kind: "ai" }),
       setSeat: () => {},
+      bufferedNarration: () => [],
       broadcast(_sid: string, frame: RecordedEventFrame) {
         if (conn.pendingQueue) conn.pendingQueue.push(frame.event);
         else conn.socket.send(JSON.stringify(frame));
@@ -149,6 +150,7 @@ describe("replay/live boundary (research D1, deterministic)", () => {
       },
       seatOf: () => ({ kind: "ai" }),
       setSeat: () => {},
+      bufferedNarration: () => [],
       broadcast(_sid: string, frame: RecordedEventFrame) {
         if (conn.pendingQueue) conn.pendingQueue.push(frame.event);
         else conn.socket.send(JSON.stringify(frame));

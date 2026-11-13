@@ -25,13 +25,13 @@ in the brief.
 
 ## Phase 3: Delivery and C-GATE amendments
 
-- [ ] T013 In `apps/server/src/ws/protocol.ts`, add `NarrationStreamFrame` and the `OutboundFrame` member. Note the amendment in the header comment.
-- [ ] T014 In `apps/server/src/ws/registry.ts`, add the in-flight buffer, `streamNarration` and `endNarration` per plan D4. Filter with `canSee(viewerFor(conn, seat), "public")`. Skip mid-replay connections. Drop a buffer idle for `LEASE_MS`.
-- [ ] T015 In `apps/server/src/ws/subscribe.ts`, send the buffered frames after `replay-complete` and the drained queue.
-- [ ] T016 In `apps/server/src/ws/gateway.ts`, expose `streamNarration`. In `publish`, call `endNarration` before broadcasting an `ai:dm` `narration` event. Wire `onNarrationStream` in `apps/server/src/index.ts`.
-- [ ] T017 Write `apps/server/test/ws.narration-stream.integration.test.ts`: two players and a human DM receive parts; a mid-replay connection gets parts only after `replay-complete`; a late joiner gets rows and prose so far, then the `narration` event, then nothing more for that job. Extend `ws.protocol.test.ts` for the frame shape.
-- [ ] T018 Write `apps/server/test/dm/narration-stream-gate.integration.test.ts` (AC #4): a fake gateway pauses mid-narrate; `gate.handle` of an `intent` returns ok in free mode and for the floor holder in turn mode; release; the narration row ships.
-- [ ] T019 Add the C-GATE amendment blocks to `specs/006-ws-gateway/contracts/ws-protocol.md` and `specs/030-play-route/contracts/live-frames.md`. Quote the operator's ruling.
+- [x] T013 In `apps/server/src/ws/protocol.ts`, add `NarrationStreamFrame` and the `OutboundFrame` member. Note the amendment in the header comment.
+- [x] T014 In `apps/server/src/ws/registry.ts`, add the in-flight buffer, `streamNarration` and `endNarration` per plan D4. Filter with `canSee(viewerFor(conn, seat), "public")`. Skip mid-replay connections. Drop a buffer idle for `LEASE_MS`.
+- [x] T015 In `apps/server/src/ws/subscribe.ts`, send the buffered frames after `replay-complete` and the drained queue.
+- [x] T016 In `apps/server/src/ws/gateway.ts`, expose `streamNarration`. In `publish`, call `endNarration` before broadcasting an `ai:dm` `narration` event. Wire `onNarrationStream` in `apps/server/src/index.ts`.
+- [x] T017 Write `apps/server/test/ws.narration-stream.integration.test.ts`: two players and a human DM receive parts; a mid-replay connection gets parts only after `replay-complete`; a late joiner gets rows and prose so far, then the `narration` event, then nothing more for that job. Extend `ws.protocol.test.ts` for the frame shape.
+- [x] T018 Write `apps/server/test/dm/narration-stream-gate.integration.test.ts` (AC #4): a fake gateway pauses mid-narrate; `gate.handle` of an `intent` returns ok in free mode and for the floor holder in turn mode; release; the narration row ships.
+- [x] T019 Add the C-GATE amendment blocks to `specs/006-ws-gateway/contracts/ws-protocol.md` and `specs/030-play-route/contracts/live-frames.md`. Quote the operator's ruling.
 
 ## Phase 4: Web rendering
 
