@@ -43,6 +43,7 @@ Spec: specs/091-mud-stream-and-composer
 - [x] #6 Spec phase: Wiki re-ground
 - [x] #7 Spec phase: Verify
 - [ ] #8 Spec phase: Scene fields and seed ways (R1; FR-008 data; plan D1, D2, DA4, D8)
+- [ ] #9 Spec phase: Stream items and the narration filter (US3, US6; FR-006, FR-007, FR-026, FR-027, FR-029 data; plan D3, DA1, DA2)
 <!-- AC:END -->
 
 ## Definition of Done
