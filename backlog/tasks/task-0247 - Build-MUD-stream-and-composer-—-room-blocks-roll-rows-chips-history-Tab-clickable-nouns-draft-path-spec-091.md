@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: 2026-11-05 05:48
-updated_date: '2026-11-13T15:33:00Z'
+updated_date: '2026-11-13T15:42:00Z'
 labels:
   - web
   - ux
@@ -112,4 +112,10 @@ Phase 5 landed c3a6486c: 11 NEEDS-REVIEW notes (gate list, wider than tasks.md's
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5 (live-check verifier)
 
 Live check a66b84c2: 8/8 pass, no modal, no overflow. Findings triaged by orchestrator: (1) Rules chip hides narration why/ruling/State rules lines -> breaks FR-009, fix; (2) echoed declaration dialogue row ends with a stray ". -> fix; (3) roll detail repeats the d20 face -> fix; (4) Table talk hides the room block -> correct per FR-009 (room = In character), no change.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5 (live-check fixes)
+
+Dispatch: tier=haiku pinned=cc/claude-haiku-5-5 served=cc/claude-haiku-5-5 (play-route re-pin)
+
+Live-check fixes 84636aab (rules lines as Rules items, restate quote-period stripped, roll face list once); play-route re-verified and re-pinned 86c7450d.
 <!-- SECTION:NOTES:END -->
