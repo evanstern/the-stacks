@@ -4,6 +4,7 @@ title: Speaker listbox returns focus to the Speaker button
 status: To Do
 assignee: []
 created_date: '2026-11-12T06:34:00Z'
+updated_date: '2026-11-13T14:27:00Z'
 labels:
   - web
   - ws:table-ux
@@ -31,3 +32,9 @@ Found in the TASK-0315 live check (PR #171, specs/105-one-composer-web/evidence/
 - [ ] #1 All tests and checks run green
 - [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Operator C-AMD ruling 2026-11-13 on spec 091: "Approve all". Spec 091 OQ-A12: folded into TASK-0329 (its AC #5). Archived as covered.
+<!-- SECTION:NOTES:END -->
