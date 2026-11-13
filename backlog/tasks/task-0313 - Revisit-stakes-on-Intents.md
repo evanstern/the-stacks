@@ -4,7 +4,7 @@ title: 'Revisit: stakes on Intents'
 status: To Do
 assignee: []
 created_date: '2026-11-11T19:51:00Z'
-updated_date: '2026-11-12T18:22:00Z'
+updated_date: '2026-11-13T02:31:00Z'
 labels:
   - ws:intent
   - replan-2026-11
@@ -24,6 +24,7 @@ Spec 097 OQ-5 and spec 104 OQ-6: band effects and the free retry (autoSuccess) r
 <!-- AC:BEGIN -->
 - [ ] #1 Stakes ride the Intent contract (minor version, C-CON recorded) and the planner plans band effects in code.
 - [ ] #2 The beside path in resolve.ts is deleted.
+- [ ] #3 Band effect amounts derive from an SRD hazard record or a stat, never model dice (spec 109 OQ-1).
 <!-- AC:END -->
 
 ## Definition of Done
