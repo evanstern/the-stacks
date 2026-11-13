@@ -104,3 +104,41 @@ test("events keep accumulating after presence and unknown frames", () => {
   assert.equal(s.highestSeq, 4);
   assert.deepEqual(s.present, []);
 });
+
+const part = (jobId, slot, text) => ({
+  type: "narration-stream",
+  sessionId: "s",
+  jobId,
+  slot,
+  text,
+});
+
+test("narration-stream: parts accumulate per slot, a new job restarts, end clears", () => {
+  let s = reduceFrame(initialFrameState, part("j1", "rows", "Check: 15"));
+  s = reduceFrame(s, part("j1", "describe", "The shutter gives."));
+  s = reduceFrame(s, part("j1", "describe", " Dust falls."));
+  assert.deepEqual(s.stream, {
+    jobId: "j1",
+    rows: "Check: 15",
+    restate: "",
+    describe: "The shutter gives. Dust falls.",
+    ask: "",
+  });
+  s = reduceFrame(s, part("j2", "rows", "new"));
+  assert.equal(s.stream.jobId, "j2");
+  assert.equal(s.stream.describe, "");
+  // A stale job's end does not clear the live stream.
+  assert.notEqual(reduceFrame(s, part("j1", "end", "")).stream, null);
+  assert.equal(reduceFrame(s, part("j2", "end", "")).stream, null);
+});
+
+test("narration-stream: the settled ai:dm narration event clears it; other events do not", () => {
+  let s = reduceFrame(initialFrameState, part("j1", "rows", "r"));
+  s = reduceFrame(s, { type: "event", event: { ...ev(1), type: "talk" } });
+  assert.notEqual(s.stream, null);
+  s = reduceFrame(s, {
+    type: "event",
+    event: { ...ev(2), type: "narration", actor: "ai:dm" },
+  });
+  assert.equal(s.stream, null);
+});

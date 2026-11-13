@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { parseInboundFrame } from "../src/ws/protocol.js";
+import {
+  type NarrationStreamFrame,
+  parseInboundFrame,
+} from "../src/ws/protocol.js";
 
 /**
  * T003: frame parsing, no socket and no database (contracts/ws-protocol.md).
@@ -88,5 +91,34 @@ describe("ws protocol — parseInboundFrame", () => {
       expect(result.frame).not.toHaveProperty("seq");
       expect(result.frame).not.toHaveProperty("ts");
     }
+  });
+});
+
+describe("ws protocol — narration-stream frame (spec 108)", () => {
+  it("is server-to-client only: an inbound narration-stream frame is refused", () => {
+    expect(
+      parseInboundFrame(
+        JSON.stringify({
+          type: "narration-stream",
+          sessionId: "123e4567-e89b-12d3-a456-426614174000",
+          jobId: "j",
+          slot: "rows",
+          text: "t",
+        }),
+      ).ok,
+    ).toBe(false);
+  });
+
+  it("has the shape the contract names", () => {
+    const frame: NarrationStreamFrame = {
+      type: "narration-stream",
+      sessionId: "s",
+      jobId: "j",
+      slot: "end",
+      text: "",
+    };
+    expect(Object.keys(frame).sort()).toEqual(
+      ["jobId", "sessionId", "slot", "text", "type"].sort(),
+    );
   });
 });

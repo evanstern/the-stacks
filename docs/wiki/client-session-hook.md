@@ -7,12 +7,12 @@ sources:
   - apps/web/app/ws/types.ts
   - apps/web/app/routes/play.tsx
   - apps/web/app/play/reduce-frame.ts
-verified_against: 095b85f615387975ce3ae59a3c95aa46ca903b10
+verified_against: 753a40d24fb9ad9cf5874a29cca6736ed444a8a5
 ---
 
 # Client session hook
 
-`useSession(sessionId, onSignedOut)` returns `{ events, status, caughtUp, notice, present, sendEvent, resync }`
+`useSession(sessionId, onSignedOut)` returns `{ events, status, caughtUp, notice, present, stream, sendEvent, resync }`
 and is the client half of [[replay-live-boundary]]: it opens the socket,
 tracks the events it's been shown, and reconnects on drop. `types.ts` is a hand-kept mirror of
 [[ws-protocol]]'s `RecordedEvent`/`ServerFrame` shapes — not a shared import from the server
@@ -29,7 +29,7 @@ sent verbatim as `afterSeq` on every `subscribe` frame, including reconnects.
 
 **Replayed and live events go through one path.** The `message` listener has no notion of
 "replay phase" — every frame is folded by `play/reduce-frame.ts`'s `reduceFrame` into
-`FrameState` (`events`, `highestSeq`, `caughtUp`, `notice`, `present`), and an `event` frame also updates
+`FrameState` (`events`, `highestSeq`, `caughtUp`, `notice`, `present`, `stream`), and an `event` frame also updates
 `highestSeqRef`, whether it arrived before or after `replay-complete`. `replay-complete` only
 flips `caughtUp`, which the table view uses to show/hide a loading message; it's not
 load-bearing for correctness, matching [[ws-protocol]]'s note that the frame exists for UX,
@@ -40,6 +40,12 @@ who is at the table, and the next subscribe brings a fresh snapshot. `reduceFram
 `default` branch that returns the state unchanged, so a frame type the client does not know is
 ignored rather than throwing ([[presence]]). An `error` frame sets `notice` to `message (code)` (the optional `code` is the
 gate's refusal code; for the three floor refusals `FLOOR_NOT_HELD`, `TURN_MOVED` and `NOT_TURN_MODE` the message is replaced by `labels.ts`'s plain wording) and never closes the socket (FR-015); see [[play-route]].
+
+**In-flight narration (spec 108).** A `narration-stream` frame folds into `FrameState.stream`
+(`{ jobId, rows, restate, describe, ask }`): each part appends to its slot, and a part with a new
+`jobId` starts a fresh stream. An `end` for the current job clears it, and so does an `event`
+frame of type `narration` by `ai:dm` (the settled row replaces the block). The hook returns it as
+`stream`; `types.ts` mirrors the frame. See [[play-route]].
 
 **Reconnect uses a preflight, not a raw retry.** Before opening a new `WebSocket`, `attempt()`
 calls `GET /auth/me`. This exists because **the browser `WebSocket` API never exposes the HTTP

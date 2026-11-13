@@ -30,6 +30,14 @@ export type ServerFrame =
   | { type: "replay-complete"; throughSeq: number }
   | { type: "presence"; sessionId: string; present: PresenceEntry[] }
   | {
+      /** Ephemeral in-flight narration part (spec 108); never in the log. */
+      type: "narration-stream";
+      sessionId: string;
+      jobId: string;
+      slot: "rows" | "restate" | "describe" | "ask" | "end";
+      text: string;
+    }
+  | {
       type: "error";
       kind: "validation" | "forbidden" | "internal";
       message: string;

@@ -34,7 +34,7 @@ sources:
   - apps/server/test/ai-round.bench-test.ts
   - tsconfig.json
 size_budget_exempt: spec 102 adds the server tsconfig reference to packages/intent in the one test-suite note; the suite map does not split without a TASK of its own
-verified_against: a13be04e8a7cb8310bd0d5cfa3a518c5c29c310f
+verified_against: 753a40d24fb9ad9cf5874a29cca6736ed444a8a5
 ---
 
 # Test suite
@@ -50,7 +50,7 @@ TASK-0048 added `test/playtest/` ([[playtest-harness]]): unit files, three datab
 TASK-0045 added gate suites at the same level: `gate.integration.test.ts` (incl. the absent-declare refusal and the presence-plus-order batch) and
 `gate.restart.integration.test.ts` (database-gated; approvals, restart) and `write-boundary.test.ts` (no database; AC #1 import-graph check, plus only `resolve.ts` and `intent-runner.ts` (spec 104) build `scene-presence` and only `dm/floor.ts` builds `floor` proposals, [[turn-floor]]; spec 066 adds two pins: only `dm/talk-turn.ts` builds an `action.suggest` proposal and no `src/` file builds `action.accept`). It extended `events.integration.test.ts` (`expectedLastSeq`,
 `SeqConflictError`, `readLatestOfType`), `ws.integration.test.ts` (per-viewer delivery, the
-send-path classification, `UNKNOWN_EVENT_TYPE`, error `code`; `sendTalkAndAwait` no longer resends on `CONFLICT`) and `ws.subscribe.test.ts` (the DM-seat subscribe race).
+send-path classification, `UNKNOWN_EVENT_TYPE`, error `code`; `sendTalkAndAwait` no longer resends on `CONFLICT`) and `ws.subscribe.test.ts` (the DM-seat subscribe race). Spec 108 adds `ws.narration-stream.integration.test.ts` (per-viewer parts, late-joiner replay after `replay-complete`, `end` before the settled row, buffer cleared on `end`) and `dm/narration-stream-gate.integration.test.ts` (an intent is accepted while narrate is paused).
 TASK-0157 added a retry-wait test and a "per-session ordering" suite (burst fan-out, `recordPresence`, isolation) to `gate.integration.test.ts`, an all-in-flight burst to `ws.integration.test.ts`, and a `CONFLICT` label case to `apps/web/test/play/reduce-frame.test.mjs`.
 Spec 104 migrated the scripted turn tests and `test/dm/scripts/*.json` to Intent stages and added `intent-runner.integration.test.ts`, `interpret-intents.test.ts` and `narrate-window.test.ts`; `scene.integration.test.ts` now expects the social check ruled by a `ruling` Intent (an `intent.recorded` row answering `act-persuade.0`), not a `ruling-` journal entry. TASK-0046 added `apps/server/test/dm/` (unit tests and `skipIf(!reachable)` integration suites over a scripted `FakeProvider`; see [[dm-runtime]]).
 It also extended `ai.gateway`-level fake scripting (`scriptChatFor`, `strict`; [[ai-gateway]]).

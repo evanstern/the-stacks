@@ -397,6 +397,10 @@ export function createGateway({
   /** Broadcasts stored rows in order; each subscriber receives only what it may see. */
   function publish(sessionId: string, events: readonly StoredEvent[]): void {
     for (const event of events) {
+      // The settled narration row replaces the stream: `end` leaves first, then the row.
+      if (event.type === "narration" && event.actor === "ai:dm") {
+        registry.endNarration(sessionId);
+      }
       const eventFrame: RecordedEventFrame = {
         type: "event",
         event: {
@@ -414,7 +418,15 @@ export function createGateway({
     }
   }
 
-  return { attach, registry, publish, close };
+  /** Spec 108: ephemeral narration part from the DM worker; never logged. */
+  function streamNarration(
+    sessionId: string,
+    part: Parameters<typeof registry.streamNarration>[1],
+  ): void {
+    registry.streamNarration(sessionId, part);
+  }
+
+  return { attach, registry, publish, streamNarration, close };
 }
 
 export type Gateway = ReturnType<typeof createGateway>;

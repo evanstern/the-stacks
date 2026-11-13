@@ -8,6 +8,9 @@ import type { PresenceEntry } from "../presence/index.js";
  * Amended once by decision-0024 (TASK-0051): the optional `subscribe.presence`
  * field and the `presence` frame, plus the protocol-level heartbeat. See
  * specs/035-presence/contracts/ws-presence.md.
+ * Amended again by spec 108 (TASK-0298, C-GATE, operator ruling 2026-11-12):
+ * the additive `narration-stream` frame. See the amendment block in
+ * specs/006-ws-gateway/contracts/ws-protocol.md.
  */
 
 /** Client -> server: join a session and (later, US3) begin replay. */
@@ -88,10 +91,23 @@ export interface PresenceFrame {
   present: readonly PresenceEntry[];
 }
 
+/**
+ * Server -> client: one ephemeral narration part (spec 108). Never logged, never
+ * appended, never replayed from the log; filtered per recipient at `public`.
+ */
+export interface NarrationStreamFrame {
+  type: "narration-stream";
+  sessionId: string;
+  jobId: string;
+  slot: "rows" | "restate" | "describe" | "ask" | "end";
+  text: string;
+}
+
 export type OutboundFrame =
   | RecordedEventFrame
   | ReplayCompleteFrame
   | PresenceFrame
+  | NarrationStreamFrame
   | ErrorFrame;
 
 /**

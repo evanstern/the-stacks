@@ -4,7 +4,7 @@ description: The WebSocket gateway — upgrade-time authentication (a socket onl
 kind: component
 sources:
   - apps/server/src/ws/gateway.ts
-verified_against: bfb65a157559c88bf988a6c0f55b7c03824ff412
+verified_against: 753a40d24fb9ad9cf5874a29cca6736ed444a8a5
 ---
 
 # WebSocket gateway
@@ -67,10 +67,16 @@ times in a row ([[proposal-gate]]); the gate writes zero rows then. The gateway 
 and does not retry; the play client labels it ([[play-route]]).
 
 `createGateway` now requires a `gate` option; `index.ts` creates it and wires
-`gate.onAppended(gateway.publish)`. The gateway returns `{ attach, registry, publish, close }`; it takes an optional `presence`
+`gate.onAppended(gateway.publish)`. The gateway returns `{ attach, registry, publish, streamNarration, close }`; it takes an optional `presence`
 tracker (default: a private one) and `heartbeatIntervalMs`.
 `publish(sessionId, events)` broadcasts stored rows in order through [[subscriber-registry]],
 which filters per viewer. `sendError` takes an optional `code`.
+
+**Narration stream (spec 108).** `streamNarration(sessionId, part)` hands one part from the DM
+worker to the registry, which delivers it and buffers it for late joiners ([[subscriber-registry]]).
+`index.ts` wires it through a late-bound sink, because the worker is built before the gateway.
+Before `publish` broadcasts an `ai:dm` `narration` event it calls `registry.endNarration`, so
+every subscriber sees `end` and then the settled row, in that order. The frame is not logged.
 
 ## Presence and heartbeat
 

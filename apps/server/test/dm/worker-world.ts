@@ -37,6 +37,7 @@ export function workerFor(
     loadSeed?: (seedId: string) => SceneSeed;
     heartbeatMs?: number;
     log?: (line: Record<string, unknown>) => void;
+    onNarrationStream?: DmWorkerDeps["onNarrationStream"];
   } = {},
 ) {
   const base = w.ctx().deps;
@@ -79,6 +80,7 @@ export function workerFor(
     presence: opts.presence,
     floorAbsenceWaitMs: opts.floorAbsenceWaitMs,
     floorStallWindowMs: opts.floorStallWindowMs,
+    onNarrationStream: opts.onNarrationStream,
     log: (l) => {
       opts.log?.(l);
       if (process.env.DM_TEST_LOG) console.log(l);

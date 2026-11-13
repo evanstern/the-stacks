@@ -8,6 +8,9 @@ import {
   renderRows,
 } from "../../src/dm/fact-sheet.js";
 import type { FactAction, NarrationFacts } from "../../src/dm/facts.js";
+import { createNarrationStream } from "../../src/dm/narration-stream.js";
+import { buildSnapshot } from "../../src/dm/snapshot/index.js";
+import { greyhollowFight } from "./snapshot-fixtures.js";
 
 const NAMES: Record<string, string> = {
   tamsin: "Tamsin Vale",
@@ -391,5 +394,53 @@ describe("fact sheet: digits come only from rows (constitution VII)", () => {
     const reply = composeReply(slots, s);
     for (const d of reply.match(/[0-9]/g) ?? []) expect(rowText).toContain(d);
     expect(parseSlots("[describe] Only 2.", s).describe).toBe("");
+  });
+});
+
+describe("fact sheet: stream parts hold digits only from rows (spec 108, constitution VII)", () => {
+  it("every digit in any stream part lies in a code-rendered row or the State line", () => {
+    const s = buildFactSheet(
+      input(
+        facts({
+          actions: [
+            action({
+              changes: [
+                {
+                  kind: "hp",
+                  target: "Snag",
+                  before: "7",
+                  after: "0",
+                } as never,
+              ],
+            }),
+          ],
+        }),
+      ),
+    );
+    const rows = [...s.rows.map((r) => r.text), s.state ?? ""];
+    const rowText = rows.join("\n");
+    const { projections, seed } = greyhollowFight();
+    const text =
+      "[restate] Tamsin means to hit Snag 3 times.\n[describe] Snag deals 7 damage. The mist thickens. He grins at 3 goblins. The reeds sway. Cold air stirs.\n[ask] What do the next 2 do?";
+    for (const step of [1, 4, 1000]) {
+      const st = createNarrationStream({
+        rows,
+        hasRoll: false,
+        snapshot: buildSnapshot(projections, seed),
+        dmOnlyText: [],
+        unmetSuccess: [],
+        departedIds: [],
+        sheet: s,
+      });
+      const parts = [];
+      for (let i = 0; i < text.length; i += step)
+        parts.push(...st.push(text.slice(i, i + step)));
+      const settled = parseSlots(text, s);
+      parts.push(...st.finish(settled));
+      expect(parts.length).toBeGreaterThan(0);
+      for (const p of [{ slot: "rows", text: rowText }, ...parts])
+        for (const d of p.text.match(/[0-9]/g) ?? [])
+          expect(rowText, `${p.slot} "${p.text}"`).toContain(d);
+    }
   });
 });

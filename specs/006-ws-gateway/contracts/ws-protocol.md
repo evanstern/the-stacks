@@ -130,3 +130,14 @@ client that may immediately send a good one.
 
 > Amended by decision-0024 and `specs/035-presence/contracts/ws-presence.md`: the optional
 > `subscribe.presence` field, the `presence` frame, and the protocol-level heartbeat.
+
+**Amendment (TASK-0298).** Amended 2026-11-12 (spec `specs/108-narration-stream`, plan.md "C-GATE: frozen contract amendments"). Additive.
+
+> "Approve all" (operator, C-GATE ruling, 2026-11-12)
+
+Server to client gains `narration-stream { sessionId, jobId, slot: "rows" | "restate" | "describe" | "ask" | "end", text }`.
+The frame is ephemeral. It is never appended, never logged and never replayed from the log.
+The server filters it per recipient with `canSee` at `public`.
+A subscriber receives the in-flight parts after `replay-complete`.
+Guarantee 1 ("appended before broadcast") applies to `event` frames only.
+No existing frame changes.

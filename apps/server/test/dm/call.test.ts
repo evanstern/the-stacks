@@ -400,6 +400,39 @@ describe("callText", () => {
     const r = await callText({ gateway }, rest);
     expect(r).toMatchObject({ ok: true, text: "The ferry groans." });
   });
+
+  it("calls onText per delta, survives a throwing observer, and reports firstTokenMs", async () => {
+    const { gateway } = gatewayOf([
+      [
+        { type: "text", text: "" },
+        { type: "text", text: "The ferry " },
+        { type: "text", text: "groans." },
+        { type: "done", usage },
+      ],
+    ]);
+    const { schema: _schema, ...rest } = req();
+    const seen: string[] = [];
+    const r = await callText(
+      { gateway },
+      {
+        ...rest,
+        onText: (d) => {
+          seen.push(d);
+          throw new Error("observer");
+        },
+      },
+    );
+    expect(seen).toEqual(["", "The ferry ", "groans."]);
+    expect(r).toMatchObject({ ok: true, text: "The ferry groans." });
+    if (r.ok) expect(r.firstTokenMs).toBeGreaterThanOrEqual(0);
+  });
+
+  it("reports a null firstTokenMs when no delta arrives", async () => {
+    const { gateway } = gatewayOf([[{ type: "done", usage }]]);
+    const { schema: _schema, ...rest } = req();
+    const r = await callText({ gateway }, rest);
+    expect(r).toMatchObject({ ok: true, firstTokenMs: null });
+  });
 });
 
 describe("stripThink", () => {

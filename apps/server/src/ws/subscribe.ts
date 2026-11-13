@@ -4,6 +4,7 @@ import { readFrom } from "../events/log.js";
 import type { PresenceReader } from "../presence/index.js";
 import { loadDmSeat } from "../session/events.js";
 import type {
+  NarrationStreamFrame,
   PresenceFrame,
   RecordedEventFrame,
   ReplayCompleteFrame,
@@ -20,7 +21,11 @@ const REPLAY_BATCH_SIZE = 200;
 
 function sendFrame(
   conn: Connection,
-  frame: RecordedEventFrame | ReplayCompleteFrame | PresenceFrame,
+  frame:
+    | RecordedEventFrame
+    | ReplayCompleteFrame
+    | PresenceFrame
+    | NarrationStreamFrame,
 ): void {
   if (conn.socket.readyState !== conn.socket.OPEN) return;
   conn.socket.send(JSON.stringify(frame));
@@ -125,6 +130,11 @@ export async function subscribe(
   for (const event of queued ?? []) {
     if (event.seq <= conn.replayedThroughSeq) continue;
     sendFrame(conn, { type: "event", event });
+  }
+
+  // Spec 108: the in-flight narration so far, after replay-complete and the queue.
+  for (const frame of registry.bufferedNarration(sessionId, conn)) {
+    sendFrame(conn, frame);
   }
 
   // decision-0024: the snapshot follows replay-complete (and the drained

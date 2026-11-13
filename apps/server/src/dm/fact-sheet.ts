@@ -417,8 +417,19 @@ export function defaultRestate(sheet: FactSheet): string {
 }
 
 // Label forms at line start: `[x]`, `[x]:`, `x:`, `**x:**`, `**x**:` (the model drifts from the bracket form).
-const TAG =
+export const TAG =
   /^[ \t]*(?:\[(restate|describe|ask)\]:?|\*\*(restate|describe|ask):?\*\*:?|(restate|describe|ask):)[ \t]*/gim;
+
+/** The sentence-ish pieces `dropDigitSentences` works on: a split after a sentence end, quotes kept. */
+export const PIECE_SPLIT = /(?<=[.!?]["'”’)]*)\s+/;
+
+/** Narration holds no digits (spec 103 FR-004): a sentence with one is dropped; rows carry numbers. */
+export function dropDigitSentences(t: string): string {
+  return t
+    .split(PIECE_SPLIT)
+    .filter((x) => !/[0-9]/.test(x))
+    .join(" ");
+}
 
 /** Parses the model's tagged text into validated slots (contract §5.1). */
 export function parseSlots(text: string, sheet: FactSheet): NarrationSlots {
@@ -460,14 +471,10 @@ export function parseSlots(text: string, sheet: FactSheet): NarrationSlots {
     ask = "";
   }
   if (sheet.ask) ask = sheet.ask;
-  // Narration holds no digits (spec 103 FR-004): a sentence with one is dropped; rows carry numbers.
-  const noDigits = (t: string): string =>
-    t
-      .split(/(?<=[.!?]["'”’)]*)\s+/)
-      .filter((x) => !/[0-9]/.test(x))
-      .join(" ");
-  if (!sheet.ask) ask = noDigits(ask);
-  const describe = dropStockEnding(clipProse(noDigits(slot("describe"))));
+  if (!sheet.ask) ask = dropDigitSentences(ask);
+  const describe = dropStockEnding(
+    clipProse(dropDigitSentences(slot("describe"))),
+  );
   return { restate, describe, ask };
 }
 

@@ -77,3 +77,9 @@ The `send` frame shape is unchanged.
 
 The `intent` request frame carries an `IntentSchema` value. `accept` and `suggest` frames keep their
 shape; the `suggest` payload items are `{ itemId, text, intent }` per C-1.
+
+**Amendment (TASK-0298).** Amended 2026-11-12 (spec `specs/108-narration-stream`, plan.md "C-GATE: frozen contract amendments"). Additive.
+
+> "Approve all" (operator, C-GATE ruling, 2026-11-12)
+
+`useSession` also returns `stream`: the in-flight narration, or `null`. No sent frame changes.

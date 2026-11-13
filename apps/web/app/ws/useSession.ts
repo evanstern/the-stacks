@@ -166,6 +166,7 @@ export function useSession(sessionId: string, onSignedOut: () => void) {
     caughtUp: frames.caughtUp,
     notice: frames.notice,
     present: frames.present,
+    stream: frames.stream,
     sendEvent,
     resync,
   };

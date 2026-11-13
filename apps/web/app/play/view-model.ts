@@ -15,6 +15,7 @@ import { type CommitAuthority, commitAuthorityFor } from "./authority.ts";
 import { actorLabel, characterLabel, kindLabel } from "./labels.ts";
 import { type LedgerItem, toLedgerItems } from "./ledger-format.ts";
 import type { PendingProposalView } from "./proposals.ts";
+import type { NarrationStream } from "./reduce-frame.ts";
 import { type SceneChangeView, sceneChangeView } from "./scene-seeds.ts";
 import { type TableModeView, tableModeView } from "./table-mode.ts";
 
@@ -119,6 +120,13 @@ export type TranscriptItem =
       declaredIntent: Intent | null;
     }
   | { kind: "narration"; seq: number; text: string }
+  | {
+      /** The in-flight DM narration (spec 108). Sorts after every settled item. */
+      kind: "narration-stream";
+      seq: number;
+      rows: string;
+      prose: string;
+    }
   | { kind: "action"; seq: number; card: ActionCardView }
   | { kind: "floor"; seq: number; text: string };
 
@@ -173,6 +181,8 @@ export interface ViewModelInput {
   proposals: readonly PendingProposalView[];
   /** User ids at the table; null or omitted when presence is unknown. */
   present?: readonly string[] | null;
+  /** The in-flight DM narration; null or omitted when none. */
+  stream?: NarrationStream | null;
 }
 
 function toViewAuthority(
@@ -433,6 +443,15 @@ export function toTableViewModel(
     });
   }
   transcript.sort((a, b) => a.seq - b.seq);
+  if (input.stream) {
+    const { rows, restate, describe, ask } = input.stream;
+    transcript.push({
+      kind: "narration-stream",
+      seq: (transcript.at(-1)?.seq ?? 0) + 1,
+      rows,
+      prose: [restate, describe, ask].filter(Boolean).join(" "),
+    });
+  }
 
   const controlled =
     viewer.role === "player"

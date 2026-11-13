@@ -22,6 +22,8 @@ export interface CallRequest {
   signal: AbortSignal;
   /** Applied to the parsed JSON before the schema runs, on every attempt. */
   normalize?: (json: unknown) => unknown;
+  /** Called with each text delta as it arrives (narrate streams through it). A throw never breaks the call. */
+  onText?: (delta: string) => void;
 }
 
 export type CallFailure = {
@@ -35,7 +37,13 @@ export type JsonResult<T> =
   | CallFailure;
 
 export type TextResult =
-  | { ok: true; text: string; calls: ModelCallRecord[] }
+  | {
+      ok: true;
+      text: string;
+      calls: ModelCallRecord[];
+      /** Ms from the `chat()` call to the first non-empty delta; null when none arrived. */
+      firstTokenMs: number | null;
+    }
   | CallFailure;
 
 type Collected =
@@ -46,6 +54,7 @@ type Collected =
       /** One source for the log line: the provider hit its output cap. */
       truncated: boolean;
       usage: UsageRecord | null;
+      firstTokenMs: number | null;
     }
   | {
       ok: false;
@@ -188,6 +197,8 @@ async function collect(
   let outputTokens: number | null = null;
   let usage: UsageRecord | null = null;
   let failed: { kind: ErrorKind; message: string } | null = null;
+  let firstTokenMs: number | null = null;
+  const t0 = performance.now();
   for await (const event of deps.gateway.chat({
     purpose: req.purpose,
     system: req.system,
@@ -198,8 +209,19 @@ async function collect(
       usage = r;
     },
   })) {
-    if (event.type === "text") text += event.text;
-    else if (event.type === "done") outputTokens = event.usage.outputTokens;
+    if (event.type === "text") {
+      text += event.text;
+      if (event.text && firstTokenMs === null) {
+        firstTokenMs = Math.round(performance.now() - t0);
+      }
+      if (req.onText) {
+        try {
+          req.onText(event.text);
+        } catch {
+          // An observer must never break the call.
+        }
+      }
+    } else if (event.type === "done") outputTokens = event.usage.outputTokens;
     else if (event.type === "error") {
       failed = { kind: event.kind, message: event.message };
       // Leave the loop so the gateway's `finally` runs (and fires onUsage)
@@ -224,6 +246,7 @@ async function collect(
     outputTokens,
     truncated: (usage as UsageRecord | null)?.truncated === true,
     usage,
+    firstTokenMs,
   };
 }
 
@@ -440,5 +463,10 @@ export async function callText(
     result.usage,
     calls,
   );
-  return { ok: true, text: stripThink(result.text), calls };
+  return {
+    ok: true,
+    text: stripThink(result.text),
+    calls,
+    firstTokenMs: result.firstTokenMs,
+  };
 }

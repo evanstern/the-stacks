@@ -73,7 +73,7 @@ const truncate = (s: string): string => {
 };
 
 /** Sentences as `[original, masked]` pairs; a quote never splits a sentence. */
-function sentencesOf(text: string): { raw: string; masked: string }[] {
+export function sentencesOf(text: string): { raw: string; masked: string }[] {
   const masked = maskQuotes(text);
   const out: { raw: string; masked: string }[] = [];
   for (const m of masked.matchAll(/[^.!?\n]+(?:[.!?]+["'”’)]*|$)/g)) {

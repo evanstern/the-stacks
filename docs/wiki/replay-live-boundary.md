@@ -4,7 +4,7 @@ description: The algorithm that delivers a reconnecting client its missed events
 kind: pipeline
 sources:
   - apps/server/src/ws/subscribe.ts
-verified_against: a10626b197d0bf98fc8949c4d8f2a2b7eeb9b10c
+verified_against: 753a40d24fb9ad9cf5874a29cca6736ed444a8a5
 ---
 
 # Replay/live boundary
@@ -63,7 +63,12 @@ a concurrent broadcast set during the await wins over the load, and only otherwi
 seat cached. `viewerFor(conn, seat)` gives the replay's `Viewer`. This closes the DM-seat
 subscribe race fixed in TASK-0045.
 
-5. **Sends a presence snapshot, if opted in.** After the drain, a connection with
+5. **Sends the in-flight narration, if any** (spec 108). After the drain, `subscribe()` sends the
+   frames `registry.bufferedNarration(sessionId, conn)` returns: the `narration-stream` parts so
+   far for the running job, filtered with `canSee` at `public`. A late joiner thus sees the rows
+   and prose so far after `replay-complete`, then live parts, then the settled row. Parts are
+   ephemeral, so they sit outside the cursor and the exactly-once machinery.
+6. **Sends a presence snapshot, if opted in.** After the drain, a connection with
    `wantsPresence` gets one `presence` frame from the tracker's reader (`subscribe` takes an
    optional `presence` dep). It comes after `replay-complete` and the drained queue, and it is
    outside the exactly-once machinery: a snapshot is the whole set, so it needs no cursor

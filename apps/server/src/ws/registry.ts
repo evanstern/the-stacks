@@ -6,7 +6,12 @@ import {
 } from "@the-stacks/session-model";
 import type { WebSocket } from "ws";
 import type { Role } from "../auth/session.js";
-import type { PresenceFrame, RecordedEventFrame } from "./protocol.js";
+import { LEASE_MS } from "../jobs/queue.js";
+import type {
+  NarrationStreamFrame,
+  PresenceFrame,
+  RecordedEventFrame,
+} from "./protocol.js";
 
 /**
  * One open, authenticated WebSocket (data-model.md, "Connection"). Built
@@ -88,6 +93,12 @@ export function createRegistry() {
   /** One DM seat per subscribed session; deleted with the session's last subscriber. */
   const seatBySession = new Map<string, DmSeat>();
 
+  /** Spec 108: the in-flight narration per session, for late joiners. Ephemeral; never logged. */
+  const streamBySession = new Map<
+    string,
+    { jobId: string; frames: NarrationStreamFrame[]; lastAt: number }
+  >();
+
   function setSeat(sessionId: string, seat: DmSeat): void {
     seatBySession.set(sessionId, seat);
   }
@@ -119,6 +130,7 @@ export function createRegistry() {
       if (set.size === 0) {
         bySession.delete(conn.sessionId);
         seatBySession.delete(conn.sessionId);
+        streamBySession.delete(conn.sessionId);
       }
     }
     conn.sessionId = null;
@@ -202,6 +214,90 @@ export function createRegistry() {
     }
   }
 
+  function sendStream(
+    sessionId: string,
+    frame: NarrationStreamFrame,
+    skipReplaying: boolean,
+  ): void {
+    const set = bySession.get(sessionId);
+    if (!set) return;
+    const message = JSON.stringify(frame);
+    const seat = seatBySession.get(sessionId) ?? AI_SEAT;
+    for (const conn of set) {
+      if (skipReplaying && conn.pendingQueue !== null) continue;
+      if (conn.socket.readyState !== conn.socket.OPEN) continue;
+      if (!canSee(viewerFor(conn, seat), "public")) continue;
+      try {
+        conn.socket.send(message);
+      } catch (err) {
+        console.error("ws: narration-stream send failed", err);
+      }
+    }
+  }
+
+  /**
+   * Spec 108: delivers one narration part and buffers it for late joiners. A new
+   * `jobId` replaces the buffer; `end` sends, then deletes it. Never logged.
+   */
+  function streamNarration(
+    sessionId: string,
+    part: Pick<NarrationStreamFrame, "jobId" | "slot" | "text">,
+  ): void {
+    const now = Date.now();
+    // A buffer idle for LEASE_MS belongs to a dead worker.
+    for (const [id, buf] of streamBySession) {
+      if (now - buf.lastAt > LEASE_MS) streamBySession.delete(id);
+    }
+    const frame: NarrationStreamFrame = {
+      type: "narration-stream",
+      sessionId,
+      ...part,
+    };
+    let buf = streamBySession.get(sessionId);
+    if (part.slot === "end") {
+      // The settled row already ended this job (endNarration): nothing more to say.
+      if (!buf || buf.jobId !== part.jobId) return;
+      streamBySession.delete(sessionId);
+    } else {
+      if (!buf || buf.jobId !== part.jobId) {
+        buf = { jobId: part.jobId, frames: [], lastAt: now };
+        streamBySession.set(sessionId, buf);
+      }
+      buf.frames.push(frame);
+      buf.lastAt = now;
+    }
+    sendStream(sessionId, frame, true);
+  }
+
+  /** The settled row is about to publish: end the in-flight job's stream for everyone. */
+  function endNarration(sessionId: string): void {
+    const buf = streamBySession.get(sessionId);
+    if (!buf) return;
+    streamBySession.delete(sessionId);
+    sendStream(
+      sessionId,
+      {
+        type: "narration-stream",
+        sessionId,
+        jobId: buf.jobId,
+        slot: "end",
+        text: "",
+      },
+      true,
+    );
+  }
+
+  /** The buffered in-flight frames `conn` may see; empty when it must not see public narration. */
+  function bufferedNarration(
+    sessionId: string,
+    conn: Connection,
+  ): NarrationStreamFrame[] {
+    const buf = streamBySession.get(sessionId);
+    if (!buf) return [];
+    const seat = seatBySession.get(sessionId) ?? AI_SEAT;
+    return canSee(viewerFor(conn, seat), "public") ? [...buf.frames] : [];
+  }
+
   function subscriberCount(sessionId: string): number {
     return bySession.get(sessionId)?.size ?? 0;
   }
@@ -211,6 +307,9 @@ export function createRegistry() {
     unsubscribe,
     broadcast,
     sendPresence,
+    streamNarration,
+    endNarration,
+    bufferedNarration,
     subscriberCount,
     setSeat,
     seatOf,

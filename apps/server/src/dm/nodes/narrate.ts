@@ -16,6 +16,10 @@ import {
 } from "../facts.js";
 import { openFollowUps } from "../follow-ups.js";
 import { type CheckIssue, checkNarration } from "../narration-check.js";
+import {
+  createNarrationStream,
+  type NarrationStream,
+} from "../narration-stream.js";
 import { hasCountClaim } from "../narration-words.js";
 import { callText } from "../pipeline/call.js";
 import type {
@@ -30,6 +34,7 @@ import { PURPOSE_OF } from "../purposes.js";
 import { dmOnlySeedText, playerFacingSeed } from "../seed/views.js";
 import type { ActorSnapshot } from "../snapshot/index.js";
 import type { AssembleOutput } from "./assemble.js";
+import { checkBase } from "./check.js";
 
 /**
  * The narrate node (contracts/nodes.md "narrate"). It receives resolved
@@ -67,6 +72,18 @@ export interface NarrateOutput {
   narrateError: string | null;
   /** Spec 104 FR-018: the window's upper bound `W1`; absent when nothing was narrated. */
   factsThrough?: number;
+  /** Spec 108: the stream parser; `check` calls `finish`. Absent when skipped or no stream is wired. */
+  stream?: NarrationStream;
+  /** Spec 108 FR-009. `check` fills `firstProse*` when the first prose part leaves, and records them. */
+  timing?: NarrateTiming;
+}
+
+export interface NarrateTiming {
+  /** `performance.now()` at narrate start. */
+  startedAt: number;
+  firstTokenMs: number | null;
+  firstProseMs: number | null;
+  firstProseAt: string | null;
 }
 
 /** The state a withheld-text check runs against (spec 103 plan D3). */
@@ -191,6 +208,10 @@ export async function narrateAttempt(
   facts: NarrationFacts,
   snapshot: ActorSnapshot,
   sheet: FactSheet,
+  live?: {
+    onText: (delta: string) => void;
+    timing: NarrateTiming;
+  },
 ): Promise<AttemptResult> {
   const prompt = buildNarratePrompt({
     seed: playerFacingSeed(ctx.seed),
@@ -206,8 +227,10 @@ export async function narrateAttempt(
     system: prompt.system,
     user: prompt.user,
     signal: ctx.signal,
+    ...(live ? { onText: live.onText } : {}),
   });
   if (!result.ok) return result;
+  if (live) live.timing.firstTokenMs = result.firstTokenMs;
   const slots = parseSlots(result.text, sheet);
   return { ok: true, prose: proseOf(slots), slots, calls: result.calls };
 }
@@ -384,12 +407,47 @@ export const narrate: Node<"narrate"> = async (ctx) => {
     };
   }
 
+  // Spec 108 D3: the rows leave before the model call; deltas feed the stream parser.
+  const send = ctx.deps.streamNarration;
+  const base = send ? checkBase(ctx, facts, sheet) : null;
+  const timing: NarrateTiming = {
+    startedAt: performance.now(),
+    firstTokenMs: null,
+    firstProseMs: null,
+    firstProseAt: null,
+  };
+  let stream: NarrationStream | undefined;
+  let live: Parameters<typeof narrateAttempt>[5];
+  if (send && base) {
+    const rowsText = sheet.rows
+      .map((r) => r.text)
+      .concat(sheet.state ?? [])
+      .join("\n");
+    send({ jobId: ctx.job.id, slot: "rows", text: rowsText });
+    stream = createNarrationStream({ ...base, sheet });
+    const parser = stream;
+    live = {
+      timing,
+      onText: (delta) => {
+        for (const p of parser.push(delta)) {
+          if (timing.firstProseMs === null) {
+            timing.firstProseMs = Math.round(
+              performance.now() - timing.startedAt,
+            );
+            timing.firstProseAt = new Date().toISOString();
+          }
+          send({ jobId: ctx.job.id, ...p });
+        }
+      },
+    };
+  }
   const result = await narrateAttempt(
     ctx,
     assembled,
     facts,
     resolve.snapshot,
     sheet,
+    live,
   );
   if (!result.ok) {
     if (result.error.kind === "aborted" || result.error.kind === "fenced") {
@@ -419,6 +477,7 @@ export const narrate: Node<"narrate"> = async (ctx) => {
         withheld,
         narrateError: result.error.kind,
         factsThrough: w1,
+        ...(stream ? { stream, timing } : {}),
       },
     };
   }
@@ -439,6 +498,7 @@ export const narrate: Node<"narrate"> = async (ctx) => {
       withheld,
       narrateError: null,
       factsThrough: w1,
+      ...(stream ? { stream, timing } : {}),
     },
   };
 };

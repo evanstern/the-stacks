@@ -49,8 +49,13 @@ export function TableView({
   );
   const model = useMemo(
     () =>
-      toTableViewModel(projected, { actor, proposals, present: presentIds }),
-    [projected, actor, proposals, presentIds],
+      toTableViewModel(projected, {
+        actor,
+        proposals,
+        present: presentIds,
+        stream: source.narrationStream,
+      }),
+    [projected, actor, proposals, presentIds, source.narrationStream],
   );
   const presence = useMemo(
     () => presenceRows(source.presence, projected),
