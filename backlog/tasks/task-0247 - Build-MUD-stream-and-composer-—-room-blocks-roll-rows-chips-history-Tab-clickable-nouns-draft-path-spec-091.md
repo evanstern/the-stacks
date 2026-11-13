@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: 2026-11-05 05:48
-updated_date: '2026-11-13T15:42:00Z'
+updated_date: '2026-11-13T15:46:00Z'
 labels:
   - web
   - ux
@@ -45,7 +45,7 @@ Spec: specs/091-mud-stream-and-composer
 - [x] #8 Spec phase: Stream rendering (FR-008 to FR-011, FR-026 to FR-030)
 - [x] #9 Spec phase: Contrast and contract blocks (FR-021, FR-022)
 - [x] #10 Spec phase: Wiki re-ground
-- [ ] #11 Spec phase: Verify
+- [x] #11 Spec phase: Verify
 <!-- AC:END -->
 
 ## Definition of Done
@@ -118,4 +118,6 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-
 Dispatch: tier=haiku pinned=cc/claude-haiku-5-5 served=cc/claude-haiku-5-5 (play-route re-pin)
 
 Live-check fixes 84636aab (rules lines as Rules items, restate quote-period stripped, roll face list once); play-route re-verified and re-pinned 86c7450d.
+
+Final gates (orchestrator, after merging origin/main): REQUIRE_DATABASE=1 pnpm ci:check exit 0; check-boundaries exit 0; wiki plan empty; freshness OK (65); spec-bridge check exit 0.
 <!-- SECTION:NOTES:END -->
