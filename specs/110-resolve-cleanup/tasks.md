@@ -38,11 +38,11 @@ Operator ruling 2026-11-12: keep gathering for now. Removing it left the party o
 
 ## Phase 5: Schemas and old checkpoints (AC #3)
 
-- [ ] T021 In `schemas.ts`, delete the Step and legacy-reading symbols per plan D5. Narrow `InterpretResult.readings` to `InterpretReading[]`.
-- [ ] T022 In `resume.ts`, accept only `InterpretReadingSchema` readings in `findResumedPlans`. Delete `ResumedPlan.ruling`.
-- [ ] T023 Add `dropLegacyPlan` in `resume.ts` and call it on `loadCheckpoint(job)` in `worker.ts`. Log `dm.checkpoint.legacy-dropped`.
-- [ ] T024 Add the two tests in `test/dm/resume.test.ts` per plan D5 (SC-005). Delete the legacy fixtures from `test/dm/world.ts` and fix the remaining test files.
-- [ ] T025 Run the SC-001 grep. It must return nothing.
+- [x] T021 In `schemas.ts`, delete the Step and legacy-reading symbols per plan D5. Narrow `InterpretResult.readings` to `InterpretReading[]`.
+- [x] T022 In `resume.ts`, accept only `InterpretReadingSchema` readings in `findResumedPlans`. Delete `ResumedPlan.ruling`.
+- [x] T023 Add `dropLegacyPlan` in `resume.ts` and call it on `loadCheckpoint(job)` in `worker.ts`. Log `dm.checkpoint.legacy-dropped`.
+- [x] T024 Add the two tests in `test/dm/resume.test.ts` per plan D5 (SC-005). Delete the legacy fixtures from `test/dm/world.ts` and fix the remaining test files.
+- [x] T025 Run the SC-001 grep. It must return nothing.
 
 ## Phase 6: Wiki
 

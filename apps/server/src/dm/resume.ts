@@ -5,9 +5,8 @@ import type {
 import type { TurnCheckpoint } from "./jobs.js";
 import type { Submission } from "./nodes/resolve.js";
 import {
-  type AnyInterpretReading,
+  type InterpretReading,
   InterpretReadingSchema,
-  LegacyInterpretReadingSchema,
 } from "./nodes/schemas.js";
 
 /**
@@ -21,7 +20,7 @@ export interface ResumedPlan {
   actionId: string;
   /** The job whose checkpoint holds the plan. */
   fromJobId: string;
-  reading: AnyInterpretReading;
+  reading: InterpretReading;
   /** That job's submissions whose key starts `act:<actionId>:`. */
   submissions: Submission[];
 }
@@ -109,24 +108,30 @@ export function findResumedPlans(
       (r) => r.actionId === actionId,
     );
     if (!reading) continue;
-    // Spec 082 D10: a checkpoint written before the step contract changed is
-    // dropped, so the action is interpreted again.
-    if (
-      !(
-        InterpretReadingSchema.safeParse(reading).success ||
-        LegacyInterpretReadingSchema.safeParse(reading).success
-      )
-    ) {
-      continue;
-    }
+    // Spec 082 D10, spec 110 FR-010: an old-shape checkpoint reading (steps, no stages) is
+    // dropped, so the action is interpreted again. One-way door, ruled 2026-11-12 (C-GATE).
+    const parsed = InterpretReadingSchema.safeParse(reading);
+    if (!parsed.success) continue;
     plans.push({
       actionId,
       fromJobId: turn.jobId,
-      reading,
+      reading: parsed.data,
       submissions,
     });
   }
   return plans;
+}
+
+/**
+ * Spec 110 FR-011: a checkpoint whose interpret readings include an old-shape one is
+ * dropped from interpret on, so the runner interprets again. `beat`, `director`,
+ * `submissions` and `lastSeq` stay, so landed rows replay by marker.
+ */
+export function dropLegacyPlan(cp: TurnCheckpoint): TurnCheckpoint {
+  const legacy = cp.interpret?.readings.some(
+    (r) => !InterpretReadingSchema.safeParse(r).success,
+  );
+  return legacy ? { ...cp, interpret: null, cut: false, resumed: null } : cp;
 }
 
 /** Rewrites an approved paused submission as applied, from the gate's own rows. */

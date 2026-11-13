@@ -51,6 +51,7 @@ import type {
   TurnOutcome,
 } from "./pipeline/context.js";
 import { type Nodes, runTurn } from "./pipeline/runner.js";
+import { dropLegacyPlan } from "./resume.js";
 import { answerRulings } from "./rulings.js";
 import { loadSeed } from "./seed/load.js";
 import type { SceneSeed } from "./seed/schema.js";
@@ -221,7 +222,12 @@ export function createDmWorker(deps: DmWorkerDeps): DmWorker {
         detail: null,
       };
     }
-    let latest: TurnCheckpoint = loadCheckpoint(job) ?? {
+    const loaded = loadCheckpoint(job);
+    const kept = loaded ? dropLegacyPlan(loaded) : null;
+    if (loaded && kept !== loaded) {
+      log({ event: "dm.checkpoint.legacy-dropped", jobId: job.id });
+    }
+    let latest: TurnCheckpoint = kept ?? {
       beat: null,
       resumed: null,
       npcTurn: null,

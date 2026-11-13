@@ -3,8 +3,6 @@ import {
   DefenseSetSchema,
   DifficultySchema,
   EngineCommandSchema,
-  OppositionRuleSchema,
-  oppositionCovers,
   type Skill,
 } from "@the-stacks/dnd5e-engine";
 import {
@@ -150,158 +148,6 @@ export const ClueRefSchema = z
   .regex(/^[a-z0-9][a-z0-9_.:-]{0,63}#[1-8]$/);
 
 export { DifficultySchema };
-
-/** Spec 082 D6: advantage or disadvantage from a source no condition states, with its reason. */
-const CircumstanceSchema = z
-  .object({ mode: z.enum(["advantage", "disadvantage"]), reason: Reason })
-  .nullable()
-  .default(null);
-
-/** Spec 084 D9: the DC derives from this creature's stats; the model names it, never a number. */
-const OppositionSchema = z.strictObject({
-  opposedBy: CombatantIdSchema,
-  rule: OppositionRuleSchema,
-});
-
-export const StepSchema = z.discriminatedUnion("step", [
-  z.object({ step: z.literal("none"), reason: Reason }),
-  z.strictObject({
-    step: z.literal("check"),
-    reason: Reason,
-    combatantId: CombatantIdSchema.nullable(),
-    kind: z.enum(["ability-check", "saving-throw"]),
-    ability: AbilitySchema,
-    skill: SkillSchema.nullable(),
-    difficulty: z.union([DifficultySchema, OppositionSchema]),
-    circumstance: CircumstanceSchema,
-    autoFail: z.object({ reason: Reason }).nullable(),
-    onSuccess: z.array(EffectSchema).max(4),
-    onFailure: z.array(EffectSchema).max(4),
-    stakes: StakesSchema,
-    reveals: ClueRefSchema.nullable().default(null),
-    onCost: z.array(EffectSchema).max(4).default([]),
-    onSevere: z.array(EffectSchema).max(4).default([]),
-    newRisk: z.string().min(1).max(200).nullable().default(null),
-  }),
-  z.strictObject({
-    step: z.literal("attack"),
-    reason: Reason,
-    attackerId: CombatantIdSchema,
-    targetId: CombatantIdSchema,
-    attack: z.string().min(1).max(60),
-    circumstance: CircumstanceSchema,
-    onHit: z.array(EffectSchema).max(4),
-  }),
-  // Spec 083 D4: the engine resolves the spell's attack, save, dice and effects.
-  z.strictObject({
-    step: z.literal("spell"),
-    reason: Reason,
-    casterId: CombatantIdSchema,
-    spellId: z.string().regex(/^[a-z0-9]+(-[a-z0-9]+)*$/),
-    slotLevel: z.number().int().min(1).max(9).nullable(),
-    targetId: CombatantIdSchema,
-  }),
-  // Spec 084 D9: the helper takes the Help action; the engine applies and ends the assist.
-  z.strictObject({
-    step: z.literal("help"),
-    reason: Reason,
-    helperId: CombatantIdSchema,
-    assist: z.discriminatedUnion("kind", [
-      z.strictObject({
-        kind: z.literal("ability-check"),
-        allyId: CombatantIdSchema,
-        skill: SkillSchema,
-      }),
-      z.strictObject({
-        kind: z.literal("attack"),
-        targetId: CombatantIdSchema,
-      }),
-    ]),
-  }),
-  z.object({
-    step: z.literal("effect"),
-    reason: Reason,
-    effects: z.array(EffectSchema).min(1).max(4),
-  }),
-  z.object({
-    step: z.literal("roll"),
-    reason: Reason,
-    expression: z.string().min(1).max(200),
-    mode: RollModeSchema,
-  }),
-  z.object({
-    step: z.literal("move"),
-    reason: Reason,
-    combatantId: CombatantIdSchema,
-    leavesReachOf: z.array(CombatantIdSchema).max(6),
-  }),
-]);
-export type Step = z.infer<typeof StepSchema>;
-
-/**
- * An ability check names a cost and a severe consequence; a saving throw may not.
- * Spec 082: an attack's `onHit` carries no damage (the engine applies the attack entry's).
- */
-function refineSteps(
-  steps: readonly Step[],
-  ctx: z.RefinementCtx,
-  base: (string | number)[],
-): void {
-  steps.forEach((step, i) => {
-    if (step.step === "attack") {
-      step.onHit.forEach((e, j) => {
-        if (e.effect === "damage") {
-          ctx.addIssue({
-            code: "custom",
-            message:
-              "an attack's onHit carries no damage effect: the engine applies the attack's damage",
-            path: [...base, i, "onHit", j],
-          });
-        }
-      });
-    }
-    if (step.step === "help") {
-      const other =
-        step.assist.kind === "ability-check"
-          ? step.assist.allyId
-          : step.assist.targetId;
-      if (other === step.helperId) {
-        ctx.addIssue({
-          code: "custom",
-          message: "a helper cannot help itself",
-          path: [...base, i, "assist"],
-        });
-      }
-    }
-    if (step.step === "check" && typeof step.difficulty !== "string") {
-      const { opposedBy, rule } = step.difficulty;
-      if (opposedBy === step.combatantId) {
-        ctx.addIssue({
-          code: "custom",
-          message: "a check cannot be opposed by its own checker",
-          path: [...base, i, "difficulty", "opposedBy"],
-        });
-      }
-      if (!oppositionCovers(rule, step.kind, step.ability, step.skill)) {
-        ctx.addIssue({
-          code: "custom",
-          message: `rule ${rule} does not cover this check`,
-          path: [...base, i, "difficulty", "rule"],
-        });
-      }
-    }
-    if (step.step !== "check" || step.kind !== "ability-check") return;
-    for (const key of ["cost", "severe"] as const) {
-      if (step.stakes[key] === null) {
-        ctx.addIssue({
-          code: "custom",
-          message: `an ability check needs stakes.${key}`,
-          path: [...base, i, "stakes", key],
-        });
-      }
-    }
-  });
-}
 
 /**
  * The Intent kinds interpret may emit (specs/104 plan D1). The monster-only kinds
@@ -452,57 +298,15 @@ export const InterpretReadingSchema = z.strictObject({
 });
 export type InterpretReading = z.infer<typeof InterpretReadingSchema>;
 
-/** The pre-Intent reading: resumed checkpoints and the legacy resolve path (plan D7). */
-export const LegacyInterpretReadingSchema = z
-  .object({
-    actionId: RefIdSchema.nullable(), // null only for the NPC turn
-    intent: z.enum([
-      "talk",
-      "move",
-      "check",
-      "save",
-      "attack",
-      "spell",
-      "help",
-      "rest",
-      "other",
-    ]),
-    uncertain: z.boolean(),
-    needsAdjudication: z.boolean(),
-    rulesQuestion: z.string().min(1).max(500).nullable(),
-    clarify: z.string().min(1).max(200).nullable(),
-    steps: z.array(StepSchema).max(6),
-    followUps: z.array(z.string().min(1).max(200)).max(6).default([]),
-    say: z.string().min(1).max(200).nullable().optional(), // a monster's spoken line (specs/081)
-  })
-  .superRefine((r, ctx) => {
-    if (r.needsAdjudication && r.rulesQuestion === null) {
-      ctx.addIssue({
-        code: "custom",
-        message: "rulesQuestion is required when needsAdjudication is true",
-        path: ["rulesQuestion"],
-      });
-    }
-    refineSteps(r.steps, ctx, ["steps"]);
-  });
-export type LegacyInterpretReading = z.infer<
-  typeof LegacyInterpretReadingSchema
->;
-
 export const InterpretOutput = z.object({
   readings: z.array(InterpretReadingSchema).max(20),
 });
 export type InterpretOutput = z.infer<typeof InterpretOutput>;
 
-/** A reading in a turn: the Intent shape, or the pre-Intent shape of a resumed checkpoint (plan D7). */
-export type AnyInterpretReading = InterpretReading | LegacyInterpretReading;
 /** What the interpret node returns and a checkpoint stores. */
 export interface InterpretResult {
-  readings: AnyInterpretReading[];
+  readings: InterpretReading[];
 }
-/** True for the Intent shape; the legacy shape has `steps` instead of `stages`. */
-export const hasStages = (r: AnyInterpretReading): r is InterpretReading =>
-  "stages" in r;
 
 export const DirectorOutput = z.object({
   beat: z.discriminatedUnion("decision", [

@@ -5,11 +5,7 @@ import {
 } from "@the-stacks/session-model";
 import type { BeatItem } from "../nodes/assemble.js";
 import type { DirectorNodeOutput } from "../nodes/director.js";
-import {
-  type AnyInterpretReading,
-  hasStages,
-  type InterpretStage,
-} from "../nodes/schemas.js";
+import type { InterpretReading, InterpretStage } from "../nodes/schemas.js";
 import type { SceneSeed } from "../seed/schema.js";
 import type { ActorSnapshot } from "../snapshot/index.js";
 
@@ -39,7 +35,7 @@ export type PlanVerdict =
 export interface PlanInput {
   /** S0. */
   snapshot: ActorSnapshot;
-  readings: readonly AnyInterpretReading[];
+  readings: readonly InterpretReading[];
   /**
    * Action id -> the acting character's combatant id, `null` for a party-scope
    * action. An action id absent from the map (a character with no combatant)
@@ -316,7 +312,7 @@ export function checkPlan(input: PlanInput): PlanVerdict[] {
   const actionIds: (string | null)[] = [];
   for (const r of input.readings) {
     actionIds.push(r.actionId);
-    if (hasStages(r) && r.clarify === null && r.stages.length > 0) {
+    if (r.clarify === null && r.stages.length > 0) {
       staged.add(r.actionId);
     }
   }
@@ -383,9 +379,9 @@ export interface Asked {
  */
 export function askUndeclared(input: {
   beat: readonly BeatItem[];
-  readings: readonly AnyInterpretReading[];
+  readings: readonly InterpretReading[];
   resumed: readonly string[];
-}): { readings: AnyInterpretReading[]; asked: Asked[] } {
+}): { readings: InterpretReading[]; asked: Asked[] } {
   const { beat } = input;
   const resumed = new Set(input.resumed);
   const asked: Asked[] = [];
@@ -393,7 +389,7 @@ export function askUndeclared(input: {
   for (const item of beat) {
     if (item.status !== "committed" || resumed.has(item.actionId)) continue;
     const reading = input.readings.find((r) => r.actionId === item.actionId);
-    if (!reading || reading.clarify !== null || !hasStages(reading)) continue;
+    if (!reading || reading.clarify !== null) continue;
     // Spec 104 FR-011: the manner rule holds for Intent stages. The other-player rule cannot
     // fire: the actor of a stage is the declarer, stamped by code.
     for (const [stepIndex, st] of reading.stages.entries()) {
@@ -418,9 +414,7 @@ export function askUndeclared(input: {
       const q = r.actionId === null ? undefined : questions.get(r.actionId);
       return q === undefined
         ? r
-        : hasStages(r)
-          ? { ...r, stages: [], followUps: [], clarify: q }
-          : { ...r, steps: [], followUps: [], clarify: q };
+        : { ...r, stages: [], followUps: [], clarify: q };
     }),
     asked,
   };

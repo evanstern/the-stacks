@@ -52,15 +52,11 @@ const directorResolve = {
   overrides: [],
 } as unknown as NodeOutputs["director"];
 
-const reading = (needs: boolean) =>
+const reading = () =>
   ({
     actionId: "a1",
-    intent: "check",
-    uncertain: true,
-    needsAdjudication: needs,
-    rulesQuestion: needs ? "q" : null,
+    stages: [],
     clarify: null,
-    steps: [],
     followUps: [],
   }) as NodeOutputs["interpret"]["readings"][number];
 
@@ -121,7 +117,7 @@ function stubNodes(
     director: make("director", () => over.director ?? directorResolve),
     interpret: make(
       "interpret",
-      () => over.interpret ?? { readings: [reading(false)] },
+      () => over.interpret ?? { readings: [reading()] },
     ),
     resolve: make("resolve", () => ({}) as never),
     narrate: make("narrate", () => ({}) as never),
@@ -157,7 +153,7 @@ describe("runTurn", () => {
     const plan = { actionId: "a1" } as never;
     const spy = stubNodes({
       assemble: assembled({ resumed: [plan] } as never),
-      interpret: { readings: [reading(true)] },
+      interpret: { readings: [reading()] },
     });
     const saved: ReturnType<typeof emptyCheckpoint>[] = [];
     const ctx = makeCtx({
@@ -179,7 +175,7 @@ describe("runTurn", () => {
       ...emptyCheckpoint(),
       beat: ["a1"],
       director: directorResolve,
-      interpret: { readings: [reading(true)] },
+      interpret: { readings: [reading()] },
     };
     const ctx = makeCtx({ checkpoint });
     const outcome = await runTurn(ctx, spy.nodes);
@@ -189,7 +185,7 @@ describe("runTurn", () => {
 
   it("saves the checkpoint after each planning node and freezes the beat", async () => {
     const saved: ReturnType<typeof emptyCheckpoint>[] = [];
-    const spy = stubNodes({ interpret: { readings: [reading(true)] } });
+    const spy = stubNodes({ interpret: { readings: [reading()] } });
     const ctx = makeCtx({
       deps: {
         saveCheckpoint: async (c) => {

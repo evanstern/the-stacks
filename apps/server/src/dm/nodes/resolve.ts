@@ -44,12 +44,7 @@ import { bandTexts } from "../stakes.js";
 import type { AssembleOutput, BeatItem } from "./assemble.js";
 import type { CheckOutput } from "./check.js";
 import type { DirectorNodeOutput } from "./director.js";
-import {
-  type AnyInterpretReading,
-  hasStages,
-  type InterpretStage,
-  type Stakes,
-} from "./schemas.js";
+import type { InterpretReading, InterpretStage, Stakes } from "./schemas.js";
 import { settleTurn } from "./settle.js";
 
 /**
@@ -475,10 +470,9 @@ export class Run {
 // ---------------------------------------------------------- Director group
 
 /** Every target of a presence effect in the turn's planned stages' beside blocks. */
-function presenceTargets(readings: readonly AnyInterpretReading[]): string[] {
+function presenceTargets(readings: readonly InterpretReading[]): string[] {
   const out: string[] = [];
   for (const r of readings) {
-    if (!hasStages(r)) continue;
     for (const st of r.stages) {
       const b = st.beside;
       if (!b) continue;
@@ -1054,11 +1048,11 @@ function engineCode(code: string | null): string | null {
 }
 
 /** A group's work: Intent stages (spec 104). A reading with no stages yields an empty chain. */
-function actionGroup(reading: AnyInterpretReading | undefined): {
+function actionGroup(reading: InterpretReading | undefined): {
   stages: readonly InterpretStage[] | null;
   clarify: boolean;
 } {
-  if (!reading || !hasStages(reading)) return { stages: null, clarify: false };
+  if (!reading) return { stages: null, clarify: false };
   return { stages: reading.stages, clarify: reading.clarify !== null };
 }
 
@@ -1082,7 +1076,7 @@ async function resolveAction(
   run: Run,
   ctx: TurnContext,
   item: BeatItem,
-  reading: AnyInterpretReading | undefined,
+  reading: InterpretReading | undefined,
   verdict: PlanVerdict | undefined,
 ): Promise<ResolveOutput["actionResults"][number]> {
   const { stages, clarify } = actionGroup(reading);
@@ -1236,9 +1230,7 @@ export const resolve: Node<"resolve"> = async (ctx) => {
       assembled.snapshot,
       ctx.seed,
       planReadings.flatMap((r) =>
-        hasStages(r)
-          ? r.stages.flatMap((st) => (st.beside ? [st.beside.stakes] : []))
-          : [],
+        r.stages.flatMap((st) => (st.beside ? [st.beside.stakes] : [])),
       ),
     );
     run.planGate = checkPlan({

@@ -255,20 +255,14 @@ export const narrate: Node<"narrate"> = async (ctx) => {
     (r) => r.actionId === null,
   );
   const npcPlan = reading
-    ? "stages" in reading // spec 104 shape; a value import of `hasStages` would pull the engine in
-      ? {
-          // Spec 104: the monster's Intent stages read as plan lines in the text form the player sees.
-          intent: reading.stages[0]?.intent.kind ?? "other",
-          steps: reading.stages.map((st) => ({
-            reason: st.intent.text ?? st.intent.kind,
-          })),
-          say: reading.say ?? null,
-        }
-      : {
-          intent: reading.intent,
-          steps: reading.steps,
-          say: reading.say ?? null,
-        }
+    ? {
+        // Spec 104: the monster's Intent stages read as plan lines in the text form the player sees.
+        intent: reading.stages[0]?.intent.kind ?? "other",
+        steps: reading.stages.map((st) => ({
+          reason: st.intent.text ?? st.intent.kind,
+        })),
+        say: reading.say ?? null,
+      }
     : null;
   // ponytail: reads every prior turn checkpoint of the session (one job-table read per narrate).
   // Ceiling: a session with many turn jobs; upgrade is a `limit` on `loadPriorTurnCheckpoints`.

@@ -1,11 +1,7 @@
 import { PLAN_KINDS } from "@the-stacks/planner";
 import type { BeatItem } from "./nodes/assemble.js";
 import type { DirectorNodeOutput } from "./nodes/director.js";
-import {
-  type AnyInterpretReading,
-  hasStages,
-  type InterpretStage,
-} from "./nodes/schemas.js";
+import type { InterpretReading, InterpretStage } from "./nodes/schemas.js";
 
 /**
  * First-stage rule (specs/064-plan-first-step): in free mode a plan resolves
@@ -60,14 +56,13 @@ const merge = (...lists: readonly string[][]): string[] =>
 /** Cuts each acting reading and ruling after its first stage; free mode only. */
 export function cutPlans(input: {
   mode: "free" | "turn";
-  readings: AnyInterpretReading[];
-}): { readings: AnyInterpretReading[] } {
+  readings: InterpretReading[];
+}): { readings: InterpretReading[] } {
   const { mode, readings } = input;
   if (mode !== "free") return { readings };
   return {
     readings: readings.map((r) => {
       if (r.actionId === null) return r;
-      if (!hasStages(r)) return r;
       const { kept, cut } = firstStages(r.stages);
       return {
         ...r,
@@ -87,7 +82,7 @@ export const CLARIFY_HELD = "held: an action awaits an answer";
  */
 export function clarifyHolds(
   beat: readonly BeatItem[],
-  readings: readonly AnyInterpretReading[],
+  readings: readonly InterpretReading[],
 ): Set<string> {
   const held = new Set<string>();
   for (const b of beat) {
