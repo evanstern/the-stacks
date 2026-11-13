@@ -37,7 +37,7 @@ Spec: specs/108-narration-stream
 - [x] #7 Spec phase: Pipeline wiring and timing
 - [x] #8 Spec phase: Delivery and C-GATE amendments
 - [x] #9 Spec phase: Web rendering
-- [ ] #10 Spec phase: Wiki re-ground
+- [x] #10 Spec phase: Wiki re-ground
 <!-- AC:END -->
 
 ## Definition of Done
