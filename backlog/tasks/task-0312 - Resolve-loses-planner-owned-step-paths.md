@@ -4,7 +4,7 @@ title: Resolve loses planner-owned step paths
 status: In Progress
 assignee: []
 created_date: '2026-11-11T19:50:00Z'
-updated_date: '2026-11-13T04:02:00Z'
+updated_date: '2026-11-13T04:52:00Z'
 labels:
   - ws:intent
   - replan-2026-11
@@ -29,14 +29,12 @@ Spec: specs/110-resolve-cleanup
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
 - [ ] #1 resolve.ts loses the code paths the planner now owns (moved from TASK-0267 by F1, then from TASK-0269 by the split).
-- [ ] #2 The encounter-start gathering in resolve.ts is removed once spatial placement owns it (spec 100 OQ-13).
-- [ ] #3 An old-shape resumed plan is dropped and re-interpreted (spec 104 OQ-8).
-- [ ] #4 Spec phase: Throw-stub probe (no deletion)
-- [ ] #5 Spec phase: Encounter-start gathering (AC #2)
-- [ ] #6 Spec phase: Adjudicate node (C-GATE ruling required before dispatch)
-- [ ] #7 Spec phase: Step paths in resolve and the plan gate (AC #1)
-- [ ] #8 Spec phase: Schemas and old checkpoints (AC #3)
-- [ ] #9 Spec phase: Wiki
+- [ ] #2 An old-shape resumed plan is dropped and re-interpreted (spec 104 OQ-8).
+- [ ] #3 Spec phase: Throw-stub probe (no deletion)
+- [ ] #4 Spec phase: Adjudicate node (C-GATE ruling required before dispatch)
+- [ ] #5 Spec phase: Step paths in resolve and the plan gate (AC #1)
+- [ ] #6 Spec phase: Schemas and old checkpoints (AC #3)
+- [ ] #7 Spec phase: Wiki
 <!-- AC:END -->
 
 ## Definition of Done
@@ -56,4 +54,6 @@ Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5
 Spec 110 (684d8e1a): 27 tasks, 6 phases, no split. Estimated deletions: about 1500 source lines and 2000-2500 test lines. Phase 1 is a throw-stub probe before any deletion. C-GATE before phase 3: the adjudicate seam in specs/031 node-seam.md and turn-jobs.md. AC #3 is a one-way door: old checkpoint readings are dropped and re-interpreted.
 
 C-GATE ruling (operator, 2026-11-12, in chat): "Approve all". This approves deleting the adjudicate node, with Phase 3 amending specs/031-dm-runtime/contracts/node-seam.md and turn-jobs.md. It also approves the AC #3 one-way door (old checkpoint readings dropped and re-interpreted) and OQ-1..OQ-6 as recommended.
+
+Operator ruling 2026-11-12 (in chat): "Agreed" to keeping gathering for now. Phase 2 (77e74f18) is reverted in 767fed0b. AC #2 and spec 110 phase 2 move to TASK-0327, because the greyhollow seeds put two squeeze edges between the party and reed-camp, so without gathering CP-7 fights would open at range. Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (phases 1-2). Phase 1 probe (9db40e74): every one of 168 stub hits came from a legacy fixture or a direct test of a deleted symbol, so no live path reaches the deletion inventory.
 <!-- SECTION:NOTES:END -->
