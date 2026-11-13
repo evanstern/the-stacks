@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: 2026-11-05 05:48
-updated_date: '2026-11-13T16:56:00Z'
+updated_date: '2026-11-13T17:05:00Z'
 labels:
   - web
   - ux
@@ -35,11 +35,11 @@ Spec: specs/091-mud-stream-and-composer
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Roll rows render code facts before prose, name the check and roll mode, and show both d20s.
-- [ ] #2 A progress indicator shows between fact rows and narration until the first narration token arrives.
-- [ ] #3 NPC dialogue renders as distinct rows, and the transcript column is capped at 1024 px and centred.
+- [x] #1 Roll rows render code facts before prose, name the check and roll mode, and show both d20s.
+- [x] #2 A progress indicator shows between fact rows and narration until the first narration token arrives.
+- [x] #3 NPC dialogue renders as distinct rows, and the transcript column is capped at 1024 px and centred.
 - [x] #4 Spec 091 is amended against Intent contract v1.1 and reviewed by the operator at C-AMD before implementation.
-- [ ] #5 Fact rows render from the ledger at resolve time, not from the narration text (spec 098 OQ-3).
+- [x] #5 Fact rows render from the ledger at resolve time, not from the narration text (spec 098 OQ-3).
 - [x] #6 Spec phase: Scene fields and seed ways (FR-008 data; plan D1, D2, DA4, D8)
 - [x] #7 Spec phase: Stream items and the narration filter (FR-006, FR-007, FR-026, FR-027, FR-029 data)
 - [x] #8 Spec phase: Stream rendering (FR-008 to FR-011, FR-026 to FR-030)
