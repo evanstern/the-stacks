@@ -51,7 +51,8 @@ export function narrationRows(text: string): {
     .filter((s) => s.trim() !== "")
     .map((s) => ({
       kind: QUOTED.test(s) ? "dialogue" : "prose",
-      text: s,
+      // The restate `X means to: "…".` ends in a stray period after the closing quote.
+      text: s.replace(/^(.*?: ["“][^"”]*["”])\.$/, "$1"),
     }));
   return { prose: segments, rules };
 }

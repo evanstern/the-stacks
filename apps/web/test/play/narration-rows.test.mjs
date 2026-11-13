@@ -40,3 +40,13 @@ test("text with no code block renders whole", () => {
   );
   assert.deepEqual(rules, []);
 });
+
+test("an echoed declaration's dialogue row has no stray period after the closing quote", () => {
+  const { prose } = narrationRows(
+    'Tamsin Vale means to: "I search the ferry-house for whoever cut the bell rope.".',
+  );
+  assert.equal(
+    prose[0].text,
+    'Tamsin Vale means to: "I search the ferry-house for whoever cut the bell rope."',
+  );
+});

@@ -73,7 +73,7 @@ test("order: roll and rules rows, then the streaming block, then settled narrati
       pinned: false,
       kind: "roll",
       summary: "Ana — Stealth 18 ✓ success",
-      detail: ["d20: 18 = 18 vs DC 12"],
+      detail: ["Total 18 vs DC 12"],
       dice: [{ sides: 20, faces: [18], kept: [true] }],
       total: 18,
     },
@@ -100,11 +100,19 @@ test("order: roll and rules rows, then the streaming block, then settled narrati
   expect(at("Stealth 18")).toBeLessThan(at("Ana is prone."));
   expect(at("Ana is prone.")).toBeLessThan(at("The DM is narrating"));
   expect(at("The DM is narrating")).toBeLessThan(at("The reeve says"));
-  expect(html.match(/d20: 18 = 18 vs DC 12/g)).toHaveLength(1);
+  expect(html.match(/d20:/g)).toHaveLength(1);
   expect(html).toMatch(
     /data-kind="dialogue" class="whitespace-pre-line text-foreground">The reeve says/,
   );
   expect(html).toMatch(
     /class="whitespace-pre-line italic text-muted-foreground">He waits\./,
   );
+});
+
+test("a settled narration's rules lines render in the stream item, not inside the prose item", () => {
+  const html = renderStream([
+    wrap({ kind: "narration", seq: 1, text: "He waits.\n\nState: Ana HP 9/9" }),
+  ]);
+  expect(html).toContain("He waits.");
+  expect(html).not.toContain("State: Ana");
 });

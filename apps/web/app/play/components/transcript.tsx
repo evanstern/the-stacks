@@ -8,7 +8,13 @@ import { ConfirmRow } from "./confirm-row.tsx";
 import { RollRow } from "./roll-row.tsx";
 import { RoomBlock } from "./room-block.tsx";
 
-function Narration({ text }: { text: string }) {
+function Narration({
+  text,
+  showRules = true,
+}: {
+  text: string;
+  showRules?: boolean;
+}) {
   const { prose, rules } = narrationRows(text);
   return (
     <div className="flex flex-col gap-1 break-words">
@@ -30,7 +36,7 @@ function Narration({ text }: { text: string }) {
           </p>
         ),
       )}
-      {rules.map((line) => (
+      {(showRules ? rules : []).map((line) => (
         <p
           key={line}
           data-kind="rules"
@@ -191,7 +197,7 @@ export function Transcript({
                 )}
               </div>
             ) : item.kind === "narration" ? (
-              <Narration text={item.text} />
+              <Narration text={item.text} showRules={false} />
             ) : (
               <ActionCard
                 card={item.card}

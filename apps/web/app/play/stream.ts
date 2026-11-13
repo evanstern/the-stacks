@@ -10,6 +10,7 @@ import {
   outcomeSummary,
   rollDice,
 } from "./ledger-format.ts";
+import { narrationRows } from "./narration-rows.ts";
 import type { TableViewModel, TranscriptItem } from "./view-model.ts";
 
 export type Category = "ic" | "table" | "rules";
@@ -70,9 +71,12 @@ function rollItem(
 ): StreamItem {
   const { dice, modifier } = rollDice(roll.roll);
   const mode = MODE_WORDS[roll.roll.mode] ?? "";
-  const sum = `${dice.map(diceText).join(" + ")}${
-    modifier === 0 ? "" : ` ${modifier > 0 ? "+" : "−"} ${Math.abs(modifier)}`
-  } = ${roll.roll.total}`;
+  // The die faces render once, as their own lines (struck when dropped); this is the rest.
+  const sum = `${
+    modifier === 0
+      ? ""
+      : `Modifier ${modifier > 0 ? "+" : "−"}${Math.abs(modifier)}, `
+  }${modifier === 0 ? "Total" : "total"} ${roll.roll.total}`;
   const base = { seq: roll.seq, category: "rules" as const, pinned: false };
   if (!outcome) {
     return {
@@ -220,6 +224,20 @@ export function streamItems(
         ownActionIds.has(item.card.actionId)),
     item,
   }));
+
+  // FR-009: a settled narration's rules lines are Rules-category items after the prose.
+  for (const item of model.transcript) {
+    if (item.kind !== "narration") continue;
+    narrationRows(item.text).rules.forEach((text, i) => {
+      out.push({
+        seq: item.seq + (i + 1) / 1000,
+        kind: "rules",
+        category: "rules",
+        pinned: false,
+        text,
+      });
+    });
+  }
 
   const rolls = new Map<string, Roll[]>();
   for (const row of p.ledger) {

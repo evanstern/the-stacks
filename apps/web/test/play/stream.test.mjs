@@ -64,7 +64,9 @@ test("mode words and both d20 faces with the dropped one marked", () => {
   assert.match(roll.summary, /with advantage/);
   assert.deepEqual(roll.dice[0].faces, [13, 6]);
   assert.deepEqual(roll.dice[0].kept, [true, false]);
-  assert.ok(roll.detail[0].includes("6 (dropped)"));
+  // The faces render once, from `dice`; the detail line repeats none of them.
+  assert.ok(!/d20|\b13\b.*\b6\b/.test(roll.detail[0]));
+  assert.match(roll.detail[0], /otal/);
 });
 
 test("a batch with no outcome shows the total only", () => {
@@ -135,4 +137,19 @@ test("a dm-visibility ledger row yields no item for a player viewer", () => {
   );
   assert.ok(asDm.some((i) => i.kind === "roll"));
   assert.ok(!asPlayer.some((i) => i.kind === "roll"));
+});
+
+test("a settled narration's rules lines are Rules-category items after the prose (FR-009, FR-027)", () => {
+  const narr = {
+    kind: "narration",
+    seq: 5,
+    text: "The blade bites.\n\nState: Ana HP 9/9",
+  };
+  const p = project(freeModeAction.events, dm);
+  const out = streamItems({ transcript: [{ seq: 5, ...narr }] }, p, dm);
+  const r = out.find(
+    (i) => i.kind === "rules" && i.text === "State: Ana HP 9/9",
+  );
+  assert.equal(r.category, "rules");
+  assert.ok(r.seq > 5 && r.seq < 6);
 });
