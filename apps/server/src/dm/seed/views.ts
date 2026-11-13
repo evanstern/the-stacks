@@ -1,3 +1,4 @@
+import type { CastEntry, Scene, Way } from "@the-stacks/session-model";
 import type { SceneSeed, SeedCharacterT } from "./schema.js";
 
 /**
@@ -15,6 +16,7 @@ export interface PlayerSeedView {
     features: string[];
     mood: string;
     senses: string[];
+    ways: Way[];
   };
   openingFraming: string;
   openingPremise: string;
@@ -48,6 +50,7 @@ export function playerFacingSeed(seed: SceneSeed): PlayerSeedView {
       features: [...seed.location.identity.features],
       mood: seed.location.portrayal.mood,
       senses: [...seed.location.portrayal.senses],
+      ways: seed.location.ways.map((w) => ({ label: w.label, draft: w.draft })),
     },
     openingFraming: seed.opening.framing,
     openingPremise: seed.opening.premise,
@@ -72,6 +75,25 @@ export function playerFacingSeed(seed: SceneSeed): PlayerSeedView {
         kind: r.kind,
       })),
     })),
+  };
+}
+
+/** Spec 091 D2: the scene-start payload. It reads the player-facing view only. */
+export function openingScene(view: PlayerSeedView): Scene {
+  const cast: CastEntry[] = view.npcs.map((n) => ({
+    id: n.id,
+    name: n.name,
+    role: n.role,
+    appearance: n.appearance,
+  }));
+  return {
+    sceneId: view.seedId,
+    title: view.title,
+    summary: view.goalStatement,
+    location: view.location.name,
+    description: view.location.features.join(" ").slice(0, 1000),
+    ...(view.location.ways.length > 0 ? { ways: view.location.ways } : {}),
+    cast,
   };
 }
 

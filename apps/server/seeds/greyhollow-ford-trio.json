@@ -31,7 +31,12 @@
         "The bell's ring drives off the river-things the goblins fear; they want the clapper for their own camp.",
         "A safe path through the reeds keeps to the old timber posts; off the posts the mud is waist-deep."
       ]
-    }
+    },
+    "ways": [
+      {"label": "ladder to the loft", "draft": "/do I climb the ladder to the loft"},
+      {"label": "causeway downriver", "draft": "/move #causeway"},
+      {"label": "ferry", "draft": "/move #ferry"}
+    ]
   },
   "beats": [
     {

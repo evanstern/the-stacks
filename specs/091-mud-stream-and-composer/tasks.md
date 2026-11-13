@@ -37,20 +37,20 @@ Brave check; the implementer does not.
 **Independent test**: the session-model scene test, `seed.test.ts` and `duo-views.test.ts` pass with
 the new cases.
 
-- [ ] T001 [US5] In `packages/session-model/src/events/scene.ts`, add `WaySchema`,
+- [x] T001 [US5] In `packages/session-model/src/events/scene.ts`, add `WaySchema`,
       `CastEntrySchema` and the three optional `SceneSchema` fields (plan D1). Export the schemas
       and types from `packages/session-model/src/index.ts`. Keep payload version 1.
-- [ ] T002 [P] [US5] Extend the scene parse test in `packages/session-model/test/`: an old
+- [x] T002 [P] [US5] Extend the scene parse test in `packages/session-model/test/`: an old
       `scene.changed` row parses; a row with all three fields parses; seven ways fail.
-- [ ] T003 [US5] In `apps/server/src/dm/seed/schema.ts`, add `location.ways` with default `[]`. Add
+- [x] T003 [US5] In `apps/server/src/dm/seed/schema.ts`, add `location.ways` with default `[]`. Add
       the `superRefine` that parses each way `draft` and refuses a hidden-zone `/move` (plan DA4).
-- [ ] T004 [US5] In `apps/server/src/dm/seed/views.ts`, add `ways` to `PlayerSeedView.location` and
+- [x] T004 [US5] In `apps/server/src/dm/seed/views.ts`, add `ways` to `PlayerSeedView.location` and
       add the pure `openingScene(view)` (plan D2).
-- [ ] T005 [US5] In `apps/server/src/dm/nodes/resolve.ts` `directorOpening`, set the scene-start
+- [x] T005 [US5] In `apps/server/src/dm/nodes/resolve.ts` `directorOpening`, set the scene-start
       `after` to `openingScene(playerFacingSeed(seed))`. Change no other line in the file.
-- [ ] T006 [P] [US5] Add the three duo ways as text forms (plan DA4) to each
+- [x] T006 [P] [US5] Add the three duo ways as text forms (plan DA4) to each
       `apps/server/seeds/greyhollow-ford*.json`.
-- [ ] T007 [P] [US5] Extend `apps/server/test/dm/seed.test.ts` and `duo-views.test.ts` per plan D8.
+- [x] T007 [P] [US5] Extend `apps/server/test/dm/seed.test.ts` and `duo-views.test.ts` per plan D8.
       Add a refused-seed case for an unparsable way and for a hidden-zone `/move`. Keep the
       `dmOnlySeedText` exclusion. Commit as `TASK-0247 phase 1: scene description, ways on and cast`.
 
