@@ -7,10 +7,10 @@ Do not edit `dm/intent-runner.ts`, `dm/purposes.ts` or `dm/rulings.ts`. Follow p
 
 ## Phase 1: Throw-stub probe (no deletion)
 
-- [ ] T001 Replace each entry point listed in plan D1 with `throw new Error("TASK-0312 probe: <symbol>")`. Do not commit the stubs.
-- [ ] T002 Run `pnpm --filter @the-stacks/server test` and the scripted fake-gateway runs. Capture every failing test file and test name.
-- [ ] T003 Write `specs/110-resolve-cleanup/probe.md`: one row per failure with the stubbed symbol and the legacy input the test injects. Stop and report if any failure injects no legacy input.
-- [ ] T004 Revert the stubs (`git diff --stat` shows only `probe.md`). Commit `probe.md`.
+- [x] T001 Replace each entry point listed in plan D1 with `throw new Error("TASK-0312 probe: <symbol>")`. Do not commit the stubs.
+- [x] T002 Run `pnpm --filter @the-stacks/server test` and the scripted fake-gateway runs. Capture every failing test file and test name.
+- [x] T003 Write `specs/110-resolve-cleanup/probe.md`: one row per failure with the stubbed symbol and the legacy input the test injects. Stop and report if any failure injects no legacy input.
+- [x] T004 Revert the stubs (`git diff --stat` shows only `probe.md`). Commit `probe.md`.
 
 ## Phase 2: Encounter-start gathering (AC #2)
 
