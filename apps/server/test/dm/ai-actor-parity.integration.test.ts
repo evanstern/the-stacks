@@ -213,7 +213,11 @@ describe.skipIf(!reachable)(
       const c = await carriers(w);
       expect(
         c.map((x) => x.outcome),
-        JSON.stringify({ logs: lastLogs, plays: lastRun, purposes: lastPurposes }),
+        JSON.stringify({
+          logs: lastLogs,
+          plays: lastRun,
+          purposes: lastPurposes,
+        }),
       ).toEqual(["declared", "needs_ruling", "settled"]);
       expect(c[2]?.answers).toBe(c[1]?.intent.id);
     });
