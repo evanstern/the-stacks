@@ -145,10 +145,10 @@ UI rules above apply.
 
 **Independent test**: the wiki freshness gate prints `OK`.
 
-- [ ] T027 Run `/grounding-wiki:wiki-update`. Re-verify each NEEDS-REVIEW note against the diff
+- [x] T027 Run `/grounding-wiki:wiki-update`. Re-verify each NEEDS-REVIEW note against the diff
       before re-pinning: `docs/wiki/play-route.md`, `chat-ui.md`, `session-model.md`,
       `dm-runtime.md` and `seed-npc-presence.md`. Re-pin only what you re-verified.
-- [ ] T028 Add one sentence for TASK-0247 (spec 091 part 1) to `docs/wiki/CAPSULES.md` and to the
+- [x] T028 Add one sentence for TASK-0247 (spec 091 part 1) to `docs/wiki/CAPSULES.md` and to the
       `docs/wiki/INDEX.md` state paragraph. Run the freshness gate (`OK`). Commit as
       `TASK-0247 phase 5: wiki re-ground`.
 

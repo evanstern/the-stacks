@@ -42,7 +42,7 @@ sources:
   - apps/server/seeds/greyhollow-ford-trio.json
   - biome.json
 size_budget_exempt: both notes sat within 30 chars of the 8000 budget before TASK-0180; the talk path got its own note (dm-talk-triggers) and only a pointer line lands here; the rest is one pipeline each, not splittable without a TASK of its own
-verified_against: 0882dcb94032fa81551a3e9225721939e4cb7179
+verified_against: cd1651916ec175a131a0dcd99f48590f7e96ab21
 ---
 
 # DM runtime
@@ -116,7 +116,7 @@ Prose is **digit-free**; code builds the rows and the State line (`NarrateOutput
 
 - **Scene seed** (`seed/schema.ts`, `seed/load.ts`; `apps/server/seeds/greyhollow-ford.json`, plus `-duo` and `-trio`):
   a validated JSON scene (at least one `human` seat) (goal, location, beats with a required `presence` map, NPCs with `aliases`, encounters; [[seed-npc-presence]]);
-  the seed id is the scene id.
+  the seed id is the scene id. `location.ways` (up to 6 `{label, draft}`, default `[]`) is validated by parsing each way's draft. Scene start writes `after: openingScene(playerFacingSeed(seed))` (spec 091), so `scene.changed` carries `description`, `ways` and `cast`.
 - **Doctrine** (`doctrine/doctrine.ts`): DM-craft rules adapted from tabletop-dm (commit
   fe2c29b, Copyright (c) 2026 Brad Bush, MIT). `doctrine/NOTICE.md` carries the licence.
 - **Agency** (specs/074, TASK-0113; `AGENCY_RULE` and `agencyRule(node)` in `doctrine.ts`): one shared rule, rendered into the director, interpret, narrate, companion, react and playtest-auditor prompts. A party member's volitional acts belong to its player. The dice may decide a reflex only, and a reflex must be a fact (`FactInvoluntary`). The Director's goal note is pacing advice; the interpret prompt says so. The DOCTRINE pair 'Never decide the hero's words...' now allows a reflex and shows a club strike as the right example.

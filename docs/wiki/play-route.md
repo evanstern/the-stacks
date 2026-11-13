@@ -42,7 +42,7 @@ sources:
   - apps/web/app/play/components/commit-control.tsx
   - apps/web/app/play/components/table-mode-panel.tsx
   - apps/web/app/play/components/dm-seat-panel.tsx
-verified_against: 753a40d24fb9ad9cf5874a29cca6736ed444a8a5
+verified_against: cd1651916ec175a131a0dcd99f48590f7e96ab21
 size_budget_exempt: spec 105 (TASK-0315) replaces the sign-off paragraph with the composer, send router, read ring and confirm row in the one play-route note; the note sat 806 chars over budget already and the table view does not split without a TASK of its own
 ---
 
@@ -119,6 +119,8 @@ The composer, ledger
   oldest first; a player always gets `[]`. Each `PendingProposalView` carries `policy` (`ask` or
   `suggest`) from the `proposal.created` row. An `intent` proposal shows its kind and `toText` text ([[intent-contract]]).
 - `ledger-format.ts` formats roll, outcome and change rows (`Reaction: `); `labels.ts` names, with `KIND_LABEL` and `kindLabel` for intent kinds. `detailsOf` in `proposals.ts` renders real rows for each proposal kind.
+
+**The table stream** (spec 091, TASK-0247). `play/stream.ts`'s `streamItems` merges the transcript, ledger roll rows and the scene into one "Table stream" `role=log`; `play/narration-rows.ts` builds roll rows from ledger rows and hides fact lines inside narration. `components/` holds the roll row, the room block and the filter chips; dialogue renders as rows, the column is 1024 px, and the streaming block carries `aria-busy` with no `aria-live`. `view-model.ts` names an `npc_say` row from `scene.cast`, falling back to the NPC id.
 
 ## The one composer
 
