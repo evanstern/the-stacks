@@ -26,7 +26,7 @@ Spec: specs/109-engine-amounts
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Roll steps and effect amounts carry no model-written number where an SRD record or stat defines one, with tests
+- [x] #1 Roll steps and effect amounts carry no model-written number where an SRD record or stat defines one, with tests
 - [ ] #2 An Unarmed Strike entry is derived for every combatant (1 + Strength modifier bludgeoning, SRD 5.2.1), so weapon 'unarmed' resolves (spec 097 OQ-12).
 - [ ] #3 Spec phase: Engine Unarmed Strike (AC #2)
 - [ ] #4 Spec phase: AC #1 guard test
