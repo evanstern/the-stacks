@@ -6,6 +6,18 @@ import type { NodeDeps } from "./pipeline/context.js";
 import { buildRulingPrompt, PROMPT_VERSION } from "./prompts/ruling.js";
 import { PURPOSE_OF } from "./purposes.js";
 
+/** The model's ruling reply: a decision, a tier, a reason. Never a number (spec 109 guard). */
+export const rulingReplySchema = (needsTier: boolean) =>
+  z
+    .object({
+      decision: z.enum(["accept", "reject"]),
+      difficulty: DifficultySchema.optional(),
+      reason: z.string().min(1).max(500).optional(),
+    })
+    .refine((v) => !(needsTier && v.decision === "accept" && !v.difficulty), {
+      message: "accept on a difficulty ask needs a difficulty",
+    });
+
 /**
  * Spec 102 FR-023: answers every open ruling request, oldest first, with one structured model
  * call each, then submits a `ruling` Intent from `ai:dm`. The model returns a decision and a
@@ -27,15 +39,7 @@ export async function answerRulings(
   for (const request of open) {
     if (signal.aborted) break;
     const needsTier = request.ask === "difficulty";
-    const schema = z
-      .object({
-        decision: z.enum(["accept", "reject"]),
-        difficulty: DifficultySchema.optional(),
-        reason: z.string().min(1).max(500).optional(),
-      })
-      .refine((v) => !(needsTier && v.decision === "accept" && !v.difficulty), {
-        message: "accept on a difficulty ask needs a difficulty",
-      });
+    const schema = rulingReplySchema(needsTier);
     const prompt = buildRulingPrompt(request);
     const result = await callJson(deps, {
       purpose: PURPOSE_OF.adjudicate,
