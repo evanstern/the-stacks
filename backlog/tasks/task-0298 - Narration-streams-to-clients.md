@@ -35,7 +35,7 @@ Spec: specs/108-narration-stream
 - [x] #5 Time to first narration token is recorded per narrate job.
 - [x] #6 Spec phase: Stream core (pure)
 - [x] #7 Spec phase: Pipeline wiring and timing
-- [ ] #8 Spec phase: Delivery and C-GATE amendments
+- [x] #8 Spec phase: Delivery and C-GATE amendments
 - [ ] #9 Spec phase: Web rendering
 - [ ] #10 Spec phase: Wiki re-ground
 <!-- AC:END -->
