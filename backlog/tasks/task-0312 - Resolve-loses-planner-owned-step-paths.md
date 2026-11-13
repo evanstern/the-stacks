@@ -4,7 +4,7 @@ title: Resolve loses planner-owned step paths
 status: In Progress
 assignee: []
 created_date: '2026-11-11T19:50:00Z'
-updated_date: '2026-11-13T03:52:00Z'
+updated_date: '2026-11-13T04:02:00Z'
 labels:
   - ws:intent
   - replan-2026-11
@@ -54,4 +54,6 @@ Claimed 2026-11-12 by the R1 sweep (docs/design/r1-fast-table-runbook.md). Workt
 
 Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5
 Spec 110 (684d8e1a): 27 tasks, 6 phases, no split. Estimated deletions: about 1500 source lines and 2000-2500 test lines. Phase 1 is a throw-stub probe before any deletion. C-GATE before phase 3: the adjudicate seam in specs/031 node-seam.md and turn-jobs.md. AC #3 is a one-way door: old checkpoint readings are dropped and re-interpreted.
+
+C-GATE ruling (operator, 2026-11-12, in chat): "Approve all". This approves deleting the adjudicate node, with Phase 3 amending specs/031-dm-runtime/contracts/node-seam.md and turn-jobs.md. It also approves the AC #3 one-way door (old checkpoint readings dropped and re-interpreted) and OQ-1..OQ-6 as recommended.
 <!-- SECTION:NOTES:END -->
