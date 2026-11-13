@@ -4,7 +4,7 @@ title: Resolve loses planner-owned step paths
 status: In Progress
 assignee: []
 created_date: '2026-11-11T19:50:00Z'
-updated_date: '2026-11-13T03:24:00Z'
+updated_date: '2026-11-13T03:52:00Z'
 labels:
   - ws:intent
   - replan-2026-11
@@ -31,6 +31,12 @@ Spec: specs/110-resolve-cleanup
 - [ ] #1 resolve.ts loses the code paths the planner now owns (moved from TASK-0267 by F1, then from TASK-0269 by the split).
 - [ ] #2 The encounter-start gathering in resolve.ts is removed once spatial placement owns it (spec 100 OQ-13).
 - [ ] #3 An old-shape resumed plan is dropped and re-interpreted (spec 104 OQ-8).
+- [ ] #4 Spec phase: Throw-stub probe (no deletion)
+- [ ] #5 Spec phase: Encounter-start gathering (AC #2)
+- [ ] #6 Spec phase: Adjudicate node (C-GATE ruling required before dispatch)
+- [ ] #7 Spec phase: Step paths in resolve and the plan gate (AC #1)
+- [ ] #8 Spec phase: Schemas and old checkpoints (AC #3)
+- [ ] #9 Spec phase: Wiki
 <!-- AC:END -->
 
 ## Definition of Done
@@ -45,4 +51,7 @@ Spec: specs/110-resolve-cleanup
 From spec 109 (TASK-0223): add to the deletion list two items spec 104 D8 omits: the runSteps 'effect' case, and the Step-only loop in presenceTargets.
 
 Claimed 2026-11-12 by the R1 sweep (docs/design/r1-fast-table-runbook.md). Worktree .worktrees/task-0312, branch task-0312-resolve-cleanup, cut from origin/main e0d4ed33. Spec number 110 claimed with a stub.
+
+Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5
+Spec 110 (684d8e1a): 27 tasks, 6 phases, no split. Estimated deletions: about 1500 source lines and 2000-2500 test lines. Phase 1 is a throw-stub probe before any deletion. C-GATE before phase 3: the adjudicate seam in specs/031 node-seam.md and turn-jobs.md. AC #3 is a one-way door: old checkpoint readings are dropped and re-interpreted.
 <!-- SECTION:NOTES:END -->
