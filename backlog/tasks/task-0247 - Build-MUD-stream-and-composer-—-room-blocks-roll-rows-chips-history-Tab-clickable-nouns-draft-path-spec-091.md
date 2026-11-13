@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: 2026-11-05 05:48
-updated_date: '2026-11-13T15:06:00Z'
+updated_date: '2026-11-13T15:13:00Z'
 labels:
   - web
   - ux
@@ -43,7 +43,7 @@ Spec: specs/091-mud-stream-and-composer
 - [x] #6 Spec phase: Scene fields and seed ways (FR-008 data; plan D1, D2, DA4, D8)
 - [x] #7 Spec phase: Stream items and the narration filter (FR-006, FR-007, FR-026, FR-027, FR-029 data)
 - [x] #8 Spec phase: Stream rendering (FR-008 to FR-011, FR-026 to FR-030)
-- [ ] #9 Spec phase: Contrast and contract blocks (FR-021, FR-022)
+- [x] #9 Spec phase: Contrast and contract blocks (FR-021, FR-022)
 - [ ] #10 Spec phase: Wiki re-ground
 - [ ] #11 Spec phase: Verify
 <!-- AC:END -->
@@ -100,4 +100,8 @@ Phase 2 landed 4dcaeb44 (+ fix-up af26b1a9: unknown-zone ways refused; reed-camp
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5
 
 Phase 3 landed ad99be2c. Open: npc_say talk rows carry characterId null, so the row label falls to actorLabel; Phase 4 adds a test that an npc_say row is named for the NPC (T018 'named dialogue row').
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5
+
+Phase 4 landed 471e4a9f: contrast pairs pass 4.5:1 light/dark, no app.css change; additive Amendment (TASK-0247) blocks in five contract files (R1 (a) via OQ-A8), ws-protocol and proposal-seam untouched. npc_say rows now name the NPC from the scene cast (test failed first, fixed in view-model.ts).
 <!-- SECTION:NOTES:END -->
