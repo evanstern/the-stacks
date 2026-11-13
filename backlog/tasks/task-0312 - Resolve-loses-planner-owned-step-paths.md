@@ -4,7 +4,7 @@ title: Resolve loses planner-owned step paths
 status: In Progress
 assignee: []
 created_date: '2026-11-11T19:50:00Z'
-updated_date: '2026-11-13T04:52:00Z'
+updated_date: '2026-11-13T04:53:00Z'
 labels:
   - ws:intent
   - replan-2026-11
@@ -30,7 +30,7 @@ Spec: specs/110-resolve-cleanup
 <!-- AC:BEGIN -->
 - [ ] #1 resolve.ts loses the code paths the planner now owns (moved from TASK-0267 by F1, then from TASK-0269 by the split).
 - [ ] #2 An old-shape resumed plan is dropped and re-interpreted (spec 104 OQ-8).
-- [ ] #3 Spec phase: Throw-stub probe (no deletion)
+- [x] #3 Spec phase: Throw-stub probe (no deletion)
 - [ ] #4 Spec phase: Adjudicate node (C-GATE ruling required before dispatch)
 - [ ] #5 Spec phase: Step paths in resolve and the plan gate (AC #1)
 - [ ] #6 Spec phase: Schemas and old checkpoints (AC #3)
