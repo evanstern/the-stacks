@@ -4,6 +4,7 @@ title: Instrument ai-actor-parity companion attempt test (CI-only flake)
 status: To Do
 assignee: []
 created_date: '2026-11-13T16:05:00Z'
+updated_date: '2026-11-13T16:56:00Z'
 labels:
   - test
   - flaky
@@ -30,3 +31,9 @@ The test 'AI actor parity: companion source (database) > attempt: needs_ruling, 
 - [ ] #1 All tests and checks run green
 - [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+AC #1 delivered on TASK-0247's branch (PR #177, f50f1628/41f191dd): the assertion message carries logs, plays and gateway purposes. Root cause found: the test read rows before the gate listener's enqueued commit turn ran; fixed in the test (41f191dd). Still open: why TASK-0247's branch hit the window often (4 of 5 CI runs) while main never did. Trigger: any new failure of this test after #177 merges.
+<!-- SECTION:NOTES:END -->
