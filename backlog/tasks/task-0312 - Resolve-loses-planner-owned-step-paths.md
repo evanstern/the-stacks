@@ -1,10 +1,10 @@
 ---
 id: TASK-0312
 title: Resolve loses planner-owned step paths
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-11-11T19:50:00Z'
-updated_date: '2026-11-13T06:09:00Z'
+updated_date: '2026-11-13T06:17:00Z'
 labels:
   - ws:intent
   - replan-2026-11
@@ -67,3 +67,9 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (phase 6 wiki). Final gates on merge of origin/main: ci:check REQUIRE_DATABASE=1 exit 0 (server 1789 passed; latency gate PASS; ai-round 4v4 851 ms); boundaries 28/28; wiki plan empty, freshness OK 65 notes; spec-bridge check exit 0.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Throw-stub probe (no deletion): 4/4 · Adjudicate node (C-GATE approved 2026-11-12): 7/7 · Step paths in resolve and the plan gate (AC #1): 7/7 · Schemas and old checkpoints (AC #3): 5/5 · Wiki: 2/2). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
