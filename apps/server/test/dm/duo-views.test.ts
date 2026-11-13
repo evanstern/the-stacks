@@ -1,3 +1,4 @@
+import { SceneSchema } from "@the-stacks/session-model";
 import { describe, expect, it } from "vitest";
 import { buildNarrationFacts } from "../../src/dm/facts.js";
 import { assemble } from "../../src/dm/nodes/assemble.js";
@@ -6,7 +7,11 @@ import type { ResolveOutput } from "../../src/dm/nodes/resolve.js";
 import { CAPS, rosterOf } from "../../src/dm/prompts/common.js";
 import { buildInterpretPrompt } from "../../src/dm/prompts/interpret.js";
 import { buildNarratePrompt } from "../../src/dm/prompts/narrate.js";
-import { playerFacingSeed } from "../../src/dm/seed/views.js";
+import {
+  dmOnlySeedText,
+  openingScene,
+  playerFacingSeed,
+} from "../../src/dm/seed/views.js";
 import { buildSnapshot, renderSnapshot } from "../../src/dm/snapshot/index.js";
 import { makeCtx } from "./helpers.js";
 import {
@@ -158,5 +163,30 @@ describe("duo player-facing prompts", () => {
     expect(text).not.toContain("Kestrel (party, AI companion)");
     expect(text).not.toContain(PLAYER_USER);
     expect(text).not.toContain(SECOND_USER);
+  });
+});
+
+describe("opening scene (spec 091 D8)", () => {
+  const scene = openingScene(playerFacingSeed(seed));
+  it("parses and keeps the scene-start values", () => {
+    expect(SceneSchema.safeParse(scene).success).toBe(true);
+    expect(scene.sceneId).toBe(seed.seedId);
+    expect(scene.title).toBe(seed.title);
+    expect(scene.summary).toBe(seed.goal.statement);
+    expect(scene.location).toBe(seed.location.name);
+  });
+  it("carries the three duo ways and four-field cast", () => {
+    expect(scene.ways?.map((w) => w.label)).toEqual([
+      "ladder to the loft",
+      "causeway downriver",
+      "ferry",
+    ]);
+    expect(scene.cast?.map((c) => Object.keys(c).sort())).toEqual(
+      seed.npcs.map(() => ["appearance", "id", "name", "role"]),
+    );
+  });
+  it("holds no DM-only text", () => {
+    const text = JSON.stringify(scene);
+    for (const s of dmOnlySeedText(seed)) expect(text).not.toContain(s);
   });
 });

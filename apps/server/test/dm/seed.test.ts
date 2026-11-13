@@ -634,3 +634,32 @@ describe("seed character stats checks (spec 082 FR-011)", () => {
     expect(issues.join(" ")).toContain("carries stats");
   });
 });
+
+describe("seed ways (spec 091 D2, DA4)", () => {
+  it("defaults to [] and reaches the player-facing view", () => {
+    const seed = raw();
+    delete seed.location.ways;
+    const parsed = parseSeed(seed);
+    expect(parsed.location.ways).toEqual([]);
+    expect(playerFacingSeed(parsed).location.ways).toEqual([]);
+    expect(playerFacingSeed(parseSeed(raw())).location.ways).toHaveLength(3);
+  });
+  it("refuses a way draft that does not parse", () => {
+    const issues = issuesFor((s) => {
+      s.location.ways[0].draft = "/bogus nothing";
+    });
+    expect(issues.join("\n")).toContain("ways");
+  });
+  it("refuses a way that moves into a hidden zone", () => {
+    const issues = issuesFor((s) => {
+      s.location.ways[1].draft = "/move #loft";
+    });
+    expect(issues.join("\n")).toContain("hidden zone");
+  });
+  it("refuses a way that moves into a zone the seed lacks", () => {
+    const issues = issuesFor((s) => {
+      s.location.ways[1].draft = "/move #nowhere";
+    });
+    expect(issues.join("\n")).toContain("unknown zone");
+  });
+});

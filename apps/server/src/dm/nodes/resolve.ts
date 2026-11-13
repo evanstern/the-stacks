@@ -33,6 +33,7 @@ import type { Node, NodeError, TurnContext } from "../pipeline/context.js";
 import { refreshSubmission } from "../resume.js";
 import { combatantFromSrd, statsFromCharacter } from "../seed/combatants.js";
 import type { SceneSeed } from "../seed/schema.js";
+import { openingScene, playerFacingSeed } from "../seed/views.js";
 import { namedActorIds } from "../snapshot/aliases.js";
 import {
   type ActorSnapshot,
@@ -772,12 +773,7 @@ async function directorOpening(
       kind: "scene",
       ...why(`Start the scene: ${seed.title}`),
       reason: `Scene start: ${seed.title}`.slice(0, 500),
-      after: {
-        sceneId: seed.seedId,
-        title: seed.title,
-        summary: seed.goal.statement,
-        location: seed.location.name,
-      },
+      after: openingScene(playerFacingSeed(seed)),
     }));
     // Spec 100 FR-022: the space is defined before the first party combatant joins.
     if (seed.space) {

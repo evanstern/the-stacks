@@ -4,12 +4,13 @@
 
 **Created**: 2026-11-05
 
-**Status**: Draft, split out of the combined spec on 2026-11-05. The direction and OQ1 to OQ4 are
+**Status**: Amended and ruled at C-AMD 2026-11-13 ("Approve all"); split into TASK-0247 (stream,
+`tasks.md`) and TASK-0329 (pills). Originally split out of the combined spec on 2026-11-05. The direction and OQ1 to OQ4 are
 ruled (`docs/design/mud-ux/decision.md`, 2026-11-04). The operator ruled both frozen-contract changes
 **(a) accept** on 2026-11-05: **R1** and **R2** under "Frozen-contract items". This spec holds the half
 that depends on spec 066.
 
-**Input**: TASK-0247. Decision record: `docs/design/mud-ux/decision.md` ("the decision" below). The
+**Input**: TASK-0247 (part 1) and TASK-0329 (part 2). Decision record: `docs/design/mud-ux/decision.md` ("the decision" below). The
 first half is spec 090 (`specs/090-table-margin/`, TASK-0236): the margin, mini-strip and status strip.
 Layout and states: `docs/design/mud-ux/round-1/b-margin.html`. Click-to-draft:
 `docs/design/mud-ux/round-1/c-split.html`. Pattern rationale:
@@ -18,6 +19,168 @@ Layout and states: `docs/design/mud-ux/round-1/b-margin.html`. Click-to-draft:
 Authored against `.specify/templates/`. The spec number and branch were reserved, so the skills'
 branch and directory steps were skipped. `speckit-clarify` was skipped: the decision rules every
 open question.
+
+## Amendment (2026-11, Intent contract v1.1)
+
+Amended 2026-11-13 for TASK-0247 by the R1 sweep spec author. Operator review: C-AMD, ruled
+2026-11-13, "Approve all" (every OQ-A recommendation as written; split into TASK-0247 and TASK-0329).
+Authored against `origin/main` `f761f1c6`. `speckit-clarify` was skipped again: the rulings below
+settle the design; the remaining judgment calls are under "Open questions (amendment)".
+
+**Sources.** decision-0030 (Intent contract v1 frozen; v1.1 text forms at C-CON 2026-11-08).
+`specs/092-intent-contract/contracts/intent-schema.md` v1.1: §7 (commit states; `draft` never
+leaves the client), §8 (text form, `parse`, `toText`, `ctx.resolve`), §8.3 rule 12 (an unknown
+`/verb` is refused), §9 (refusal codes). Spec 092 plan "Downstream amendments (specs 066 and 091)"
+and spec 092 Q1 (ruled at CP-4: `/help` is the Help action; composer help moves to `/?`). Spec 066
+amendment OQ-3 (ruled 2026-11-11, "Approve all"): old AC #10 moved to TASK-0199; AC #3 narrows to
+pills, Tab completion and inline `PARSE_*` wording. Spec 098 OQ-3 (ruled 2026-11-09): fact rows
+render from the ledger at resolve time, not from the narration text. Constitution 3.0.0 II, V, VII
+and IX.
+
+**Merged work this amendment builds on (do not redo).**
+
+- **TASK-0315 / spec 105 (PR #171).** One composer and one Send. `apps/web/app/play/send.ts`
+  `routeSend` parses every line through `parse` (`apps/web/test/play/send.test.mjs`, including
+  "a bad slash line is refused with the parser's message"). The confirm row, `KIND_LABEL`
+  (`play/labels.ts`), `detailsOf` (`play/proposals.ts`), the read ring (`play/read-ring.ts`).
+- **TASK-0298 / spec 108 (PR #174).** The ephemeral `narration-stream` frame. Narrate sends the
+  `rows` part before the gateway call. `components/transcript.tsx` renders one "The DM is
+  narrating" block, rows then prose, until the settled `narration` row lands
+  (`apps/web/test/play/transcript-stream.test.tsx`).
+- **TASK-0245 / spec 098.** Code renders every fact row (`apps/server/src/dm/fact-sheet.ts`
+  `renderRows`, `facts.ts` `renderRollLine`). The rows still ride the narration text
+  (`composeReply`). The d20 shown is the kept face only (`facts.ts` `shownFaces`). No row names the
+  roll mode.
+- **TASK-0199 / spec 066.** `action.suggest`, `action.accept`, served `ask_dm`, and the `intent`
+  turn that narrates a direct settled Intent.
+
+**What changes.**
+
+- **A1 — Roll rows render from the ledger at resolve time.** A roll row is built from `p.ledger`
+  `roll` and `outcome` rows at the roll's own seq, so it lands with the engine batch, before any
+  narration. It names the check (skill or ability, and "save" for a saving throw), the roll mode
+  (advantage or disadvantage, in words), and both d20 faces with the dropped face marked.
+  FR-006 is amended; FR-026 is new.
+- **A2 — The web stops showing fact rows twice.** The settled `narration` row keeps its code block
+  on the log (auditor, AI context and checkpoints read it). The web hides that block's dice and
+  change lines, because A1 and FR-007 already show them. The `why`, refusal and `State:` lines stay,
+  rendered as rules lines after the prose. The streaming block's `rows` part gets the same filter.
+  FR-027 is new.
+- **A3 — The progress indicator is spec 108's streaming block.** No new indicator. One order test
+  pins it: ledger rows, then the block, then the settled narration. FR-028 is new.
+- **A4 — NPC dialogue renders as distinct rows.** A sentence of narration prose that holds a
+  double-quoted span renders as its own dialogue row, upright and full contrast. An `npc_say` talk
+  row renders as a named dialogue row. FR-029 is new.
+- **A5 — The transcript column is capped at 1024 px and centred.** FR-030 is new.
+- **A6 — The Intent pill.** A composer line that starts with a slash verb or a sigil shows a live
+  pill above the input: `parse` of the line at commit `draft`. A parsed line shows the kind label
+  and the line's targets in words. A refused line shows the refusal in plain words
+  (`PARSE_*`). The pill never leaves the client. Send still runs `routeSend`. FR-031 is new.
+- **A7 — `draft(text)` becomes `draft(seed)`.** `seed` is an `Intent` or a text-form stub. An
+  Intent drafts `toText(intent)`; a stub drafts as typed. Either way the pill shows the parse.
+  FR-019 is superseded by FR-019a.
+- **A8 — The `/` dropdown lists the player verb table.** `/help` is the SRD Help action. The help
+  block moves to `/?` and to the `?` key on an empty composer. An unknown `/word` is refused inline
+  and never sent as speech. FR-014 is superseded by FR-014a.
+- **A9 — Tab completes verbs, targets and names.** After `/` it completes a verb. After `@`, `#` or
+  `&` it completes a target id. On a bare word it completes a glossary name. Send passes a
+  `ctx.resolve` built from the glossary. FR-015 and FR-016 are amended.
+- **A10 — The composer keeps a line until its echo lands.** A sent line stays in the input until
+  its own row reaches the projection. A refusal keeps it and shows the refusal. FR-032 is new.
+- **A11 — History reads the viewer's own Intents.** FR-012 is amended.
+- **A12 — A way on's `draft` is a text form.** The seed loader parses each way's `draft` once and
+  refuses a seed whose draft does not parse, or whose `/move` names a hidden zone. R1 is amended.
+- **A13 — FR-024 is superseded.** The composer sends `intent` requests (spec 105). This spec adds
+  no request kind, event type, frame or migration. The only event change is R1.
+- **A14 — Kept unchanged in intent:** R1 (a) and R2 (a), filter chips, rules lines, room blocks,
+  the glossary, noun expansions, screen-reader parity, the contrast bar and the no-modal rule.
+
+**Card acceptance criteria (ruled split, C-AMD 2026-11-13).** Old AC #10 moved to TASK-0199
+(spec 066 OQ-3 (b)) and shipped there. The split moved old AC #1, #2, #3 and #6 to TASK-0329. The
+"Old" column gives the 2026-11-12 numbering.
+
+| Card AC | Old | Disposition | Covered by | Evidence today / to add |
+|---|---|---|---|---|
+| TASK-0247 #1 Roll rows: code facts before prose, check and mode named, both d20s | #4 | Built here | A1; FR-006, FR-026 | partial today: `ledger-list.tsx` strikes the dropped face in the Ledger slide-out only. To add: `stream.test.mjs`, `roll-row.test.tsx` |
+| TASK-0247 #2 Progress indicator between fact rows and narration until the first token | #5 | Already met by TASK-0298; pinned here | A3; FR-028 | `transcript.tsx` "The DM is narrating" block; `transcript-stream.test.tsx`; spec 108 FR-004. To add: one order test |
+| TASK-0247 #3 NPC dialogue as distinct rows; column capped at 1024 px and centred | #7 | Built here | A4, A5; FR-029, FR-030 | to add: `narration-rows.test.mjs`, `transcript-stream.test.tsx`, `table-view.test.tsx` |
+| TASK-0247 #4 Spec 091 amended against v1.1 and reviewed at C-AMD | #8 | Met (ticked) | this section, plan.md | the C-AMD ruling, operator 2026-11-13: "Approve all" |
+| TASK-0247 #5 Fact rows render from the ledger at resolve time, not from narration | #9 | Built here | A1, A2; FR-006, FR-007, FR-027 | today rows ride the narration text (`fact-sheet.ts` `composeReply`). To add: `stream.test.mjs`, `narration-rows.test.mjs` |
+| TASK-0329 Spec amended so nouns, ways and Tab draft Intent pills | #1 | Met by this amendment (C-AMD) | A6, A7, A9; FR-019a, FR-031 | this section |
+| TASK-0329 A noun or way click drafts a pill at `draft`; nothing is sent | #2 | Built by TASK-0329 | A6, A7; FR-019a, FR-020, FR-031 | to add: `table-view.test.tsx` (no command call after a click) |
+| TASK-0329 Slash commands parse through the N-01 grammar, with a test | #3 | Partly met; remainder built by TASK-0329 | A6, A8, A9; FR-014a, FR-015, FR-031 | met: `send.ts` `routeSend`, `send.test.mjs`. To add: pill, Tab and `PARSE_*` wording tests |
+| TASK-0329 The composer keeps a line's draft until its echo lands, with a test | #6 | Built by TASK-0329 | A10; FR-032 | today `composer.tsx` clears on frame send (`if (sent) setText("")`). To add: `composer.test.tsx` |
+| TASK-0329 Listbox focus returns to its trigger (folded TASK-0318) | — | Built by TASK-0329 | FR-016 (OQ-A12) | to add: one test per listbox |
+
+TASK-0329 numbers its own criteria on its card; the rows above map content, not its numbers.
+
+**Requirement ownership.** Each FR belongs to one card.
+
+| Card | Requirements |
+|---|---|
+| **TASK-0247 (part 1, the stream)** | R1 (scene fields, seed ways, seed way validation A12); FR-006, FR-007, FR-008 (ways as text), FR-009, FR-010, FR-011, FR-026, FR-027, FR-028, FR-029, FR-030; constraints FR-021, FR-022, FR-023 for its surfaces; R2 for chips, room blocks, roll rows, parity lines and dialogue rows |
+| **TASK-0329 (part 2, the pills)** | FR-012, FR-013, FR-014a, FR-015, FR-016, FR-017, FR-018, FR-019a, FR-020 (way buttons, noun drafts), FR-031, FR-032; constraints FR-021, FR-022, FR-023 for its surfaces; R2 for the pill, the verb dropdown and noun expansions |
+| Both (no work) | FR-024 (superseded; no request kind, event type, frame or migration) |
+
+User stories: TASK-0247 builds US3, US6, US5 scenario 3 (room block with ways as text) and US5
+scenario 5. TASK-0329 builds US4 and US5 scenarios 1, 2 and 4.
+
+**Split.** Ruled at C-AMD (OQ-A1): two cards, one PR each. TASK-0247 has about 30 tasks
+(`tasks.md`). TASK-0329 derives its own task list from plan.md "Part 2 (TASK-0329)".
+
+### Open questions (amendment): resolved
+
+All fifteen were ruled at C-AMD by the operator on 2026-11-13: "Approve all". Each recommendation
+below is the ruling as written.
+
+- **OQ-A1 — Split.** Resolved (C-AMD 2026-11-13, "Approve all"): split into two cards, one PR each.
+  - **TASK-0247 keeps the stream:** card AC #1–#5 (old #4, #5, #7, #8, #9). Scope: R1 scene fields
+    and seed ways, roll rows, rules lines, room blocks (ways as text), filter chips, the log region,
+    the narration filter, dialogue rows and the 1024 px column. Spec 091 stays its spec.
+  - **TASK-0329, "Build: Intent pills in the composer (spec 091 part 2)",** takes old AC #1, #2,
+    #3 and #6. Scope: the pill, `draft(seed)`, the verb dropdown and `/?`, Tab, the resolver,
+    history, keep-until-echo, the glossary, noun expansions and way buttons. It depends on
+    TASK-0247 (room blocks, R1 `cast`).
+  - Old AC #8 stays on TASK-0247 as #4. TASK-0329 cites this amendment and needs no second review.
+- **OQ-A2 — Where old AC #6 goes.** Resolved (C-AMD 2026-11-13, "Approve all"): keep-until-echo
+  rides TASK-0329, so `composer.tsx` is edited in one PR.
+- **OQ-A3 — Hide fact rows in the web, or drop them on the server.** Resolved (C-AMD 2026-11-13,
+  "Approve all"): hide in the web (A2). The log stays the full record. No server, prompt or
+  auditor change. Card a server change only if the AI context is shown to double-count rows.
+- **OQ-A4 — `why` and `State:` lines still wait on narration.** Resolved (C-AMD 2026-11-13,
+  "Approve all"): keep them from the narration text in TASK-0247. Revisit carded as TASK-0330,
+  trigger "the CP-7 playtest shows a ruling's why arriving late".
+- **OQ-A5 — One roll formatter or two.** Resolved (C-AMD 2026-11-13, "Approve all"): the web
+  formats from ledger rows in `play/stream.ts`, reusing `ledger-format.ts`. The move of `FactRow`
+  and the renderer to `session-model` is carded as TASK-0331, trigger "the web and server row
+  wordings drift in a playtest".
+- **OQ-A6 — `draft(seed: Intent | string)`.** Resolved (C-AMD 2026-11-13, "Approve all"): accept an
+  Intent or a text-form stub; the pill shows the parse either way. Built by TASK-0329.
+- **OQ-A7 — The pill's `source`.** Resolved (C-AMD 2026-11-13, "Approve all"): every pill uses
+  `source: "composer"`. No contract change. Built by TASK-0329.
+- **OQ-A8 — R1 touches a frozen contract.** Resolved (C-AMD 2026-11-13, "Approve all"): R1 (a) is
+  re-confirmed as the C-GATE ruling for the `SceneSchema` optional fields. Briefs quote it from
+  plan.md "C-GATE".
+- **OQ-A9 — TASK-0275 (combat turn UX).** Resolved (C-AMD 2026-11-13, "Approve all"): 0275 calls
+  `draft(seed)` and adds no second draft path. It draft-holds until TASK-0329 merges.
+- **OQ-A10 — TASK-0277 (targeting and zone chips).** Resolved (C-AMD 2026-11-13, "Approve all"):
+  TASK-0329 completes targets alphabetically with no range data. 0277 adds range order, the HP
+  word and the out-of-reach mark to the same listbox; its zone chips call `draft(seed)`. Ways on
+  stay. 0277 draft-holds until TASK-0329 merges.
+- **OQ-A11 — TASK-0276 (reactions and roll requests).** Resolved (C-AMD 2026-11-13, "Approve
+  all"): 0276 adds its rows as `StreamItem` kinds in category Rules, pinned for the addressed
+  player (FR-010). It draft-holds until TASK-0247 merges.
+- **OQ-A12 — TASK-0318 (listbox focus).** Resolved (C-AMD 2026-11-13, "Approve all"): TASK-0318
+  folds into TASK-0329. The shared listbox returns focus to its trigger after a keyboard pick or
+  Escape; the Speaker listbox adopts the same rule. One test each.
+- **OQ-A13 — TASK-0325 (transcript name).** Resolved (C-AMD 2026-11-13, "Approve all"): TASK-0325
+  closes on TASK-0247's merge. The FR-011 accessible-name test is its evidence.
+- **OQ-A14 — Nested live regions.** Resolved (C-AMD 2026-11-13, "Approve all"): the streaming
+  block keeps `aria-busy` and drops its own `aria-live`. The spec 108 test line is updated in
+  TASK-0247.
+- **OQ-A15 — Server dice lines and both d20s.** Resolved (C-AMD 2026-11-13, "Approve all"): no
+  server change. Carded as TASK-0332, trigger "a playtest shows the model misreading a dropped die
+  from the transcript".
 
 ## Scope
 
@@ -139,6 +302,16 @@ closed command set. Tab completes a scene entity's name.
    here) and `@dm` (ask the DM, out of character). Arrow keys move, Enter picks, Escape closes.
 4. **Given** she picks `/help`, **Then** an inline panel under the composer lists the commands and
    keys (Up/Down, Tab, `@`, `/`). Nothing is sent or logged.
+
+**Amended 2026-11 (A8):** scenarios 3 and 4 read with `/?` in place of `/help`. The dropdown lists
+the player verbs (FR-014a); `/help` drafts the SRD Help action. Added scenarios:
+
+7. **Given** she types `/atack @goblin-lookout`, **Then** the pill reads "Unknown command: /atack"
+   and Send sends nothing.
+8. **Given** she types `/attack @gob` and presses Tab, **Then** the line reads
+   `/attack @goblin-lookout ` and the pill shows "Attack — Goblin lookout" once the weapon is typed.
+9. **Given** she sends a line, **Then** it stays in the input until her own row lands; on a refusal
+   it stays editable with the refusal shown.
 5. **Given** she types "I ask Sn" and presses Tab, **Then** the line reads "I ask Snag " when Snag is
    the one match. With two matches, the dropdown lists both.
 6. **Given** an empty line, or a line that ends in a space, **When** she presses Tab, **Then** focus
@@ -215,6 +388,9 @@ Requirement ids keep their numbers from the combined draft. FR-001 to FR-005 are
   <target>: hit/miss/critical hit" for an attack. The row is a disclosure (`<details>` or a button
   with `aria-expanded`). Its expansion shows the dice faces, modifier, total and the DC or AC, worded
   as the Ledger slide-out words them (`ledger-format.ts`).
+  **Amended 2026-11 (A1; TASK-0247 AC #1, #5):** the row renders from the ledger at the roll's seq, never
+  from narration text. A check names its skill, else its ability, and "save" for a saving throw.
+  The summary carries the roll mode in words ("with advantage", "with disadvantage"). See FR-026.
 - **FR-007**: Rules lines render from ledger `change` rows: initiative at `encounter.started`,
   conditions at `condition.applied` and `condition.removed`, HP for party members at `hp.changed`,
   and life state at `life-state.changed`. Wording follows US6.
@@ -232,11 +408,20 @@ Requirement ids keep their numbers from the combined draft. FR-001 to FR-005 are
 
 **Input**
 
-- **FR-012**: History is the viewer's own `talk` rows in this session's projection, newest last,
+- **FR-012** *(amended 2026-11, A11; TASK-0329)*: History is the viewer's own lines: `p.intents` whose
+  carrier actor is the viewer, as `toText(intent)`, plus the viewer's own `talk` rows that no
+  Intent carries (legacy rows). The rest of this rule stands. Original text:
+  History is the viewer's own `talk` rows in this session's projection, newest last,
   consecutive duplicates removed, capped at 50. It persists across reload because the log does.
 - **FR-013**: Up recalls the previous history entry when no dropdown is open. Down moves forward.
   Down past the newest restores the unsent text that was in the composer before the first Up.
-- **FR-014**: A `/` at the start of the line opens the command dropdown, filtered as typed. The set is
+- **FR-014a** *(replaces FR-014, A8; TASK-0329)*: A `/` at the start of the line opens the verb dropdown,
+  filtered as typed. It lists the verbs a player seat may send (`KIND_RULES` seats include P), each
+  with its `KIND_LABEL` words, plus `/?` (help). `/help` is the SRD Help action. `/?`, and `?` typed
+  into an empty composer, toggle the inline help block and send nothing. An unknown `/word` is
+  refused inline with plain words for `PARSE_UNKNOWN_VERB` and is never sent as speech (contract
+  §8.3 rule 12).
+- **FR-014** *(superseded by FR-014a)*: A `/` at the start of the line opens the command dropdown, filtered as typed. The set is
   closed: `/ooc`, `/help`, and `@dm` listed with its description. `/ooc` keeps 066's behaviour.
   `/help` opens an inline help block under the composer and sends nothing. Unknown `/words` are
   sent as typed, like any text.
@@ -244,8 +429,13 @@ Requirement ids keep their numbers from the combined draft. FR-001 to FR-005 are
   case-insensitively by prefix. One match replaces the word with the name and a space. Two or more
   matches open the dropdown. Tab on an empty line, after a space, or with no match is not
   intercepted (WCAG 2.1.2).
+  **Amended 2026-11 (A9, TASK-0329):** the word before the caret picks the list. `/` plus letters completes a
+  verb. `@`, `#` or `&` plus letters completes a target id (actors, revealed zones, scene
+  entities); the listbox shows the name beside the id. A bare word completes a glossary name. Send
+  passes `ctx.resolve` built from the glossary, so a bare name in a slash line resolves to its id.
 - **FR-016**: The command dropdown, the 066 `@` dropdown and the Tab dropdown are one inline listbox
   component under the input: `role="listbox"`, `aria-activedescendant`, arrow keys, Enter, Escape.
+  **Amended 2026-11 (OQ-A12, TASK-0329):** after a keyboard pick or Escape, focus returns to the input.
 
 **Glossary, nouns and ways**
 
@@ -259,13 +449,26 @@ Requirement ids keep their numbers from the combined draft. FR-001 to FR-005 are
   `aria-expanded` and `aria-controls`. Facts: a character shows class and level, HP, AC,
   conditions; a monster shows name, conditions and down or dead; an NPC shows role and appearance.
   No other field is shown.
-- **FR-019**: **The draft path.** `TableView` owns one function, `draft(text)`. It puts the text in
+- **FR-019a** *(replaces FR-019, A7; TASK-0329)*: **The draft path.** `TableView` owns one function,
+  `draft(seed: Intent | string)`. An Intent drafts `toText(intent)`; a string is a text-form stub
+  and drafts as given. It puts the text in the composer, sets the speaker to the viewer's character
+  when the speaker is out of character, focuses the input with the caret at the end, and sends
+  nothing. The pill (FR-031) then shows the parse at commit `draft`. A replaced non-empty draft
+  becomes the newest page-only history entry. Every click-to-draft caller uses this function: ways
+  on, noun expansions, and later the map, the action bar (TASK-0275) and zone chips (TASK-0277).
+- **FR-019** *(superseded by FR-019a)*: **The draft path.** `TableView` owns one function, `draft(text)`. It puts the text in
   the composer, sets the speaker to the viewer's character when the speaker is out of character,
   focuses the input with the caret at the end, and sends nothing. A replaced non-empty draft becomes
   the newest page-only history entry. Every click-to-draft caller uses this function: ways on now,
   map tokens and map ways later.
 - **FR-020**: A way on renders as a button that calls `draft(way.draft)` for a viewer who controls a
   character. For any other viewer it renders as text.
+  **Amended 2026-11 (A12):** `way.draft` is a contract text form. Seed validation is TASK-0247;
+  the buttons and noun drafts are TASK-0329. The seed loader runs `parse` on it
+  with a seed-time resolver and refuses the seed when it does not parse, or when a `/move` names a
+  zone the seed marks hidden. A noun expansion for an NPC or monster offers "Talk to" (stub
+  `/to @<id> `) and, for a monster in an encounter, "Attack" (stub `/attack @<id> with `); both
+  call `draft`.
 
 **Constraints**
 
@@ -275,7 +478,42 @@ Requirement ids keep their numbers from the combined draft. FR-001 to FR-005 are
   pair used by a new surface meets WCAG AA (4.5:1 text, 3:1 large text and control boundaries) in
   light and dark, checked by a test that computes the ratios from the tokens.
 - **FR-023**: Every surface works at 1280 px and 390 px with no sideways scroll.
-- **FR-024**: No new gate request, event type, frame or migration. The only event change is R1.
+- **FR-024** *(superseded 2026-11, A13)*: ~~No new gate request, event type, frame or migration.~~
+  The composer sends `intent` requests (spec 105, merged). This spec adds no request kind, event
+  type, frame or migration. The only event change is R1.
+
+**Added by the 2026-11 amendment**
+
+- **FR-026** (A1; TASK-0247 AC #1): A roll row with a `dice` term of two d20s and a kept mask shows both
+  faces, marks the dropped face (struck through, and "dropped" in its accessible name), and names
+  the mode in words. A crit damage roll shows every die. Its expansion lists faces per die as the
+  Ledger slide-out does. The row reads `dice.rolled.mode`, `check.resolved.kind`, `.skill` and
+  `.ability`; the client computes nothing.
+- **FR-027** (A2; TASK-0247 AC #5): The web splits a settled `ai:dm` narration row into prose and its
+  trailing code block with the auditor's rule (the last blank-line block whose every line is a
+  dice, change, `why`, refusal or `State:` line). Dice and change lines are not shown, because the
+  stream shows them from the ledger. `why`, refusal and `State:` lines render as rules lines after
+  the prose. The same filter applies to the streaming block's `rows` part. Narration text that has
+  no such block renders whole.
+- **FR-028** (A3; TASK-0247 AC #2): The streaming block (spec 108 FR-010) is the progress indicator. A
+  stream test pins the order: the batch's roll and rules rows, then the block, then the settled
+  narration. The block's own `aria-live` is dropped inside the log (OQ-A14).
+- **FR-029** (A4; TASK-0247 AC #3): In narration prose, each sentence that holds a double-quoted span
+  (straight or curly quotes) renders as its own dialogue row: upright, full-contrast `foreground`,
+  with the quote marks kept. The rest of the prose stays italic and muted. An `npc_say` talk row
+  renders as a dialogue row headed by the NPC name. No narration schema change.
+- **FR-030** (A5; TASK-0247 AC #3): The stream column and the composer are capped at 1024 px
+  (`max-w-5xl`) and centred, beside the spec 090 margin. At 390 px the column is full width.
+- **FR-031** (A6; TASK-0329, old AC #1–#3): **The Intent pill.** When the line starts with `/` or a sigil
+  (`@ & $ # * " ((`), a pill above the input shows `parse(line, ctx)` at commit `draft`, with the
+  FR-015 resolver. A parsed line shows `KIND_LABEL` words and each target's name. A refused line
+  shows plain words for the `PARSE_*` code (one label per code, contract §9) and the parser
+  message as detail. The pill is a `role="status"` region, polite. It is page state only and never
+  sent. Plain prose shows no pill. Send runs `routeSend` unchanged.
+- **FR-032** (A10; TASK-0329, old AC #6): After Send, the line stays in the input, read-only, until the
+  viewer's own row for it reaches the projection (the Intent id, or the declared action id). Then
+  the input clears. A refusal for that request re-enables the input with the line kept and shows
+  the refusal. A reconnect resolves the wait from the replayed log.
 
 ### Constitution-Driven Requirements *(mandatory)*
 

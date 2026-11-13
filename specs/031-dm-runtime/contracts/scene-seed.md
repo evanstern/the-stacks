@@ -217,3 +217,9 @@ here. A seed without it fails `parseSeed` with an issue at `opening.premise`.
 `statsFromSrd` also fills `stats.abilityScores` (all six, from the SRD monster record). `statsFromCharacter`
 sets none: a seed sheet carries no scores, so an `influence` opposition against a PC refuses `STAT_UNDEFINED`.
 `tableRules.groupChecks` has no behaviour yet: SRD 5.2.1 has no group-check rule (TASK-0232).
+
+**Amendment (TASK-0247).** Amended 2026-11-13 (spec `specs/091-mud-stream-and-composer`, plan.md "Contract amendments"). Additive.
+
+> "Approve all" (operator, C-AMD ruling, 2026-11-13: applies OQ-A1 to OQ-A15 of spec 091; OQ-A8 re-confirms R1 (a), ruled 2026-11-05, as the C-GATE ruling for the `SceneSchema` optional fields)
+
+`location` gains `ways`: an array of `{ label, draft }`, max 6, default `[]`. Each `draft` parses as an Intent and refuses a hidden zone at seed load. `PlayerSeedView.location` gains `ways`.

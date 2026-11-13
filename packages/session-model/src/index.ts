@@ -48,8 +48,13 @@ export {
   ProposalCreatedV1,
   ProposalRejectedV1,
 } from "./events/proposals.js";
-export type { Scene } from "./events/scene.js";
-export { SceneChangedV1, SceneSchema } from "./events/scene.js";
+export type { CastEntry, Scene, Way } from "./events/scene.js";
+export {
+  CastEntrySchema,
+  SceneChangedV1,
+  SceneSchema,
+  WaySchema,
+} from "./events/scene.js";
 export type {
   PresenceReason,
   ScenePresence,

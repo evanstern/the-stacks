@@ -90,6 +90,9 @@ const companionReply = (turn: unknown) =>
 
 // ------------------------------------------------------------------ companion source
 
+const lastLogs: unknown[][] = [];
+let lastRun: unknown; // TASK-0333 AC1: the job's plays, shown when an assertion fails
+let lastPurposes: unknown[] = [];
 async function odoTurn(
   turn: unknown,
   opts: { inReach: boolean; extra?: unknown[] },
@@ -131,7 +134,8 @@ async function odoTurn(
   }
   const { worker } = workerFor(w);
   const base = w.ctx().deps;
-  await runCompanionJob(
+  lastLogs.length = 0; // TASK-0333 AC1: surface why a companion play was skipped
+  lastRun = await runCompanionJob(
     {
       gateway: base.gateway,
       gate: base.gate,
@@ -139,7 +143,7 @@ async function odoTurn(
       loadSeed: (id: string) => loadSeed(id),
       enqueueTurnForced: async () => {},
       fence: async () => true,
-      log: () => {},
+      log: (...a: unknown[]) => void lastLogs.push(a),
     },
     {
       id: "00000000-0000-4000-8000-0000000000c9",
@@ -153,7 +157,14 @@ async function odoTurn(
     },
     new AbortController().signal,
   );
+  const afterJob = purposes(w);
   await drainAll(worker);
+  // The gate listener enqueues the commit turn asynchronously; one empty drain is not proof it
+  // ran. Wait (bounded) for the turn's own model call before reading rows. CI run 43463700007.
+  for (let i = 0; i < 100 && purposes(w).length <= afterJob.length; i++) {
+    await drainAll(worker);
+  }
+  lastPurposes = [afterJob, purposes(w)];
   return w;
 }
 const attackOdo = [
@@ -205,11 +216,14 @@ describe.skipIf(!reachable)(
         },
       );
       const c = await carriers(w);
-      expect(c.map((x) => x.outcome)).toEqual([
-        "declared",
-        "needs_ruling",
-        "settled",
-      ]);
+      expect(
+        c.map((x) => x.outcome),
+        JSON.stringify({
+          logs: lastLogs,
+          plays: lastRun,
+          purposes: lastPurposes,
+        }),
+      ).toEqual(["declared", "needs_ruling", "settled"]);
       expect(c[2]?.answers).toBe(c[1]?.intent.id);
     });
 

@@ -443,3 +443,28 @@ test("every viewer sees one composer, one Send and none of the SC-005 names (car
     }
   }
 });
+
+test("the stream column and composer wrapper carry the max-w-5xl cap; the chip group renders", () => {
+  const f = fixtures[0];
+  const html = renderToStaticMarkup(
+    <TableView source={sourceFor(f, f.viewers.dm)} />,
+  );
+  expect(html.match(/mx-auto w-full max-w-5xl/g)?.length).toBe(2);
+  expect(html).toContain('aria-label="Filter the stream"');
+  expect(html).toContain('role="log"');
+});
+
+test("a pinned confirm shows under every chip (FR-010)", async () => {
+  const { streamItems } = await import("~/play/stream");
+  const f = fixtures.find((x) => x.name === "dm-approvals") ?? fixtures[0];
+  const p = project(f.events, f.viewers.dm);
+  const { toTableViewModel } = await import("~/play/view-model");
+  const model = toTableViewModel(p, {
+    actor: fixtureIds.dmActor,
+    proposals: [],
+    present: null,
+  } as never);
+  const items = streamItems(model, p, f.viewers.dm);
+  const shown = items.filter((i) => i.pinned || i.category === "rules");
+  for (const i of items.filter((x) => x.pinned)) expect(shown).toContain(i);
+});

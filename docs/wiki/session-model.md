@@ -25,7 +25,7 @@ sources:
   - apps/server/src/session/events.ts
   - apps/server/src/session/projections.ts
 size_budget_exempt: spec 102 adds the intent kind paragraph and TASK-0199 (spec 066) adds the suggestion and read-rule paragraph to the one session-model note; it does not split without a TASK of its own
-verified_against: 7c0d16130c083a540d3a93f5fc587ec3e95e5cbf
+verified_against: cd1651916ec175a131a0dcd99f48590f7e96ab21
 ---
 
 # Session model
@@ -46,7 +46,7 @@ Six kinds exist:
 |---|---|
 | talk | `talk`, `narration` |
 | lifecycle | `action.declared`, `action.commented`, `action.committed`, `action.resolved`, `action.withdrawn`, `action.suggested` |
-| state-change | `table-mode.changed`, `scene.changed`, `scene-presence.changed`, `party.member.changed`, `tracker.changed` (dm-only), `dm.seat.changed`, `gate.policy.changed`, `zone.revealed` ([[zone-fog]]), plus engine events that change state |
+| state-change | `table-mode.changed`, `scene.changed` (`SceneSchema` has optional `description`, `ways` of `{label, draft}` and `cast` of id, name, role, appearance; `CastEntry` and `Way` are exported, spec 091), `scene-presence.changed`, `party.member.changed`, `tracker.changed` (dm-only), `dm.seat.changed`, `gate.policy.changed`, `zone.revealed` ([[zone-fog]]), plus engine events that change state |
 | marker | engine events `dice.rolled`, `attack.resolved`, `check.resolved`, `rest.completed`, and `presence.recorded` |
 | record | `journal.entry.added` |
 | proposal | `proposal.created`, `proposal.approved`, `proposal.rejected` (all `dm-only`) |

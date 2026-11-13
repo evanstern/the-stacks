@@ -3,10 +3,10 @@ id: TASK-0247
 title: >-
   Build: MUD stream and composer — room blocks, roll rows, chips, history, Tab,
   clickable nouns, draft path (spec 091)
-status: To Do
+status: In Progress
 assignee: []
 created_date: 2026-11-05 05:48
-updated_date: '2026-11-12T03:01:00Z'
+updated_date: '2026-11-13T16:56:00Z'
 labels:
   - web
   - ux
@@ -35,15 +35,17 @@ Spec: specs/091-mud-stream-and-composer
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Spec 091 is amended after CP-4 so clickable nouns, ways and Tab completion draft Intent pills.
-- [ ] #2 Clicking a noun or way drafts an Intent pill at draft state; nothing is sent until the player sends it.
-- [ ] #3 Slash commands in the composer parse through the N-01 text grammar to Intents, with a test.
-- [ ] #4 Roll rows render code facts before prose, name the check and roll mode, and show both d20s.
-- [ ] #5 A progress indicator shows between fact rows and narration until the first narration token arrives.
-- [ ] #6 The composer keeps a line's draft until its echo lands, with a test.
-- [ ] #7 NPC dialogue renders as distinct rows, and the transcript column is capped at 1024 px and centred.
-- [ ] #8 Spec 091 is amended against Intent contract v1.1 and reviewed by the operator at C-AMD before implementation.
-- [ ] #9 Fact rows render from the ledger at resolve time, not from the narration text (spec 098 OQ-3).
+- [ ] #1 Roll rows render code facts before prose, name the check and roll mode, and show both d20s.
+- [ ] #2 A progress indicator shows between fact rows and narration until the first narration token arrives.
+- [ ] #3 NPC dialogue renders as distinct rows, and the transcript column is capped at 1024 px and centred.
+- [x] #4 Spec 091 is amended against Intent contract v1.1 and reviewed by the operator at C-AMD before implementation.
+- [ ] #5 Fact rows render from the ledger at resolve time, not from the narration text (spec 098 OQ-3).
+- [x] #6 Spec phase: Scene fields and seed ways (FR-008 data; plan D1, D2, DA4, D8)
+- [x] #7 Spec phase: Stream items and the narration filter (FR-006, FR-007, FR-026, FR-027, FR-029 data)
+- [x] #8 Spec phase: Stream rendering (FR-008 to FR-011, FR-026 to FR-030)
+- [x] #9 Spec phase: Contrast and contract blocks (FR-021, FR-022)
+- [x] #10 Spec phase: Wiki re-ground
+- [x] #11 Spec phase: Verify
 <!-- AC:END -->
 
 ## Definition of Done
@@ -78,4 +80,58 @@ T015 (spec 092): amend spec 091: draft(text) -> draft(intent); closed command se
 Operator ruling 2026-11-09 (R1 lane specs 097-100): spec 098 OQ-3.
 
 Spec 066 OQ-3 (operator C-AMD ruling 2026-11-11, "Approve all"): AC #10 moved to TASK-0199. AC #3 narrows to pills, Tab completion and inline PARSE_* wording, because TASK-0199-web's Send already parses every slash verb.
+
+Claimed 2026-11-13 by the R1 sweep (docs/design/r1-fast-table-runbook.md). Worktree .worktrees/task-0247, branch task-0247-mud-stream, cut from origin/main f761f1c6. No spec dir: signed escape line covers this task.
+
+Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=cc/claude-opus-5-5
+
+C-AMD ruling (operator, 2026-11-13, verbatim): "Approve all". Applies spec 091 OQ-A1..A15 and the seed note as recommended. Split: AC #1, #2, #3, #6 move to TASK-0329 (Intent pills, spec 091 part 2); this card keeps AC #4, #5, #7, #8, #9. OQ-A8: R1 (a) re-confirmed as the C-GATE ruling for the SceneSchema optional fields. Follow-ups carded: TASK-0330 (OQ-A4), TASK-0331 (OQ-A5), TASK-0332 (OQ-A15). TASK-0318 folded into TASK-0329; TASK-0325 closes on this merge (FR-011). 0275/0277 hold for TASK-0329; 0276 holds for this card.
+
+Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=cc/claude-opus-5-5
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5
+
+Phase 1 landed 1f0fb167. Orchestrator finding: plan D2 put the duo ways (loft, ferry, causeway) on all four seeds, but greyhollow-ford-reed-camp has no loft or ferry zone, and the seed validator only refuses hidden zones, not missing ones. Fix rides Phase 2: refuse a /move to a zone the seed lacks; reed-camp keeps only ways its zones support. Within the ruled spec's intent (DA4: ways validated as contract text).
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5
+
+Phase 2 landed 4dcaeb44 (+ fix-up af26b1a9: unknown-zone ways refused; reed-camp keeps /move #causeway only). Implementer call accepted: hp.changed rules lines infer damage/healing from the HP delta, because ledger rows carry no cause.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5
+
+Phase 3 landed ad99be2c. Open: npc_say talk rows carry characterId null, so the row label falls to actorLabel; Phase 4 adds a test that an npc_say row is named for the NPC (T018 'named dialogue row').
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5
+
+Phase 4 landed 471e4a9f: contrast pairs pass 4.5:1 light/dark, no app.css change; additive Amendment (TASK-0247) blocks in five contract files (R1 (a) via OQ-A8), ws-protocol and proposal-seam untouched. npc_say rows now name the NPC from the scene cast (test failed first, fixed in view-model.ts).
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5
+
+Phase 5 landed c3a6486c: 11 NEEDS-REVIEW notes (gate list, wider than tasks.md's 5); prose amended in dm-runtime, dm-narration-quality, seed-npc-presence, session-model, play-route; six re-pin-only, each a one-line pin diff, reasons in the commit report. plan empty, freshness OK (65).
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5 (live-check verifier)
+
+Live check a66b84c2: 8/8 pass, no modal, no overflow. Findings triaged by orchestrator: (1) Rules chip hides narration why/ruling/State rules lines -> breaks FR-009, fix; (2) echoed declaration dialogue row ends with a stray ". -> fix; (3) roll detail repeats the d20 face -> fix; (4) Table talk hides the room block -> correct per FR-009 (room = In character), no change.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5 (live-check fixes)
+
+Dispatch: tier=haiku pinned=cc/claude-haiku-5-5 served=cc/claude-haiku-5-5 (play-route re-pin)
+
+Live-check fixes 84636aab (rules lines as Rules items, restate quote-period stripped, roll face list once); play-route re-verified and re-pinned 86c7450d.
+
+Final gates (orchestrator, after merging origin/main): REQUIRE_DATABASE=1 pnpm ci:check exit 0; check-boundaries exit 0; wiki plan empty; freshness OK (65); spec-bridge check exit 0.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5 (CI failure diagnosis)
+
+PR #177 CI failed twice on ai-actor-parity companion attempt test (run 43455978886). Diagnosis: no branch cause (siblings pass, seed load clean, path unchanged vs main, 19/19 local incl. CPU load). Carded TASK-0333 (instrument; trigger: next failure). Full CI re-run.
+
+PR #177 CI run 43459199179 (head e3aa4af0) failed the same ai-actor-parity companion attempt test: 3 of 3 CI runs on this branch, 0 in 100 on main. Treated as branch-specific in CI, not a flake. Merge held; put to operator.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5 (CI root-cause attempt 1; incomplete, instrumentation 294c441d)
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5 (CI root-cause attempt 2)
+
+CI on 294c441d: attempt 1 pass, attempt 2 fail with an empty companion log, so the job exits silently. Branch record 4 fail / 1 pass. Next: expose plays and fake-gateway purposes; merge only after 2 consecutive green runs on the fix.
+
+CI root cause (evidence, run 43463700007): companion job played (declare seq 15, commit seq 16 accepted, logs empty); only gateway purpose so far was dm.companion, so the listener-enqueued commit turn (adjudicate/narrate, which writes the carriers) had not run when the test read rows. Test race, not production. Fix 41f191dd: odoTurn drains until the fake gateway records a call beyond the companion's (bounded). CI run 43465351532 green on attempts 1 and 2. Instrumentation kept (TASK-0333 AC1). Open: why this branch hit the window more often than main; carried on TASK-0333.
 <!-- SECTION:NOTES:END -->

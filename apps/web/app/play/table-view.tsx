@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Panel } from "~/components/panel";
 import { Composer } from "./components/composer.tsx";
 import { DM_SEAT_PANEL_ID, DmSeatPanel } from "./components/dm-seat-panel.tsx";
+import { type Chip, FilterChips } from "./components/filter-chips.tsx";
 import { LedgerList } from "./components/ledger-list.tsx";
 import { Margin } from "./components/margin.tsx";
 import { MiniStrip } from "./components/mini-strip.tsx";
@@ -28,6 +29,7 @@ import { partyRows } from "./party.ts";
 import { presenceRows } from "./presence.ts";
 import { readIndicator } from "./read-ring.ts";
 import type { TableSource } from "./source.ts";
+import { streamItems } from "./stream.ts";
 import { toTableViewModel } from "./view-model.ts";
 
 /**
@@ -56,6 +58,17 @@ export function TableView({
         stream: source.narrationStream,
       }),
     [projected, actor, proposals, presentIds, source.narrationStream],
+  );
+  const [chip, setChip] = useState<Chip>("all");
+  const stream = useMemo(
+    () => streamItems(model, projected, viewer),
+    [model, projected, viewer],
+  );
+  // A pinned item (an open confirm or own open action) shows under every chip (FR-010).
+  const shown = useMemo(
+    () =>
+      stream.filter((i) => chip === "all" || i.pinned || i.category === chip),
+    [stream, chip],
   );
   const presence = useMemo(
     () => presenceRows(source.presence, projected),
@@ -148,7 +161,7 @@ export function TableView({
     return () => clearInterval(timer);
   }, [ticking]);
   const endRef = useRef<HTMLDivElement>(null);
-  const count = model.transcript.length;
+  const count = shown.length;
   // biome-ignore lint/correctness/useExhaustiveDependencies: scroll when the transcript grows.
   useEffect(() => {
     endRef.current?.scrollIntoView?.({ block: "end" });
@@ -187,15 +200,22 @@ export function TableView({
       <div className="flex min-h-0 flex-1">
         <div className="flex min-h-0 min-w-0 flex-1 flex-col">
           <div className="min-h-0 flex-1 overflow-y-auto p-3">
-            {!source.caughtUp ? (
-              <p className="text-sm text-muted-foreground">Loading history…</p>
-            ) : (
-              <Transcript
-                items={model.transcript}
-                commands={source.commands}
-                onNotQuite={() => composerRef.current?.focus()}
-              />
-            )}
+            <div className="mx-auto w-full max-w-5xl">
+              <div className="mb-3">
+                <FilterChips value={chip} onChange={setChip} />
+              </div>
+              {!source.caughtUp ? (
+                <p className="text-sm text-muted-foreground">
+                  Loading history…
+                </p>
+              ) : (
+                <Transcript
+                  items={shown}
+                  commands={source.commands}
+                  onNotQuite={() => composerRef.current?.focus()}
+                />
+              )}
+            </div>
             <div ref={endRef} />
           </div>
           <MiniStrip party={party} mode={model.mode} />
@@ -208,16 +228,18 @@ export function TableView({
         <Margin party={party} mode={model.mode} conditions={conditionLines} />
       </div>
       <ReadRing indicator={indicator} />
-      <Composer
-        composer={model.composer}
-        commands={source.commands}
-        inputRef={composerRef}
-        thinking={indicator.kind === "thinking"}
-        disabled={
-          source.status === "connecting" || source.status === "retrying"
-        }
-        notice={source.notice}
-      />
+      <div className="mx-auto w-full max-w-5xl">
+        <Composer
+          composer={model.composer}
+          commands={source.commands}
+          inputRef={composerRef}
+          thinking={indicator.kind === "thinking"}
+          disabled={
+            source.status === "connecting" || source.status === "retrying"
+          }
+          notice={source.notice}
+        />
+      </div>
       <Panel
         open={partyOpen}
         onOpenChange={setPartyOpen}

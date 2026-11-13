@@ -314,3 +314,9 @@ or `discussed` action, and refuses `ACTION_NOT_OPEN` otherwise. A direct `action
 through the Intent `action.accept` plans, never through an action row.
 
 Dated note, 2026-11-11 (T043): the code matches. `ActionDeclaredV1` never gained `suggestionId`, so the schema does not know the field and the planner has no `INVALID_PROPOSAL` branch for it. The `withdraw` rule is the pre-TASK-0188 one, as written above.
+
+**Amendment (TASK-0247).** Amended 2026-11-13 (spec `specs/091-mud-stream-and-composer`, plan.md "Contract amendments"). Additive.
+
+> "Approve all" (operator, C-AMD ruling, 2026-11-13: applies OQ-A1 to OQ-A15 of spec 091; OQ-A8 re-confirms R1 (a), ruled 2026-11-05, as the C-GATE ruling for the `SceneSchema` optional fields)
+
+Pointer only. The `scene` proposal `after` takes the widened `SceneSchema` from `specs/028-session-model/contracts/session-events.md`: the same `{ sceneId, title, summary, location }` plus optional `description`, `ways` and `cast`. No rule, kind, policy or refusal changes.

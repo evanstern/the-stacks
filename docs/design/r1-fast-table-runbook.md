@@ -179,6 +179,7 @@ shares no source file with any task ahead of it still unmerged.
 | 19 | TASK-0223 engine-derived amounts | LE | sonnet | spec set | after #15 merges (planner + resolve) |
 | 20 | TASK-0275 combat turn UX | LT | sonnet | spec set | after #16 merges (composer, view-model) |
 | 21 | TASK-0247 MUD stream (spec 091 amended) | LT | sonnet | spec 091 + amendment | after #16 and #9 merge |
+| 21b | TASK-0329 Intent pills (spec 091 part 2, split at C-AMD) | LT | sonnet | spec 091 Part 2 + its tasks.md (opus) | after #21 merges; before 0275 and 0277 |
 | 22 | TASK-0277 targeting, zone chips | LT | sonnet | spec set | after #21 merges (composer, margin) |
 | 23 | TASK-0276 reactions, roll requests | LT | sonnet | spec set | after #20 merges |
 | 24 | TASK-0101 hosted dev AI (+0037) | LP | sonnet + orchestrator | escape E7 | any time; must merge before #26; C9 per command |
@@ -491,3 +492,4 @@ updated at each dispatch boundary. `tokens/cost` carries best-effort actuals.
 | 2026-11-12 | TASK-0298 | (this PR) | — | opus spec; sonnet x3 | C-GATE "Approve all": narration-stream frame; per-sentence checked stream (prefix property over 106 fixtures); live check in Brave; OQ-1/OQ-3 carded |
 | 2026-11-12 | TASK-0223 | (this PR) | — | opus spec; sonnet x1 | Unarmed Strike derived in findAttack; model-number guard test; band-effect amounts to TASK-0313 |
 | 2026-11-13 | TASK-0312 | (this PR) | — | opus spec; sonnet x4 | C-GATE "Approve all": adjudicate node deleted, spec 031 contracts amended; about 5,800 lines out; legacy checkpoints dropped (`dm.checkpoint.legacy-dropped`); gathering kept, AC #2 to TASK-0327; pull-in coverage gap carded TASK-0328 |
+| 2026-11-13 | TASK-0247 | (this PR) | — | opus spec x2; sonnet x6; haiku x1 | C-AMD "Approve all": split (pills -> TASK-0329, 0318 folded), OQ-A4/A5/A15 carded TASK-0330..0332; C-GATE R1 (a) re-confirmed (SceneSchema optional fields); live check in Brave 8/8, three findings fixed |

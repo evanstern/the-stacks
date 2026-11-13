@@ -423,3 +423,9 @@ delta, so it has no `before` or `after`. Payload versions are unchanged. Detail:
 `ActionSuggestedV1` items are `{ itemId, text, intent }` with `intent.commit: "declared"` (see
 `specs/029-proposal-gate/contracts/proposal-events.md`). `ActionDeclaredV1` gains no `suggestionId`.
 The `PresenceRecordedV1.purpose` value `read` stands.
+
+**Amendment (TASK-0247).** Amended 2026-11-13 (spec `specs/091-mud-stream-and-composer`, plan.md "Contract amendments"). Additive.
+
+> "Approve all" (operator, C-AMD ruling, 2026-11-13: applies OQ-A1 to OQ-A15 of spec 091; OQ-A8 re-confirms R1 (a), ruled 2026-11-05, as the C-GATE ruling for the `SceneSchema` optional fields)
+
+The `scene.changed` payload stays `schemaVersion` 1. `SceneSchema` gains three optional fields, so old rows still parse: `description` (string, max 1000), `ways` (array of `{ label, draft }`, max 6) and `cast` (array of `{ id, name, role, appearance }`, max 20). `cast` holds player-facing text only.
