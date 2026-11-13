@@ -36,7 +36,7 @@ Spec: specs/108-narration-stream
 - [x] #6 Spec phase: Stream core (pure)
 - [x] #7 Spec phase: Pipeline wiring and timing
 - [x] #8 Spec phase: Delivery and C-GATE amendments
-- [ ] #9 Spec phase: Web rendering
+- [x] #9 Spec phase: Web rendering
 - [ ] #10 Spec phase: Wiki re-ground
 <!-- AC:END -->
 
