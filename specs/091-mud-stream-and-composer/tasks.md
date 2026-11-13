@@ -61,23 +61,23 @@ narration split into prose, dialogue and kept rules lines.
 
 **Independent test**: `stream.test.mjs` and `narration-rows.test.mjs` pass.
 
-- [ ] T008 [US3] In `apps/web/app/play/ledger-format.ts`, export the face and outcome wording helpers
+- [x] T008 [US3] In `apps/web/app/play/ledger-format.ts`, export the face and outcome wording helpers
       `stream.ts` needs. Keep `toLedgerItems` output unchanged.
-- [ ] T009 [US3] Create `apps/web/app/play/stream.ts` with `streamItems` (plan D3): categories,
+- [x] T009 [US3] Create `apps/web/app/play/stream.ts` with `streamItems` (plan D3): categories,
       `pinned`, rules lines and room items.
-- [ ] T010 [US3] In `stream.ts`, build roll items from ledger `roll` and `outcome` rows grouped by
+- [x] T010 [US3] In `stream.ts`, build roll items from ledger `roll` and `outcome` rows grouped by
       `batchId`, at the roll's seq (plan DA1). Name the check and the mode in words. Carry both d20
       faces with the kept mask. Add the `ponytail:` comment naming OQ-A5 and TASK-0331.
-- [ ] T011 [US3] Create `apps/web/app/play/narration-rows.ts` with `narrationRows(text)` (plan DA2).
+- [x] T011 [US3] Create `apps/web/app/play/narration-rows.ts` with `narrationRows(text)` (plan DA2).
       Drop dice and change lines; keep `why`, refusal and `State:` lines. Tag quoted sentences as
       `dialogue`. Add the `ponytail:` comment on the copied auditor regexes.
-- [ ] T012 [P] [US3] Create `apps/web/test/play/stream.test.mjs`: US3 scenarios 1, 2 and 5; US6
+- [x] T012 [P] [US3] Create `apps/web/test/play/stream.test.mjs`: US3 scenarios 1, 2 and 5; US6
       scenarios 1 to 5; mode words and both faces with the dropped face marked; a roll row's seq
       precedes its batch's narration seq; a batch with no outcome shows the total only.
-- [ ] T013 [P] [US6] In `stream.test.mjs`, add the parity test (SC-002): each margin and status-strip
+- [x] T013 [P] [US6] In `stream.test.mjs`, add the parity test (SC-002): each margin and status-strip
       fact in the `turn-mode-combat` fixture has a matching stream text. Add the SC-006 test: a
       `dm`-visibility ledger row yields no item for a player viewer.
-- [ ] T014 [P] [US3] Create `apps/web/test/play/narration-rows.test.mjs`: a block of dice and change
+- [x] T014 [P] [US3] Create `apps/web/test/play/narration-rows.test.mjs`: a block of dice and change
       lines is dropped; `why`, refusal and `State:` lines are kept; straight and curly quotes make
       dialogue segments; text with no block renders whole. Commit as
       `TASK-0247 phase 2: stream items and the narration filter`.

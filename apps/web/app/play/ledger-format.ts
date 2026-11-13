@@ -81,7 +81,9 @@ export function changedFields(before: unknown, after: unknown): ChangedField[] {
   return out;
 }
 
-function outcomeSummary(row: Extract<LedgerRow, { kind: "outcome" }>): string {
+export function outcomeSummary(
+  row: Extract<LedgerRow, { kind: "outcome" }>,
+): string {
   const o = row.outcome;
   switch (o.type) {
     case "attack.resolved": {
@@ -112,24 +114,47 @@ function outcomeSummary(row: Extract<LedgerRow, { kind: "outcome" }>): string {
   }
 }
 
+export interface DiceView {
+  sides: number;
+  faces: number[];
+  kept: boolean[];
+}
+
+/** The dice terms of a roll, and its summed modifier. Shared with the stream's roll rows. */
+export function rollDice(roll: Extract<LedgerRow, { kind: "roll" }>["roll"]): {
+  dice: DiceView[];
+  modifier: number;
+} {
+  const dice: DiceView[] = [];
+  let modifier = 0;
+  for (const term of roll.terms) {
+    if (term.kind === "dice") {
+      dice.push({
+        sides: term.sides,
+        faces: [...term.faces],
+        kept: [...term.kept],
+      });
+    } else {
+      modifier += term.value;
+    }
+  }
+  return { dice, modifier };
+}
+
+/** "d20: 14, 9 (dropped)": one die's faces in words; a dropped face is named, not only struck. */
+export function diceText(die: DiceView): string {
+  const faces = die.faces.map((f, i) =>
+    die.kept[i] === false ? `${f} (dropped)` : String(f),
+  );
+  return `d${die.sides}: ${faces.join(", ")}`;
+}
+
 /** Ledger rows as display items, in the order given (newest last). */
 export function toLedgerItems(rows: readonly LedgerRow[]): LedgerItem[] {
   return rows.map((row): LedgerItem => {
     const hidden = row.visibility === "dm";
     if (row.kind === "roll") {
-      const dice: { sides: number; faces: number[]; kept: boolean[] }[] = [];
-      let modifier = 0;
-      for (const term of row.roll.terms) {
-        if (term.kind === "dice") {
-          dice.push({
-            sides: term.sides,
-            faces: [...term.faces],
-            kept: [...term.kept],
-          });
-        } else {
-          modifier += term.value;
-        }
-      }
+      const { dice, modifier } = rollDice(row.roll);
       return {
         kind: "roll",
         seq: row.seq,
