@@ -4,7 +4,7 @@ title: Resolve loses planner-owned step paths
 status: In Progress
 assignee: []
 created_date: '2026-11-11T19:50:00Z'
-updated_date: '2026-11-13T05:40:00Z'
+updated_date: '2026-11-13T05:45:00Z'
 labels:
   - ws:intent
   - replan-2026-11
@@ -28,11 +28,11 @@ Spec: specs/110-resolve-cleanup
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 resolve.ts loses the code paths the planner now owns (moved from TASK-0267 by F1, then from TASK-0269 by the split).
+- [x] #1 resolve.ts loses the code paths the planner now owns (moved from TASK-0267 by F1, then from TASK-0269 by the split).
 - [ ] #2 An old-shape resumed plan is dropped and re-interpreted (spec 104 OQ-8).
 - [x] #3 Spec phase: Throw-stub probe (no deletion)
-- [ ] #4 Spec phase: Adjudicate node (C-GATE ruling required before dispatch)
-- [ ] #5 Spec phase: Step paths in resolve and the plan gate (AC #1)
+- [x] #4 Spec phase: Adjudicate node (C-GATE ruling required before dispatch)
+- [x] #5 Spec phase: Step paths in resolve and the plan gate (AC #1)
 - [ ] #6 Spec phase: Schemas and old checkpoints (AC #3)
 - [ ] #7 Spec phase: Wiki
 <!-- AC:END -->
@@ -58,4 +58,6 @@ C-GATE ruling (operator, 2026-11-12, in chat): "Approve all". This approves dele
 Operator ruling 2026-11-12 (in chat): "Agreed" to keeping gathering for now. Phase 2 (77e74f18) is reverted in 767fed0b. AC #2 and spec 110 phase 2 move to TASK-0327, because the greyhollow seeds put two squeeze edges between the party and reed-camp, so without gathering CP-7 fights would open at range. Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (phases 1-2). Phase 1 probe (9db40e74): every one of 168 stub hits came from a legacy fixture or a direct test of a deleted symbol, so no live path reaches the deletion inventory.
 
 Phase 4 (spec 110) test migration, D6. DELETED, covered elsewhere: derived-numbers.integration (STAT_UNDEFINED, derived modifiers: planner checks/combat tests); opposition-and-help.integration (opposition DC, help grant: planner combat/checks tests, engine assist.granted/ended replay test); plan-gate.test checkPlan describes for stat, spell, absent, presence, pull, actor, opposition and help rules (planner refusals/legality tests); spells.integration bless SPELL_UNRESOLVED and no-such-spell SPELL_UNKNOWN (planner combat.test cast refusals); resolve.integration 'a retry that names a new risk rolls' (stakes.test isFreeRetry newRisk case); companion-own-turn.integration whole file (held-cast replay and R3 mixed actors: the off-turn hold now keys on the declarer, which the gate refuses to commit off turn for an Odo party action; TURN_HELD unit cases live in plan-gate.test 'checkPlan turn hold'; R3 mixed-actor refusal is a plain deletion per D4). DELETED, no Intent-path replacement yet, carded as TASK-0328: TASK-0213 Pell-pull initiative-line tests (3) and 'an adjudicate ruling effect step with a presence effect lands'. PORTED to stage fixtures: resolve.integration (check, band, free-retry, reveal, attack hit/miss/crit, refusal TARGET_NOT_PRESENT, seqs, commit order, marker via autoFail, reclaim/in-flight marker, order, settling, S1/diff, presence effects via beside onSuccess/onFailure, turn-moved guard); resolve.human-seat (autoFail check.roll held pending); spells.integration (sacred-flame, cure-wounds, slot spend, run-1 revive replay; declared by Odo); opportunity-attack.integration (move+check replay, second-move reaction once per attacker, reaction reset; run-1 STEP_ACTOR_MISMATCH plan deleted per D4); encounter-auto-end and fled-combatant (NPC surrender/flee as an attempt stage with a presence effect in beside, one scripted dm.adjudicate accept); first-stage.test, reveal-waits.test, runner.test, narrate.test, plan-gate askUndeclared and turn-hold.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (phases 3-4). Phase 3 86d090a4, phase 4 972a2b42; ci:check green with REQUIRE_DATABASE=1 on each. A stray root edit by the implementer was reverted by the orchestrator and the patch was re-applied in the worktree.
 <!-- SECTION:NOTES:END -->
