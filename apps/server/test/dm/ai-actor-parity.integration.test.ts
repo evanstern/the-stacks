@@ -90,6 +90,7 @@ const companionReply = (turn: unknown) =>
 
 // ------------------------------------------------------------------ companion source
 
+const lastLogs: unknown[][] = [];
 async function odoTurn(
   turn: unknown,
   opts: { inReach: boolean; extra?: unknown[] },
@@ -131,6 +132,7 @@ async function odoTurn(
   }
   const { worker } = workerFor(w);
   const base = w.ctx().deps;
+  lastLogs.length = 0; // TASK-0333 AC1: surface why a companion play was skipped
   await runCompanionJob(
     {
       gateway: base.gateway,
@@ -139,7 +141,7 @@ async function odoTurn(
       loadSeed: (id: string) => loadSeed(id),
       enqueueTurnForced: async () => {},
       fence: async () => true,
-      log: () => {},
+      log: (...a: unknown[]) => void lastLogs.push(a),
     },
     {
       id: "00000000-0000-4000-8000-0000000000c9",
@@ -205,11 +207,10 @@ describe.skipIf(!reachable)(
         },
       );
       const c = await carriers(w);
-      expect(c.map((x) => x.outcome)).toEqual([
-        "declared",
-        "needs_ruling",
-        "settled",
-      ]);
+      expect(
+        c.map((x) => x.outcome),
+        JSON.stringify(lastLogs),
+      ).toEqual(["declared", "needs_ruling", "settled"]);
       expect(c[2]?.answers).toBe(c[1]?.intent.id);
     });
 
