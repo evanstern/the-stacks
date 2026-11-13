@@ -6,7 +6,7 @@ title: >-
 status: Done
 assignee: []
 created_date: 2026-11-05 05:48
-updated_date: '2026-11-13T17:05:00Z'
+updated_date: '2026-11-13T17:13:00Z'
 labels:
   - web
   - ux
@@ -136,6 +136,8 @@ CI on 294c441d: attempt 1 pass, attempt 2 fail with an empty companion log, so t
 CI root cause (evidence, run 43463700007): companion job played (declare seq 15, commit seq 16 accepted, logs empty); only gateway purpose so far was dm.companion, so the listener-enqueued commit turn (adjudicate/narrate, which writes the carriers) had not run when the test read rows. Test race, not production. Fix 41f191dd: odoTurn drains until the fake gateway records a call beyond the companion's (bounded). CI run 43465351532 green on attempts 1 and 2. Instrumentation kept (TASK-0333 AC1). Open: why this branch hit the window more often than main; carried on TASK-0333.
 
 spec-bridge sync: Scene fields and seed ways (R1; FR-008 data; plan D1, D2, DA4, D8): 7/7 · Stream items and the narration filter (US3, US6; FR-006, FR-007, FR-026, FR-027, FR-029 data; plan D3, DA1, DA2): 7/7 · Stream rendering (US3, US6; FR-008 to FR-011, FR-026 to FR-030; plan DA3, D5): 9/9 · Contrast and contract blocks (FR-021, FR-022; SC-003, SC-007; plan D9, "Contract amendments"): 3/3 · Wiki re-ground: 2/2 · Verify: 2/2 — status In Progress → Done
+
+Deployed: vm-104 /health serves b08059da (contains merge 2a1d5189); main CI and Deploy dev green on b08059da. Worktree, stack and branches removed; env:prune --check: no orphans.
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
