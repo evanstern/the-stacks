@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: 2026-11-05 05:48
-updated_date: '2026-11-13T13:37:00Z'
+updated_date: '2026-11-13T14:28:00Z'
 labels:
   - web
   - ux
@@ -42,7 +42,7 @@ Spec: specs/091-mud-stream-and-composer
 - [ ] #5 A progress indicator shows between fact rows and narration until the first narration token arrives.
 - [ ] #6 The composer keeps a line's draft until its echo lands, with a test.
 - [ ] #7 NPC dialogue renders as distinct rows, and the transcript column is capped at 1024 px and centred.
-- [ ] #8 Spec 091 is amended against Intent contract v1.1 and reviewed by the operator at C-AMD before implementation.
+- [x] #8 Spec 091 is amended against Intent contract v1.1 and reviewed by the operator at C-AMD before implementation.
 - [ ] #9 Fact rows render from the ledger at resolve time, not from the narration text (spec 098 OQ-3).
 <!-- AC:END -->
 
@@ -82,4 +82,6 @@ Spec 066 OQ-3 (operator C-AMD ruling 2026-11-11, "Approve all"): AC #10 moved to
 Claimed 2026-11-13 by the R1 sweep (docs/design/r1-fast-table-runbook.md). Worktree .worktrees/task-0247, branch task-0247-mud-stream, cut from origin/main f761f1c6. No spec dir: signed escape line covers this task.
 
 Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=cc/claude-opus-5-5
+
+C-AMD ruling (operator, 2026-11-13, verbatim): "Approve all". Applies spec 091 OQ-A1..A15 and the seed note as recommended. Split: AC #1, #2, #3, #6 move to TASK-0329 (Intent pills, spec 091 part 2); this card keeps AC #4, #5, #7, #8, #9. OQ-A8: R1 (a) re-confirmed as the C-GATE ruling for the SceneSchema optional fields. Follow-ups carded: TASK-0330 (OQ-A4), TASK-0331 (OQ-A5), TASK-0332 (OQ-A15). TASK-0318 folded into TASK-0329; TASK-0325 closes on this merge (FR-011). 0275/0277 hold for TASK-0329; 0276 holds for this card.
 <!-- SECTION:NOTES:END -->
