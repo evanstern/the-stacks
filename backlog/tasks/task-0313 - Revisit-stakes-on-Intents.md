@@ -4,7 +4,7 @@ title: 'Revisit: stakes on Intents'
 status: To Do
 assignee: []
 created_date: '2026-11-11T19:51:00Z'
-updated_date: '2026-11-13T02:31:00Z'
+updated_date: '2026-11-13T13:32:00Z'
 labels:
   - ws:intent
   - replan-2026-11
@@ -37,4 +37,6 @@ Spec 097 OQ-5 and spec 104 OQ-6: band effects and the free retry (autoSuccess) r
 
 <!-- SECTION:NOTES:BEGIN -->
 Spec 107 OQ-3 (operator 'Accept all', 2026-11-12): companion acts in free mode stay prose plus interpret, because check stakes still need the beside fields the model writes. Stakes on Intents would let those acts skip interpret too.
+
+2026-11-13: claimed by mistake by the R1 sweep after TASK-0312 and released unworked. Branch task-0313-stakes-on-intents and its spec 111 stub were deleted. The card is still R2 (m-11), and its revisit trigger has not fired.
 <!-- SECTION:NOTES:END -->
