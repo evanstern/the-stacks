@@ -35,15 +35,11 @@ Spec: specs/091-mud-stream-and-composer
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Spec 091 is amended after CP-4 so clickable nouns, ways and Tab completion draft Intent pills.
-- [ ] #2 Clicking a noun or way drafts an Intent pill at draft state; nothing is sent until the player sends it.
-- [ ] #3 Slash commands in the composer parse through the N-01 text grammar to Intents, with a test.
-- [ ] #4 Roll rows render code facts before prose, name the check and roll mode, and show both d20s.
-- [ ] #5 A progress indicator shows between fact rows and narration until the first narration token arrives.
-- [ ] #6 The composer keeps a line's draft until its echo lands, with a test.
-- [ ] #7 NPC dialogue renders as distinct rows, and the transcript column is capped at 1024 px and centred.
-- [x] #8 Spec 091 is amended against Intent contract v1.1 and reviewed by the operator at C-AMD before implementation.
-- [ ] #9 Fact rows render from the ledger at resolve time, not from the narration text (spec 098 OQ-3).
+- [ ] #1 Roll rows render code facts before prose, name the check and roll mode, and show both d20s.
+- [ ] #2 A progress indicator shows between fact rows and narration until the first narration token arrives.
+- [ ] #3 NPC dialogue renders as distinct rows, and the transcript column is capped at 1024 px and centred.
+- [x] #4 Spec 091 is amended against Intent contract v1.1 and reviewed by the operator at C-AMD before implementation.
+- [ ] #5 Fact rows render from the ledger at resolve time, not from the narration text (spec 098 OQ-3).
 <!-- AC:END -->
 
 ## Definition of Done
