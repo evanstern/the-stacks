@@ -4,6 +4,7 @@ title: Resolve loses planner-owned step paths
 status: To Do
 assignee: []
 created_date: '2026-11-11T19:50:00Z'
+updated_date: '2026-11-13T02:31:00Z'
 labels:
   - ws:intent
   - replan-2026-11
@@ -35,3 +36,9 @@ Parent epic: TASK-0258.
 - [ ] #1 All tests and checks run green
 - [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+From spec 109 (TASK-0223): add to the deletion list two items spec 104 D8 omits: the runSteps 'effect' case, and the Step-only loop in presenceTargets.
+<!-- SECTION:NOTES:END -->
