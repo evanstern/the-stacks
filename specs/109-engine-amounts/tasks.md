@@ -21,6 +21,6 @@ the adjudicate node or `step-grammar.ts`: TASK-0312 owns them. Do not edit `Besi
 
 ## Phase 3: Wiki
 
-- [ ] T008 Review `docs/wiki/dnd5e-engine-derived-rolls.md` (NEEDS-REVIEW: source `derive.ts`). Add the derived Unarmed Strike rule (stored entry wins, 0 floor, `STAT_UNDEFINED` on missing Str). Re-pin honestly through `/grounding-wiki:wiki-update`.
-- [ ] T009 Review `docs/wiki/planner.md` (NEEDS-REVIEW). Replace "Unarmed strikes refuse `STAT_UNDEFINED` until TASK-0223 derives the entry (OQ-12)" with the served behavior. Review `docs/wiki/dnd5e-engine.md` and `docs/wiki/test-suite.md` if any pinned source changed. `docs/wiki/srd-data.md` needs no review: no `packages/srd` source changes.
-- [ ] T010 Update `docs/wiki/INDEX.md` state line and `docs/wiki/CAPSULES.md` for TASK-0223 (spec 109). Run the freshness gate until it prints `OK`. Run the spec-bridge check until it exits 0. Run `pnpm ci:check`.
+- [x] T008 Review `docs/wiki/dnd5e-engine-derived-rolls.md` (NEEDS-REVIEW: source `derive.ts`). Add the derived Unarmed Strike rule (stored entry wins, 0 floor, `STAT_UNDEFINED` on missing Str). Re-pin honestly through `/grounding-wiki:wiki-update`.
+- [x] T009 Review `docs/wiki/planner.md` (NEEDS-REVIEW). Replace "Unarmed strikes refuse `STAT_UNDEFINED` until TASK-0223 derives the entry (OQ-12)" with the served behavior. Review `docs/wiki/dnd5e-engine.md` and `docs/wiki/test-suite.md` if any pinned source changed. `docs/wiki/srd-data.md` needs no review: no `packages/srd` source changes.
+- [x] T010 Update `docs/wiki/INDEX.md` state line and `docs/wiki/CAPSULES.md` for TASK-0223 (spec 109). Run the freshness gate until it prints `OK`. Run the spec-bridge check until it exits 0. Run `pnpm ci:check`.

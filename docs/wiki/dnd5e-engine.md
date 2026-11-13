@@ -20,7 +20,7 @@ sources:
   - packages/dnd5e-engine/test/purity.test.ts
   - packages/dnd5e-engine/test/coverage.test.ts
   - specs/026-dnd5e-engine/spec.md
-verified_against: 2707677c72373882afd5868a4ed10eca26f85dd6
+verified_against: 9d32a9f322cb232c2dccc75885b91ad5c0a6e6b0
 ---
 
 # 5e engine
