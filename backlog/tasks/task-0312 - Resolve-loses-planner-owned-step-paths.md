@@ -31,10 +31,9 @@ Spec: specs/110-resolve-cleanup
 - [x] #1 resolve.ts loses the code paths the planner now owns (moved from TASK-0267 by F1, then from TASK-0269 by the split).
 - [ ] #2 An old-shape resumed plan is dropped and re-interpreted (spec 104 OQ-8).
 - [x] #3 Spec phase: Throw-stub probe (no deletion)
-- [x] #4 Spec phase: Adjudicate node (C-GATE ruling required before dispatch)
-- [x] #5 Spec phase: Step paths in resolve and the plan gate (AC #1)
-- [x] #6 Spec phase: Schemas and old checkpoints (AC #3)
-- [x] #7 Spec phase: Wiki
+- [x] #4 Spec phase: Step paths in resolve and the plan gate (AC #1)
+- [x] #5 Spec phase: Schemas and old checkpoints (AC #3)
+- [x] #6 Spec phase: Wiki
 <!-- AC:END -->
 
 ## Definition of Done
