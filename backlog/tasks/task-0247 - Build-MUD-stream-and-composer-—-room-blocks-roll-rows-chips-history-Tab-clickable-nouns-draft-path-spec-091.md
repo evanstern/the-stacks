@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: 2026-11-05 05:48
-updated_date: '2026-11-13T14:28:00Z'
+updated_date: '2026-11-13T14:31:00Z'
 labels:
   - web
   - ux
@@ -40,6 +40,12 @@ Spec: specs/091-mud-stream-and-composer
 - [ ] #3 NPC dialogue renders as distinct rows, and the transcript column is capped at 1024 px and centred.
 - [x] #4 Spec 091 is amended against Intent contract v1.1 and reviewed by the operator at C-AMD before implementation.
 - [ ] #5 Fact rows render from the ledger at resolve time, not from the narration text (spec 098 OQ-3).
+- [ ] #6 Spec phase: Scene fields and seed ways (FR-008 data; plan D1, D2, DA4, D8)
+- [ ] #7 Spec phase: Stream items and the narration filter (FR-006, FR-007, FR-026, FR-027, FR-029 data)
+- [ ] #8 Spec phase: Stream rendering (FR-008 to FR-011, FR-026 to FR-030)
+- [ ] #9 Spec phase: Contrast and contract blocks (FR-021, FR-022)
+- [ ] #10 Spec phase: Wiki re-ground
+- [ ] #11 Spec phase: Verify
 <!-- AC:END -->
 
 ## Definition of Done
