@@ -46,5 +46,5 @@ Operator ruling 2026-11-12: keep gathering for now. Removing it left the party o
 
 ## Phase 6: Wiki
 
-- [ ] T026 Run `/grounding-wiki:wiki-update`. Re-verify `dm-runtime`, `dm-plan-gate`, `dm-failure-and-gates` and `dm-turn-jobs` against the diff. Drop deleted files from every note's `sources`. Update `INDEX.md` and `CAPSULES.md`.
-- [ ] T027 Run the freshness gate and the spec-bridge check. Both must pass.
+- [x] T026 Run `/grounding-wiki:wiki-update`. Re-verify `dm-runtime`, `dm-plan-gate`, `dm-failure-and-gates` and `dm-turn-jobs` against the diff. Drop deleted files from every note's `sources`. Update `INDEX.md` and `CAPSULES.md`.
+- [x] T027 Run the freshness gate and the spec-bridge check. Both must pass.
