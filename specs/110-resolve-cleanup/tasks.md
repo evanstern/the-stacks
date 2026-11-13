@@ -12,10 +12,9 @@ Do not edit `dm/intent-runner.ts`, `dm/purposes.ts` or `dm/rulings.ts`. Follow p
 - [x] T003 Write `specs/110-resolve-cleanup/probe.md`: one row per failure with the stubbed symbol and the legacy input the test injects. Stop and report if any failure injects no legacy input.
 - [x] T004 Revert the stubs (`git diff --stat` shows only `probe.md`). Commit `probe.md`.
 
-## Phase 2: Encounter-start gathering (AC #2)
+## Phase 2: Encounter-start gathering (deferred to TASK-0327)
 
-- [ ] T005 Delete the gathering block in `directorOpening` (`resolve.ts` ~L1274–1291) per plan D2.
-- [ ] T006 Update `test/dm/scene-start-space.integration.test.ts`: no `combatant.placed` row for a party member before `encounter.started` (SC-003). Keep the reveal and goblin asserts.
+Operator ruling 2026-11-12: keep gathering for now. Removing it left the party out of reach on the greyhollow seeds (two squeeze edges into reed-camp), so fights opened at range on the CP-7 seed. The attempt (77e74f18) is reverted in 767fed0b. AC #2 moved to TASK-0327.
 
 ## Phase 3: Adjudicate node (C-GATE ruling required before dispatch)
 

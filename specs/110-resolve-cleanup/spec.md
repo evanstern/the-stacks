@@ -39,6 +39,8 @@ turn run through `runStages`, and no code path reads a `steps` list.
   is replaced with a throw-stub, **Then** only tests that inject a legacy reading, a ruling, or
   the deleted symbol itself fail (Phase 1 probe).
 
+> **Deferred (operator ruling 2026-11-12):** US2 and AC #2 moved to TASK-0327. Phase 2 (77e74f18) is reverted in 767fed0b, because the greyhollow seeds' squeeze edges keep the party out of reach without gathering.
+
 ### US2 — An encounter starts with the party where it stands (P1, AC #2)
 
 **Given** a seed with a space and an encounter zone, **When** the Director starts the encounter,
