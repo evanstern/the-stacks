@@ -31,15 +31,11 @@ export function openFollowUps(
   for (const [characterId, actionId] of priorActionIds(p, thisBeat)) {
     for (const t of prior) {
       const cp = t.checkpoint;
-      const ruling = cp.adjudicate?.rulings.find(
-        (r) => r.actionId === actionId,
-      );
       const reading = cp.interpret?.readings.find(
         (r) => r.actionId === actionId,
       );
-      const found = ruling ?? reading;
-      if (!found) continue;
-      for (const text of found.followUps.slice(0, MAX_OPEN_FOLLOW_UPS)) {
+      if (!reading) continue;
+      for (const text of reading.followUps.slice(0, MAX_OPEN_FOLLOW_UPS)) {
         out.push({ characterId, text });
       }
       break;

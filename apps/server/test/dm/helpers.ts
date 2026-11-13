@@ -25,7 +25,6 @@ export function emptyCheckpoint(): TurnCheckpoint {
     npcTurn: null,
     director: null,
     interpret: null,
-    adjudicate: null,
     submissions: [],
     lastSeq: 0,
     narration: null,
@@ -115,9 +114,6 @@ export function makeDeps(over: Partial<NodeDeps> = {}): NodeDeps {
         throw new Error("no gate in this test");
       },
     } as unknown as NodeDeps["gate"],
-    retrieve: async () => {
-      throw new Error("no retrieve in this test");
-    },
     loadProjections: async () => projectDm([]),
     loadEvents: async () => [],
     srd: { getById, getByName, compact } as NodeDeps["srd"],
@@ -126,7 +122,6 @@ export function makeDeps(over: Partial<NodeDeps> = {}): NodeDeps {
     saveCheckpoint: async () => true,
     newId: () => "id-1",
     log: () => {},
-    minSimilarity: 0.3,
     ...over,
   };
 }

@@ -34,12 +34,6 @@ afterAll(async () => {
 clearDmJobsBeforeEach();
 
 const KESTREL_USER = "00000000-0000-4000-8000-0000000000a2";
-const retrieve = async () => ({
-  mode: "fts" as const,
-  embeddingModel: null,
-  candidates: { vector: null, fts: 0 },
-  passages: [],
-});
 const chronicle = () => ({
   purpose: "dm.chronicle",
   respond: { type: "json", value: { entries: [] } },
@@ -70,7 +64,7 @@ async function table(talkCalls: unknown[], dice: number[] = []) {
     dice,
     calls: [...sceneStart.calls, chronicle(), ...talkCalls],
   });
-  const wired = workerFor(w, { retrieve, talkQuietMs: 0 });
+  const wired = workerFor(w, { talkQuietMs: 0 });
   await enqueueTurn(requireDb(), w.sessionId, "scene-start", null, {
     start: {
       seedId: "greyhollow-ford-duo",
@@ -197,7 +191,7 @@ describe.skipIf(!reachable)("talk turn (database)", () => {
       dice: s.dice,
       calls: [...s.calls, chronicle()],
     });
-    const { worker } = workerFor(w, { retrieve, listen: false });
+    const { worker } = workerFor(w, { listen: false });
     await startScene(w);
     await commitAction(
       w,

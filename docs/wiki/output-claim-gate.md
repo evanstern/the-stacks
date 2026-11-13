@@ -7,7 +7,7 @@ sources:
   - apps/server/src/dm/narration-words.ts
   - apps/server/src/dm/gates/plan-gate.ts
   - specs/051-output-claim-gate/contracts/claim-gate.md
-verified_against: 753a40d24fb9ad9cf5874a29cca6736ed444a8a5
+verified_against: 0882dcb94032fa81551a3e9225721939e4cb7179
 ---
 
 # Output claim gate (retired)
@@ -19,7 +19,7 @@ verified_against: 753a40d24fb9ad9cf5874a29cca6736ed444a8a5
 - **Absent actor shown** and **dead or downed actor acting**: the check node's leak check (`absent-actor`, `unmet-success`) and `life-state` contradiction in `checkNarration` (`narration-check.ts`). The check is lexical and by proximity, not the old clause grammar.
 - **Wrong deaths and drops, omitted deaths, wrong counts, off-turn acts**: no longer checked. The code-written fact rows and State line carry the facts (constitution VII). `hasCountClaim` (`narration-words.ts`) still blocks a `goalNote` that states a count.
 - **Refused rulings and `goalNote` text**: `withholdRefusedInputs` (`nodes/narrate.ts`) now calls `checkNarration` for `life-state` and `dm-only-text` hits.
-- **Plan gate reason check** (spec 058, `REASON_CONTRADICTS_STATE`): deleted from `checkPlan` in `dm/gates/plan-gate.ts` (spec 103 OQ-1). The gate keeps its other refusals ([[dm-plan-gate]], [[dm-failure-and-gates]]).
+- **Plan gate reason check** (spec 058, `REASON_CONTRADICTS_STATE`): deleted from `checkPlan` in `dm/gates/plan-gate.ts` (spec 103 OQ-1). Spec 110 later deleted the gate's other step checks; it keeps only the held off-turn companion ([[dm-plan-gate]], [[dm-failure-and-gates]]).
 - **Fallback and audit**: `factualSummary`, `deterministicChecks` and the `dm.audit` call are deleted. A leak drops the sentence and files a `dm` correction; a contradiction ships with a public correction.
 
 The alias matcher the claim gate introduced lives on in `snapshot/aliases.ts` ([[actor-snapshot]]).

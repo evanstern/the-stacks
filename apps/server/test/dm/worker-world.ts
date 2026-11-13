@@ -21,7 +21,6 @@ export const script = (name: string) =>
 export function workerFor(
   w: World,
   opts: {
-    retrieve?: DmWorkerDeps["retrieve"];
     nodes?: Nodes;
     reactQuietMs?: number;
     /** Talk turns (spec 066 FR-007): the read window in ms after a post (default 10000). */
@@ -68,15 +67,9 @@ export function workerFor(
     gateway: opts.gateway ?? base.gateway,
     heartbeatMs: opts.heartbeatMs,
     gate: w.gate,
-    retrieve:
-      opts.retrieve ??
-      (async () => {
-        throw new Error("no retrieval in this test");
-      }),
     nodes: opts.nodes,
     loadSeed: opts.loadSeed,
     loadProjections: base.loadProjections,
-    minSimilarity: 0.3,
     presence: opts.presence,
     floorAbsenceWaitMs: opts.floorAbsenceWaitMs,
     floorStallWindowMs: opts.floorStallWindowMs,

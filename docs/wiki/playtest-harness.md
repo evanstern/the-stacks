@@ -27,7 +27,7 @@ sources:
   - apps/server/seeds/greyhollow-ford-reed-camp.json
   - apps/server/dm-scripts/runbook-a-reed-camp.json
 size_budget_exempt: the note sat within 40 chars of the 8000 budget before TASK-0195; the per-runbook scenario section is a short pointer to docs/design/playtest-scenarios.md, and the in-process harness above is one pipeline that does not split without a TASK of its own
-verified_against: 17849584ad75728e4df27bee4a34d3e35cb86229
+verified_against: 0882dcb94032fa81551a3e9225721939e4cb7179
 ---
 
 # Playtest harness
@@ -49,7 +49,7 @@ gateway, DM enqueuer and worker, seeds the session from the scenario's `seedId`,
 `dice.ts`'s `scenarioRng`: the scenario's scripted faces, then `seededRng(seed)` (seed 0 if null). A scenario
 (`scenario.ts`, Zod `ScenarioSchema`, shipped `apps/server/playtests/scenarios/greyhollow-ford.json`)
 holds the seat, `moves.free`, `moves.combat`, `moves.fallback`, `limits` (`maxMoves`,
-`maxWallMs`, 60 min in the shipped scenario), `dice`, and a `ci` block naming the DM script, audit script and retrieval fixture
+`maxWallMs`, 60 min in the shipped scenario), `dice`, and a `ci` block naming the DM script, audit script and retrieval fixture (the schema still names it; since spec 110 the harness no longer reads it, because the DM worker takes no `retrieve`)
 under `apps/server/playtests/fixtures/`. The manifest outcome is one of `ended`, `stalled`,
 `failed`, `budget-stopped`, `timed-out`.
 

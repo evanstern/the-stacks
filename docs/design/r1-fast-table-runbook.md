@@ -490,3 +490,4 @@ updated at each dispatch boundary. `tokens/cost` carries best-effort actuals.
 | 2026-11-12 | TASK-0299 | (this PR) | — | opus spec; sonnet x2 | "Accept all"; code-only monster turns (1 call), companion turn 2 calls, interpret 0; 4v4 fixture round 874 ms vs 60 s |
 | 2026-11-12 | TASK-0298 | (this PR) | — | opus spec; sonnet x3 | C-GATE "Approve all": narration-stream frame; per-sentence checked stream (prefix property over 106 fixtures); live check in Brave; OQ-1/OQ-3 carded |
 | 2026-11-12 | TASK-0223 | (this PR) | — | opus spec; sonnet x1 | Unarmed Strike derived in findAttack; model-number guard test; band-effect amounts to TASK-0313 |
+| 2026-11-13 | TASK-0312 | (this PR) | — | opus spec; sonnet x4 | C-GATE "Approve all": adjudicate node deleted, spec 031 contracts amended; about 5,800 lines out; legacy checkpoints dropped (`dm.checkpoint.legacy-dropped`); gathering kept, AC #2 to TASK-0327; pull-in coverage gap carded TASK-0328 |

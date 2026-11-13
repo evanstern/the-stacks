@@ -9,7 +9,7 @@ sources:
   - apps/server/src/routes/tables.ts
   - apps/server/src/dm/script/env.ts
 size_budget_exempt: spec 102 adds the gate plannerInputs wiring line to the one server-entrypoint-and-app note; the entrypoint does not split without a TASK of its own
-verified_against: 753a40d24fb9ad9cf5874a29cca6736ed444a8a5
+verified_against: 0882dcb94032fa81551a3e9225721939e4cb7179
 ---
 
 # Server entrypoint and app
@@ -47,8 +47,7 @@ built twice.
 Since TASK-0046, `createGate({ db, presence: presence.reader, rng: runtime.gateRng, plannerInputs: createPlannerInputs(loadSeed) })` (`plannerInputs`: spec 102 seed-derived planner facts) (see
 [[proposal-gate]]; `rng` is set only in script mode) is created **before** `createApp`, because the DM runtime needs it:
 `missingDmPurposes(aiConfig.purposes)` logs unconfigured `dm.*` purposes by name with
-`console.warn`, and `unstructuredDmPurposes` warns once; `startDmWorker({ db, presence: presence.reader, gateway: aiGateway, gate, retrieve, loadProjections,
-minSimilarity: answerConfig.minSimilarity })` returns `{ nudge, stop }` (see [[dm-turn-jobs]]);
+`console.warn`, and `unstructuredDmPurposes` warns once; `startDmWorker({ db, presence: presence.reader, gateway: aiGateway, gate, loadProjections, loadProjectionsThrough, onNarrationStream })` returns `{ nudge, stop }` (see [[dm-turn-jobs]]);
 and `createDmEnqueuer({ db, nudge: dmWorker.nudge, loadProjections, presence: presence.reader, log })` builds the gate
 listener. `createApp` receives `dm: { nudge: dmWorker.nudge }`. After `createGateway({ db, validateSession, gate, presence })` for the WebSocket side, two listeners
 register: `gate.onAppended(gateway.publish)` (and, since spec 108, a late-bound `narrationSink` set to `gateway.streamNarration`, which the DM worker's `onNarrationStream` calls) so every row the gate appends reaches the entitled

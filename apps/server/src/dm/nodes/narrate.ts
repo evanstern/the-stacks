@@ -117,9 +117,6 @@ export function withholdRefusedInputs(
     }
     return issues.length > 0;
   };
-  const rulings = facts.rulings.filter(
-    (r) => !refuse(`ruling for ${r.actionId}`, r.ruling),
-  );
   const actions = facts.actions.map((a) => ({
     ...a,
     followUps: a.followUps.filter(
@@ -170,7 +167,6 @@ export function withholdRefusedInputs(
       ...facts,
       actions,
       ...(openFollowUps?.length ? { openFollowUps } : {}),
-      rulings,
       ...(dropSay && facts.npcTurn?.plan
         ? {
             npcTurn: {
@@ -255,30 +251,18 @@ export const narrate: Node<"narrate"> = async (ctx) => {
   for (const r of ctx.results.interpret?.readings ?? []) {
     if (r.actionId) followUps[r.actionId] = r.followUps;
   }
-  for (const r of ctx.results.adjudicate?.rulings ?? []) {
-    if (r.actionId) followUps[r.actionId] = r.followUps;
-  }
   const reading = (ctx.results.interpret?.readings ?? []).find(
     (r) => r.actionId === null,
   );
-  const npcRuling = (ctx.results.adjudicate?.rulings ?? []).find(
-    (r) => r.actionId === null,
-  );
   const npcPlan = reading
-    ? "stages" in reading // spec 104 shape; a value import of `hasStages` would pull the engine in
-      ? {
-          // Spec 104: the monster's Intent stages read as plan lines in the text form the player sees.
-          intent: reading.stages[0]?.intent.kind ?? "other",
-          steps: reading.stages.map((st) => ({
-            reason: st.intent.text ?? st.intent.kind,
-          })),
-          say: reading.say ?? null,
-        }
-      : {
-          intent: reading.intent,
-          steps: npcRuling?.steps ?? reading.steps,
-          say: reading.say ?? null,
-        }
+    ? {
+        // Spec 104: the monster's Intent stages read as plan lines in the text form the player sees.
+        intent: reading.stages[0]?.intent.kind ?? "other",
+        steps: reading.stages.map((st) => ({
+          reason: st.intent.text ?? st.intent.kind,
+        })),
+        say: reading.say ?? null,
+      }
     : null;
   // ponytail: reads every prior turn checkpoint of the session (one job-table read per narrate).
   // Ceiling: a session with many turn jobs; upgrade is a `limit` on `loadPriorTurnCheckpoints`.
@@ -348,7 +332,6 @@ export const narrate: Node<"narrate"> = async (ctx) => {
     projections,
     beat: assembled.beat,
     director,
-    adjudicate: ctx.results.adjudicate ?? null,
     resolve,
     presentNpcIds: assembled.presentNpcIds,
     modeBefore: assembled.projections.tableMode.mode,

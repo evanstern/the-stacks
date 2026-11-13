@@ -1,5 +1,6 @@
 import { afterAll, describe, expect, it } from "vitest";
 import {
+  acceptDeed,
   count,
   DM,
   eventOf,
@@ -12,12 +13,14 @@ import {
   turnInto,
 } from "./encounter-lifecycle.js";
 import {
+  checkBeside,
   createWorld,
   db,
   loudSkip,
   reachable,
-  reading,
   readRows,
+  stage,
+  stages,
   startScene,
 } from "./world.js";
 
@@ -74,12 +77,15 @@ describe.skipIf(!reachable)("a fled combatant (database)", () => {
   });
 
   it("fled mid-fight: the batch holds the departure and the monster gets no turn", async () => {
-    const w = await inTurnMode(initDice(3)); // snag first
+    const w = await inTurnMode(initDice(3), [acceptDeed]); // snag first
     const start = (await readRows(w)).length;
     const out = await run(w, {
       readings: [
-        reading(null, [
-          { step: "effect", reason: "Snag bolts", effects: [flee("snag")] },
+        stages(null, [
+          stage(
+            { kind: "attempt", text: "Snag bolts" },
+            checkBeside({ onFailure: [flee("snag")] }),
+          ),
         ]),
       ] as never,
       job: { ...nextJob(), trigger: "npc-turn" },

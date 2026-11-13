@@ -1,41 +1,15 @@
 import { PLAN_KINDS } from "@the-stacks/planner";
-import type { Ruling } from "./nodes/adjudicate.js";
 import type { BeatItem } from "./nodes/assemble.js";
 import type { DirectorNodeOutput } from "./nodes/director.js";
-import {
-  type AnyInterpretReading,
-  hasStages,
-  type InterpretStage,
-  type Step,
-} from "./nodes/schemas.js";
+import type { InterpretReading, InterpretStage } from "./nodes/schemas.js";
 
 /**
  * First-stage rule (specs/064-plan-first-step): in free mode a plan resolves
- * only its first stage. Pure; the runner applies it between adjudicate and
- * resolve.
+ * only its first stage. Pure; the runner applies it after interpret and
+ * before resolve.
  */
 
 const MAX_FOLLOW_UPS = 6;
-type Check = Extract<Step, { step: "check" }>;
-
-const sameCheck = (a: Check, b: Step): boolean =>
-  b.step === "check" &&
-  a.kind === b.kind &&
-  a.ability === b.ability &&
-  a.skill === b.skill;
-
-/** Keeps steps up to the end of the first run of like checks. No check cuts nothing. */
-export function firstStage(steps: readonly Step[]): {
-  kept: Step[];
-  cut: Step[];
-} {
-  const first = steps.findIndex((s) => s.step === "check");
-  if (first < 0) return { kept: [...steps], cut: [] };
-  const head = steps[first] as Check;
-  let end = first + 1;
-  while (end < steps.length && sameCheck(head, steps[end] as Step)) end += 1;
-  return { kept: steps.slice(0, end), cut: steps.slice(end) };
-}
 
 /**
  * Spec 104 FR-011: a stage rolls when its kind is planned and mutates through the engine's dice:
@@ -82,42 +56,18 @@ const merge = (...lists: readonly string[][]): string[] =>
 /** Cuts each acting reading and ruling after its first stage; free mode only. */
 export function cutPlans(input: {
   mode: "free" | "turn";
-  readings: AnyInterpretReading[];
-  rulings: Ruling[];
-}): { readings: AnyInterpretReading[]; rulings: Ruling[] } {
-  const { mode, readings, rulings } = input;
-  if (mode !== "free") return { readings, rulings };
+  readings: InterpretReading[];
+}): { readings: InterpretReading[] } {
+  const { mode, readings } = input;
+  if (mode !== "free") return { readings };
   return {
     readings: readings.map((r) => {
       if (r.actionId === null) return r;
-      if (hasStages(r)) {
-        const { kept, cut } = firstStages(r.stages);
-        return {
-          ...r,
-          stages: kept,
-          followUps: merge(r.followUps, cut.map(stageLine)),
-        };
-      }
-      const { kept, cut } = firstStage(r.steps);
+      const { kept, cut } = firstStages(r.stages);
       return {
         ...r,
-        steps: kept,
-        followUps: merge(
-          r.followUps,
-          cut.map((s) => s.reason),
-        ),
-      };
-    }),
-    rulings: rulings.map((r) => {
-      if (r.actionId === null) return r;
-      const { kept, cut } = firstStage(r.steps);
-      return {
-        ...r,
-        steps: kept,
-        followUps: merge(
-          r.followUps,
-          cut.map((s) => s.reason),
-        ),
+        stages: kept,
+        followUps: merge(r.followUps, cut.map(stageLine)),
       };
     }),
   };
@@ -128,17 +78,15 @@ export const CLARIFY_HELD = "held: an action awaits an answer";
 
 /**
  * Action ids a human's clarify holds (specs/073): committed, not an `ai:`
- * actor, a reading that asks a question, no ruling that names the action.
+ * actor, a reading that asks a question.
  */
 export function clarifyHolds(
   beat: readonly BeatItem[],
-  readings: readonly AnyInterpretReading[],
-  rulings: readonly Ruling[],
+  readings: readonly InterpretReading[],
 ): Set<string> {
   const held = new Set<string>();
   for (const b of beat) {
     if (b.status !== "committed" || b.actor.startsWith("ai:")) continue;
-    if (rulings.some((r) => r.actionId === b.actionId)) continue;
     if (readings.some((r) => r.actionId === b.actionId && r.clarify !== null))
       held.add(b.actionId);
   }

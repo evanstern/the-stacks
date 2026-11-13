@@ -1,5 +1,6 @@
 import { afterAll, describe, expect, it } from "vitest";
 import {
+  acceptDeed,
   cmd,
   count,
   initDice,
@@ -8,7 +9,15 @@ import {
   rowsAfter,
   run,
 } from "./encounter-lifecycle.js";
-import { db, loudSkip, reachable, reading, readRows } from "./world.js";
+import {
+  checkBeside,
+  db,
+  loudSkip,
+  reachable,
+  readRows,
+  stage,
+  stages,
+} from "./world.js";
 
 /** Spec 099 US3: code ends a fight no foe stands in (R1 exit 6, "end"). */
 loudSkip("encounter-auto-end.integration.test.ts");
@@ -45,19 +54,20 @@ describe.skipIf(!reachable)("code-owned encounter end (database)", () => {
   });
 
   it("the last hostile surrenders: it goes neutral and the fight ends", async () => {
-    const w = await inTurnMode(initDice(3)); // snag first
+    const w = await inTurnMode(initDice(3), [acceptDeed]); // snag first
     for (const id of MONSTERS.slice(1)) await kill(w, id);
     const start = (await readRows(w)).length;
     await run(w, {
       readings: [
-        reading(null, [
-          {
-            step: "effect",
-            reason: "Snag throws down his blade",
-            effects: [
-              { effect: "presence", targetId: "snag", reason: "surrendered" },
-            ],
-          },
+        stages(null, [
+          stage(
+            { kind: "attempt", text: "Snag throws down his blade" },
+            checkBeside({
+              onFailure: [
+                { effect: "presence", targetId: "snag", reason: "surrendered" },
+              ],
+            }),
+          ),
         ]),
       ] as never,
       job: { ...nextJob(), trigger: "npc-turn" },

@@ -2,7 +2,7 @@ import { afterAll, describe, expect, it } from "vitest";
 import { assemble } from "../../src/dm/nodes/assemble.js";
 import type { ResolveOutput } from "../../src/dm/nodes/resolve.js";
 import {
-  checkStep,
+  checkBeside,
   commitAction,
   createWorld,
   db,
@@ -10,8 +10,9 @@ import {
   loudSkip,
   operator,
   reachable,
-  reading,
   readRows,
+  stage,
+  stages,
   startScene,
 } from "./world.js";
 
@@ -22,7 +23,7 @@ afterAll(async () => {
 
 describe.skipIf(!reachable)("resolve with a human DM seat (database)", () => {
   it("comes back pending, leaves the action committed, and the approval shows in priorSteps", async () => {
-    const w = await createWorld({ dice: [15] });
+    const w = await createWorld({ dice: [] });
     await startScene(w);
     // A human takes the DM seat; default policies now ask for mechanics.
     const seat = await w.as(operator, {
@@ -33,8 +34,21 @@ describe.skipIf(!reachable)("resolve with a human DM seat (database)", () => {
     expect(seat.ok ? "ok" : seat.refusal).toBe("ok");
     const id = await commitAction(w, "Tamsin forces the shutter.");
 
+    // An auto-fail check takes the `check.roll` mechanics proposal, which a human seat holds pending.
     const { result } = await w.runResolve({
-      readings: [reading(id, [checkStep()])] as never,
+      readings: [
+        stages(id, [
+          stage(
+            {
+              kind: "check",
+              params: { skill: "athletics", difficulty: "medium" },
+            },
+            checkBeside({
+              autoFail: { reason: "The shutter is nailed shut." },
+            }),
+          ),
+        ]),
+      ] as never,
     });
     if (!result.ok) throw new Error(result.error.message);
     const out = result.output as ResolveOutput;
@@ -42,7 +56,6 @@ describe.skipIf(!reachable)("resolve with a human DM seat (database)", () => {
     expect(out.submissions.at(-1)).toMatchObject({ result: "pending" });
     const p = await w.projections();
     expect(p.actions.find((a) => a.actionId === id)?.status).toBe("committed");
-    expect(w.scripted.remaining().dice).toBe(1);
 
     // The human DM approves the pending proposal.
     const pending = p.proposals.find((x) => x.status === "pending");
@@ -60,7 +73,6 @@ describe.skipIf(!reachable)("resolve with a human DM seat (database)", () => {
     const prior = next.output.priorSteps[id] ?? [];
     expect(prior.length).toBeGreaterThan(0);
     expect(prior.some((r) => r.kind === "outcome")).toBe(true);
-    expect(w.scripted.remaining().dice).toBe(0);
     expect(
       (await readRows(w)).some((r) => r.type === "proposal.approved"),
     ).toBe(true);

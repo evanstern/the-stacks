@@ -19,10 +19,12 @@ import {
   testSeed,
 } from "./helpers.js";
 import { greyhollowDuo, greyhollowFight } from "./snapshot-fixtures.js";
+import { stage, stages } from "./world.js";
 
 const duo = greyhollowDuo();
 /** The legacy `steps` of a scripted reading (this file stubs the pre-Intent shape; TASK-0312 deletes it). */
-const stepsOf = (r: unknown) => (r as { steps?: unknown[] } | undefined)?.steps;
+const stagesOf = (r: unknown) =>
+  (r as { stages?: unknown[] } | undefined)?.stages;
 const assembled = (over: Partial<NodeOutputs["assemble"]> = {}) =>
   ({
     projections: { party: [] },
@@ -50,15 +52,11 @@ const directorResolve = {
   overrides: [],
 } as unknown as NodeOutputs["director"];
 
-const reading = (needs: boolean) =>
+const reading = () =>
   ({
     actionId: "a1",
-    intent: "check",
-    uncertain: true,
-    needsAdjudication: needs,
-    rulesQuestion: needs ? "q" : null,
+    stages: [],
     clarify: null,
-    steps: [],
     followUps: [],
   }) as NodeOutputs["interpret"]["readings"][number];
 
@@ -119,9 +117,8 @@ function stubNodes(
     director: make("director", () => over.director ?? directorResolve),
     interpret: make(
       "interpret",
-      () => over.interpret ?? { readings: [reading(false)] },
+      () => over.interpret ?? { readings: [reading()] },
     ),
-    adjudicate: make("adjudicate", () => ({ rulings: [] })),
     resolve: make("resolve", () => ({}) as never),
     narrate: make("narrate", () => ({}) as never),
     check: make("check", () => ({}) as never),
@@ -130,7 +127,7 @@ function stubNodes(
 }
 
 describe("runTurn", () => {
-  it("runs the nodes in pipeline order and skips adjudicate without a flagged reading", async () => {
+  it("runs the nodes in pipeline order", async () => {
     const spy = stubNodes();
     const outcome = await runTurn(makeCtx(), spy.nodes);
     expect(outcome.status).toBe("completed");
@@ -142,34 +139,21 @@ describe("runTurn", () => {
       "narrate",
       "check",
     ]);
-    if (outcome.status === "completed") {
-      expect(outcome.results.adjudicate).toEqual({ rulings: [] });
-    }
     expect(NODE_NAMES).toEqual([
       "assemble",
       "director",
       "interpret",
-      "adjudicate",
       "resolve",
       "narrate",
       "check",
     ]);
   });
 
-  it("runs adjudicate when a reading is flagged", async () => {
-    const spy = stubNodes({ interpret: { readings: [reading(true)] } });
-    await runTurn(makeCtx(), spy.nodes);
-    expect(spy.order).toContain("adjudicate");
-    expect(spy.order.indexOf("adjudicate")).toBeLessThan(
-      spy.order.indexOf("resolve"),
-    );
-  });
-
-  it("skips adjudicate for a resumed reading and stores resumed with the beat", async () => {
+  it("stores resumed with the beat", async () => {
     const plan = { actionId: "a1" } as never;
     const spy = stubNodes({
       assemble: assembled({ resumed: [plan] } as never),
-      interpret: { readings: [reading(true)] },
+      interpret: { readings: [reading()] },
     });
     const saved: ReturnType<typeof emptyCheckpoint>[] = [];
     const ctx = makeCtx({
@@ -181,7 +165,6 @@ describe("runTurn", () => {
       },
     });
     await runTurn(ctx, spy.nodes);
-    expect(spy.order).not.toContain("adjudicate");
     expect(saved[0]?.beat).toEqual(["a1"]);
     expect(saved[0]?.resumed).toEqual([plan]);
   });
@@ -192,8 +175,7 @@ describe("runTurn", () => {
       ...emptyCheckpoint(),
       beat: ["a1"],
       director: directorResolve,
-      interpret: { readings: [reading(true)] },
-      adjudicate: { rulings: [] },
+      interpret: { readings: [reading()] },
     };
     const ctx = makeCtx({ checkpoint });
     const outcome = await runTurn(ctx, spy.nodes);
@@ -203,7 +185,7 @@ describe("runTurn", () => {
 
   it("saves the checkpoint after each planning node and freezes the beat", async () => {
     const saved: ReturnType<typeof emptyCheckpoint>[] = [];
-    const spy = stubNodes({ interpret: { readings: [reading(true)] } });
+    const spy = stubNodes({ interpret: { readings: [reading()] } });
     const ctx = makeCtx({
       deps: {
         saveCheckpoint: async (c) => {
@@ -216,7 +198,6 @@ describe("runTurn", () => {
     expect(saved[0]?.beat).toEqual(["a1"]);
     expect(saved.at(-1)?.director).not.toBeNull();
     expect(saved.at(-1)?.interpret).not.toBeNull();
-    expect(saved.at(-1)?.adjudicate).not.toBeNull();
   });
 
   it("stops before the next node when the fence is false", async () => {
@@ -383,7 +364,6 @@ describe("runTurn", () => {
     const spy = stubNodes();
     await runTurn(makeCtx({ deps: { gate: realGate } }), spy.nodes);
     for (const name of NODE_NAMES) {
-      if (name === "adjudicate") continue;
       if (name === "resolve") expect(spy.gates[name]).toBe(realGate);
       else expect(spy.gates[name]).toBe(throwingGate);
     }
@@ -411,8 +391,7 @@ describe("runTurn", () => {
     const { assemble } = await import("../../src/dm/nodes/assemble.js");
     const { director } = await import("../../src/dm/nodes/director.js");
     const { interpret } = await import("../../src/dm/nodes/interpret.js");
-    const { adjudicate } = await import("../../src/dm/nodes/adjudicate.js");
-    for (const node of [assemble, director, interpret, adjudicate]) {
+    for (const node of [assemble, director, interpret]) {
       expect(node.length).toBe(1);
       expect(node.constructor.name).toBe("AsyncFunction");
     }
@@ -421,33 +400,13 @@ describe("runTurn", () => {
 });
 
 describe("runTurn post-planning cut (specs/064)", () => {
-  const chk = (skill: string) => ({
-    step: "check",
-    reason: `${skill} check`,
-    combatantId: "pc-ana",
-    kind: "ability-check",
-    ability: "dex",
-    skill,
-    difficulty: "medium",
-    circumstance: null,
-    autoFail: null,
-    onSuccess: [],
-    onFailure: [],
-    stakes: {
-      success: "The attempt works as intended.",
-      cost: "It works, at a small price.",
-      failure: "The attempt comes to nothing.",
-      severe: "It goes badly wrong.",
-    },
-    onCost: [],
-    onSevere: [],
-    newRisk: null,
-  });
+  const chk = (skill: string, text = `${skill} check`) =>
+    stage({ kind: "check", params: { skill }, text });
   const planReading = () =>
-    ({
-      ...reading(false),
-      steps: [chk("stealth"), chk("persuasion")],
-    }) as unknown as NodeOutputs["interpret"]["readings"][number];
+    stages("a1", [
+      chk("stealth"),
+      chk("persuasion"),
+    ]) as unknown as NodeOutputs["interpret"]["readings"][number];
   const free = assembled({
     projections: { tableMode: { mode: "free" } },
   } as never);
@@ -489,20 +448,19 @@ describe("runTurn post-planning cut (specs/064)", () => {
     await runTurn(ctx, spy.nodes);
     expect(seen).toHaveLength(1);
     const i = seen[0]?.interpret as NodeOutputs["interpret"];
-    expect(stepsOf(i.readings[0])).toHaveLength(1);
+    expect(stagesOf(i.readings[0])).toHaveLength(1);
     expect(i.readings[0]?.followUps).toEqual(["persuasion check"]);
     const d = seen[0]?.director as NodeOutputs["director"];
     expect(d.tableMode).toEqual({ to: "stay" });
     expect(d.trackers).toEqual([]);
     expect(saved.at(-1)?.cut).toBe(true);
-    expect(stepsOf(saved.at(-1)?.interpret?.readings[0])).toHaveLength(1);
+    expect(stagesOf(saved.at(-1)?.interpret?.readings[0])).toHaveLength(1);
   });
 
   it("asks before an undeclared method and holds the turn (spec 077)", async () => {
-    const stealthRead = {
-      ...reading(false),
-      steps: [{ ...chk("stealth"), combatantId: "tamsin" }],
-    } as unknown as NodeOutputs["interpret"]["readings"][number];
+    const stealthRead = stages("a1", [
+      chk("stealth"),
+    ]) as unknown as NodeOutputs["interpret"]["readings"][number];
     const spy = stubNodes({
       assemble: assembled({
         beat: [
@@ -533,7 +491,7 @@ describe("runTurn post-planning cut (specs/064)", () => {
     });
     await runTurn(ctx, spy.nodes);
     const i = seen[0]?.interpret as NodeOutputs["interpret"];
-    expect(stepsOf(i.readings[0])).toEqual([]);
+    expect(stagesOf(i.readings[0])).toEqual([]);
     expect(i.readings[0]?.clarify).toMatch(/unseen/);
     const d = seen[0]?.director as NodeOutputs["director"];
     expect(d.overrides.some((o) => o.reason === CLARIFY_HELD)).toBe(true);
@@ -542,11 +500,9 @@ describe("runTurn post-planning cut (specs/064)", () => {
 
   it("does not cut or hold again on a reclaim with cut: true", async () => {
     const spy = stubNodes();
-    const cutReading = {
-      ...planReading(),
-      steps: [chk("stealth")],
+    const cutReading = stages("a1", [chk("stealth")], {
       followUps: ["persuasion check"],
-    };
+    });
     const ctx = makeCtx({
       checkpoint: {
         ...emptyCheckpoint(),
@@ -554,7 +510,6 @@ describe("runTurn post-planning cut (specs/064)", () => {
         cut: true,
         director: turnDirector,
         interpret: { readings: [cutReading] } as never,
-        adjudicate: { rulings: [] },
       },
     });
     const seen = spyResolve(spy);

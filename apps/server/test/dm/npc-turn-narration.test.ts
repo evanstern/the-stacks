@@ -87,7 +87,6 @@ function ctxFor(
   responses: unknown[],
   over: {
     planGate?: ResolveOutput["planGate"];
-    steps?: { reason: string }[];
   } = {},
 ) {
   const { p, seed } = scenario();
@@ -130,7 +129,6 @@ function ctxFor(
     lastSeq: 158,
     ...(over.planGate ? { planGate: over.planGate } : {}),
   } as ResolveOutput;
-  const steps = over.steps ?? [{ reason: REASON }];
   const ctx = makeCtx({
     seed,
     job: { trigger: "npc-turn" },
@@ -143,12 +141,18 @@ function ctxFor(
         readings: [
           {
             actionId: null,
-            intent: "talk",
-            uncertain: false,
-            needsAdjudication: false,
-            rulesQuestion: null,
+            stages: [
+              {
+                intent: {
+                  kind: "attempt",
+                  targets: [],
+                  params: {},
+                  text: REASON,
+                },
+                beside: null,
+              },
+            ],
             clarify: null,
-            steps,
             followUps: [],
           },
         ],
@@ -187,7 +191,7 @@ describe("run 3 seq 150-157: Snag's turn (spec 071)", () => {
     });
     expect(np.user).toContain("Turn: Snag acts in this beat.");
     expect(np.user).toMatch(/Next: Kestrel .*has not acted yet\./);
-    expect(np.user).toContain(`planned: talk; ${REASON}`);
+    expect(np.user).toContain(`planned: attempt; ${REASON}`);
     expect(np.system).toContain(
       "Only the actors on the Turn line, the Action lines and the roll lines act in this beat.",
     );

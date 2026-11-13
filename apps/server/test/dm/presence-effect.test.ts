@@ -3,11 +3,10 @@ import { z } from "zod";
 import {
   DirectorOutput,
   EffectSchema,
-  StepSchema,
+  InterpretReadingSchema,
 } from "../../src/dm/nodes/schemas.js";
-import { STEP_GRAMMAR } from "../../src/dm/prompts/step-grammar.js";
 
-/** Spec 048: the presence effect in the step grammar (User Stories 2 and 5). */
+/** Spec 048: the presence effect in the effect grammar (User Stories 2 and 5). */
 
 const presence = (over: Record<string, unknown> = {}) => ({
   effect: "presence",
@@ -16,28 +15,24 @@ const presence = (over: Record<string, unknown> = {}) => ({
   ...over,
 });
 
-const check = (over: Record<string, unknown> = {}) => ({
-  step: "check",
-  reason: "Intimidate the goblin",
-  combatantId: "tamsin",
-  kind: "ability-check",
-  ability: "cha",
-  skill: "intimidation",
-  difficulty: "medium",
-  circumstance: null,
-  autoFail: null,
-  onSuccess: [],
-  onFailure: [],
-  stakes: {
-    success: "The attempt works as intended.",
-    cost: "It works, at a small price.",
-    failure: "The attempt comes to nothing.",
-    severe: "It goes badly wrong.",
-  },
-  onCost: [],
-  onSevere: [],
-  newRisk: null,
-  ...over,
+/** An Intent check stage whose beside block carries the given effect lists. */
+const checkStage = (beside: Record<string, unknown> = {}) => ({
+  actionId: "a1",
+  stages: [
+    {
+      intent: { kind: "check", targets: [], params: { skill: "intimidation" } },
+      beside: {
+        stakes: {
+          success: "The attempt works as intended.",
+          cost: "It works, at a small price.",
+          failure: "The attempt comes to nothing.",
+          severe: "It goes badly wrong.",
+        },
+        ...beside,
+      },
+    },
+  ],
+  clarify: null,
 });
 
 describe("presence effect schema", () => {
@@ -54,25 +49,12 @@ describe("presence effect schema", () => {
     }
   });
 
-  it("accepts it in an effect step, onSuccess, onFailure and onHit", () => {
+  it("accepts it in a beside onSuccess and onFailure", () => {
     const e = presence();
-    expect(
-      StepSchema.safeParse({ step: "effect", reason: "r", effects: [e] })
-        .success,
-    ).toBe(true);
-    expect(StepSchema.safeParse(check({ onSuccess: [e] })).success).toBe(true);
-    expect(StepSchema.safeParse(check({ onFailure: [e] })).success).toBe(true);
-    expect(
-      StepSchema.safeParse({
-        step: "attack",
-        reason: "r",
-        attackerId: "tamsin",
-        targetId: "goblin-2",
-        attack: "Longsword",
-        circumstance: null,
-        onHit: [e],
-      }).success,
-    ).toBe(true);
+    const ok = (b: Record<string, unknown>) =>
+      InterpretReadingSchema.safeParse(checkStage(b)).success;
+    expect(ok({ onSuccess: [e] })).toBe(true);
+    expect(ok({ onFailure: [e] })).toBe(true);
   });
 
   it("refuses an unknown reason and an after field", () => {
@@ -81,26 +63,6 @@ describe("presence effect schema", () => {
     ).toBe(false);
     expect(EffectSchema.safeParse(presence({ after: "absent" })).success).toBe(
       false,
-    );
-  });
-
-  it("renders the effect, the six reasons and the two placement rules", () => {
-    expect(STEP_GRAMMAR).toContain('{"effect":"presence"');
-    for (const reason of [
-      "arrived",
-      "left",
-      "fled",
-      "removed",
-      "surrendered",
-      "conceded",
-    ]) {
-      expect(STEP_GRAMMAR).toContain(reason);
-    }
-    expect(STEP_GRAMMAR).toContain(
-      "Put another actor's presence change in onSuccess, onFailure or onHit",
-    );
-    expect(STEP_GRAMMAR).toContain(
-      "The acting actor's own presence change may stand in an effect step",
     );
   });
 });

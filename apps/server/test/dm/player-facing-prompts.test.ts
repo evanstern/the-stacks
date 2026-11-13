@@ -99,7 +99,6 @@ function facts(opts: {
         ]
       : [],
     director: director(opts.beatId),
-    adjudicate: null,
     resolve: noResolve({
       actionResults: opts.action
         ? [

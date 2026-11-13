@@ -19,7 +19,7 @@ import { startDmWorker } from "./dm/worker.js";
 import { createGate } from "./gate/index.js";
 import { loadAnswerConfig } from "./library/answer.js";
 import { startIngestWorker } from "./library/ingest/worker.js";
-import { loadRetrievalConfig, retrieve } from "./library/retrieve.js";
+import { loadRetrievalConfig } from "./library/retrieve.js";
 import { createPresence } from "./presence/index.js";
 import { loadProjections } from "./session/projections.js";
 import { isReservedPath } from "./static.js";
@@ -102,11 +102,8 @@ const dmWorker = startDmWorker({
   presence: presence.reader,
   gateway: aiGateway,
   gate,
-  retrieve: (q) =>
-    retrieve({ db, gateway: aiGateway, config: retrievalConfig }, q),
   loadProjections: loadDmProjections,
   loadProjectionsThrough: loadDmProjectionsThrough,
-  minSimilarity: answerConfig.minSimilarity,
 });
 const dmEnqueuer = createDmEnqueuer({
   db,

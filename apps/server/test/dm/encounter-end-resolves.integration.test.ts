@@ -70,11 +70,7 @@ describe.skipIf(!reachable)("an encounter-ending action (database)", () => {
     expect(before.tableMode.mode).toBe("turn");
     expect(before.encounter?.activeCombatantId).toBe("odo");
 
-    const { worker } = workerFor(w, {
-      retrieve: async () => {
-        throw new Error("no retrieval in this test");
-      },
-    });
+    const { worker } = workerFor(w, {});
 
     // Odo declares and commits the bargain as the active companion.
     const declared = await w.as(ODO, {

@@ -167,14 +167,7 @@ describe.skipIf(!reachable)(
           },
         ],
       });
-      const { worker } = workerFor(w, {
-        retrieve: async () => ({
-          mode: "fts" as const,
-          embeddingModel: null,
-          candidates: { vector: null, fts: 0 },
-          passages: [],
-        }),
-      });
+      const { worker } = workerFor(w, {});
       await enqueueTurn(requireDb(), w.sessionId, "scene-start", null, {
         start: {
           seedId: "greyhollow-ford-duo",

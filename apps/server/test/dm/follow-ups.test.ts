@@ -19,13 +19,11 @@ const proj = (actions: Act[]): SessionProjections =>
 const turn = (
   jobId: string,
   reading: { actionId: string; followUps: string[] } | null,
-  ruling: { actionId: string; followUps: string[] } | null = null,
 ): PriorTurn =>
   ({
     jobId,
     checkpoint: {
       interpret: reading ? { readings: [reading] } : null,
-      adjudicate: ruling ? { rulings: [ruling] } : null,
     },
   }) as unknown as PriorTurn;
 
@@ -51,21 +49,6 @@ describe("openFollowUps (spec 079 D8)", () => {
     const p = proj([kestrel(), kestrel({ actionId: "a2", declaredSeq: 20 })]);
     const prior = [turn("j1", { actionId: "a1", followUps: ["cut bonds"] })];
     expect(openFollowUps(p, prior, ["a2"])).toEqual([]);
-  });
-
-  it("reads the ruling's list over the reading's", () => {
-    const out = openFollowUps(
-      proj([kestrel()]),
-      [
-        turn(
-          "j1",
-          { actionId: "a1", followUps: ["from reading"] },
-          { actionId: "a1", followUps: ["from ruling"] },
-        ),
-      ],
-      [],
-    );
-    expect(out.map((f) => f.text)).toEqual(["from ruling"]);
   });
 
   it("carries nothing when the latest action is unresolved", () => {

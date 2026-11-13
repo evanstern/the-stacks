@@ -5,7 +5,6 @@ import { z } from "zod";
 import { ChronicleOutput } from "../../src/dm/chronicle.js";
 import { CompanionOutput } from "../../src/dm/companion.js";
 import {
-  AdjudicateModelOutput,
   DirectorOutput,
   InterpretOutput,
   ReactOutput,
@@ -20,7 +19,6 @@ describe("DM schemas convert to JSON Schema", () => {
   const schemas = {
     InterpretOutput,
     DirectorOutput,
-    AdjudicateModelOutput,
     ChronicleOutput,
     CompanionOutput,
     ReactOutput,

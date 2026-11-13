@@ -182,11 +182,6 @@ export function factEntries(facts: NarrationFacts): string[] {
       `Table mode changed from ${facts.modeChange.from} to ${facts.modeChange.to}`,
     );
   }
-  for (const r of facts.rulings) {
-    out.push(
-      `Ruling for ${r.actionId}: ${r.ruling}${r.improvised ? " (improvised)" : ""}`,
-    );
-  }
   for (const c of facts.clarify) {
     out.push(`Waiting on an answer for ${c.actionId}`);
   }

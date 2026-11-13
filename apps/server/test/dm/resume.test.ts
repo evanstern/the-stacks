@@ -5,11 +5,11 @@ import type {
 } from "@the-stacks/session-model";
 import { describe, expect, it } from "vitest";
 import type { TurnCheckpoint } from "../../src/dm/jobs.js";
-import type { Ruling } from "../../src/dm/nodes/adjudicate.js";
 import type { Submission } from "../../src/dm/nodes/resolve.js";
 import type { InterpretReading } from "../../src/dm/nodes/schemas.js";
 import {
   awaitingActionIds,
+  dropLegacyPlan,
   findResumedPlans,
   needsPriorTurns,
   type PriorTurn,
@@ -99,7 +99,15 @@ describe("needsPriorTurns", () => {
   });
 });
 
-const reading = (actionId: string): InterpretReading =>
+const reading = (actionId: string): InterpretReading => ({
+  actionId,
+  stages: [],
+  clarify: null,
+  followUps: [],
+});
+
+/** The pre-Intent reading shape: `steps`, no `stages` (dropped since spec 110). */
+const oldReading = (actionId: string): InterpretReading =>
   ({
     actionId,
     intent: "check",
@@ -109,16 +117,6 @@ const reading = (actionId: string): InterpretReading =>
     clarify: null,
     steps: [],
   }) as unknown as InterpretReading;
-
-const ruling = (actionId: string): Ruling => ({
-  actionId,
-  ruling: "Roll it.",
-  improvised: false,
-  citations: [],
-  dropped: 0,
-  steps: [],
-  followUps: [],
-});
 
 function sub(
   key: string,
@@ -146,12 +144,10 @@ function prior(
   jobId: string,
   submissions: Submission[],
   readings: InterpretReading[] = [reading("a1")],
-  rulings: Ruling[] | null = null,
 ): PriorTurn {
   const checkpoint: TurnCheckpoint = {
     ...emptyCheckpoint(),
     interpret: { readings } as unknown as TurnCheckpoint["interpret"],
-    adjudicate: rulings ? { rulings } : null,
     submissions,
   };
   return { jobId, checkpoint };
@@ -172,7 +168,6 @@ describe("findResumedPlans", () => {
     expect(plans[0]).toMatchObject({
       actionId: "a1",
       fromJobId: "j1",
-      ruling: null,
     });
     expect(plans[0]?.reading.actionId).toBe("a1");
     expect(plans[0]?.submissions).toEqual([s]);
@@ -225,40 +220,20 @@ describe("findResumedPlans", () => {
     expect(plans.map((x) => x.fromJobId)).toEqual(["newest"]);
   });
 
-  it("carries the ruling when present", () => {
+  it("skips an old-shape paused reading, so the action is interpreted again (spec 110 FR-010)", () => {
     const s = sub("act:a1:s0", "pending", "p1");
-    const plans = findResumedPlans(
-      proj([approved()]),
-      ["a1"],
-      [prior("j1", [s], [reading("a1")], [ruling("a1")])],
-    );
-    expect(plans[0]?.ruling).toEqual(ruling("a1"));
-  });
-
-  it("skips an old-shape paused reading (spec 082 D10)", () => {
-    const s = sub("act:a1:s0", "pending", "p1");
-    const old = {
-      ...reading("a1"),
-      steps: [
-        {
-          step: "check",
-          reason: "r",
-          combatantId: "tamsin",
-          kind: "ability-check",
-          ability: "str",
-          skill: null,
-          expression: "1d20",
-          mode: "normal",
-          dc: 12,
-          autoFail: null,
-          onSuccess: [],
-          onFailure: [],
-        },
-      ],
-    } as unknown as InterpretReading;
+    const old = oldReading("a1");
     expect(
       findResumedPlans(proj([approved()]), ["a1"], [prior("j1", [s], [old])]),
     ).toEqual([]);
+    // The same approved proposal with a new-shape reading still resumes.
+    expect(
+      findResumedPlans(
+        proj([approved()]),
+        ["a1"],
+        [prior("j2", [s], [reading("a1")])],
+      ),
+    ).toHaveLength(1);
   });
 
   it("only keeps submissions keyed for the action", () => {
@@ -315,5 +290,33 @@ describe("refreshSubmission", () => {
   it("sets a null outcome when the batch has no resolved row", () => {
     const s = sub("act:a1:s0", "pending", "p1");
     expect(refreshSubmission(proj([approved()]), s).outcome).toBeNull();
+  });
+});
+
+describe("dropLegacyPlan (spec 110 FR-011)", () => {
+  const cp = (readings: InterpretReading[]): TurnCheckpoint => ({
+    ...emptyCheckpoint(),
+    interpret: { readings },
+    cut: true,
+    resumed: [],
+    lastSeq: 7,
+    submissions: [sub("act:a1:s0", "applied", null)],
+  });
+
+  it("clears interpret, cut and resumed of an old-shape checkpoint and keeps the rest", () => {
+    const old = cp([reading("a0"), oldReading("a1")]);
+    const out = dropLegacyPlan(old);
+    expect(out.interpret).toBeNull();
+    expect(out.cut).toBe(false);
+    expect(out.resumed).toBeNull();
+    expect(out.lastSeq).toBe(7);
+    expect(out.submissions).toEqual(old.submissions);
+  });
+
+  it("returns a new-shape checkpoint unchanged", () => {
+    const fresh = cp([reading("a1")]);
+    expect(dropLegacyPlan(fresh)).toBe(fresh);
+    const none = emptyCheckpoint();
+    expect(dropLegacyPlan(none)).toBe(none);
   });
 });

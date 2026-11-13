@@ -488,12 +488,9 @@ describe("assemble: resume (specs/057)", () => {
         readings: [
           {
             actionId: "act-a",
-            intent: "check",
-            uncertain: true,
-            needsAdjudication: false,
-            rulesQuestion: null,
+            stages: [],
             clarify: null,
-            steps: [],
+            followUps: [],
           },
         ],
       } as unknown as TurnCheckpoint["interpret"],

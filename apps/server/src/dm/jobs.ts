@@ -21,7 +21,6 @@ import {
   latestStanceSeq,
 } from "./floor-state.js";
 import type { PlanVerdict } from "./gates/plan-gate.js";
-import type { AdjudicateOutput } from "./nodes/adjudicate.js";
 import type { CheckRecord } from "./nodes/check.js";
 import type { DirectorNodeOutput } from "./nodes/director.js";
 import type { Submission } from "./nodes/resolve.js";
@@ -188,7 +187,6 @@ export interface TurnCheckpoint {
   npcTurn: { combatantId: string } | null;
   director: DirectorNodeOutput | null;
   interpret: InterpretResult | null;
-  adjudicate: AdjudicateOutput | null;
   /**
    * Spec 104 FR-018: the `throughSeq` of the projections the last completed narrate read. The
    * next beat's narrate window starts after it. Absent on rows stored before TASK-0269.

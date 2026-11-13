@@ -1,14 +1,15 @@
 import { afterAll, describe, expect, it } from "vitest";
 import type { ResolveOutput } from "../../src/dm/nodes/resolve.js";
 import {
-  checkStep,
+  checkBeside,
   commitAction,
   createWorld,
   db,
   loudSkip,
   reachable,
-  reading,
   readRows,
+  stage,
+  stages,
   startScene,
   type World,
 } from "./world.js";
@@ -70,8 +71,7 @@ describe.skipIf(!reachable)("clarify keeps the turn (database)", () => {
     const id = await commitAction(w, "I attack Pell.");
     fresh(w);
     const out = await run(w, [
-      reading(id, [], {
-        intent: "attack",
+      stages(id, [], {
         clarify: "Longsword in melee, or the light crossbow at range?",
       }),
     ]);
@@ -89,11 +89,15 @@ describe.skipIf(!reachable)("clarify keeps the turn (database)", () => {
     const w = await inTurnMode([...initDice(TAMSIN_FIRST), 15]);
     const first = await commitAction(w, "I attack Pell.");
     fresh(w);
-    await run(w, [reading(first, [], { clarify: "Which weapon?" })]);
+    await run(w, [stages(first, [], { clarify: "Which weapon?" })]);
     expect(await advances(w)).toBe(0);
     const answer = await commitAction(w, "I swing my longsword at Pell.");
     fresh(w);
-    await run(w, [reading(answer, [checkStep()])]);
+    await run(w, [
+      stages(answer, [
+        stage({ kind: "check", params: { skill: "athletics" } }, checkBeside()),
+      ]),
+    ]);
     expect(await advances(w)).toBe(1);
   });
 
@@ -101,7 +105,11 @@ describe.skipIf(!reachable)("clarify keeps the turn (database)", () => {
     const w = await inTurnMode([...initDice(TAMSIN_FIRST), 15]);
     const id = await commitAction(w, "I attack Pell.");
     fresh(w);
-    await run(w, [reading(id, [checkStep()])]);
+    await run(w, [
+      stages(id, [
+        stage({ kind: "check", params: { skill: "athletics" } }, checkBeside()),
+      ]),
+    ]);
     expect(await advances(w)).toBe(1);
   });
 });

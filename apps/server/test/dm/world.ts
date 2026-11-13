@@ -4,7 +4,6 @@ import { createGateway } from "../../src/ai/gateway.js";
 import { memorySink } from "../../src/ai/usage.js";
 import { createDb, probeReachable } from "../../src/db.js";
 import type { TurnCheckpoint } from "../../src/dm/jobs.js";
-import type { AdjudicateOutput } from "../../src/dm/nodes/adjudicate.js";
 import { assemble } from "../../src/dm/nodes/assemble.js";
 import type { DirectorNodeOutput } from "../../src/dm/nodes/director.js";
 import { type ResolveOutput, resolve } from "../../src/dm/nodes/resolve.js";
@@ -88,7 +87,6 @@ export interface World {
   runResolve: (input: {
     director?: Partial<DirectorNodeOutput>;
     readings?: InterpretResult["readings"];
-    rulings?: AdjudicateOutput["rulings"];
     job?: Partial<TurnContext["job"]>;
     checkpoint?: TurnCheckpoint;
   }) => Promise<{
@@ -195,7 +193,6 @@ export async function createWorld(
           assemble: assembled.output,
           director: { ...defaultDirector, ...input.director },
           interpret: { readings: input.readings ?? [] },
-          adjudicate: { rulings: input.rulings ?? [] },
         },
       };
       return { result: await resolve(full), ctx: full };
@@ -244,80 +241,6 @@ export async function commitAction(w: World, text: string, id?: string) {
   return actionId;
 }
 
-export const checkStep = (over: Record<string, unknown> = {}) => ({
-  step: "check",
-  reason: "Tamsin forces the stuck shutter",
-  combatantId: "tamsin",
-  kind: "ability-check",
-  ability: "str",
-  skill: "athletics",
-  difficulty: "medium",
-  circumstance: null,
-  autoFail: null,
-  onSuccess: [],
-  onFailure: [],
-  stakes: {
-    success: "The attempt works as intended.",
-    cost: "It works, at a small price.",
-    failure: "The attempt comes to nothing.",
-    severe: "It goes badly wrong.",
-  },
-  onCost: [],
-  onSevere: [],
-  newRisk: null,
-  ...over,
-});
-
-export const attackStep = (
-  targetId: string,
-  over: Record<string, unknown> = {},
-) => ({
-  step: "attack",
-  reason: "Tamsin swings her longsword",
-  attackerId: "tamsin",
-  targetId,
-  attack: "Longsword",
-  circumstance: null,
-  onHit: [],
-  ...over,
-});
-
-export const spellStep = (
-  targetId: string,
-  over: Record<string, unknown> = {},
-) => ({
-  step: "spell",
-  reason: "Odo calls down sacred flame",
-  casterId: "odo",
-  spellId: "sacred-flame",
-  slotLevel: null,
-  targetId,
-  ...over,
-});
-
-export const helpStep = (over: Record<string, unknown> = {}) => ({
-  step: "help",
-  reason: "Kestrel steadies Tamsin",
-  helperId: "kestrel",
-  assist: { kind: "ability-check", allyId: "tamsin", skill: "acrobatics" },
-  ...over,
-});
-
-export const reading = (
-  actionId: string | null,
-  steps: unknown[],
-  over: Record<string, unknown> = {},
-) => ({
-  actionId,
-  intent: "check",
-  uncertain: true,
-  needsAdjudication: false,
-  rulesQuestion: null,
-  clarify: null,
-  steps,
-  ...over,
-});
-
 /** Spec 104: one stage of a new-shape reading, from an Intent body and optional beside data. */
 export const stage = (
   intent: { kind: string; targets?: unknown[]; params?: object; text?: string },
@@ -327,7 +250,7 @@ export const stage = (
   beside,
 });
 
-/** The stakes a check's beside block carries; the same text as `checkStep`. */
+/** The stakes a check's beside block carries; the standard four-band text. */
 export const checkBeside = (over: Record<string, unknown> = {}) => ({
   stakes: {
     success: "The attempt works as intended.",
