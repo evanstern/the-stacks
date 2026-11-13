@@ -3,10 +3,10 @@ id: TASK-0247
 title: >-
   Build: MUD stream and composer — room blocks, roll rows, chips, history, Tab,
   clickable nouns, draft path (spec 091)
-status: To Do
+status: In Progress
 assignee: []
 created_date: 2026-11-05 05:48
-updated_date: '2026-11-12T03:01:00Z'
+updated_date: '2026-11-13T13:35:00Z'
 labels:
   - web
   - ux
@@ -78,4 +78,6 @@ T015 (spec 092): amend spec 091: draft(text) -> draft(intent); closed command se
 Operator ruling 2026-11-09 (R1 lane specs 097-100): spec 098 OQ-3.
 
 Spec 066 OQ-3 (operator C-AMD ruling 2026-11-11, "Approve all"): AC #10 moved to TASK-0199. AC #3 narrows to pills, Tab completion and inline PARSE_* wording, because TASK-0199-web's Send already parses every slash verb.
+
+Claimed 2026-11-13 by the R1 sweep (docs/design/r1-fast-table-runbook.md). Worktree .worktrees/task-0247, branch task-0247-mud-stream, cut from origin/main f761f1c6. No spec dir: signed escape line covers this task.
 <!-- SECTION:NOTES:END -->
