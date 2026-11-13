@@ -35,6 +35,7 @@ import {
   EMPTY_RESOLVE_SNAPSHOT,
   greyhollowFight,
 } from "./snapshot-fixtures.js";
+import { stage, stages } from "./world.js";
 
 const SRC = resolvePath(dirname(fileURLToPath(import.meta.url)), "../../src");
 
@@ -592,12 +593,8 @@ describe("narrate", () => {
     });
   });
 
-  describe("input check on rulings and goalNote (spec 051, OQ-2)", () => {
-    async function withheldRun(
-      ruling: string,
-      goalNote: string,
-      followUps: string[] = [],
-    ) {
+  describe("input check on follow-ups and goalNote (spec 051, OQ-2)", () => {
+    async function withheldRun(goalNote: string, followUps: string[] = []) {
       const base = await setup(["x"]);
       // goblin-3 ("Goblin lookout") died on an earlier turn: dead in S1,
       // absent from the diff.
@@ -611,17 +608,11 @@ describe("narrate", () => {
         results: {
           ...base.ctx.results,
           director: { ...director, goalNote },
-          adjudicate: {
-            rulings: [
-              {
-                actionId: "act-lockpick",
-                ruling,
-                improvised: false,
-                citations: [],
-                dropped: 0,
-                steps: [],
+          interpret: {
+            readings: [
+              stages("act-lockpick", [stage({ kind: "check" })], {
                 followUps,
-              },
+              }) as never,
             ],
           },
           resolve: {
@@ -642,26 +633,11 @@ describe("narrate", () => {
       return { n: out.output, prompt };
     }
 
-    it("removes a refused ruling from the facts the prompt receives", async () => {
-      const { n, prompt } = await withheldRun(
-        "Snag dies in the mud.",
-        "Keep the vault door in view.",
-      );
-      expect(n.facts.rulings).toEqual([]);
-      expect(prompt.user).not.toContain("dies in the mud");
-      expect(n.withheld).toHaveLength(1);
-      expect(n.withheld[0]?.kind).toBe("life-state");
-      expect(n.withheld[0]?.detail).toMatch(
-        /^withheld ruling for act-lockpick: /,
-      );
-    });
-
     it("withholds a follow-up that names a dead actor acting", async () => {
-      const { n, prompt } = await withheldRun(
-        "The lock yields to patient work.",
-        "Keep the vault door in view.",
-        ["Snag dies in the mud.", "Search the door."],
-      );
+      const { n, prompt } = await withheldRun("Keep the vault door in view.", [
+        "Snag dies in the mud.",
+        "Search the door.",
+      ]);
       expect(n.facts.actions[0]?.followUps).toEqual(["Search the door."]);
       expect(prompt.user).toContain("  not yet attempted: Search the door.");
       expect(prompt.user).not.toContain("dies in the mud");
@@ -710,7 +686,6 @@ describe("narrate", () => {
 
     it("blanks a refused goalNote", async () => {
       const { n, prompt } = await withheldRun(
-        "The lock yields to patient work.",
         "Two goblins are down; press the survivors.",
       );
       expect(n.facts.director.goalNote).toBe("");
@@ -718,7 +693,6 @@ describe("narrate", () => {
       expect(prompt.user).not.toContain("press the survivors");
       expect(n.withheld).toHaveLength(1);
       expect(n.withheld[0]?.detail).toMatch(/^withheld goalNote: /);
-      expect(n.facts.rulings).toHaveLength(1);
     });
 
     it("withholds a goalNote that states a true count (TASK-0214)", async () => {
@@ -747,15 +721,9 @@ describe("narrate", () => {
       );
     });
 
-    it("passes a clean ruling and note unchanged", async () => {
-      const { n } = await withheldRun(
-        "The lock yields to patient work.",
-        "Keep the vault door in view.",
-      );
+    it("passes a clean note unchanged", async () => {
+      const { n } = await withheldRun("Keep the vault door in view.");
       expect(n.withheld).toEqual([]);
-      expect(n.facts.rulings[0]?.ruling).toBe(
-        "The lock yields to patient work.",
-      );
       expect(n.facts.director.goalNote).toBe("Keep the vault door in view.");
     });
   });

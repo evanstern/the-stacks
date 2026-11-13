@@ -16,15 +16,15 @@ Do not edit `dm/intent-runner.ts`, `dm/purposes.ts` or `dm/rulings.ts`. Follow p
 
 Operator ruling 2026-11-12: keep gathering for now. Removing it left the party out of reach on the greyhollow seeds (two squeeze edges into reed-camp), so fights opened at range on the CP-7 seed. The attempt (77e74f18) is reverted in 767fed0b. AC #2 moved to TASK-0327.
 
-## Phase 3: Adjudicate node (C-GATE ruling required before dispatch)
+## Phase 3: Adjudicate node (C-GATE approved 2026-11-12)
 
-- [ ] T007 Delete `dm/nodes/adjudicate.ts`, `dm/prompts/adjudicate.ts`, `dm/prompts/step-grammar.ts` and `AdjudicateModelOutput`.
-- [ ] T008 In `pipeline/runner.ts`, delete `needsAdjudication` and the skip branch. Remove `"adjudicate"` from `CHECKPOINTED`. Move the post-planning block to run after interpret per plan D3.
-- [ ] T009 In `pipeline/context.ts`, `jobs.ts`, `worker.ts` and `talk-turn.ts`, remove the node name, output, checkpoint field and wiring. Remove `retrieve` and `minSimilarity` from `NodeDeps` if no reader remains.
-- [ ] T010 In `resolve.ts`, delete the ruling group and every `ctx.results.adjudicate` read. In `narrate.ts`, `facts.ts`, `follow-ups.ts` and `prompts/narrate.ts`, delete the ruling reads and the `rulings` fact.
-- [ ] T011 Delete `test/dm/adjudicate.integration.test.ts`. Update `runner.test.ts`, `helpers.ts`, `world.ts` and `presence-effect.test.ts` (drop the `STEP_GRAMMAR` render case).
-- [ ] T012 Amend `specs/031-dm-runtime/contracts/node-seam.md` and `contracts/turn-jobs.md` per plan D3. Quote the C-GATE ruling in the commit message.
-- [ ] T013 Confirm `PURPOSE_OF.adjudicate`, `playtest/budget.ts`, `schema/jobs.ts` and `apps/web/app/debug/*` are unchanged.
+- [x] T007 Delete `dm/nodes/adjudicate.ts`, `dm/prompts/adjudicate.ts`, `dm/prompts/step-grammar.ts` and `AdjudicateModelOutput`.
+- [x] T008 In `pipeline/runner.ts`, delete `needsAdjudication` and the skip branch. Remove `"adjudicate"` from `CHECKPOINTED`. Move the post-planning block to run after interpret per plan D3.
+- [x] T009 In `pipeline/context.ts`, `jobs.ts`, `worker.ts` and `talk-turn.ts`, remove the node name, output, checkpoint field and wiring. Remove `retrieve` and `minSimilarity` from `NodeDeps` if no reader remains.
+- [x] T010 In `resolve.ts`, delete the ruling group and every `ctx.results.adjudicate` read. In `narrate.ts`, `facts.ts`, `follow-ups.ts` and `prompts/narrate.ts`, delete the ruling reads and the `rulings` fact.
+- [x] T011 Delete `test/dm/adjudicate.integration.test.ts`. Update `runner.test.ts`, `helpers.ts`, `world.ts` and `presence-effect.test.ts` (drop the `STEP_GRAMMAR` render case).
+- [x] T012 Amend `specs/031-dm-runtime/contracts/node-seam.md` and `contracts/turn-jobs.md` per plan D3. Quote the C-GATE ruling in the commit message.
+- [x] T013 Confirm `PURPOSE_OF.adjudicate`, `playtest/budget.ts`, `schema/jobs.ts` and `apps/web/app/debug/*` are unchanged.
 
 ## Phase 4: Step paths in resolve and the plan gate (AC #1)
 

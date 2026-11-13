@@ -32,12 +32,6 @@ afterAll(async () => {
 clearDmJobsBeforeEach();
 
 const KESTREL_USER = "00000000-0000-4000-8000-0000000000a2";
-const retrieve = async () => ({
-  mode: "fts" as const,
-  embeddingModel: null,
-  candidates: { vector: null, fts: 0 },
-  passages: [],
-});
 const chronicle = {
   purpose: "dm.chronicle",
   respond: { type: "json", value: { entries: [] } },
@@ -81,7 +75,7 @@ async function run(variant: Variant) {
     dice,
     calls: [...start.calls, ...chosen, chronicle, chronicle, chronicle],
   });
-  const { worker } = workerFor(w, { retrieve });
+  const { worker } = workerFor(w);
   await enqueueTurn(requireDb(), w.sessionId, "scene-start", null, {
     start: {
       seedId: "greyhollow-ford-duo",

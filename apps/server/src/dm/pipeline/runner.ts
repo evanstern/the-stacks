@@ -8,7 +8,6 @@ import {
 import { askUndeclared } from "../gates/plan-gate.js";
 import type { TurnCheckpoint } from "../jobs.js";
 import { findLandedNarration, submitNarration } from "../nodes/resolve.js";
-import { hasStages } from "../nodes/schemas.js";
 import { SnapshotOverflowError } from "../snapshot/index.js";
 import { runTalkTurn } from "../talk-turn.js";
 import {
@@ -26,7 +25,7 @@ import {
 
 /**
  * The turn runner (contracts/node-seam.md "The runner"): fixed node order,
- * one conditional branch (adjudicate or not), checkpoint reuse for the
+ * one conditional branch (the post-interpret plan cut, once per turn), checkpoint reuse for the
  * planning nodes, fence checks between nodes. No dynamic routing, no cycle.
  *
  * The final step ships the narration check chose: `submitNarration`, which
@@ -51,7 +50,7 @@ const NPC_DIRECTOR: NodeOutputs["director"] = INTENT_DIRECTOR;
 
 export type Nodes = { [N in NodeName]: Node<N> };
 
-const CHECKPOINTED = ["director", "interpret", "adjudicate"] as const;
+const CHECKPOINTED = ["director", "interpret"] as const;
 type Checkpointed = (typeof CHECKPOINTED)[number];
 
 function isCheckpointed(name: NodeName): name is Checkpointed {
@@ -99,21 +98,6 @@ async function safeRun<N extends NodeName>(
     };
     return { ok: false, node: name, error: err, calls: [] };
   }
-}
-
-/** True when at least one interpret reading asks for a rules ruling. */
-function needsAdjudication(ctx: TurnContext): boolean {
-  const resumed = new Set(
-    (ctx.results.assemble?.resumed ?? []).map((p) => p.actionId),
-  );
-  return (
-    ctx.results.interpret?.readings.some(
-      (r) =>
-        !hasStages(r) &&
-        r.needsAdjudication &&
-        !(r.actionId !== null && resumed.has(r.actionId)),
-    ) ?? false
-  );
 }
 
 export async function runTurn(
@@ -198,11 +182,6 @@ export async function runTurn(
         ...ctx,
         results: { ...ctx.results, [name]: ctx.checkpoint[name] },
       };
-    } else if (name === "adjudicate" && !needsAdjudication(ctx)) {
-      ctx = {
-        ...ctx,
-        results: { ...ctx.results, adjudicate: { rulings: [] } },
-      };
     } else {
       const result = await safeRun(nodes[name] as Node<NodeName>, name, ctx);
       calls.push(...result.calls);
@@ -245,39 +224,25 @@ export async function runTurn(
       }
     }
 
-    if (name === "adjudicate" && !ctx.checkpoint.cut) {
+    if (name === "interpret" && !ctx.checkpoint.cut) {
       // Post-planning step (specs/064): cut plans to their first stage.
       const interpreted = ctx.results.interpret;
       const director = ctx.results.director;
-      if (
-        interpreted &&
-        director &&
-        director.beat.decision !== "hold" &&
-        ctx.results.adjudicate
-      ) {
-        const adjudicated = ctx.results.adjudicate;
+      if (interpreted && director && director.beat.decision !== "hold") {
         const assembledOut = ctx.results.assemble as NodeOutputs["assemble"];
         const cut = cutPlans({
           mode: assembledOut.projections.tableMode?.mode ?? "turn",
           readings: interpreted.readings,
-          rulings: adjudicated.rulings,
         });
         // Spec 077: ask before an undeclared method or another human's roll.
         const asked = askUndeclared({
           snapshot: assembledOut.snapshot,
           beat: assembledOut.beat,
           readings: cut.readings,
-          rulings: cut.rulings,
           resumed: (assembledOut.resumed ?? []).map((p) => p.actionId),
         });
-        const cutBeat =
-          cut.readings.some((r) => r.followUps.length > 0) ||
-          cut.rulings.some((r) => r.followUps.length > 0);
-        const clarified = clarifyHolds(
-          assembledOut.beat,
-          asked.readings,
-          asked.rulings,
-        );
+        const cutBeat = cut.readings.some((r) => r.followUps.length > 0);
+        const clarified = clarifyHolds(assembledOut.beat, asked.readings);
         const held = holdDirector(
           holdDirector(director, cutBeat),
           clarified.size > 0,
@@ -288,14 +253,12 @@ export async function runTurn(
           results: {
             ...ctx.results,
             interpret: { ...interpreted, readings: asked.readings },
-            adjudicate: { ...adjudicated, rulings: asked.rulings },
             director: held,
           },
         };
         const saved = await store({
           ...ctx.checkpoint,
           interpret: ctx.results.interpret ?? null,
-          adjudicate: ctx.results.adjudicate ?? null,
           director: held,
           cut: true,
         });
@@ -304,7 +267,6 @@ export async function runTurn(
           event: "dm.plan.cut",
           jobId: ctx.job.id,
           readings: cut.readings.filter((r) => r.followUps.length > 0).length,
-          rulings: cut.rulings.filter((r) => r.followUps.length > 0).length,
           clarified: clarified.size,
           asked: asked.asked.length,
         });

@@ -8,13 +8,8 @@ import {
   CONDITION_KEYS,
   INTERPRET_KINDS,
   InterpretOutput,
-  LegacyInterpretReadingSchema,
   SKILL_KEYS,
 } from "../../src/dm/nodes/schemas.js";
-import {
-  PROMPT_VERSION as ADJUDICATE_VERSION,
-  buildAdjudicatePrompt,
-} from "../../src/dm/prompts/adjudicate.js";
 import {
   buildInterpretPrompt,
   EXAMPLE_OUTPUT,
@@ -57,34 +52,15 @@ async function prompts() {
     assembled: assembled.output,
     director,
   });
-  const adjudicate = buildAdjudicatePrompt({
-    seed: ctx.seed,
-    assembled: assembled.output,
-    reading: LEGACY_READING as never,
-    actionText: "x",
-    passages: [],
-  });
-  return { interpret, adjudicate };
+  return { interpret };
 }
-
-/** A pre-Intent reading: the adjudicate prompt still takes one until TASK-0312 deletes it. */
-const LEGACY_READING = LegacyInterpretReadingSchema.parse({
-  actionId: "act-1",
-  intent: "check",
-  uncertain: true,
-  needsAdjudication: true,
-  rulesQuestion: "Can she?",
-  clarify: null,
-  steps: [],
-});
 
 const NARRATIVE =
   "A narrative outcome such as spotting, learning or noticing something is narration, not an effect";
 
-describe("interpret and adjudicate prompts", () => {
+describe("interpret prompt", () => {
   it("bumps the prompt versions", () => {
     expect(INTERPRET_VERSION).toBe("dm.interpret-v18");
-    expect(ADJUDICATE_VERSION).toBe("dm.adjudicate-v10");
   });
 
   it("lists arriving monsters, and only then (spec 088)", async () => {
@@ -149,14 +125,6 @@ describe("interpret and adjudicate prompts", () => {
       .find((l) => l.startsWith('goblin-2 "'));
     expect(line).toContain("AC 15");
     expect(line).toContain("frightened");
-    const adj = buildAdjudicatePrompt({
-      seed,
-      assembled: assembled.output,
-      reading: LEGACY_READING as never,
-      actionText: "x",
-      passages: [],
-    });
-    expect(adj.user).toContain("frightened");
   });
 
   it("the interpret system prompt holds every rules-term key", async () => {
@@ -170,18 +138,6 @@ describe("interpret and adjudicate prompts", () => {
     }
     expect(interpret.system).toContain(NARRATIVE);
     expect(interpret.system).toContain("no prose, no code fence");
-  });
-
-  it("the adjudicate system prompt holds the three lists", async () => {
-    const { adjudicate } = await prompts();
-    for (const key of [
-      ...CONDITION_KEYS,
-      ...SKILL_KEYS,
-      ...DamageTypeSchema.options,
-    ]) {
-      expect(adjudicate.system).toContain(key);
-    }
-    expect(adjudicate.system).toContain(NARRATIVE);
   });
 
   it("InterpretOutput parses a reading with and without say (specs/081)", () => {

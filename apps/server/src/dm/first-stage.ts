@@ -1,5 +1,4 @@
 import { PLAN_KINDS } from "@the-stacks/planner";
-import type { Ruling } from "./nodes/adjudicate.js";
 import type { BeatItem } from "./nodes/assemble.js";
 import type { DirectorNodeOutput } from "./nodes/director.js";
 import {
@@ -11,8 +10,8 @@ import {
 
 /**
  * First-stage rule (specs/064-plan-first-step): in free mode a plan resolves
- * only its first stage. Pure; the runner applies it between adjudicate and
- * resolve.
+ * only its first stage. Pure; the runner applies it after interpret and
+ * before resolve.
  */
 
 const MAX_FOLLOW_UPS = 6;
@@ -83,10 +82,9 @@ const merge = (...lists: readonly string[][]): string[] =>
 export function cutPlans(input: {
   mode: "free" | "turn";
   readings: AnyInterpretReading[];
-  rulings: Ruling[];
-}): { readings: AnyInterpretReading[]; rulings: Ruling[] } {
-  const { mode, readings, rulings } = input;
-  if (mode !== "free") return { readings, rulings };
+}): { readings: AnyInterpretReading[] } {
+  const { mode, readings } = input;
+  if (mode !== "free") return { readings };
   return {
     readings: readings.map((r) => {
       if (r.actionId === null) return r;
@@ -108,18 +106,6 @@ export function cutPlans(input: {
         ),
       };
     }),
-    rulings: rulings.map((r) => {
-      if (r.actionId === null) return r;
-      const { kept, cut } = firstStage(r.steps);
-      return {
-        ...r,
-        steps: kept,
-        followUps: merge(
-          r.followUps,
-          cut.map((s) => s.reason),
-        ),
-      };
-    }),
   };
 }
 
@@ -128,17 +114,15 @@ export const CLARIFY_HELD = "held: an action awaits an answer";
 
 /**
  * Action ids a human's clarify holds (specs/073): committed, not an `ai:`
- * actor, a reading that asks a question, no ruling that names the action.
+ * actor, a reading that asks a question.
  */
 export function clarifyHolds(
   beat: readonly BeatItem[],
   readings: readonly AnyInterpretReading[],
-  rulings: readonly Ruling[],
 ): Set<string> {
   const held = new Set<string>();
   for (const b of beat) {
     if (b.status !== "committed" || b.actor.startsWith("ai:")) continue;
-    if (rulings.some((r) => r.actionId === b.actionId)) continue;
     if (readings.some((r) => r.actionId === b.actionId && r.clarify !== null))
       held.add(b.actionId);
   }

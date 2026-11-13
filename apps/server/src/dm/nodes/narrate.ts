@@ -117,9 +117,6 @@ export function withholdRefusedInputs(
     }
     return issues.length > 0;
   };
-  const rulings = facts.rulings.filter(
-    (r) => !refuse(`ruling for ${r.actionId}`, r.ruling),
-  );
   const actions = facts.actions.map((a) => ({
     ...a,
     followUps: a.followUps.filter(
@@ -170,7 +167,6 @@ export function withholdRefusedInputs(
       ...facts,
       actions,
       ...(openFollowUps?.length ? { openFollowUps } : {}),
-      rulings,
       ...(dropSay && facts.npcTurn?.plan
         ? {
             npcTurn: {
@@ -255,13 +251,7 @@ export const narrate: Node<"narrate"> = async (ctx) => {
   for (const r of ctx.results.interpret?.readings ?? []) {
     if (r.actionId) followUps[r.actionId] = r.followUps;
   }
-  for (const r of ctx.results.adjudicate?.rulings ?? []) {
-    if (r.actionId) followUps[r.actionId] = r.followUps;
-  }
   const reading = (ctx.results.interpret?.readings ?? []).find(
-    (r) => r.actionId === null,
-  );
-  const npcRuling = (ctx.results.adjudicate?.rulings ?? []).find(
     (r) => r.actionId === null,
   );
   const npcPlan = reading
@@ -276,7 +266,7 @@ export const narrate: Node<"narrate"> = async (ctx) => {
         }
       : {
           intent: reading.intent,
-          steps: npcRuling?.steps ?? reading.steps,
+          steps: reading.steps,
           say: reading.say ?? null,
         }
     : null;
@@ -348,7 +338,6 @@ export const narrate: Node<"narrate"> = async (ctx) => {
     projections,
     beat: assembled.beat,
     director,
-    adjudicate: ctx.results.adjudicate ?? null,
     resolve,
     presentNpcIds: assembled.presentNpcIds,
     modeBefore: assembled.projections.tableMode.mode,

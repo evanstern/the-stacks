@@ -5,7 +5,6 @@ import { assemble } from "../../src/dm/nodes/assemble.js";
 import type { DirectorNodeOutput } from "../../src/dm/nodes/director.js";
 import { interpret } from "../../src/dm/nodes/interpret.js";
 import {
-  AdjudicateModelOutput,
   InterpretOutput,
   LegacyInterpretReadingSchema as InterpretReadingSchema,
   StepSchema,
@@ -429,20 +428,6 @@ describe("check stakes contract (spec 070)", () => {
     const { newRisk: _n, onCost: _c, onSevere: _s, ...rest } = checkStep;
     const parsed = StepSchema.parse(rest);
     expect(parsed).toMatchObject({ newRisk: null, onCost: [], onSevere: [] });
-  });
-
-  it("applies the ability-check rule to an adjudicate ruling", () => {
-    const ruling = (st: object) => ({
-      ruling: "r",
-      citations: [],
-      steps: [{ ...checkStep, stakes: st }],
-    });
-    expect(
-      AdjudicateModelOutput.safeParse(ruling(stakes({ cost: null }))).success,
-    ).toBe(false);
-    expect(
-      AdjudicateModelOutput.safeParse(ruling(checkStep.stakes)).success,
-    ).toBe(true);
   });
 
   describe("opposition and help (spec 084 D9)", () => {

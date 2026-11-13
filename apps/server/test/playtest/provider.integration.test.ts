@@ -81,7 +81,6 @@ function pricedProvider(ceilingUsd: number): ProviderRunOptions {
     seed: 7,
     libraryDb: db as NonNullable<typeof db>,
     adapters: { fake: () => scripted.provider as FakeProvider },
-    retrieve: async () => retrieveResult,
     rng: scripted.gateRng(),
   };
 }

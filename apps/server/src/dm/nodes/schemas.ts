@@ -643,27 +643,3 @@ export const ReactOutput = z
     }
   });
 export type ReactOutput = z.infer<typeof ReactOutput>;
-
-export const AdjudicateModelOutput = z
-  .object({
-    ruling: z.string().min(1).max(600),
-    citations: z
-      .array(
-        z.discriminatedUnion("source", [
-          z.object({
-            source: z.literal("library"),
-            p: z.number().int().min(1),
-            quote: z.string().min(1).max(500),
-          }),
-          z.object({
-            source: z.literal("srd"),
-            kind: SrdKind,
-            id: z.string().min(1),
-          }),
-        ]),
-      )
-      .max(6),
-    steps: z.array(StepSchema).min(1).max(6),
-  })
-  .superRefine((o, ctx) => refineSteps(o.steps, ctx, ["steps"]));
-export type AdjudicateModelOutput = z.infer<typeof AdjudicateModelOutput>;

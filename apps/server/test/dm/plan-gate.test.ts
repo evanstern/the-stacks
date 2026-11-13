@@ -18,7 +18,6 @@ import {
   otherPlayerQuestion,
   startableEncounterIds,
 } from "../../src/dm/gates/plan-gate.js";
-import type { Ruling } from "../../src/dm/nodes/adjudicate.js";
 import type { BeatItem } from "../../src/dm/nodes/assemble.js";
 import {
   InterpretOutput,
@@ -54,7 +53,6 @@ const plan = (
   checkPlan({
     snapshot,
     readings,
-    rulings: [],
     combatants: {},
     joining: [],
     arriving: [],
@@ -345,18 +343,6 @@ describe("checkPlan", () => {
     expect(v[0]).toMatchObject({ failure: { id: "zzz" } });
   });
 
-  it("lets a ruling replace the reading's steps", () => {
-    const bad = read("a1", [attackStep("ghoul-9")]);
-    const v = plan([bad], {
-      rulings: [{ actionId: "a1", steps: steps(attackStep("goblin-2")) }],
-    });
-    expect(v).toEqual([{ actionId: "a1", ok: true }]);
-    const v2 = plan([read("a1", [attackStep("goblin-2")])], {
-      rulings: [{ actionId: "a1", steps: steps(attackStep("ghoul-9")) }],
-    });
-    expect(v2[0]?.ok).toBe(false);
-  });
-
   it("gates the NPC group (actionId null)", () => {
     const v = plan([
       read("a1", [attackStep("goblin-2")]),
@@ -401,7 +387,6 @@ describe("checkPlan: absent actors", () => {
       combatants: {},
       snapshot: snap,
       readings,
-      rulings: [],
       joining: [],
       arriving: [],
       resumed: [],
@@ -464,7 +449,6 @@ describe("checkPlan: absent actors", () => {
       combatants: {},
       snapshot: buildSnapshot(f.projections, f.seed),
       readings: [read("a1", [attackStep("pell")])] as InterpretReading[],
-      rulings: [],
       joining: [],
       arriving: ["pell"],
       resumed: [],
@@ -689,7 +673,6 @@ describe("checkPlan: presence ids", () => {
       combatants: {},
       snapshot: pellAway(),
       readings,
-      rulings: [],
       joining: [],
       arriving: [],
       resumed: [],
@@ -728,7 +711,6 @@ describe("checkPlan: presence ids", () => {
       combatants: {},
       snapshot: buildSnapshot(f.projections, f.seed),
       readings: [read("a1", [attackStep("goblin-3")])],
-      rulings: [],
       joining: [],
       arriving: [],
       resumed: ["a1"],
@@ -738,13 +720,6 @@ describe("checkPlan: presence ids", () => {
       code: "UNKNOWN_COMBATANT",
       failure: { field: "targetId", id: "goblin-3", reason: "absent" },
     });
-  });
-
-  it("replaces a reading's steps with its ruling's steps", () => {
-    const v = run([read("a1", [pellStep()])], {
-      rulings: [{ actionId: "a1", steps: steps(attackStep("goblin-2")) }],
-    });
-    expect(v).toEqual([{ actionId: "a1", ok: true }]);
   });
 
   it("does not check a clarify reading", () => {
@@ -878,7 +853,6 @@ describe("checkPlan: non-combatant NPC pull (specs 068, 075)", () => {
       combatants: {},
       snapshot: buildSnapshot(f.projections, f.seed),
       readings: [read("a1", [attackStep("pell")])],
-      rulings: [],
       joining: [],
       arriving: [],
       resumed: [],
@@ -914,7 +888,6 @@ describe("checkPlan: non-combatant NPC pull (specs 068, 075)", () => {
       combatants: {},
       snapshot: buildSnapshot(f.projections, f.seed),
       readings: [read("a1", [checkStep({ combatantId: "pell" })])],
-      rulings: [],
       joining: [],
       arriving: [],
       resumed: [],
@@ -980,7 +953,6 @@ describe("askUndeclared (spec 077)", () => {
     steps: unknown[],
     extra: {
       snapshot?: typeof s0;
-      rulings?: Ruling[];
       resumed?: string[];
       readings?: InterpretReading[];
     } = {},
@@ -993,7 +965,6 @@ describe("askUndeclared (spec 077)", () => {
       snapshot: extra.snapshot ?? s0,
       beat: [b],
       readings,
-      rulings: extra.rulings ?? [],
       resumed: extra.resumed ?? [],
     });
     return out;
@@ -1088,21 +1059,6 @@ describe("askUndeclared (spec 077)", () => {
       [stealth("odo")],
     );
     expect(r.asked).toEqual([]);
-  });
-
-  it("asks on a ruling's steps and removes the ruling", () => {
-    const ruling = {
-      actionId: "a1",
-      ruling: "x",
-      improvised: true,
-      citations: [],
-      dropped: 0,
-      steps: [stealth("tamsin")],
-      followUps: [],
-    } as unknown as Ruling;
-    const r = ask(item(REED), [], { rulings: [ruling] });
-    expect(r.rulings).toEqual([]);
-    expect(r.readings[0]?.clarify).toBe(MANNER_SKILLS[0].question);
   });
 
   it("leaves resumed, clarify and NPC readings alone", () => {
@@ -1229,7 +1185,6 @@ describe("checkPlan actor rule (spec 079 D5)", () => {
     const cut = cutPlans({
       mode: "free",
       readings: parsed.readings,
-      rulings: [],
     });
     // The scripted action belongs to Tamsin; Kestrel's attack is cut as a later stage.
     // Spec 104: the script is now stage-shaped; checkPlan takes the union.
@@ -1338,7 +1293,6 @@ describe("askUndeclared: help (spec 084 D12)", () => {
       snapshot: s0,
       beat: [item()],
       readings: [read("a1", steps)],
-      rulings: [],
       resumed: [],
     });
   it("asks when the helper is another human's PC", () => {
@@ -1462,7 +1416,6 @@ describe("monster arrivals (spec 088)", () => {
     checkPlan({
       snapshot: buildSnapshot(duo.projections, duo.seed),
       readings: [opp(id)],
-      rulings: [],
       combatants: {},
       joining,
       arriving: [],

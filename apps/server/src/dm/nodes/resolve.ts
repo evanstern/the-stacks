@@ -804,10 +804,7 @@ async function runSteps(
 // ---------------------------------------------------------- Director group
 
 /** Every target of a presence effect in the turn's planned steps. */
-function presenceTargets(
-  readings: readonly AnyInterpretReading[],
-  rulings: readonly { steps: readonly Step[] }[],
-): string[] {
+function presenceTargets(readings: readonly AnyInterpretReading[]): string[] {
   const out: string[] = [];
   const beside = (b: Beside | null): void => {
     if (!b) return;
@@ -820,10 +817,7 @@ function presenceTargets(
   const effects = (list: readonly Effect[]): void => {
     for (const e of list) if (e.effect === "presence") out.push(e.targetId);
   };
-  for (const { steps } of [
-    ...readings.filter((r) => !hasStages(r)),
-    ...rulings,
-  ] as {
+  for (const { steps } of readings.filter((r) => !hasStages(r)) as {
     steps: readonly Step[];
   }[]) {
     for (const step of steps) {
@@ -1412,15 +1406,11 @@ function engineCode(code: string | null): string | null {
 }
 
 /** A group's work: legacy steps (a ruling or an old reading), or Intent stages (spec 104). */
-function actionGroup(
-  reading: AnyInterpretReading | undefined,
-  ruling: { steps: Step[] } | undefined,
-): {
+function actionGroup(reading: AnyInterpretReading | undefined): {
   steps: readonly Step[];
   stages: readonly InterpretStage[] | null;
   clarify: boolean;
 } {
-  if (ruling) return { steps: ruling.steps, stages: null, clarify: false };
   if (!reading) return { steps: [], stages: null, clarify: false };
   if (hasStages(reading)) {
     return {
@@ -1526,10 +1516,9 @@ async function resolveAction(
   ctx: TurnContext,
   item: BeatItem,
   reading: AnyInterpretReading | undefined,
-  ruling: { steps: Step[] } | undefined,
   verdict: PlanVerdict | undefined,
 ): Promise<ResolveOutput["actionResults"][number]> {
-  const { steps, stages, clarify } = actionGroup(reading, ruling);
+  const { steps, stages, clarify } = actionGroup(reading);
   // TASK-0244: a held group runs no step and writes no row; it stays committed.
   if (verdict && !verdict.ok && verdict.code === TURN_HELD_CODE) {
     return {
@@ -1657,20 +1646,13 @@ export const resolve: Node<"resolve"> = async (ctx) => {
   /** A human's clarify holds the turn (specs/073). */
   const clarifyHeld = hold
     ? new Set<string>()
-    : clarifyHolds(
-        assembled.beat,
-        ctx.results.interpret?.readings ?? [],
-        ctx.results.adjudicate?.rulings ?? [],
-      );
+    : clarifyHolds(assembled.beat, ctx.results.interpret?.readings ?? []);
   /** The active combatant when the turn began (spec 048, the skipped advance). */
   const activeAtStart =
     ctx.job.attempt > 1
       ? (activeLeaverFromLog(
           assembled.projections,
-          presenceTargets(
-            hold ? [] : (ctx.results.interpret?.readings ?? []),
-            hold ? [] : (ctx.results.adjudicate?.rulings ?? []),
-          ),
+          presenceTargets(hold ? [] : (ctx.results.interpret?.readings ?? [])),
         ) ??
         assembled.projections.encounter?.activeCombatantId ??
         null)
@@ -1689,13 +1671,9 @@ export const resolve: Node<"resolve"> = async (ctx) => {
     // The plan gate is pure: it runs first and changes no write order. It
     // accepts the ids this turn's encounter start adds (spec 045 SC-003).
     const planReadings = hold ? [] : (ctx.results.interpret?.readings ?? []);
-    const planRulings = hold ? [] : (ctx.results.adjudicate?.rulings ?? []);
     const { unconditional, dependent } = splitArrivals(
       director.arrivals ?? [],
-      [
-        ...planReadings.flatMap((r) => (hasStages(r) ? [] : r.steps)),
-        ...planRulings.flatMap((r) => r.steps),
-      ],
+      [...planReadings.flatMap((r) => (hasStages(r) ? [] : r.steps))],
       assembled.snapshot,
       ctx.seed,
       planReadings.flatMap((r) =>
@@ -1712,7 +1690,6 @@ export const resolve: Node<"resolve"> = async (ctx) => {
     run.planGate = checkPlan({
       snapshot: assembled.snapshot,
       readings: planReadings,
-      rulings: planRulings,
       joining: arrivingMonsters(
         ctx.seed,
         assembled.projections,
@@ -1754,55 +1731,23 @@ export const resolve: Node<"resolve"> = async (ctx) => {
     const verdictFor = (actionId: string | null) =>
       run.planGate.find((v) => v.actionId === actionId);
 
-    // Decision-0025 §4: opening moves, rulings, actions, NPC, closing moves,
+    // Decision-0025 §4: opening moves, actions, NPC, closing moves,
     // turn advance. Hold runs the opening and closing moves only.
     await directorOpening(run, ctx, assembled, director, local, unconditional);
 
     if (!hold) {
       const readings = ctx.results.interpret?.readings ?? [];
-      const rulings = ctx.results.adjudicate?.rulings ?? [];
-
-      // Ruling group.
-      for (const [n, r] of rulings.entries()) {
-        const cites = r.citations
-          .map((c) =>
-            c.source === "library"
-              ? `${c.book} (${c.path.join(" > ")}): "${c.quote}"`
-              : `SRD ${c.kind} ${c.name}, page ${c.page}`,
-          )
-          .join("\n");
-        const body = [
-          r.ruling,
-          r.improvised ? "Improvised: no citation verified." : cites,
-        ]
-          .filter(Boolean)
-          .join("\n\n")
-          .slice(0, 8000);
-        await run.submit(`ruling:${n}`, "journal", () => ({
-          kind: "journal",
-          ...note(`Ruling ${n + 1}`, r.ruling),
-          entry: {
-            entryId: `ruling-${ctx.job.id}-${n + 1}`,
-            title: "Ruling",
-            body,
-            sourceActionIds: r.actionId ? [r.actionId] : [],
-          },
-          visibility: "dm",
-        }));
-      }
 
       // Action groups, in commit order.
       for (const item of assembled.beat) {
         if (item.status === "resolved") continue;
         const reading = readings.find((r) => r.actionId === item.actionId);
-        const ruling = rulings.find((r) => r.actionId === item.actionId);
         actionResults.push(
           await resolveAction(
             run,
             ctx,
             item,
             reading,
-            ruling,
             verdictFor(item.actionId),
           ),
         );
@@ -1811,8 +1756,7 @@ export const resolve: Node<"resolve"> = async (ctx) => {
       // NPC group.
       if (assembled.npcTurn) {
         const reading = readings.find((r) => r.actionId === null);
-        const ruling = rulings.find((r) => r.actionId === null);
-        const { steps, stages } = actionGroup(reading, ruling);
+        const { steps, stages } = actionGroup(reading);
         const npcVerdict = verdictFor(null);
         // The pull's batches (the joiner's initiative roll) belong to the NPC
         // turn's facts, or the shipped dice lines miss the roll (TASK-0213).

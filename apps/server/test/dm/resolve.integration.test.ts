@@ -1425,41 +1425,6 @@ describe.skipIf(!reachable)("scene presence effects (spec 048)", () => {
     );
   });
 
-  it("an adjudicate ruling's effect step with a presence effect lands", async () => {
-    const w = await inTurnMode([...initDice(TAMSIN_FIRST)]);
-    const id = await commitAction(w, "Tamsin orders the goblin to withdraw.");
-    fresh(w);
-    const out = await run(
-      w,
-      [reading(id, [], { needsAdjudication: true, intent: "other" })],
-      {
-        job: nextJob(),
-        rulings: [
-          {
-            actionId: id,
-            ruling: "The goblin withdraws at once.",
-            improvised: true,
-            citations: [],
-            dropped: 0,
-            steps: [
-              {
-                step: "effect",
-                reason: "The goblin withdraws",
-                effects: [flee("goblin-2", "left")],
-              },
-            ],
-          },
-        ] as never,
-      },
-    );
-    expect(presenceSubs(out)).toHaveLength(1);
-    const p = await w.projections();
-    expect(p.scenePresence["goblin-2"]).toMatchObject({
-      presence: "absent",
-      reason: "left",
-    });
-  });
-
   it("a fled active NPC hands the turn on once: no double advance, no later turn over two rounds", async () => {
     const w = await inTurnMode([...initDice(SNAG_FIRST)]);
     const before = await w.projections();

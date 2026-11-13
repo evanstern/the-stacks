@@ -5,7 +5,6 @@ import type {
 } from "@the-stacks/session-model";
 import { describe, expect, it } from "vitest";
 import type { TurnCheckpoint } from "../../src/dm/jobs.js";
-import type { Ruling } from "../../src/dm/nodes/adjudicate.js";
 import type { Submission } from "../../src/dm/nodes/resolve.js";
 import type { InterpretReading } from "../../src/dm/nodes/schemas.js";
 import {
@@ -110,16 +109,6 @@ const reading = (actionId: string): InterpretReading =>
     steps: [],
   }) as unknown as InterpretReading;
 
-const ruling = (actionId: string): Ruling => ({
-  actionId,
-  ruling: "Roll it.",
-  improvised: false,
-  citations: [],
-  dropped: 0,
-  steps: [],
-  followUps: [],
-});
-
 function sub(
   key: string,
   result: Submission["result"],
@@ -146,12 +135,10 @@ function prior(
   jobId: string,
   submissions: Submission[],
   readings: InterpretReading[] = [reading("a1")],
-  rulings: Ruling[] | null = null,
 ): PriorTurn {
   const checkpoint: TurnCheckpoint = {
     ...emptyCheckpoint(),
     interpret: { readings } as unknown as TurnCheckpoint["interpret"],
-    adjudicate: rulings ? { rulings } : null,
     submissions,
   };
   return { jobId, checkpoint };
@@ -172,7 +159,6 @@ describe("findResumedPlans", () => {
     expect(plans[0]).toMatchObject({
       actionId: "a1",
       fromJobId: "j1",
-      ruling: null,
     });
     expect(plans[0]?.reading.actionId).toBe("a1");
     expect(plans[0]?.submissions).toEqual([s]);
@@ -223,16 +209,6 @@ describe("findResumedPlans", () => {
       [prior("newest", [newer]), prior("oldest", [older])],
     );
     expect(plans.map((x) => x.fromJobId)).toEqual(["newest"]);
-  });
-
-  it("carries the ruling when present", () => {
-    const s = sub("act:a1:s0", "pending", "p1");
-    const plans = findResumedPlans(
-      proj([approved()]),
-      ["a1"],
-      [prior("j1", [s], [reading("a1")], [ruling("a1")])],
-    );
-    expect(plans[0]?.ruling).toEqual(ruling("a1"));
   });
 
   it("skips an old-shape paused reading (spec 082 D10)", () => {

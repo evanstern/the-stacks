@@ -11,7 +11,7 @@ gate listener). Schema: `apps/server/src/schema/jobs.ts`, migration `0004_*`. Qu
 | Kind | One row is | Stages | Claim priority |
 |---|---|---|---|
 | `ingest` | one book upload (unchanged) | `extract`, `parse`, `store`, `embed` | ingest worker only |
-| `turn` | one beat of one session | `assemble`, `director`, `interpret`, `adjudicate`, `resolve`, `narrate`, `audit` | 1 |
+| `turn` | one beat of one session | `assemble`, `director`, `interpret`, `resolve`, `narrate`, `audit` | 1 |
 | `floor` | one absence or stall check for one session; no model call | none (`stage` stays null) | 2 |
 | `companion` | one or more AI companions acting once | `companion` | 3 |
 | `chronicle` | one journal pass for one session | `chronicle` | 4 |
@@ -73,7 +73,7 @@ Amended by specs/033-director-robustness/contracts/failure-record.md.
 | Change | Why |
 |---|---|
 | `kind` CHECK → `IN ('ingest','turn','companion','chronicle')` | new kinds; migration `0007` adds `'floor'` and `jobs_floor_queued_key` (TASK-0050, FT-3) |
-| `stage` CHECK adds `assemble`, `director`, `interpret`, `adjudicate`, `resolve`, `narrate`, `audit`, `companion`, `chronicle` | per-kind stages |
+| `stage` CHECK adds `assemble`, `director`, `interpret`, `resolve`, `narrate`, `audit`, `companion`, `chronicle` (`adjudicate` stays in the CHECK for rows written before TASK-0312) | per-kind stages |
 | `book` → nullable; CHECK `kind <> 'ingest' OR book IS NOT NULL` | DM jobs have no book |
 | add `session_id uuid` nullable; CHECK `kind = 'ingest' OR session_id IS NOT NULL` | DM jobs belong to a session |
 | `jobs_active_book_key` gains `AND kind = 'ingest'` | keep the ingest rule exact |
@@ -146,7 +146,6 @@ export interface TurnCheckpoint {
   npcTurn: { combatantId: string } | null;
   director: DirectorOutput | null;
   interpret: InterpretOutput | null;
-  adjudicate: AdjudicateOutput | null;
   submissions: Submission[];                   // resolve.md
   lastSeq: number;                             // highest seq the gate returned to this job
   narration: { attempts: AuditRecord["attempts"]; shipped: boolean } | null;

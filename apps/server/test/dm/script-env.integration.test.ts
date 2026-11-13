@@ -44,11 +44,7 @@ describe.skipIf(!reachable)(
         db: requireDb(),
         gateway,
         gate,
-        retrieve: async () => {
-          throw new Error("no retrieval in script mode");
-        },
         loadProjections: loadDm,
-        minSimilarity: 0.3,
       });
 
       await enqueueTurn(requireDb(), sessionId, "scene-start", null, {

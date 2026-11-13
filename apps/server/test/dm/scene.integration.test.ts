@@ -26,33 +26,6 @@ afterAll(async () => {
 });
 clearDmJobsBeforeEach();
 
-const PASSAGE =
-  "A character can try to persuade another creature by making a Charisma check, and the difficulty depends on how willing the creature already is.";
-
-const retrieve = async () => ({
-  mode: "fts" as const,
-  embeddingModel: null,
-  candidates: { vector: null, fts: 1 },
-  passages: [
-    {
-      chunkId: "chunk-persuade",
-      documentId: "doc-rules",
-      kind: "prose" as const,
-      text: PASSAGE,
-      anchor: {
-        book: "Fixture Rules",
-        path: ["Social"],
-        start: 0,
-        end: PASSAGE.length,
-      },
-      rank: 1,
-      score: 1,
-      vector: null,
-      fts: { rank: 1, score: 1 },
-    },
-  ],
-});
-
 const payload = <T>(r: StoredEvent | undefined) => r?.payload as T;
 
 describe("fixture scripts", () => {
@@ -77,7 +50,7 @@ describe.skipIf(!reachable)("the whole scene (database)", () => {
   it("plays Greyhollow Ford to its end through exploration, social and fight", async () => {
     const s = script("greyhollow-ford-full.json");
     const w = await createWorld({ dice: s.dice, calls: s.calls });
-    const { worker } = workerFor(w, { retrieve });
+    const { worker } = workerFor(w);
 
     // Scene start, through the real queue.
     await enqueueTurn(requireDb(), w.sessionId, "scene-start", null, {

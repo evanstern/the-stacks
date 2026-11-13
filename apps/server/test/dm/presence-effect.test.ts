@@ -5,7 +5,6 @@ import {
   EffectSchema,
   StepSchema,
 } from "../../src/dm/nodes/schemas.js";
-import { STEP_GRAMMAR } from "../../src/dm/prompts/step-grammar.js";
 
 /** Spec 048: the presence effect in the step grammar (User Stories 2 and 5). */
 
@@ -81,26 +80,6 @@ describe("presence effect schema", () => {
     ).toBe(false);
     expect(EffectSchema.safeParse(presence({ after: "absent" })).success).toBe(
       false,
-    );
-  });
-
-  it("renders the effect, the six reasons and the two placement rules", () => {
-    expect(STEP_GRAMMAR).toContain('{"effect":"presence"');
-    for (const reason of [
-      "arrived",
-      "left",
-      "fled",
-      "removed",
-      "surrendered",
-      "conceded",
-    ]) {
-      expect(STEP_GRAMMAR).toContain(reason);
-    }
-    expect(STEP_GRAMMAR).toContain(
-      "Put another actor's presence change in onSuccess, onFailure or onHit",
-    );
-    expect(STEP_GRAMMAR).toContain(
-      "The acting actor's own presence change may stand in an effect step",
     );
   });
 });

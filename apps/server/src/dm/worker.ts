@@ -36,7 +36,6 @@ import {
   type TurnFailureResult,
 } from "./jobs.js";
 import { insertModelCall } from "./model-calls.js";
-import { adjudicate } from "./nodes/adjudicate.js";
 import { assemble } from "./nodes/assemble.js";
 import { check } from "./nodes/check.js";
 import { director } from "./nodes/director.js";
@@ -68,7 +67,6 @@ export const DEFAULT_NODES: Nodes = {
   assemble,
   director,
   interpret,
-  adjudicate,
   resolve,
   narrate,
   check,
@@ -78,7 +76,6 @@ export interface DmWorkerDeps {
   db: DbClient;
   gateway: Pick<Gateway, "chat">;
   gate: Pick<Gate, "submit" | "recordPresence">;
-  retrieve: NodeDeps["retrieve"];
   /** The DM view of a session (the log folded for `{ role: "dm" }`). */
   loadProjections: NodeDeps["loadProjections"];
   /**
@@ -95,7 +92,6 @@ export interface DmWorkerDeps {
   floorAbsenceWaitMs?: number;
   floorStallWindowMs?: number;
   /** ASK_MIN_SIMILARITY. */
-  minSimilarity: number;
   /** Test seams; the defaults are the real nodes, SRD and seed loader. */
   nodes?: Nodes;
   srd?: SrdLookup;
@@ -231,7 +227,6 @@ export function createDmWorker(deps: DmWorkerDeps): DmWorker {
       npcTurn: null,
       director: null,
       interpret: null,
-      adjudicate: null,
       submissions: [],
       lastSeq: 0,
       narration: null,
@@ -298,7 +293,6 @@ export function createDmWorker(deps: DmWorkerDeps): DmWorker {
     const nodeDeps: NodeDeps = {
       gateway: deps.gateway,
       gate: deps.gate,
-      retrieve: deps.retrieve,
       loadProjections: deps.loadProjections,
       loadEvents: (sessionId, w) => loadEventWindow(db, sessionId, w),
       loadPriorTurns: (sessionId, excludeJobId) =>
@@ -318,7 +312,6 @@ export function createDmWorker(deps: DmWorkerDeps): DmWorker {
       },
       newId,
       log,
-      minSimilarity: deps.minSimilarity,
       recordCall: recorderFor(job),
       ...(deps.onNarrationStream
         ? {

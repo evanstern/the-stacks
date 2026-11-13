@@ -46,7 +46,6 @@ function facts(over: Partial<NarrationFacts> = {}): NarrationFacts {
     },
     modeChange: null,
     presentNpcs: [],
-    rulings: [],
     clarify: [],
     party: [
       { characterId: "c-tamsin", name: "Tamsin Vale", controller: "human" },

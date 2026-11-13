@@ -30,12 +30,6 @@ afterAll(async () => {
 clearDmJobsBeforeEach();
 
 const KESTREL_USER = "00000000-0000-4000-8000-0000000000a2";
-const retrieve = async () => ({
-  mode: "fts" as const,
-  embeddingModel: null,
-  candidates: { vector: null, fts: 0 },
-  passages: [],
-});
 const chronicle = {
   purpose: "dm.chronicle",
   respond: { type: "json", value: { entries: [] } },
@@ -72,7 +66,6 @@ async function run(opts: {
     calls: [...start.calls, ...calls, chronicle, chronicle, chronicle],
   });
   const { worker } = workerFor(w, {
-    retrieve,
     log: (l) => logs.push(l),
   });
   await enqueueTurn(requireDb(), w.sessionId, "scene-start", null, {

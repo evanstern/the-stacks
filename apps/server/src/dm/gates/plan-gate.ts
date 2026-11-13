@@ -12,7 +12,6 @@ import {
   REASON_TO_PRESENCE,
   type SessionProjections,
 } from "@the-stacks/session-model";
-import type { Ruling } from "../nodes/adjudicate.js";
 import type { BeatItem } from "../nodes/assemble.js";
 import type { DirectorNodeOutput } from "../nodes/director.js";
 import {
@@ -115,7 +114,6 @@ export interface PlanInput {
   /** S0. */
   snapshot: ActorSnapshot;
   readings: readonly AnyInterpretReading[];
-  rulings: readonly { actionId: string | null; steps: readonly Step[] }[];
   /** The combatant ids this turn's Director opening moves add. */
   joining: readonly string[];
   /** Seed NPC ids the encounter start marks `arrived` (spec 058) and the Director's legal arrivals (spec 078). An arriving id is not absent. */
@@ -726,7 +724,6 @@ export function checkPlan(input: PlanInput): PlanVerdict[] {
     groups.set(r.actionId, r.clarify !== null ? [] : r.steps);
     if (r.clarify === null) intents.set(r.actionId, r.intent);
   }
-  for (const r of input.rulings) groups.set(r.actionId, r.steps);
 
   const verdicts: PlanVerdict[] = [];
   for (const [actionId, steps] of groups) {
@@ -915,9 +912,8 @@ export function askUndeclared(input: {
   snapshot: ActorSnapshot;
   beat: readonly BeatItem[];
   readings: readonly AnyInterpretReading[];
-  rulings: readonly Ruling[];
   resumed: readonly string[];
-}): { readings: AnyInterpretReading[]; rulings: Ruling[]; asked: Asked[] } {
+}): { readings: AnyInterpretReading[]; asked: Asked[] } {
   const { snapshot, beat } = input;
   const resumed = new Set(input.resumed);
   const asked: Asked[] = [];
@@ -926,8 +922,7 @@ export function askUndeclared(input: {
     if (item.status !== "committed" || resumed.has(item.actionId)) continue;
     const reading = input.readings.find((r) => r.actionId === item.actionId);
     if (!reading || reading.clarify !== null) continue;
-    const ruling = input.rulings.find((r) => r.actionId === item.actionId);
-    if (hasStages(reading) && !ruling) {
+    if (hasStages(reading)) {
       // Spec 104 FR-011: the manner rule holds for Intent stages. The other-player rule cannot
       // fire: the actor of a stage is the declarer, stamped by code.
       for (const [stepIndex, st] of reading.stages.entries()) {
@@ -948,11 +943,7 @@ export function askUndeclared(input: {
       }
       continue;
     }
-    const steps = ruling
-      ? ruling.steps
-      : hasStages(reading)
-        ? []
-        : reading.steps;
+    const steps = reading.steps;
     for (const [stepIndex, step] of steps.entries()) {
       let question: string | null = null;
       let rule: Asked["rule"] = "manner";
@@ -1017,9 +1008,6 @@ export function askUndeclared(input: {
           ? { ...r, stages: [], followUps: [], clarify: q }
           : { ...r, steps: [], followUps: [], clarify: q };
     }),
-    rulings: input.rulings.filter(
-      (r) => r.actionId === null || !questions.has(r.actionId),
-    ),
     asked,
   };
 }

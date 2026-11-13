@@ -65,13 +65,6 @@ function crowd(initial: string[]) {
   };
 }
 
-const retrieve = async () => ({
-  mode: "fts" as const,
-  embeddingModel: null,
-  candidates: { vector: null, fts: 0 },
-  passages: [],
-});
-
 /** A trio table after scene start through the real queue. */
 async function trioWorld(presence: PresenceReader) {
   const s = script("turn-floor-round.json");
@@ -88,7 +81,7 @@ async function trioWorld(presence: PresenceReader) {
     ],
     presence,
   });
-  const wired = workerFor(w, { retrieve, presence });
+  const wired = workerFor(w, { presence });
   await enqueueTurn(requireDb(), w.sessionId, "scene-start", null, {
     start: {
       seedId: "greyhollow-ford-trio",
@@ -229,7 +222,6 @@ describe.skipIf(!reachable)("three humans at one table (database)", () => {
           },
         },
         interpret: { readings: [] },
-        adjudicate: { rulings: [] },
       },
     });
     if (!started.ok)

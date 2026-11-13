@@ -134,7 +134,6 @@ describe("duo player-facing prompts", () => {
       projections,
       beat: [],
       director: { ...director },
-      adjudicate: null,
       resolve,
       presentNpcIds: [],
       modeBefore: "free",

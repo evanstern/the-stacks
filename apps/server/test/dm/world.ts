@@ -4,7 +4,6 @@ import { createGateway } from "../../src/ai/gateway.js";
 import { memorySink } from "../../src/ai/usage.js";
 import { createDb, probeReachable } from "../../src/db.js";
 import type { TurnCheckpoint } from "../../src/dm/jobs.js";
-import type { AdjudicateOutput } from "../../src/dm/nodes/adjudicate.js";
 import { assemble } from "../../src/dm/nodes/assemble.js";
 import type { DirectorNodeOutput } from "../../src/dm/nodes/director.js";
 import { type ResolveOutput, resolve } from "../../src/dm/nodes/resolve.js";
@@ -88,7 +87,6 @@ export interface World {
   runResolve: (input: {
     director?: Partial<DirectorNodeOutput>;
     readings?: InterpretResult["readings"];
-    rulings?: AdjudicateOutput["rulings"];
     job?: Partial<TurnContext["job"]>;
     checkpoint?: TurnCheckpoint;
   }) => Promise<{
@@ -195,7 +193,6 @@ export async function createWorld(
           assemble: assembled.output,
           director: { ...defaultDirector, ...input.director },
           interpret: { readings: input.readings ?? [] },
-          adjudicate: { rulings: input.rulings ?? [] },
         },
       };
       return { result: await resolve(full), ctx: full };

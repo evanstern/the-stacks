@@ -6,7 +6,6 @@ import {
   firstStage,
   holdDirector,
 } from "../../src/dm/first-stage.js";
-import type { Ruling } from "../../src/dm/nodes/adjudicate.js";
 import type { BeatItem } from "../../src/dm/nodes/assemble.js";
 import type { DirectorNodeOutput } from "../../src/dm/nodes/director.js";
 import type {
@@ -71,17 +70,6 @@ function reading(
     followUps,
   };
 }
-function ruling(actionId: string | null, steps: Step[]): Ruling {
-  return {
-    actionId,
-    ruling: "r",
-    improvised: true,
-    citations: [],
-    dropped: 0,
-    steps,
-    followUps: [],
-  };
-}
 
 const plan = [
   check("kestrel sneaks"),
@@ -118,32 +106,26 @@ describe("cutPlans", () => {
     const out = cutPlans({
       mode: "free",
       readings: [reading("act-1", plan)],
-      rulings: [ruling("act-1", plan)],
     });
     expect((out.readings[0] as InterpretReading).steps).toHaveLength(2);
     expect(out.readings[0]?.followUps).toEqual([
       "tamsin hails the camp",
       "kestrel attacks snag",
     ]);
-    expect(out.rulings[0]?.steps).toHaveLength(2);
-    expect(out.rulings[0]?.followUps).toHaveLength(2);
   });
   it("cuts nothing in turn mode", () => {
     const input = {
       mode: "turn" as const,
       readings: [reading("a", plan)],
-      rulings: [],
     };
-    expect(cutPlans(input)).toEqual({ readings: input.readings, rulings: [] });
+    expect(cutPlans(input)).toEqual({ readings: input.readings });
   });
   it("never cuts the NPC reading", () => {
     const out = cutPlans({
       mode: "free",
       readings: [reading(null, plan)],
-      rulings: [ruling(null, plan)],
     });
     expect((out.readings[0] as InterpretReading).steps).toHaveLength(4);
-    expect(out.rulings[0]?.steps).toHaveLength(4);
   });
   it("keeps model follow-ups, merges, dedupes and caps at six", () => {
     const out = cutPlans({
@@ -160,7 +142,6 @@ describe("cutPlans", () => {
           ["m1", "m2"],
         ),
       ],
-      rulings: [],
     });
     expect(out.readings[0]?.followUps).toEqual([
       "kestrel attacks snag",
@@ -172,8 +153,7 @@ describe("cutPlans", () => {
   it("leaves model follow-ups when nothing is cut", () => {
     const r = reading("a", [attack("x")], ["later"]);
     expect(
-      cutPlans({ mode: "free", readings: [r], rulings: [] }).readings[0]
-        ?.followUps,
+      cutPlans({ mode: "free", readings: [r] }).readings[0]?.followUps,
     ).toEqual(["later"]);
   });
 });
@@ -240,8 +220,8 @@ describe("clarifyHolds", () => {
     ];
     const readings: InterpretReading[] = ["a", "b", "c", "d"].map(asks);
     readings.push(reading("e", []));
-    const held = clarifyHolds(beat, readings, [ruling("c", [])]);
-    expect([...held]).toEqual(["a"]);
+    const held = clarifyHolds(beat, readings);
+    expect([...held]).toEqual(["a", "c"]);
   });
   it("records the clarify reason and never holds free", () => {
     const out = holdDirector(director(), true, CLARIFY_HELD);

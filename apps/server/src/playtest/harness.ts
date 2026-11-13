@@ -63,11 +63,8 @@ export interface ProviderRunOptions {
   seed: number | null;
   /** Handle on the library database (read-only use by retrieval). */
   libraryDb: DbClient;
-  /** Test seams: adapter registry, retrieval and dice. */
+  /** Test seams: adapter registry and dice. */
   adapters?: Record<string, AdapterFactory>;
-  retrieve?: (
-    req: Parameters<typeof libraryRetrieve>[1],
-  ) => ReturnType<typeof libraryRetrieve>;
   rng?: Rng;
 }
 
@@ -182,7 +179,6 @@ export async function runPlaytest(
   let aiConfig: AiConfig;
   let gateRng: () => Rng;
   let gateway: Gateway;
-  let retrieve: (req: never) => Promise<never>;
   let records: UsageRecord[];
   let totalsNow: () => {
     calls: number;
@@ -206,13 +202,6 @@ export async function runPlaytest(
       adapters: provider.adapters,
     });
     gateway = budgetGateway(raw, sink, provider.ceilingUsd);
-    const retrievalConfig = loadRetrievalConfig(provider.env);
-    retrieve = (provider.retrieve ??
-      ((req: Parameters<typeof libraryRetrieve>[1]) =>
-        libraryRetrieve(
-          { db: provider.libraryDb, gateway, config: retrievalConfig },
-          req,
-        ))) as never;
     records = sink.records;
     totalsNow = () => sink.totals();
     budgetReached = () => sink.totals().costUsd >= provider.ceilingUsd;
@@ -224,8 +213,6 @@ export async function runPlaytest(
   } else {
     const ci = scenario.ci as NonNullable<Scenario["ci"]>;
     const scripted = createScriptedDm(loadDmScript(readJson(ci.dmScript)));
-    const retrieveResult = readJson(ci.retrieve);
-    retrieve = (async () => retrieveResult) as never;
     // The scripted auditor queue shares the one strict provider (plan.md "CI mode wiring").
     scripted.aiConfig.purposes[PLAYTEST_AUDIT_PURPOSE] = {
       provider: "scripted",
@@ -289,14 +276,11 @@ export async function runPlaytest(
   gate.onAppended((sid, rows) => {
     void enqueuer.onAppended(sid, rows);
   });
-  const minSimilarity = Number(provider?.env.ASK_MIN_SIMILARITY);
   const worker = createDmWorker({
     db,
     gateway,
     gate,
-    retrieve: retrieve as never,
     loadProjections: loadDm,
-    minSimilarity: Number.isFinite(minSimilarity) ? minSimilarity : 0.3,
     log: () => {},
   });
 

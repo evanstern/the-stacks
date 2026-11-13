@@ -105,7 +105,6 @@ function noEffectFacts(
       },
     ],
     director: director(),
-    adjudicate: null,
     resolve: noResolve({
       actionResults: [
         {
@@ -178,7 +177,6 @@ describe("leaks: DM-only seed facts no longer reach player-facing prompts (T013)
       projections: projectedThrough(87),
       beat: [],
       director: director({ beatId: "reed-camp" }),
-      adjudicate: null,
       resolve: noResolve(),
       presentNpcIds: [],
       modeBefore: "free",
@@ -230,7 +228,6 @@ describe("F17 and F76: facts and transcript lines lose detail (T014)", () => {
       projections: projectedThrough(61),
       beat: [],
       director: director(),
-      adjudicate: null,
       resolve: noResolve({
         npcTurn: {
           combatantId: "goblin-3",

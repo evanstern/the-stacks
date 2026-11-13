@@ -367,7 +367,6 @@ export async function runTalkTurn(
           assemble: assembled,
           director,
           interpret: { readings: [] },
-          adjudicate: { rulings: [] },
         },
       });
       calls.push(...opened.calls);

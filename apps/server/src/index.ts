@@ -102,11 +102,8 @@ const dmWorker = startDmWorker({
   presence: presence.reader,
   gateway: aiGateway,
   gate,
-  retrieve: (q) =>
-    retrieve({ db, gateway: aiGateway, config: retrievalConfig }, q),
   loadProjections: loadDmProjections,
   loadProjectionsThrough: loadDmProjectionsThrough,
-  minSimilarity: answerConfig.minSimilarity,
 });
 const dmEnqueuer = createDmEnqueuer({
   db,

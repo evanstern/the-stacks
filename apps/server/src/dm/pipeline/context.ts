@@ -6,9 +6,7 @@ import type { SrdKind, SrdRecord } from "@the-stacks/srd";
 import type { Gateway } from "../../ai/gateway.js";
 import type { ErrorKind } from "../../ai/types.js";
 import type { Gate } from "../../gate/index.js";
-import type { RetrievalResult } from "../../library/retrieve.js";
 import type { TurnCheckpoint, TurnTrigger } from "../jobs.js";
-import type { AdjudicateOutput } from "../nodes/adjudicate.js";
 import type { AssembleOutput } from "../nodes/assemble.js";
 import type { CheckOutput } from "../nodes/check.js";
 import type { DirectorNodeOutput } from "../nodes/director.js";
@@ -31,7 +29,6 @@ export const NODE_NAMES = [
   "assemble",
   "director",
   "interpret",
-  "adjudicate",
   "resolve",
   "narrate",
   "check",
@@ -74,10 +71,6 @@ export interface NodeDeps {
   gateway: Pick<Gateway, "chat">;
   /** Only `resolve` receives the real gate; every other node gets `throwingGate`. */
   gate: Pick<Gate, "submit">;
-  retrieve: (q: {
-    question: string;
-    signal?: AbortSignal;
-  }) => Promise<RetrievalResult>;
   /** The DM view of the session. */
   loadProjections: (sessionId: string) => Promise<SessionProjections>;
   /**
@@ -106,8 +99,6 @@ export interface NodeDeps {
   newId: () => string;
   /** Structured server log; never prompt text. */
   log: (line: Record<string, unknown>) => void;
-  /** ASK_MIN_SIMILARITY: the relevance floor `adjudicate` applies to retrieved passages. */
-  minSimilarity: number;
   /** Spec 108: receives each checked stream part; absent means no stream (tests, playtest, scripts). */
   streamNarration?: (part: NarrationPart) => void;
   /** Optional ledger seam: awaited once per model attempt, after it ends. */
@@ -118,7 +109,6 @@ export interface NodeOutputs {
   assemble: AssembleOutput;
   director: DirectorNodeOutput;
   interpret: InterpretResult;
-  adjudicate: AdjudicateOutput;
   resolve: ResolveOutput;
   narrate: NarrateOutput;
   check: CheckOutput;

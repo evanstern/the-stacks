@@ -3,13 +3,11 @@ import type {
   SessionProjections,
 } from "@the-stacks/session-model";
 import type { TurnCheckpoint } from "./jobs.js";
-import type { Ruling } from "./nodes/adjudicate.js";
 import type { Submission } from "./nodes/resolve.js";
 import {
   type AnyInterpretReading,
   InterpretReadingSchema,
   LegacyInterpretReadingSchema,
-  StepSchema,
 } from "./nodes/schemas.js";
 
 /**
@@ -24,7 +22,6 @@ export interface ResumedPlan {
   /** The job whose checkpoint holds the plan. */
   fromJobId: string;
   reading: AnyInterpretReading;
-  ruling: Ruling | null;
   /** That job's submissions whose key starts `act:<actionId>:`. */
   submissions: Submission[];
 }
@@ -112,18 +109,13 @@ export function findResumedPlans(
       (r) => r.actionId === actionId,
     );
     if (!reading) continue;
-    const ruling =
-      turn.checkpoint.adjudicate?.rulings.find(
-        (r) => r.actionId === actionId,
-      ) ?? null;
     // Spec 082 D10: a checkpoint written before the step contract changed is
     // dropped, so the action is interpreted again.
     if (
       !(
         InterpretReadingSchema.safeParse(reading).success ||
         LegacyInterpretReadingSchema.safeParse(reading).success
-      ) ||
-      (ruling !== null && !StepSchema.array().safeParse(ruling.steps).success)
+      )
     ) {
       continue;
     }
@@ -131,7 +123,6 @@ export function findResumedPlans(
       actionId,
       fromJobId: turn.jobId,
       reading,
-      ruling,
       submissions,
     });
   }

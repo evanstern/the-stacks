@@ -5,7 +5,6 @@ import type {
 } from "@the-stacks/session-model";
 import { renderRows } from "./fact-sheet.js";
 import type { TurnTrigger } from "./jobs.js";
-import type { AdjudicateOutput } from "./nodes/adjudicate.js";
 import type { BeatItem } from "./nodes/assemble.js";
 import type { DirectorNodeOutput } from "./nodes/director.js";
 import type { ResolveOutput } from "./nodes/resolve.js";
@@ -208,7 +207,6 @@ export interface NarrationFacts {
     want: string;
     detail: string;
   }[];
-  rulings: { actionId: string; ruling: string; improvised: boolean }[];
   clarify: { actionId: string; question: string }[];
   party: {
     characterId: string;
@@ -628,7 +626,6 @@ export interface BuildFactsInput {
   projections: SessionProjections;
   beat: readonly BeatItem[];
   director: DirectorNodeOutput;
-  adjudicate: AdjudicateOutput | null;
   resolve: ResolveOutput;
   presentNpcIds: readonly string[];
   /** Table mode before this turn's Director group. */
@@ -636,7 +633,7 @@ export interface BuildFactsInput {
   /** Rows the gate appended this turn (for damage types). */
   appendedRows: readonly StoredEvent[];
   clarify: { actionId: string; question: string }[];
-  /** Follow-ups per action id, from the ruling when one exists, else the reading. */
+  /** Follow-ups per action id, from the reading. */
   followUps?: Record<string, string[]>;
   /** Open followUps from earlier beats, by character id (spec 079). */
   openFollowUps?: { characterId: string; text: string }[];
@@ -975,11 +972,6 @@ export function buildNarrationFacts(input: BuildFactsInput): NarrationFacts {
         ? { from: input.modeBefore, to: modeAfter }
         : null,
     presentNpcs,
-    rulings: (input.adjudicate?.rulings ?? []).flatMap((r) =>
-      r.actionId
-        ? [{ actionId: r.actionId, ruling: r.ruling, improvised: r.improvised }]
-        : [],
-    ),
     clarify: input.clarify,
     party: p.party.map((m) => ({
       characterId: m.characterId,

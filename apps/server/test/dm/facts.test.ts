@@ -601,7 +601,6 @@ describe("facts v2: party, events, target, setting (run-5 rows)", () => {
       ),
       beat: [],
       director,
-      adjudicate: null,
       resolve: resolveOf({ appendedRows: rows, ...over }),
       presentNpcIds: [],
       modeBefore,
@@ -646,7 +645,6 @@ describe("facts v2: party, events, target, setting (run-5 rows)", () => {
       projections: projectDm(fixture.transcript.filter((r) => r.seq <= 58)),
       beat: [],
       director,
-      adjudicate: null,
       resolve: resolveOf({ appendedRows: rows }),
       presentNpcIds: [],
       modeBefore: "turn",
@@ -1023,7 +1021,6 @@ describe("presence fact (spec 048, User Story 2)", () => {
         companionPrompts: [],
         overrides: [],
       } as DirectorNodeOutput,
-      adjudicate: null,
       resolve: {
         submissions: [],
         actionResults: [],
@@ -1069,7 +1066,6 @@ describe("dm presence rows (spec 050, OQ-4)", () => {
         companionPrompts: [],
         overrides: [],
       } as DirectorNodeOutput,
-      adjudicate: null,
       resolve: {
         submissions: [],
         actionResults: [],

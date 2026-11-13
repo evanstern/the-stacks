@@ -8,7 +8,7 @@ these functions later; decision-0019).
 
 ```ts
 export const NODE_NAMES = [
-  "assemble", "director", "interpret", "adjudicate", "resolve", "narrate", "audit",
+  "assemble", "director", "interpret", "resolve", "narrate", "audit",
 ] as const;
 export type NodeName = (typeof NODE_NAMES)[number];
 ```
@@ -47,7 +47,6 @@ export interface NodeOutputs {
   assemble: AssembleOutput;
   director: DirectorOutput;
   interpret: InterpretOutput;
-  adjudicate: AdjudicateOutput;     // { rulings: [] } when skipped
   resolve: ResolveOutput;
   narrate: NarrateOutput;
   audit: AuditOutput;
@@ -55,8 +54,8 @@ export interface NodeOutputs {
 ```
 
 `NodeDeps` is narrowed per node. The runner passes a gate stub that throws to every node
-except `resolve`. A unit test asserts the stub is what `narrate`, `audit`, `interpret`,
-`adjudicate` and `director` receive (AC #5).
+except `resolve`. A unit test asserts the stub is what `narrate`, `audit`, `interpret`
+and `director` receive (AC #5).
 
 ## NodeResult
 
@@ -123,18 +122,19 @@ Steps:
    2. Write the job stage (fenced). On `false`, return `failed` with kind `fenced`.
    3. If the checkpoint holds this node's output, reuse it and skip the call. `resolve`,
       `narrate` and `audit` are never reused whole; they resume step by step.
-   4. Skip `adjudicate` when no interpret reading has `needsAdjudication: true`; its
-      output is `{ rulings: [] }`.
-   5. Run the node. On `ok: false`, return `failed`.
-   6. Save the output in the checkpoint (fenced) for `director`, `interpret` and
-      `adjudicate`.
+   4. Run the node. On `ok: false`, return `failed`.
+   5. Save the output in the checkpoint (fenced) for `director` and `interpret`.
+   6. After `interpret`, once per turn (skipped when the checkpoint has `cut: true`): cut
+      plans to their first stage, ask about undeclared methods, hold the Director on a cut or
+      clarify, and save the checkpoint with `cut: true`.
    7. After `director`: when its beat decision is a legal `hold`, run `resolve` in
       hold mode (Director proposals only), then return `held`.
 3. Return `completed`.
 
-The pipeline has exactly two conditional branches: adjudicate or not, and audit's bounded
-regenerate loop inside `narrate`/`audit` ([audit.md](audit.md)). It has no dynamic routing
-and no cycle (decision-0019's trigger stays unfired).
+The pipeline has one conditional branch: the post-interpret plan cut, which runs once per
+turn. Audit's bounded loop was retired by spec 103; the `adjudicate` node was retired by
+TASK-0312 (spec 110). Its name stays in the `jobs.stage` CHECK for old rows only. The
+pipeline has no dynamic routing and no cycle (decision-0019's trigger stays unfired).
 
 ## Model calls (shared helper)
 
