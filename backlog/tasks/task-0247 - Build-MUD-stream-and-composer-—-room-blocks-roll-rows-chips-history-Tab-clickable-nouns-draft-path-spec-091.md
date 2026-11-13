@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: 2026-11-05 05:48
-updated_date: '2026-11-13T15:15:00Z'
+updated_date: '2026-11-13T15:33:00Z'
 labels:
   - web
   - ux
@@ -108,4 +108,8 @@ Phase 4 landed 471e4a9f: contrast pairs pass 4.5:1 light/dark, no app.css change
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5
 
 Phase 5 landed c3a6486c: 11 NEEDS-REVIEW notes (gate list, wider than tasks.md's 5); prose amended in dm-runtime, dm-narration-quality, seed-npc-presence, session-model, play-route; six re-pin-only, each a one-line pin diff, reasons in the commit report. plan empty, freshness OK (65).
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5 (live-check verifier)
+
+Live check a66b84c2: 8/8 pass, no modal, no overflow. Findings triaged by orchestrator: (1) Rules chip hides narration why/ruling/State rules lines -> breaks FR-009, fix; (2) echoed declaration dialogue row ends with a stray ". -> fix; (3) roll detail repeats the d20 face -> fix; (4) Table talk hides the room block -> correct per FR-009 (room = In character), no change.
 <!-- SECTION:NOTES:END -->
