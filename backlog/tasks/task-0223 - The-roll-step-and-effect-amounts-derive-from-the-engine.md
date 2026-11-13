@@ -57,6 +57,8 @@ TASK-0312 seam: add the runSteps effect case and the presenceTargets Step-only l
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
 Phases 1-3 (a051ddc8, 9d32a9f3, 914304df). findAttack derives Unarmed Strike (toHit Str+PB, fixed max(0,1+Str) bludgeoning), with scripted-dice tests for hit, crit, 0 floor and missing Str. The planner plans 'unarmed'. The guard test fails on an added numeric ruling field or a number-carrying interpret kind (negative proof run twice, then reverted).
+
+spec-bridge sync: Engine Unarmed Strike (AC #2): 5/5 · AC #1 guard test: 2/2 · Wiki: 3/3 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
