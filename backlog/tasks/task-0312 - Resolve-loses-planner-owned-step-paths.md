@@ -29,7 +29,7 @@ Spec: specs/110-resolve-cleanup
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
 - [x] #1 resolve.ts loses the code paths the planner now owns (moved from TASK-0267 by F1, then from TASK-0269 by the split).
-- [ ] #2 An old-shape resumed plan is dropped and re-interpreted (spec 104 OQ-8).
+- [x] #2 An old-shape resumed plan is dropped and re-interpreted (spec 104 OQ-8).
 - [x] #3 Spec phase: Throw-stub probe (no deletion)
 - [x] #4 Spec phase: Step paths in resolve and the plan gate (AC #1)
 - [x] #5 Spec phase: Schemas and old checkpoints (AC #3)
@@ -39,8 +39,8 @@ Spec: specs/110-resolve-cleanup
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
-- [ ] #1 All tests and checks run green
-- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
+- [x] #1 All tests and checks run green
+- [x] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
 
 ## Implementation Notes
@@ -70,6 +70,8 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (
 spec-bridge sync: Throw-stub probe (no deletion): 4/4 · Adjudicate node (C-GATE approved 2026-11-12): 7/7 · Step paths in resolve and the plan gate (AC #1): 7/7 · Schemas and old checkpoints (AC #3): 5/5 · Wiki: 2/2 — status In Progress → Done
 
 Merged via PR #176 (26cb3600). AC #2 (old-shape plan drop) bypassed here: delivered as spec 110 AC #3 / dropLegacyPlan; the card AC #2 text is the gathering-deferred item now owned by TASK-0327 per operator ruling 2026-11-12.
+
+Correction to the previous note: card AC #2 is delivered by dropLegacyPlan in resume.ts (phase 5, 5bcd2671), which is called on loadCheckpoint and logs dm.checkpoint.legacy-dropped, so it is checked. The deferred gathering item lives on TASK-0327.
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
