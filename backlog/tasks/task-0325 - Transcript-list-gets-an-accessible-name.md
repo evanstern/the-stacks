@@ -1,10 +1,10 @@
 ---
 id: TASK-0325
 title: Transcript list gets an accessible name
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-11-13T00:46:00Z'
-updated_date: '2026-11-13T14:27:00Z'
+updated_date: '2026-11-13T17:05:00Z'
 labels:
   - web
   - ws:table-ux
@@ -23,7 +23,7 @@ Found in the TASK-0298 live check (PR #174, specs/108-narration-stream/evidence/
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 The transcript list has an accessible name (e.g. aria-label="Transcript"), with a test.
+- [x] #1 The transcript list has an accessible name (e.g. aria-label="Transcript"), with a test.
 <!-- AC:END -->
 
 ## Definition of Done
@@ -37,3 +37,9 @@ Found in the TASK-0298 live check (PR #174, specs/108-narration-stream/evidence/
 <!-- SECTION:NOTES:BEGIN -->
 Operator C-AMD ruling 2026-11-13 on spec 091: "Approve all". Spec 091 OQ-A13: covered by TASK-0247 FR-011 (stream role=log named "Table stream"). Close with the FR-011 test as evidence once TASK-0247 merges.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Covered by TASK-0247 (PR #177, merge 2a1d5189) per spec 091 OQ-A13 (C-AMD 2026-11-13, "Approve all"): the stream is role=log named "Table stream" (FR-011), asserted in apps/web/test/play/transcript-stream.test.tsx.
+<!-- SECTION:FINAL_SUMMARY:END -->
