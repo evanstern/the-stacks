@@ -4,7 +4,7 @@ title: R1 playtest scenario and latency metrics
 status: To Do
 assignee: []
 created_date: 2026-11-07 05:13
-updated_date: '2026-11-10T21:31:00Z'
+updated_date: '2026-11-13T16:13:00Z'
 labels:
   - ws:tooling
   - replan-2026-11
@@ -46,4 +46,6 @@ Baseline playtest 2026-11-08 (pre-R1, vm-104 at 25ea6bc8). Ceiling: $25 (operato
 Playtest 2026-11-10 (post-lane: planner, fact sheet, encounter state, fog, engaged-only ranged), vm-104 at ec9fe23c. Ceiling: $15 (operator, in chat: "$15, I've signed in"). Solo seed greyhollow-ford.
 
 R1 lane playtest 2026-11-10: first-row median 43 s p95 80 s; narration median 60 s; rounds 404 s and 278 s; 0 fallbacks; attempt-1 0.9%; encounter ended. Spend $2.59 of $15. Log: docs/playtests/2026-11-10-r1-lane-playtest.md.
+
+Test-drive ceiling (operator, 2026-11-13, in chat): "$15, same as last". This is a human-driven test drive of the post-R1-spine build (PRs #166-#176, plus #177 if merged first).
 <!-- SECTION:NOTES:END -->
