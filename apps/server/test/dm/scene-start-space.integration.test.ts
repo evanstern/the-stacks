@@ -71,7 +71,7 @@ describe.skipIf(!reachable)(
       }
     });
 
-    it("encounter start reveals the camp before the first public goblin row and gathers the party", async () => {
+    it("encounter start reveals the camp before the first public goblin row and leaves the party at range", async () => {
       const w = await createWorld({ dice: [15, 12, 9, 14, 11, 8, 6] });
       await startScene(w);
       await resolveTurn(w, {
@@ -100,22 +100,18 @@ describe.skipIf(!reachable)(
         zoneId: "reed-camp",
       });
 
-      const placed = rows.filter((r) => r.type === "combatant.placed");
-      expect(placed.map((r) => ev(r).combatantId).sort()).toEqual([
-        "kestrel",
-        "odo",
-        "tamsin",
-      ]);
-      expect(placed.every((r) => ev(r).after.zoneId === "reed-camp")).toBe(
-        true,
-      );
+      // SC-003 (TASK-0312): fights start at range; no party member is placed before the roll.
       const roll = idx((r) => r.type === "encounter.started");
-      for (const r of placed) expect(rows.indexOf(r)).toBeLessThan(roll);
+      const placed = rows.filter((r) => r.type === "combatant.placed");
+      for (const r of placed) {
+        expect(["kestrel", "odo", "tamsin"]).not.toContain(ev(r).combatantId);
+        expect(rows.indexOf(r)).toBeGreaterThan(roll);
+      }
 
-      // The party stands with the goblins; no feature zone is a combatant or in initiative.
+      // No feature zone is a combatant or in initiative.
       const p = await w.projections();
       for (const id of ["tamsin", "odo", "kestrel"]) {
-        expect(p.spatial.placements[id]).toBe("reed-camp");
+        expect(p.spatial.placements[id]).not.toBe("reed-camp");
       }
       const featureIds = (p.engine.space?.zones ?? [])
         .filter((z) => z.kind === "feature")

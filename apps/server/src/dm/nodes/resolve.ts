@@ -1271,24 +1271,6 @@ async function directorOpening(
           "encounter-start",
           seed.beats.find((b) => b.encounterId === enc.id),
         );
-        // Spec 100 FR-023a (OQ-13): gather the party into the encounter zone before
-        // initiative. TASK-0269 removes this when moves resolve through the engine `move`.
-        if (enc.zone && seed.space) {
-          const zoneName =
-            seed.space.zones.find((z) => z.id === enc.zone)?.name ?? enc.zone;
-          const gather = await deps.loadProjections(ctx.job.sessionId);
-          for (const member of gather.party) {
-            const cid = member.combatantId;
-            if (!cid || !gather.engine.combatants[cid]) continue;
-            if (gather.spatial.placements[cid] === enc.zone) continue;
-            await run.mech(
-              `director:gather:${enc.id}:${cid}`,
-              { type: "combatant.place", combatantId: cid, zoneId: enc.zone },
-              `${member.name} closes on ${zoneName}`,
-              null,
-            );
-          }
-        }
       }
       // Eligibility reads the log after the adds and the presence group.
       const ready = await deps.loadProjections(ctx.job.sessionId);

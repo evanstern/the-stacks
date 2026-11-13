@@ -1,6 +1,14 @@
 import { mechanicsProposal } from "@the-stacks/session-model";
 import type { ResolveOutput } from "../../src/dm/nodes/resolve.js";
-import { createWorld, readRows, startScene, type World } from "./world.js";
+import {
+  createWorld,
+  gatherParty,
+  readRows,
+  startScene,
+  type World,
+} from "./world.js";
+
+export { gatherParty };
 
 /** Shared setup for the spec 099 encounter lifecycle integration tests. */
 export const DM = { kind: "ai", actor: "ai:dm" } as const;
@@ -38,6 +46,7 @@ export async function inTurnMode(dice: number[]) {
   const w = await createWorld({ dice });
   await startScene(w);
   await run(w, { director: turnInto(), job: nextJob() });
+  await gatherParty(w);
   fresh(w);
   return w;
 }

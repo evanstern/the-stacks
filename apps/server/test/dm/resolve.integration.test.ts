@@ -16,6 +16,7 @@ import {
   commitAction,
   createWorld,
   db,
+  gatherParty,
   HUMAN_DM,
   loudSkip,
   operator,
@@ -565,8 +566,9 @@ describe.skipIf(!reachable)("resolve (database)", () => {
           job: nextJob(),
         },
       );
-      expect(out.actionResults[0]?.refusalCode).toBeNull();
-      expect(out.actionResults[0]?.outcome).toBe("applied");
+      // TASK-0312: the fight starts at range, so the melee attack is out of reach.
+      expect(out.actionResults[0]?.refusalCode).toBe("OUT_OF_REACH");
+      expect(out.actionResults[0]?.outcome).toBe("refused");
       expect(out.planGate).toEqual([{ actionId: id, ok: true }]);
       const rows = await readRows(w);
       const added = rows.filter(
@@ -585,6 +587,7 @@ describe.skipIf(!reachable)("resolve (database)", () => {
 
     it("an npc-turn job runs its step rows before the encounter ends", async () => {
       const w = await inTurnMode([...initDice(SNAG_FIRST), 3]);
+      await gatherParty(w);
       freshCheckpoint(w);
       const out = await run(
         w,
@@ -690,6 +693,7 @@ describe.skipIf(!reachable)("resolve (database)", () => {
 
     it("TASK-0213: a PC attack on a present non-combatant renders the joiner's initiative line once", async () => {
       const w = await inTurnMode([...initDice(TAMSIN_FIRST), 16, 15, 4]);
+      await gatherParty(w);
       const id = await commitAction(w, "Tamsin strikes at Pell.");
       freshCheckpoint(w);
       const { result, ctx } = await w.runResolve({

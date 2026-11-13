@@ -170,7 +170,11 @@ describe.skipIf(!reachable)("revealed NPC is present (database)", () => {
           r.type === "combatant.added" && eventOf(r).combatantId === "snag",
       ),
     ).toHaveLength(1);
-    expect(resolvedOf(rows)?.payload).toMatchObject({ outcome: "applied" });
+    // TASK-0312: the fight starts at range, so the attack on Snag is out of range.
+    expect(resolvedOf(rows)?.payload).toMatchObject({
+      outcome: "refused",
+      refusalCode: "OUT_OF_RANGE",
+    });
   });
 
   it("control: no arrivals, Snag is still refused as absent", async () => {

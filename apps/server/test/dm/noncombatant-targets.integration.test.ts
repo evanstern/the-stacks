@@ -12,6 +12,7 @@ import {
   commitAction,
   createWorld,
   db,
+  gatherParty,
   loudSkip,
   reachable,
   readRows,
@@ -84,6 +85,8 @@ async function runFreePell(
   );
   await tick();
   await drainAll(worker);
+  // TASK-0312: fights start at range; a melee attack needs the party in reach.
+  if (mutate) await gatherParty(w);
   await commitAction(w, TEXT, ACTION);
   await tick();
   await drainAll(worker);

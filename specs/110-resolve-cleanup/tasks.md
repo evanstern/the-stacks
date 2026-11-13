@@ -14,8 +14,8 @@ Do not edit `dm/intent-runner.ts`, `dm/purposes.ts` or `dm/rulings.ts`. Follow p
 
 ## Phase 2: Encounter-start gathering (AC #2)
 
-- [ ] T005 Delete the gathering block in `directorOpening` (`resolve.ts` ~L1274–1291) per plan D2.
-- [ ] T006 Update `test/dm/scene-start-space.integration.test.ts`: no `combatant.placed` row for a party member before `encounter.started` (SC-003). Keep the reveal and goblin asserts.
+- [x] T005 Delete the gathering block in `directorOpening` (`resolve.ts` ~L1274–1291) per plan D2.
+- [x] T006 Update `test/dm/scene-start-space.integration.test.ts`: no `combatant.placed` row for a party member before `encounter.started` (SC-003). Keep the reveal and goblin asserts.
 
 ## Phase 3: Adjudicate node (C-GATE ruling required before dispatch)
 
