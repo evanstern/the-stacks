@@ -91,6 +91,8 @@ const companionReply = (turn: unknown) =>
 // ------------------------------------------------------------------ companion source
 
 const lastLogs: unknown[][] = [];
+let lastRun: unknown; // TASK-0333 AC1: the job's plays, shown when an assertion fails
+let lastPurposes: unknown[] = [];
 async function odoTurn(
   turn: unknown,
   opts: { inReach: boolean; extra?: unknown[] },
@@ -133,7 +135,7 @@ async function odoTurn(
   const { worker } = workerFor(w);
   const base = w.ctx().deps;
   lastLogs.length = 0; // TASK-0333 AC1: surface why a companion play was skipped
-  await runCompanionJob(
+  lastRun = await runCompanionJob(
     {
       gateway: base.gateway,
       gate: base.gate,
@@ -155,7 +157,9 @@ async function odoTurn(
     },
     new AbortController().signal,
   );
+  const afterJob = purposes(w);
   await drainAll(worker);
+  lastPurposes = [afterJob, purposes(w)];
   return w;
 }
 const attackOdo = [
@@ -209,7 +213,7 @@ describe.skipIf(!reachable)(
       const c = await carriers(w);
       expect(
         c.map((x) => x.outcome),
-        JSON.stringify(lastLogs),
+        JSON.stringify({ logs: lastLogs, plays: lastRun, purposes: lastPurposes }),
       ).toEqual(["declared", "needs_ruling", "settled"]);
       expect(c[2]?.answers).toBe(c[1]?.intent.id);
     });
