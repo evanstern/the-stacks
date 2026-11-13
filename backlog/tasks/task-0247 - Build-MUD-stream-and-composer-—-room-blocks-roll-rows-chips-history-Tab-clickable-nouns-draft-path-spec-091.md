@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: 2026-11-05 05:48
-updated_date: '2026-11-13T16:28:00Z'
+updated_date: '2026-11-13T16:56:00Z'
 labels:
   - web
   - ux
@@ -132,4 +132,6 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5 (CI root-cause attempt 2)
 
 CI on 294c441d: attempt 1 pass, attempt 2 fail with an empty companion log, so the job exits silently. Branch record 4 fail / 1 pass. Next: expose plays and fake-gateway purposes; merge only after 2 consecutive green runs on the fix.
+
+CI root cause (evidence, run 43463700007): companion job played (declare seq 15, commit seq 16 accepted, logs empty); only gateway purpose so far was dm.companion, so the listener-enqueued commit turn (adjudicate/narrate, which writes the carriers) had not run when the test read rows. Test race, not production. Fix 41f191dd: odoTurn drains until the fake gateway records a call beyond the companion's (bounded). CI run 43465351532 green on attempts 1 and 2. Instrumentation kept (TASK-0333 AC1). Open: why this branch hit the window more often than main; carried on TASK-0333.
 <!-- SECTION:NOTES:END -->
