@@ -1,8 +1,4 @@
-import { readFileSync } from "node:fs";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-import { cutPlans } from "../../src/dm/first-stage.js";
 import {
   arrivingMonsters,
   arrivingNpcs,
@@ -15,499 +11,19 @@ import {
   joinableMonsters,
   joiningCombatants,
   MANNER_SKILLS,
-  otherPlayerQuestion,
   startableEncounterIds,
 } from "../../src/dm/gates/plan-gate.js";
 import type { BeatItem } from "../../src/dm/nodes/assemble.js";
-import {
-  InterpretOutput,
-  type InterpretReading,
-  type Step,
-} from "../../src/dm/nodes/schemas.js";
 import { buildSnapshot } from "../../src/dm/snapshot/index.js";
 import {
   greyhollowDuo,
   greyhollowFight,
   PLAYER_USER,
 } from "./snapshot-fixtures.js";
-import {
-  attackStep,
-  checkStep,
-  helpStep,
-  reading,
-  spellStep,
-} from "./world.js";
+import { stage, stages } from "./world.js";
 
-const HERE = dirname(fileURLToPath(import.meta.url));
 const { projections, seed } = greyhollowFight();
 const snapshot = buildSnapshot(projections, seed);
-
-const steps = (...s: unknown[]) => s as Step[];
-const read = (actionId: string | null, s: unknown[], over = {}) =>
-  reading(actionId, s, over) as unknown as InterpretReading;
-
-const plan = (
-  readings: InterpretReading[],
-  extra: Partial<Parameters<typeof checkPlan>[0]> = {},
-) =>
-  checkPlan({
-    snapshot,
-    readings,
-    combatants: {},
-    joining: [],
-    arriving: [],
-    resumed: [],
-    ...extra,
-  });
-
-const pellAlias = snapshot.actors
-  .find((a) => a.id === "pell")
-  ?.aliases.find((x) => x !== "pell") as string;
-
-const damageOn = (targetId: string) => ({
-  effect: "damage",
-  targetId,
-  components: [
-    { amount: { kind: "roll", expression: "1d4" }, damageType: "fire" },
-  ],
-  defenses: null,
-});
-
-describe("checkPlan: STAT_UNDEFINED (spec 082 D8)", () => {
-  const base = projections.engine.combatants;
-  const stats = {
-    abilityMods: { str: 3 },
-    proficiencyBonus: 2,
-    saves: {},
-    skills: {},
-    attacks: [
-      {
-        name: "Longsword",
-        range: "melee" as const,
-        toHit: 5,
-        damage: [],
-      },
-    ],
-    spellcastingAbility: null,
-  };
-  const withStats = {
-    ...base,
-    tamsin: { ...base.tamsin, stats },
-  } as typeof base;
-
-  it("passes a derivable attack and check", () => {
-    const v = plan(
-      [read("a1", [attackStep("goblin-2"), checkStep({ ability: "str" })])],
-      { combatants: withStats },
-    );
-    expect(v).toEqual([{ actionId: "a1", ok: true }]);
-  });
-  it("refuses an unknown attack name", () => {
-    const v = plan(
-      [read("a1", [attackStep("goblin-2", { attack: "Warhammer" })])],
-      {
-        combatants: withStats,
-      },
-    );
-    expect(v[0]).toMatchObject({
-      ok: false,
-      code: "STAT_UNDEFINED",
-      failure: { field: "attack", reason: "stat-undefined" },
-    });
-  });
-  it("refuses a combatant with no stats", () => {
-    const v = plan([read("a1", [attackStep("goblin-2")])], {
-      combatants: base,
-    });
-    expect(v[0]).toMatchObject({ ok: false, code: "STAT_UNDEFINED" });
-  });
-  it("refuses a missing ability modifier", () => {
-    const v = plan([read("a1", [checkStep({ ability: "wis", skill: null })])], {
-      combatants: withStats,
-    });
-    expect(v[0]).toMatchObject({ ok: false, code: "STAT_UNDEFINED" });
-  });
-  it("skips a joining combatant", () => {
-    const v = plan([read("a1", [attackStep("goblin-2")])], {
-      combatants: base,
-      joining: ["tamsin"],
-    });
-    expect(v[0]).toMatchObject({ ok: true });
-  });
-});
-
-describe("checkPlan: spells (spec 083 D6)", () => {
-  const base = projections.engine.combatants;
-  const mkStats = (spellcastingAbility: "wis" | null) => ({
-    abilityMods: { wis: 3, dex: 1 },
-    proficiencyBonus: 2,
-    saves: {},
-    skills: {},
-    attacks: [],
-    spellcastingAbility,
-  });
-  const caster = {
-    ...base,
-    odo: { ...base.odo, stats: mkStats("wis") },
-    "goblin-2": { ...base["goblin-2"], stats: mkStats(null) },
-  } as typeof base;
-  const LEVELS: Record<string, number> = {
-    "sacred-flame": 0,
-    "cure-wounds": 1,
-    bless: 1,
-    "fire-bolt": 0,
-  };
-  const spellLists = new Map([
-    ["odo", ["sacred-flame", "cure-wounds", "bless"]],
-  ]);
-  const gate = (
-    readings: InterpretReading[],
-    extra: Partial<Parameters<typeof checkPlan>[0]> = {},
-  ) =>
-    plan(readings, {
-      combatants: caster,
-      spellLists,
-      srdSpell: (id) => (id in LEVELS ? { level: LEVELS[id] ?? 0 } : undefined),
-      ...extra,
-    });
-  const spellRead = (s: unknown[], over = {}) =>
-    read("a1", s, { intent: "spell", ...over });
-
-  it("passes a prepared, resolvable spell", () => {
-    expect(gate([spellRead([spellStep("goblin-2")])])).toEqual([
-      { actionId: "a1", ok: true },
-    ]);
-    expect(
-      gate([
-        spellRead([
-          spellStep("kestrel", { spellId: "cure-wounds", slotLevel: 1 }),
-        ]),
-      ]),
-    ).toEqual([{ actionId: "a1", ok: true }]);
-  });
-  it("refuses an id with no SRD record", () => {
-    const v = gate([
-      spellRead([spellStep("goblin-2", { spellId: "no-such" })]),
-    ]);
-    expect(v[0]).toMatchObject({
-      ok: false,
-      code: "SPELL_UNKNOWN",
-      failure: { reason: "spell-unknown" },
-    });
-  });
-  it("refuses a spell not on the caster's list", () => {
-    const v = gate([
-      spellRead([spellStep("goblin-2", { spellId: "fire-bolt" })]),
-    ]);
-    expect(v[0]).toMatchObject({ ok: false, code: "SPELL_NOT_PREPARED" });
-  });
-  it("refuses a monster caster, which has no list", () => {
-    const v = gate(
-      [spellRead([spellStep("odo", { casterId: "goblin-2" })], {})],
-      { actors: undefined },
-    );
-    expect(v[0]).toMatchObject({ ok: false, code: "SPELL_NOT_PREPARED" });
-  });
-  it("refuses a spell with no table entry", () => {
-    const v = gate([
-      spellRead([spellStep("goblin-2", { spellId: "bless", slotLevel: 1 })]),
-    ]);
-    expect(v[0]).toMatchObject({ ok: false, code: "SPELL_UNRESOLVED" });
-  });
-  it("refuses a cantrip with a slot level and a leveled spell below its level", () => {
-    const a = gate([spellRead([spellStep("goblin-2", { slotLevel: 1 })])]);
-    expect(a[0]).toMatchObject({ ok: false, code: "SPELL_UNRESOLVED" });
-    const b = gate([
-      spellRead([
-        spellStep("kestrel", { spellId: "cure-wounds", slotLevel: null }),
-      ]),
-    ]);
-    expect(b[0]).toMatchObject({ ok: false, code: "SPELL_UNRESOLVED" });
-  });
-  it("refuses intent spell with only check and effect steps", () => {
-    const v = gate([
-      spellRead([
-        checkStep({ combatantId: null }),
-        {
-          step: "effect",
-          reason: "Odo's flame burns",
-          effects: [damageOn("goblin-2")],
-        },
-      ]),
-    ]);
-    expect(v[0]).toMatchObject({
-      ok: false,
-      code: "SPELL_UNRESOLVED",
-      failure: { field: "intent" },
-    });
-  });
-  it("passes a clarify reading with intent spell", () => {
-    const v = gate([spellRead([], { clarify: "Which spell?" })]);
-    expect(v[0]).toMatchObject({ ok: true });
-  });
-  it("refuses a caster with no spellcasting ability", () => {
-    const c = {
-      ...caster,
-      odo: { ...caster.odo, stats: mkStats(null) },
-    } as typeof base;
-    const v = gate([spellRead([spellStep("goblin-2")])], { combatants: c });
-    expect(v[0]).toMatchObject({ ok: false, code: "STAT_UNDEFINED" });
-  });
-  it("skips a joining caster", () => {
-    const v = gate(
-      [spellRead([spellStep("goblin-2", { casterId: "goblin-9" })])],
-      { joining: ["goblin-9"] },
-    );
-    expect(v[0]).toMatchObject({ ok: true });
-  });
-  it("refuses another party member's spell in a character action", () => {
-    const v = gate([spellRead([spellStep("goblin-2", { casterId: "odo" })])], {
-      actors: new Map([["a1", "tamsin"]]),
-    });
-    expect(v[0]).toMatchObject({ ok: false, code: "STEP_ACTOR_MISMATCH" });
-  });
-});
-
-describe("checkPlan", () => {
-  it("accepts a plan whose ids are all S0 combatants", () => {
-    const v = plan([read("a1", [attackStep("goblin-2")])]);
-    expect(v).toEqual([{ actionId: "a1", ok: true }]);
-  });
-
-  it("passes a damage effect on a seed NPC with no combatant, pulling it (spec 075)", () => {
-    const v = plan([
-      read("a1", [
-        {
-          step: "effect",
-          reason: "Fire burns Pell",
-          effects: [damageOn("pell")],
-        },
-      ]),
-    ]);
-    expect(v).toEqual([{ actionId: "a1", ok: true, pull: ["pell"] }]);
-  });
-
-  it("refuses an unknown id as not-in-snapshot", () => {
-    const v = plan([read("a1", [attackStep("ghoul-9")])]);
-    expect(v[0]).toMatchObject({
-      ok: false,
-      failure: {
-        field: "targetId",
-        id: "ghoul-9",
-        reason: "not-in-snapshot",
-      },
-    });
-  });
-
-  it("does not map an alias to its combatant", () => {
-    const goblinAlias = snapshot.actors
-      .find((a) => a.id === "goblin-2")
-      ?.aliases.find((x) => x !== "goblin-2");
-    expect(goblinAlias).toBeDefined();
-    const v = plan([read("a1", [attackStep(goblinAlias as string)])]);
-    expect(v[0]?.ok).toBe(false);
-  });
-
-  it("walks nested onHit, onSuccess and onFailure targets in step order", () => {
-    const hit = plan([
-      read("a1", [
-        attackStep("goblin-2", {
-          onHit: [damageOn("goblin-3"), damageOn("x")],
-        }),
-      ]),
-    ]);
-    expect(hit[0]).toMatchObject({
-      failure: { stepIndex: 0, field: "onHit[1].targetId", id: "x" },
-    });
-    const ok = plan([
-      read("a1", [
-        checkStep({
-          onSuccess: [damageOn("goblin-3")],
-          onFailure: [damageOn("zzz")],
-        }),
-      ]),
-    ]);
-    expect(ok[0]).toMatchObject({
-      failure: { field: "onFailure[0].targetId", id: "zzz" },
-    });
-    const second = plan([read("a1", [checkStep(), attackStep(pellAlias)])]);
-    expect(second[0]).toMatchObject({
-      failure: { stepIndex: 1, reason: "not-a-combatant" },
-    });
-  });
-
-  it("reports the first failure of the group only", () => {
-    const v = plan([
-      read("a1", [attackStep("zzz", { onHit: [damageOn("pell")] })]),
-    ]);
-    expect(v[0]).toMatchObject({ failure: { id: "zzz" } });
-  });
-
-  it("gates the NPC group (actionId null)", () => {
-    const v = plan([
-      read("a1", [attackStep("goblin-2")]),
-      read(null, [attackStep("ghoul-9", { attackerId: "snag" })]),
-    ]);
-    expect(v.map((x) => [x.actionId, x.ok])).toEqual([
-      ["a1", true],
-      [null, false],
-    ]);
-  });
-
-  it("accepts the ids an encounter start adds", () => {
-    const readings = [read("a1", [attackStep("goblin-9")])];
-    expect(plan(readings)[0]?.ok).toBe(false);
-    expect(plan(readings, { joining: ["goblin-9"] })[0]?.ok).toBe(true);
-  });
-
-  it("skips null actor ids and clarify readings", () => {
-    const v = plan([
-      read("a1", [checkStep({ combatantId: null })]),
-      read("a2", [attackStep("pell")], { clarify: "Which one?" }),
-    ]);
-    expect(v.every((x) => x.ok)).toBe(true);
-  });
-});
-
-describe("checkPlan: absent actors", () => {
-  const away = (id: string, presence: "absent" | "yielded" = "absent") => {
-    const f = greyhollowFight();
-    f.projections.scenePresence[id] = {
-      presence,
-      reason: presence === "absent" ? "fled" : "conceded",
-      seq: 125,
-    };
-    return buildSnapshot(f.projections, f.seed);
-  };
-  const run = (
-    snap: typeof snapshot,
-    readings: InterpretReading[],
-  ): ReturnType<typeof checkPlan> =>
-    checkPlan({
-      combatants: {},
-      snapshot: snap,
-      readings,
-      joining: [],
-      arriving: [],
-      resumed: [],
-    });
-  const presenceOn = (targetId: string, reason: string) => ({
-    effect: "presence",
-    targetId,
-    reason,
-  });
-
-  it("refuses an absent targetId", () => {
-    const v = run(away("goblin-2"), [read("a1", [attackStep("goblin-2")])]);
-    expect(v[0]).toEqual({
-      actionId: "a1",
-      ok: false,
-      code: "UNKNOWN_COMBATANT",
-      failure: {
-        stepIndex: 0,
-        field: "targetId",
-        id: "goblin-2",
-        reason: "absent",
-      },
-    });
-  });
-
-  it("refuses an absent attackerId", () => {
-    const v = run(away("tamsin"), [read("a1", [attackStep("goblin-2")])]);
-    expect(v[0]).toMatchObject({
-      ok: false,
-      failure: { field: "attackerId", id: "tamsin", reason: "absent" },
-    });
-  });
-
-  it("refuses an absent check combatantId", () => {
-    const v = run(away("tamsin"), [read("a1", [checkStep()])]);
-    expect(v[0]).toMatchObject({
-      ok: false,
-      failure: { field: "combatantId", id: "tamsin", reason: "absent" },
-    });
-  });
-
-  it("refuses an absent onHit effect target", () => {
-    const v = run(away("goblin-3"), [
-      read("a1", [attackStep("goblin-2", { onHit: [damageOn("goblin-3")] })]),
-    ]);
-    expect(v[0]).toMatchObject({
-      ok: false,
-      failure: { field: "onHit[0].targetId", id: "goblin-3", reason: "absent" },
-    });
-  });
-
-  it("passes an attack on an absent NPC that is arriving, pulling it (spec 078)", () => {
-    const f = greyhollowFight();
-    f.projections.scenePresence.pell = {
-      presence: "absent",
-      reason: "removed",
-      seq: 12,
-    };
-    const v = checkPlan({
-      combatants: {},
-      snapshot: buildSnapshot(f.projections, f.seed),
-      readings: [read("a1", [attackStep("pell")])] as InterpretReading[],
-      joining: [],
-      arriving: ["pell"],
-      resumed: [],
-    });
-    expect(v).toEqual([{ actionId: "a1", ok: true, pull: ["pell"] }]);
-  });
-
-  it("lets an arrived presence effect name an absent actor", () => {
-    const v = run(away("goblin-3"), [
-      read("a1", [
-        {
-          step: "effect",
-          reason: "Goblin returns",
-          effects: [presenceOn("goblin-3", "arrived")],
-        },
-      ]),
-    ]);
-    expect(v[0]).toEqual({ actionId: "a1", ok: true });
-  });
-
-  it("refuses a non-arrived presence effect on an absent actor", () => {
-    const v = run(away("goblin-3"), [
-      read("a1", [checkStep({ onSuccess: [presenceOn("goblin-3", "fled")] })]),
-    ]);
-    expect(v[0]).toMatchObject({
-      ok: false,
-      failure: {
-        field: "onSuccess[0].targetId",
-        id: "goblin-3",
-        reason: "absent",
-      },
-    });
-  });
-
-  it("passes a yielded target", () => {
-    const v = run(away("goblin-2", "yielded"), [
-      read("a1", [attackStep("goblin-2")]),
-    ]);
-    expect(v[0]).toEqual({ actionId: "a1", ok: true });
-  });
-
-  it("passes a presence effect on a seed NPC with no combatant", () => {
-    const v = run(snapshot, [
-      read("a1", [checkStep({ onSuccess: [presenceOn("pell", "fled")] })]),
-    ]);
-    expect(v[0]).toEqual({ actionId: "a1", ok: true });
-  });
-
-  it("still reports an unknown id as not-in-snapshot", () => {
-    const v = run(away("goblin-2"), [read("a1", [attackStep("ghoul-9")])]);
-    expect(v[0]).toMatchObject({
-      failure: { id: "ghoul-9", reason: "not-in-snapshot" },
-    });
-    const p = run(snapshot, [
-      read("a1", [checkStep({ onSuccess: [presenceOn("ghoul-9", "fled")] })]),
-    ]);
-    expect(p[0]).toMatchObject({ failure: { reason: "not-in-snapshot" } });
-  });
-});
 
 describe("joiningCombatants", () => {
   it("lists the encounter's monsters missing from the engine", () => {
@@ -643,104 +159,6 @@ describe("encounter phases and resume (spec 099)", () => {
   });
 });
 
-describe("checkPlan: presence ids", () => {
-  const PELL_REASON = "Pell steps out of the reeds";
-  const pellAway = () => {
-    const f = greyhollowFight();
-    f.projections.scenePresence.pell = {
-      presence: "absent",
-      reason: "removed",
-      seq: 125,
-    };
-    return buildSnapshot(f.projections, f.seed);
-  };
-  const pellStep = (over: Record<string, unknown> = {}) => ({
-    step: "effect",
-    reason: PELL_REASON,
-    effects: [],
-    ...over,
-  });
-  const arrivedEffect = {
-    effect: "presence",
-    targetId: "pell",
-    reason: "arrived",
-  };
-  const run = (
-    readings: InterpretReading[],
-    extra: Partial<Parameters<typeof checkPlan>[0]> = {},
-  ) =>
-    checkPlan({
-      combatants: {},
-      snapshot: pellAway(),
-      readings,
-      joining: [],
-      arriving: [],
-      resumed: [],
-      ...extra,
-    });
-
-  it("passes an arrived presence effect with the arrival reason", () => {
-    const v = run([read("a1", [pellStep({ effects: [arrivedEffect] })])]);
-    expect(v).toEqual([{ actionId: "a1", ok: true }]);
-  });
-
-  it("refuses an absent id in onSevere (spec 070)", () => {
-    const v = run([
-      read("a1", [
-        checkStep({
-          reason: "Ana studies the reeds",
-          onSevere: [damageOn("pell")],
-        }),
-      ]),
-    ]);
-    expect(v[0]).toMatchObject({
-      ok: false,
-      code: "UNKNOWN_COMBATANT",
-      failure: { field: "onSevere[0].targetId", id: "pell" },
-    });
-  });
-
-  it("still runs the id check for a resumed action id", () => {
-    const f = greyhollowFight();
-    f.projections.scenePresence["goblin-3"] = {
-      presence: "absent",
-      reason: "removed",
-      seq: 125,
-    };
-    const v = checkPlan({
-      combatants: {},
-      snapshot: buildSnapshot(f.projections, f.seed),
-      readings: [read("a1", [attackStep("goblin-3")])],
-      joining: [],
-      arriving: [],
-      resumed: ["a1"],
-    });
-    expect(v[0]).toMatchObject({
-      ok: false,
-      code: "UNKNOWN_COMBATANT",
-      failure: { field: "targetId", id: "goblin-3", reason: "absent" },
-    });
-  });
-
-  it("does not check a clarify reading", () => {
-    const v = run([read("a1", [pellStep()], { clarify: "Which one?" })]);
-    expect(v).toEqual([{ actionId: "a1", ok: true }]);
-  });
-
-  it("lets an id failure win over a reason failure in the same group", () => {
-    const v = run([read("a1", [pellStep(), attackStep("nobody")])]);
-    expect(v[0]).toMatchObject({ ok: false, code: "UNKNOWN_COMBATANT" });
-  });
-
-  it("never rewrites a passing reading", () => {
-    const r = read("a1", [pellStep({ effects: [arrivedEffect] })]);
-    const before = structuredClone(r);
-    const v = run([r]);
-    expect(v).toEqual([{ actionId: "a1", ok: true }]);
-    expect(r).toEqual(before);
-  });
-});
-
 describe("arrivingNpcs", () => {
   const enc = encounterToStart(
     seed,
@@ -792,645 +210,9 @@ describe("arrivingNpcs", () => {
   });
 });
 
-describe("checkPlan: non-combatant NPC pull (specs 068, 075)", () => {
-  const condOn = (targetId: string) => ({
-    effect: "condition",
-    op: "remove",
-    targetId,
-    condition: "restrained",
-    source: "cut free",
-  });
-  const healOn = (targetId: string) => ({
-    effect: "heal",
-    targetId,
-    amount: { kind: "roll", expression: "1d4" },
-  });
-  const presenceOn = (targetId: string) => ({
-    effect: "presence",
-    targetId,
-    reason: "fled",
-  });
-
-  it("passes a check combatantId, a condition effect and a heal effect on pell", () => {
-    for (const step of [
-      checkStep({ combatantId: "pell" }),
-      checkStep({ onSuccess: [condOn("pell")] }),
-      checkStep({ onFailure: [healOn("pell")] }),
-    ]) {
-      expect(plan([read("a1", [step])])).toEqual([
-        { actionId: "a1", ok: true, pull: ["pell"] },
-      ]);
-    }
-  });
-
-  it("passes attack ids and damage effects on pell (spec 075)", () => {
-    for (const step of [
-      attackStep("pell"),
-      attackStep("goblin-2", { attackerId: "pell" }),
-      checkStep({ onSuccess: [damageOn("pell")] }),
-    ]) {
-      expect(plan([read("a1", [step])])).toEqual([
-        { actionId: "a1", ok: true, pull: ["pell"] },
-      ]);
-    }
-  });
-
-  it("refuses pell's alias as an attack targetId", () => {
-    expect(plan([read("a1", [attackStep(pellAlias)])])[0]).toMatchObject({
-      ok: false,
-      failure: { field: "targetId", reason: "not-a-combatant" },
-    });
-  });
-
-  it("refuses an absent pell as an attack targetId", () => {
-    const f = greyhollowFight();
-    f.projections.scenePresence.pell = {
-      presence: "absent",
-      reason: "fled",
-      seq: 125,
-    };
-    const v = checkPlan({
-      combatants: {},
-      snapshot: buildSnapshot(f.projections, f.seed),
-      readings: [read("a1", [attackStep("pell")])],
-      joining: [],
-      arriving: [],
-      resumed: [],
-    });
-    expect(v[0]).toMatchObject({
-      ok: false,
-      failure: { field: "targetId", id: "pell", reason: "absent" },
-    });
-  });
-
-  it("refuses an alias of pell", () => {
-    const alias = snapshot.actors
-      .find((a) => a.id === "pell")
-      ?.aliases.find((x) => x !== "pell");
-    expect(alias).toBeDefined();
-    const v = plan([
-      read("a1", [checkStep({ onSuccess: [condOn(alias as string)] })]),
-    ]);
-    expect(v[0]).toMatchObject({
-      ok: false,
-      failure: { reason: "not-a-combatant" },
-    });
-  });
-
-  it("refuses an absent pell as absent", () => {
-    const f = greyhollowFight();
-    f.projections.scenePresence.pell = {
-      presence: "absent",
-      reason: "fled",
-      seq: 125,
-    };
-    const v = checkPlan({
-      combatants: {},
-      snapshot: buildSnapshot(f.projections, f.seed),
-      readings: [read("a1", [checkStep({ combatantId: "pell" })])],
-      joining: [],
-      arriving: [],
-      resumed: [],
-    });
-    expect(v[0]).toMatchObject({ ok: false, failure: { reason: "absent" } });
-  });
-
-  it("pulls a combatant outside the order; skips in-order and joining ids", () => {
-    const order = new Set(snapshot.stage.encounter?.order ?? []);
-    const out = snapshot.actors.find(
-      (a) => a.combatantId && !order.has(a.id) && !order.has(a.combatantId),
-    );
-    const inside = snapshot.actors.find(
-      (a) => a.combatantId && order.has(a.id),
-    );
-    expect(out).toBeDefined();
-    expect(inside).toBeDefined();
-    const v = plan([
-      read("a1", [
-        checkStep({
-          combatantId: inside?.id,
-          onSuccess: [condOn(out?.id as string)],
-        }),
-      ]),
-    ]);
-    expect(v).toEqual([{ actionId: "a1", ok: true, pull: [out?.id] }]);
-    const j = plan([read("a1", [checkStep({ combatantId: "goblin-9" })])], {
-      joining: ["goblin-9"],
-    });
-    expect(j).toEqual([{ actionId: "a1", ok: true }]);
-  });
-
-  it("does not pull a presence-effect target and dedupes in step order", () => {
-    const p = plan([
-      read("a1", [checkStep({ onSuccess: [presenceOn("pell")] })]),
-    ]);
-    expect(p).toEqual([{ actionId: "a1", ok: true }]);
-    const d = plan([
-      read("a1", [
-        checkStep({ combatantId: "pell", onSuccess: [condOn("pell")] }),
-        checkStep({ combatantId: "pell" }),
-      ]),
-    ]);
-    expect(d).toEqual([{ actionId: "a1", ok: true, pull: ["pell"] }]);
-  });
-});
-
-describe("askUndeclared (spec 077)", () => {
-  const duo = greyhollowDuo();
-  const s0 = buildSnapshot(duo.projections, duo.seed);
-  const item = (text: string, over: Partial<BeatItem> = {}): BeatItem => ({
-    actionId: "a1",
-    committedSeq: 11,
-    actor: PLAYER_USER,
-    characterId: "tamsin",
-    scope: "character",
-    text,
-    status: "committed",
-    ...over,
-  });
-  const ask = (
-    b: BeatItem,
-    steps: unknown[],
-    extra: {
-      snapshot?: typeof s0;
-      resumed?: string[];
-      readings?: InterpretReading[];
-    } = {},
-  ) => {
-    const readings = extra.readings ?? [
-      read("a1", steps),
-      read(null, [checkStep({ combatantId: "kestrel", skill: "stealth" })]),
-    ];
-    const out = askUndeclared({
-      snapshot: extra.snapshot ?? s0,
-      beat: [b],
-      readings,
-      resumed: extra.resumed ?? [],
-    });
-    return out;
-  };
-  const stealth = (who: string) =>
-    checkStep({ combatantId: who, skill: "stealth", ability: "dex" });
-  const REED =
-    "We move toward the reed camp until we see Goblins or they see us.";
-  const SNEAK = "We sneak toward the reed camp.";
-
-  it("asks the manner question first for run 1 seq 24 (Kestrel's Stealth)", () => {
-    const r = ask(item(REED), [stealth("kestrel")]);
-    expect(r.readings[0]).toMatchObject({
-      steps: [],
-      clarify: MANNER_SKILLS[0].question,
-    });
-    expect(r.asked).toEqual([
-      { actionId: "a1", stepIndex: 0, rule: "manner", detail: "stealth" },
-    ]);
-  });
-
-  it("asks the manner question for the declarer's own Stealth", () => {
-    const r = ask(item(REED), [stealth("tamsin")]);
-    expect(r.readings[0]?.clarify).toBe(MANNER_SKILLS[0].question);
-  });
-
-  it("asks before rolling for another human's PC", () => {
-    const r = ask(item(SNEAK), [stealth("kestrel")]);
-    expect(r.readings[0]?.clarify).toBe(
-      otherPlayerQuestion("Kestrel", "Tamsin Vale"),
-    );
-    expect(r.asked[0]?.rule).toBe("other-player");
-  });
-
-  it("passes a stated manner for the declarer and a companion", () => {
-    const r = ask(item(SNEAK), [stealth("tamsin"), stealth("odo")]);
-    expect(r.readings[0]?.clarify).toBeNull();
-    expect(r.asked).toEqual([]);
-    expect(r.readings[0]?.clarify).toBeNull();
-  });
-
-  it("run 1 seq 114: Athletics passes, Stealth asks", () => {
-    const text = "I move towards Pell";
-    const ok = ask(item(text), [checkStep({ skill: "athletics" })]);
-    expect(ok.asked).toEqual([]);
-    const bad = ask(item(text), [stealth("tamsin")]);
-    expect(bad.readings[0]?.clarify).toBe(MANNER_SKILLS[0].question);
-  });
-
-  it("skips the rule for a party-scope action", () => {
-    const r = ask(item(SNEAK, { scope: "party" }), [stealth("kestrel")]);
-    expect(r.asked).toEqual([]);
-  });
-
-  it("passes a saving throw for another PC", () => {
-    const r = ask(item(REED), [
-      checkStep({ combatantId: "kestrel", kind: "saving-throw", skill: null }),
-    ]);
-    expect(r.asked).toEqual([]);
-  });
-
-  it("passes heal and damage effects on another PC", () => {
-    const r = ask(item(REED), [
-      {
-        step: "effect",
-        reason: "Tamsin helps",
-        effects: [
-          {
-            effect: "heal",
-            targetId: "kestrel",
-            amount: { kind: "fixed", value: 2 },
-          },
-          damageOn("kestrel"),
-        ],
-      },
-    ]);
-    expect(r.asked).toEqual([]);
-  });
-
-  it("asks when an attack rolls for another PC", () => {
-    const r = ask(item("I strike the goblin"), [
-      attackStep("goblin-1", { attackerId: "kestrel" }),
-    ]);
-    expect(r.readings[0]?.clarify).toBe(
-      otherPlayerQuestion("Kestrel", "Tamsin Vale"),
-    );
-  });
-
-  it("skips the manner rule for a companion's action", () => {
-    const r = ask(
-      item(REED, { actor: "ai:companion:odo", characterId: "odo" }),
-      [stealth("odo")],
-    );
-    expect(r.asked).toEqual([]);
-  });
-
-  it("leaves resumed, clarify and NPC readings alone", () => {
-    const resumed = ask(item(REED), [stealth("tamsin")], { resumed: ["a1"] });
-    expect(resumed.asked).toEqual([]);
-    const cl = [read("a1", [stealth("tamsin")], { clarify: "Which?" })];
-    const c = ask(item(REED), [], { readings: cl });
-    expect(c.readings[0]).toBe(cl[0]);
-    expect(c.asked).toEqual([]);
-    expect(c.readings).toHaveLength(1);
-  });
-
-  it("passes a second PC held by the same user", () => {
-    const twin = {
-      ...s0,
-      actors: s0.actors.map((a) =>
-        a.id === "kestrel"
-          ? {
-              ...a,
-              controller: { kind: "player" as const, userId: PLAYER_USER },
-            }
-          : a,
-      ),
-    } as typeof s0;
-    const r = ask(item(SNEAK), [stealth("kestrel")], { snapshot: twin });
-    expect(r.asked).toEqual([]);
-  });
-
-  it("covers Deception and Intimidation cues", () => {
-    const dec = checkStep({ skill: "deception", ability: "cha" });
-    const int = checkStep({ skill: "intimidation", ability: "cha" });
-    expect(ask(item("I bluff the guard"), [dec]).asked).toEqual([]);
-    expect(ask(item("I talk to the guard"), [dec]).readings[0]?.clarify).toBe(
-      MANNER_SKILLS[1].question,
-    );
-    expect(ask(item("I threaten the guard"), [int]).asked).toEqual([]);
-    expect(ask(item("I talk to the guard"), [int]).readings[0]?.clarify).toBe(
-      MANNER_SKILLS[2].question,
-    );
-  });
-
-  it("keeps every question speakable", () => {
-    const qs = [
-      ...MANNER_SKILLS.map((m) => m.question),
-      otherPlayerQuestion("Kestrel", "Tamsin Vale"),
-    ];
-    for (const q of qs) {
-      expect(q).not.toMatch(/\d/);
-      expect(q.match(/\?/g)).toHaveLength(1);
-      expect(q.length).toBeLessThanOrEqual(200);
-    }
-  });
-});
-
-describe("checkPlan actor rule (spec 079 D5)", () => {
-  const actors = new Map<string, string | null>([
-    ["a1", "kestrel"],
-    ["party", null],
-  ]);
-  const withActors = (readings: InterpretReading[]) =>
-    plan(readings, { actors });
-  const move = (combatantId: string) => ({
-    step: "move",
-    reason: "Kestrel runs for Pell",
-    combatantId,
-    leavesReachOf: ["goblin-2"],
-  });
-
-  it("refuses a foreign attacker inside a character action", () => {
-    const v = withActors([
-      read("a1", [attackStep("kestrel", { attackerId: "goblin-2" })]),
-    ]);
-    expect(v[0]).toEqual({
-      actionId: "a1",
-      ok: false,
-      code: "STEP_ACTOR_MISMATCH",
-      failure: {
-        stepIndex: 0,
-        field: "attackerId",
-        id: "goblin-2",
-        reason: "not-the-actor",
-      },
-    });
-  });
-
-  it("refuses a foreign mover, and passes the actor's own move", () => {
-    expect(withActors([read("a1", [move("tamsin")])])[0]).toMatchObject({
-      ok: false,
-      code: "STEP_ACTOR_MISMATCH",
-      failure: { field: "combatantId", id: "tamsin" },
-    });
-    expect(withActors([read("a1", [move("kestrel")])])[0]).toEqual({
-      actionId: "a1",
-      ok: true,
-    });
-  });
-
-  it("a party-scope action may name any party member, not a monster", () => {
-    expect(withActors([read("party", [move("tamsin")])])[0]).toMatchObject({
-      ok: true,
-    });
-    expect(
-      withActors([
-        read("party", [attackStep("kestrel", { attackerId: "goblin-2" })]),
-      ])[0],
-    ).toMatchObject({ ok: false, code: "STEP_ACTOR_MISMATCH" });
-  });
-
-  it("does not check the monster turn", () => {
-    const v = withActors([
-      read(null, [attackStep("kestrel", { attackerId: "goblin-2" })]),
-    ]);
-    expect(v[0]).toMatchObject({ ok: true });
-  });
-
-  it("run 1's plan-approach plan (Kestrel attacks Snag in Tamsin's action) passes after the free-mode cut (R4)", () => {
-    const script = JSON.parse(
-      readFileSync(join(HERE, "scripts", "plan-approach.json"), "utf8"),
-    );
-    const call = script.calls.find(
-      (c: { purpose: string }) => c.purpose === "dm.interpret",
-    );
-    const parsed = InterpretOutput.parse(call.respond.value);
-    const cut = cutPlans({
-      mode: "free",
-      readings: parsed.readings,
-    });
-    // The scripted action belongs to Tamsin; Kestrel's attack is cut as a later stage.
-    // Spec 104: the script is now stage-shaped; checkPlan takes the union.
-    const v = plan(cut.readings as never, {
-      actors: new Map([[parsed.readings[0]?.actionId as string, "tamsin"]]),
-    });
-    expect(v[0]).toMatchObject({ ok: true });
-  });
-});
-
-describe("checkPlan: opposition and help (spec 084 D12)", () => {
-  const base = projections.engine.combatants;
-  const mk = (over = {}) => ({
-    abilityMods: { str: 3, dex: 2 },
-    proficiencyBonus: 2,
-    saves: {},
-    skills: { acrobatics: 4, athletics: 5 },
-    attacks: [],
-    spellcastingAbility: null,
-    ...over,
-  });
-  const withStats = {
-    ...base,
-    tamsin: { ...base.tamsin, stats: mk() },
-    kestrel: { ...base.kestrel, stats: mk() },
-    snag: { ...base.snag, stats: mk({ abilityMods: { str: -1 } }) },
-  } as typeof base;
-  const opposed = (over = {}) =>
-    checkStep({
-      difficulty: { opposedBy: "snag", rule: "unarmed-strike" },
-      ...over,
-    });
-
-  it("passes a derivable opposition and a help", () => {
-    expect(
-      plan([read("a1", [opposed()])], { combatants: withStats })[0],
-    ).toEqual({ actionId: "a1", ok: true });
-    expect(
-      plan([read("a1", [helpStep()])], { combatants: withStats })[0],
-    ).toEqual({ actionId: "a1", ok: true });
-  });
-  it("refuses a help step naming an unknown id", () => {
-    const v = plan(
-      [
-        read("a1", [
-          helpStep({ assist: { kind: "attack", targetId: "nobody" } }),
-        ]),
-      ],
-      { combatants: withStats },
-    );
-    expect(v[0]).toMatchObject({
-      ok: false,
-      failure: { field: "assist.targetId", id: "nobody" },
-    });
-    const w = plan([read("a1", [helpStep({ helperId: "nobody" })])], {
-      combatants: withStats,
-    });
-    expect(w[0]).toMatchObject({ ok: false, failure: { field: "helperId" } });
-  });
-  it("refuses a help step whose helper is not the actor", () => {
-    const v = plan([read("a1", [helpStep()])], {
-      combatants: withStats,
-      actors: new Map([["a1", "tamsin"]]),
-    });
-    expect(v[0]).toMatchObject({
-      ok: false,
-      code: "STEP_ACTOR_MISMATCH",
-      failure: { field: "helperId", id: "kestrel" },
-    });
-  });
-  it("refuses an opponent without stats and skips a joining one", () => {
-    const noOpp = {
-      ...withStats,
-      snag: { ...base.snag, stats: undefined },
-    } as typeof base;
-    expect(
-      plan([read("a1", [opposed()])], { combatants: noOpp })[0],
-    ).toMatchObject({
-      ok: false,
-      code: "STAT_UNDEFINED",
-      failure: { field: "difficulty.opposedBy", reason: "stat-undefined" },
-    });
-    expect(
-      plan([read("a1", [opposed()])], {
-        combatants: noOpp,
-        joining: ["snag"],
-      })[0],
-    ).toMatchObject({ ok: true });
-  });
-});
-
-describe("askUndeclared: help (spec 084 D12)", () => {
-  const duo = greyhollowDuo();
-  const s0 = buildSnapshot(duo.projections, duo.seed);
-  const item = (): BeatItem => ({
-    actionId: "a1",
-    committedSeq: 11,
-    actor: PLAYER_USER,
-    characterId: "tamsin",
-    scope: "character",
-    text: "I help Kestrel.",
-    status: "committed",
-  });
-  const ask = (steps: unknown[]) =>
-    askUndeclared({
-      snapshot: s0,
-      beat: [item()],
-      readings: [read("a1", steps)],
-      resumed: [],
-    });
-  it("asks when the helper is another human's PC", () => {
-    const r = ask([
-      helpStep({
-        helperId: "kestrel",
-        assist: { kind: "attack", targetId: "goblin-2" },
-      }),
-    ]);
-    expect(r.readings[0]?.clarify).toBe(
-      "Kestrel's player decides what Kestrel does. What does Tamsin Vale do instead?",
-    );
-    expect(r.asked[0]).toMatchObject({
-      rule: "other-player",
-      detail: "Kestrel",
-    });
-  });
-  it("passes when only the ally is another human's PC", () => {
-    const r = ask([
-      helpStep({
-        helperId: "tamsin",
-        assist: {
-          kind: "ability-check",
-          allyId: "kestrel",
-          skill: "acrobatics",
-        },
-      }),
-    ]);
-    expect(r.readings[0]?.clarify).toBeNull();
-    expect(r.asked).toEqual([]);
-  });
-});
-
-describe("checkPlan turn hold (TASK-0244)", () => {
-  const party = new Map<string, string | null>([["p1", null]]);
-  const cure = { spellId: "cure-wounds", slotLevel: 1 };
-  const tamsinCast = () =>
-    read("p1", [spellStep("tamsin", { ...cure, casterId: "tamsin" })]);
-  const odoSpell = () => read("p1", [spellStep("tamsin", cure)]);
-  const codeOf = (v: ReturnType<typeof checkPlan>) =>
-    (v[0] as { code?: string }).code;
-  const withActive = (
-    active: string,
-    patch: (s: typeof snapshot) => void = () => {},
-  ) => {
-    const s = structuredClone(snapshot);
-    if (s.stage.encounter) s.stage.encounter.activeCombatantId = active;
-    patch(s);
-    return s;
-  };
-  const held = (s: typeof snapshot, extra = {}) =>
-    plan([odoSpell()], { snapshot: s, actors: party, ...extra });
-
-  it("holds a party action whose only actor is an off-turn companion", () => {
-    expect(held(snapshot)[0]).toEqual({
-      actionId: "p1",
-      ok: false,
-      code: "TURN_HELD",
-      heldFor: "odo",
-    });
-  });
-  it("holds when the companion is active but has its own group", () => {
-    const s = withActive("odo");
-    const v = plan([odoSpell(), read("a1", [attackStep("goblin-2")])], {
-      snapshot: s,
-      actors: new Map<string, string | null>([
-        ["p1", null],
-        ["a1", "odo"],
-      ]),
-    });
-    expect(v.find((x) => x.actionId === "p1")).toMatchObject({
-      code: "TURN_HELD",
-    });
-  });
-  it("does not hold the active companion with no own group", () => {
-    expect(codeOf(held(withActive("odo")))).not.toBe("TURN_HELD");
-  });
-  it("does not hold in free mode", () => {
-    const s = withActive("snag", (x) => {
-      x.stage.tableMode = { mode: "free" };
-    });
-    expect(codeOf(held(s))).not.toBe("TURN_HELD");
-  });
-  it("does not hold a downed companion", () => {
-    const s = withActive("snag", (x) => {
-      const a = x.actors.find((y) => y.combatantId === "odo");
-      if (a) a.lifeState = "unconscious";
-    });
-    expect(codeOf(held(s))).not.toBe("TURN_HELD");
-  });
-  it("refuses a companion mixed with another actor", () => {
-    const v = plan([odoSpell()], {
-      snapshot,
-      actors: party,
-    });
-    expect(v[0]).toMatchObject({ code: "TURN_HELD" });
-    const mixed = plan(
-      [read("p1", [spellStep("tamsin", cure), attackStep("goblin-2")])],
-      { snapshot, actors: party },
-    );
-    expect(mixed[0]).toMatchObject({
-      ok: false,
-      code: "STEP_ACTOR_MISMATCH",
-      failure: { reason: "off-turn" },
-    });
-  });
-  it("leaves a human-only party group unchanged", () => {
-    const v = plan([tamsinCast()], { snapshot, actors: party });
-    expect(codeOf(v)).not.toBe("TURN_HELD");
-  });
-});
-
 describe("monster arrivals (spec 088)", () => {
   const duo = greyhollowDuo();
   const reedCamp = duo.seed.encounters.find((e) => e.id === "reed-camp");
-  const opp = (id: string) =>
-    read("a1", [
-      checkStep({ difficulty: { opposedBy: id, rule: "influence" } }),
-    ]);
-  const duoPlan = (id: string, joining: string[]) =>
-    checkPlan({
-      snapshot: buildSnapshot(duo.projections, duo.seed),
-      readings: [opp(id)],
-      combatants: {},
-      joining,
-      arriving: [],
-      resumed: [],
-    })[0];
-
-  it("refuses goblin-lookout not-in-snapshot and passes goblin-3 via joining", () => {
-    const refused = duoPlan("goblin-lookout", ["goblin-3"]);
-    expect(refused?.ok).toBe(false);
-    expect(refused).toMatchObject({
-      failure: { reason: "not-in-snapshot" },
-    });
-    expect(duoPlan("goblin-3", ["goblin-3"])?.ok).toBe(true);
-  });
-
   it("lists arrivals then joiners once", () => {
     const out = arrivingMonsters(
       duo.seed,
@@ -1471,5 +253,176 @@ describe("monster arrivals (spec 088)", () => {
     const q = structuredClone(duo.projections);
     q.encounter = { round: 1, order: [{ combatantId: "goblin-3" }] } as never;
     expect(encounterRan(q, reedCamp)).toBe(true);
+  });
+});
+
+describe("askUndeclared (spec 077)", () => {
+  const item = (text: string, over: Partial<BeatItem> = {}): BeatItem => ({
+    actionId: "a1",
+    committedSeq: 11,
+    actor: PLAYER_USER,
+    characterId: "tamsin",
+    scope: "character",
+    text,
+    status: "committed",
+    ...over,
+  });
+  const check = (skill: string) => stage({ kind: "check", params: { skill } });
+  const ask = (
+    b: BeatItem,
+    stageList: unknown[],
+    extra: { resumed?: string[]; readings?: unknown[] } = {},
+  ) =>
+    askUndeclared({
+      beat: [b],
+      readings: (extra.readings ?? [
+        stages("a1", stageList),
+        stages(null, [check("stealth")]),
+      ]) as never,
+      resumed: extra.resumed ?? [],
+    });
+  const REED =
+    "We move toward the reed camp until we see Goblins or they see us.";
+  const SNEAK = "We sneak toward the reed camp.";
+
+  it("asks the manner question for a Stealth check the text does not state", () => {
+    const r = ask(item(REED), [check("stealth")]);
+    expect(r.readings[0]).toMatchObject({
+      stages: [],
+      clarify: MANNER_SKILLS[0].question,
+    });
+    expect(r.asked).toEqual([
+      { actionId: "a1", stepIndex: 0, rule: "manner", detail: "stealth" },
+    ]);
+  });
+
+  it("passes a stated manner", () => {
+    const r = ask(item(SNEAK), [check("stealth")]);
+    expect(r.readings[0]?.clarify).toBeNull();
+    expect(r.asked).toEqual([]);
+  });
+
+  it("run 1 seq 114: Athletics passes, Stealth asks", () => {
+    const text = "I move towards Pell";
+    expect(ask(item(text), [check("athletics")]).asked).toEqual([]);
+    const bad = ask(item(text), [check("stealth")]);
+    expect(bad.readings[0]?.clarify).toBe(MANNER_SKILLS[0].question);
+  });
+
+  it("skips the manner rule for a companion's action", () => {
+    const r = ask(
+      item(REED, { actor: "ai:companion:odo", characterId: "odo" }),
+      [check("stealth")],
+    );
+    expect(r.asked).toEqual([]);
+  });
+
+  it("leaves resumed, clarify and NPC readings alone", () => {
+    const resumed = ask(item(REED), [check("stealth")], { resumed: ["a1"] });
+    expect(resumed.asked).toEqual([]);
+    const cl = [stages("a1", [check("stealth")], { clarify: "Which?" })];
+    const c = ask(item(REED), [], { readings: cl });
+    expect(c.readings[0]).toBe(cl[0]);
+    expect(c.asked).toEqual([]);
+    expect(c.readings).toHaveLength(1);
+  });
+
+  it("covers Deception and Intimidation cues", () => {
+    expect(ask(item("I bluff the guard"), [check("deception")]).asked).toEqual(
+      [],
+    );
+    expect(
+      ask(item("I talk to the guard"), [check("deception")]).readings[0]
+        ?.clarify,
+    ).toBe(MANNER_SKILLS[1].question);
+    expect(
+      ask(item("I threaten the guard"), [check("intimidation")]).asked,
+    ).toEqual([]);
+    expect(
+      ask(item("I talk to the guard"), [check("intimidation")]).readings[0]
+        ?.clarify,
+    ).toBe(MANNER_SKILLS[2].question);
+  });
+
+  it("keeps every question speakable", () => {
+    for (const q of MANNER_SKILLS.map((m) => m.question)) {
+      expect(q).not.toMatch(/\d/);
+      expect(q.match(/\?/g)).toHaveLength(1);
+      expect(q.length).toBeLessThanOrEqual(200);
+    }
+  });
+});
+
+describe("checkPlan turn hold (TASK-0244)", () => {
+  const party = new Map<string, string | null>([["p1", null]]);
+  const read = (clarify: string | null = null) =>
+    stages("p1", [stage({ kind: "check" })], { clarify }) as never;
+  const plan = (
+    s: typeof snapshot,
+    over: Partial<Parameters<typeof checkPlan>[0]> = {},
+  ) =>
+    checkPlan({
+      snapshot: s,
+      readings: [read()],
+      actors: party,
+      declarers: new Map([["p1", "odo"]]),
+      ...over,
+    });
+  const codeOf = (v: ReturnType<typeof checkPlan>) =>
+    (v[0] as { code?: string }).code;
+  const withActive = (
+    active: string,
+    patch: (s: typeof snapshot) => void = () => {},
+  ) => {
+    const s = structuredClone(snapshot);
+    if (s.stage.encounter) s.stage.encounter.activeCombatantId = active;
+    patch(s);
+    return s;
+  };
+
+  it("holds a party action whose declarer is an off-turn companion", () => {
+    expect(plan(snapshot)[0]).toEqual({
+      actionId: "p1",
+      ok: false,
+      code: "TURN_HELD",
+      heldFor: "odo",
+    });
+  });
+  it("holds when the companion is active but has its own group", () => {
+    const v = checkPlan({
+      snapshot: withActive("odo"),
+      readings: [read(), stages("a1", [stage({ kind: "attack" })]) as never],
+      actors: new Map<string, string | null>([
+        ["p1", null],
+        ["a1", "odo"],
+      ]),
+      declarers: new Map([["p1", "odo"]]),
+    });
+    expect(v.find((x) => x.actionId === "p1")).toMatchObject({
+      code: "TURN_HELD",
+    });
+  });
+  it("does not hold the active companion with no own group", () => {
+    expect(codeOf(plan(withActive("odo")))).not.toBe("TURN_HELD");
+  });
+  it("does not hold in free mode", () => {
+    const s = withActive("snag", (x) => {
+      x.stage.tableMode = { mode: "free" };
+    });
+    expect(codeOf(plan(s))).not.toBe("TURN_HELD");
+  });
+  it("does not hold a downed companion", () => {
+    const s = withActive("snag", (x) => {
+      const a = x.actors.find((y) => y.combatantId === "odo");
+      if (a) a.lifeState = "unconscious";
+    });
+    expect(codeOf(plan(s))).not.toBe("TURN_HELD");
+  });
+  it("leaves a human declarer and a clarify reading unchanged", () => {
+    const human = plan(snapshot, { declarers: new Map([["p1", "tamsin"]]) });
+    expect(codeOf(human)).not.toBe("TURN_HELD");
+    expect(plan(snapshot, { readings: [read("Which?")] })).toEqual([
+      { actionId: "p1", ok: true },
+    ]);
   });
 });

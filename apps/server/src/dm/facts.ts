@@ -851,22 +851,6 @@ export function buildNarrationFacts(input: BuildFactsInput): NarrationFacts {
     if (offTurn.length > 0) turn.offTurn = offTurn;
   }
 
-  // TASK-0213: the initiative a PC action's pull rolled. Its rows carry no actionId.
-  const pulled: FactSettled[] = [];
-  for (const r of input.resolve.actionResults) {
-    const ids = new Set(r.pullBatchIds ?? []);
-    for (const batchId of ids) {
-      const rows = p.ledger.filter((l) => l.batchId === batchId);
-      const first = rows.find((l) => l.kind === "roll");
-      pulled.push({
-        name: nameOf(
-          first && first.kind === "roll" ? first.roll.combatantId : null,
-        ),
-        ...collectFacts(rows, nameOf, types, stakesByBatch, revealedByBatch),
-      });
-    }
-  }
-
   // Settling (TASK-0112): the death saves rolled for combatants the turn passed.
   const settleBatches = new Set(
     input.resolve.submissions.flatMap((s) =>
@@ -957,7 +941,6 @@ export function buildNarrationFacts(input: BuildFactsInput): NarrationFacts {
     npcTurn,
     ...(turn ? { turn } : {}),
     ...(held.length > 0 ? { held } : {}),
-    ...(pulled.length > 0 ? { pulled } : {}),
     ...(settled.length > 0 ? { settled } : {}),
     ...(direct.length > 0 ? { direct } : {}),
     ...(openFollowUps.length > 0 ? { openFollowUps } : {}),

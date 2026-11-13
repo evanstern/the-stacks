@@ -16,10 +16,6 @@ import { createScriptedDm, loadDmScript } from "../dm/script/load.js";
 import { loadSeed } from "../dm/seed/load.js";
 import { createDmWorker } from "../dm/worker.js";
 import { createGate } from "../gate/index.js";
-import {
-  retrieve as libraryRetrieve,
-  loadRetrievalConfig,
-} from "../library/retrieve.js";
 import { loadProjections } from "../session/projections.js";
 import { runAudit } from "./auditor/audit.js";
 import { renderReport, renderTranscript } from "./auditor/render.js";

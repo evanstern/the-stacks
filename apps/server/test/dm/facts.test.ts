@@ -842,8 +842,8 @@ describe("facts v2: party, events, target, setting (run-5 rows)", () => {
             {
               actionId: null,
               ok: false,
-              code: "UNKNOWN_COMBATANT",
-              failure: {} as never,
+              code: "TURN_HELD",
+              heldFor: "odo",
             },
           ],
         },
@@ -870,8 +870,8 @@ describe("facts v2: party, events, target, setting (run-5 rows)", () => {
             {
               actionId: null,
               ok: false,
-              code: "UNKNOWN_COMBATANT",
-              failure: {} as never,
+              code: "TURN_HELD",
+              heldFor: "odo",
             },
           ],
         },

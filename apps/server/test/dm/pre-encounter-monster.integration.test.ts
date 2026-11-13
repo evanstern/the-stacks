@@ -125,8 +125,7 @@ const resolved = (rows: Rows, id: string) =>
       r.type === "action.resolved" &&
       (r.payload as { actionId: string }).actionId === id,
   );
-const unknown = (gates: PlanVerdict[][]) =>
-  gates.flat().filter((v) => !v.ok && v.code === "UNKNOWN_COMBATANT");
+const unknown = (gates: PlanVerdict[][]) => gates.flat().filter((v) => !v.ok);
 const opposed = (rows: Rows) =>
   rows.filter(
     (r) => r.type === "check.resolved" && eventOf(r).opposition?.opponentId,

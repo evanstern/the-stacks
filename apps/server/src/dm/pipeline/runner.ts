@@ -236,7 +236,6 @@ export async function runTurn(
         });
         // Spec 077: ask before an undeclared method or another human's roll.
         const asked = askUndeclared({
-          snapshot: assembledOut.snapshot,
           beat: assembledOut.beat,
           readings: cut.readings,
           resumed: (assembledOut.resumed ?? []).map((p) => p.actionId),

@@ -1,13 +1,14 @@
 import { afterAll, describe, expect, it } from "vitest";
 import type { ResolveOutput } from "../../src/dm/nodes/resolve.js";
 import {
-  checkStep,
+  checkBeside,
   createWorld,
   db,
   loudSkip,
   reachable,
-  reading,
   readRows,
+  stage,
+  stages,
   TAMSIN_USER,
   type World,
 } from "./world.js";
@@ -66,7 +67,15 @@ async function run(
 
 /** Scene start, Kestrel re-seated as a human player, then turn mode in reed-camp. */
 async function inFight(dice: number[]) {
-  const w = await createWorld({ dice });
+  // The AI seat rules the check's DC (spec 104): script spare rulings.
+  const ask = {
+    purpose: "dm.adjudicate",
+    respond: {
+      type: "json",
+      value: { decision: "accept", difficulty: "easy" },
+    },
+  };
+  const w = await createWorld({ dice, calls: [ask, ask, ask] });
   const start = await w.runResolve({
     job: {
       trigger: "scene-start",
@@ -120,20 +129,19 @@ async function declare(w: World, actionId: string, text: string) {
   if (!c.ok) throw new Error(`commit: ${c.refusal.code}`);
 }
 
-const moveStep = {
-  step: "move",
-  reason: "Kestrel runs for Pell",
-  combatantId: "kestrel",
-  leavesReachOf: ["goblin-2"],
-};
-const freeStep = checkStep({
-  reason: "Kestrel cuts Pell's bonds",
-  combatantId: "kestrel",
-  ability: "dex",
-  skill: "sleight-of-hand",
-  expression: "1d20+4",
-  dc: 10,
+const moveStage = stage({
+  kind: "move",
+  targets: [{ kind: "zone", id: "camp-post" }],
 });
+const freeStage = stage(
+  {
+    kind: "check",
+    params: { skill: "sleight-of-hand", difficulty: "easy" },
+    text: "Kestrel cuts Pell's bonds",
+  },
+  checkBeside(),
+);
+const runReading = () => stages("act-run", [moveStage, freeStage]);
 const TEXT = "I run to Pell and attempt to free him.";
 /** Kestrel (seed index 2) wins initiative. */
 const INIT = [1, 1, 20, 1, 1, 1, 1];
@@ -141,9 +149,9 @@ const INIT = [1, 1, 20, 1, 1, 1, 1];
 describe.skipIf(!reachable)("opportunity attack (database)", () => {
   it("replays run 1 seq 151-161: goblin-2 reacts on its own side, then Kestrel's check runs", async () => {
     // initiative x7, reaction d20 19 (+4 = 23 vs AC), 1d6 = 2 (+2 = 4), check d20.
-    const w = await inFight([...INIT, 19, 2, 15]);
+    const w = await inFight([...INIT, 19, 2, 2, 2, 2, 2, 2, 2, 2]);
     await declare(w, "act-run", TEXT);
-    await run(w, [reading("act-run", [moveStep, freeStep])]);
+    await run(w, [runReading()]);
     const rows = await readRows(w);
     const at = rows.findIndex(
       (r) => r.type === "attack.resolved" && ev(r).reaction === true,
@@ -176,51 +184,21 @@ describe.skipIf(!reachable)("opportunity attack (database)", () => {
     expect(resolved?.payload).toMatchObject({ outcome: "applied" });
   });
 
-  it("a second move before goblin-2's turn writes no second attack row", async () => {
-    const w = await inFight([...INIT, 19, 2, 15]);
+  it("a second move before goblin-2's turn writes no second reaction from the same attacker", async () => {
+    const w = await inFight([...INIT, 19, 2, 2, 2, 2, 2, 2, 2, 2]);
     await declare(w, "act-run", TEXT);
-    await run(w, [reading("act-run", [moveStep, moveStep, freeStep])]);
-    const rows = await readRows(w);
-    expect(
-      rows.filter((r) => r.type === "attack.resolved" && ev(r).reaction),
-    ).toHaveLength(1);
-    expect(rows.filter((r) => r.type === "check.resolved")).toHaveLength(1);
-  });
-
-  it("refuses run 1's original plan (goblin-2's attack inside Kestrel's action)", async () => {
-    const w = await inFight([...INIT, 19, 2]);
-    await declare(w, "act-run", TEXT);
-    const out = await run(w, [
-      reading("act-run", [
-        {
-          step: "attack",
-          reason: "Goblin-2's scimitar catches Kestrel",
-          attackerId: "goblin-2",
-          targetId: "kestrel",
-          expression: "1d20+4",
-          mode: "normal",
-          targetAc: 14,
-          onHit: [],
-        },
-      ]),
-    ]);
-    expect(out.planGate?.[0]).toMatchObject({
-      ok: false,
-      code: "STEP_ACTOR_MISMATCH",
-      failure: { field: "attackerId", id: "goblin-2", reason: "not-the-actor" },
-    });
-    const rows = await readRows(w);
-    expect(rows.some((r) => r.type === "attack.resolved")).toBe(false);
-    expect(out.actionResults[0]).toMatchObject({
-      outcome: "refused",
-      refusalCode: "STEP_ACTOR_MISMATCH",
-    });
+    await run(w, [stages("act-run", [moveStage, moveStage, freeStage])]);
+    const reactors = (await readRows(w))
+      .filter((r) => r.type === "attack.resolved" && ev(r).reaction)
+      .map((r) => ev(r).attackerId);
+    expect(reactors).toContain("goblin-2");
+    expect(new Set(reactors).size).toBe(reactors.length);
   });
 
   it("the turn reaching goblin-2 resets its Reaction", async () => {
-    const w = await inFight([...INIT, 19, 2, 15]);
+    const w = await inFight([...INIT, 19, 2, 2, 2, 2, 2, 2, 2, 2]);
     await declare(w, "act-run", TEXT);
-    await run(w, [reading("act-run", [moveStep, freeStep])]);
+    await run(w, [runReading()]);
     const resets = async () =>
       (await readRows(w)).filter(
         (r) =>

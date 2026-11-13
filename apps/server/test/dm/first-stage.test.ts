@@ -3,111 +3,63 @@ import {
   CLARIFY_HELD,
   clarifyHolds,
   cutPlans,
-  firstStage,
+  firstStages,
   holdDirector,
 } from "../../src/dm/first-stage.js";
 import type { BeatItem } from "../../src/dm/nodes/assemble.js";
 import type { DirectorNodeOutput } from "../../src/dm/nodes/director.js";
 import type {
-  LegacyInterpretReading as InterpretReading,
-  Step,
+  InterpretReading,
+  InterpretStage,
 } from "../../src/dm/nodes/schemas.js";
+import { stage, stages } from "./world.js";
 
-function check(
-  reason: string,
-  skill: "stealth" | "persuasion" | null = "stealth",
-  ability: "dex" | "cha" = "dex",
-): Step {
-  return {
-    step: "check",
-    reason,
-    combatantId: null,
-    kind: "ability-check",
-    ability,
-    skill,
-    difficulty: "medium",
-    circumstance: null,
-    autoFail: null,
-    onSuccess: [],
-    onFailure: [],
-    stakes: {
-      success: "The attempt works as intended.",
-      cost: "It works, at a small price.",
-      failure: "The attempt comes to nothing.",
-      severe: "It goes badly wrong.",
-    },
-    onCost: [],
-    onSevere: [],
-    newRisk: null,
-  } as unknown as Step;
-}
-const attack = (reason: string): Step =>
-  ({
-    step: "attack",
-    reason,
-    attackerId: "tamsin",
-    targetId: "snag",
-    attack: "Longsword",
-    circumstance: null,
-    onHit: [
-      { effect: "heal", targetId: "snag", amount: { kind: "flat", value: 1 } },
-    ],
-  }) as unknown as Step;
-
-function reading(
+const check = (text: string, skill = "stealth") =>
+  stage({
+    kind: "check",
+    params: { skill },
+    text,
+  }) as unknown as InterpretStage;
+const attack = (text: string) =>
+  stage({ kind: "attack", text }) as unknown as InterpretStage;
+const reading = (
   actionId: string | null,
-  steps: Step[],
+  list: InterpretStage[],
   followUps: string[] = [],
-): InterpretReading {
-  return {
-    actionId,
-    intent: "other",
-    uncertain: false,
-    needsAdjudication: false,
-    rulesQuestion: null,
-    clarify: null,
-    steps,
-    followUps,
-  };
-}
+) => stages(actionId, list, { followUps }) as unknown as InterpretReading;
 
 const plan = [
   check("kestrel sneaks"),
   check("odo sneaks"),
-  check("tamsin hails the camp", "persuasion", "cha"),
+  check("tamsin hails the camp", "persuasion"),
   attack("kestrel attacks snag"),
 ];
+const texts = (l: InterpretStage[]) => l.map((s) => s.intent.text);
 
-describe("firstStage", () => {
-  it("keeps a same-skill check run whole and cuts the rest", () => {
-    const { kept, cut } = firstStage(plan);
+describe("firstStages", () => {
+  it("keeps a same-kind run whole and cuts the rest", () => {
+    const { kept, cut } = firstStages(plan.slice(0, 2).concat(plan.slice(3)));
     expect(kept).toHaveLength(2);
-    expect(cut.map((s) => s.reason)).toEqual([
-      "tamsin hails the camp",
-      "kestrel attacks snag",
-    ]);
+    expect(texts(cut)).toEqual(["kestrel attacks snag"]);
   });
   it("cuts a different-skill second check", () => {
-    const { kept, cut } = firstStage([
-      check("a"),
-      check("b", "persuasion", "cha"),
-    ]);
+    const { kept, cut } = firstStages([check("a"), check("b", "persuasion")]);
     expect(kept).toHaveLength(1);
     expect(cut).toHaveLength(1);
   });
-  it("cuts nothing without a check", () => {
-    const steps = [attack("x"), attack("y")];
-    expect(firstStage(steps)).toEqual({ kept: steps, cut: [] });
+  it("cuts nothing without a roll-bearing stage", () => {
+    const list = [stage({ kind: "move" }), stage({ kind: "move" })] as never;
+    expect(firstStages(list)).toEqual({ kept: list, cut: [] });
   });
 });
 
 describe("cutPlans", () => {
-  it("cuts in free mode and writes reasons as follow-ups", () => {
+  it("cuts in free mode and writes the cut stages as follow-ups", () => {
     const out = cutPlans({
       mode: "free",
       readings: [reading("act-1", plan)],
     });
-    expect((out.readings[0] as InterpretReading).steps).toHaveLength(2);
+    expect((out.readings[0] as InterpretReading).stages).toHaveLength(2);
     expect(out.readings[0]?.followUps).toEqual([
       "tamsin hails the camp",
       "kestrel attacks snag",
@@ -125,7 +77,7 @@ describe("cutPlans", () => {
       mode: "free",
       readings: [reading(null, plan)],
     });
-    expect((out.readings[0] as InterpretReading).steps).toHaveLength(4);
+    expect((out.readings[0] as InterpretReading).stages).toHaveLength(4);
   });
   it("keeps model follow-ups, merges, dedupes and caps at six", () => {
     const out = cutPlans({

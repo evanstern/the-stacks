@@ -28,13 +28,13 @@ Operator ruling 2026-11-12: keep gathering for now. Removing it left the party o
 
 ## Phase 4: Step paths in resolve and the plan gate (AC #1)
 
-- [ ] T014 In `resolve.ts`, delete `runSteps` (all cases, `effect` included), `hitDamage`, `pullIn` and `pullBatchIds` per plan D4.
-- [ ] T015 Make `resolveAction` and the NPC group run only `runStages`. Delete `actionGroup`'s steps branch, the `stepActors` use and the `Intent:` rationale branch.
-- [ ] T016 Delete the Step loop and `rulings` param of `presenceTargets`. Drop the `steps` param of `splitArrivals`.
-- [ ] T017 Delete `dm/reactions.ts` and `test/dm/reactions.test.ts`.
-- [ ] T018 In `plan-gate.ts`, cut `checkPlan` to the `TURN_HELD` branch per plan D4. Delete the D8 symbols and the unused `PlanInput` fields. Cut `askUndeclared` to the Intent branch.
-- [ ] T019 In `first-stage.ts`, delete `firstStage` and the steps and ruling branches. In `stakes.ts`, retype `isFreeRetry` with `FreeRetryCheck`. In `facts.ts`, delete the `pullBatchIds` read.
-- [ ] T020 Migrate the tests per plan D6: `plan-gate.test.ts`, `resolve.integration.test.ts`, `opportunity-attack.integration.test.ts`, `first-stage.test.ts`, `reveal-waits.test.ts` and the rest typecheck flags. Append ported cases to the card notes.
+- [x] T014 In `resolve.ts`, delete `runSteps` (all cases, `effect` included), `hitDamage`, `pullIn` and `pullBatchIds` per plan D4.
+- [x] T015 Make `resolveAction` and the NPC group run only `runStages`. Delete `actionGroup`'s steps branch, the `stepActors` use and the `Intent:` rationale branch.
+- [x] T016 Delete the Step loop and `rulings` param of `presenceTargets`. Drop the `steps` param of `splitArrivals`.
+- [x] T017 Delete `dm/reactions.ts` and `test/dm/reactions.test.ts`.
+- [x] T018 In `plan-gate.ts`, cut `checkPlan` to the `TURN_HELD` branch per plan D4. Delete the D8 symbols and the unused `PlanInput` fields. Cut `askUndeclared` to the Intent branch.
+- [x] T019 In `first-stage.ts`, delete `firstStage` and the steps and ruling branches. In `stakes.ts`, retype `isFreeRetry` with `FreeRetryCheck`. In `facts.ts`, delete the `pullBatchIds` read.
+- [x] T020 Migrate the tests per plan D6: `plan-gate.test.ts`, `resolve.integration.test.ts`, `opportunity-attack.integration.test.ts`, `first-stage.test.ts`, `reveal-waits.test.ts` and the rest typecheck flags. Append ported cases to the card notes.
 
 ## Phase 5: Schemas and old checkpoints (AC #3)
 

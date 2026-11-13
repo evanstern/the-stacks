@@ -5,7 +5,6 @@ import {
   type AnyInterpretReading,
   hasStages,
   type InterpretStage,
-  type Step,
 } from "./nodes/schemas.js";
 
 /**
@@ -15,26 +14,6 @@ import {
  */
 
 const MAX_FOLLOW_UPS = 6;
-type Check = Extract<Step, { step: "check" }>;
-
-const sameCheck = (a: Check, b: Step): boolean =>
-  b.step === "check" &&
-  a.kind === b.kind &&
-  a.ability === b.ability &&
-  a.skill === b.skill;
-
-/** Keeps steps up to the end of the first run of like checks. No check cuts nothing. */
-export function firstStage(steps: readonly Step[]): {
-  kept: Step[];
-  cut: Step[];
-} {
-  const first = steps.findIndex((s) => s.step === "check");
-  if (first < 0) return { kept: [...steps], cut: [] };
-  const head = steps[first] as Check;
-  let end = first + 1;
-  while (end < steps.length && sameCheck(head, steps[end] as Step)) end += 1;
-  return { kept: steps.slice(0, end), cut: steps.slice(end) };
-}
 
 /**
  * Spec 104 FR-011: a stage rolls when its kind is planned and mutates through the engine's dice:
@@ -88,22 +67,12 @@ export function cutPlans(input: {
   return {
     readings: readings.map((r) => {
       if (r.actionId === null) return r;
-      if (hasStages(r)) {
-        const { kept, cut } = firstStages(r.stages);
-        return {
-          ...r,
-          stages: kept,
-          followUps: merge(r.followUps, cut.map(stageLine)),
-        };
-      }
-      const { kept, cut } = firstStage(r.steps);
+      if (!hasStages(r)) return r;
+      const { kept, cut } = firstStages(r.stages);
       return {
         ...r,
-        steps: kept,
-        followUps: merge(
-          r.followUps,
-          cut.map((s) => s.reason),
-        ),
+        stages: kept,
+        followUps: merge(r.followUps, cut.map(stageLine)),
       };
     }),
   };

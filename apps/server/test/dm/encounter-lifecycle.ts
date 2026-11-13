@@ -29,13 +29,21 @@ export const fresh = (w: World) => {
   };
 };
 
+/** One scripted AI-seat ruling: a deed with no roll is accepted (spec 104). */
+export const acceptDeed = {
+  purpose: "dm.adjudicate",
+  respond: {
+    type: "json",
+    value: { decision: "accept", reason: "It happens." },
+  },
+};
 export const turnInto = (id = "reed-camp") => ({
   tableMode: { to: "turn" as const, encounterId: id, reason: "Fight." },
 });
 
 /** Scene started, then turn mode in reed-camp. */
-export async function inTurnMode(dice: number[]) {
-  const w = await createWorld({ dice });
+export async function inTurnMode(dice: number[], calls: unknown[] = []) {
+  const w = await createWorld({ dice, calls });
   await startScene(w);
   await run(w, { director: turnInto(), job: nextJob() });
   fresh(w);

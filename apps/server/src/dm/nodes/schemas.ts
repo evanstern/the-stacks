@@ -19,7 +19,6 @@ import {
   ReasonSchema,
   RefIdSchema,
 } from "@the-stacks/session-model";
-import { SrdKind } from "@the-stacks/srd";
 import { z } from "zod";
 
 /**

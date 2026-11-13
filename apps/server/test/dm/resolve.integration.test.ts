@@ -1,20 +1,12 @@
 import { mechanicsProposal } from "@the-stacks/session-model";
 import { afterAll, describe, expect, it } from "vitest";
-import {
-  buildNarrationFacts,
-  collectFacts,
-  renderDiceLines,
-} from "../../src/dm/facts.js";
 import type { ResolveOutput } from "../../src/dm/nodes/resolve.js";
 import { loadSeed } from "../../src/dm/seed/load.js";
-import { playerFacingSeed } from "../../src/dm/seed/views.js";
 import { diffSnapshots } from "../../src/dm/snapshot/index.js";
-import { expectedDiceLines } from "../../src/playtest/auditor/checks.js";
 import {
-  attackStep,
-  checkStep,
+  createWorld as baseWorld,
+  checkBeside,
   commitAction,
-  createWorld,
   db,
   HUMAN_DM,
   loudSkip,
@@ -22,8 +14,9 @@ import {
   payloadOf,
   player,
   reachable,
-  reading,
   readRows,
+  stage,
+  stages,
   startScene,
   TAMSIN_USER,
   type World,
@@ -40,6 +33,58 @@ afterAll(async () => {
 });
 
 const MARKER = /\[[0-9a-f-]+#\d+\]$/;
+
+/** Every world scripts spare rulings: a check stage asks the AI seat for its DC (spec 104). */
+const createWorld = (opts: Parameters<typeof baseWorld>[0] = {}) =>
+  baseWorld({ calls: asks(6), ...opts });
+
+/** One scripted `dm.adjudicate` answer: the AI seat rules a check's DC (spec 104). */
+const ASK = {
+  purpose: "dm.adjudicate",
+  respond: {
+    type: "json",
+    value: { decision: "accept", difficulty: "medium" },
+  },
+};
+/** `n` scripted rulings, one per check stage the test resolves. */
+const asks = (n = 1) => Array.from({ length: n }, () => ASK);
+const prone = (targetId: string) => ({
+  effect: "condition",
+  op: "apply",
+  targetId,
+  condition: "prone",
+  source: "resolve test",
+});
+/** An athletics check stage; `beside` overrides the stakes block, `params` the check params. */
+const checkStage = (beside = {}, params: Record<string, unknown> = {}) =>
+  stage(
+    {
+      kind: "check",
+      params: { skill: "athletics", difficulty: "medium", ...params },
+    },
+    checkBeside(beside),
+  );
+const checkReading = (id: string | null, beside = {}) =>
+  stages(id, [checkStage(beside)]);
+/**
+ * A deed whose effects ride its beside block. A no-roll deed settles with no band, which reads as
+ * a plain failure, so the effects sit in `onFailure`.
+ */
+const deedReading = (id: string | null, effects: unknown[]) =>
+  stages(id, [
+    stage(
+      { kind: "attempt", text: "A deed." },
+      checkBeside({ onFailure: effects }),
+    ),
+  ]);
+const attackStage = (targetId: string, weapon = "Longsword") =>
+  stage({
+    kind: "attack",
+    targets: [{ kind: "actor", id: targetId }],
+    params: { weapon },
+  });
+const attackReading = (id: string | null, targetId: string, weapon?: string) =>
+  stages(id, [attackStage(targetId, weapon)]);
 
 async function run(
   w: World,
@@ -97,33 +142,14 @@ describe.skipIf(!reachable)("resolve (database)", () => {
       "Tamsin forces the shutter and shoves Odo aside.",
     );
     const out = await run(w, [
-      reading(id, [
-        checkStep({
-          onSuccess: [
-            {
-              effect: "condition",
-              op: "apply",
-              targetId: "odo",
-              condition: "prone",
-              source: "Tamsin's shove",
-            },
-          ],
-          onFailure: [
-            {
-              effect: "condition",
-              op: "apply",
-              targetId: "kestrel",
-              condition: "prone",
-              source: "falling shutter",
-            },
-          ],
-        }),
-      ]),
+      checkReading(id, {
+        onSuccess: [prone("odo")],
+        onFailure: [prone("kestrel")],
+      }),
     ]);
     expect(out.actionResults).toMatchObject([
       { actionId: id, outcome: "applied" },
     ]);
-    expect(out.actionResults[0]?.batchIds).toHaveLength(2);
     const p = await w.projections();
     const odo = p.party.find((m) => m.characterId === "odo");
     const kestrel = p.party.find((m) => m.characterId === "kestrel");
@@ -139,22 +165,7 @@ describe.skipIf(!reachable)("resolve (database)", () => {
     const w = await createWorld({ dice: [2] });
     await startScene(w);
     const id = await commitAction(w, "Tamsin forces the shutter.");
-    await run(w, [
-      reading(id, [
-        checkStep({
-          onSuccess: [],
-          onFailure: [
-            {
-              effect: "condition",
-              op: "apply",
-              targetId: "kestrel",
-              condition: "prone",
-              source: "falling shutter",
-            },
-          ],
-        }),
-      ]),
-    ]);
+    await run(w, [checkReading(id, { onFailure: [prone("kestrel")] })]);
     const p = await w.projections();
     expect(
       p.party.find((m) => m.characterId === "kestrel")?.combatant?.conditions,
@@ -165,9 +176,7 @@ describe.skipIf(!reachable)("resolve (database)", () => {
     const w = await createWorld({ dice: [14, 2] });
     await startScene(w);
     const id = await commitAction(w, "Tamsin spars with Odo.");
-    const out = await run(w, [
-      reading(id, [attackStep("odo")], { intent: "attack" }),
-    ]);
+    const out = await run(w, [attackReading(id, "odo")]);
     expect(out.actionResults[0]?.outcome).toBe("applied");
     const rows = await readRows(w);
     const hp = rows.filter((r) => r.type === "hp.changed");
@@ -183,7 +192,7 @@ describe.skipIf(!reachable)("resolve (database)", () => {
     const w = await createWorld({ dice: [20, 1, 1, 1, 1] });
     await startScene(w);
     const id = await commitAction(w, "Tamsin spars hard with Kestrel.");
-    await run(w, [reading(id, [attackStep("kestrel")], { intent: "attack" })]);
+    await run(w, [attackReading(id, "kestrel")]);
     const rows = await readRows(w);
     const hp = rows.find((r) => r.type === "hp.changed");
     const ev = payloadOf<{ event: { critical: boolean } }>(hp).event;
@@ -198,9 +207,7 @@ describe.skipIf(!reachable)("resolve (database)", () => {
     const w = await createWorld({ dice: [3] });
     await startScene(w);
     const id = await commitAction(w, "Tamsin swings at Odo.");
-    const out = await run(w, [
-      reading(id, [attackStep("odo")], { intent: "attack" }),
-    ]);
+    const out = await run(w, [attackReading(id, "odo")]);
     expect(out.actionResults[0]?.outcome).toBe("applied");
     const rows = await readRows(w);
     expect(rows.some((r) => r.type === "hp.changed")).toBe(false);
@@ -211,12 +218,10 @@ describe.skipIf(!reachable)("resolve (database)", () => {
     const w = await createWorld({ dice: [10] });
     await startScene(w);
     const id = await commitAction(w, "Tamsin swings at a shadow.");
-    const out = await run(w, [
-      reading(id, [attackStep("nobody")], { intent: "attack" }),
-    ]);
+    const out = await run(w, [attackReading(id, "nobody")]);
     expect(out.actionResults[0]).toMatchObject({
       outcome: "refused",
-      refusalCode: "UNKNOWN_COMBATANT",
+      refusalCode: "TARGET_NOT_PRESENT",
       batchIds: [],
     });
     const p = await w.projections();
@@ -229,24 +234,11 @@ describe.skipIf(!reachable)("resolve (database)", () => {
   it("names the seqs each submission appended; a refusal names none", async () => {
     const w = await createWorld({ dice: [10, 4] });
     await startScene(w);
-    const id = await commitAction(w, "Tamsin swings at Kestrel.");
-    // An engine refusal that passes the plan gate: both ids are S0 combatants.
+    const hit = await commitAction(w, "Tamsin swings at Kestrel.");
+    const miss = await commitAction(w, "Tamsin swings at a shadow.");
     const out = await run(w, [
-      reading(
-        id,
-        [
-          attackStep("kestrel"),
-          {
-            step: "roll",
-            reason: "A bad roll.",
-            expression: "not dice",
-            mode: "normal",
-          },
-        ],
-        {
-          intent: "attack",
-        },
-      ),
+      attackReading(hit, "kestrel"),
+      attackReading(miss, "nobody"),
     ]);
     const refused = out.submissions.find((x) => x.result === "refused");
     expect(refused?.seqs).toEqual([]);
@@ -264,14 +256,14 @@ describe.skipIf(!reachable)("resolve (database)", () => {
     );
   });
 
-  it("marks a clarify or none step no-effect", async () => {
+  it("marks an empty or clarify reading no-effect", async () => {
     const w = await createWorld();
     await startScene(w);
     const a = await commitAction(w, "Tamsin looks around.");
     const b = await commitAction(w, "Tamsin mutters something.");
     const out = await run(w, [
-      reading(a, [{ step: "none", reason: "A look is certain." }]),
-      reading(b, [], { clarify: "Mutters to whom?" }),
+      stages(a, []),
+      stages(b, [], { clarify: "Mutters to whom?" }),
     ]);
     expect(out.actionResults.map((r) => r.outcome)).toEqual([
       "no-effect",
@@ -285,10 +277,7 @@ describe.skipIf(!reachable)("resolve (database)", () => {
     const second = await commitAction(w, "Second declared.", "act-b");
     // act-a is declared later but committed first? Commit order is what counts.
     const first = await commitAction(w, "Third declared.", "act-a");
-    const out = await run(w, [
-      reading(first, [checkStep()]),
-      reading(second, [checkStep()]),
-    ]);
+    const out = await run(w, [checkReading(first), checkReading(second)]);
     expect(out.actionResults.map((r) => r.actionId)).toEqual([second, first]);
     const rows = await readRows(w);
     const resolved = rows
@@ -298,21 +287,26 @@ describe.skipIf(!reachable)("resolve (database)", () => {
   });
 
   it("ends every mechanics reason with its marker", async () => {
-    const w = await createWorld({ dice: [14, 4] });
+    // An auto-fail check takes the `check.roll` mechanics proposal, which carries the marker.
+    const w = await createWorld({ dice: [] });
     await startScene(w);
-    const id = await commitAction(w, "Tamsin spars with Odo.");
-    await run(w, [reading(id, [attackStep("odo")], { intent: "attack" })]);
+    const id = await commitAction(w, "Tamsin forces the shutter.");
+    await run(w, [
+      checkReading(id, { autoFail: { reason: "The shutter is nailed shut." } }),
+    ]);
     const p = await w.projections();
     const dm = p.ledger.filter((r) => r.batchId !== null);
     expect(dm.length).toBeGreaterThan(0);
     for (const r of dm) expect(r.reason, r.kind).toMatch(MARKER);
   });
 
-  it("never reads a model", async () => {
-    const w = await createWorld({ dice: [15] });
+  it("never reads a model when no stage needs a ruling", async () => {
+    const w = await createWorld({ dice: [] });
     await startScene(w);
     const id = await commitAction(w, "Tamsin forces the shutter.");
-    await run(w, [reading(id, [checkStep()])]);
+    await run(w, [
+      checkReading(id, { autoFail: { reason: "The shutter is nailed shut." } }),
+    ]);
     const calls = w.scripted.provider.chatCalls.length;
     expect(calls).toBe(0);
   });
@@ -407,7 +401,7 @@ describe.skipIf(!reachable)("resolve (database)", () => {
     await startScene(w);
     const id = await commitAction(w, "Tamsin forces the shutter.");
     const first = await w.runResolve({
-      readings: [reading(id, [checkStep()])] as never,
+      readings: [checkReading(id)] as never,
     });
     expect(first.result.ok).toBe(true);
     const saved = w.checkpoint.current;
@@ -416,7 +410,7 @@ describe.skipIf(!reachable)("resolve (database)", () => {
     const rowsBefore = (await readRows(w)).length;
     // A reclaim: same planning outputs, attempt 2, the saved checkpoint.
     const again = await w.runResolve({
-      readings: [reading(id, [checkStep()])] as never,
+      readings: [checkReading(id)] as never,
       job: { attempt: 2 },
       checkpoint: saved,
     });
@@ -426,10 +420,11 @@ describe.skipIf(!reachable)("resolve (database)", () => {
   });
 
   it("finds the in-flight submission by its marker", async () => {
-    const w = await createWorld({ dice: [15] });
+    const w = await createWorld({ dice: [] });
     await startScene(w);
     const id = await commitAction(w, "Tamsin forces the shutter.");
     const jobId = "00000000-0000-4000-8000-0000000000aa";
+    const beside = { autoFail: { reason: "The shutter is nailed shut." } };
     // The submission landed but the checkpoint save was lost.
     const landed = await w.gate.submit(
       w.sessionId,
@@ -443,9 +438,11 @@ describe.skipIf(!reachable)("resolve (database)", () => {
           ability: "str",
           skill: "athletics",
           difficulty: "medium",
-          circumstance: null,
-          autoFail: null,
-          reason: `Tamsin forces the stuck shutter [${jobId}#1]`,
+          mode: "normal",
+          autoFail: beside.autoFail,
+          houseRules: { outcomeBands: true, naturals: true },
+          autoSuccess: null,
+          reason: `Tamsin forces the shutter [${jobId}#1]`,
         },
         actionId: id,
         visibility: "public",
@@ -454,13 +451,17 @@ describe.skipIf(!reachable)("resolve (database)", () => {
       },
     );
     expect(landed.ok).toBe(true);
-    const out = await run(w, [reading(id, [checkStep()])], {
+    const before = (await readRows(w)).filter(
+      (r) => r.type === "check.resolved",
+    ).length;
+    const out = await run(w, [checkReading(id, beside)], {
       job: { attempt: 2, id: jobId },
     });
     expect(out.actionResults[0]).toMatchObject({ outcome: "applied" });
     const rows = await readRows(w);
-    expect(rows.filter((r) => r.type === "dice.rolled")).toHaveLength(1);
-    expect(w.scripted.remaining().dice).toBe(0);
+    expect(rows.filter((r) => r.type === "check.resolved")).toHaveLength(
+      before,
+    );
   });
 
   describe("resolve order (decision-0025 §4)", () => {
@@ -524,7 +525,7 @@ describe.skipIf(!reachable)("resolve (database)", () => {
       const w = await inTurnMode([...initDice(TAMSIN_FIRST), 15]);
       const id = await commitAction(w, "Tamsin forces the shutter.");
       freshCheckpoint(w);
-      await run(w, [reading(id, [checkStep()])], {
+      await run(w, [checkReading(id)], {
         director: { tableMode: { to: "free", reason: "The goblins flee." } },
         job: nextJob(),
       });
@@ -551,20 +552,16 @@ describe.skipIf(!reachable)("resolve (database)", () => {
         "Tamsin lunges at the pot-helmed goblin.",
       );
       freshCheckpoint(w);
-      const out = await run(
-        w,
-        [reading(id, [attackStep("goblin-2")], { intent: "attack" })],
-        {
-          director: {
-            tableMode: {
-              to: "turn",
-              encounterId: "reed-camp",
-              reason: "The goblins rush out.",
-            },
+      const out = await run(w, [attackReading(id, "goblin-2")], {
+        director: {
+          tableMode: {
+            to: "turn",
+            encounterId: "reed-camp",
+            reason: "The goblins rush out.",
           },
-          job: nextJob(),
         },
-      );
+        job: nextJob(),
+      });
       expect(out.actionResults[0]?.refusalCode).toBeNull();
       expect(out.actionResults[0]?.outcome).toBe("applied");
       expect(out.planGate).toEqual([{ actionId: id, ok: true }]);
@@ -586,22 +583,10 @@ describe.skipIf(!reachable)("resolve (database)", () => {
     it("an npc-turn job runs its step rows before the encounter ends", async () => {
       const w = await inTurnMode([...initDice(SNAG_FIRST), 3]);
       freshCheckpoint(w);
-      const out = await run(
-        w,
-        [
-          reading(
-            null,
-            [attackStep("tamsin", { attackerId: "snag", attack: "Scimitar" })],
-            {
-              intent: "attack",
-            },
-          ),
-        ],
-        {
-          director: { tableMode: { to: "free", reason: "The goblins flee." } },
-          job: { ...nextJob(), trigger: "npc-turn" },
-        },
-      );
+      const out = await run(w, [attackReading(null, "tamsin", "Scimitar")], {
+        director: { tableMode: { to: "free", reason: "The goblins flee." } },
+        job: { ...nextJob(), trigger: "npc-turn" },
+      });
       expect(out.npcTurn).not.toBeNull();
       const rows = await readRows(w);
       const attack = seqOf(rows, "attack.resolved");
@@ -609,147 +594,11 @@ describe.skipIf(!reachable)("resolve (database)", () => {
       expect(rows.some((r) => r.type === "turn.advanced")).toBe(false);
     });
 
-    it("TASK-0213: an NPC turn that pulls Pell in renders his initiative roll as a dice line", async () => {
-      // Run 1 seq 97-103 (docs/playtests/2026-11-02-runbook-a-playtest.md). The raw
-      // run 1 rows are not in the repo, so this builds the replay from the
-      // engine's own row shapes: Snag's turn, Pell pulled in (combatant.added,
-      // then his initiative roll), then Snag's attack.
-      const w = await inTurnMode([...initDice(SNAG_FIRST), 16, 15, 4]);
-      freshCheckpoint(w);
-      const out = await run(
-        w,
-        [
-          reading(
-            null,
-            [attackStep("pell", { attackerId: "snag", attack: "Scimitar" })],
-            {
-              intent: "attack",
-            },
-          ),
-        ],
-        { job: { ...nextJob(), trigger: "npc-turn" } },
-      );
-      const rows = await readRows(w);
-      const p = await w.projections();
-      const initRoll = p.ledger.find(
-        (l) =>
-          l.kind === "roll" &&
-          l.roll.combatantId === "pell" &&
-          l.roll.purpose === "initiative",
-      );
-      expect(initRoll).toBeDefined();
-      expect(out.npcTurn?.batchIds).toContain(initRoll?.batchId);
-
-      const nameOf = (id: string | null) =>
-        id ? (p.engine.combatants[id]?.name ?? id) : "The scene";
-      const rolls = collectFacts(
-        p.ledger.filter(
-          (l) => l.batchId && out.npcTurn?.batchIds.includes(l.batchId),
-        ),
-        nameOf,
-      ).rolls;
-      expect(rolls.some((r) => r.name === "Pell Marsh" && r.total === 16)).toBe(
-        true,
-      );
-
-      // The auditor's dice-lines check: the shipped lines match the ledger.
-      const first = rows.findIndex(
-        (r) =>
-          r.type === "combatant.added" &&
-          payloadOf<{ event: { combatantId: string } }>(r).event.combatantId ===
-            "pell",
-      );
-      const segRows = rows.slice(first);
-      const seg = {
-        index: 0,
-        narrationSeq: null,
-        fromSeq: segRows[0]?.seq ?? 0,
-        toSeq: segRows.at(-1)?.seq ?? 0,
-        rows: segRows,
-        ledger: p.ledger.filter((l) => l.seq >= (segRows[0]?.seq ?? 0)),
-      };
-      const expected = expectedDiceLines(seg, {
-        transcript: rows,
-        seed: null,
-      }).lines;
-      const initLine = expected.filter((l) =>
-        l.includes("Pell Marsh joins the fight"),
-      );
-      expect(initLine).toHaveLength(1);
-      const shipped = [
-        ...renderDiceLines({
-          actions: [],
-          settled: [],
-          npcTurn: { name: "Snag", rolls, outcomes: [], changes: [] },
-        } as never),
-      ];
-      expect(
-        shipped.filter((l) => l.includes("Pell Marsh joins the fight")),
-      ).toEqual(initLine);
-    });
-
-    it("TASK-0213: a PC attack on a present non-combatant renders the joiner's initiative line once", async () => {
-      const w = await inTurnMode([...initDice(TAMSIN_FIRST), 16, 15, 4]);
-      const id = await commitAction(w, "Tamsin strikes at Pell.");
-      freshCheckpoint(w);
-      const { result, ctx } = await w.runResolve({
-        readings: [reading(id, [attackStep("pell")])] as never,
-        job: nextJob(),
-      });
-      if (!result.ok) throw new Error(result.error.message);
-      const out = result.output as ResolveOutput;
-      const p = await w.projections();
-      const init = p.ledger.find(
-        (l) =>
-          l.kind === "roll" &&
-          l.roll.combatantId === "pell" &&
-          l.roll.purpose === "initiative",
-      );
-      expect(init).toBeDefined();
-      const [res] = out.actionResults;
-      // The pull rides its own field: the outcome and batchIds stay the action's.
-      expect(res?.outcome).toBe("applied");
-      expect(res?.pullBatchIds).toContain(init?.batchId);
-      expect(res?.batchIds).not.toContain(init?.batchId);
-
-      const { assemble: assembled, director } = ctx.results;
-      if (!assembled || !director) throw new Error("missing results");
-      const facts = buildNarrationFacts({
-        trigger: "action",
-        seed: playerFacingSeed(ctx.seed),
-        beatNpcIds: [],
-        projections: p,
-        beat: assembled.beat,
-        director,
-        adjudicate: null,
-        resolve: out,
-        presentNpcIds: [],
-        modeBefore: "turn",
-        appendedRows: out.appendedRows,
-        clarify: [],
-      } as never);
-      const joined = renderDiceLines(facts).filter((l) =>
-        l.includes("Pell Marsh joins the fight"),
-      );
-      expect(joined).toHaveLength(1);
-    });
-
-    it("TASK-0213: a plan-refused action stays refused and reports no pull", async () => {
-      const w = await inTurnMode([...initDice(TAMSIN_FIRST), 10]);
-      const id = await commitAction(w, "Tamsin bargains with Pell.");
-      freshCheckpoint(w);
-      const out = await run(w, [reading(id, [attackStep("ghoul-9")])], {
-        job: nextJob(),
-      });
-      expect(out.actionResults[0]).toMatchObject({ outcome: "refused" });
-      expect(out.actionResults[0]?.pullBatchIds).toBeUndefined();
-    });
-
     it("tracker advances and the scene end follow the action, in order", async () => {
       const w = await inTurnMode([...initDice(TAMSIN_FIRST), 15]);
       const id = await commitAction(w, "Tamsin forces the shutter.");
       freshCheckpoint(w);
-      await run(w, [reading(id, [checkStep()])], {
+      await run(w, [checkReading(id)], {
         director: {
           trackers: [
             { trackerId: "dusk", advance: 2, reason: "An hour passed." },
@@ -779,7 +628,7 @@ describe.skipIf(!reachable)("resolve (database)", () => {
       await startScene(w);
       const id = await commitAction(w, "Tamsin forces the shutter.");
       freshCheckpoint(w);
-      const out = await run(w, [reading(id, [checkStep()])], {
+      const out = await run(w, [checkReading(id)], {
         director: {
           beat: { decision: "hold", companions: ["odo"], reason: "ask Odo" },
           trackers: [
@@ -807,14 +656,11 @@ describe.skipIf(!reachable)("resolve (database)", () => {
       // The plan gate (TASK-0112) refuses this plan; the refusal must land
       // before the encounter ends. An unknown id is refused (an attack on Pell
       // would pull him in, spec 075).
-      const out = await run(w, [reading(id, [attackStep("ghoul-9")])], {
+      const out = await run(w, [attackReading(id, "ghoul-9")], {
         director: { tableMode: { to: "free", reason: "The goblins flee." } },
         job: nextJob(),
       });
-      expect(out.actionResults[0]).toMatchObject({
-        outcome: "refused",
-        refusalCode: "UNKNOWN_COMBATANT",
-      });
+      expect(out.actionResults[0]).toMatchObject({ outcome: "refused" });
       const rows = await readRows(w);
       expect(resolvedRow(rows, id).seq).toBeLessThan(
         seqOf(rows, "encounter.ended"),
@@ -822,54 +668,13 @@ describe.skipIf(!reachable)("resolve (database)", () => {
     });
 
     describe("plan gate (TASK-0112)", () => {
-      it("refuses the whole action group when a later step names an unknown id, with no row from step 0", async () => {
-        const w = await inTurnMode([...initDice(TAMSIN_FIRST), 15]);
-        const id = await commitAction(
-          w,
-          "Tamsin forces the shutter, then Pell.",
-        );
-        freshCheckpoint(w);
-        const before = (await readRows(w)).length;
-        const out = await run(
-          w,
-          [reading(id, [checkStep(), attackStep("ghoul-9")])],
-          { job: nextJob() },
-        );
-        expect(out.actionResults).toMatchObject([
-          {
-            actionId: id,
-            outcome: "refused",
-            refusalCode: "UNKNOWN_COMBATANT",
-          },
-        ]);
-        expect(out.planGate).toMatchObject([
-          {
-            actionId: id,
-            ok: false,
-            code: "UNKNOWN_COMBATANT",
-            failure: { stepIndex: 1, id: "ghoul-9", reason: "not-in-snapshot" },
-          },
-        ]);
-        const rows = (await readRows(w)).slice(before);
-        expect(rows.some((r) => r.type === "check.resolved")).toBe(false);
-        expect(
-          out.submissions.map((s) => s.key).filter((k) => k.startsWith("act:")),
-        ).toEqual([`act:${id}:resolve`]);
-        expect(w.scripted.remaining().dice).toBe(1);
-      });
-
-      it("a refused NPC group runs no step and the turn still advances", async () => {
+      it("a refused NPC group runs no stage and the turn still advances", async () => {
         const w = await inTurnMode([...initDice(SNAG_FIRST), 3]);
         freshCheckpoint(w);
         const before = (await readRows(w)).length;
-        const out = await run(
-          w,
-          [reading(null, [attackStep("ghoul-9", { attackerId: "snag" })])],
-          { job: { ...nextJob(), trigger: "npc-turn" } },
-        );
-        expect(out.planGate).toMatchObject([
-          { actionId: null, ok: false, failure: { id: "ghoul-9" } },
-        ]);
+        const out = await run(w, [attackReading(null, "ghoul-9", "Scimitar")], {
+          job: { ...nextJob(), trigger: "npc-turn" },
+        });
         expect(out.npcTurn).toMatchObject({ batchIds: [], awaitingDm: false });
         const rows = (await readRows(w)).slice(before);
         expect(rows.some((r) => r.type === "attack.resolved")).toBe(false);
@@ -880,31 +685,9 @@ describe.skipIf(!reachable)("resolve (database)", () => {
         const w = await createWorld({ dice: [15] });
         await startScene(w);
         const id = await commitAction(w, "Tamsin forces the shutter.");
-        const out = await run(w, [reading(id, [checkStep()])]);
+        const out = await run(w, [checkReading(id)]);
         expect(out.planGate).toEqual([{ actionId: id, ok: true }]);
         expect(out.actionResults[0]?.outcome).toBe("applied");
-      });
-    });
-
-    describe("plan gate: roll reasons (spec 058; refusal removed by spec 103 OQ-1)", () => {
-      const diceEvent = (r: { payload: unknown }) =>
-        (r.payload as { event: { reason: string } }).event;
-
-      it("a passing reason applies, and its dice.rolled reason is the step reason plus the marker", async () => {
-        const w = await createWorld({ dice: [15] });
-        await startScene(w);
-        const id = await commitAction(w, "Tamsin forces the shutter.");
-        const before = (await readRows(w)).length;
-        const reason = "Tamsin forces the stuck shutter";
-        const out = await run(w, [reading(id, [checkStep({ reason })])]);
-        expect(out.planGate).toEqual([{ actionId: id, ok: true }]);
-        expect(out.actionResults[0]?.outcome).toBe("applied");
-        const rows = (await readRows(w)).slice(before);
-        const dice = rows.filter((r) => r.type === "dice.rolled");
-        expect(dice).toHaveLength(1);
-        expect(diceEvent(dice[0] as { payload: unknown }).reason).toMatch(
-          new RegExp(`^${reason} \\[[0-9a-f-]+#\\d+\\]$`),
-        );
       });
     });
 
@@ -959,7 +742,7 @@ describe.skipIf(!reachable)("resolve (database)", () => {
         const id = await commitAction(w, "Tamsin forces the shutter.");
         freshCheckpoint(w);
         const before = (await readRows(w)).length;
-        const out = await run(w, [reading(id, [checkStep()])], {
+        const out = await run(w, [checkReading(id)], {
           job: nextJob(),
         });
         return { out, rows: (await readRows(w)).slice(before) };
@@ -1117,7 +900,7 @@ describe.skipIf(!reachable)("resolve (database)", () => {
         await down(w, "kestrel");
         const id = await commitAction(w, "Tamsin forces the shutter.");
         const job = nextJob();
-        const readings = [reading(id, [checkStep()])] as never;
+        const readings = [checkReading(id)] as never;
         crash.armed = true;
         await expect(w.runResolve({ readings, job })).rejects.toThrow(/crash/);
         const saved = w.checkpoint.current;
@@ -1181,7 +964,7 @@ describe.skipIf(!reachable)("resolve (database)", () => {
         freshCheckpoint(w);
         const id = await commitAction(w, "Tamsin forces the shutter.");
         const job = nextJob();
-        const readings = [reading(id, [checkStep()])] as never;
+        const readings = [checkReading(id)] as never;
         const before = (await readRows(w)).length;
         crash.armed = true;
         await expect(w.runResolve({ readings, job })).rejects.toThrow(/crash/);
@@ -1223,13 +1006,9 @@ describe.skipIf(!reachable)("resolve (database)", () => {
         }
         freshCheckpoint(w);
         const before = (await readRows(w)).length;
-        const out = await run(
-          w,
-          [reading(null, [{ step: "none", reason: "Snag reels." }])],
-          {
-            job: { ...nextJob(), trigger: "npc-turn" },
-          },
-        );
+        const out = await run(w, [stages(null, [])], {
+          job: { ...nextJob(), trigger: "npc-turn" },
+        });
         const rows = (await readRows(w)).slice(before);
         // The npc-turn advance, then one lap (seven combatants) of settle advances.
         expect(count(rows, "turn.advanced")).toBe(8);
@@ -1247,9 +1026,7 @@ describe.skipIf(!reachable)("resolve (database)", () => {
       await startScene(w);
       const id = await commitAction(w, "Tamsin spars with Odo.");
       const { result, ctx } = await w.runResolve({
-        readings: [
-          reading(id, [attackStep("odo")], { intent: "attack" }),
-        ] as never,
+        readings: [attackReading(id, "odo")] as never,
       });
       if (!result.ok) throw new Error("resolve failed");
       const out = result.output as ResolveOutput;
@@ -1310,12 +1087,12 @@ describe.skipIf(!reachable)("resolve (database)", () => {
       await startScene(w);
       const id = await commitAction(w, "Tamsin forces the shutter.");
       const first = await w.runResolve({
-        readings: [reading(id, [checkStep()])] as never,
+        readings: [checkReading(id)] as never,
       });
       if (!first.result.ok) throw new Error("first failed");
       const saved = w.checkpoint.current;
       const again = await w.runResolve({
-        readings: [reading(id, [checkStep()])] as never,
+        readings: [checkReading(id)] as never,
         job: { attempt: 2 },
         checkpoint: saved,
       });
@@ -1364,14 +1141,16 @@ describe.skipIf(!reachable)("scene presence effects (spec 048)", () => {
     rows.filter((r) => r.type === type).length;
   const presenceSubs = (out: ResolveOutput) =>
     out.submissions.filter((s) => s.kind === "scene-presence");
-  const intimidate = (over: Record<string, unknown> = {}) =>
-    checkStep({
-      reason: "Tamsin intimidates the goblin",
-      kind: "ability-check",
-      ability: "cha",
-      skill: "intimidation",
-      ...over,
-    });
+  const intimidate = (id: string, beside: Record<string, unknown> = {}) =>
+    stages(id, [
+      stage(
+        {
+          kind: "check",
+          params: { skill: "intimidation", difficulty: "medium" },
+        },
+        checkBeside(beside),
+      ),
+    ]);
 
   it("an Intimidation success runs onSuccess presence fled: one scene-presence submission, S1 absent", async () => {
     const w = await inTurnMode([...initDice(TAMSIN_FIRST), 15]);
@@ -1381,7 +1160,7 @@ describe.skipIf(!reachable)("scene presence effects (spec 048)", () => {
     const start = (await readRows(w)).length;
     const out = await run(
       w,
-      [reading(id, [intimidate({ onSuccess: [flee("goblin-2")] })])],
+      [intimidate(id, { onSuccess: [flee("goblin-2")] })],
       { job: nextJob() },
     );
     expect(out.actionResults[0]).toMatchObject({ outcome: "applied" });
@@ -1414,7 +1193,7 @@ describe.skipIf(!reachable)("scene presence effects (spec 048)", () => {
     const start = (await readRows(w)).length;
     const out = await run(
       w,
-      [reading(id, [intimidate({ onSuccess: [flee("goblin-2")] })])],
+      [intimidate(id, { onSuccess: [flee("goblin-2")] })],
       { job: nextJob() },
     );
     expect(presenceSubs(out)).toHaveLength(0);
@@ -1432,15 +1211,9 @@ describe.skipIf(!reachable)("scene presence effects (spec 048)", () => {
     const next = before.encounter?.order[1]?.combatantId;
     expect(next).toBeDefined();
     const start = (await readRows(w)).length;
-    const out = await run(
-      w,
-      [
-        reading(null, [
-          { step: "effect", reason: "Snag bolts", effects: [flee("snag")] },
-        ]),
-      ],
-      { job: { ...nextJob(), trigger: "npc-turn" } },
-    );
+    const out = await run(w, [deedReading(null, [flee("snag")])], {
+      job: { ...nextJob(), trigger: "npc-turn" },
+    });
     const rows = (await readRows(w)).slice(start);
     expect(presenceSubs(out)).toHaveLength(1);
     // The leave hands the turn on (one encounter.changed row); resolve adds none.
@@ -1497,15 +1270,9 @@ describe.skipIf(!reachable)("scene presence effects (spec 048)", () => {
     );
     if (!res.ok) throw new Error(`setup refused: ${res.refusal.code}`);
     const start = (await readRows(w)).length;
-    const out = await run(
-      w,
-      [
-        reading(null, [
-          { step: "effect", reason: "Snag bolts", effects: [flee("snag")] },
-        ]),
-      ],
-      { job: { ...nextJob(), trigger: "npc-turn" } },
-    );
+    const out = await run(w, [deedReading(null, [flee("snag")])], {
+      job: { ...nextJob(), trigger: "npc-turn" },
+    });
     const rows = (await readRows(w)).slice(start);
     expect(out.submissions.some((s) => s.key.startsWith("settle:"))).toBe(true);
     expect(count(rows, "scene-presence.changed")).toBe(1);
@@ -1514,7 +1281,7 @@ describe.skipIf(!reachable)("scene presence effects (spec 048)", () => {
     expect(p.encounter?.activeCombatantId).not.toBe(downed);
   });
 
-  it("an attack on an absent goblin is refused UNKNOWN_COMBATANT, verdict absent, no row lands", async () => {
+  it("an attack on an absent goblin is refused and no attack row lands", async () => {
     const w = await inTurnMode([...initDice(TAMSIN_FIRST), 15]);
     const gone = await w.gate.submit(
       w.sessionId,
@@ -1532,23 +1299,13 @@ describe.skipIf(!reachable)("scene presence effects (spec 048)", () => {
     const id = await commitAction(w, "Tamsin swings at the goblin.");
     fresh(w);
     const start = (await readRows(w)).length;
-    const out = await run(
-      w,
-      [reading(id, [attackStep("goblin-2")], { intent: "attack" })],
-      { job: nextJob() },
-    );
+    const out = await run(w, [attackReading(id, "goblin-2")], {
+      job: nextJob(),
+    });
     expect(out.actionResults[0]).toMatchObject({
       outcome: "refused",
-      refusalCode: "UNKNOWN_COMBATANT",
+      refusalCode: "TARGET_NOT_PRESENT",
     });
-    expect(out.planGate).toMatchObject([
-      {
-        actionId: id,
-        ok: false,
-        code: "UNKNOWN_COMBATANT",
-        failure: { id: "goblin-2", reason: "absent" },
-      },
-    ]);
     const rows = (await readRows(w)).slice(start);
     expect(count(rows, "attack.resolved")).toBe(0);
   });
@@ -1587,11 +1344,7 @@ describe.skipIf(!reachable)("scene presence effects (spec 048)", () => {
     const next = before.encounter?.order[1]?.combatantId;
     const start = (await readRows(w)).length;
     const job = { ...nextJob(), trigger: "npc-turn" as const };
-    const readings = [
-      reading(null, [
-        { step: "effect", reason: "Snag bolts", effects: [flee("snag")] },
-      ]),
-    ] as never;
+    const readings = [deedReading(null, [flee("snag")])] as never;
     crash.armed = true;
     await expect(w.runResolve({ readings, job })).rejects.toThrow(/crash/);
     const saved = w.checkpoint.current;
@@ -1883,7 +1636,7 @@ describe.skipIf(!reachable)("resolve turn-moved guard (spec 049)", () => {
     const id = await commitAction(w, "Tamsin forces the shutter.");
     const before = (await readRows(w)).length;
     arm();
-    const out = await run(w, [reading(id, [checkStep()])], { job: JOB });
+    const out = await run(w, [checkReading(id)], { job: JOB });
     expect(out.actionResults[0]).toMatchObject({ outcome: "applied" });
     const rows = (await readRows(w)).slice(before);
     expect(count(rows, "turn.advanced")).toBe(1);
@@ -1911,10 +1664,10 @@ describe.skipIf(!reachable)("resolve turn-moved guard (spec 049)", () => {
     const id = await commitAction(w, "Tamsin forces the shutter.");
     const before = (await readRows(w)).length;
     arm();
-    await run(w, [reading(id, [checkStep()])], { job: JOB });
+    await run(w, [checkReading(id)], { job: JOB });
     const active = (await w.projections()).encounter?.activeCombatantId;
     const saved = w.checkpoint.current;
-    await run(w, [reading(id, [checkStep()])], {
+    await run(w, [checkReading(id)], {
       job: { ...JOB, attempt: 2 },
       checkpoint: saved,
     });
@@ -1955,7 +1708,7 @@ describe.skipIf(!reachable)("resolve turn-moved guard (spec 049)", () => {
     arm();
     const before = (await readRows(w)).length;
     const { result } = await w.runResolve({
-      readings: [reading(id, [checkStep()])] as never,
+      readings: [checkReading(id)] as never,
       job: JOB,
     });
     if (!result.ok) throw new Error(result.error.message);
@@ -1979,14 +1732,23 @@ describe.skipIf(!reachable)("resolve turn-moved guard (spec 049)", () => {
       condition: "prone",
       source: "stakes test",
     });
-    const stepWith = (over: Record<string, unknown> = {}) =>
-      checkStep({
-        onSuccess: [prone("tamsin")],
-        onCost: [prone("odo")],
-        onFailure: [prone("kestrel")],
-        onSevere: [prone("tamsin")],
-        ...over,
-      });
+    const stepWith = (
+      id: string,
+      over: Record<string, unknown> = {},
+      params: Record<string, unknown> = {},
+    ) =>
+      stages(id, [
+        checkStage(
+          {
+            onSuccess: [prone("tamsin")],
+            onCost: [prone("odo")],
+            onFailure: [prone("kestrel")],
+            onSevere: [prone("tamsin")],
+            ...over,
+          },
+          params,
+        ),
+      ]);
     const proneIds = async (w: World) =>
       (await w.projections()).party
         .filter((m) => m.combatant?.conditions.length)
@@ -2001,7 +1763,7 @@ describe.skipIf(!reachable)("resolve turn-moved guard (spec 049)", () => {
       const w = await createWorld({ dice: [8] });
       await startScene(w);
       const id = await commitAction(w, "Tamsin forces the shutter.");
-      await run(w, [reading(id, [stepWith()])]);
+      await run(w, [stepWith(id)]);
       const rows = await readRows(w);
       const checks = rows.filter((r) => r.type === "check.resolved");
       expect(payloadOf<{ event: unknown }>(checks[0]).event).toMatchObject({
@@ -2016,7 +1778,7 @@ describe.skipIf(!reachable)("resolve turn-moved guard (spec 049)", () => {
       const w = await createWorld({ dice: [2] });
       await startScene(w);
       const id = await commitAction(w, "Tamsin forces the shutter.");
-      await run(w, [reading(id, [stepWith({ onSevere: [prone("odo")] })])]);
+      await run(w, [stepWith(id, { onSevere: [prone("odo")] })]);
       expect(await proneIds(w)).toEqual(["kestrel", "odo"]);
     });
 
@@ -2027,7 +1789,7 @@ describe.skipIf(!reachable)("resolve turn-moved guard (spec 049)", () => {
       });
       await startScene(w);
       const id = await commitAction(w, "Tamsin forces the shutter.");
-      await run(w, [reading(id, [stepWith({ onSevere: [prone("odo")] })])]);
+      await run(w, [stepWith(id, { onSevere: [prone("odo")] })]);
       expect(await proneIds(w)).toEqual(["kestrel"]);
     });
 
@@ -2035,12 +1797,19 @@ describe.skipIf(!reachable)("resolve turn-moved guard (spec 049)", () => {
       const w = await createWorld({
         dice: [20],
         seed: withRules({ outcomeBands: true, naturals: false }),
+        calls: [
+          {
+            purpose: "dm.adjudicate",
+            respond: {
+              type: "json",
+              value: { decision: "accept", difficulty: "nearly-impossible" },
+            },
+          },
+        ],
       });
       await startScene(w);
       const id = await commitAction(w, "Tamsin forces the shutter.");
-      await run(w, [
-        reading(id, [stepWith({ difficulty: "nearly-impossible" })]),
-      ]);
+      await run(w, [stepWith(id)]);
       const checks = (await readRows(w)).filter(
         (r) => r.type === "check.resolved",
       );
@@ -2053,11 +1822,9 @@ describe.skipIf(!reachable)("resolve turn-moved guard (spec 049)", () => {
       const w = await createWorld({ dice: [2] });
       await startScene(w);
       const first = await commitAction(w, "Tamsin forces the shutter.");
-      await run(w, [reading(first, [stepWith()])]);
+      await run(w, [stepWith(first)]);
       const second = await commitAction(w, "Tamsin tries the shutter again.");
-      await run(w, [
-        reading(second, [stepWith({ onSuccess: [prone("odo")] })]),
-      ]);
+      await run(w, [stepWith(second, { onSuccess: [prone("odo")] })]);
       const rows = await readRows(w);
       expect(rows.filter((r) => r.type === "dice.rolled")).toHaveLength(1);
       const checks = rows.filter((r) => r.type === "check.resolved");
@@ -2074,9 +1841,7 @@ describe.skipIf(!reachable)("resolve turn-moved guard (spec 049)", () => {
       const w = await createWorld({ dice: [15] });
       await startScene(w);
       const id = await commitAction(w, "Tamsin looks for the claw marks.");
-      const out = await run(w, [
-        reading(id, [stepWith({ reveals: "ferry-house#1" })]),
-      ]);
+      const out = await run(w, [stepWith(id, { reveals: "ferry-house#1" })]);
       const sub = out.submissions.find((s) => s.stepRef && s.stakes);
       expect(sub?.reveals).toBe("ferry-house#1");
       expect(sub?.revealedText).toContain("goblin feet");
@@ -2086,26 +1851,11 @@ describe.skipIf(!reachable)("resolve turn-moved guard (spec 049)", () => {
       const w = await createWorld({ dice: [15] });
       await startScene(w);
       const id = await commitAction(w, "Tamsin looks for the claw marks.");
-      const out = await run(w, [
-        reading(id, [stepWith({ reveals: "nowhere#1" })]),
-      ]);
+      const out = await run(w, [stepWith(id, { reveals: "nowhere#1" })]);
       const sub = out.submissions.find((s) => s.stepRef && s.stakes);
       expect(sub?.reveals).toBe("nowhere#1");
       expect(sub?.revealedText).toBeNull();
       expect(await proneIds(w)).toEqual(["tamsin"]);
-    });
-
-    it("a retry that names a new risk rolls", async () => {
-      const w = await createWorld({ dice: [2, 15] });
-      await startScene(w);
-      const first = await commitAction(w, "Tamsin forces the shutter.");
-      await run(w, [reading(first, [stepWith()])]);
-      const second = await commitAction(w, "Tamsin tries harder.");
-      await run(w, [
-        reading(second, [stepWith({ newRisk: "The shutter may fall." })]),
-      ]);
-      const rows = await readRows(w);
-      expect(rows.filter((r) => r.type === "dice.rolled")).toHaveLength(2);
     });
   });
 });

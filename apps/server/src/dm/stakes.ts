@@ -1,9 +1,17 @@
 import type { OutcomeBand } from "@the-stacks/dnd5e-engine";
 import type { LedgerRow } from "@the-stacks/session-model";
-import type { Beside, Effect, Stakes, Step } from "./nodes/schemas.js";
+import type { Beside, Effect, Stakes } from "./nodes/schemas.js";
 import type { SceneSeed } from "./seed/schema.js";
 
-type CheckStep = Extract<Step, { step: "check" }>;
+/** The six fields `isFreeRetry` reads (the Intent runner passes them from a stage's beside block). */
+export interface FreeRetryCheck {
+  kind: string;
+  combatantId: string | null;
+  ability: string | null | undefined;
+  skill: string | null | undefined;
+  newRisk: unknown;
+  autoFail: unknown;
+}
 
 /** FR-013: the ordered effect list for the band. An unknown band reads as a plain failure. */
 export function effectsForBand(
@@ -28,10 +36,7 @@ export function effectsForBand(
  * the step adds no new risk and no auto-fail. A saving throw never is.
  */
 export function isFreeRetry(
-  step: Pick<
-    CheckStep,
-    "kind" | "combatantId" | "ability" | "skill" | "newRisk" | "autoFail"
-  >,
+  step: FreeRetryCheck,
   ledger: readonly LedgerRow[],
 ): boolean {
   if (

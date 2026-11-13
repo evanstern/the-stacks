@@ -19,10 +19,12 @@ import {
   testSeed,
 } from "./helpers.js";
 import { greyhollowDuo, greyhollowFight } from "./snapshot-fixtures.js";
+import { stage, stages } from "./world.js";
 
 const duo = greyhollowDuo();
 /** The legacy `steps` of a scripted reading (this file stubs the pre-Intent shape; TASK-0312 deletes it). */
-const stepsOf = (r: unknown) => (r as { steps?: unknown[] } | undefined)?.steps;
+const stagesOf = (r: unknown) =>
+  (r as { stages?: unknown[] } | undefined)?.stages;
 const assembled = (over: Partial<NodeOutputs["assemble"]> = {}) =>
   ({
     projections: { party: [] },
@@ -402,33 +404,13 @@ describe("runTurn", () => {
 });
 
 describe("runTurn post-planning cut (specs/064)", () => {
-  const chk = (skill: string) => ({
-    step: "check",
-    reason: `${skill} check`,
-    combatantId: "pc-ana",
-    kind: "ability-check",
-    ability: "dex",
-    skill,
-    difficulty: "medium",
-    circumstance: null,
-    autoFail: null,
-    onSuccess: [],
-    onFailure: [],
-    stakes: {
-      success: "The attempt works as intended.",
-      cost: "It works, at a small price.",
-      failure: "The attempt comes to nothing.",
-      severe: "It goes badly wrong.",
-    },
-    onCost: [],
-    onSevere: [],
-    newRisk: null,
-  });
+  const chk = (skill: string, text = `${skill} check`) =>
+    stage({ kind: "check", params: { skill }, text });
   const planReading = () =>
-    ({
-      ...reading(false),
-      steps: [chk("stealth"), chk("persuasion")],
-    }) as unknown as NodeOutputs["interpret"]["readings"][number];
+    stages("a1", [
+      chk("stealth"),
+      chk("persuasion"),
+    ]) as unknown as NodeOutputs["interpret"]["readings"][number];
   const free = assembled({
     projections: { tableMode: { mode: "free" } },
   } as never);
@@ -470,20 +452,19 @@ describe("runTurn post-planning cut (specs/064)", () => {
     await runTurn(ctx, spy.nodes);
     expect(seen).toHaveLength(1);
     const i = seen[0]?.interpret as NodeOutputs["interpret"];
-    expect(stepsOf(i.readings[0])).toHaveLength(1);
+    expect(stagesOf(i.readings[0])).toHaveLength(1);
     expect(i.readings[0]?.followUps).toEqual(["persuasion check"]);
     const d = seen[0]?.director as NodeOutputs["director"];
     expect(d.tableMode).toEqual({ to: "stay" });
     expect(d.trackers).toEqual([]);
     expect(saved.at(-1)?.cut).toBe(true);
-    expect(stepsOf(saved.at(-1)?.interpret?.readings[0])).toHaveLength(1);
+    expect(stagesOf(saved.at(-1)?.interpret?.readings[0])).toHaveLength(1);
   });
 
   it("asks before an undeclared method and holds the turn (spec 077)", async () => {
-    const stealthRead = {
-      ...reading(false),
-      steps: [{ ...chk("stealth"), combatantId: "tamsin" }],
-    } as unknown as NodeOutputs["interpret"]["readings"][number];
+    const stealthRead = stages("a1", [
+      chk("stealth"),
+    ]) as unknown as NodeOutputs["interpret"]["readings"][number];
     const spy = stubNodes({
       assemble: assembled({
         beat: [
@@ -514,7 +495,7 @@ describe("runTurn post-planning cut (specs/064)", () => {
     });
     await runTurn(ctx, spy.nodes);
     const i = seen[0]?.interpret as NodeOutputs["interpret"];
-    expect(stepsOf(i.readings[0])).toEqual([]);
+    expect(stagesOf(i.readings[0])).toEqual([]);
     expect(i.readings[0]?.clarify).toMatch(/unseen/);
     const d = seen[0]?.director as NodeOutputs["director"];
     expect(d.overrides.some((o) => o.reason === CLARIFY_HELD)).toBe(true);
@@ -523,11 +504,9 @@ describe("runTurn post-planning cut (specs/064)", () => {
 
   it("does not cut or hold again on a reclaim with cut: true", async () => {
     const spy = stubNodes();
-    const cutReading = {
-      ...planReading(),
-      steps: [chk("stealth")],
+    const cutReading = stages("a1", [chk("stealth")], {
       followUps: ["persuasion check"],
-    };
+    });
     const ctx = makeCtx({
       checkpoint: {
         ...emptyCheckpoint(),

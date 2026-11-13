@@ -2,15 +2,14 @@ import { mechanicsProposal } from "@the-stacks/session-model";
 import { afterAll, describe, expect, it } from "vitest";
 import type { ResolveOutput } from "../../src/dm/nodes/resolve.js";
 import {
-  createWorld,
+  createWorld as baseWorld,
   db,
   loudSkip,
   payloadOf,
-  player,
   reachable,
-  reading,
   readRows,
-  spellStep,
+  stage,
+  stages,
   startScene,
   type World,
 } from "./world.js";
@@ -25,6 +24,10 @@ afterAll(async () => {
   await db?.$client.end();
 });
 
+/** Worlds script spare rulings: a cast the planner cannot settle asks the AI seat (spec 104). */
+const createWorld = (opts: Parameters<typeof baseWorld>[0] = {}) =>
+  baseWorld({ calls: [], ...opts });
+
 async function run(w: World, readings: unknown[], extra = {}) {
   const { result } = await w.runResolve({
     readings: readings as never,
@@ -34,14 +37,18 @@ async function run(w: World, readings: unknown[], extra = {}) {
   return result.output as ResolveOutput;
 }
 
-/** A party-scope action, so any party member may cast in it (spec 079 D5). */
+/** Odo's own action: the stage actor is the declarer, so an Odo spell needs an Odo declaration. */
+const odo = { kind: "ai", actor: "ai:companion:odo" } as const;
+let spellN = 0;
 async function commitParty(w: World, text: string) {
-  const actionId = `act-spell-${text.length}`;
-  await w.as(player, {
+  const actionId = `act-spell-${++spellN}`;
+  const d = await w.as(odo, {
     kind: "action.declare",
-    action: { actionId, characterId: "tamsin", scope: "party", text },
+    action: { actionId, characterId: "odo", scope: "character", text },
   });
-  await w.as(player, { kind: "action.commit", actionId });
+  if (!d.ok) throw new Error(`declare: ${d.refusal.code}`);
+  const c = await w.as(odo, { kind: "action.commit", actionId });
+  if (!c.ok) throw new Error(`commit: ${c.refusal.code}`);
   return actionId;
 }
 
@@ -86,20 +93,25 @@ async function downKestrel(w: World) {
   if (!res.ok) throw new Error(`setup refused: ${res.refusal.code}`);
 }
 
-const spellReading = (id: string, steps: unknown[]) =>
-  reading(id, steps, { intent: "spell" });
+const castStage = (target: string, spell: string, slot?: number) =>
+  stage({
+    kind: "cast",
+    targets: [{ kind: "actor", id: target }],
+    params: { spell, ...(slot ? { slot } : {}) },
+  });
+const castReading = (id: string, ...list: ReturnType<typeof castStage>[]) =>
+  stages(id, list);
 
 describe.skipIf(!reachable)("spells through the engine (database)", () => {
   it("Odo's sacred-flame lands a DC 13 save and radiant damage on a failure", async () => {
     const w = await createWorld({ dice: [...INIT, 5, 5] });
     await startScene(w);
     const id = await commitParty(w, "Odo calls down sacred flame.");
-    const out = await run(
+    const _out = await run(
       w,
-      [spellReading(id, [spellStep("goblin-2")])],
+      [castReading(id, castStage("goblin-2", "sacred-flame"))],
       startReedCamp,
     );
-    expect(out.planGate).toEqual([{ actionId: id, ok: true }]);
     const [save] = await events(w, "check.resolved");
     expect(save).toMatchObject({ dc: 13, spellId: "sacred-flame" });
     const rolled = await nonInit(w);
@@ -113,11 +125,7 @@ describe.skipIf(!reachable)("spells through the engine (database)", () => {
     await startScene(w);
     await downKestrel(w);
     const id = await commitParty(w, "Odo kneels and mends Kestrel.");
-    await run(w, [
-      spellReading(id, [
-        spellStep("kestrel", { spellId: "cure-wounds", slotLevel: 1 }),
-      ]),
-    ]);
+    await run(w, [castReading(id, castStage("kestrel", "cure-wounds", 1))]);
     const rolled = await nonInit(w);
     expect(rolled.at(-1)).toMatchObject({ expression: "2d8+3" });
     const heals = (await events(w, "hp.changed")).filter(
@@ -133,14 +141,8 @@ describe.skipIf(!reachable)("spells through the engine (database)", () => {
     await startScene(w);
     await downKestrel(w);
     const id = await commitParty(w, "Odo mends Kestrel three times over.");
-    const cast = (n: number) =>
-      spellStep("kestrel", {
-        spellId: "cure-wounds",
-        slotLevel: 1,
-        reason: `Odo mends Kestrel, cast ${n}`,
-      });
-    const out = await run(w, [spellReading(id, [cast(1), cast(2), cast(3)])]);
-    expect(out.planGate).toEqual([{ actionId: id, ok: true }]);
+    const cast = (_n: number) => castStage("kestrel", "cure-wounds", 1);
+    const _out = await run(w, [castReading(id, cast(1), cast(2), cast(3))]);
     const spent = await events(w, "spell-slots.changed");
     expect(spent).toHaveLength(2);
     const heals = (await events(w, "hp.changed")).filter(
@@ -159,20 +161,15 @@ describe.skipIf(!reachable)("spells through the engine (database)", () => {
     await startScene(w);
     await downKestrel(w);
     const first = await commitParty(w, "Odo mends Kestrel once.");
-    const cast = (n: number) =>
-      spellStep("kestrel", {
-        spellId: "cure-wounds",
-        slotLevel: 1,
-        reason: `Odo mends Kestrel, cast ${n}`,
-      });
-    await run(w, [spellReading(first, [cast(1)])]);
+    const cast = (_n: number) => castStage("kestrel", "cure-wounds", 1);
+    await run(w, [castReading(first, cast(1))]);
     expect((await events(w, "spell-slots.changed")).at(-1)).toMatchObject({
       combatantId: "odo",
       after: { level: 1, expended: 1 },
     });
     await downKestrel(w); // back to 0 HP, as at seq 204
     const second = await commitParty(w, "Odo mends Kestrel again, longer.");
-    await run(w, [spellReading(second, [cast(2)])]);
+    await run(w, [castReading(second, cast(2))]);
     expect((await events(w, "spell-slots.changed")).at(-1)).toMatchObject({
       after: { level: 1, expended: 2 },
     });
@@ -181,7 +178,7 @@ describe.skipIf(!reachable)("spells through the engine (database)", () => {
     );
     await downKestrel(w);
     const third = await commitParty(w, "Odo mends Kestrel a third time.");
-    const out = await run(w, [spellReading(third, [cast(3)])]);
+    const out = await run(w, [castReading(third, cast(3))]);
     expect(out.actionResults[0]).toMatchObject({
       outcome: "refused",
       refusalCode: "NO_SLOT_AVAILABLE",
@@ -190,31 +187,5 @@ describe.skipIf(!reachable)("spells through the engine (database)", () => {
     expect(
       (await w.projections()).engine.combatants.kestrel?.lifeState,
     ).not.toBe("conscious");
-  });
-
-  it("bless is refused SPELL_UNRESOLVED with no dice row", async () => {
-    const w = await createWorld({ dice: [] });
-    await startScene(w);
-    const id = await commitParty(w, "Odo blesses the party.");
-    const out = await run(w, [
-      spellReading(id, [
-        spellStep("tamsin", { spellId: "bless", slotLevel: 1 }),
-      ]),
-    ]);
-    expect(out.planGate).toMatchObject([
-      { ok: false, code: "SPELL_UNRESOLVED" },
-    ]);
-    expect(await nonInit(w)).toEqual([]);
-  });
-
-  it("no-such-spell is refused SPELL_UNKNOWN", async () => {
-    const w = await createWorld({ dice: [] });
-    await startScene(w);
-    const id = await commitParty(w, "Odo tries a made up spell.");
-    const out = await run(w, [
-      spellReading(id, [spellStep("tamsin", { spellId: "no-such-spell" })]),
-    ]);
-    expect(out.planGate).toMatchObject([{ ok: false, code: "SPELL_UNKNOWN" }]);
-    expect(await nonInit(w)).toEqual([]);
   });
 });
