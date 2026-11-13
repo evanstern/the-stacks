@@ -64,6 +64,8 @@ Phases 3-5 (5a79b4ee, 753a40d2, f0f9319d): ci:check exit 0 with REQUIRE_DATABASE
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
 Live check in Brave (1c0cf189) on the worktree app in script mode, one isolated context, no vm-104 page touched. The settled row shows once with no leftover block. The in-flight block was caught: label, rows first, then prose, with aria-live=polite and aria-busy=true. No modal and no overflow at 1280 or 390 px. Note: the transcript <ol> has no accessible name; carded.
+
+spec-bridge sync: Stream core (pure): 6/6 · Pipeline wiring and timing: 6/6 · Delivery and C-GATE amendments: 7/7 · Web rendering: 6/6 · Wiki re-ground: 4/4 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
