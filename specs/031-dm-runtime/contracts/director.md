@@ -135,3 +135,9 @@ The Director prompt is `dm.director-v9`.
 - An `arrivals` id that a check's stake text names is legal as before, but resolve lands it only when the check's applied band delivers a text naming it. The Director does not decide the roll's result.
 
 The Director prompt is `dm.director-v10`. The `goalNote` shape text says the note states no result a roll this beat could decide: no thing found, person reached or fact learned. The arrivals rule says a reveal a roll decides is the roll's, not the Director's. The narrate node backs the rule: `withholdRefusedInputs` blanks the note on a beat where any check failed, with a `doctrine` advisory.
+
+**Amendment (TASK-0247).** Amended 2026-11-13 (spec `specs/091-mud-stream-and-composer`, plan.md "Contract amendments"). Additive.
+
+> "Approve all" (operator, C-AMD ruling, 2026-11-13: applies OQ-A1 to OQ-A15 of spec 091; OQ-A8 re-confirms R1 (a), ruled 2026-11-05, as the C-GATE ruling for the `SceneSchema` optional fields)
+
+The scene-start `scene` row adds `description`, `ways` and `cast`. All three come from the player-facing seed view, so no DM-only seed text reaches a player. `description` is the location features joined and cut to 1000 characters; `ways` is added when not empty; `cast` maps `PlayerSeedView.npcs`. No other opening or closing move changes.

@@ -278,6 +278,16 @@ export function toTableViewModel(
         transcript.push({ kind: "aside", seq: entry.seq, text: entry.text });
         continue;
       }
+      // npc_say talk has characterId null (gate/intents.ts); name the NPC from its carrier.
+      const npc =
+        carrier?.intent.kind === "npc_say" &&
+        carrier.intent.actor.kind === "npc"
+          ? carrier.intent.actor.id
+          : null;
+      const npcName =
+        npc === null
+          ? null
+          : (p.scene?.cast?.find((c) => c.id === npc)?.name ?? npc);
       transcript.push({
         kind: "talk",
         seq: entry.seq,
@@ -285,7 +295,7 @@ export function toTableViewModel(
         text: entry.text,
         channel: entry.channel,
         characterId: entry.characterId,
-        characterLabel: characterLabel(entry.characterId, party),
+        characterLabel: characterLabel(entry.characterId, party) ?? npcName,
         whisper: entry.visibility !== "public" && entry.visibility !== "dm",
         askDm: carrier?.intent.kind === "ask_dm",
         confirmable:

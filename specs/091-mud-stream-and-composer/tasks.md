@@ -127,14 +127,14 @@ rows and the streaming block, in a 1024 px column.
 **Independent test**: `contrast.test.mjs`, `no-dialog.test.mjs` and `play-surfaces.test.mjs` pass.
 UI rules above apply.
 
-- [ ] T024 Add every new token pair used by roll rows, rules lines, room blocks, chips and dialogue
+- [x] T024 Add every new token pair used by roll rows, rules lines, room blocks, chips and dialogue
       rows to `apps/web/test/contrast.test.mjs` (plan D9). Fix any failing pair in
       `apps/web/app/app.css`, keeping both dark blocks byte-identical. List the pairs in the commit.
-- [ ] T025 Append the four R1 amendment blocks (plan "Contract amendments") to
+- [x] T025 Append the four R1 amendment blocks (plan "Contract amendments") to
       `specs/028-session-model/contracts/session-events.md`,
       `specs/029-proposal-gate/contracts/proposals.md`, `specs/031-dm-runtime/contracts/scene-seed.md`
       and `specs/031-dm-runtime/contracts/director.md`. Quote the C-GATE ruling in each.
-- [ ] T026 Append the R2 block to `specs/030-play-route/contracts/ui-surfaces.md` for TASK-0247
+- [x] T026 Append the R2 block to `specs/030-play-route/contracts/ui-surfaces.md` for TASK-0247
       surfaces only: filter chips, room blocks, roll rows, parity lines, dialogue rows; names "Table
       stream" and "Filter the stream". Leave the pill, verb dropdown and noun expansions to
       TASK-0329. Commit as `TASK-0247 phase 4: contrast and contract amendments`.

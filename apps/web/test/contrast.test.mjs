@@ -71,6 +71,15 @@ const TEXT_PAIRS = [
   ["ok", "ok-surface"],
   ["proc", "proc-surface"],
   ["muted-foreground", "queued-surface"],
+  // Spec 091 T024: stream rows. Roll rows and room blocks use foreground and
+  // muted-foreground on card/background (covered above); chips and the IC /
+  // table-talk badges sit on secondary, hover and the ask-DM row on accent.
+  ["foreground", "secondary"],
+  ["foreground", "accent"],
+  ["muted-foreground", "secondary"],
+  ["muted-foreground", "accent"],
+  ["secondary-foreground", "secondary"],
+  ["accent-foreground", "accent"],
 ];
 
 const NON_TEXT_PAIRS = [

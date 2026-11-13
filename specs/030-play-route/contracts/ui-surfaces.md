@@ -146,3 +146,9 @@ Accessible names added: "Table state". The "Turn order" list keeps its name.
 leaves the `The party` entry. `ConfirmRow` lines read `<text>` plus the `kindLabel`.
 
 Dated note, 2026-11-11 (T043): no web code changes in this card. TASK-0315 builds C-6 and C-7 against these blocks.
+
+**Amendment (TASK-0247).** Amended 2026-11-13 (spec `specs/091-mud-stream-and-composer`, plan.md "Contract amendments"). Additive.
+
+> "Approve all" (operator, C-AMD ruling, 2026-11-13: applies OQ-A1 to OQ-A15 of spec 091; OQ-A8 re-confirms R1 (a), ruled 2026-11-05, as the C-GATE ruling for the `SceneSchema` optional fields)
+
+Stream surfaces for TASK-0247. The transcript `<ol>` is `role="log"`, `aria-live="polite"`, named "Table stream". The streaming narration block keeps `aria-busy` and carries no `aria-live`. Filter chips form a group named "Filter the stream". Room blocks show the scene title, description, ways as text, and the party. Roll rows are `<details>` with the check summary and faces; a dropped face is `<s>` with `aria-label="<n>, dropped"`. Parity lines are rules lines under `data-kind="rules"`. Dialogue rows carry `data-kind="dialogue"`; an `npc_say` row is headed by the NPC name from the scene `cast`. The scroll column and composer cap at `max-w-5xl` (1024 px). The pill, verb dropdown and noun expansions belong to TASK-0329.
