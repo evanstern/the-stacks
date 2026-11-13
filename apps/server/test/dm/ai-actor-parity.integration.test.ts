@@ -159,6 +159,11 @@ async function odoTurn(
   );
   const afterJob = purposes(w);
   await drainAll(worker);
+  // The gate listener enqueues the commit turn asynchronously; one empty drain is not proof it
+  // ran. Wait (bounded) for the turn's own model call before reading rows. CI run 43463700007.
+  for (let i = 0; i < 100 && purposes(w).length <= afterJob.length; i++) {
+    await drainAll(worker);
+  }
   lastPurposes = [afterJob, purposes(w)];
   return w;
 }
