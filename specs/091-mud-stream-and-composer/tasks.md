@@ -90,32 +90,32 @@ rows and the streaming block, in a 1024 px column.
 **Independent test**: the new component tests, `transcript-stream.test.tsx` and
 `table-view.test.tsx` pass. UI rules above apply.
 
-- [ ] T015 [US3] Create `apps/web/app/play/components/roll-row.tsx` as `<details><summary>`. Strike
+- [x] T015 [US3] Create `apps/web/app/play/components/roll-row.tsx` as `<details><summary>`. Strike
       the dropped face and give it the accessible name "<n>, dropped". Pair ✓/✗ with a word.
-- [ ] T016 [US3] Create `apps/web/app/play/components/room-block.tsx`: heading, description,
+- [x] T016 [US3] Create `apps/web/app/play/components/room-block.tsx`: heading, description,
       "Ways on: …" as plain text, and the party with HP and AC. Show no "Ways on" line when `ways` is
       empty.
-- [ ] T017 [US3] Create `apps/web/app/play/components/filter-chips.tsx`: four buttons in a
+- [x] T017 [US3] Create `apps/web/app/play/components/filter-chips.tsx`: four buttons in a
       `role="group"` named "Filter the stream", single-select by `aria-pressed`.
-- [ ] T018 [US3] Update `apps/web/app/play/components/transcript.tsx` and `view-model.ts` to render
+- [x] T018 [US3] Update `apps/web/app/play/components/transcript.tsx` and `view-model.ts` to render
       `StreamItem[]`. Give the `<ol>` `role="log"`, `aria-live="polite"` and the name "Table
       stream" (FR-011). Render narration as `narrationRows` segments: prose italic muted, dialogue
       upright `text-foreground`, kept rules lines after the prose. Render `npc_say` talk as a named
       dialogue row.
-- [ ] T019 [US3] In `transcript.tsx`, filter the streaming block's `rows` part with `narrationRows`.
+- [x] T019 [US3] In `transcript.tsx`, filter the streaming block's `rows` part with `narrationRows`.
       Keep `aria-busy` on the block and drop its own `aria-live` (OQ-A14). Update the spec 108 line
       in `apps/web/test/play/transcript-stream.test.tsx`.
-- [ ] T020 [US3] In `apps/web/app/play/table-view.tsx`, hold the chip in `useState` and filter items
+- [x] T020 [US3] In `apps/web/app/play/table-view.tsx`, hold the chip in `useState` and filter items
       by category or `pinned` (FR-009, FR-010). Give the stream column and the composer wrapper
       `mx-auto w-full max-w-5xl` (FR-030). Keep the column full width at 390 px.
-- [ ] T021 [P] [US3] Create `apps/web/test/play/roll-row.test.tsx`, `room-block.test.tsx` and
+- [x] T021 [P] [US3] Create `apps/web/test/play/roll-row.test.tsx`, `room-block.test.tsx` and
       `filter-chips.test.tsx`: markup, accessible names, `aria-pressed`, keyboard activation of a
       roll row, and US3 scenarios 3 and 4.
-- [ ] T022 [P] [US6] Extend `apps/web/test/play/transcript-stream.test.tsx`: the TASK-0325 test, one
+- [x] T022 [P] [US6] Extend `apps/web/test/play/transcript-stream.test.tsx`: the TASK-0325 test, one
       element with `role="log"` and accessible name "Table stream" (FR-011); the order test
       (FR-028): the batch's roll and rules rows, then the streaming block, then the settled
       narration; dice lines appear once; a dialogue row renders upright.
-- [ ] T023 [P] [US3] Extend `apps/web/test/play/table-view.test.tsx`: the column carries the
+- [x] T023 [P] [US3] Extend `apps/web/test/play/table-view.test.tsx`: the column carries the
       `max-w-5xl` cap; the chip group filters and never removes a pinned confirm. Confirm
       `no-dialog.test.mjs` and `play-surfaces.test.mjs` scan the new files; extend their globs if
       they do not. Commit as `TASK-0247 phase 3: one stream with rolls, rules lines and dialogue`.
