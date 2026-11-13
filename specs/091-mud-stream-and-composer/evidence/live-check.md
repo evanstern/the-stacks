@@ -29,7 +29,9 @@ Setup notes:
 Screenshots in this directory: `room-{1280,390}-{light,dark}.png`, `stream-{1280,390}-{light,dark}.png`,
 `roll-expanded-{1280,390}-{light,dark}.png`, `chip-{all,in-character,table-talk,rules}-1280.png`.
 
-## Findings (not fixed)
+## Findings
+
+The streaming block's in-flight `rows` part still shows its rules lines inline under every chip. It is transient and settles into Rules items.
 
 Findings 1 (Rules chip hides narration rules lines), 2 (stray `".` on echoed declaration) and 3 (repeated d20 face list) are fixed in 84636aab. Finding 4 stands as correct per FR-009.
 

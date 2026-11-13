@@ -42,7 +42,7 @@ sources:
   - apps/web/app/play/components/commit-control.tsx
   - apps/web/app/play/components/table-mode-panel.tsx
   - apps/web/app/play/components/dm-seat-panel.tsx
-verified_against: cd1651916ec175a131a0dcd99f48590f7e96ab21
+verified_against: 3649112531f0ee5202f5f91bc2378edd13bbc0be
 size_budget_exempt: spec 105 (TASK-0315) replaces the sign-off paragraph with the composer, send router, read ring and confirm row in the one play-route note; the note sat 806 chars over budget already and the table view does not split without a TASK of its own
 ---
 
@@ -120,7 +120,7 @@ The composer, ledger
   `suggest`) from the `proposal.created` row. An `intent` proposal shows its kind and `toText` text ([[intent-contract]]).
 - `ledger-format.ts` formats roll, outcome and change rows (`Reaction: `); `labels.ts` names, with `KIND_LABEL` and `kindLabel` for intent kinds. `detailsOf` in `proposals.ts` renders real rows for each proposal kind.
 
-**The table stream** (spec 091, TASK-0247). `play/stream.ts`'s `streamItems` merges the transcript, ledger roll rows and the scene into one "Table stream" `role=log`; `play/narration-rows.ts` builds roll rows from ledger rows and hides fact lines inside narration. `components/` holds the roll row, the room block and the filter chips; dialogue renders as rows, the column is 1024 px, and the streaming block carries `aria-busy` with no `aria-live`. `view-model.ts` names an `npc_say` row from `scene.cast`, falling back to the NPC id.
+**The table stream** (spec 091, TASK-0247). `play/stream.ts`'s `streamItems` merges the transcript, ledger roll rows and the scene into one "Table stream" `role=log`. It builds roll rows from ledger rows, and it emits each rules line (DM ruling, Difficulty, `why`, refusal, `State:`) from a settled `ai:dm` narration as its own Rules-category item, placed after the prose. `play/narration-rows.ts` splits narration into prose and dialogue segments, hides the dice and change lines, and strips the period the server restate puts after a closing quote. Filter chips "All", "In character", "Table talk" and "Rules" each show one category. `components/` holds the roll row, the room block and the filter chips; dialogue renders as rows, the column is 1024 px, and the streaming block carries `aria-busy` with no `aria-live`. `view-model.ts` names an `npc_say` row from `scene.cast`, falling back to the NPC id.
 
 ## The one composer
 
