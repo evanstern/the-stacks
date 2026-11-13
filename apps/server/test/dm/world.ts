@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { mechanicsProposal, type Proposer } from "@the-stacks/session-model";
+import type { Proposer } from "@the-stacks/session-model";
 import { createGateway } from "../../src/ai/gateway.js";
 import { memorySink } from "../../src/ai/usage.js";
 import { createDb, probeReachable } from "../../src/db.js";
@@ -362,26 +362,4 @@ export const stages = (
 export function payloadOf<T>(row: { payload: unknown } | undefined): T {
   if (!row) throw new Error("expected a row");
   return row.payload as T;
-}
-
-/** TASK-0312: fights start at range. Tests that need the party in melee reach place it here. */
-export async function gatherParty(w: World, zoneId = "reed-camp") {
-  const { engine } = await w.projections();
-  for (const combatantId of ["tamsin", "odo", "kestrel"]) {
-    if (!engine.combatants[combatantId]) continue;
-    const res = await w.gate.submit(
-      w.sessionId,
-      { kind: "ai", actor: "ai:dm" },
-      mechanicsProposal(
-        {
-          type: "combatant.place",
-          combatantId,
-          zoneId,
-          reason: "setup",
-        } as never,
-        { actionId: null, summary: "setup", rationale: "setup" },
-      ),
-    );
-    if (!res.ok) throw new Error(`gather refused: ${res.refusal.code}`);
-  }
 }

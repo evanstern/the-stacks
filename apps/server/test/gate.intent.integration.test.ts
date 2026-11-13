@@ -12,7 +12,6 @@ import type { ErrorFrame, RecordedEventFrame } from "../src/ws/protocol.js";
 import {
   createWorld,
   db,
-  gatherParty,
   HUMAN_DM,
   loudSkip,
   operator,
@@ -49,7 +48,6 @@ async function turnWorld(): Promise<World> {
     job: { id: "00000000-0000-4000-8000-000000000a60" },
   });
   if (!result.ok) throw new Error(`turn mode failed: ${result.error.message}`);
-  await gatherParty(w);
   return w;
 }
 

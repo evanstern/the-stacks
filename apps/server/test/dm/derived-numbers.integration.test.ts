@@ -6,7 +6,6 @@ import {
   commitAction,
   createWorld,
   db,
-  gatherParty,
   loudSkip,
   payloadOf,
   player,
@@ -81,7 +80,6 @@ describe.skipIf(!reachable)("engine-derived numbers (database)", () => {
   it("Kestrel's Shortbow rolls 1d20+5 against the record AC and applies 1d6+3 piercing", async () => {
     const w = await createWorld({ dice: [...INIT, 15, 4] });
     await startScene(w);
-    await gatherParty(w);
     const id = await commitParty(w, "We loose arrows at the goblin.");
     const out = await run(
       w,

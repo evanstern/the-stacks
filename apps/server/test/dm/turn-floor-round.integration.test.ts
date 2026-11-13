@@ -12,7 +12,6 @@ import {
 import {
   createWorld,
   db,
-  gatherParty,
   loudSkip,
   player,
   reachable,
@@ -81,7 +80,6 @@ async function roundWorld() {
     job: { id: "00000000-0000-4000-8000-000000000a60" },
   });
   if (!result.ok) throw new Error(`turn mode failed: ${result.error.message}`);
-  await gatherParty(w);
   // Bram takes Kestrel. Odo stays Pip, the AI companion.
   const p0 = await w.projections();
   const kestrel = p0.party.find((m) => m.characterId === "kestrel");

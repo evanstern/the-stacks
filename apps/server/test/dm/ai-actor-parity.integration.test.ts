@@ -11,7 +11,6 @@ import { loadSeed } from "../../src/dm/seed/load.js";
 import {
   cmd,
   fresh,
-  gatherParty,
   initDice,
   nextJob,
   run,
@@ -246,7 +245,6 @@ async function monsterFight(calls: unknown[], dice: number[]) {
   const w = await createWorld({ dice, calls: [...calls, ...chronicle] });
   await startScene(w);
   await run(w, { director: turnInto(), job: nextJob() });
-  await gatherParty(w);
   fresh(w);
   return w;
 }

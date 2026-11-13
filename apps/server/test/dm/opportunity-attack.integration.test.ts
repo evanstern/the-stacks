@@ -4,7 +4,6 @@ import {
   checkStep,
   createWorld,
   db,
-  gatherParty,
   loudSkip,
   reachable,
   reading,
@@ -108,7 +107,6 @@ async function inFight(dice: number[]) {
       tableMode: { to: "turn", encounterId: "reed-camp", reason: "Fight." },
     },
   });
-  await gatherParty(w);
   return w;
 }
 

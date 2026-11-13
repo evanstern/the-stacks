@@ -13,7 +13,6 @@ import {
   commitAction,
   createWorld,
   db,
-  gatherParty,
   loudSkip,
   reachable,
   readRows,
@@ -123,8 +122,6 @@ describe.skipIf(!reachable)("the whole scene (database)", () => {
     p = await w.projections();
     expect(p.tableMode.mode).toBe("turn");
     expect(p.encounter?.activeCombatantId).toBe("tamsin");
-    // TASK-0312: the fight starts at range; the melee swing below needs the party in reach.
-    await gatherParty(w);
 
     // The human turn, then Odo, Kestrel and the Director's close.
     await commitAction(

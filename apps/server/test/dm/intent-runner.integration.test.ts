@@ -3,7 +3,6 @@ import type { ResolveOutput } from "../../src/dm/nodes/resolve.js";
 import {
   cmd,
   fresh,
-  gatherParty,
   initDice,
   inTurnMode,
   nextJob,
@@ -417,7 +416,6 @@ async function inFight(dice: number[]) {
     },
     job: nextJob(),
   });
-  await gatherParty(w);
   fresh(w);
   return w;
 }
