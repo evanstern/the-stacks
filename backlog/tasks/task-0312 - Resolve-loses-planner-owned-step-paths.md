@@ -4,7 +4,7 @@ title: Resolve loses planner-owned step paths
 status: Done
 assignee: []
 created_date: '2026-11-11T19:50:00Z'
-updated_date: '2026-11-13T06:17:00Z'
+updated_date: '2026-11-13T06:36:00Z'
 labels:
   - ws:intent
   - replan-2026-11
@@ -72,6 +72,8 @@ spec-bridge sync: Throw-stub probe (no deletion): 4/4 · Adjudicate node (C-GATE
 Merged via PR #176 (26cb3600). AC #2 (old-shape plan drop) bypassed here: delivered as spec 110 AC #3 / dropLegacyPlan; the card AC #2 text is the gathering-deferred item now owned by TASK-0327 per operator ruling 2026-11-12.
 
 Correction to the previous note: card AC #2 is delivered by dropLegacyPlan in resume.ts (phase 5, 5bcd2671), which is called on loadCheckpoint and logs dm.checkpoint.legacy-dropped, so it is checked. The deferred gathering item lives on TASK-0327.
+
+Deploy check: vm-104 /health serves 99c145b8, which contains merge 26cb3600. Main CI on 99c145b8 first failed ai-actor-parity.integration (companion attempt: needs_ruling sequence was empty). It passed on rerun with no code change, so it is a flake.
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
