@@ -3,16 +3,15 @@ id: TASK-0275
 title: Combat turn UX
 status: To Do
 assignee: []
-created_date: '2026-11-07 05:13'
-updated_date: '2026-11-08 19:55'
+created_date: 2026-11-07 05:13
+updated_date: '2026-11-13T14:27:00Z'
 labels:
-  - 'ws:table-ux'
+  - ws:table-ux
   - replan-2026-11
   - ep-1
 milestone: m-10
 dependencies:
-  - TASK-0266
-  - TASK-0274
+  - TASK-0329
 ordinal: 259000
 ---
 
@@ -33,16 +32,18 @@ Source: docs/design/replan-2026-11/board-rework-map.md (N-10).
 - [ ] #3 An off-turn human action is refused with a visible reason.
 <!-- AC:END -->
 
+## Definition of Done
+<!-- DOD:BEGIN -->
+- [ ] #1 All tests and checks run green
+- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
+<!-- DOD:END -->
+
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
 Merged from TASK-0248 (A party action can make a human player's character act out of turn) by replan-2026-11: Turn ownership is one rule in combat mode.
 
 CP-5 ruling 2026-11-08 (docs/design/r1-fast-table-runbook.md) F2: TASK-0199 owns the combat Enter-commit rule. This task owns the banner, pips, action bar and off-turn refusal, and builds on 0199's rule.
-<!-- SECTION:NOTES:END -->
 
-## Definition of Done
-<!-- DOD:BEGIN -->
-- [ ] #1 All tests and checks run green
-- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
-<!-- DOD:END -->
+Operator C-AMD ruling 2026-11-13 on spec 091: "Approve all". Spec 091 OQ-A9: call spec 091's draft(seed); add no second draft path. Hold until TASK-0329 merges.
+<!-- SECTION:NOTES:END -->
