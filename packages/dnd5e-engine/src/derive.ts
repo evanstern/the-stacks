@@ -86,9 +86,30 @@ export function findAttack(c: Combatant, name: string): Derived<AttackEntry> {
   if (!c.stats) return { ok: false, missing: "stats" };
   const want = name.trim().toLowerCase();
   const hit = c.stats.attacks.find((a) => a.name.toLowerCase() === want);
-  return hit
-    ? { ok: true, value: hit }
-    : { ok: false, missing: `attack "${name}"` };
+  if (hit) return { ok: true, value: hit };
+  if (want === "unarmed strike") return unarmedStrike(c.stats);
+  return { ok: false, missing: `attack "${name}"` };
+}
+
+// SRD 5.2.1 Rules Glossary "Unarmed Strike": Str mod + proficiency to hit; 1 + Str mod bludgeoning.
+// ponytail: damage floors at 0 (OQ-3); add a rule entry if a feature changes the die (e.g. Monk).
+function unarmedStrike(stats: CombatantStats): Derived<AttackEntry> {
+  const str = stats.abilityMods.str;
+  if (str === undefined) return { ok: false, missing: "str modifier" };
+  return {
+    ok: true,
+    value: {
+      name: "Unarmed Strike",
+      range: "melee",
+      toHit: str + stats.proficiencyBonus,
+      damage: [
+        {
+          amount: { kind: "fixed", value: Math.max(0, 1 + str) },
+          damageType: "bludgeoning",
+        },
+      ],
+    },
+  };
 }
 
 export function firstMeleeAttack(stats: CombatantStats): AttackEntry | null {

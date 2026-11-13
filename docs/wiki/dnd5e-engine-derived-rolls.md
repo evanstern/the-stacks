@@ -10,7 +10,7 @@ sources:
   - packages/dnd5e-engine/src/sides.ts
   - packages/dnd5e-engine/src/schema/state.ts
   - packages/dnd5e-engine/src/schema/events.ts
-verified_against: 2707677c72373882afd5868a4ed10eca26f85dd6
+verified_against: 9d32a9f322cb232c2dccc75885b91ad5c0a6e6b0
 ---
 
 # 5e engine: derived rolls
@@ -26,5 +26,7 @@ Spec 082. A `Combatant` may carry `stats`; `src/derive.ts` derives rolls from th
 **Opposition and Help** (spec 084, TASK-0128). `check.roll` takes a third DC source, `opposition: { opponentId, rule }`; exactly one of `dc`, `difficulty`, `opposition` (else `INVALID_COMMAND`). `oppositionCovers` limits each rule to the checks the SRD names; the opponent cannot be the checker. `unarmed-strike` derives 8 + the opponent's Strength modifier + proficiency bonus (DC 9 for Snag); `influence` derives the higher of 15 and its Intelligence score. A missing stat refuses `STAT_UNDEFINED`. `check.resolved` records `opposition`. `help.grant` (`src/commands/help.ts`) writes `assist.granted` on the holder (`Combatant.assists`, at most one per helper): the ally for an ability-check assist (the helper needs the skill in `stats.skills`, else `NOT_PROFICIENT`), or the distracted enemy for an attack assist. The holder's next derived `check.roll` with that skill, or `attack.roll` / spell attack against that enemy by anyone but the helper, gains advantage and emits `assist.ended` (`used`). A new grant by the same helper ends the old one (`replaced`). `encounter.end` ends all (`encounter-ended`). An assist expires at the start of its helper's next turn (`helperExpiry`; `expired`), checked beside condition expiry in the turn-advance path; outside an encounter it lasts until used.
 
 Spec 094 adds optional `reachFt` and `rangeFt` (`normal`, `long`) to an attack entry in `stats.attacks`. Melee reach defaults to 5 ft; the zone band checks read both ([[dnd5e-engine-reactions]], [[space]]).
+
+Spec 109 (TASK-0223): `findAttack` derives an `Unarmed Strike` entry (name matched case-insensitively) when `stats.attacks` holds none; a stored entry wins. It is melee, `toHit` is Strength modifier + proficiency bonus, and damage is fixed bludgeoning `max(0, 1 + Strength modifier)` (SRD 5.2.1). A missing Strength modifier refuses `STAT_UNDEFINED` (`str modifier`). `firstMeleeAttack` does not derive it.
 
 Spec 099 (TASK-0274) adds the close-combat source to derived rolls: a derived `attack.roll` and a `spell.cast` attack spell fold `disadvantage` when the attack is ranged and `closeCombatFoes` (`src/sides.ts`) finds an opposed, conscious, able, sighted combatant in a melee pair with the attacker (spec 101, TASK-0306: sharing a zone alone no longer counts; see [[dnd5e-engine-sides]]). A melee-or-ranged entry is ranged only outside the engaged band. A combatant with no side, or a state with no placements, never triggers it. It stacks with the other sources through `foldMode` (advantage and disadvantage cancel). Selectors and sides: [[dnd5e-engine]].
