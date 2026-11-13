@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: 2026-11-05 05:48
-updated_date: '2026-11-13T14:44:00Z'
+updated_date: '2026-11-13T14:58:00Z'
 labels:
   - web
   - ux
@@ -41,7 +41,7 @@ Spec: specs/091-mud-stream-and-composer
 - [x] #4 Spec 091 is amended against Intent contract v1.1 and reviewed by the operator at C-AMD before implementation.
 - [ ] #5 Fact rows render from the ledger at resolve time, not from the narration text (spec 098 OQ-3).
 - [x] #6 Spec phase: Scene fields and seed ways (FR-008 data; plan D1, D2, DA4, D8)
-- [ ] #7 Spec phase: Stream items and the narration filter (FR-006, FR-007, FR-026, FR-027, FR-029 data)
+- [x] #7 Spec phase: Stream items and the narration filter (FR-006, FR-007, FR-026, FR-027, FR-029 data)
 - [ ] #8 Spec phase: Stream rendering (FR-008 to FR-011, FR-026 to FR-030)
 - [ ] #9 Spec phase: Contrast and contract blocks (FR-021, FR-022)
 - [ ] #10 Spec phase: Wiki re-ground
@@ -92,4 +92,8 @@ Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=cc/claude-opus-5-5
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5
 
 Phase 1 landed 1f0fb167. Orchestrator finding: plan D2 put the duo ways (loft, ferry, causeway) on all four seeds, but greyhollow-ford-reed-camp has no loft or ferry zone, and the seed validator only refuses hidden zones, not missing ones. Fix rides Phase 2: refuse a /move to a zone the seed lacks; reed-camp keeps only ways its zones support. Within the ruled spec's intent (DA4: ways validated as contract text).
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5
+
+Phase 2 landed 4dcaeb44 (+ fix-up af26b1a9: unknown-zone ways refused; reed-camp keeps /move #causeway only). Implementer call accepted: hp.changed rules lines infer damage/healing from the HP delta, because ledger rows carry no cause.
 <!-- SECTION:NOTES:END -->
