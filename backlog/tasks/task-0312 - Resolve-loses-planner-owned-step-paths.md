@@ -68,6 +68,8 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (phase 6 wiki). Final gates on merge of origin/main: ci:check REQUIRE_DATABASE=1 exit 0 (server 1789 passed; latency gate PASS; ai-round 4v4 851 ms); boundaries 28/28; wiki plan empty, freshness OK 65 notes; spec-bridge check exit 0.
 
 spec-bridge sync: Throw-stub probe (no deletion): 4/4 · Adjudicate node (C-GATE approved 2026-11-12): 7/7 · Step paths in resolve and the plan gate (AC #1): 7/7 · Schemas and old checkpoints (AC #3): 5/5 · Wiki: 2/2 — status In Progress → Done
+
+Merged via PR #176 (26cb3600). AC #2 (old-shape plan drop) bypassed here: delivered as spec 110 AC #3 / dropLegacyPlan; the card AC #2 text is the gathering-deferred item now owned by TASK-0327 per operator ruling 2026-11-12.
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
