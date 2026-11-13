@@ -4,7 +4,7 @@ title: The roll step and effect amounts derive from the engine
 status: In Progress
 assignee: []
 created_date: 2026-11-03 05:40
-updated_date: '2026-11-13T02:31:00Z'
+updated_date: '2026-11-13T02:42:00Z'
 labels:
   - dm
   - engine
@@ -54,4 +54,7 @@ Spec 109 (fd588db1): 10 tasks in 3 phases; no C-CON, no C-GATE, no prompt bump. 
 - OQ-4: no item Intent kind exists yet.
 - OQ-5: avoids a C-CON major change; the guard test covers it.
 TASK-0312 seam: add the runSteps effect case and the presenceTargets Step-only loop to its deletion list.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
+Phases 1-3 (a051ddc8, 9d32a9f3, 914304df). findAttack derives Unarmed Strike (toHit Str+PB, fixed max(0,1+Str) bludgeoning), with scripted-dice tests for hit, crit, 0 floor and missing Str. The planner plans 'unarmed'. The guard test fails on an added numeric ruling field or a number-carrying interpret kind (negative proof run twice, then reverted).
 <!-- SECTION:NOTES:END -->
