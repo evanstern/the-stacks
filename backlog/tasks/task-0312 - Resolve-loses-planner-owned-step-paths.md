@@ -4,7 +4,7 @@ title: Resolve loses planner-owned step paths
 status: In Progress
 assignee: []
 created_date: '2026-11-11T19:50:00Z'
-updated_date: '2026-11-13T05:59:00Z'
+updated_date: '2026-11-13T06:00:00Z'
 labels:
   - ws:intent
   - replan-2026-11
@@ -33,7 +33,7 @@ Spec: specs/110-resolve-cleanup
 - [x] #3 Spec phase: Throw-stub probe (no deletion)
 - [x] #4 Spec phase: Adjudicate node (C-GATE ruling required before dispatch)
 - [x] #5 Spec phase: Step paths in resolve and the plan gate (AC #1)
-- [ ] #6 Spec phase: Schemas and old checkpoints (AC #3)
+- [x] #6 Spec phase: Schemas and old checkpoints (AC #3)
 - [ ] #7 Spec phase: Wiki
 <!-- AC:END -->
 
@@ -62,4 +62,6 @@ Phase 4 (spec 110) test migration, D6. DELETED, covered elsewhere: derived-numbe
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (phases 3-4). Phase 3 86d090a4, phase 4 972a2b42; ci:check green with REQUIRE_DATABASE=1 on each. A stray root edit by the implementer was reverted by the orchestrator and the patch was re-applied in the worktree.
 
 Phase 5 (5bcd2671) test migration. DELETED (no sibling needed; schema deleted): interpret.test.ts 'step schema (AC #5)' (check/attack step parse, no-total, circumstance default) and 'check stakes contract' (stakes.failure/success/cost/severe, reveals/newRisk defaults, opposition and help refinements, spell step); interpret-capture.test.ts legacy-schema parse of attempt 2 (kept the InterpretOutput failure assertion); presence-effect 'effect step'/'onHit' cases. Stakes rules are covered by InterpretStageSchema tests in interpret-intents.test.ts. PORTED to stage/Intent fixtures: presence-effect (presence in beside onSuccess/onFailure), rules-terms (skill/ability/condition rejection via InterpretReadingSchema check stage), clarify-keeps-turn (stages/stage/checkBeside), runner.test.ts reading(), assemble.test.ts pausedJob reading, npc-turn-narration reading. REPLACED: resume.test.ts old-shape skip case now proves FR-010; NEW dropLegacyPlan tests (clears interpret/cut/resumed, keeps lastSeq/submissions; new-shape unchanged). world.ts: removed checkStep, attackStep, spellStep, helpStep, reading().
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5 (phase 5). Phase 5 5bcd2671; ci:check green with REQUIRE_DATABASE=1. SC-001 grep is empty with a \bStepSchema word boundary. Unbounded, it matches only the unrelated IngestStepSchema and ConcurrencyStepSchema in bench/load/results.ts.
 <!-- SECTION:NOTES:END -->
