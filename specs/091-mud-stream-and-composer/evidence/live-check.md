@@ -31,6 +31,8 @@ Screenshots in this directory: `room-{1280,390}-{light,dark}.png`, `stream-{1280
 
 ## Findings (not fixed)
 
+Findings 1 (Rules chip hides narration rules lines), 2 (stray `".` on echoed declaration) and 3 (repeated d20 face list) are fixed in 84636aab. Finding 4 stands as correct per FR-009.
+
 1. Under the Rules chip only the roll row stays visible. The `data-kind=rules` lines that come out of
    narration ("DM ruling", "Difficulty", "State: ...") disappear, because they ride the narration item,
    which is category in-character. If those lines are meant to count as Rules, they need their own
