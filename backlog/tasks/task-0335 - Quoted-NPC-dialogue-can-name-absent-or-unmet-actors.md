@@ -54,4 +54,6 @@ Renumbered spec 111 -> 112: TASK-0337 claimed 111 first (5cea343c).
 Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=cc/claude-opus-5-5
 
 Spec 112 committed (cfb80e55). Spec open questions carded on main: OQ-1 TASK-0339, OQ-2 TASK-0340, OQ-3 TASK-0341, OQ-4 TASK-0342, OQ-5 TASK-0343. Raw evidence for the Phase 1 fixture: ~/.cache/stacks-sweep/t0335/ (events.json holds a human user id; replace it with PLAYER_USER). Next: Phase 1 (T001-T009) to sonnet-implementer. The dispatch from the coordinating session was blocked by the auto-mode classifier on 2026-11-14.
+
+spec-bridge sync: Knowledge model and the speech check (US1, US2, AC #1): 0/9 · Prompts see only met names (US3, AC #2): 0/5 · Auditor mirrors the runtime rule (US4, card note): 0/3 · Wiki re-pin: 0/3
 <!-- SECTION:NOTES:END -->
