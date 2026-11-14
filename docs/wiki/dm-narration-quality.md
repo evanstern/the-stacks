@@ -31,7 +31,7 @@ Spec: `specs/034-narration-quality/` (contracts `player-facing-context.md`,
 `seed/views.ts` exports `PlayerSeedView` and `playerFacingSeed(seed)`. The view copies only
 player-facing fields: title, goal statement, location (name, features, mood, senses), opening
 framing, `openingPremise` (`opening.premise`, required), NPC name/role/voice/want/detail/appearance, and character identity, portrayal, `knows`
-and relationship kinds. It also copies `location.ways`. `openingScene(view)` builds the `scene.changed` payload (title, summary, location, `description` from the features capped at 1000 characters, `ways`, and a `cast` of id, name, role and appearance) from the view only (spec 091). `dmOnlySeedText(seed)` lists every DM-only string, for tests; it is built over `dmOnlySeedPaths(seed)`, the JSON Pointers of the same fields, which the operator seed route returns as `dmOnlyPaths` ([[debug-view]]). The
+and relationship kinds. It also copies `location.ways`, minus ways gated by `after` on a zone not yet revealed (`visibleWays`, TASK-0334). `openingScene(view)` builds the `scene.changed` payload (title, summary, location, `description` from the features capped at 1000 characters, `ways`, and a `cast` of id, name, role and appearance) from the view only (spec 091). `dmOnlySeedText(seed)` lists every DM-only string, for tests; it is built over `dmOnlySeedPaths(seed)`, the JSON Pointers of the same fields, which the operator seed route returns as `dmOnlyPaths` ([[debug-view]]). The
 narrate builder (`prompts/narrate.ts`) and `companion.ts` take the view (the chronicle prompt takes the roster only);
 DM-only seed facts never reach a player-facing prompt. The director still sees the full seed.
 
