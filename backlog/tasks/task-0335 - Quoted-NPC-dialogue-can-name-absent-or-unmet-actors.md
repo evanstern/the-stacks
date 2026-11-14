@@ -1,10 +1,10 @@
 ---
 id: TASK-0335
 title: Quoted NPC dialogue can name absent or unmet actors
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-11-14T02:14:00Z'
-updated_date: '2026-11-14T08:42:00Z'
+updated_date: '2026-11-14T08:49:00Z'
 labels:
   - playtest
   - ws:narration
@@ -69,3 +69,9 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-
 
 Operator ruling 2026-11-14 (in chat): "Remove after merge". Once PR merges and the worktree is removed, delete the three ~/.claude/settings.json allow rules for git -C .../worktrees/task-0335 add, commit and push.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Knowledge model and the speech check (US1, US2, AC #1): 9/9 · Prompts see only met names (US3, AC #2): 5/5 · Auditor mirrors the runtime rule (US4, card note): 3/3 · Wiki re-pin: 3/3). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
