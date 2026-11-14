@@ -4,6 +4,7 @@ title: Quoted NPC dialogue can name absent or unmet actors
 status: To Do
 assignee: []
 created_date: '2026-11-14T02:14:00Z'
+updated_date: '2026-11-14T02:18:00Z'
 labels:
   - playtest
   - ws:narration
@@ -32,3 +33,9 @@ Found in the 2026-11-13 R1 spine test drive (session 0106e608, seq 21). Wenna's 
 - [ ] #1 All tests and checks run green
 - [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Related evidence (session 0106e608, seq 31): the check dropped a narration sentence naming Pell, although Wenna speaking of her own grandson is fair. The absent-actor rule needs a notion of who the speaker or party knows, not only presence.
+<!-- SECTION:NOTES:END -->
