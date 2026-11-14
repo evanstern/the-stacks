@@ -4,7 +4,7 @@ title: Scene ways must not name hidden zones
 status: In Progress
 assignee: []
 created_date: '2026-11-13T20:28:00Z'
-updated_date: '2026-11-14T02:50:00Z'
+updated_date: '2026-11-14T04:53:00Z'
 labels:
   - playtest
   - ws:table-ux
@@ -24,8 +24,8 @@ Found in the 2026-11-13 R1 spine test drive (session 0106e608, seq 2). The publi
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 The seed check refuses a way whose label or draft names a hidden zone, unless the zone is revealed, with a test.
-- [ ] #2 Ways shown to players are filtered by fog, so a way to a hidden zone appears only after the zone is revealed, with a test.
+- [x] #1 The seed check refuses a way whose label or draft names a hidden zone, unless the zone is revealed, with a test.
+- [x] #2 Ways shown to players are filtered by fog, so a way to a hidden zone appears only after the zone is revealed, with a test.
 <!-- AC:END -->
 
 ## Definition of Done
