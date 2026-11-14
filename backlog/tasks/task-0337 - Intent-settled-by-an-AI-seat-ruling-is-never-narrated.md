@@ -4,7 +4,7 @@ title: Intent settled by an AI-seat ruling is never narrated
 status: In Progress
 assignee: []
 created_date: '2026-11-14T02:22:00Z'
-updated_date: '2026-11-14T05:38:00Z'
+updated_date: '2026-11-14T05:39:00Z'
 labels:
   - playtest
   - ws:narration
@@ -58,4 +58,6 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-
 
 Phase 3 done (23d2f0c3): deeds-narrated check + negative proof; ci:check green on second run (first run web-test failure undiagnosed; orchestrator re-checks at final gate).
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5
+
+Parent condition 2026-11-14: before PR, run web suites (node --test and vitest) 3x on the final tree; explain any failure (name+error; known flake named, new one carded or fixed here); note result in PR body.
 <!-- SECTION:NOTES:END -->
