@@ -4,7 +4,7 @@ title: Intent settled by an AI-seat ruling is never narrated
 status: In Progress
 assignee: []
 created_date: '2026-11-14T02:22:00Z'
-updated_date: '2026-11-14T06:04:00Z'
+updated_date: '2026-11-14T06:17:00Z'
 labels:
   - playtest
   - ws:narration
@@ -27,9 +27,9 @@ Spec: specs/111-ruling-narration
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 A ruling turn that settles Intents narrates their facts through the narrate window, with an integration test built from this flow (declared, suggest, accept, needs_ruling, ruling, narration).
-- [ ] #2 No AI-seat-settled Intent ends a job as empty-beat without narration, with a test.
-- [ ] #3 The playtest auditor gains a deterministic check that fails when a settled or stopped Intent has no narration segment covering it, run in CI through the scripted harness scenario, with a negative proof.
+- [x] #1 A ruling turn that settles Intents narrates their facts through the narrate window, with an integration test built from this flow (declared, suggest, accept, needs_ruling, ruling, narration).
+- [x] #2 No AI-seat-settled Intent ends a job as empty-beat without narration, with a test.
+- [x] #3 The playtest auditor gains a deterministic check that fails when a settled or stopped Intent has no narration segment covering it, run in CI through the scripted harness scenario, with a negative proof.
 <!-- AC:END -->
 
 ## Definition of Done
