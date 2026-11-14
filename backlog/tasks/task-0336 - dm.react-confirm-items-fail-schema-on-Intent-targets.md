@@ -4,7 +4,7 @@ title: dm.react confirm items fail schema on Intent targets
 status: In Progress
 assignee: []
 created_date: '2026-11-14T02:18:00Z'
-updated_date: '2026-11-14T06:18:00Z'
+updated_date: '2026-11-14T07:13:00Z'
 labels:
   - playtest
   - ws:narration
@@ -43,4 +43,7 @@ Spec: specs/114-react-confirm-targets
 
 <!-- SECTION:NOTES:BEGIN -->
 Claimed 2026-11-14 by the R1 sweep (docs/design/r1-fast-table-runbook.md). Worktree .worktrees/task-0336, branch task-0336-react-confirm-targets, cut from origin/main 8b958a98. Spec number 114 claimed with a stub.
+
+Spec 114 authored (323b0b43): dm.react-v5 target shape + Targets list; normalizeReact repair (zone/actor only, unique id); failed talk turn appends public ai:dm ooc notice; parseAgainst names missing kind; CI confirm deed. OQ-2 (hidden zones out of Targets) and OQ-3 (item/entity repair waits for a list) defaults kept. OQ-1 and OQ-4 to parent for ruling.
+Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=cc/claude-opus-5-5
 <!-- SECTION:NOTES:END -->
