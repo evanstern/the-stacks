@@ -1,7 +1,7 @@
 ---
 id: TASK-0336
 title: dm.react confirm items fail schema on Intent targets
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-11-14T02:18:00Z'
 updated_date: '2026-11-14T08:19:00Z'
@@ -68,3 +68,9 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-
 
 spec-bridge sync: Prompt, repair and the test-drive replay: 7/7 · Read-failure notice and re-ask text: 7/7 · CI scenario confirm deed: 7/7 · Wiki: 5/5 — status In Progress → Done. Merged PR #182 as 5bf731e2. AC #2 scope: repair covers zone and actor ids; item ids wait for an item list (spec 114 OQ-3, default kept by parent ruling).
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Prompt, repair and the test-drive replay: 7/7 · Read-failure notice and re-ask text: 7/7 · CI scenario confirm deed: 7/7 · Wiki: 5/5). Merged in PR #182 (5bf731e2): dm.react-v5 shows the target shape with a worked example and a Targets list; normalizeReact fills a missing kind for a unique zone or actor id; a failed talk turn posts a public notice; the re-ask names a missing kind; the CI scenario runs a free-mode targeted confirm deed, and its intent deeds now take the direct path. Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
