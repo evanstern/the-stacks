@@ -16,6 +16,7 @@ import {
   type ActorSnapshot,
   renderSnapshot,
   SnapshotOverflowError,
+  visibleActors,
 } from "../snapshot/index.js";
 import {
   CAPS,
@@ -26,7 +27,7 @@ import {
   transcriptEntries,
 } from "./common.js";
 
-export const PROMPT_VERSION = "dm.narrate-v24";
+export const PROMPT_VERSION = "dm.narrate-v25";
 
 /** One turn rule, shared by the narrate and audit prompts (TASK-0214). */
 export const TURN_RULE =
@@ -226,15 +227,12 @@ export function characterSections(snapshot: ActorSnapshot): string[] {
     cap: CAPS.snapshotFiction,
   });
   if (!r.ok) throw new SnapshotOverflowError(r.detail);
-  // One line per actor follows the stage lines, in snapshot order.
-  const stage = r.lines.slice(0, r.lines.length - snapshot.actors.length);
+  // One line per visible actor follows the stage lines, in snapshot order.
+  const actors = visibleActors(snapshot, "fiction");
+  const stage = r.lines.slice(0, r.lines.length - actors.length);
   const actorLines = r.lines.slice(stage.length);
-  const party = actorLines.filter(
-    (_, i) => snapshot.actors[i]?.kind === "party",
-  );
-  const world = actorLines.filter(
-    (_, i) => snapshot.actors[i]?.kind !== "party",
-  );
+  const party = actorLines.filter((_, i) => actors[i]?.kind === "party");
+  const world = actorLines.filter((_, i) => actors[i]?.kind !== "party");
   const label = (name: string, lines: string[]): string =>
     lines.length > 0 ? `## ${name}\n${lines.join("\n")}` : "";
   return [

@@ -368,7 +368,7 @@ describe("narrate", () => {
       snapshot,
       facts,
     });
-    expect(NARRATE_VERSION).toBe("dm.narrate-v24");
+    expect(NARRATE_VERSION).toBe("dm.narrate-v25");
     expect(prompt.system).toContain(
       "A refused action did not happen: no roll and no result. Never show it succeed, fail or land, and never show anyone react to its result.",
     );
@@ -758,7 +758,7 @@ describe("narrate", () => {
     if (!out.ok) throw new Error("narrate failed");
     const fight = greyhollowFight();
     const snapshot = buildSnapshot(fight.projections, fight.seed);
-    expect(NARRATE_VERSION).toBe("dm.narrate-v24");
+    expect(NARRATE_VERSION).toBe("dm.narrate-v25");
     const turnFacts = {
       ...out.output.facts,
       turn: { actor: "Snag", next: "Kestrel" },

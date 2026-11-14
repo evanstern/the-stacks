@@ -19,11 +19,11 @@ Keep the `checks.ts` diff inside the hidden-info block (TASK-0337 edits the same
 
 ## Phase 2: Prompts see only met names (US3, AC #2)
 
-- [ ] T010 In `dm/snapshot/render.ts`, export `visibleActors(snapshot, view)`. Drop unmet actors in the `seat` and `fiction` views, including the compressed path (plan D5).
-- [ ] T011 In `dm/prompts/narrate.ts`, index `characterSections` by `visibleActors`. Bump to `dm.narrate-v25`. Bump `dm/prompts/react.ts` to `dm.react-v5`.
-- [ ] T012 In `dm/prompts/companion.ts`, keep only relationships to met actors. Bump to `dm.companion-v10`.
-- [ ] T013 Write `apps/server/test/dm/dialogue-knowledge-prompts.test.ts`. Build Odo's companion prompt and the react prompt from the fixture at seq 20 and with corrected seq 21. Assert no Snag alias in either; assert Pell appears only after corrected seq 21.
-- [ ] T014 Update version strings and render cases in `react-prompt.test.ts`, `narrate.test.ts`, `companion-addressee.test.ts`, `talk-turn.integration.test.ts` and the snapshot render tests.
+- [x] T010 In `dm/snapshot/render.ts`, export `visibleActors(snapshot, view)`. Drop unmet actors in the `seat` and `fiction` views, including the compressed path (plan D5).
+- [x] T011 In `dm/prompts/narrate.ts`, index `characterSections` by `visibleActors`. Bump to `dm.narrate-v25`. Bump `dm/prompts/react.ts` to `dm.react-v5`.
+- [x] T012 In `dm/prompts/companion.ts`, keep only relationships to met actors. Bump to `dm.companion-v10`.
+- [x] T013 Write `apps/server/test/dm/dialogue-knowledge-prompts.test.ts`. Build Odo's companion prompt and the react prompt from the fixture at seq 20 and with corrected seq 21. Assert no Snag alias in either; assert Pell appears only after corrected seq 21.
+- [x] T014 Update version strings and render cases in `react-prompt.test.ts`, `narrate.test.ts`, `companion-addressee.test.ts`, `talk-turn.integration.test.ts` and the snapshot render tests.
 
 ## Phase 3: Auditor mirrors the runtime rule (US4, card note)
 

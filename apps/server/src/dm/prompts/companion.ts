@@ -19,7 +19,7 @@ import {
 } from "./common.js";
 import { INTENT_GRAMMAR } from "./interpret.js";
 
-export const PROMPT_VERSION = "dm.companion-v9";
+export const PROMPT_VERSION = "dm.companion-v10";
 
 /** The shared grammar lines for the kinds a companion may use (spec 107 D5). */
 const TURN_GRAMMAR = INTENT_GRAMMAR.split("\n")
@@ -122,7 +122,10 @@ export function buildCompanionPrompt(input: CompanionPromptInput): {
         `Want: ${sheet.portrayal.want}`,
         `Detail: ${sheet.portrayal.detail}`,
         `Knows: ${sheet.knows.join(" ")}`,
-        `Relationships: ${sheet.relationships.map((r) => `${r.to} (${r.kind})`).join(", ")}`,
+        `Relationships: ${sheet.relationships
+          .filter((r) => snapshot.actors.some((a) => a.id === r.to && a.met))
+          .map((r) => `${r.to} (${r.kind})`)
+          .join(", ")}`,
       ]
     : [`You are ${characterId}.`];
 

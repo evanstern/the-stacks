@@ -25,8 +25,8 @@ const base = {
 };
 
 describe("react prompt (specs/065 D4)", () => {
-  it("is versioned dm.react-v4", () => {
-    expect(PROMPT_VERSION).toBe("dm.react-v4");
+  it("is versioned dm.react-v5", () => {
+    expect(PROMPT_VERSION).toBe("dm.react-v5");
   });
 
   it("states the confirm and answer rules and the outcome list (spec 066)", () => {

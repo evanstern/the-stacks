@@ -215,17 +215,26 @@ function compressedLine(a: SnapshotActor, opts: RenderOptions): string {
   return `${a.id} "${a.name}" (${a.kind}): ${word}`;
 }
 
+/** The actors a view may name: `seat` and `fiction` drop actors the party has not met. */
+export function visibleActors(
+  snapshot: ActorSnapshot,
+  view: RenderOptions["view"],
+): SnapshotActor[] {
+  return view === "dm" ? snapshot.actors : snapshot.actors.filter((a) => a.met);
+}
+
 export function renderSnapshot(
   snapshot: ActorSnapshot,
   opts: RenderOptions,
 ): RenderResult {
   const stage = stageLines(snapshot, opts);
-  const full = snapshot.actors.map((a) => fullLine(a, opts, snapshot));
+  const actors = visibleActors(snapshot, opts.view);
+  const full = actors.map((a) => fullLine(a, opts, snapshot));
   if (totalOf([...stage, ...full]) <= opts.cap) {
     return { ok: true, lines: [...stage, ...full] };
   }
   let compressed = 0;
-  const lines = snapshot.actors.map((a, i) => {
+  const lines = actors.map((a, i) => {
     if (isCompressible(a)) {
       compressed++;
       return compressedLine(a, opts);
@@ -241,7 +250,7 @@ export function renderSnapshot(
       view: opts.view,
       tokens,
       cap: opts.cap,
-      actors: snapshot.actors.length,
+      actors: actors.length,
       compressed,
     },
   };
