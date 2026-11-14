@@ -124,5 +124,7 @@ export interface TalkResult {
   confirmItems: number;
   /** Spec 066 FR-013: true when an `ask_dm` answer shipped. */
   answered: boolean;
+  /** Spec 114 FR-007: confirm targets `normalizeReact` repaired in the parsing attempt. */
+  targetRepairs: number;
   reason: string;
 }

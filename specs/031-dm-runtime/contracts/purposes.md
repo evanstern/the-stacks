@@ -66,3 +66,15 @@ prompt version `dm.react-v2`. No purpose, `AI_PURPOSES` entry or output cap is a
 
 The read's call uses prompt version `dm.react-v4`, not `dm.react-v2`. The purpose stays `dm.narrate`.
 No purpose, `AI_PURPOSES` entry or output cap is added.
+
+## Amendment 2026-11-14 (TASK-0336, specs/114-react-confirm-targets): `dm.react-v5`
+
+**Amendment (TASK-0336).** Spec `specs/114-react-confirm-targets`, plan D1 and D2. Additive. Operator ruling: "Approved, but automate the tests" (runbook amendment 2026-11-13).
+
+The read's call uses prompt version `dm.react-v5`, not `dm.react-v4`. The purpose stays `dm.narrate`.
+No purpose, `AI_PURPOSES` entry or output cap is added.
+
+- The system prompt shows the target ref forms and one worked `search` confirm example.
+- The user prompt adds a `Targets` section: revealed zones and present actors, one `<id> (<kind>, <name>)` line each.
+- The read call passes a `normalize` function to `callJson`. It fills a missing `kind` on a confirm target that is a bare id, or an object with only `id`, when the id names exactly one listed target. Unknown or ambiguous ids stay unchanged.
+- `jobs.result.talk.targetRepairs` counts the repaired targets.

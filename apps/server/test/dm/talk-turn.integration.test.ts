@@ -136,7 +136,7 @@ describe.skipIf(!reachable)("talk turn (database)", () => {
       expect.objectContaining({ kind: "addressed", actorId: "wenna" }),
     );
     expect(result.calls.map((c) => [c.purpose, c.promptVersion])).toEqual([
-      [PURPOSE_OF.narrate, "dm.react-v4"],
+      [PURPOSE_OF.narrate, "dm.react-v5"],
     ]);
   });
 
@@ -630,4 +630,48 @@ describe.skipIf(!reachable)("the read: confirm and answer (spec 066)", () => {
     expect(await suggested(w)).toHaveLength(0);
     expect(KESTREL).toBe("kestrel");
   });
+});
+
+describe.skipIf(!reachable)("react confirm targets replay (spec 114)", () => {
+  const searchReact = (target: unknown) =>
+    confirmReact({
+      confirm: [
+        {
+          characterId: "tamsin",
+          text: "Tamsin searches the ferry house.",
+          body: { kind: "search", targets: [target], params: {} },
+        },
+      ],
+    });
+
+  it.each([
+    ["attempt 1 body (bare id)", "ferry-house"],
+    ["attempt 2 body (id only)", { id: "ferry-house" }],
+  ])(
+    "repairs the %s in one call and ships a zone target",
+    async (_n, target) => {
+      const { w, worker } = await table([
+        {
+          purpose: "dm.narrate",
+          respond: { type: "json", value: searchReact(target) },
+        },
+      ]);
+      await say(w, "I search the ferry house");
+      await drainAll(worker);
+      const sug = await suggested(w);
+      expect(sug).toHaveLength(1);
+      const pl = payloadOf<{
+        items: { intent: { kind: string; targets: unknown[] } }[];
+      }>(sug[0]);
+      expect(pl.items[0]?.intent).toMatchObject({
+        kind: "search",
+        targets: [{ kind: "zone", id: "ferry-house" }],
+      });
+      const [job] = await talkJobs(w);
+      expect(job?.result).toMatchObject({
+        talk: { outcome: "confirm", confirmItems: 1, targetRepairs: 1 },
+      });
+      expect(job?.result).toMatchObject({ calls: [expect.anything()] });
+    },
+  );
 });

@@ -32,6 +32,7 @@ import { rosterOf } from "./prompts/common.js";
 import { buildReactPrompt, PROMPT_VERSION } from "./prompts/react.js";
 import { PURPOSE_OF } from "./purposes.js";
 import { dmOnlySeedText, playerFacingSeed } from "./seed/views.js";
+import type { ActorSnapshot } from "./snapshot/index.js";
 import {
   type CodeTrigger,
   capReached,
@@ -104,6 +105,62 @@ const AI_NOTE = (summary: string, rationale: string) => ({
   rationale: rationale.slice(0, 2000),
 });
 
+export interface KnownTarget {
+  kind: "zone" | "actor";
+  id: string;
+  name: string;
+}
+
+/** Revealed zones, then present actors: the ids a confirm target may name (spec 114 FR-005). */
+export function knownTargets(snapshot: ActorSnapshot): KnownTarget[] {
+  return [
+    ...(snapshot.stage.zones ?? [])
+      .filter((z) => z.revealed)
+      .map((z) => ({ kind: "zone" as const, id: z.id, name: z.name })),
+    ...snapshot.actors
+      .filter((a) => a.presence === "present")
+      .map((a) => ({ kind: "actor" as const, id: a.id, name: a.name })),
+  ];
+}
+
+const isObj = (x: unknown): x is Record<string, unknown> =>
+  typeof x === "object" && x !== null && !Array.isArray(x);
+
+/**
+ * Fills a missing target `kind` from the known list (spec 114 D2). A bare id string, or an
+ * object whose only key is `id`, that names exactly one known target becomes `{ kind, id }`.
+ * Unknown or ambiguous ids stay as written, so the schema fails and the re-ask runs.
+ */
+export function normalizeReact(
+  json: unknown,
+  known: readonly KnownTarget[],
+): { json: unknown; repairs: number } {
+  if (!isObj(json) || !Array.isArray(json.confirm)) return { json, repairs: 0 };
+  let repairs = 0;
+  const fix = (t: unknown): unknown => {
+    const id =
+      typeof t === "string"
+        ? t
+        : isObj(t) && Object.keys(t).length === 1 && typeof t.id === "string"
+          ? t.id
+          : null;
+    if (id === null) return t;
+    const hits = known.filter((k) => k.id === id);
+    if (hits.length !== 1) return t;
+    repairs++;
+    return { kind: hits[0]?.kind, id };
+  };
+  const confirm = json.confirm.map((item: unknown) => {
+    if (!isObj(item) || !isObj(item.body) || !Array.isArray(item.body.targets))
+      return item;
+    return {
+      ...item,
+      body: { ...item.body, targets: item.body.targets.map(fix) },
+    };
+  });
+  return { json: { ...json, confirm }, repairs };
+}
+
 export async function runTalkTurn(
   ctx: TurnContext,
   assembled: NodeOutputs["assemble"],
@@ -130,6 +187,7 @@ export async function runTalkTurn(
     outcome: "none",
     confirmItems: 0,
     answered: false,
+    targetRepairs: 0,
     reason: "",
   };
   let nextJob: ResolveOutput["nextJob"] = null;
@@ -193,6 +251,8 @@ export async function runTalkTurn(
     .filter((m) => m.controller.kind === "player")
     .map((m) => ({ id: m.characterId, name: m.name }));
 
+  const known = knownTargets(assembled.snapshot);
+  let repairs = 0;
   const ask = async () => {
     const prompt = buildReactPrompt({
       seed: view,
@@ -205,6 +265,7 @@ export async function runTalkTurn(
         rule: e.rule,
       })),
       humans,
+      targets: known,
       triggers,
       transcriptTail: assembled.transcriptTail,
       presentNpcIds,
@@ -221,6 +282,11 @@ export async function runTalkTurn(
       system: prompt.system,
       user: prompt.user,
       schema: ReactOutput,
+      normalize: (j) => {
+        const r = normalizeReact(j, known);
+        repairs = r.repairs;
+        return r.json;
+      },
       signal: ctx.signal,
     });
   };
@@ -232,6 +298,7 @@ export async function runTalkTurn(
     if (!first.ok)
       return { status: "failed", node: "narrate", error: first.error, calls };
     react = first.value;
+    result.targetRepairs = repairs;
     if (!(await ctx.deps.saveCheckpoint({ ...ctx.checkpoint, react })))
       return fenced();
   }

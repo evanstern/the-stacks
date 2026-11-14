@@ -7,13 +7,13 @@ Do not edit `nodes/schemas.ts`, `packages/intent`, `dm/enqueue.ts`, `dm/deeds.ts
 
 ## Phase 1: Prompt, repair and the test-drive replay (FR-001–FR-007; AC #1, #2)
 
-- [ ] T001 In `prompts/react.ts`, add the ref line, export `EXAMPLE_CONFIRM` and render it, add `targets` to `ReactPromptInput` and the `Targets` section, and bump to `dm.react-v5` (plan D1).
-- [ ] T002 In `talk-turn.ts`, add `KnownTarget`, `knownTargets` and `normalizeReact` as pure exports (plan D2).
-- [ ] T003 In `talk-turn.ts`, pass `knownTargets(assembled.snapshot)` to the prompt and `normalize` to `callJson`. Record `targetRepairs`. Add `targetRepairs` to `TalkResult` in `talk-triggers.ts`.
-- [ ] T004 Extend `test/dm/react-prompt.test.ts` per SC-001. Update the version assertion.
-- [ ] T005 Write `test/dm/react-normalize.test.ts` with the SC-003 cases.
-- [ ] T006 Extend `test/dm/talk-turn.integration.test.ts`: replay the attempt 1 body and the attempt 2 body through a `say` post (SC-002).
-- [ ] T007 Amend `specs/031-dm-runtime/contracts/purposes.md` with a `dm.react-v5` amendment.
+- [x] T001 In `prompts/react.ts`, add the ref line, export `EXAMPLE_CONFIRM` and render it, add `targets` to `ReactPromptInput` and the `Targets` section, and bump to `dm.react-v5` (plan D1).
+- [x] T002 In `talk-turn.ts`, add `KnownTarget`, `knownTargets` and `normalizeReact` as pure exports (plan D2).
+- [x] T003 In `talk-turn.ts`, pass `knownTargets(assembled.snapshot)` to the prompt and `normalize` to `callJson`. Record `targetRepairs`. Add `targetRepairs` to `TalkResult` in `talk-triggers.ts`.
+- [x] T004 Extend `test/dm/react-prompt.test.ts` per SC-001. Update the version assertion.
+- [x] T005 Write `test/dm/react-normalize.test.ts` with the SC-003 cases.
+- [x] T006 Extend `test/dm/talk-turn.integration.test.ts`: replay the attempt 1 body and the attempt 2 body through a `say` post (SC-002).
+- [x] T007 Amend `specs/031-dm-runtime/contracts/purposes.md` with a `dm.react-v5` amendment.
 
 ## Phase 2: Read-failure notice and re-ask text (FR-008–FR-011; AC #3, brief item 5)
 
