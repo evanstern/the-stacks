@@ -7,13 +7,13 @@ Do not edit `dm/enqueue.ts`, `dm/rulings.ts`, `dm/intent-runner.ts` or `gate/`.
 
 ## Phase 1: Deed test and narrate window (FR-001–FR-003, FR-006, FR-007)
 
-- [ ] T001 Create `apps/server/src/dm/deeds.ts` per plan D1: `Deed`, `isDeedRow`, `narrateWindow`, `windowDeeds`. Keep it pure; import nothing from `gate/` or DB code.
-- [ ] T002 Write `apps/server/test/dm/deeds.test.ts` with the plan D8 cases.
-- [ ] T003 In `nodes/narrate.ts`, replace the inline W0/W1 logic with `narrateWindow`. Build `directBatches` from `windowDeeds` for every trigger (plan D3). Export `pendingDeeds(ctx)`.
-- [ ] T004 In `facts.ts`, add `text` and `stopped` to `directBatches` entries and `deed` to direct `FactSettled` entries (plan D4).
-- [ ] T005 In `fact-sheet.ts`, add row kind `deed` and `deedLine`. Render a deed row before each direct entry's rows.
-- [ ] T006 In `prompts/narrate.ts`, render `Direct action: <name>: <text>`, add the every-deed rule line, and bump to `dm.narrate-v25`. Update the prompt and sheet tests the change touches (`narrate.test.ts`, `fact-sheet.test.ts`, `narrate-window.test.ts`).
-- [ ] T007 Add `Deed: ` to the code-block line regexes in `auditor/checks.ts` (`splitNarration`, dropped from compared dice lines) and `apps/web/app/play/narration-rows.ts` (kept in rules). Add one case each to `test/playtest/checks.test.ts` and `apps/web/test/play/narration-rows.test.mjs`.
+- [x] T001 Create `apps/server/src/dm/deeds.ts` per plan D1: `Deed`, `isDeedRow`, `narrateWindow`, `windowDeeds`. Keep it pure; import nothing from `gate/` or DB code.
+- [x] T002 Write `apps/server/test/dm/deeds.test.ts` with the plan D8 cases.
+- [x] T003 In `nodes/narrate.ts`, replace the inline W0/W1 logic with `narrateWindow`. Build `directBatches` from `windowDeeds` for every trigger (plan D3). Export `pendingDeeds(ctx)`.
+- [x] T004 In `facts.ts`, add `text` and `stopped` to `directBatches` entries and `deed` to direct `FactSettled` entries (plan D4).
+- [x] T005 In `fact-sheet.ts`, add row kind `deed` and `deedLine`. Render a deed row before each direct entry's rows.
+- [x] T006 In `prompts/narrate.ts`, render `Direct action: <name>: <text>`, add the every-deed rule line, and bump to `dm.narrate-v25`. Update the prompt and sheet tests the change touches (`narrate.test.ts`, `fact-sheet.test.ts`, `narrate-window.test.ts`).
+- [x] T007 Add `Deed: ` to the code-block line regexes in `auditor/checks.ts` (`splitNarration`, dropped from compared dice lines) and `apps/web/app/play/narration-rows.ts` (kept in rules). Add one case each to `test/playtest/checks.test.ts` and `apps/web/test/play/narration-rows.test.mjs`.
 
 ## Phase 2: Runner rule and the test-drive replay (FR-004, FR-005; AC #1, #2, note AC)
 

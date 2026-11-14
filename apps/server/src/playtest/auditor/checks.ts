@@ -69,6 +69,8 @@ const DICE_LINE =
 const WHY_LINE =
   /^(?:Rule: |DC \d+|Difficulty: |Opposed by |Reach: |DM ruling: |No roll needed$|The DM sets the )|(?: joins the fight| may react as the mover leaves)$/;
 /** The State line closes the code block; it has no ledger counterpart. */
+/** A `Deed:` row (spec 111): the code-written line naming a direct act; no ledger counterpart. */
+const DEED_LINE = /^Deed: /;
 const STATE_LINE = /^State: /;
 /** A refusal row comes from `action.resolved`, not a ledger row the check replays. */
 const REFUSAL_ROW = /: refused, .+ \([A-Z_]+\)$/;
@@ -96,7 +98,11 @@ export function splitNarration(text: string): {
   if (
     lines.length === 0 ||
     !lines.every(
-      (l) => STATE_LINE.test(l) || WHY_LINE.test(l) || DICE_LINE.test(l),
+      (l) =>
+        STATE_LINE.test(l) ||
+        WHY_LINE.test(l) ||
+        DEED_LINE.test(l) ||
+        DICE_LINE.test(l),
     )
   ) {
     return { prose: text, diceLines: [] };
@@ -104,7 +110,11 @@ export function splitNarration(text: string): {
   return {
     prose: trimmed.slice(0, i),
     diceLines: lines.filter(
-      (l) => !STATE_LINE.test(l) && !WHY_LINE.test(l) && !REFUSAL_ROW.test(l),
+      (l) =>
+        !STATE_LINE.test(l) &&
+        !WHY_LINE.test(l) &&
+        !DEED_LINE.test(l) &&
+        !REFUSAL_ROW.test(l),
     ),
   };
 }

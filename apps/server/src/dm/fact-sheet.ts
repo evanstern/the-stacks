@@ -49,7 +49,8 @@ export interface FactRow {
     | "spell-slot"
     | "assist"
     | "refusal"
-    | "why";
+    | "why"
+    | "deed";
   text: string;
 }
 
@@ -179,6 +180,13 @@ function rowKind(c: FactChange): FactRow["kind"] {
   return c.kind;
 }
 
+/** Spec 111: one `Deed:` row per direct entry, in the Intent's text form. */
+export const deedLine = (s: {
+  name: string;
+  deed: { text: string; stopped: string | null };
+}): string =>
+  `Deed: ${s.name}: ${s.deed.text}${s.deed.stopped ? ` (stopped, ${s.deed.stopped})` : ""}`;
+
 /** Every fact row for the turn, in narration order (contract §3). Pure. */
 export function renderRows(facts: NarrationFacts): FactRow[] {
   const rows: FactRow[] = [];
@@ -203,7 +211,14 @@ export function renderRows(facts: NarrationFacts): FactRow[] {
   for (const s of facts.pulled ?? []) push(s.rolls, s.changes);
   if (facts.npcTurn) push(facts.npcTurn.rolls, facts.npcTurn.changes);
   for (const s of facts.settled ?? []) push(s.rolls, s.changes);
-  for (const s of facts.direct ?? []) push(s.rolls, s.changes);
+  for (const s of facts.direct ?? []) {
+    if (s.deed)
+      rows.push({
+        kind: "deed",
+        text: deedLine({ name: s.name, deed: s.deed }),
+      });
+    push(s.rolls, s.changes);
+  }
   return rows;
 }
 

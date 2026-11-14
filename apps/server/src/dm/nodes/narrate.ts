@@ -1,3 +1,5 @@
+import type { SessionProjections } from "@the-stacks/session-model";
+import { type Deed, narrateWindow, windowDeeds } from "../deeds.js";
 import type { PlanFact } from "../fact-sheet.js";
 import {
   buildFactSheet,
@@ -231,6 +233,49 @@ export async function narrateAttempt(
   return { ok: true, prose: proseOf(slots), slots, calls: result.calls };
 }
 
+/** The narrate window `(W0, W1]`, every carrier through W1 and the deeds inside the window. */
+async function loadWindow(
+  ctx: TurnContext,
+  projections: SessionProjections,
+  prior: readonly { checkpoint: { factsThrough?: number } }[],
+) {
+  const w1 = projections.throughSeq;
+  let lastNarrationSeq: number | null = null;
+  if (!prior.some((t) => t.checkpoint.factsThrough !== undefined)) {
+    const lastNarration = await ctx.deps.loadEvents(ctx.job.sessionId, {
+      afterSeq: 0,
+      throughSeq: w1,
+      types: ["narration"],
+    });
+    lastNarrationSeq = lastNarration.at(-1)?.seq ?? null;
+  }
+  const window = narrateWindow(prior, lastNarrationSeq, w1);
+  // ponytail: one full carrier read per narrating turn; ceiling a long session; upgrade to an
+  // `asks` lookup by request id when a session passes a few hundred carriers.
+  const carriers =
+    w1 > window.w0
+      ? await ctx.deps.loadEvents(ctx.job.sessionId, {
+          afterSeq: 0,
+          throughSeq: w1,
+          types: ["intent.recorded"],
+        })
+      : [];
+  return {
+    window,
+    carriers,
+    deeds: windowDeeds(carriers, projections, window),
+  };
+}
+
+/** Spec 111 (plan D2): the deeds this turn would narrate; the runner reads it for `empty-beat`. */
+export async function pendingDeeds(ctx: TurnContext): Promise<Deed[]> {
+  const projections = await ctx.deps.loadProjections(ctx.job.sessionId);
+  const prior = ctx.deps.loadPriorTurns
+    ? await ctx.deps.loadPriorTurns(ctx.job.sessionId, ctx.job.id)
+    : [];
+  return (await loadWindow(ctx, projections, prior)).deeds;
+}
+
 export const narrate: Node<"narrate"> = async (ctx) => {
   const { assemble: assembled, director, resolve } = ctx.results;
   if (!assembled || !director || !resolve) {
@@ -275,46 +320,18 @@ export const narrate: Node<"narrate"> = async (ctx) => {
   // in the window `(W0, W1]`. W1 is the projections this narrate reads; W0 is the newest prior
   // turn's `factsThrough`, else the newest earlier `narration` row (a first beat or a deploy
   // must not re-render history), else 0.
-  const w1 = projections.throughSeq;
-  let w0 = prior.find((t) => t.checkpoint.factsThrough !== undefined)
-    ?.checkpoint.factsThrough;
-  if (w0 === undefined) {
-    const lastNarration = await ctx.deps.loadEvents(ctx.job.sessionId, {
-      afterSeq: 0,
-      throughSeq: w1,
-      types: ["narration"],
-    });
-    w0 = lastNarration.at(-1)?.seq ?? 0;
-  }
-  const carriers =
-    w1 > w0
-      ? await ctx.deps.loadEvents(ctx.job.sessionId, {
-          afterSeq: w0,
-          throughSeq: w1,
-          types: ["intent.recorded"],
-        })
-      : [];
+  const { window, carriers, deeds } = await loadWindow(ctx, projections, prior);
   const planFacts: PlanFact[] = carriers
-    .filter((r) => r.visibility === "public")
+    .filter((r) => r.visibility === "public" && r.seq > window.w0)
     .sort((x, y) => x.seq - y.seq)
     .flatMap((r) => (r.payload as { facts?: PlanFact[] }).facts ?? []);
-  // Spec 066 FR-031: an `intent` turn narrates the engine rows of the direct Intents in the window.
-  const directBatches =
-    ctx.job.trigger === "intent"
-      ? carriers.flatMap((r) => {
-          const pl = r.payload as {
-            batchId?: string | null;
-            intent?: { actor?: { kind?: string; id?: string } };
-          };
-          if (r.visibility !== "public" || !pl.batchId) return [];
-          const id = pl.intent?.actor?.id;
-          const name =
-            projections.party.find((m) => m.characterId === id)?.name ??
-            id ??
-            "The scene";
-          return [{ name, batchId: pl.batchId }];
-        })
-      : [];
+  // Spec 111 (plan D3): every trigger narrates the deeds in the window, one entry each.
+  const directBatches = deeds.map((d) => ({
+    name: d.name,
+    batchId: d.batchId,
+    text: d.text,
+    stopped: d.stopped,
+  }));
   const built = buildNarrationFacts({
     trigger: ctx.job.trigger,
     seed: playerFacingSeed(ctx.seed),
@@ -459,7 +476,7 @@ export const narrate: Node<"narrate"> = async (ctx) => {
         slots,
         withheld,
         narrateError: result.error.kind,
-        factsThrough: w1,
+        factsThrough: window.w1,
         ...(stream ? { stream, timing } : {}),
       },
     };
@@ -480,7 +497,7 @@ export const narrate: Node<"narrate"> = async (ctx) => {
       slots: result.slots,
       withheld,
       narrateError: null,
-      factsThrough: w1,
+      factsThrough: window.w1,
       ...(stream ? { stream, timing } : {}),
     },
   };

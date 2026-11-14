@@ -280,3 +280,13 @@ describe("splitNarration: row forms and the State line (spec 098 D8)", () => {
     expect(splitNarration(t).prose).toBe(t);
   });
 });
+
+describe("splitNarration: Deed rows (spec 111)", () => {
+  it("accepts a Deed row and drops it from the compared lines", () => {
+    const { prose, diceLines } = splitNarration(
+      "Prose.\n\nDeed: Ana: /search #ferry-house\nAna: 1d20 → 14 = 14\nState: Anyone may act.",
+    );
+    expect(prose).toBe("Prose.");
+    expect(diceLines).toEqual(["Ana: 1d20 → 14 = 14"]);
+  });
+});
