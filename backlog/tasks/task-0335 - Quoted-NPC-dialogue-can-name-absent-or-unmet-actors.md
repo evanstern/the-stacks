@@ -68,6 +68,8 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5 (reconcile with main: TASK-0336/0337; dm.react-v6)
 
 Operator ruling 2026-11-14 (in chat): "Remove after merge". Once PR merges and the worktree is removed, delete the three ~/.claude/settings.json allow rules for git -C .../worktrees/task-0335 add, commit and push.
+
+spec-bridge sync: Knowledge model and the speech check (US1, US2, AC #1): 9/9 · Prompts see only met names (US3, AC #2): 5/5 · Auditor mirrors the runtime rule (US4, card note): 3/3 · Wiki re-pin: 3/3 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
