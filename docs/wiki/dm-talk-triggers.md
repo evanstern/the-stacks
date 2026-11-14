@@ -14,7 +14,7 @@ sources:
   - apps/server/src/dm/nodes/schemas.ts
   - apps/server/dm-scripts/greyhollow-talk.json
   - apps/server/dm-scripts/greyhollow-confirm.json
-verified_against: b811b90d03f6e4769956e6db4f8a3cd7fce790df
+verified_against: 87c50b511c3ba79cf4f4ad489de6ecfaadc918f9
 ---
 
 # DM talk triggers
@@ -63,7 +63,7 @@ full pipeline. The worker records the presence marker with purpose `read` for a 
    body }`; code stamps each with `stampIntent`, and drops one for a non-human, absent or downed
    character or a text the check flags. The turn pipeline's interpret output is `InterpretResult` (spec 104); the talk path does not read it.
 5. Code checks: `checkNarration` (spec 103, TASK-0272) over the reply as the describe slot
-   ([[dm-narration-quality]]): a leak drops the sentence and files a `dm` correction; a reply left empty records `none`. The same check cleans an `answer`. No second model call.
+   ([[dm-narration-quality]]; spec 112: a `reply` passes the reply's `speaker` as `speakerId`, so the whole reply is speech and the speech rule applies): a leak drops the sentence and files a `dm` correction; a reply left empty records `none`. The same check cleans an `answer`. No second model call.
 6. `escalate` runs resolve's opening move through a synthetic Director output when
    `legalEscalation` holds (free mode, no running encounter, encounter not yet run: `encounterRan`, spec 088); else `scene`.
 7. Ship, each row fenced and keyed for reclaim through `shipReadRows`: an `ask_dm` answer as an
@@ -80,4 +80,4 @@ shipped twice. A reclaimed escalation reads its posts as free mode
 once the opening move landed (commit c2e6d785), because the mode is already `turn`. An interrupted
 read writes nothing.
 
-`dm.react-v4` uses purpose `dm.narrate` ([[dm-runtime]]); no new purpose or migration.
+`dm.react-v5` (spec 112: the reply speaker rule) uses purpose `dm.narrate` ([[dm-runtime]]); no new purpose or migration.

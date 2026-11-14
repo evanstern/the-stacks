@@ -7,7 +7,7 @@ sources:
   - apps/server/src/dm/narration-words.ts
   - apps/server/src/dm/gates/plan-gate.ts
   - specs/051-output-claim-gate/contracts/claim-gate.md
-verified_against: 602d2ea1ff3d52b2cf12c01d3486d05e1019e6f5
+verified_against: 87c50b511c3ba79cf4f4ad489de6ecfaadc918f9
 ---
 
 # Output claim gate (retired)

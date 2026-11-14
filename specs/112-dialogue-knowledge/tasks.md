@@ -33,9 +33,9 @@ Keep the `checks.ts` diff inside the hidden-info block (TASK-0337 edits the same
 
 ## Phase 4: Wiki re-pin
 
-- [ ] T018 Re-verify and re-pin `docs/wiki/dm-narration-quality.md` (speech rule, `unmet-actor`, inner cuts, prompt versions), `actor-snapshot.md` (`met`, `knows`, view filter), `dm-talk-triggers.md` (reply speaker, `dm.react-v5`) and `playtest-harness.md` (hidden-info speech finding). Pin to the phase-3 commit.
-- [ ] T019 Re-pin the other notes that list a changed source with no semantic change: `dm-runtime.md`, `output-claim-gate.md`, `seed-npc-presence.md`, `dm-turn-jobs.md`, `debug-view.md`. Re-pin each only after reading the diff of its sources.
-- [ ] T020 Update `CAPSULES.md` and the `INDEX.md` state line for spec 112. Run the freshness gate: `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/<version>/gates/cli.mjs freshness . docs/wiki` prints `OK`.
+- [x] T018 Re-verify and re-pin `docs/wiki/dm-narration-quality.md` (speech rule, `unmet-actor`, inner cuts, prompt versions), `actor-snapshot.md` (`met`, `knows`, view filter), `dm-talk-triggers.md` (reply speaker, `dm.react-v5`) and `playtest-harness.md` (hidden-info speech finding). Pin to the phase-3 commit.
+- [x] T019 Re-pin the other notes that list a changed source with no semantic change: `dm-runtime.md`, `output-claim-gate.md`, `seed-npc-presence.md`, `dm-turn-jobs.md`, `debug-view.md`. Re-pin each only after reading the diff of its sources.
+- [x] T020 Update `CAPSULES.md` and the `INDEX.md` state line for spec 112. Run the freshness gate: `node ~/.claude/plugins/cache/praxisflux/grounding-wiki/<version>/gates/cli.mjs freshness . docs/wiki` prints `OK`.
 
 ## Dependencies
 
