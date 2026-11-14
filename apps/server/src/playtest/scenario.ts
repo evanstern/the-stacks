@@ -24,11 +24,16 @@ const ErrorKindSchema = z.enum([
 
 const ActionId = z.string().regex(/^[a-z0-9-]{1,64}$/);
 
-const Move = z.object({
+const BaseMove = z.object({
   text: z.string().min(1).max(500),
   actionId: ActionId.optional(),
   /** Submit `text` as a confirmed direct Intent (slash text), not a declared action. */
   intent: z.literal(true).optional(),
+  /** Declare `text`, let the DM react, then accept the seat's live suggestion items (spec 114). */
+  confirm: z.literal(true).optional(),
+});
+const Move = BaseMove.refine((m) => !(m.intent && m.confirm), {
+  message: "a move cannot set both `intent` and `confirm`",
 });
 
 /** Scripted players (specs/032-playtest-harness contracts/scenario.md). */
@@ -50,7 +55,7 @@ export const ScenarioSchema = z.object({
     fallback: z.preprocess(
       (v) => (Array.isArray(v) || v === undefined ? v : [v]),
       z
-        .array(Move.omit({ actionId: true }))
+        .array(BaseMove.omit({ actionId: true }))
         .min(1)
         .max(20),
     ),

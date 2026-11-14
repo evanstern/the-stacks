@@ -27,12 +27,13 @@ Do not edit `nodes/schemas.ts`, `packages/intent`, `dm/enqueue.ts`, `dm/deeds.ts
 
 ## Phase 3: CI scenario confirm deed (FR-012–FR-015; AC #4)
 
-- [ ] T015 In `playtest/scenario.ts`, add `Move.confirm` and the refine that refuses `intent` with `confirm`. In `driver.ts`, pass `confirm` through `nextMove` (not `intent`; spec OQ-4).
-- [ ] T016 In `playtest/harness.ts`, set `readWindowMs: () => 0` on the enqueuer. Add the `confirm` branch: declare, drain, accept the seat's live items, drain, or record `NO_CONFIRM` (plan D5).
-- [ ] T017 Add the `confirm-search` move to `playtests/scenarios/greyhollow-ford.json` after `act-search`.
-- [ ] T018 Extend `test/dm/scripts/greyhollow-ford-deeds.json` with the react reply (attempt 1 body), the ruling calls and any die, in consumption order. Add audit responses to `playtests/fixtures/greyhollow-ford.audit.json`. Keep `scriptRemaining` at zero.
-- [ ] T019 Update `test/playtest/playtest.integration.test.ts` (segment count, FR-015), `driver.test.ts` and `scenario.test.ts`. Prove SC-006's negative: with `normalizeReact` stubbed to identity, the run fails. Record the result in the commit message; do not commit the stub.
-- [ ] T020 Amend `specs/032-playtest-harness/contracts/scenario.md` (`Move.confirm`, zero read window, the shipped move).
+- [x] T015 In `playtest/scenario.ts`, add `Move.confirm` and the refine that refuses `intent` with `confirm`. In `driver.ts`, pass `confirm` through `nextMove` (and `intent`: superseded by the OQ-4 ruling, T015a).
+- [x] T015a Ruled addition, OQ-4 ruling (a), 2026-11-14: `nextMove` passes `intent` through as well as `confirm`. Drop the two Director calls the direct-Intent deeds no longer use from `greyhollow-ford-deeds.json`. Add a test that the `intent: true` moves spend no `dm.interpret` call.
+- [x] T016 In `playtest/harness.ts`, set `readWindowMs: () => 0` on the enqueuer. Add the `confirm` branch: declare, drain, accept the seat's live items, drain, or record `NO_CONFIRM` (plan D5).
+- [x] T017 Add the `confirm-search` move to `playtests/scenarios/greyhollow-ford.json` after `act-search`.
+- [x] T018 Extend `test/dm/scripts/greyhollow-ford-deeds.json` with the react reply (attempt 1 body), the ruling calls and any die, in consumption order. Add audit responses to `playtests/fixtures/greyhollow-ford.audit.json`. Keep `scriptRemaining` at zero.
+- [x] T019 Update `test/playtest/playtest.integration.test.ts` (segment count, FR-015), `driver.test.ts` and `scenario.test.ts`. Prove SC-006's negative: with `normalizeReact` stubbed to identity, the run fails. Record the result in the commit message; do not commit the stub.
+- [x] T020 Amend `specs/032-playtest-harness/contracts/scenario.md` (`Move.confirm`, zero read window, the shipped move).
 
 ## Phase 4: Wiki
 

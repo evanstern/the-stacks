@@ -95,8 +95,8 @@ before writing the guard.
 ### D5 — Harness `confirm` moves (`playtest/scenario.ts`, `driver.ts`, `harness.ts`)
 
 - `Move` gains `confirm: z.literal(true).optional()`. Refine: `intent` and `confirm` never both set.
-- `nextMove` returns `{ text, actionId, ...(free.confirm ? { confirm: true } : {}) }`. It does not
-  start passing `intent` (spec OQ-4).
+- `nextMove` returns `{ text, actionId, ...(free.confirm ? { confirm: true } : {}) }`. It also passes
+  `intent` (OQ-4 ruling (a), 2026-11-14).
 - `createDmEnqueuer` in `runPlaytest` gets `readWindowMs: () => 0`.
 - `harness.ts`, before the `move.intent` branch: when `move.confirm`, `parse(move.text, { id:
   move.actionId, actor: { kind: "pc", id: seat }, source: "composer", commit: "declared" })`, submit

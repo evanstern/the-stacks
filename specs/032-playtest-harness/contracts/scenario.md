@@ -11,7 +11,8 @@ const Move = z.object({
   text: z.string().min(1).max(500),
   actionId: z.string().regex(/^[a-z0-9-]{1,64}$/).optional(),   // fixed id (CI scripts name them)
   intent: z.literal(true).optional(),   // spec 111: `text` is slash text, sent as a confirmed direct Intent
-});
+  confirm: z.literal(true).optional(),  // spec 114: declare `text`, let the DM react, accept the seat's live items
+});                                     // refine: `intent` and `confirm` never both set
 
 export const ScenarioSchema = z.object({
   v: z.literal(1),
@@ -97,7 +98,13 @@ is pure.
 The harness loop: start the scene, drain until idle, then repeat { `nextMove`; on a move,
 declare and commit it through `gate.handle`, drain until idle; on `"wait"` with an idle queue,
 stop `stalled`; on `"done"`, stop }. Before each move it checks the stop conditions in
-data-model.md order. A move without `actionId` gets `pt-<n>`.
+data-model.md order. A move without `actionId` gets `pt-<n>`. `nextMove` passes `intent` and
+`confirm` through (spec 114, OQ-4 ruling (a), 2026-11-14).
+
+A `confirm` move (spec 114): the harness declares `text` as a `declared` Intent, drains idle, then
+accepts each live `action.suggested` item whose Intent actor is the seat character, and drains
+again. With no live item it records the refusal `NO_CONFIRM`. The DM enqueuer in `runPlaytest`
+uses `readWindowMs: () => 0`: the scripted seat has no one to wait for.
 
 ## The shipped scenario (`greyhollow-ford.json`)
 
@@ -109,6 +116,8 @@ data-model.md order. A move without `actionId` gets `pt-<n>`.
   (source `composer`, commit `confirmed`) and submits it through `gate.handle` as the human; a parse
   or gate refusal is a refusal entry. The later moves still reach the camp fight, so the plan D7
   fallback (`/move #ferry-house`) is unused.
+- A `confirm` move (`confirm-search`, `I search the ferry house.`) follows `act-search`. Its scripted
+  react reply uses the bare-id target shape, so CI exercises `normalizeReact`.
 - `moves.combat`: text "I swing my longsword at the goblin in the pot-helm.", `firstActionId`
   `act-strike` (the CI script names it). Later combat moves get `pt-<n>`.
 - `moves.fallback`: five short first-person moves (ask, examine, offer, edge toward the reeds, ready the sword).

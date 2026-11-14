@@ -137,7 +137,7 @@ fails the job, so the harness outcome is `failed` and CI fails.
   accepts each live suggestion item whose Intent actor is the seat's character, through
   `action.accept`. With no such item, it records a refusal with code `NO_CONFIRM`.
 - **FR-012a**: `nextMove` MUST carry `confirm` from the scenario move into the `DriverMove` it
-  returns. It MUST NOT start carrying `intent` (OQ-4).
+  returns. It MUST also carry `intent` (OQ-4 ruling (a), 2026-11-14).
 - **FR-013**: The harness enqueuer MUST use a zero read window. The scripted seat has no one to wait
   for, and a 10 s window leaves the read unclaimed when `drainIdle` returns.
 - **FR-014**: The shipped CI scenario MUST play `I search the ferry house.` as a `confirm` move,
@@ -181,10 +181,10 @@ fails the job, so the harness outcome is `failed` and CI fails.
 - **OQ-3**: Item and entity targets never repair, because nothing lists them. That is not a deferral:
   the repair reads the same list the prompt shows. When an item or entity registry lands, its card
   adds those ids to the `Targets` list.
-- **OQ-4 (needs a ruling)**: `nextMove` (`playtest/driver.ts` L129–130) returns
+- **OQ-4 (RULED (a), 2026-11-14: pass `intent` through; see T015a)**: `nextMove` (`playtest/driver.ts` L129–130) returns
   `{ text, actionId }` only, so it drops `Move.intent`. The spec 111 moves `/search #ferry-house` and
   `/move #causeway` therefore run as declare and commit (interpret parses the slash line with no
   model call), not as direct Intents. The `deeds-narrated` check still passes on them. Fixing the
   pass-through changes the call order of `greyhollow-ford-deeds.json` (no Director call on an
-  `intent` turn). Default: this card passes only `confirm` through and leaves spec 111's path alone.
-  Recommend the orchestrator card the `intent` pass-through as its own fix.
+  `intent` turn). Ruling (a): this card passes `intent` through as well as `confirm`, and reorders
+  `greyhollow-ford-deeds.json` so `scriptRemaining` stays zero.
