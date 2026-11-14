@@ -33,6 +33,7 @@ Spec: specs/111-ruling-narration
 - [ ] #4 Spec phase: Deed test and narrate window (FR-001–FR-003, FR-006, FR-007)
 - [ ] #5 Spec phase: Runner rule and the test-drive replay (FR-004, FR-005; AC #1, #2, note AC)
 - [ ] #6 Spec phase: Auditor check `deeds-narrated` (FR-009, FR-010; AC #3 negative proof)
+- [ ] #7 Spec phase: CI scenario deeds (FR-011, FR-012; AC #3 in CI)
 <!-- AC:END -->
 
 ## Definition of Done
