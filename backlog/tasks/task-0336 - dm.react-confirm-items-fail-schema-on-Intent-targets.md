@@ -4,7 +4,7 @@ title: dm.react confirm items fail schema on Intent targets
 status: In Progress
 assignee: []
 created_date: '2026-11-14T02:18:00Z'
-updated_date: '2026-11-14T07:13:00Z'
+updated_date: '2026-11-14T07:15:00Z'
 labels:
   - playtest
   - ws:narration
@@ -31,6 +31,7 @@ Spec: specs/114-react-confirm-targets
 - [ ] #2 A confirm item whose target lacks only 'kind' is repaired in code when the id names exactly one known zone, actor or item, with a test.
 - [ ] #3 A failed react turn tells the player the DM could not answer, rather than staying silent.
 - [ ] #4 The scripted CI playtest scenario includes a free-mode targeted deed through dm.react confirm, so a confirm-schema regression fails CI.
+- [ ] #5 The scripted CI scenario deeds marked intent take the direct-Intent path (driver passes Move.intent through), with a test proving no interpret call for them (spec 114 OQ-4, ruling (a))
 <!-- AC:END -->
 
 ## Definition of Done
@@ -46,4 +47,6 @@ Claimed 2026-11-14 by the R1 sweep (docs/design/r1-fast-table-runbook.md). Workt
 
 Spec 114 authored (323b0b43): dm.react-v5 target shape + Targets list; normalizeReact repair (zone/actor only, unique id); failed talk turn appends public ai:dm ooc notice; parseAgainst names missing kind; CI confirm deed. OQ-2 (hidden zones out of Targets) and OQ-3 (item/entity repair waits for a list) defaults kept. OQ-1 and OQ-4 to parent for ruling.
 Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=cc/claude-opus-5-5
+
+Parent rulings 2026-11-14: OQ-4 (a), fold the driver.ts intent pass-through and greyhollow-ford-deeds.json reorder into phase 3 (new AC); correction posted on PR #181. OQ-1 carded as TASK-0345. OQ-2, OQ-3 defaults stand.
 <!-- SECTION:NOTES:END -->
