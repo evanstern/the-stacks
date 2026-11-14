@@ -32,6 +32,7 @@ Spec: specs/111-ruling-narration
 - [x] #3 The playtest auditor gains a deterministic check that fails when a settled or stopped Intent has no narration segment covering it, run in CI through the scripted harness scenario, with a negative proof.
 - [ ] #4 Spec phase: Deed test and narrate window (FR-001–FR-003, FR-006, FR-007)
 - [ ] #5 Spec phase: Runner rule and the test-drive replay (FR-004, FR-005; AC #1, #2, note AC)
+- [ ] #6 Spec phase: Auditor check `deeds-narrated` (FR-009, FR-010; AC #3 negative proof)
 <!-- AC:END -->
 
 ## Definition of Done
