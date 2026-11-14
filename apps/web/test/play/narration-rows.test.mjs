@@ -50,3 +50,14 @@ test("an echoed declaration's dialogue row has no stray period after the closing
     'Tamsin Vale means to: "I search the ferry-house for whoever cut the bell rope."',
   );
 });
+
+test("a Deed line stays in the rules", () => {
+  const { prose, rules } = narrationRows(
+    "The door gives.\n\nDeed: Ana: /search #ferry-house\nState: Anyone may act.",
+  );
+  assert.deepEqual(prose, [{ kind: "prose", text: "The door gives." }]);
+  assert.deepEqual(rules, [
+    "Deed: Ana: /search #ferry-house",
+    "State: Anyone may act.",
+  ]);
+});

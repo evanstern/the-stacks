@@ -7,6 +7,7 @@ import {
 } from "../first-stage.js";
 import { askUndeclared } from "../gates/plan-gate.js";
 import type { TurnCheckpoint } from "../jobs.js";
+import { pendingDeeds } from "../nodes/narrate.js";
 import { findLandedNarration, submitNarration } from "../nodes/resolve.js";
 import { SnapshotOverflowError } from "../snapshot/index.js";
 import { runTalkTurn } from "../talk-turn.js";
@@ -105,6 +106,8 @@ export async function runTurn(
   nodes: Nodes,
 ): Promise<TurnOutcome> {
   let ctx = ctx0;
+  // Spec 111 D2: set at the assemble branch when an empty beat still has deeds to narrate.
+  let deedPass = false;
   const calls: ModelCallRecord[] = [];
   /** Set when a reclaim finds the narration already on the log. */
   let landedNarration: { seq: number; text: string } | null = null;
@@ -157,9 +160,9 @@ export async function runTurn(
       continue;
     }
 
-    // Spec 066 FR-031: an `intent` turn has no beat to direct. Code supplies a stay-put Director
+    // Spec 066 FR-031 (spec 111 D2): a deed-only turn has no beat to direct. Code supplies a stay-put Director
     // output, so no model call runs; narrate then reads the carrier rows (spec 104 window).
-    if (name === "director" && ctx.job.trigger === "intent") {
+    if (name === "director" && deedPass) {
       ctx = { ...ctx, results: { ...ctx.results, director: INTENT_DIRECTOR } };
       continue;
     }
@@ -215,12 +218,14 @@ export async function runTurn(
       if (
         assembled.beat.length === 0 &&
         assembled.npcTurn === null &&
-        ctx.job.trigger !== "scene-start" &&
-        ctx.job.trigger !== "intent"
+        ctx.job.trigger !== "scene-start"
       ) {
         // A talk turn with nothing committed reads the posts (specs/065 D3).
         if (ctx.job.trigger === "talk") return runTalkTurn(ctx, assembled);
-        return { status: "empty-beat" };
+        // Spec 111 D2: an empty beat still proceeds when the window holds a deed to narrate.
+        if ((await pendingDeeds(ctx)).length === 0)
+          return { status: "empty-beat" };
+        deedPass = true;
       }
     }
 

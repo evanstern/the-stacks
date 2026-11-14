@@ -174,6 +174,8 @@ export interface FactSettled {
   rolls: FactRoll[];
   outcomes: FactOutcome[];
   changes: FactChange[];
+  /** Spec 111: the deed a direct entry narrates; set only for `direct` entries. */
+  deed?: { text: string; stopped: string | null };
 }
 
 export interface NarrationFacts {
@@ -646,7 +648,12 @@ export interface BuildFactsInput {
   /** The combatant active at the start of the beat; set only when the table was in turn mode. */
   turnActorId?: string | null;
   /** Spec 066 FR-031: the engine batches of direct Intents an `intent` turn narrates. */
-  directBatches?: { name: string; batchId: string }[];
+  directBatches?: {
+    name: string;
+    batchId: string | null;
+    text: string;
+    stopped: string | null;
+  }[];
 }
 
 /**
@@ -873,8 +880,9 @@ export function buildNarrationFacts(input: BuildFactsInput): NarrationFacts {
 
   const direct: FactSettled[] = (input.directBatches ?? []).map((d) => ({
     name: d.name,
+    deed: { text: d.text, stopped: d.stopped },
     ...collectFacts(
-      p.ledger.filter((r) => r.batchId === d.batchId),
+      d.batchId ? p.ledger.filter((r) => r.batchId === d.batchId) : [],
       nameOf,
       types,
       stakesByBatch,

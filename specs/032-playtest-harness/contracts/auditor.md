@@ -27,7 +27,7 @@ including it. Rows after the last narration form a tail segment only when they i
 `talk` row; otherwise they are dropped from auditing (still in the transcript). A transcript
 with no `scene.changed` row yields zero segments and the single finding `no-scene`.
 
-## Code checks (FR-011)
+## Code checks (FR-011; seven checks since spec 111)
 
 Pure functions over one segment (plus the seed). Each failing check is one finding with
 `source: "check"`.
@@ -40,6 +40,7 @@ Pure functions over one segment (plus the seed). Each failing check is one findi
 | `roll-reasons` | a ledger roll row in the segment has an empty reason (decision-0021 idea 2) | `roll-without-reason` |
 | `hidden-info` | a `public` row's text (narration, talk, journal) contains, case-insensitive, a seed `hooks.secrets` string of the location or any NPC, or the `name` of a secret tracker | `hidden-info-leak` |
 | `dice-language` | the prose names dice, rolls or a d-expression and the segment's ledger has no roll | `invented-mechanics` |
+| `deeds-narrated` | a deed carrier (`isDeedRow`, `dm/deeds.ts`, spec 111) sits in a tail segment, or no `Deed:` line of the closing narration ends with `: <text>` (or `: <text> (stopped, …)`) | `unnarrated-deed` |
 
 Implementation notes: when `collectFacts` needs a `nameOf`, build it from the segment's
 projections at the segment's last seq (`project(rows ≤ toSeq, { role: "dm" })`); the

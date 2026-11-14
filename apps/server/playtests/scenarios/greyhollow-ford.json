@@ -13,6 +13,16 @@
         "actionId": "act-search"
       },
       {
+        "text": "/search #ferry-house",
+        "actionId": "deed-search",
+        "intent": true
+      },
+      {
+        "text": "/move #causeway",
+        "actionId": "deed-move",
+        "intent": true
+      },
+      {
         "text": "I tell Wenna we will bring Pell home, and ask her for the safe path.",
         "actionId": "act-persuade"
       },
@@ -42,7 +52,7 @@
   "limits": { "maxMoves": 30, "maxWallMs": 3600000 },
   "dice": { "faces": [], "seed": null },
   "ci": {
-    "dmScript": "../../test/dm/scripts/greyhollow-ford-full.json",
+    "dmScript": "../../test/dm/scripts/greyhollow-ford-deeds.json",
     "auditScript": "../fixtures/greyhollow-ford.audit.json",
     "retrieve": "../fixtures/greyhollow-ford.retrieve.json"
   }

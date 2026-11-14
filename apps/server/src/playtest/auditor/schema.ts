@@ -43,6 +43,7 @@ export const FINDING_KINDS = [
   "doctrine",
   "other",
   "dm-audit-flag",
+  "unnarrated-deed",
 ] as const;
 export type FindingKind = (typeof FINDING_KINDS)[number];
 
@@ -56,6 +57,7 @@ export const SEVERITY_OF: Record<FindingKind, "fail" | "warn" | "note"> = {
   doctrine: "warn",
   other: "warn",
   "dm-audit-flag": "note",
+  "unnarrated-deed": "fail",
 };
 
 export const FindingSchema = z.object({

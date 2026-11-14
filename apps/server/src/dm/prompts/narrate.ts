@@ -26,7 +26,7 @@ import {
   transcriptEntries,
 } from "./common.js";
 
-export const PROMPT_VERSION = "dm.narrate-v24";
+export const PROMPT_VERSION = "dm.narrate-v25";
 
 /** One turn rule, shared by the narrate and audit prompts (TASK-0214). */
 export const TURN_RULE =
@@ -46,6 +46,7 @@ const RULES = [
   "A roll's band and outcome are settled. A success means the attempted task happens. Deliver the outcome and any learned fact plainly in the prose; invent no other. A success at a cost succeeds and the consequence lands. A severe failure fails worse than a plain failure. A free retry with no roll succeeds.",
   "When an intent is unclear, describe the moment and stop. Code asks the question.",
   "Cover every Event line.",
+  "Describe every Direct action line, in order. Each is a separate deed.",
   TURN_RULE,
   "When the Monster turn has a says: line, the monster speaks those words in this beat.",
   "Name a character as dead or unconscious only when a fact or the state sections say so; when a fact says so, say so.",
@@ -169,7 +170,7 @@ export function factEntries(facts: NarrationFacts): string[] {
     for (const c of st.changes) out.push(`  change: ${describeChange(c)}`);
   }
   for (const st of facts.direct ?? []) {
-    out.push(`Direct action: ${st.name}`);
+    out.push(`Direct action: ${st.name}: ${st.deed?.text ?? ""}`);
     for (const r of st.rolls) out.push(rollEntry(r));
     for (const c of st.changes) out.push(`  change: ${describeChange(c)}`);
   }

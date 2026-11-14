@@ -10,7 +10,7 @@ sources:
   - apps/server/test/playtest/playtest.integration.test.ts
   - docs/design/m2-demo/demo-session/report.json
   - docs/design/m2-demo/provider-playtest-stalled-5/report.json
-verified_against: 7472cb5cc6c247a5d35cbecc7e73ff47ff7b4b3f
+verified_against: b811b90d03f6e4769956e6db4f8a3cd7fce790df
 ---
 
 # M2 demo
@@ -38,7 +38,7 @@ package (`cli.ts`, see [[playtest-harness]] for flags and exit codes):
 
 **The CI case.** The per-commit guard is `test/playtest/playtest.integration.test.ts`: the
 shipped scenario `greyhollow-ford.json` runs in ci mode against a strict `FakeProvider`
-(DM script, audit script, retrieval fixture named by the scenario's `ci` block). It spends
+(DM script, audit script, retrieval fixture named by the scenario's `ci` block). Since spec 111 the scenario's moves include two Intent moves (`/search`, `/move`) and its `ci.dmScript` is `test/dm/scripts/greyhollow-ford-deeds.json`. It spends
 nothing, asserts outcome `ended` and a passing report, and is database-gated like the other
 integration suites ([[test-suite]]; `REQUIRE_DATABASE=1` turns the skip into a throw, as
 [[ci-pipeline]] sets it). No provider is called in CI; `provider` mode is refused when `CI` is set.

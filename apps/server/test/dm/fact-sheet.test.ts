@@ -258,6 +258,37 @@ describe("fact sheet: rows", () => {
   });
 });
 
+describe("fact sheet: deed rows (spec 111)", () => {
+  it("renders a Deed row before the direct entry's rows", () => {
+    const rows = renderRows(
+      facts({
+        actions: [],
+        direct: [
+          {
+            name: "Tamsin Vale",
+            deed: { text: "/search #ferry-house", stopped: null },
+            rolls: [],
+            outcomes: [],
+            changes: [
+              { kind: "life-state", target: "Snag", before: "a", after: "b" },
+            ],
+          },
+          {
+            name: "Odo",
+            deed: { text: "/move #causeway", stopped: "BLOCKED" },
+            rolls: [],
+            outcomes: [],
+            changes: [],
+          },
+        ],
+      }),
+    );
+    expect(rows.map((r) => r.kind)).toEqual(["deed", "life-state", "deed"]);
+    expect(rows[0]?.text).toBe("Deed: Tamsin Vale: /search #ferry-house");
+    expect(rows[2]?.text).toBe("Deed: Odo: /move #causeway (stopped, BLOCKED)");
+  });
+});
+
 describe("fact sheet: parseSlots and composeReply", () => {
   const sheet = buildFactSheet(input(facts()));
   it("an untagged reply is describe", () => {

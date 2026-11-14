@@ -27,6 +27,8 @@ const ActionId = z.string().regex(/^[a-z0-9-]{1,64}$/);
 const Move = z.object({
   text: z.string().min(1).max(500),
   actionId: ActionId.optional(),
+  /** Submit `text` as a confirmed direct Intent (slash text), not a declared action. */
+  intent: z.literal(true).optional(),
 });
 
 /** Scripted players (specs/032-playtest-harness contracts/scenario.md). */

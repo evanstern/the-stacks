@@ -9,6 +9,7 @@ const DICE_LINE =
   /→|: auto-fail| death saves: \d|: \S.* (?:applied|removed)$| spends a level \d+ spell slot$| helps .+ \((?:attack|ability check)\)$|: refused, .+ \([A-Z_]+\)$/;
 const WHY_LINE =
   /^(?:Rule: |DC \d+|Difficulty: |Opposed by |Reach: |DM ruling: |No roll needed$|The DM sets the )|(?: joins the fight| may react as the mover leaves)$/;
+const DEED_LINE = /^Deed: /;
 const STATE_LINE = /^State: /;
 const REFUSAL_ROW = /: refused, .+ \([A-Z_]+\)$/;
 const PIECE_SPLIT = /(?<=[.!?]["'”’)]*)\s+/;
@@ -37,12 +38,20 @@ export function narrationRows(text: string): {
     if (
       lines.length > 0 &&
       lines.every(
-        (l) => STATE_LINE.test(l) || WHY_LINE.test(l) || DICE_LINE.test(l),
+        (l) =>
+          STATE_LINE.test(l) ||
+          WHY_LINE.test(l) ||
+          DEED_LINE.test(l) ||
+          DICE_LINE.test(l),
       )
     ) {
       prose = trimmed.slice(0, i);
       rules = lines.filter(
-        (l) => STATE_LINE.test(l) || WHY_LINE.test(l) || REFUSAL_ROW.test(l),
+        (l) =>
+          STATE_LINE.test(l) ||
+          WHY_LINE.test(l) ||
+          DEED_LINE.test(l) ||
+          REFUSAL_ROW.test(l),
       );
     }
   }

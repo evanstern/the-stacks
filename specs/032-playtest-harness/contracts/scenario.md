@@ -10,6 +10,7 @@ Module: `apps/server/src/playtest/scenario.ts` (`ScenarioSchema`, `loadScenario`
 const Move = z.object({
   text: z.string().min(1).max(500),
   actionId: z.string().regex(/^[a-z0-9-]{1,64}$/).optional(),   // fixed id (CI scripts name them)
+  intent: z.literal(true).optional(),   // spec 111: `text` is slash text, sent as a confirmed direct Intent
 });
 
 export const ScenarioSchema = z.object({
@@ -102,13 +103,18 @@ data-model.md order. A move without `actionId` gets `pt-<n>`.
 
 - `seat`: `tamsin`, user `00000000-0000-4000-8000-0000000000a1` (the DM suites' `TAMSIN_USER`).
 - `moves.free`: the scene test's three free moves with ids `act-search`, `act-persuade`,
-  `act-advance`, texts verbatim from `scene.integration.test.ts`.
+  `act-advance`, texts verbatim from `scene.integration.test.ts`, plus two Intent moves
+  (`"intent": true`) after `act-search`: `/search #ferry-house` (`deed-search`) and
+  `/move #causeway` (`deed-move`). The harness parses `text` with `@the-stacks/intent`
+  (source `composer`, commit `confirmed`) and submits it through `gate.handle` as the human; a parse
+  or gate refusal is a refusal entry. The later moves still reach the camp fight, so the plan D7
+  fallback (`/move #ferry-house`) is unused.
 - `moves.combat`: text "I swing my longsword at the goblin in the pot-helm.", `firstActionId`
   `act-strike` (the CI script names it). Later combat moves get `pt-<n>`.
 - `moves.fallback`: five short first-person moves (ask, examine, offer, edge toward the reeds, ready the sword).
 - `limits`: `maxMoves` 30, `maxWallMs` 3600000 (60 minutes; real-model turns take ~35 s).
 - `dice`: `faces: []`, `seed: null` (drawn at run time in provider mode).
-- `ci`: `../../test/dm/scripts/greyhollow-ford-full.json`,
+- `ci`: `../../test/dm/scripts/greyhollow-ford-deeds.json`,
   `../fixtures/greyhollow-ford.audit.json`, `../fixtures/greyhollow-ford.retrieve.json`.
 
 The retrieval fixture holds the scene test's `PASSAGE` and anchor (`Fixture Rules`, path
