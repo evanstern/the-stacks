@@ -12,12 +12,14 @@ import {
   renderChangeLine,
   renderRollLine,
 } from "../../dm/facts.js";
+import { speechLeaks } from "../../dm/narration-check.js";
 import {
   DEATH_WORDS,
   DICE_LANGUAGE,
   UNCONSCIOUS_WORDS,
 } from "../../dm/narration-words.js";
 import type { SceneSeed } from "../../dm/seed/schema.js";
+import { buildSnapshot } from "../../dm/snapshot/build.js";
 import type { FindingKind } from "./schema.js";
 import type { Segment } from "./segments.js";
 
@@ -468,6 +470,40 @@ export function runChecks(seg: Segment, ctx: CheckContext): CheckResult[] {
           seqs: [row.seq],
           detail: `A public ${row.type} row discloses secret tracker state: "${sentence.slice(0, 80)}".`,
         });
+      }
+      // Spec 112 D8: mirror the runtime speech rule on DM prose.
+      if (
+        row.actor === "ai:dm" &&
+        (row.type === "narration" || row.type === "talk")
+      ) {
+        const prose =
+          row.type === "narration"
+            ? splitNarration(textOf(row))
+                .prose.split("\n")
+                // The code-written restate quotes the player, not the DM.
+                .filter((l) => !/ means to: ".*"\.$/.test(l))
+                .join("\n")
+            : textOf(row);
+        const snapshot = buildSnapshot(
+          project(
+            ctx.transcript.filter((e) => e.seq < row.seq),
+            { role: "dm" },
+          ),
+          ctx.seed,
+        );
+        for (const leak of speechLeaks(snapshot, prose, null)) {
+          const name =
+            snapshot.actors.find((a) => a.id === leak.actorIds[0])?.name ??
+            leak.matched;
+          add("hidden-info", {
+            kind: "hidden-info-leak",
+            seqs: [row.seq],
+            detail:
+              leak.kind === "unmet-actor"
+                ? `A public ${row.type} row names ${name} in speech; the party has not met them.`
+                : `A public ${row.type} row names the fogged zone ${name} in speech.`,
+          });
+        }
       }
     }
   }

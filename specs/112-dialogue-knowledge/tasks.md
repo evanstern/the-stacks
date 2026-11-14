@@ -27,9 +27,9 @@ Keep the `checks.ts` diff inside the hidden-info block (TASK-0337 edits the same
 
 ## Phase 3: Auditor mirrors the runtime rule (US4, card note)
 
-- [ ] T015 In `playtest/auditor/checks.ts`, add the speech finding inside the hidden-info block per plan D8. Import `project`, `buildSnapshot` and `speechLeaks`.
-- [ ] T016 In `test/playtest/checks.test.ts`, replay the fixture transcript with the original seq 21 text: `hidden-info` fails at seq 21 and the finding names Snag, not Pell. With the corrected text it passes.
-- [ ] T017 Confirm the clean and doctored auditor fixtures keep their verdicts. Record any changed finding in the card notes.
+- [x] T015 In `playtest/auditor/checks.ts`, add the speech finding inside the hidden-info block per plan D8. Import `project`, `buildSnapshot` and `speechLeaks`.
+- [x] T016 In `test/playtest/checks.test.ts`, replay the fixture transcript with the original seq 21 text: `hidden-info` fails at seq 21 and the finding names Snag, not Pell. With the corrected text it passes.
+- [x] T017 Confirm the clean and doctored auditor fixtures keep their verdicts. Record any changed finding in the card notes.
 
 ## Phase 4: Wiki re-pin
 
