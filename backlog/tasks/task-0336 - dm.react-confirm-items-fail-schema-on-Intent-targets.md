@@ -4,7 +4,7 @@ title: dm.react confirm items fail schema on Intent targets
 status: In Progress
 assignee: []
 created_date: '2026-11-14T02:18:00Z'
-updated_date: '2026-11-14T08:05:00Z'
+updated_date: '2026-11-14T08:18:00Z'
 labels:
   - playtest
   - ws:narration
@@ -27,11 +27,11 @@ Spec: specs/114-react-confirm-targets
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 The dm.react prompt shows the Intent target shape (kind plus id) with a worked example, and a scripted test replays both failing outputs from this job.
-- [ ] #2 A confirm item whose target lacks only 'kind' is repaired in code when the id names exactly one known zone, actor or item, with a test.
-- [ ] #3 A failed react turn tells the player the DM could not answer, rather than staying silent.
-- [ ] #4 The scripted CI playtest scenario includes a free-mode targeted deed through dm.react confirm, so a confirm-schema regression fails CI.
-- [ ] #5 The scripted CI scenario deeds marked intent take the direct-Intent path (driver passes Move.intent through), with a test proving no interpret call for them (spec 114 OQ-4, ruling (a))
+- [x] #1 The dm.react prompt shows the Intent target shape (kind plus id) with a worked example, and a scripted test replays both failing outputs from this job.
+- [x] #2 A confirm item whose target lacks only 'kind' is repaired in code when the id names exactly one known zone, actor or item, with a test.
+- [x] #3 A failed react turn tells the player the DM could not answer, rather than staying silent.
+- [x] #4 The scripted CI playtest scenario includes a free-mode targeted deed through dm.react confirm, so a confirm-schema regression fails CI.
+- [x] #5 The scripted CI scenario deeds marked intent take the direct-Intent path (driver passes Move.intent through), with a test proving no interpret call for them (spec 114 OQ-4, ruling (a))
 <!-- AC:END -->
 
 ## Definition of Done
