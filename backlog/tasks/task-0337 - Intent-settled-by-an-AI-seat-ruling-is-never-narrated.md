@@ -4,7 +4,7 @@ title: Intent settled by an AI-seat ruling is never narrated
 status: Done
 assignee: []
 created_date: '2026-11-14T02:22:00Z'
-updated_date: '2026-11-14T06:17:00Z'
+updated_date: '2026-11-14T06:25:00Z'
 labels:
   - playtest
   - ws:narration
@@ -75,6 +75,8 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-
 Phase 5 dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5 (recorded above). Main merged (5ba7f18b): pin-only conflicts in five notes; 0334 ways prose restored by three-way merge (a8 follow-up commit); freshness OK, plan empty, spec-bridge 0, boundaries 28/28.
 
 spec-bridge sync: Deed test and narrate window: 7/7 · Runner rule and the test-drive replay: 5/5 · Auditor check deeds-narrated: 5/5 · CI scenario deeds: 5/5 · Wiki: 5/5 — status In Progress → Done. Merged PR #181 as 068762ae.
+
+Deploy check 2026-11-14: vm-104 /health serves 8b958a98, which contains merge 068762ae. Worktree, branch and stack removed; env:prune --check: no orphans.
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
