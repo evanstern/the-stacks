@@ -4,7 +4,7 @@ title: Quoted NPC dialogue can name absent or unmet actors
 status: In Progress
 assignee: []
 created_date: '2026-11-14T02:14:00Z'
-updated_date: '2026-11-14T02:33:00Z'
+updated_date: '2026-11-14T05:10:00Z'
 labels:
   - playtest
   - ws:narration
@@ -46,4 +46,6 @@ The playtest auditor's hidden-info check also passed segment 1 (seq 16-21), whic
 Claimed 2026-11-13 by the R1 sweep (docs/design/r1-fast-table-runbook.md). Worktree .worktrees/task-0335, branch task-0335-quoted-dialogue-leak, cut from origin/main 594dd99a. Spec number 111 claimed with a stub.
 
 Renumbered spec 111 -> 112: TASK-0337 claimed 111 first (5cea343c).
+
+Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=cc/claude-opus-5-5
 <!-- SECTION:NOTES:END -->
