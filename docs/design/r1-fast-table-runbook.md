@@ -456,6 +456,24 @@ Also true at close:
 - Hosted ACs ticked at CP-7. Findings carded.
 - This file's log complete and status flipped to done.
 
+## Amendment 2026-11-13: replan after the R1 spine test drive
+
+Operator ruling (2026-11-13, in chat): "Approved, but automate the tests". Evidence: `docs/playtests/2026-11-13-r1-spine-test-drive.md` (PR #178).
+
+The test drive showed narration's first token under 1 s (exit 2). It also showed that exploration on the hosted model is blocked by two bugs, and combat was not reached. The spine order below is paused behind a fix wave.
+
+- **Wave 1, fixes (first):**
+  - TASK-0337 (an AI-seat-ruled Intent is never narrated), then TASK-0336 (dm.react confirm targets fail schema). Both touch the talk and narrate area, so run them serially.
+  - TASK-0335 (quoted-dialogue leak, runtime and auditor) and TASK-0334 (ways name hidden zones), in parallel with the pair above.
+- **Wave 2, automated combat run:** TASK-0338 replaces a human test drive. A script-driven hosted run plays two combat rounds and fills the R1 metrics. It needs a ceiling recorded on TASK-0278 and C9 for vm-104 commands.
+- **Wave 3:** the merge spine resumes. TASK-0304, then 0222, 0224 and 0215. TASK-0275, then 0277, 0276 and 0329. TASK-0101 before CP-7. TASK-0278, then CP-7.
+- **Automated tests (ruling):**
+  - Each fix card adds a test that replays the test-drive flow.
+  - The auditor gains an "every settled Intent is narrated" check, run in CI through the scripted harness scenario (TASK-0337 AC).
+  - The scripted CI scenario covers a targeted free-mode confirm deed (TASK-0336 AC).
+  - A browser live check asserts that narration follows each deed, not only that rows land.
+- **Execution:** each card runs in its own sub-session from a short brief. The coordinating session dispatches and reports.
+
 ## Execution log
 
 Multi-phase dispatch stays visible in `notes` (for example `phases: 1-2 done, 3 dispatched`),
