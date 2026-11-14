@@ -65,4 +65,6 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-
 
 Phase 4 wiki done (ff16f811): 6 prose (incl. proposal-gate write boundary), 7 re-pin.
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5
+
+spec-bridge sync: Prompt, repair and the test-drive replay: 7/7 · Read-failure notice and re-ask text: 7/7 · CI scenario confirm deed: 7/7 · Wiki: 5/5 — status In Progress → Done. Merged PR #182 as 5bf731e2. AC #2 scope: repair covers zone and actor ids; item ids wait for an item list (spec 114 OQ-3, default kept by parent ruling).
 <!-- SECTION:NOTES:END -->
