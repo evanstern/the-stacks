@@ -6,13 +6,13 @@ import {
   type StoredEvent,
 } from "@the-stacks/session-model";
 import { isDeedRow } from "../../dm/deeds.js";
+import { isRestateLine } from "../../dm/fact-sheet.js";
 import {
   collectFacts,
   type FactChange,
   renderChangeLine,
   renderRollLine,
 } from "../../dm/facts.js";
-import { isRestateLine } from "../../dm/fact-sheet.js";
 import { speechLeaks } from "../../dm/narration-check.js";
 import {
   DEATH_WORDS,
