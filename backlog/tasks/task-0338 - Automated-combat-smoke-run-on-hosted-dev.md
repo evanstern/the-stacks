@@ -4,7 +4,7 @@ title: Automated combat smoke run on hosted dev
 status: In Progress
 assignee: []
 created_date: '2026-11-14T02:29:00Z'
-updated_date: '2026-11-14T14:45:00Z'
+updated_date: '2026-11-14T15:12:00Z'
 labels:
   - playtest
   - ws:tooling
@@ -39,4 +39,6 @@ Replan 2026-11-13 wave 2 (operator: 'Approved, but automate the tests'). Replace
 Ceiling (operator, 2026-11-14, in chat): "$15, same as last". Recorded on TASK-0278.
 
 Claimed 2026-11-14 by the R1 sweep (docs/design/r1-fast-table-runbook.md). Worktree .worktrees/task-0338, branch task-0338-combat-smoke, cut from origin/main 014f1ae6. No spec dir: signed escape line covers this task.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
