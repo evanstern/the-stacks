@@ -28,7 +28,7 @@ sources:
   - apps/server/seeds/greyhollow-ford-reed-camp.json
   - apps/server/dm-scripts/runbook-a-reed-camp.json
 size_budget_exempt: the note sat within 40 chars of the 8000 budget before TASK-0195; the per-runbook scenario section is a short pointer to docs/design/playtest-scenarios.md, and the in-process harness above is one pipeline that does not split without a TASK of its own
-verified_against: b811b90d03f6e4769956e6db4f8a3cd7fce790df
+verified_against: 3ded4c07448d3ff8c11975b62d9201e1b727e47d
 ---
 
 # Playtest harness
@@ -51,7 +51,7 @@ gateway, DM enqueuer and worker, seeds the session from the scenario's `seedId`,
 (`scenario.ts`, Zod `ScenarioSchema`, shipped `apps/server/playtests/scenarios/greyhollow-ford.json`)
 holds the seat, `moves.free`, `moves.combat`, `moves.fallback`, `limits` (`maxMoves`,
 `maxWallMs`, 60 min in the shipped scenario), `dice`, and a `ci` block naming the DM script, audit script and retrieval fixture (the schema still names it; since spec 110 the harness no longer reads it, because the DM worker takes no `retrieve`)
-under `apps/server/playtests/fixtures/`. A move with `intent: true` (spec 111) is a confirmed direct Intent: the harness parses its slash `text` with `@the-stacks/intent`, sends `{kind: "intent"}` through `gate.handle`, and counts a parse or gate refusal in `refusals`. The shipped scenario holds two such moves (`/search #ferry-house`, `/move #causeway`). The manifest outcome is one of `ended`, `stalled`,
+under `apps/server/playtests/fixtures/`. A move with `intent: true` (spec 111) is a confirmed direct Intent: the harness parses its slash `text` with `@the-stacks/intent`, sends `{kind: "intent"}` through `gate.handle`, and counts a parse or gate refusal in `refusals`. The driver passes `intent` through, so the shipped scenario's two such moves (`/search #ferry-house`, `/move #causeway`) take the direct-Intent path with no interpret call. A move with `confirm: true` (spec 114; exclusive with `intent`) declares `text`, lets the DM react, then accepts the seat's live suggestion items through `gate.handle` `action.accept` (refusal `NO_CONFIRM` when none is live); the shipped scenario opens with one (`confirm-search`). The harness sets `readWindowMs` to 0, so the scripted seat leaves no read window. The manifest outcome is one of `ended`, `stalled`,
 `failed`, `budget-stopped`, `timed-out`.
 
 `moves.fallback` is a list (1 to 20 entries; a legacy single object reads as a one-element list).

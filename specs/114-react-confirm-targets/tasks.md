@@ -39,8 +39,8 @@ Do not edit `nodes/schemas.ts`, `packages/intent`, `dm/enqueue.ts`, `dm/deeds.ts
 
 Re-pin honestly with `/grounding-wiki:wiki-update`. Notes whose `sources:` list a file this card touches (NEEDS-REVIEW):
 
-- [ ] T021 `docs/wiki/dm-talk-triggers.md` (`prompts/react.ts`, `talk-turn.ts`, `talk-triggers.ts`, `worker.ts`): `dm.react-v5`, the `Targets` list, `normalizeReact`, `targetRepairs`, the public read-failure notice.
-- [ ] T022 `docs/wiki/dm-failure-and-gates.md` (`pipeline/call.ts`, `worker.ts`): the discriminator re-ask text and the read-failure notice.
-- [ ] T023 `docs/wiki/playtest-harness.md` (`harness.ts`, `driver.ts`, `scenario.ts`, the scenario JSON, `playtest.integration.test.ts`): `confirm` moves, the zero read window, the confirm deed.
-- [ ] T024 Re-verify and re-pin the notes that list a touched file but need no prose change unless the diff says otherwise: `dm-runtime.md` (`call.ts`, `resolve.ts`); `debug-view.md` (`call.ts`, `worker.ts`); `dm-turn-jobs.md`, `turn-floor.md` (`resolve.ts`, `worker.ts`); `presence.md` (`worker.ts`); `party-panel.md`, `seed-npc-presence.md` (`resolve.ts`); `m2-demo.md` (scenario JSON, `playtest.integration.test.ts`); `test-suite.md` (`harness.integration.test.ts`, only if Phase 3 edits it).
-- [ ] T025 Update `docs/wiki/CAPSULES.md` and `docs/wiki/INDEX.md` lines for the changed notes, including the `dm.react-v5` mention. Run the freshness gate (prints `OK`) and the spec-bridge gate (exits 0).
+- [x] T021 `docs/wiki/dm-talk-triggers.md` (`prompts/react.ts`, `talk-turn.ts`, `talk-triggers.ts`, `worker.ts`): `dm.react-v5`, the `Targets` list, `normalizeReact`, `targetRepairs`, the public read-failure notice.
+- [x] T022 `docs/wiki/dm-failure-and-gates.md` (`pipeline/call.ts`, `worker.ts`): the discriminator re-ask text and the read-failure notice.
+- [x] T023 `docs/wiki/playtest-harness.md` (`harness.ts`, `driver.ts`, `scenario.ts`, the scenario JSON, `playtest.integration.test.ts`): `confirm` moves, the zero read window, the confirm deed.
+- [x] T024 Re-verify and re-pin the notes that list a touched file but need no prose change unless the diff says otherwise: `dm-runtime.md` (`call.ts`, `resolve.ts`); `debug-view.md` (`call.ts`, `worker.ts`); `dm-turn-jobs.md`, `turn-floor.md` (`resolve.ts`, `worker.ts`); `presence.md` (`worker.ts`); `party-panel.md`, `seed-npc-presence.md` (`resolve.ts`); `m2-demo.md` (scenario JSON, `playtest.integration.test.ts`); `test-suite.md` (`harness.integration.test.ts`, only if Phase 3 edits it).
+- [x] T025 Update `docs/wiki/CAPSULES.md` and `docs/wiki/INDEX.md` lines for the changed notes, including the `dm.react-v5` mention. Run the freshness gate (prints `OK`) and the spec-bridge gate (exits 0).

@@ -34,7 +34,7 @@ sources:
   - apps/server/test/ai-round.bench-test.ts
   - tsconfig.json
 size_budget_exempt: spec 102 adds the server tsconfig reference to packages/intent in the one test-suite note; the suite map does not split without a TASK of its own
-verified_against: 0882dcb94032fa81551a3e9225721939e4cb7179
+verified_against: 3ded4c07448d3ff8c11975b62d9201e1b727e47d
 ---
 
 # Test suite
@@ -48,7 +48,7 @@ load benches, loud-skip-or-throw like this note's three below): see [[benchmarks
 the load bench's tests are always skipped.
 TASK-0048 added `test/playtest/` ([[playtest-harness]]): unit files, three database-gated, one the CI playtest ([[m2-demo]]).
 TASK-0045 added gate suites at the same level: `gate.integration.test.ts` (incl. the absent-declare refusal and the presence-plus-order batch) and
-`gate.restart.integration.test.ts` (database-gated; approvals, restart) and `write-boundary.test.ts` (no database; AC #1 import-graph check, plus only `resolve.ts` and `intent-runner.ts` (spec 104) build `scene-presence` and only `dm/floor.ts` builds `floor` proposals, [[turn-floor]]; spec 066 adds two pins: only `dm/talk-turn.ts` builds an `action.suggest` proposal and no `src/` file builds `action.accept`). It extended `events.integration.test.ts` (`expectedLastSeq`,
+`gate.restart.integration.test.ts` (database-gated; approvals, restart) and `write-boundary.test.ts` (no database; AC #1 import-graph check, plus only `resolve.ts` and `intent-runner.ts` (spec 104) build `scene-presence` and only `dm/floor.ts` builds `floor` proposals, [[turn-floor]]; spec 066 adds two pins: only `dm/talk-turn.ts` builds an `action.suggest` proposal and only `playtest/harness.ts`, the scripted seat, builds `action.accept`, spec 114). It extended `events.integration.test.ts` (`expectedLastSeq`,
 `SeqConflictError`, `readLatestOfType`), `ws.integration.test.ts` (per-viewer delivery, the
 send-path classification, `UNKNOWN_EVENT_TYPE`, error `code`; `sendTalkAndAwait` no longer resends on `CONFLICT`) and `ws.subscribe.test.ts` (the DM-seat subscribe race). Spec 108 adds `ws.narration-stream.integration.test.ts` (per-viewer parts, late-joiner replay after `replay-complete`, `end` before the settled row, buffer cleared on `end`) and `dm/narration-stream-gate.integration.test.ts` (an intent is accepted while narrate is paused).
 TASK-0157 added a retry-wait test and a "per-session ordering" suite (burst fan-out, `recordPresence`, isolation) to `gate.integration.test.ts`, an all-in-flight burst to `ws.integration.test.ts`, and a `CONFLICT` label case to `apps/web/test/play/reduce-frame.test.mjs`.
