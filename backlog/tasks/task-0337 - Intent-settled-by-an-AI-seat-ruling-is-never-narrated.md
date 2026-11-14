@@ -4,7 +4,7 @@ title: Intent settled by an AI-seat ruling is never narrated
 status: In Progress
 assignee: []
 created_date: '2026-11-14T02:22:00Z'
-updated_date: '2026-11-14T05:27:00Z'
+updated_date: '2026-11-14T05:38:00Z'
 labels:
   - playtest
   - ws:narration
@@ -54,5 +54,8 @@ Phase 1 done (13b2fd7a), ci:check green.
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5
 
 Phase 2 done (f714f6bb), REQUIRE_DATABASE=1 ci:check green; latency gate PASS; ai-round 792 ms. Replay confirms isDeedRow on real carriers.
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5
+
+Phase 3 done (23d2f0c3): deeds-narrated check + negative proof; ci:check green on second run (first run web-test failure undiagnosed; orchestrator re-checks at final gate).
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
