@@ -4,7 +4,7 @@ title: Quoted NPC dialogue can name absent or unmet actors
 status: In Progress
 assignee: []
 created_date: '2026-11-14T02:14:00Z'
-updated_date: '2026-11-14T08:11:00Z'
+updated_date: '2026-11-14T08:21:00Z'
 labels:
   - playtest
   - ws:narration
@@ -60,4 +60,6 @@ spec-bridge sync: Knowledge model and the speech check (US1, US2, AC #1): 0/9 ·
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5 (phase 1)
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5 (phase 2)
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5 (phase 3)
 <!-- SECTION:NOTES:END -->
