@@ -9,13 +9,13 @@ FR-014, FR-015, FR-016.
 ```ts
 export const FINDING_KINDS = [
   "ledger-contradiction", "invented-mechanics", "hidden-info-leak", "player-agency",
-  "roll-without-reason", "no-scene", "doctrine", "other", "dm-audit-flag",
+  "roll-without-reason", "no-scene", "doctrine", "other", "dm-audit-flag", "unnarrated-deed",
 ] as const;
 
 export const SEVERITY_OF: Record<(typeof FINDING_KINDS)[number], "fail" | "warn" | "note"> = {
   "ledger-contradiction": "fail", "invented-mechanics": "fail", "hidden-info-leak": "fail",
   "player-agency": "fail", "roll-without-reason": "fail", "no-scene": "fail",
-  doctrine: "warn", other: "warn", "dm-audit-flag": "note",
+  doctrine: "warn", other: "warn", "dm-audit-flag": "note", "unnarrated-deed": "fail",
 };
 
 export const FindingSchema = z.object({

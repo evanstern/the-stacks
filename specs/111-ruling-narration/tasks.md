@@ -25,11 +25,11 @@ Do not edit `dm/enqueue.ts`, `dm/rulings.ts`, `dm/intent-runner.ts` or `gate/`.
 
 ## Phase 3: Auditor check `deeds-narrated` (FR-009, FR-010; AC #3 negative proof)
 
-- [ ] T013 In `auditor/schema.ts`, append kind `unnarrated-deed` with severity `fail`.
-- [ ] T014 In `auditor/checks.ts`, append `"deeds-narrated"` to `CHECK_IDS`, add `deedLines` and the self-contained `checkDeedsNarrated` block at the file's end, and call it last in `runChecks` (plan D6).
-- [ ] T015 In `auditor/segments.ts`, close a tail on a deed carrier as well as on `talk`.
-- [ ] T016 Add the negative proof to `test/playtest/checks.test.ts`: the test-drive shape fails with one finding citing the move carrier; the fixed shape passes; a tail deed fails. Confirm the clean and doctored fixture tests are unchanged.
-- [ ] T017 Amend `specs/032-playtest-harness/contracts/auditor.md` "Code checks" and `contracts/audit-report-schema.md` (new kind).
+- [x] T013 In `auditor/schema.ts`, append kind `unnarrated-deed` with severity `fail`.
+- [x] T014 In `auditor/checks.ts`, append `"deeds-narrated"` to `CHECK_IDS`, add `deedLines` and the self-contained `checkDeedsNarrated` block at the file's end, and call it last in `runChecks` (plan D6).
+- [x] T015 In `auditor/segments.ts`, close a tail on a deed carrier as well as on `talk`.
+- [x] T016 Add the negative proof to `test/playtest/checks.test.ts`: the test-drive shape fails with one finding citing the move carrier; the fixed shape passes; a tail deed fails. Confirm the clean and doctored fixture tests are unchanged.
+- [x] T017 Amend `specs/032-playtest-harness/contracts/auditor.md` "Code checks" and `contracts/audit-report-schema.md` (new kind).
 
 ## Phase 4: CI scenario deeds (FR-011, FR-012; AC #3 in CI)
 

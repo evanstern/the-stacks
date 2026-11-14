@@ -1,9 +1,11 @@
+import { toText } from "@the-stacks/intent";
 import {
   type LedgerRow,
   PUBLIC,
   project,
   type StoredEvent,
 } from "@the-stacks/session-model";
+import { isDeedRow } from "../../dm/deeds.js";
 import {
   collectFacts,
   type FactChange,
@@ -31,6 +33,7 @@ export const CHECK_IDS = [
   "roll-reasons",
   "hidden-info",
   "dice-language",
+  "deeds-narrated",
 ] as const;
 export type CheckId = (typeof CHECK_IDS)[number];
 
@@ -468,5 +471,39 @@ export function runChecks(seg: Segment, ctx: CheckContext): CheckResult[] {
       }
     }
   }
+  for (const f of checkDeedsNarrated(seg, ctx)) add("deeds-narrated", f);
   return results;
+}
+
+/** The `Deed:` rows of a narration text. */
+export function deedLines(text: string): string[] {
+  return text.split("\n").filter((l) => DEED_LINE.test(l));
+}
+
+/** TASK-0337: every deed in the transcript is told by its segment's narration. */
+export function checkDeedsNarrated(
+  seg: Segment,
+  ctx: CheckContext,
+): CheckFinding[] {
+  const carriers = ctx.transcript.filter((r) => r.type === "intent.recorded");
+  const narration = narrationOf(seg);
+  const lines = narration
+    ? deedLines(str((narration.payload as { text?: unknown }).text))
+    : [];
+  const out: CheckFinding[] = [];
+  for (const row of seg.rows) {
+    const d = isDeedRow(row, carriers);
+    if (!d) continue;
+    const text = (toText(d.intent) || d.intent.kind).slice(0, 200);
+    const told = lines.some(
+      (l) => l.endsWith(`: ${text}`) || l.includes(`: ${text} (stopped`),
+    );
+    if (told) continue;
+    out.push({
+      kind: "unnarrated-deed",
+      seqs: [row.seq],
+      detail: `The deed "${text.slice(0, 120)}" (seq ${row.seq}) has no narration row.`,
+    });
+  }
+  return out;
 }
