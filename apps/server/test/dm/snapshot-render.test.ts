@@ -377,3 +377,27 @@ describe("renderSnapshot: views", () => {
     expect(fic.lines[0]).toBe("No fight is on.");
   });
 });
+
+describe("unmet actors (spec 112 D5)", () => {
+  it("drops one line per unmet actor from seat and fiction, keeps it in dm", () => {
+    const { projections, seed } = greyhollowFight();
+    const snap = buildSnapshot(projections, seed);
+    const hidden = clone(snap);
+    const victim = hidden.actors.find((a) => a.kind !== "party");
+    if (!victim) throw new Error("no non-party actor");
+    victim.met = false;
+    const n = (s: typeof snap, view: RenderOptions) => {
+      const r = renderSnapshot(s, view);
+      if (!r.ok) throw new Error("overflow");
+      return r.lines.length;
+    };
+    for (const [i, drop] of [
+      [0, 0],
+      [1, 1],
+      [2, 1],
+    ] as const) {
+      const v = VIEWS[i] as RenderOptions;
+      expect(n(snap, v) - n(hidden, v)).toBe(drop);
+    }
+  });
+});

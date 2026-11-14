@@ -1,3 +1,6 @@
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { afterAll, describe, expect, it } from "vitest";
 import { enqueueTurn, listDmJobs } from "../../src/dm/jobs.js";
 import { assemble } from "../../src/dm/nodes/assemble.js";
@@ -137,7 +140,7 @@ describe.skipIf(!reachable)("talk turn (database)", () => {
       expect.objectContaining({ kind: "addressed", actorId: "wenna" }),
     );
     expect(result.calls.map((c) => [c.purpose, c.promptVersion])).toEqual([
-      [PURPOSE_OF.narrate, "dm.react-v5"],
+      [PURPOSE_OF.narrate, "dm.react-v6"],
     ]);
   });
 
@@ -184,6 +187,39 @@ describe.skipIf(!reachable)("talk turn (database)", () => {
     expect(w.scripted.remaining().calls["dm.narrate"]).toBe(0);
     const [job] = await talkJobs(w);
     expect(job?.status).toBe("succeeded");
+  });
+
+  it("a reply that names an unmet actor in Wenna's quote ships without that sentence and appends a dm correction naming Snag (spec 112, R1 seq 21)", async () => {
+    const seq21 = (
+      JSON.parse(
+        readFileSync(
+          join(
+            dirname(fileURLToPath(import.meta.url)),
+            "fixtures/r1-spine-0106e608.json",
+          ),
+          "utf8",
+        ),
+      ) as { react: { seq21: { text: string } }; correctedSeq21: string }
+    ).react.seq21.text;
+    const { w, worker } = await table([reactCall({ text: seq21 })]);
+    const before = (await readRows(w)).length;
+    await say(w, "Wenna, who is out there?");
+    await drainAll(worker);
+    const after = (await readRows(w)).slice(before);
+    const narrations = after.filter((r) => r.type === "narration");
+    expect(narrations).toHaveLength(1);
+    const shown = payloadOf<{ text: string }>(narrations[0]).text;
+    expect(shown).toContain("Pell's not back.");
+    expect(shown).not.toContain("Snag");
+    const fixes = after.filter(
+      (r) =>
+        r.type === "talk" &&
+        r.actor === "ai:dm" &&
+        payloadOf<{ text: string }>(r).text.startsWith("Correction (hidden)"),
+    );
+    expect(fixes).toHaveLength(1);
+    expect(payloadOf<{ text: string }>(fixes[0]).text).toContain("Snag");
+    expect(fixes[0]?.visibility).toBe("dm");
   });
 
   it("a talk job with a committed beat runs the full pipeline", async () => {

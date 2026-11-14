@@ -43,7 +43,7 @@ sources:
   - apps/server/seeds/greyhollow-ford-trio.json
   - biome.json
 size_budget_exempt: both notes sat within 30 chars of the 8000 budget before TASK-0180; the talk path got its own note (dm-talk-triggers) and only a pointer line lands here; the rest is one pipeline each, not splittable without a TASK of its own
-verified_against: 3ded4c07448d3ff8c11975b62d9201e1b727e47d
+verified_against: 9e43d8e19c8b0911b654115a7b0342a832912ff5
 ---
 
 # DM runtime

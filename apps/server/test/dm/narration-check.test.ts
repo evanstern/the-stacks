@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   type CheckInput,
   checkNarration,
+  dropPlan,
   dropSentences,
 } from "../../src/dm/narration-check.js";
 import { namedActorIds } from "../../src/dm/snapshot/aliases.js";
@@ -15,6 +16,8 @@ import { greyhollowFight } from "./snapshot-fixtures.js";
 interface Over {
   life?: Partial<Record<string, LifeState | null>>;
   presence?: Partial<Record<string, ScenePresence>>;
+  /** Actor ids to mark met; every other non-party actor is unmet. */
+  met?: string[];
   fog?: string[];
 }
 
@@ -31,6 +34,9 @@ function input(
     if (over.presence?.[a.id])
       a.presence = over.presence[a.id] as ScenePresence;
   }
+  if (over.met)
+    for (const a of snapshot.actors)
+      if (a.kind !== "party") a.met = over.met.includes(a.id);
   if (over.fog)
     snapshot.stage.zones = over.fog.map((name) => ({
       id: name,
@@ -71,7 +77,7 @@ describe("leak check", () => {
   });
 
   it("passes quotes, negation, 'no sign of' and a question", () => {
-    const o = { presence: { pell: "absent" as ScenePresence } };
+    const o = { presence: { pell: "absent" as ScenePresence }, met: ["pell"] };
     for (const t of [
       'Tamsin shouts, "Pell, where are you?"',
       "Tamsin cannot see Pell.",
@@ -104,6 +110,65 @@ describe("leak check", () => {
     expect(kinds(i)).toEqual(["fogged-zone"]);
     expect(
       kinds(input("The Sunken Gates creak.", { fog: ["Sunken Gate"] })),
+    ).toEqual([]);
+  });
+
+  it("flags an unmet actor named in a quote and cuts the inner sentence (spec 112)", () => {
+    const i = input('Tamsin shouts, "Pell, where are you? Come out."', {
+      met: [],
+    });
+    const issues = checkNarration(i);
+    expect(issues.map((x) => [x.kind, x.actorIds, x.inner])).toEqual([
+      ["unmet-actor", ["pell"], "Pell, where are you?"],
+    ]);
+    const plan = dropPlan(issues);
+    expect(dropSentences(i.slots.describe, plan.sentences, plan.inners)).toBe(
+      'Tamsin shouts, "Come out."',
+    );
+  });
+
+  it("drops the whole sentence when no inner sentence is left", () => {
+    const i = input('Tamsin shouts, "Pell, where are you?"', { met: [] });
+    const plan = dropPlan(checkNarration(i));
+    expect(dropSentences(i.slots.describe, plan.sentences, plan.inners)).toBe(
+      "",
+    );
+  });
+
+  it("lets a speaker name an actor they know, and a met actor", () => {
+    const wenna = 'Wenna says, "Pell is late."';
+    expect(kinds(input(wenna, { met: [] }))).toEqual([]);
+    expect(kinds(input('Tamsin says, "Pell is late."', { met: [] }))).toEqual([
+      "unmet-actor",
+    ]);
+    expect(
+      kinds(input('Tamsin says, "Pell is late."', { met: ["pell"] })),
+    ).toEqual([]);
+  });
+
+  it("flags a fogged zone inside a quote and an unknown speaker", () => {
+    expect(
+      kinds(
+        input('Tamsin says, "Beyond the Sunken Gate."', {
+          fog: ["Sunken Gate"],
+        }),
+      ),
+    ).toEqual(["fogged-zone"]);
+    const i = input('"Pell is late."', { met: [] });
+    expect(checkNarration(i)[0]?.detail).toContain("no known speaker");
+  });
+
+  it("treats a speakerId reply with no quote marks as speech", () => {
+    const i = input(
+      "Pell went for eel-traps.",
+      { met: [] },
+      { speakerId: "tamsin" },
+    );
+    expect(kinds(i)).toEqual(["unmet-actor"]);
+    expect(
+      kinds(
+        input("Pell went for eel-traps.", { met: [] }, { speakerId: "wenna" }),
+      ),
     ).toEqual([]);
   });
 

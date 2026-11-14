@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { toText } from "@the-stacks/intent";
 import type { StoredEvent } from "@the-stacks/session-model";
 import { describe, expect, it } from "vitest";
@@ -6,6 +7,7 @@ import {
   type NarrationFacts,
   renderDiceLines,
 } from "../../src/dm/facts.js";
+import { loadSeed } from "../../src/dm/seed/load.js";
 import {
   type CheckId,
   runChecks,
@@ -137,6 +139,44 @@ describe("code checks", () => {
       const found = hiddenFindings(sentence);
       expect(found).toHaveLength(1);
       expect(found[0]?.kind).toBe("hidden-info-leak");
+    });
+  });
+
+  describe("speech knowledge (spec 112 D8)", () => {
+    const fx = JSON.parse(
+      readFileSync(
+        new URL("../dm/fixtures/r1-spine-0106e608.json", import.meta.url),
+        "utf8",
+      ),
+    ) as { correctedSeq21: string; rows: StoredEvent[] };
+    const speechFindings = (text?: string) => {
+      const rows = fx.rows
+        .filter((r) => r.seq <= 22)
+        .map((r) =>
+          text && r.seq === 21
+            ? ({
+                ...r,
+                payload: { ...(r.payload as object), text },
+              } as StoredEvent)
+            : r,
+        );
+      const seed = loadSeed("greyhollow-ford");
+      return segment(rows, [])
+        .flatMap((seg) => runChecks(seg, { transcript: rows, seed }))
+        .filter((r) => r.id === "hidden-info")
+        .flatMap((r) => r.findings);
+    };
+
+    it("fails the original seq 21 and names Snag, not Pell", () => {
+      const found = speechFindings();
+      expect(found.some((f) => f.seqs.includes(21))).toBe(true);
+      const text = found.map((f) => f.detail).join("\n");
+      expect(text).toContain("Snag");
+      expect(text).not.toContain("Pell");
+    });
+
+    it("passes the corrected seq 21", () => {
+      expect(speechFindings(fx.correctedSeq21)).toEqual([]);
     });
   });
 

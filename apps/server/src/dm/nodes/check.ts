@@ -5,6 +5,7 @@ import {
   type CheckInput,
   type CheckIssue,
   checkNarration,
+  dropPlan,
   dropSentences,
 } from "../narration-check.js";
 import type { Node, TurnContext } from "../pipeline/context.js";
@@ -127,13 +128,13 @@ export const check: Node<"check"> = async (ctx) => {
   const base = checkBase(ctx, facts, sheet);
   if (!base) throw new Error("unreachable: resolve checked above");
   const issues = checkNarration({ ...base, slots });
-  const drop = issues
-    .filter((i) => i.check === "leak" || i.kind === "digit")
-    .map((i) => i.sentence);
+  const drop = dropPlan(
+    issues.filter((i) => i.check === "leak" || i.kind === "digit"),
+  );
   const kept = {
     restate: slots.restate,
-    describe: dropSentences(slots.describe, drop),
-    ask: sheet.ask ?? dropSentences(slots.ask, drop),
+    describe: dropSentences(slots.describe, drop.sentences, drop.inners),
+    ask: sheet.ask ?? dropSentences(slots.ask, drop.sentences, drop.inners),
   };
   // An empty restate slot falls back to the code-written restate.
   if (sheet.slots.includes("restate") && !kept.restate) {
@@ -172,7 +173,9 @@ export const check: Node<"check"> = async (ctx) => {
       record: {
         leak: issues.filter((i) => i.check === "leak"),
         contradiction: issues.filter((i) => i.check === "contradiction"),
-        corrected: corrections.length > 0 || drop.length > 0,
+        corrected:
+          corrections.length > 0 ||
+          drop.sentences.length + drop.inners.size > 0,
         shippedProseSha256: sha(prose),
         ...(timing
           ? {

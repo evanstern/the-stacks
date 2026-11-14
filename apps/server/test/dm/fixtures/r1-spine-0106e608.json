@@ -1,0 +1,955 @@
+{
+  "_header": "Captured rows 1-32 of playtest session 0106e608-e5f0-4ff9-89e2-16f780dbc002 (docs/playtests/2026-11-13-r1-spine-test-drive.md findings 4 and 7), read-only from vm-104 stacks-dev-db-1 on 2026-11-13. The human user id is replaced by PLAYER_USER. Rows 21, 22 and 30 hold the shipped text. `react` holds the raw talk-turn react outputs (seq 21 job 32112a98, seq 30 job e5eb04d1, speaker wenna). `correctedSeq21` is the seq 21 text with the Snag sentence removed. Spec 112 plan D6 and D7.",
+  "sessionId": "0106e608-e5f0-4ff9-89e2-16f780dbc002",
+  "react": {
+    "seq21": {
+      "speaker": "wenna",
+      "text": "A voice cracks low from the ferry-house shadow, counting under breath — three, three, three — before Wenna Marsh steps into view, knuckles white on a boat-hook. \"Who's walkin' my bank at dusk,\" she rasps, eyes darting to the cut rope swinging above. \"Pell's not back. Snag's not back. You seen either, or you just come to gawk at an old woman's trouble?\""
+    },
+    "seq30": {
+      "speaker": "wenna",
+      "text": "Last I seen 'em — reeds past the bend, three days gone. Pell went for eel-traps, Snag followed grumblin'. Neither come back for supper, nor the one after. Water's loud there, swallows sound. I counted the hours — three, nine, twenty-seven — till I quit countin' and come lookin' myself. Found the rope cut 'fore I found them."
+    }
+  },
+  "correctedSeq21": "A voice cracks low from the ferry-house shadow, counting under breath — three, three, three — before Wenna Marsh steps into view, knuckles white on a boat-hook. \"Who's walkin' my bank at dusk,\" she rasps, eyes darting to the cut rope swinging above. \"Pell's not back. You seen either, or you just come to gawk at an old woman's trouble?\"",
+  "rows": [
+    {
+      "sessionId": "0106e608-e5f0-4ff9-89e2-16f780dbc002",
+      "seq": 1,
+      "actor": "system",
+      "type": "presence.recorded",
+      "payload": { "present": ["PLAYER_USER"], "purpose": "director" },
+      "payloadVersion": 1,
+      "visibility": "public",
+      "ts": "2026-11-13T20:27:43.5433+00:00"
+    },
+    {
+      "sessionId": "0106e608-e5f0-4ff9-89e2-16f780dbc002",
+      "seq": 2,
+      "actor": "ai:dm",
+      "type": "scene.changed",
+      "payload": {
+        "after": {
+          "cast": [
+            {
+              "id": "wenna",
+              "name": "Wenna Marsh",
+              "role": "ferry keeper",
+              "appearance": "Small, weathered, a boathook she holds like a spear."
+            },
+            {
+              "id": "pell",
+              "name": "Pell Marsh",
+              "role": "keeper's grandson, captive",
+              "appearance": "Wiry, mud to the knees, rope-burned wrists."
+            },
+            {
+              "id": "snag",
+              "name": "Snag",
+              "role": "goblin leader",
+              "appearance": "Narrow, yellow-eyed, a notched scimitar."
+            }
+          ],
+          "ways": [
+            {
+              "draft": "/do I climb the ladder to the loft",
+              "label": "ladder to the loft"
+            },
+            { "draft": "/move #causeway", "label": "causeway downriver" },
+            { "draft": "/move #ferry", "label": "ferry" }
+          ],
+          "title": "The Bell at Greyhollow Ford",
+          "sceneId": "greyhollow-ford",
+          "summary": "Find out who silenced the ferry bell at Greyhollow Ford and get the ferry crossing again before full dark.",
+          "location": "Greyhollow Ford",
+          "description": "A slate-roofed ferry-house on stilts above a brown, fast river. A bell tower on the ferry-house; its rope hangs cut a yard above the floor. A flat ferry chained to the near bank; the far bank is lost in reeds. A causeway of sunk timbers runs downriver into a reed marsh."
+        },
+        "before": null,
+        "reason": "Scene start: The Bell at Greyhollow Ford"
+      },
+      "payloadVersion": 1,
+      "visibility": "public",
+      "ts": "2026-11-13T20:27:48.941782+00:00"
+    },
+    {
+      "sessionId": "0106e608-e5f0-4ff9-89e2-16f780dbc002",
+      "seq": 3,
+      "actor": "ai:dm",
+      "type": "space.defined",
+      "payload": {
+        "count": 1,
+        "event": {
+          "v": 1,
+          "type": "space.defined",
+          "after": {
+            "edges": [
+              {
+                "to": "ferry-house",
+                "feet": 10,
+                "from": "near-bank",
+                "kind": "door"
+              },
+              {
+                "to": "ferry",
+                "feet": 10,
+                "from": "near-bank",
+                "kind": "open"
+              },
+              {
+                "to": "causeway",
+                "feet": 30,
+                "from": "near-bank",
+                "kind": "open"
+              },
+              {
+                "to": "ferry-house-door",
+                "feet": 5,
+                "from": "ferry-house",
+                "kind": "open"
+              },
+              {
+                "to": "loft",
+                "feet": 10,
+                "from": "ferry-house",
+                "kind": "climb"
+              },
+              {
+                "to": "reed-marsh",
+                "feet": 60,
+                "from": "causeway",
+                "kind": "squeeze"
+              },
+              {
+                "to": "reed-camp",
+                "feet": 30,
+                "from": "reed-marsh",
+                "kind": "squeeze"
+              },
+              {
+                "to": "camp-post",
+                "feet": 5,
+                "from": "reed-camp",
+                "kind": "open"
+              }
+            ],
+            "zones": [
+              {
+                "id": "near-bank",
+                "kind": "area",
+                "name": "Near bank",
+                "tags": [],
+                "hidden": false
+              },
+              {
+                "id": "ferry-house",
+                "kind": "room",
+                "name": "Ferry-house",
+                "tags": [],
+                "hidden": false
+              },
+              {
+                "id": "ferry-house-door",
+                "kind": "feature",
+                "name": "Ferry-house door",
+                "tags": [],
+                "hidden": false
+              },
+              {
+                "id": "loft",
+                "kind": "room",
+                "name": "Loft",
+                "tags": [],
+                "hidden": true
+              },
+              {
+                "id": "ferry",
+                "kind": "area",
+                "name": "Ferry",
+                "tags": [],
+                "hidden": false
+              },
+              {
+                "id": "causeway",
+                "kind": "area",
+                "name": "Causeway",
+                "tags": [],
+                "hidden": false
+              },
+              {
+                "id": "reed-marsh",
+                "kind": "area",
+                "name": "Reed marsh",
+                "tags": [],
+                "hidden": true
+              },
+              {
+                "id": "reed-camp",
+                "kind": "area",
+                "name": "Reed camp",
+                "tags": [],
+                "hidden": true
+              },
+              {
+                "id": "camp-post",
+                "kind": "feature",
+                "name": "Camp post",
+                "tags": [],
+                "hidden": true
+              }
+            ]
+          },
+          "before": null,
+          "reason": "The scene is laid out: Greyhollow Ford [8c5b972a-1f68-420b-b154-f1e55b79eefd#2]"
+        },
+        "index": 0,
+        "batchId": "28c81df8-5a05-492e-a952-11b24bce2d09",
+        "actionId": null,
+        "proposalId": null
+      },
+      "payloadVersion": 1,
+      "visibility": "dm",
+      "ts": "2026-11-13T20:27:48.954015+00:00"
+    },
+    {
+      "sessionId": "0106e608-e5f0-4ff9-89e2-16f780dbc002",
+      "seq": 4,
+      "actor": "ai:dm",
+      "type": "zone.revealed",
+      "payload": {
+        "edges": [
+          {
+            "to": "ferry-house",
+            "feet": 10,
+            "from": "near-bank",
+            "kind": "door"
+          },
+          { "to": "ferry", "feet": 10, "from": "near-bank", "kind": "open" },
+          { "to": "causeway", "feet": 30, "from": "near-bank", "kind": "open" },
+          {
+            "to": "ferry-house-door",
+            "feet": 5,
+            "from": "ferry-house",
+            "kind": "open"
+          }
+        ],
+        "reset": true,
+        "zones": [
+          {
+            "id": "near-bank",
+            "kind": "area",
+            "name": "Near bank",
+            "tags": [],
+            "hidden": false
+          },
+          {
+            "id": "ferry-house",
+            "kind": "room",
+            "name": "Ferry-house",
+            "tags": [],
+            "hidden": false
+          },
+          {
+            "id": "ferry-house-door",
+            "kind": "feature",
+            "name": "Ferry-house door",
+            "tags": [],
+            "hidden": false
+          },
+          {
+            "id": "ferry",
+            "kind": "area",
+            "name": "Ferry",
+            "tags": [],
+            "hidden": false
+          },
+          {
+            "id": "causeway",
+            "kind": "area",
+            "name": "Causeway",
+            "tags": [],
+            "hidden": false
+          }
+        ],
+        "reason": "The party's view of the scene",
+        "occupants": {}
+      },
+      "payloadVersion": 1,
+      "visibility": "public",
+      "ts": "2026-11-13T20:27:48.954015+00:00"
+    },
+    {
+      "sessionId": "0106e608-e5f0-4ff9-89e2-16f780dbc002",
+      "seq": 5,
+      "actor": "ai:dm",
+      "type": "combatant.added",
+      "payload": {
+        "count": 1,
+        "event": {
+          "v": 1,
+          "type": "combatant.added",
+          "after": {
+            "ac": 16,
+            "hp": { "max": 13, "temp": 0, "current": 13 },
+            "id": "tamsin",
+            "name": "Tamsin Vale",
+            "side": "party",
+            "speed": 30,
+            "stats": {
+              "saves": { "con": 4, "str": 5 },
+              "skills": {
+                "survival": 3,
+                "athletics": 5,
+                "perception": 3,
+                "intimidation": 1
+              },
+              "attacks": [
+                {
+                  "name": "Longsword",
+                  "range": "melee",
+                  "toHit": 5,
+                  "damage": [
+                    {
+                      "amount": { "kind": "roll", "expression": "1d8+3" },
+                      "damageType": "slashing"
+                    }
+                  ]
+                },
+                {
+                  "name": "Light crossbow",
+                  "range": "ranged",
+                  "toHit": 4,
+                  "damage": [
+                    {
+                      "amount": { "kind": "roll", "expression": "1d8+2" },
+                      "damageType": "piercing"
+                    }
+                  ],
+                  "rangeFt": { "long": 320, "normal": 80 }
+                }
+              ],
+              "abilityMods": {
+                "cha": -1,
+                "con": 2,
+                "dex": 2,
+                "int": 0,
+                "str": 3,
+                "wis": 1
+              },
+              "proficiencyBonus": 2,
+              "spellcastingAbility": null
+            },
+            "hitDice": [{ "die": 10, "total": 1, "remaining": 1 }],
+            "defenses": {
+              "immunities": [],
+              "resistances": [],
+              "vulnerabilities": []
+            },
+            "lifeState": "conscious",
+            "placement": { "zoneId": "near-bank" },
+            "conditions": [],
+            "deathSaves": { "failures": 0, "successes": 0 },
+            "spellSlots": { "pact": null, "standard": {} },
+            "zeroHpRule": "death-saves",
+            "conModifier": 2,
+            "conditionSeq": 0,
+            "initiativeBonus": 2
+          },
+          "before": null,
+          "reason": "Tamsin Vale joins the scene [8c5b972a-1f68-420b-b154-f1e55b79eefd#3]",
+          "combatantId": "tamsin"
+        },
+        "index": 0,
+        "batchId": "1d12ee16-f29b-4c11-bd09-06b8e134243a",
+        "actionId": null,
+        "proposalId": null
+      },
+      "payloadVersion": 1,
+      "visibility": "public",
+      "ts": "2026-11-13T20:27:48.974065+00:00"
+    },
+    {
+      "sessionId": "0106e608-e5f0-4ff9-89e2-16f780dbc002",
+      "seq": 6,
+      "actor": "ai:dm",
+      "type": "party.member.changed",
+      "payload": {
+        "after": {
+          "name": "Tamsin Vale",
+          "class": "Fighter",
+          "level": 1,
+          "controller": { "kind": "player", "userId": "PLAYER_USER" },
+          "characterId": "tamsin",
+          "combatantId": "tamsin"
+        },
+        "before": null,
+        "reason": "Tamsin Vale joins the party",
+        "characterId": "tamsin"
+      },
+      "payloadVersion": 1,
+      "visibility": "public",
+      "ts": "2026-11-13T20:27:48.984038+00:00"
+    },
+    {
+      "sessionId": "0106e608-e5f0-4ff9-89e2-16f780dbc002",
+      "seq": 7,
+      "actor": "ai:dm",
+      "type": "combatant.added",
+      "payload": {
+        "count": 1,
+        "event": {
+          "v": 1,
+          "type": "combatant.added",
+          "after": {
+            "ac": 16,
+            "hp": { "max": 10, "temp": 0, "current": 10 },
+            "id": "odo",
+            "name": "Brother Odo",
+            "side": "party",
+            "speed": 30,
+            "stats": {
+              "saves": { "cha": 3, "wis": 5 },
+              "skills": {
+                "insight": 5,
+                "medicine": 5,
+                "religion": 2,
+                "persuasion": 3
+              },
+              "attacks": [
+                {
+                  "name": "Mace",
+                  "range": "melee",
+                  "toHit": 3,
+                  "damage": [
+                    {
+                      "amount": { "kind": "roll", "expression": "1d6+1" },
+                      "damageType": "bludgeoning"
+                    }
+                  ]
+                }
+              ],
+              "abilityMods": {
+                "cha": 1,
+                "con": 1,
+                "dex": 0,
+                "int": 0,
+                "str": 1,
+                "wis": 3
+              },
+              "proficiencyBonus": 2,
+              "spellcastingAbility": "wis"
+            },
+            "hitDice": [{ "die": 8, "total": 1, "remaining": 1 }],
+            "defenses": {
+              "immunities": [],
+              "resistances": [],
+              "vulnerabilities": []
+            },
+            "lifeState": "conscious",
+            "placement": { "zoneId": "near-bank" },
+            "conditions": [],
+            "deathSaves": { "failures": 0, "successes": 0 },
+            "spellSlots": {
+              "pact": null,
+              "standard": { "1": { "max": 2, "expended": 0 } }
+            },
+            "zeroHpRule": "death-saves",
+            "conModifier": 1,
+            "conditionSeq": 0,
+            "initiativeBonus": 0
+          },
+          "before": null,
+          "reason": "Brother Odo joins the scene [8c5b972a-1f68-420b-b154-f1e55b79eefd#5]",
+          "combatantId": "odo"
+        },
+        "index": 0,
+        "batchId": "23a5c2f2-dbc8-4cfc-b968-47fe338d9c5d",
+        "actionId": null,
+        "proposalId": null
+      },
+      "payloadVersion": 1,
+      "visibility": "public",
+      "ts": "2026-11-13T20:27:48.993853+00:00"
+    },
+    {
+      "sessionId": "0106e608-e5f0-4ff9-89e2-16f780dbc002",
+      "seq": 8,
+      "actor": "ai:dm",
+      "type": "party.member.changed",
+      "payload": {
+        "after": {
+          "name": "Brother Odo",
+          "class": "Cleric",
+          "level": 1,
+          "controller": { "kind": "ai-companion", "actor": "ai:companion:odo" },
+          "characterId": "odo",
+          "combatantId": "odo"
+        },
+        "before": null,
+        "reason": "Brother Odo joins the party",
+        "characterId": "odo"
+      },
+      "payloadVersion": 1,
+      "visibility": "public",
+      "ts": "2026-11-13T20:27:49.003956+00:00"
+    },
+    {
+      "sessionId": "0106e608-e5f0-4ff9-89e2-16f780dbc002",
+      "seq": 9,
+      "actor": "ai:dm",
+      "type": "combatant.added",
+      "payload": {
+        "count": 1,
+        "event": {
+          "v": 1,
+          "type": "combatant.added",
+          "after": {
+            "ac": 14,
+            "hp": { "max": 9, "temp": 0, "current": 9 },
+            "id": "kestrel",
+            "name": "Kestrel",
+            "side": "party",
+            "speed": 30,
+            "stats": {
+              "saves": { "dex": 5, "int": 3 },
+              "skills": {
+                "stealth": 5,
+                "survival": 3,
+                "acrobatics": 5,
+                "perception": 3
+              },
+              "attacks": [
+                {
+                  "name": "Shortbow",
+                  "range": "ranged",
+                  "toHit": 5,
+                  "damage": [
+                    {
+                      "amount": { "kind": "roll", "expression": "1d6+3" },
+                      "damageType": "piercing"
+                    }
+                  ],
+                  "rangeFt": { "long": 320, "normal": 80 }
+                },
+                {
+                  "name": "Shortsword",
+                  "range": "melee",
+                  "toHit": 5,
+                  "damage": [
+                    {
+                      "amount": { "kind": "roll", "expression": "1d6+3" },
+                      "damageType": "piercing"
+                    }
+                  ]
+                }
+              ],
+              "abilityMods": {
+                "cha": 0,
+                "con": 1,
+                "dex": 3,
+                "int": 1,
+                "str": 0,
+                "wis": 1
+              },
+              "proficiencyBonus": 2,
+              "spellcastingAbility": null
+            },
+            "hitDice": [{ "die": 8, "total": 1, "remaining": 1 }],
+            "defenses": {
+              "immunities": [],
+              "resistances": [],
+              "vulnerabilities": []
+            },
+            "lifeState": "conscious",
+            "placement": { "zoneId": "near-bank" },
+            "conditions": [],
+            "deathSaves": { "failures": 0, "successes": 0 },
+            "spellSlots": { "pact": null, "standard": {} },
+            "zeroHpRule": "death-saves",
+            "conModifier": 1,
+            "conditionSeq": 0,
+            "initiativeBonus": 3
+          },
+          "before": null,
+          "reason": "Kestrel joins the scene [8c5b972a-1f68-420b-b154-f1e55b79eefd#7]",
+          "combatantId": "kestrel"
+        },
+        "index": 0,
+        "batchId": "3e7337da-c632-4785-99a2-b2cb983c39f2",
+        "actionId": null,
+        "proposalId": null
+      },
+      "payloadVersion": 1,
+      "visibility": "public",
+      "ts": "2026-11-13T20:27:49.014299+00:00"
+    },
+    {
+      "sessionId": "0106e608-e5f0-4ff9-89e2-16f780dbc002",
+      "seq": 10,
+      "actor": "ai:dm",
+      "type": "party.member.changed",
+      "payload": {
+        "after": {
+          "name": "Kestrel",
+          "class": "Rogue",
+          "level": 1,
+          "controller": {
+            "kind": "ai-companion",
+            "actor": "ai:companion:kestrel"
+          },
+          "characterId": "kestrel",
+          "combatantId": "kestrel"
+        },
+        "before": null,
+        "reason": "Kestrel joins the party",
+        "characterId": "kestrel"
+      },
+      "payloadVersion": 1,
+      "visibility": "public",
+      "ts": "2026-11-13T20:27:49.023322+00:00"
+    },
+    {
+      "sessionId": "0106e608-e5f0-4ff9-89e2-16f780dbc002",
+      "seq": 11,
+      "actor": "ai:dm",
+      "type": "tracker.changed",
+      "payload": {
+        "after": {
+          "name": "Full dark falls on the ford",
+          "note": "When full, the river-things rise; the scene's failure condition is near.",
+          "filled": 0,
+          "segments": 4,
+          "trackerId": "dusk"
+        },
+        "before": null,
+        "reason": "Start the Full dark falls on the ford tracker",
+        "trackerId": "dusk"
+      },
+      "payloadVersion": 1,
+      "visibility": "dm",
+      "ts": "2026-11-13T20:27:49.033014+00:00"
+    },
+    {
+      "sessionId": "0106e608-e5f0-4ff9-89e2-16f780dbc002",
+      "seq": 12,
+      "actor": "ai:dm",
+      "type": "tracker.changed",
+      "payload": {
+        "after": {
+          "name": "The reed-camp is alerted",
+          "note": "When full, the goblins ambush the party on the causeway instead of waiting at camp.",
+          "filled": 0,
+          "segments": 3,
+          "trackerId": "alarm"
+        },
+        "before": null,
+        "reason": "Start the The reed-camp is alerted tracker",
+        "trackerId": "alarm"
+      },
+      "payloadVersion": 1,
+      "visibility": "dm",
+      "ts": "2026-11-13T20:27:49.04006+00:00"
+    },
+    {
+      "sessionId": "0106e608-e5f0-4ff9-89e2-16f780dbc002",
+      "seq": 13,
+      "actor": "ai:dm",
+      "type": "scene-presence.changed",
+      "payload": {
+        "after": "absent",
+        "before": "present",
+        "reason": "removed",
+        "actorId": "pell",
+        "actionId": null
+      },
+      "payloadVersion": 1,
+      "visibility": "dm",
+      "ts": "2026-11-13T20:27:49.049067+00:00"
+    },
+    {
+      "sessionId": "0106e608-e5f0-4ff9-89e2-16f780dbc002",
+      "seq": 14,
+      "actor": "ai:dm",
+      "type": "scene-presence.changed",
+      "payload": {
+        "after": "absent",
+        "before": "present",
+        "reason": "removed",
+        "actorId": "snag",
+        "actionId": null
+      },
+      "payloadVersion": 1,
+      "visibility": "dm",
+      "ts": "2026-11-13T20:27:49.056895+00:00"
+    },
+    {
+      "sessionId": "0106e608-e5f0-4ff9-89e2-16f780dbc002",
+      "seq": 15,
+      "actor": "ai:dm",
+      "type": "narration",
+      "payload": {
+        "text": "Greyhollow Ford comes up amber and loud, the river fast and brown beneath a slate-roofed ferry-house on stilts. Tamsin Vale, Brother Odo, and Kestrel find the ferry chained fast at the near bank, the far shore drowned in reed-haze. The ferry-house door hangs open on its hinge. Above, the bell tower holds a cut rope, swinging a yard short of the floor, sawn clean. No birds call over the water's rush.\n\nState: Anyone may act.",
+        "actionIds": []
+      },
+      "payloadVersion": 1,
+      "visibility": "public",
+      "ts": "2026-11-13T20:27:54.878223+00:00"
+    },
+    {
+      "sessionId": "0106e608-e5f0-4ff9-89e2-16f780dbc002",
+      "seq": 16,
+      "actor": "ai:dm",
+      "type": "talk",
+      "payload": {
+        "text": "Correction (hidden): dropped \"Loft\" — The zone Loft is not revealed to the players.",
+        "channel": "ic",
+        "characterId": null
+      },
+      "payloadVersion": 1,
+      "visibility": "dm",
+      "ts": "2026-11-13T20:27:54.884889+00:00"
+    },
+    {
+      "sessionId": "0106e608-e5f0-4ff9-89e2-16f780dbc002",
+      "seq": 17,
+      "actor": "ai:dm",
+      "type": "journal.entry.added",
+      "payload": {
+        "body": "Tamsin Vale, Brother Odo, and Kestrel arrived at Greyhollow Ford to find the ferry chained at the near bank. The ferry-house door hung open, and in the bell tower above, they discovered a cut rope swinging short of the floor—sawn clean. Someone had deliberately silenced the bell. The far shore lay hidden in reed-haze, and the river rushed fast and brown beneath the slate-roofed ferry-house on stilts. No birds called over the water.",
+        "title": "The Ferry Bell at Greyhollow Ford",
+        "entryId": "chron-0106e608-15",
+        "sourceActionIds": ["15"]
+      },
+      "payloadVersion": 1,
+      "visibility": "public",
+      "ts": "2026-11-13T20:27:56.808876+00:00"
+    },
+    {
+      "sessionId": "0106e608-e5f0-4ff9-89e2-16f780dbc002",
+      "seq": 18,
+      "actor": "PLAYER_USER",
+      "type": "talk",
+      "payload": {
+        "text": "I explore the area a little. Do I hear or see anyone?",
+        "channel": "ic",
+        "characterId": "tamsin"
+      },
+      "payloadVersion": 1,
+      "visibility": "public",
+      "ts": "2026-11-14T02:11:54.734273+00:00"
+    },
+    {
+      "sessionId": "0106e608-e5f0-4ff9-89e2-16f780dbc002",
+      "seq": 19,
+      "actor": "PLAYER_USER",
+      "type": "intent.recorded",
+      "payload": {
+        "facts": [],
+        "intent": {
+          "id": "int-6febc64e-54a9-4fad-8348-4a8241930361",
+          "kind": "say",
+          "text": "I explore the area a little. Do I hear or see anyone?",
+          "actor": { "id": "tamsin", "kind": "pc" },
+          "commit": "declared",
+          "params": {},
+          "source": "composer",
+          "channel": { "kind": "scene" },
+          "targets": []
+        },
+        "answers": null,
+        "batchId": null,
+        "outcome": "settled",
+        "request": null,
+        "stopped": null,
+        "schemaVersion": 1
+      },
+      "payloadVersion": 1,
+      "visibility": "public",
+      "ts": "2026-11-14T02:11:54.734273+00:00"
+    },
+    {
+      "sessionId": "0106e608-e5f0-4ff9-89e2-16f780dbc002",
+      "seq": 20,
+      "actor": "system",
+      "type": "presence.recorded",
+      "payload": { "present": ["PLAYER_USER"], "purpose": "read" },
+      "payloadVersion": 1,
+      "visibility": "public",
+      "ts": "2026-11-14T02:12:04.781733+00:00"
+    },
+    {
+      "sessionId": "0106e608-e5f0-4ff9-89e2-16f780dbc002",
+      "seq": 21,
+      "actor": "ai:dm",
+      "type": "narration",
+      "payload": {
+        "text": "A voice cracks low from the ferry-house shadow, counting under breath — three, three, three — before Wenna Marsh steps into view, knuckles white on a boat-hook. \"Who's walkin' my bank at dusk,\" she rasps, eyes darting to the cut rope swinging above. \"Pell's not back. Snag's not back. You seen either, or you just come to gawk at an old woman's trouble?\"",
+        "actionIds": []
+      },
+      "payloadVersion": 1,
+      "visibility": "public",
+      "ts": "2026-11-14T02:12:13.224605+00:00"
+    },
+    {
+      "sessionId": "0106e608-e5f0-4ff9-89e2-16f780dbc002",
+      "seq": 22,
+      "actor": "ai:companion:odo",
+      "type": "talk",
+      "payload": {
+        "text": "Peace, goodwife, peace. We're no gawkers — we've come to see the ferry sing again. Pell and Snag, you say? A cut rope rarely cuts itself. Tell us where you last saw them, and we'll walk that bank with you.",
+        "channel": "ic",
+        "characterId": "odo"
+      },
+      "payloadVersion": 1,
+      "visibility": "public",
+      "ts": "2026-11-14T02:12:17.614557+00:00"
+    },
+    {
+      "sessionId": "0106e608-e5f0-4ff9-89e2-16f780dbc002",
+      "seq": 23,
+      "actor": "ai:companion:kestrel",
+      "type": "talk",
+      "payload": {
+        "text": "Sawn clean means someone wanted that bell silent, not broken — worth remembering.",
+        "channel": "ic",
+        "characterId": "kestrel"
+      },
+      "payloadVersion": 1,
+      "visibility": "public",
+      "ts": "2026-11-14T02:12:19.79326+00:00"
+    },
+    {
+      "sessionId": "0106e608-e5f0-4ff9-89e2-16f780dbc002",
+      "seq": 24,
+      "actor": "ai:dm",
+      "type": "journal.entry.added",
+      "payload": {
+        "body": "At the bank near the ferry-house, Tamsin Vale explored the area as dusk approached. Wenna Marsh, the ferry-house keeper, emerged from the shadows counting to herself. She confronted the party with a boat-hook in hand, her knuckles white with tension. She revealed that both Pell and Snag—presumably crew members—have not returned, and she gestured to a cut rope hanging above, suggesting the ferry bell has been deliberately silenced. Wenna demanded to know if the party had seen either man or were simply come to witness her trouble.",
+        "title": "The ferry-house keeper's distress at Greyhollow Ford",
+        "entryId": "chron-0106e608-21",
+        "sourceActionIds": ["18", "21"]
+      },
+      "payloadVersion": 1,
+      "visibility": "public",
+      "ts": "2026-11-14T02:12:21.853686+00:00"
+    },
+    {
+      "sessionId": "0106e608-e5f0-4ff9-89e2-16f780dbc002",
+      "seq": 25,
+      "actor": "system",
+      "type": "presence.recorded",
+      "payload": { "present": ["PLAYER_USER"], "purpose": "read" },
+      "payloadVersion": 1,
+      "visibility": "public",
+      "ts": "2026-11-14T02:12:29.867831+00:00"
+    },
+    {
+      "sessionId": "0106e608-e5f0-4ff9-89e2-16f780dbc002",
+      "seq": 26,
+      "actor": "PLAYER_USER",
+      "type": "talk",
+      "payload": {
+        "text": "does Wenna look upset?",
+        "channel": "ooc",
+        "characterId": null
+      },
+      "payloadVersion": 1,
+      "visibility": "PLAYER_USER",
+      "ts": "2026-11-14T02:14:18.444689+00:00"
+    },
+    {
+      "sessionId": "0106e608-e5f0-4ff9-89e2-16f780dbc002",
+      "seq": 27,
+      "actor": "PLAYER_USER",
+      "type": "intent.recorded",
+      "payload": {
+        "facts": [],
+        "intent": {
+          "id": "int-0812ba3a-1d71-4035-ab12-99791bc09630",
+          "kind": "ask_dm",
+          "text": "does Wenna look upset?",
+          "actor": { "id": "tamsin", "kind": "pc" },
+          "commit": "declared",
+          "params": {},
+          "source": "composer",
+          "channel": { "kind": "dm" },
+          "targets": []
+        },
+        "answers": null,
+        "batchId": null,
+        "outcome": "settled",
+        "request": null,
+        "stopped": null,
+        "schemaVersion": 1
+      },
+      "payloadVersion": 1,
+      "visibility": "PLAYER_USER",
+      "ts": "2026-11-14T02:14:18.444689+00:00"
+    },
+    {
+      "sessionId": "0106e608-e5f0-4ff9-89e2-16f780dbc002",
+      "seq": 28,
+      "actor": "system",
+      "type": "presence.recorded",
+      "payload": { "present": ["PLAYER_USER"], "purpose": "read" },
+      "payloadVersion": 1,
+      "visibility": "public",
+      "ts": "2026-11-14T02:14:28.46251+00:00"
+    },
+    {
+      "sessionId": "0106e608-e5f0-4ff9-89e2-16f780dbc002",
+      "seq": 29,
+      "actor": "ai:dm",
+      "type": "talk",
+      "payload": {
+        "text": "Her knuckles are bone-white on the boat-hook, jaw tight, eyes flicking to the reeds every few words — whatever calm she's holding is thin.",
+        "channel": "ooc",
+        "characterId": null
+      },
+      "payloadVersion": 1,
+      "visibility": "PLAYER_USER",
+      "ts": "2026-11-14T02:14:38.828939+00:00"
+    },
+    {
+      "sessionId": "0106e608-e5f0-4ff9-89e2-16f780dbc002",
+      "seq": 30,
+      "actor": "ai:dm",
+      "type": "narration",
+      "payload": {
+        "text": "Last I seen 'em — reeds past the bend, three days gone. Neither come back for supper, nor the one after. Water's loud there, swallows sound. I counted the hours — three, nine, twenty-seven — till I quit countin' and come lookin' myself. Found the rope cut 'fore I found them.",
+        "actionIds": []
+      },
+      "payloadVersion": 1,
+      "visibility": "public",
+      "ts": "2026-11-14T02:14:38.837214+00:00"
+    },
+    {
+      "sessionId": "0106e608-e5f0-4ff9-89e2-16f780dbc002",
+      "seq": 31,
+      "actor": "ai:dm",
+      "type": "talk",
+      "payload": {
+        "text": "Correction (hidden): dropped \"Pell\" — Pell Marsh is absent and the prose shows them.",
+        "channel": "ic",
+        "characterId": null
+      },
+      "payloadVersion": 1,
+      "visibility": "dm",
+      "ts": "2026-11-14T02:14:38.846173+00:00"
+    },
+    {
+      "sessionId": "0106e608-e5f0-4ff9-89e2-16f780dbc002",
+      "seq": 32,
+      "actor": "ai:dm",
+      "type": "journal.entry.added",
+      "payload": {
+        "body": "Wenna Marsh, the ferry keeper, recounts her search for the missing bell-ringer. She last saw them three days ago heading past the reeds beyond the bend. When they failed to return for meals, Wenna went looking herself and discovered the ferry rope had been cut. The party learns the bell-ringer has been missing for days, suggesting foul play rather than simple negligence.",
+        "title": "The ferry bell's mystery deepens at Greyhollow Ford",
+        "entryId": "chron-0106e608-30",
+        "sourceActionIds": ["30"]
+      },
+      "payloadVersion": 1,
+      "visibility": "public",
+      "ts": "2026-11-14T02:14:40.563473+00:00"
+    }
+  ]
+}

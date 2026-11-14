@@ -30,8 +30,8 @@ const base = {
 };
 
 describe("react prompt (specs/065 D4)", () => {
-  it("is versioned dm.react-v5", () => {
-    expect(PROMPT_VERSION).toBe("dm.react-v5");
+  it("is versioned dm.react-v6", () => {
+    expect(PROMPT_VERSION).toBe("dm.react-v6");
   });
 
   it("shows the target ref shape and one worked confirm example (spec 114 SC-001)", () => {

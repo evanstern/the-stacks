@@ -30,7 +30,7 @@ const prompt = () =>
   });
 
 describe("companion prompt names the speaker (TASK-0189)", () => {
-  it("is v8", () => expect(PROMPT_VERSION).toBe("dm.companion-v9"));
+  it("is v8", () => expect(PROMPT_VERSION).toBe("dm.companion-v10"));
 
   it("states that all five keys are written (TASK-0203)", () =>
     expect(prompt().system).toContain(

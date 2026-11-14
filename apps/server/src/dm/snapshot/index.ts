@@ -5,5 +5,6 @@ export {
   type RenderResult,
   renderSnapshot,
   snapshotSection,
+  visibleActors,
 } from "./render.js";
 export * from "./types.js";

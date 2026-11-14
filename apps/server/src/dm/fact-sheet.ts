@@ -431,6 +431,11 @@ export function defaultRestate(sheet: FactSheet): string {
     .join(" ");
 }
 
+/** True for a line `defaultRestate` wrote: code speech, not DM speech. */
+export function isRestateLine(line: string): boolean {
+  return / means to: ".*"\.$/.test(line);
+}
+
 // Label forms at line start: `[x]`, `[x]:`, `x:`, `**x:**`, `**x**:` (the model drifts from the bracket form).
 export const TAG =
   /^[ \t]*(?:\[(restate|describe|ask)\]:?|\*\*(restate|describe|ask):?\*\*:?|(restate|describe|ask):)[ \t]*/gim;

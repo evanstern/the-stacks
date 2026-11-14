@@ -10,7 +10,7 @@ sources:
   - apps/server/src/dm/snapshot/render.ts
   - apps/server/src/dm/snapshot/index.ts
   - specs/040-actor-snapshot/contracts/actor-snapshot.md
-verified_against: 7a36c9e9e90450f473fc5e54a082d0ce7c083727
+verified_against: 0aaa7805dc985ad2579d7859e23cd017aab38ffb
 ---
 
 # Actor snapshot
@@ -27,7 +27,7 @@ never fork a second state view. Runtime wiring is in [[dm-runtime]].
 `actors` and `stage`. A `SnapshotActor` has `id`, `combatantId`, `characterId`, `name`, `aliases`,
 `kind` (`party`, `monster`, `npc`), `controller` (`player`, `ai-companion`, `dm`), `hp`,
 `lifeState`, `conditions` (with the engine instance id), `ac`, `initiative`, `resources` (death
-saves, hit dice, spell slots), `zone` and `reach` (spec 100: the zone id the actor stands in, or null, and the actor ids sharing it; zone-mode reach is `engaged`) , `sheet` (party only; since spec 083 the rendered sheet lists the character's spell ids) and `presence` (read from the log, see Build rules). The
+saves, hit dice, spell slots), `zone` and `reach` (spec 100: the zone id the actor stands in, or null, and the actor ids sharing it; zone-mode reach is `engaged`) , `sheet` (party only; since spec 083 the rendered sheet lists the character's spell ids) `presence` (read from the log, see Build rules), `met` (spec 112: the party has met the actor) and `knows` (actor ids the actor knows: itself plus its seed relationship targets). The
 stage holds the table mode with the active actor, the encounter order as actor ids, the scene,
 the DM-only trackers and `zones` (id, name, kind, `revealed`; null when the scene has no space). The snapshot carries no seed text except names, so a player-facing prompt
 cannot leak a DM-only string ([[dm-narration-quality]]). The module imports engine and
@@ -44,6 +44,8 @@ no combatant. With a null seed the build adds no NPC and no sheet. `presence` is
 NPC: NPC id; monster: combatant id; `presenceOf` in `build.ts`). No entry means `present`, and an
 entry that matches no actor is ignored. Two actors with the same id
 throw `SnapshotBuildError` (`ACTOR_ID_COLLISION`).
+
+`met` (spec 112 D1): party actors are always met. Any other actor is met once a public `ai:dm` `narration` or `talk` row names it (`namedActorIds`), or when it has no logged presence, or when its logged presence is not `absent` with reason `removed`. A seed NPC or companion's `knows` is its own id plus its seed `hooks.relationships` targets; a monster knows itself. A mid-scene `removed` also reads as unmet (a `ponytail:` ceiling in `build.ts`).
 
 ## Aliases
 
@@ -71,6 +73,8 @@ overflow detail; `snapshotSection` returns `## <label>` plus the lines or throws
 | `dm` | director (with tracker lines), interpret, adjudicate | ids, HP, AC, life state, conditions, initiative, resources, sheet, a `Zones:` line (fogged zones marked `(hidden)`), `zone <id>; reach <ids\|none>` per placed actor |
 | `seat` | companion | full line for the party and `self`; others get HP, life state, conditions, initiative; only revealed zones, and no zone or reach for an actor in a fogged zone |
 | `fiction` | narrate, chronicle | name, kind, life state, conditions, presence, a `Places:` line and `in <zone name>` for revealed zones only; no digit, no id, no tracker |
+
+`visibleActors(snapshot, view)` (`render.ts`, spec 112) is the view filter: `dm` keeps every actor; `seat` and `fiction` drop actors the party has not met, so the rendered lines and the `fiction` split in `characterSections` (`prompts/narrate.ts`) skip them.
 
 Caps (`prompts/common.ts` `CAPS`): `snapshotDm` 2000, `snapshotSeat` 2000, `snapshotFiction` 800.
 The schema-maximum seed (6 party, 12 monsters, 20 NPCs) fits every view uncompressed. Over the

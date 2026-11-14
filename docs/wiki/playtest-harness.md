@@ -28,7 +28,7 @@ sources:
   - apps/server/seeds/greyhollow-ford-reed-camp.json
   - apps/server/dm-scripts/runbook-a-reed-camp.json
 size_budget_exempt: the note sat within 40 chars of the 8000 budget before TASK-0195; the per-runbook scenario section is a short pointer to docs/design/playtest-scenarios.md, and the in-process harness above is one pipeline that does not split without a TASK of its own
-verified_against: 3ded4c07448d3ff8c11975b62d9201e1b727e47d
+verified_against: 9e43d8e19c8b0911b654115a7b0342a832912ff5
 ---
 
 # Playtest harness
@@ -113,6 +113,7 @@ segment runs seven pure code checks (`auditor/checks.ts`, `CHECK_IDS`):
 | `life-states` | a life-state word and the ledger's life-state changes disagree |
 | `roll-reasons` | a ledger roll has an empty reason |
 | `hidden-info` | public text contains a seed `hooks.secrets` string, or discloses secret tracker state (`trackerStateDisclosures`: a segment count or fraction, or the words tracker/clock/segment beside a tracker's name or id) |
+| `hidden-info` (speech) | spec 112 D8: inside the hidden-info block, each public `ai:dm` `narration` or `talk` row runs `speechLeaks` against a snapshot built from the transcript before the row; a hit names an actor the party has not met, or a fogged zone, in speech (finding kind `hidden-info-leak`). Code restate lines (`isRestateLine`, from `fact-sheet.ts`) are skipped: they quote the player, not the DM |
 | `dice-language` | the prose names dice or rolls and the segment's ledger has no roll |
 | `deeds-narrated` | a deed in the segment (`isDeedRow` from `dm/deeds.ts`, spec 111, TASK-0337) has no `Deed: ` row in the segment's narration whose text is the Intent's `toText` form (clipped to 200 characters, `(stopped…` suffix allowed); finding kind `unnarrated-deed`, severity `fail`. A `Deed:` row (`DEED_LINE`) is accepted and not compared by `dice-lines` and `prose-digits` |
 

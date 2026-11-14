@@ -2,7 +2,9 @@ import { describe, expect, it } from "vitest";
 import {
   buildFactSheet,
   composeReply,
+  defaultRestate,
   type FactSheetInput,
+  isRestateLine,
   parseSlots,
   REFUSAL_REASON,
   renderRows,
@@ -473,4 +475,10 @@ describe("fact sheet: stream parts hold digits only from rows (spec 108, constit
           expect(rowText, `${p.slot} "${p.text}"`).toContain(d);
     }
   });
+});
+
+it("isRestateLine matches what defaultRestate writes", () => {
+  const sheet = { restate: [{ subject: "Mira", text: "open the door" }] };
+  expect(isRestateLine(defaultRestate(sheet as never))).toBe(true);
+  expect(isRestateLine("Mira smiles.")).toBe(false);
 });

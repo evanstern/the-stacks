@@ -1,7 +1,7 @@
 import type { Combatant } from "@the-stacks/dnd5e-engine";
 import { reachOf, type SessionProjections } from "@the-stacks/session-model";
 import type { SceneSeed } from "../seed/schema.js";
-import { nameTerms } from "./aliases.js";
+import { namedActorIds, nameTerms } from "./aliases.js";
 import {
   type ActorController,
   type ActorResources,
@@ -139,6 +139,11 @@ function dedupe(values: readonly (string | null | undefined)[]): string[] {
   return [...out];
 }
 
+const knowsOf = (
+  id: string,
+  rels: readonly { to: string }[] | undefined,
+): string[] => dedupe([id, ...(rels ?? []).map((r) => r.to)]);
+
 export function buildSnapshot(
   projections: SessionProjections,
   seed: SceneSeed | null,
@@ -173,6 +178,12 @@ export function buildSnapshot(
       ),
       sheet: sheetOf(seed, m.characterId),
       presence: presenceOf(projections, m.characterId),
+      met: true,
+      knows: knowsOf(
+        m.characterId,
+        seed?.characters.find((c) => c.characterId === m.characterId)?.hooks
+          .relationships,
+      ),
       zone: null,
       reach: [],
     };
@@ -204,6 +215,8 @@ export function buildSnapshot(
       ),
       sheet: null,
       presence: presenceOf(projections, npc.id),
+      met: false,
+      knows: knowsOf(npc.id, npc.hooks.relationships),
       zone: null,
       reach: [],
     });
@@ -227,6 +240,8 @@ export function buildSnapshot(
       ...stateOf(c, initiativeOf.get(c.id) ?? null),
       sheet: null,
       presence: presenceOf(projections, c.id),
+      met: false,
+      knows: [c.id],
       zone: null,
       reach: [],
     });
@@ -243,6 +258,29 @@ export function buildSnapshot(
       );
     }
     seen.add(a.id);
+  }
+
+  // Spec 112 D1: met. Rule 4 reads public ai:dm narration/talk rows (never a companion's own talk).
+  // ponytail: `removed` means "never introduced" only for scene-start seed rows; a mid-scene
+  // `removed` presence also reads as unmet. Upgrade to a per-row `introduced` marker when a
+  // playtest shows a removed-after-met actor dropped from prompts.
+  const named = new Set<string>();
+  for (const e of projections.transcript) {
+    if (
+      e.actor === "ai:dm" &&
+      e.visibility === "public" &&
+      (e.kind === "narration" || e.kind === "talk")
+    )
+      for (const id of namedActorIds({ actors: all }, e.text)) named.add(id);
+  }
+  for (const a of all) {
+    const logged = projections.scenePresence[a.id];
+    a.met =
+      a.kind === "party" ||
+      named.has(a.id) ||
+      !logged ||
+      logged.presence !== "absent" ||
+      logged.reason !== "removed";
   }
 
   // Spec 100: zone and reach from the DM projection's spatial view (engine placements).

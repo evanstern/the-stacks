@@ -17,7 +17,7 @@ import {
 import { characterSections } from "./narrate.js";
 
 /** The talk-turn react prompt (specs/065-talk-triggers plan D4). Purpose `dm.narrate`. */
-export const PROMPT_VERSION = "dm.react-v5";
+export const PROMPT_VERSION = "dm.react-v6";
 
 export const CAP_LINE =
   "This reaction reaches the chain cap. Prompt no companion: leave companionPrompts empty, and end on a beat that hands the scene to the player characters.";

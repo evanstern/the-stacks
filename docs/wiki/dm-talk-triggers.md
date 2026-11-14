@@ -1,6 +1,6 @@
 ---
 name: dm-talk-triggers
-description: The AI DM's table read (TASK-0180, specs/065; reworked by TASK-0199, specs/066, decision-0030) - the `readablePosts` rules, the 10 s window that moves with each post, `interruptRead`, code triggers, the one `react` call (`dm.react-v5`) with `confirm` and `answer`, code items for declared Intents, the `action.suggest` ship, `ask_dm`, the chain cap, companion prompts and reclaim.
+description: The AI DM's table read (TASK-0180, specs/065; reworked by TASK-0199, specs/066, decision-0030) - the `readablePosts` rules, the 10 s window that moves with each post, `interruptRead`, code triggers, the one `react` call (`dm.react-v6`) with `confirm` and `answer`, code items for declared Intents, the `action.suggest` ship, `ask_dm`, the chain cap, companion prompts and reclaim.
 kind: pipeline
 sources:
   - apps/server/src/dm/talk-triggers.ts
@@ -14,7 +14,7 @@ sources:
   - apps/server/src/dm/nodes/schemas.ts
   - apps/server/dm-scripts/greyhollow-talk.json
   - apps/server/dm-scripts/greyhollow-confirm.json
-verified_against: 3ded4c07448d3ff8c11975b62d9201e1b727e47d
+verified_against: 9e43d8e19c8b0911b654115a7b0342a832912ff5
 ---
 
 # DM talk triggers
@@ -63,7 +63,7 @@ full pipeline. The worker records the presence marker with purpose `read` for a 
    body }`; code stamps each with `stampIntent`, and drops one for a non-human, absent or downed
    character or a text the check flags. The turn pipeline's interpret output is `InterpretResult` (spec 104); the talk path does not read it.
 5. Code checks: `checkNarration` (spec 103, TASK-0272) over the reply as the describe slot
-   ([[dm-narration-quality]]): a leak drops the sentence and files a `dm` correction; a reply left empty records `none`. The same check cleans an `answer`. No second model call.
+   ([[dm-narration-quality]]; spec 112: a `reply` passes the reply's `speaker` as `speakerId`, so the whole reply is speech and the speech rule applies): a leak drops the sentence and files a `dm` correction; a reply left empty records `none`. The same check cleans an `answer`. No second model call.
 6. `escalate` runs resolve's opening move through a synthetic Director output when
    `legalEscalation` holds (free mode, no running encounter, encounter not yet run: `encounterRan`, spec 088); else `scene`.
 7. Ship, each row fenced and keyed for reclaim through `shipReadRows`: an `ask_dm` answer as an
@@ -80,6 +80,6 @@ shipped twice. A reclaimed escalation reads its posts as free mode
 once the opening move landed (commit c2e6d785), because the mode is already `turn`. An interrupted
 read writes nothing.
 
-`dm.react-v5` uses purpose `dm.narrate` ([[dm-runtime]]); no new purpose or migration.
+`dm.react-v6` (spec 112: the reply speaker rule; spec 114: the confirm target shapes) uses purpose `dm.narrate` ([[dm-runtime]]); no new purpose or migration.
 
-**Confirm targets** (spec 114, TASK-0336). `dm.react-v5` adds a `Targets (confirm items name only these)` section to the prompt, the target-ref shapes (`{kind, id}`, never a bare id) and a worked `EXAMPLE_CONFIRM`. `knownTargets` (`talk-turn.ts`) lists revealed zones, then present actors. `normalizeReact` runs as the `call.ts` `normalize` hook: a bare id string, or an object whose only key is `id`, that names exactly one known target becomes `{kind, id}`; unknown or ambiguous ids stay as written, so the schema fails and the re-ask runs ([[dm-failure-and-gates]]). `TalkResult.targetRepairs` counts the repairs in the parsing attempt. When a `talk` job fails for good, the worker posts a public `ai:dm` out-of-character `talk` row (`submitReadFailureNotice`, `READ_FAILURE_TEXT` in `nodes/resolve.ts`) asking the player to post again; a failed notice logs `dm.notice.failed`.
+**Confirm targets** (spec 114, TASK-0336). `dm.react-v6` adds a `Targets (confirm items name only these)` section to the prompt, the target-ref shapes (`{kind, id}`, never a bare id) and a worked `EXAMPLE_CONFIRM`. `knownTargets` (`talk-turn.ts`) lists revealed zones, then present actors. `normalizeReact` runs as the `call.ts` `normalize` hook: a bare id string, or an object whose only key is `id`, that names exactly one known target becomes `{kind, id}`; unknown or ambiguous ids stay as written, so the schema fails and the re-ask runs ([[dm-failure-and-gates]]). `TalkResult.targetRepairs` counts the repairs in the parsing attempt. When a `talk` job fails for good, the worker posts a public `ai:dm` out-of-character `talk` row (`submitReadFailureNotice`, `READ_FAILURE_TEXT` in `nodes/resolve.ts`) asking the player to post again; a failed notice logs `dm.notice.failed`.
