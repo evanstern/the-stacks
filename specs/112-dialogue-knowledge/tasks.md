@@ -7,15 +7,15 @@ Keep the `checks.ts` diff inside the hidden-info block (TASK-0337 edits the same
 
 ## Phase 1: Knowledge model and the speech check (US1, US2, AC #1)
 
-- [ ] T001 Add `met: boolean` and `knows: string[]` to `SnapshotActor` in `dm/snapshot/types.ts`. Derive both in `dm/snapshot/build.ts` per plan D1, with the `ponytail:` comment on the `removed` rule.
-- [ ] T002 Fix every test-side `SnapshotActor` literal the typecheck flags. Add `met` and `knows`; keep each test's intent.
-- [ ] T003 In `dm/narration-check.ts`, add `speechLeaks`, `CheckInput.speakerId`, kind `unmet-actor`, the optional `inner` field and `dropPlan` per plan D2. Life-state and dice-language keep the masked text.
-- [ ] T004 Extend `dropSentences` with the inner-sentence map per plan D3. Drop the whole sentence when its quote has no inner sentence left.
-- [ ] T005 Use `dropPlan` in `dm/nodes/check.ts`, `dm/narration-stream.ts` and `dm/talk-turn.ts`. In `talk-turn.ts`, pass `react.speaker` for a `reply` only (plan D4).
-- [ ] T006 Write `apps/server/test/dm/fixtures/r1-spine-0106e608.json` per plan D6 and D7. Replace the human user id with `PLAYER_USER`. Add a `_header` naming the source.
-- [ ] T007 Write `apps/server/test/dm/dialogue-knowledge.test.ts`. Assert `met` and `knows` at seq 20 (Wenna met, Pell and Snag unmet; Wenna knows Pell). Replay seq 21 and seq 30 per spec US1 and US2 with the exact shipped texts.
-- [ ] T008 Update `narration-check.test.ts` per plan D6. Add a fogged-zone-in-quote case and an unknown-speaker case. Add one quoted-leak case to `narration-stream.test.ts`; the prefix property test stays green.
-- [ ] T009 Add a seq 21 reply case to `talk-turn.integration.test.ts` (fake gateway, `REQUIRE_DATABASE=1`). Assert the shipped narration text and one `dm` correction naming Snag.
+- [x] T001 Add `met: boolean` and `knows: string[]` to `SnapshotActor` in `dm/snapshot/types.ts`. Derive both in `dm/snapshot/build.ts` per plan D1, with the `ponytail:` comment on the `removed` rule.
+- [x] T002 Fix every test-side `SnapshotActor` literal the typecheck flags. Add `met` and `knows`; keep each test's intent.
+- [x] T003 In `dm/narration-check.ts`, add `speechLeaks`, `CheckInput.speakerId`, kind `unmet-actor`, the optional `inner` field and `dropPlan` per plan D2. Life-state and dice-language keep the masked text.
+- [x] T004 Extend `dropSentences` with the inner-sentence map per plan D3. Drop the whole sentence when its quote has no inner sentence left.
+- [x] T005 Use `dropPlan` in `dm/nodes/check.ts`, `dm/narration-stream.ts` and `dm/talk-turn.ts`. In `talk-turn.ts`, pass `react.speaker` for a `reply` only (plan D4).
+- [x] T006 Write `apps/server/test/dm/fixtures/r1-spine-0106e608.json` per plan D6 and D7. Replace the human user id with `PLAYER_USER`. Add a `_header` naming the source.
+- [x] T007 Write `apps/server/test/dm/dialogue-knowledge.test.ts`. Assert `met` and `knows` at seq 20 (Wenna met, Pell and Snag unmet; Wenna knows Pell). Replay seq 21 and seq 30 per spec US1 and US2 with the exact shipped texts.
+- [x] T008 Update `narration-check.test.ts` per plan D6. Add a fogged-zone-in-quote case and an unknown-speaker case. Add one quoted-leak case to `narration-stream.test.ts`; the prefix property test stays green.
+- [x] T009 Add a seq 21 reply case to `talk-turn.integration.test.ts` (fake gateway, `REQUIRE_DATABASE=1`). Assert the shipped narration text and one `dm` correction naming Snag.
 
 ## Phase 2: Prompts see only met names (US3, AC #2)
 

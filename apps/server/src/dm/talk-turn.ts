@@ -8,7 +8,7 @@ import {
   type SessionProjections,
 } from "@the-stacks/session-model";
 import { encounterRan, encounterToStart } from "./gates/plan-gate.js";
-import { checkNarration, dropSentences } from "./narration-check.js";
+import { checkNarration, dropPlan, dropSentences } from "./narration-check.js";
 import { type CheckRecord, correctionsFor } from "./nodes/check.js";
 import type { DirectorNodeOutput } from "./nodes/director.js";
 import { stampIntent } from "./nodes/interpret.js";
@@ -237,8 +237,9 @@ export async function runTalkTurn(
   }
   const outcome = react?.outcome ?? "none";
 
-  const checked = (text: string) =>
+  const checked = (text: string, speakerId?: string | null) =>
     checkNarration({
+      speakerId,
       slots: { restate: "", describe: text, ask: "" },
       rows: [],
       hasRoll: false,
@@ -259,16 +260,20 @@ export async function runTalkTurn(
   };
   const proseOutcome = outcome !== "none" && outcome !== "confirm";
   if (react && proseOutcome) {
-    const found = checked(react.text);
-    const drop = found
-      .filter((i) => i.check === "leak" || i.kind === "digit")
-      .map((i) => i.sentence);
-    shownText = dropSentences(react.text, drop);
+    const found = checked(
+      react.text,
+      outcome === "reply" ? react.speaker : null,
+    );
+    const dropped = found.filter(
+      (i) => i.check === "leak" || i.kind === "digit",
+    );
+    const drop = dropPlan(dropped);
+    shownText = dropSentences(react.text, drop.sentences, drop.inners);
     corrections = correctionsFor(found);
     record = {
       leak: found.filter((i) => i.check === "leak"),
       contradiction: found.filter((i) => i.check === "contradiction"),
-      corrected: drop.length > 0 || corrections.length > 0,
+      corrected: dropped.length > 0 || corrections.length > 0,
       shippedProseSha256: sha(shownText),
     };
   }
@@ -321,10 +326,8 @@ export async function runTalkTurn(
   let answerText = "";
   if (react?.answer && answerAsker) {
     const found = checked(react.answer);
-    answerText = dropSentences(
-      react.answer,
-      found.map((i) => i.sentence),
-    );
+    const plan = dropPlan(found);
+    answerText = dropSentences(react.answer, plan.sentences, plan.inners);
   }
 
   result.modelTriggers = react?.triggers ?? [];

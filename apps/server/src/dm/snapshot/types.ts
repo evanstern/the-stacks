@@ -74,6 +74,10 @@ export interface SnapshotActor {
   resources: ActorResources | null;
   sheet: ActorSheet | null;
   presence: ScenePresence;
+  /** Spec 112: the party has met this actor (derived from the log). */
+  met: boolean;
+  /** Spec 112: actor ids this actor knows: itself plus its seed relationship targets. */
+  knows: string[];
   /** Spec 100: the zone id the actor stands in, or null when unplaced or the scene has no space. */
   zone: string | null;
   /** Spec 100: actor ids sharing the zone (zone-mode reach is `engaged`); [] when unplaced. */

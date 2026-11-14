@@ -10,6 +10,7 @@ import {
 import {
   type CheckInput,
   checkNarration,
+  dropPlan,
   dropSentences,
   sentencesOf,
 } from "./narration-check.js";
@@ -130,13 +131,13 @@ export function createNarrationStream(
     if (key === lastKey) return null;
     lastKey = key;
     const cand = dropStockEnding(key);
-    const drop = checkNarration({
-      ...checkInput,
-      slots: { restate: "", describe: cand, ask: "" },
-    })
-      .filter((i) => i.check === "leak" || i.kind === "digit")
-      .map((i) => i.sentence);
-    return dropSentences(cand, drop);
+    const drop = dropPlan(
+      checkNarration({
+        ...checkInput,
+        slots: { restate: "", describe: cand, ask: "" },
+      }).filter((i) => i.check === "leak" || i.kind === "digit"),
+    );
+    return dropSentences(cand, drop.sentences, drop.inners);
   };
 
   const restateOf = (text: string): string => {

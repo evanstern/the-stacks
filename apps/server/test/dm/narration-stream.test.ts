@@ -8,7 +8,11 @@ import {
   type NarrationSlots,
   parseSlots,
 } from "../../src/dm/fact-sheet.js";
-import { checkNarration, dropSentences } from "../../src/dm/narration-check.js";
+import {
+  checkNarration,
+  dropPlan,
+  dropSentences,
+} from "../../src/dm/narration-check.js";
 import {
   createNarrationStream,
   type StreamPart,
@@ -29,11 +33,14 @@ const sheet = {
   state: "State: calm",
 } as unknown as FactSheet;
 
-function world(over: { fog?: string[]; absent?: string[] } = {}) {
+function world(
+  over: { fog?: string[]; absent?: string[]; unmet?: string[] } = {},
+) {
   const { projections, seed } = greyhollowFight();
   const snapshot = buildSnapshot(projections, seed);
   for (const a of snapshot.actors) {
     if (over.absent?.includes(a.id)) a.presence = "absent" as ScenePresence;
+    if (over.unmet) a.met = !over.unmet.includes(a.id);
   }
   if (over.fog)
     snapshot.stage.zones = over.fog.map((name) => ({
@@ -55,13 +62,15 @@ function world(over: { fog?: string[]; absent?: string[] } = {}) {
 /** The check node's kept slots, replicated from `nodes/check.ts`. */
 function settle(text: string, w: ReturnType<typeof world>): NarrationSlots {
   const slots = parseSlots(stripThink(text), sheet);
-  const drop = checkNarration({ ...w, slots })
-    .filter((i) => i.check === "leak" || i.kind === "digit")
-    .map((i) => i.sentence);
+  const drop = dropPlan(
+    checkNarration({ ...w, slots }).filter(
+      (i) => i.check === "leak" || i.kind === "digit",
+    ),
+  );
   const kept = {
     restate: slots.restate,
-    describe: dropSentences(slots.describe, drop),
-    ask: dropSentences(slots.ask, drop),
+    describe: dropSentences(slots.describe, drop.sentences, drop.inners),
+    ask: dropSentences(slots.ask, drop.sentences, drop.inners),
   };
   if (!kept.restate) kept.restate = defaultRestate(sheet);
   return kept;
@@ -101,6 +110,10 @@ const CASES: Record<string, { text: string; w?: Parameters<typeof world>[0] }> =
     "absent actor": {
       text: "[describe] The door opens. Pell steps out of the reeds. Dust falls. A boot scrapes.",
       w: { absent: ["pell"] },
+    },
+    "quoted leak": {
+      text: '[describe] The door opens. Tamsin says, "Snag is near. Wait here." Dust falls. A boot scrapes.',
+      w: { unmet: ["snag"] },
     },
     digit: {
       text: "[describe] The lock gives way. It takes 12 tries. The door opens. Dust falls.",
@@ -214,6 +227,16 @@ describe("narration stream", () => {
           /Cellar|ferryman|Pell steps|[0-9]/,
         );
       }
+    }
+  });
+
+  it("cuts a quoted unmet-actor sentence from every stream and the settled text (spec 112)", () => {
+    const c = CASES["quoted leak"] as (typeof CASES)[string];
+    for (const step of [1, 3, 17, 1000]) {
+      const r = stream(c.text, world(c.w), step);
+      const all = r.parts.map((p) => p.text).join(" ");
+      expect(all, `step ${step}`).not.toContain("Snag");
+      expect(all, `step ${step}`).toContain("Wait here.");
     }
   });
 
