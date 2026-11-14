@@ -34,6 +34,7 @@ Spec: specs/114-react-confirm-targets
 - [x] #5 The scripted CI scenario deeds marked intent take the direct-Intent path (driver passes Move.intent through), with a test proving no interpret call for them (spec 114 OQ-4, ruling (a))
 - [ ] #6 Spec phase: Prompt, repair and the test-drive replay (FR-001–FR-007; AC #1, #2)
 - [ ] #7 Spec phase: Read-failure notice and re-ask text (FR-008–FR-011; AC #3, brief item 5)
+- [ ] #8 Spec phase: CI scenario confirm deed (FR-012–FR-015; AC #4)
 <!-- AC:END -->
 
 ## Definition of Done
