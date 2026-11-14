@@ -10,7 +10,7 @@ sources:
   - apps/server/src/dm/snapshot/render.ts
   - apps/server/src/dm/snapshot/index.ts
   - specs/040-actor-snapshot/contracts/actor-snapshot.md
-verified_against: 87c50b511c3ba79cf4f4ad489de6ecfaadc918f9
+verified_against: 0aaa7805dc985ad2579d7859e23cd017aab38ffb
 ---
 
 # Actor snapshot
