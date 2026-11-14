@@ -4,6 +4,7 @@ title: Intent settled by an AI-seat ruling is never narrated
 status: To Do
 assignee: []
 created_date: '2026-11-14T02:22:00Z'
+updated_date: '2026-11-14T02:24:00Z'
 labels:
   - playtest
   - ws:narration
@@ -33,3 +34,9 @@ Found in the 2026-11-13 R1 spine test drive (session 0106e608). /search #ferry-h
 - [ ] #1 All tests and checks run green
 - [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Knock-on effect (session 0106e608, seq 45-51): the next deed, /move #causeway, settled and queued an intent turn (job c3d842c0). Its narrate window picked up the stranded search facts and narrated only the search (seq 51). The move got no prose and no fact row, so every narration lands one deed late. Add an AC: a window holding several settled Intents narrates each, and the latest deed is never dropped.
+<!-- SECTION:NOTES:END -->
