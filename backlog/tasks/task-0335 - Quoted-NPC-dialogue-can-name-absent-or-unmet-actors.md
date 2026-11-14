@@ -31,6 +31,7 @@ Spec: specs/112-dialogue-knowledge
 - [ ] #3 Spec phase: Knowledge model and the speech check (US1, US2, AC #1)
 - [ ] #4 Spec phase: Prompts see only met names (US3, AC #2)
 - [ ] #5 Spec phase: Auditor mirrors the runtime rule (US4, card note)
+- [ ] #6 Spec phase: Wiki re-pin
 <!-- AC:END -->
 
 ## Definition of Done
