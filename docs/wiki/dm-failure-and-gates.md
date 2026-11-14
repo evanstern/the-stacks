@@ -13,7 +13,7 @@ sources:
   - apps/server/src/dm/gates/plan-gate.ts
   - apps/server/src/dm/seed/schema.ts
   - specs/033-director-robustness/contracts/rules-terms.md
-verified_against: cd1651916ec175a131a0dcd99f48590f7e96ab21
+verified_against: 602d2ea1ff3d52b2cf12c01d3486d05e1019e6f5
 ---
 
 # DM failure record and rules-term gates

@@ -33,7 +33,7 @@ import type { Node, NodeError, TurnContext } from "../pipeline/context.js";
 import { refreshSubmission } from "../resume.js";
 import { combatantFromSrd, statsFromCharacter } from "../seed/combatants.js";
 import type { SceneSeed } from "../seed/schema.js";
-import { openingScene, playerFacingSeed } from "../seed/views.js";
+import { openingScene, playerFacingSeed, visibleWays } from "../seed/views.js";
 import { namedActorIds } from "../snapshot/aliases.js";
 import {
   type ActorSnapshot,
@@ -1013,6 +1013,22 @@ async function directorClosing(
     } else if (encounterOver(fresh.engine)) {
       await endEncounter("No foe still stands.");
       await setMode({ mode: "free" }, "No foe still stands.");
+    }
+  }
+
+  // TASK-0334: a way gated on a zone joins the public scene once the players' map holds the zone.
+  if (p.scene && director.scene.status !== "end") {
+    const fresh = await ctx.deps.loadProjections(ctx.job.sessionId);
+    const onMap = new Set((fresh.spatial.map?.zones ?? []).map((z) => z.id));
+    const ways = visibleWays(ctx.seed, onMap);
+    if (fresh.scene && ways.length !== (fresh.scene.ways ?? []).length) {
+      const scene = { ...fresh.scene, ways };
+      await run.submit("director:ways", "scene", () => ({
+        kind: "scene",
+        ...note("Show the ways the party can now see", "A zone was revealed."),
+        reason: "A zone was revealed.",
+        after: scene,
+      }));
     }
   }
 
