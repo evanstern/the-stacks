@@ -1,3 +1,5 @@
+import { toText } from "@the-stacks/intent";
+import type { StoredEvent } from "@the-stacks/session-model";
 import { describe, expect, it } from "vitest";
 import {
   collectFacts,
@@ -278,5 +280,95 @@ describe("splitNarration: row forms and the State line (spec 098 D8)", () => {
   it("leaves a prose paragraph that merely mentions state as prose", () => {
     const t = "One.\n\nThe state of the ford is poor.";
     expect(splitNarration(t).prose).toBe(t);
+  });
+});
+
+describe("splitNarration: Deed rows (spec 111)", () => {
+  it("accepts a Deed row and drops it from the compared lines", () => {
+    const { prose, diceLines } = splitNarration(
+      "Prose.\n\nDeed: Ana: /search #ferry-house\nAna: 1d20 → 14 = 14\nState: Anyone may act.",
+    );
+    expect(prose).toBe("Prose.");
+    expect(diceLines).toEqual(["Ana: 1d20 → 14 = 14"]);
+  });
+});
+
+describe("deeds-narrated (spec 111)", () => {
+  const intent = (id: string, kind: string, targets: unknown[] = []) => ({
+    id,
+    kind,
+    actor: { kind: "pc", id: "ana" },
+    targets,
+    params: {},
+    source: "composer",
+    commit: "confirmed",
+  });
+  const mk = (seq: number, type: string, actor: string, payload: object) =>
+    ({
+      sessionId: "s",
+      seq,
+      actor,
+      type,
+      payload,
+      payloadVersion: 1,
+      visibility: "public",
+      ts: "2026-11-14T00:00:00.000Z",
+    }) as unknown as StoredEvent;
+  const carrier = (seq: number, i: ReturnType<typeof intent>) =>
+    mk(seq, "intent.recorded", "pc:ana", {
+      intent: i,
+      outcome: "settled",
+      batchId: `b${seq}`,
+      request: null,
+      answers: null,
+      stopped: null,
+    });
+  const scene = mk(1, "scene.changed", "system", {});
+  const search = carrier(2, intent("i1", "search"));
+  const move = carrier(4, intent("i2", "move"));
+  const narr = (seq: number, text: string) =>
+    mk(seq, "narration", "ai:dm", { text });
+  const findings = (rows: StoredEvent[]) =>
+    segment(rows, []).flatMap((seg) =>
+      runChecks(seg, { transcript: rows, seed: null }).flatMap((r) =>
+        r.id === "deeds-narrated" ? r.findings : [],
+      ),
+    );
+  const sText = toText(intent("i1", "search") as never);
+  const mText = toText(intent("i2", "move") as never);
+
+  it("fails the test-drive shape with one finding citing the move carrier", () => {
+    const f = findings([
+      scene,
+      search,
+      narr(3, `Prose.\n\nDeed: Ana: ${sText}`),
+      move,
+      narr(5, "Prose only."),
+    ]);
+    expect(f).toHaveLength(1);
+    expect(f[0]?.seqs).toEqual([4]);
+    expect(f[0]?.kind).toBe("unnarrated-deed");
+  });
+
+  it("passes when each narration tells its deed", () => {
+    expect(
+      findings([
+        scene,
+        search,
+        narr(3, `Prose.\n\nDeed: Ana: ${sText}`),
+        move,
+        narr(5, `Prose.\n\nDeed: Ana: ${mText}`),
+      ]),
+    ).toEqual([]);
+  });
+
+  it("fails a deed in a tail with no narration", () => {
+    const f = findings([
+      scene,
+      search,
+      narr(3, `P.\n\nDeed: Ana: ${sText}`),
+      move,
+    ]);
+    expect(f.map((x) => x.seqs)).toEqual([[4]]);
   });
 });

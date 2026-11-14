@@ -71,7 +71,7 @@ interface RestateTarget {
 
 interface FactRow {
   kind: "roll" | "hp" | "life-state" | "condition" | "death-saves" | "spell-slot" | "assist"
-      | "refusal";
+      | "refusal" | "deed";
   text: string;
 }
 
@@ -84,7 +84,7 @@ interface Speaker {
 interface NarrationSlots { restate: string; describe: string; ask: string }
 ```
 
-`kind` names are additive (minor). A new kind (`position`, TASK-0271; `why`, TASK-0272) is a minor
+`kind` names are additive (minor). A new kind (`position`, TASK-0271; `why`, TASK-0272; `deed`, TASK-0337) is a minor
 change. Renaming or removing a kind is breaking and needs a decision record.
 
 ## 3. Rows
@@ -124,6 +124,14 @@ renders the same rows (its `DICE_RELEVANT` set gains `death-saves.changed`, `spe
 | `NOT_YOUR_TURN`, `TURN_MOVED` | it is not that character's turn |
 | `CHARACTER_UNABLE` | that character cannot act |
 | any other | the rules do not allow it |
+
+### 3.2a Deed rows (TASK-0337, spec 111)
+
+Narrate renders one `deed` row per deed in the narrate window, in seq order, before that deed's roll
+and change rows. Text: `Deed: <name>: <intent text>`, plus ` (stopped, <code>)` when the engine
+stopped the act. A deed is a settled or stopped direct act, or a ruling that settled a player's ask
+(`dm/deeds.ts`). The row exists for every trigger, so a `ruling`, `approval` or `commit` turn names
+the deed. The auditor drops `Deed: ` lines from `expectedDiceLines` (they are not dice lines).
 
 ### 3.3 The code-settled ask
 

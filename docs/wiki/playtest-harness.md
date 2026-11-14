@@ -1,11 +1,12 @@
 ---
 name: playtest-harness
-description: The playtest harness (TASK-0048, specs/032-playtest-harness, apps/server/src/playtest/) - in-process scripted play over the real gate and DM worker in a per-run _playtest database, the run directory, the auditor (six code checks plus the per-segment playtest.audit call), the report (finding ids, severities, fight stats), provider mode with the budget.ts cost guard, the pnpm playtest run/audit/estimate CLI and exit codes, and the CI case.
+description: The playtest harness (TASK-0048, specs/032-playtest-harness, apps/server/src/playtest/) - in-process scripted play over the real gate and DM worker in a per-run _playtest database, the run directory, the auditor (seven code checks plus the per-segment playtest.audit call), the report (finding ids, severities, fight stats), provider mode with the budget.ts cost guard, the pnpm playtest run/audit/estimate CLI and exit codes, and the CI case.
 kind: pipeline
 sources:
   - apps/server/src/playtest/harness.ts
   - apps/server/src/playtest/driver.ts
   - apps/server/src/playtest/scenario.ts
+  - apps/server/src/dm/deeds.ts
   - apps/server/src/playtest/db.ts
   - apps/server/src/playtest/export.ts
   - apps/server/src/playtest/budget.ts
@@ -27,7 +28,7 @@ sources:
   - apps/server/seeds/greyhollow-ford-reed-camp.json
   - apps/server/dm-scripts/runbook-a-reed-camp.json
 size_budget_exempt: the note sat within 40 chars of the 8000 budget before TASK-0195; the per-runbook scenario section is a short pointer to docs/design/playtest-scenarios.md, and the in-process harness above is one pipeline that does not split without a TASK of its own
-verified_against: cd1651916ec175a131a0dcd99f48590f7e96ab21
+verified_against: b811b90d03f6e4769956e6db4f8a3cd7fce790df
 ---
 
 # Playtest harness
@@ -50,7 +51,7 @@ gateway, DM enqueuer and worker, seeds the session from the scenario's `seedId`,
 (`scenario.ts`, Zod `ScenarioSchema`, shipped `apps/server/playtests/scenarios/greyhollow-ford.json`)
 holds the seat, `moves.free`, `moves.combat`, `moves.fallback`, `limits` (`maxMoves`,
 `maxWallMs`, 60 min in the shipped scenario), `dice`, and a `ci` block naming the DM script, audit script and retrieval fixture (the schema still names it; since spec 110 the harness no longer reads it, because the DM worker takes no `retrieve`)
-under `apps/server/playtests/fixtures/`. The manifest outcome is one of `ended`, `stalled`,
+under `apps/server/playtests/fixtures/`. A move with `intent: true` (spec 111) is a confirmed direct Intent: the harness parses its slash `text` with `@the-stacks/intent`, sends `{kind: "intent"}` through `gate.handle`, and counts a parse or gate refusal in `refusals`. The shipped scenario holds two such moves (`/search #ferry-house`, `/move #causeway`). The manifest outcome is one of `ended`, `stalled`,
 `failed`, `budget-stopped`, `timed-out`.
 
 `moves.fallback` is a list (1 to 20 entries; a legacy single object reads as a one-element list).
@@ -102,8 +103,8 @@ The auditor prompt (`auditor/prompt.ts`, `playtest.audit-v2`, specs/074) adds a 
 
 `auditor/audit.ts`'s `runAudit({transcript, ledger, jobs, seed, gateway, models})` cuts the
 transcript with `segments.ts` (each `ai:dm` narration closes a segment; a tail with a `talk`
-row is kept; no `scene.changed` row yields zero segments and the finding `no-scene`). Each
-segment runs six pure code checks (`auditor/checks.ts`, `CHECK_IDS`):
+row or a deed carrier (`isDeedRow`, spec 111) is kept; no `scene.changed` row yields zero segments and the finding `no-scene`). Each
+segment runs seven pure code checks (`auditor/checks.ts`, `CHECK_IDS`):
 
 | Check | Fails when |
 |---|---|
@@ -113,6 +114,7 @@ segment runs six pure code checks (`auditor/checks.ts`, `CHECK_IDS`):
 | `roll-reasons` | a ledger roll has an empty reason |
 | `hidden-info` | public text contains a seed `hooks.secrets` string, or discloses secret tracker state (`trackerStateDisclosures`: a segment count or fraction, or the words tracker/clock/segment beside a tracker's name or id) |
 | `dice-language` | the prose names dice or rolls and the segment's ledger has no roll |
+| `deeds-narrated` | a deed in the segment (`isDeedRow` from `dm/deeds.ts`, spec 111, TASK-0337) has no `Deed: ` row in the segment's narration whose text is the Intent's `toText` form (clipped to 200 characters, `(stopped…` suffix allowed); finding kind `unnarrated-deed`, severity `fail`. A `Deed:` row (`DEED_LINE`) is accepted and not compared by `dice-lines` and `prose-digits` |
 
 A tracker's bare name is not hidden text: the outcome may be told. With a gateway, one
 `playtest.audit` chat call per segment follows (`purpose.ts` constant; 700 `maxTokens` default;
@@ -124,8 +126,8 @@ error, then a per-segment `error`). With no gateway the audit is `checks-only`. 
 `Report` (`auditor/schema.ts`): `verdict` is `pass`, `fail` or `incomplete` (no scene, or any
 segment whose auditor call errored). Findings carry stable ids `F1`, `F2`, ..., `source`
 (`check`, `auditor`, `dm-audit`), `kind` and a severity from `SEVERITY_OF`: `fail` for ledger
-contradiction, invented mechanics, hidden-info leak, player agency, roll without reason and
-no-scene; `warn` for `doctrine` and `other`; `note` for `dm-audit-flag`, one per job whose DM check hit a leak or contradiction (spec 103, `check: <check>/<kind>`) or, on a pre-0272 row, whose audit
+contradiction, invented mechanics, hidden-info leak, player agency, roll without reason,
+no-scene and unnarrated-deed; `warn` for `doctrine` and `other`; `note` for `dm-audit-flag`, one per job whose DM check hit a leak or contradiction (spec 103, `check: <check>/<kind>`) or, on a pre-0272 row, whose audit
 runtime audit was flagged. `stats.ts` derives fight statistics from the ledger for TASK-0055
 (rounds, attacks, hits, damage, reduced-to-zero, death saves, and `fledOrBargained` from roll
 reasons, `null` plus `fledOrBargainedNote` when not derivable). `reducedToZero` lists every combatant dropped to 0 HP, party and NPC alike (TASK-0134). A note warns when
@@ -140,7 +142,7 @@ unconfirmed, 4 refused, 64 usage.
 
 ## CI case
 
-`test/playtest/playtest.integration.test.ts` runs the shipped scenario in ci mode inside
+`test/playtest/playtest.integration.test.ts` runs the shipped scenario in ci mode (its DM script is the new `test/dm/scripts/greyhollow-ford-deeds.json`, spec 111, not an extended `-full` script; the audit fixture `greyhollow-ford.audit.json` gains the deed segments) inside
 `pnpm test` (database-gated: loud skip, or throw under `REQUIRE_DATABASE=1`, see [[test-suite]])
 and asserts outcome `ended` and a passing report. Other suites in `apps/server/test/playtest/`
 cover the scenario, driver, dice, checks, audit, budget, CLI and a doctored run directory the

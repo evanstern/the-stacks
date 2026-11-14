@@ -1,9 +1,10 @@
 import type { LedgerRow, StoredEvent } from "@the-stacks/session-model";
+import { isDeedRow } from "../../dm/deeds.js";
 
 /**
  * Transcript segments (specs/032-playtest-harness contracts/auditor.md
  * "Segments"). Each DM narration closes one segment; rows after the last
- * narration form a tail segment only when they include a `talk` row.
+ * narration form a tail segment only when they include a `talk` row or a deed carrier.
  */
 
 export interface Segment {
@@ -54,6 +55,6 @@ export function segment(
     current.push(row);
     if (isDmNarration(row)) close(row.seq);
   }
-  if (current.some((r) => r.type === "talk")) close(null);
+  if (current.some((r) => r.type === "talk" || isDeedRow(r, rows))) close(null);
   return out;
 }

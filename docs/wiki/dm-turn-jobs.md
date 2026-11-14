@@ -20,7 +20,7 @@ sources:
   - apps/server/src/dm/companion.ts
   - apps/server/src/dm/chronicle.ts
 size_budget_exempt: both notes sat within 30 chars of the 8000 budget before TASK-0180; the talk path got its own note (dm-talk-triggers) and only a pointer line lands here; the rest is one pipeline each, not splittable without a TASK of its own
-verified_against: cd1651916ec175a131a0dcd99f48590f7e96ab21
+verified_against: 5ba7f18bb95249307d50ce843a083392047107bd
 ---
 
 # DM turn jobs
@@ -55,7 +55,7 @@ open action of an AI companion also calls `enqueueCompanionReact`
 (quiet 3 s, max wait 10 s): one queued `react` job per session
 (`jobs_companion_react_queued_key`); a further reaction merges its companion id into it. `enqueueTurn` is `INSERT ... ON CONFLICT
 DO NOTHING` on `jobs_turn_queued_key`, so one beat is queued per session.
-Rule 6: a readable post (`readablePosts`) first interrupts a running read that shipped nothing (`interruptRead`), then queues or moves a coalesced `talk` turn to post `ts` + 10 s ([[dm-talk-triggers]]). Rule 7: a `needs_ruling` `intent.recorded` row under an AI seat queues a `ruling` turn; the turn answers every open request first ([[dm-runtime]]). Rule 9 (spec 066 FR-031): an `intent.recorded` row that settled engine rows (`batchId` set) or stopped, written by a non-`ai:` actor, queues one coalesced `intent` turn; a speech or `ask_dm` carrier has no engine rows and queues none. `nudge()` is item 10. The `intent` turn runs the pipeline with a stay-put Director output built in code (no director call); narrate renders the carrier batches (`directBatches`, [[dm-narration-quality]]).
+Rule 6: a readable post (`readablePosts`) first interrupts a running read that shipped nothing (`interruptRead`), then queues or moves a coalesced `talk` turn to post `ts` + 10 s ([[dm-talk-triggers]]). Rule 7: a `needs_ruling` `intent.recorded` row under an AI seat queues a `ruling` turn; the turn answers every open request first ([[dm-runtime]]). Rule 9 (spec 066 FR-031): an `intent.recorded` row that settled engine rows (`batchId` set) or stopped, written by a non-`ai:` actor, queues one coalesced `intent` turn; a speech or `ask_dm` carrier has no engine rows and queues none. `nudge()` is item 10. The `intent` turn runs the pipeline with a stay-put Director output built in code (no director call); narrate renders one `Deed:` row per deed in the window (`directBatches`, spec 111, [[dm-narration-quality]]). Since spec 111 any non-`talk` turn with an empty beat and a deed in the window takes the same path instead of ending `empty-beat` ([[dm-runtime]]).
 
 ## Claim, lease, fencing
 

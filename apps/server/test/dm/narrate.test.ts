@@ -243,6 +243,28 @@ describe("narrate", () => {
       /gate\.submit|"type":"check\.roll"|execute\(/,
     );
     expect(prompt.system).toMatch(/NO digits/);
+    expect(prompt.system).toContain("Describe every Direct action line");
+    const withDeed = buildNarratePrompt({
+      seed: playerFacingSeed(ctx.seed),
+      roster: rosterOf(assembled.projections.party),
+      assembled,
+      snapshot,
+      facts: {
+        ...n.facts,
+        direct: [
+          {
+            name: "Tamsin Vale",
+            deed: { text: "/search #ferry-house", stopped: null },
+            rolls: [],
+            outcomes: [],
+            changes: [],
+          },
+        ],
+      },
+    });
+    expect(withDeed.user).toContain(
+      "Direct action: Tamsin Vale: /search #ferry-house",
+    );
   });
 
   it("lists the first beat's present NPCs at scene start, whatever the Director's beat", async () => {
@@ -752,7 +774,7 @@ describe("narrate", () => {
     expect(out.output.facts.presentNpcs.map((n) => n.id)).toEqual(["snag"]);
   });
 
-  it("narrate prompt carries the turn lines and the v24 version", async () => {
+  it("narrate prompt carries the turn lines and the v25 version", async () => {
     const { ctx } = await setup(["x"]);
     const out = await narrate(ctx);
     if (!out.ok) throw new Error("narrate failed");

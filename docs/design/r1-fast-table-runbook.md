@@ -329,6 +329,7 @@ Then **stop for CP-7** (the R1 playtest).
   - **E8 — TASK-0303 (hotfix, operator-signed 2026-11-09):** card ACs drive. Dockerfile package copies plus a guard test; stabilize the SC-005 timing test.
   - **E9 — TASK-0307 (operator-signed 2026-11-10):** card ACs drive. Accept and strip both slot-label forms; no doubled restate; ask only for a real clarification.
   - **E10 — TASK-0314 (operator-signed 2026-11-11, "Sign E10"):** card ACs drive. One enqueue rule: a human DM's ruling Intent queues the resume turn; plus its test. Merges before TASK-0199 phase 3.
+  - **E11 — TASK-0334 (operator-signed 2026-11-13, "Sign E11"):** card ACs drive. The seed check refuses a way whose label or draft names a hidden zone unless revealed; the ways players see are filtered by fog; each with a test, plus a test replaying the greyhollow-ford "ladder to the loft" flow.
 
 ## Concurrency & conflict doctrine
 
@@ -456,6 +457,24 @@ Also true at close:
 - Hosted ACs ticked at CP-7. Findings carded.
 - This file's log complete and status flipped to done.
 
+## Amendment 2026-11-13: replan after the R1 spine test drive
+
+Operator ruling (2026-11-13, in chat): "Approved, but automate the tests". Evidence: `docs/playtests/2026-11-13-r1-spine-test-drive.md` (PR #178).
+
+The test drive showed narration's first token under 1 s (exit 2). It also showed that exploration on the hosted model is blocked by two bugs, and combat was not reached. The spine order below is paused behind a fix wave.
+
+- **Wave 1, fixes (first):**
+  - TASK-0337 (an AI-seat-ruled Intent is never narrated), then TASK-0336 (dm.react confirm targets fail schema). Both touch the talk and narrate area, so run them serially.
+  - TASK-0335 (quoted-dialogue leak, runtime and auditor) and TASK-0334 (ways name hidden zones), in parallel with the pair above.
+- **Wave 2, automated combat run:** TASK-0338 replaces a human test drive. A script-driven hosted run plays two combat rounds and fills the R1 metrics. It needs a ceiling recorded on TASK-0278 and C9 for vm-104 commands.
+- **Wave 3:** the merge spine resumes. TASK-0304, then 0222, 0224 and 0215. TASK-0275, then 0277, 0276 and 0329. TASK-0101 before CP-7. TASK-0278, then CP-7.
+- **Automated tests (ruling):**
+  - Each fix card adds a test that replays the test-drive flow.
+  - The auditor gains an "every settled Intent is narrated" check, run in CI through the scripted harness scenario (TASK-0337 AC).
+  - The scripted CI scenario covers a targeted free-mode confirm deed (TASK-0336 AC).
+  - A browser live check asserts that narration follows each deed, not only that rows land.
+- **Execution:** each card runs in its own sub-session from a short brief. The coordinating session dispatches and reports.
+
 ## Execution log
 
 Multi-phase dispatch stays visible in `notes` (for example `phases: 1-2 done, 3 dispatched`),
@@ -493,3 +512,5 @@ updated at each dispatch boundary. `tokens/cost` carries best-effort actuals.
 | 2026-11-12 | TASK-0223 | (this PR) | — | opus spec; sonnet x1 | Unarmed Strike derived in findAttack; model-number guard test; band-effect amounts to TASK-0313 |
 | 2026-11-13 | TASK-0312 | (this PR) | — | opus spec; sonnet x4 | C-GATE "Approve all": adjudicate node deleted, spec 031 contracts amended; about 5,800 lines out; legacy checkpoints dropped (`dm.checkpoint.legacy-dropped`); gathering kept, AC #2 to TASK-0327; pull-in coverage gap carded TASK-0328 |
 | 2026-11-13 | TASK-0247 | (this PR) | — | opus spec x2; sonnet x6; haiku x1 | C-AMD "Approve all": split (pills -> TASK-0329, 0318 folded), OQ-A4/A5/A15 carded TASK-0330..0332; C-GATE R1 (a) re-confirmed (SceneSchema optional fields); live check in Brave 8/8, three findings fixed |
+| 2026-11-13 | TASK-0334 | (this PR) | — | sonnet x1 | E11 (operator-signed "Sign E11"); ways gate on `after: <zone>`; seed check refuses ungated hidden-zone names; player ways fog-filtered; greyhollow-ford loft ladder replay test |
+| 2026-11-14 | TASK-0337 | (this PR) | — | opus spec; sonnet x5 | spec 111: deed rule in runner + narrate window (`dm/deeds.ts`, `dm.narrate-v25`); auditor `deeds-narrated` with negative proof; CI scenario `/search` + `/move` deeds; OQ-1 default kept; one-off web flake carded TASK-0344 |

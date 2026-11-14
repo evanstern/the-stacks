@@ -5,7 +5,7 @@ kind: component
 sources:
   - apps/server/src/dm/gates/plan-gate.ts
   - apps/server/src/dm/pipeline/runner.ts
-verified_against: 0882dcb94032fa81551a3e9225721939e4cb7179
+verified_against: b811b90d03f6e4769956e6db4f8a3cd7fce790df
 ---
 
 # DM plan gate

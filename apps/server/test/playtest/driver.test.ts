@@ -42,24 +42,31 @@ const turnMode = (who: string | null) => ({
 describe("nextMove", () => {
   it("serves the free moves in order, then the fallback", () => {
     const ids: unknown[] = [];
-    for (let i = 0; i < 4; i++) {
+    for (let i = 0; i < 6; i++) {
       const m = nextMove(proj(), scenario, fresh({ freeIndex: i, moves: i }));
       if (m === "wait" || m === "done") throw new Error("unexpected");
       ids.push(m.actionId);
     }
-    expect(ids).toEqual(["act-search", "act-persuade", "act-advance", "pt-4"]);
+    expect(ids).toEqual([
+      "act-search",
+      "deed-search",
+      "deed-move",
+      "act-persuade",
+      "act-advance",
+      "pt-6",
+    ]);
   });
 
   it("plays the combat move only when the seat is active; the first uses firstActionId", () => {
     const p = (who: string | null) => proj({ tableMode: turnMode(who) });
     expect(nextMove(p("odo"), scenario, fresh())).toBe("wait");
-    expect(nextMove(p("tamsin"), scenario, fresh({ moves: 3 }))).toMatchObject({
+    expect(nextMove(p("tamsin"), scenario, fresh({ moves: 5 }))).toMatchObject({
       actionId: "act-strike",
       text: scenario.moves.combat.text,
     });
     expect(
-      nextMove(p("tamsin"), scenario, fresh({ moves: 4, combatMoves: 1 })),
-    ).toMatchObject({ actionId: "pt-5" });
+      nextMove(p("tamsin"), scenario, fresh({ moves: 6, combatMoves: 1 })),
+    ).toMatchObject({ actionId: "pt-7" });
   });
 
   it("waits while a human action is unresolved", () => {
@@ -83,7 +90,7 @@ describe("fallback cycling and the stall stop", () => {
   const list = scenario.moves.fallback;
 
   it("cycles the fallback list without an immediate repeat", () => {
-    const state = fresh({ freeIndex: 3, moves: 3 });
+    const state = fresh({ freeIndex: 5, moves: 5 });
     const texts: string[] = [];
     for (let i = 0; i < list.length * 2; i++) {
       const m = nextMove(proj(), scenario, state);
@@ -103,7 +110,7 @@ describe("fallback cycling and the stall stop", () => {
     const m = nextMove(
       proj(),
       scenario,
-      fresh({ freeIndex: 3, fallbackIndex: 0, lastFallbackText: list[0].text }),
+      fresh({ freeIndex: 5, fallbackIndex: 0, lastFallbackText: list[0].text }),
     );
     expect(m).toMatchObject({ text: list[1].text });
   });

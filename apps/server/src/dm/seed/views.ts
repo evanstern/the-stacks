@@ -40,7 +40,30 @@ export interface PlayerSeedView {
   }[];
 }
 
-export function playerFacingSeed(seed: SceneSeed): PlayerSeedView {
+/**
+ * TASK-0334: the ways a player may see. A way gated by `after` shows once that zone is revealed.
+ * `revealed` defaults to the scene-start map: every zone that is not hidden, plus the start zone.
+ */
+export function visibleWays(
+  seed: SceneSeed,
+  revealed?: ReadonlySet<string>,
+): Way[] {
+  const shown =
+    revealed ??
+    new Set(
+      (seed.space?.zones ?? [])
+        .filter((z) => !z.hidden || z.id === seed.space?.start)
+        .map((z) => z.id),
+    );
+  return seed.location.ways
+    .filter((w) => !w.after || shown.has(w.after))
+    .map((w) => ({ label: w.label, draft: w.draft }));
+}
+
+export function playerFacingSeed(
+  seed: SceneSeed,
+  revealed?: ReadonlySet<string>,
+): PlayerSeedView {
   return {
     seedId: seed.seedId,
     title: seed.title,
@@ -50,7 +73,7 @@ export function playerFacingSeed(seed: SceneSeed): PlayerSeedView {
       features: [...seed.location.identity.features],
       mood: seed.location.portrayal.mood,
       senses: [...seed.location.portrayal.senses],
-      ways: seed.location.ways.map((w) => ({ label: w.label, draft: w.draft })),
+      ways: visibleWays(seed, revealed),
     },
     openingFraming: seed.opening.framing,
     openingPremise: seed.opening.premise,
