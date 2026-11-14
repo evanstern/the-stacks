@@ -17,7 +17,7 @@ sources:
   - apps/server/src/dm/narration-words.ts
   - specs/034-narration-quality/contracts/audit-criteria.md
 size_budget_exempt: the prompt-version history (narrate v5 to v25, react, director, interpret) is one running ledger, and the check node, withheld inputs and fact sheet share one import closure; splitting them needs a TASK of its own
-verified_against: b811b90d03f6e4769956e6db4f8a3cd7fce790df
+verified_against: 5ba7f18bb95249307d50ce843a083392047107bd
 ---
 
 # DM narration quality
