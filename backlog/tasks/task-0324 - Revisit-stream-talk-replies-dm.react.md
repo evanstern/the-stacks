@@ -4,6 +4,7 @@ title: 'Revisit: stream talk replies (dm.react)'
 status: To Do
 assignee: []
 created_date: '2026-11-13T00:01:00Z'
+updated_date: '2026-11-14T02:15:00Z'
 labels:
   - ws:narration
   - revisit
@@ -29,3 +30,9 @@ Spec 108 OQ-3. TASK-0298 streams turn narration only; dm.react talk replies (qui
 - [ ] #1 All tests and checks run green
 - [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Trigger met in the 2026-11-13 test drive (session 0106e608): a talk reply landed 18.5 s after the post (10 s ring plus an 8.4 s dm.react call, no streaming).
+<!-- SECTION:NOTES:END -->
