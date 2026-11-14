@@ -12,6 +12,7 @@ import {
   renderChangeLine,
   renderRollLine,
 } from "../../dm/facts.js";
+import { isRestateLine } from "../../dm/fact-sheet.js";
 import { speechLeaks } from "../../dm/narration-check.js";
 import {
   DEATH_WORDS,
@@ -481,7 +482,7 @@ export function runChecks(seg: Segment, ctx: CheckContext): CheckResult[] {
             ? splitNarration(textOf(row))
                 .prose.split("\n")
                 // The code-written restate quotes the player, not the DM.
-                .filter((l) => !/ means to: ".*"\.$/.test(l))
+                .filter((l) => !isRestateLine(l))
                 .join("\n")
             : textOf(row);
         const snapshot = buildSnapshot(

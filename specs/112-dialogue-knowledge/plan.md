@@ -165,6 +165,7 @@ adds a check elsewhere in the file; keep the diff inside this block plus imports
   then `speechLeaks(snapshot, prose, null)` on the prose (`splitNarration(...).prose` for narration).
   Each hit adds `hidden-info` / `hidden-info-leak` at `row.seq` with detail
   `A public ${row.type} row names ${name} in speech; the party has not met them.` (or the zone).
+- The auditor sees assembled prose, which includes the code restate quoting the player's own intent. That restate is not DM speech, so the check skips lines matching `isRestateLine` (exported from `fact-sheet.ts` beside `defaultRestate`).
 - Import `project` from `@the-stacks/session-model`, `buildSnapshot` and `speechLeaks` from `../../dm/…`.
 
 ## Files
