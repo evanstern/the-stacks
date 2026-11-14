@@ -1,9 +1,10 @@
 ---
 id: TASK-0334
 title: Scene ways must not name hidden zones
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-11-13T20:28:00Z'
+updated_date: '2026-11-14T02:50:00Z'
 labels:
   - playtest
   - ws:table-ux
@@ -32,3 +33,9 @@ Found in the 2026-11-13 R1 spine test drive (session 0106e608, seq 2). The publi
 - [ ] #1 All tests and checks run green
 - [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Claimed 2026-11-13 by the R1 sweep (docs/design/r1-fast-table-runbook.md). Worktree .worktrees/task-0334, branch task-0334-ways-hidden-zones, cut from origin/main 594dd99a. No spec dir: signed escape line covers this task.
+<!-- SECTION:NOTES:END -->
