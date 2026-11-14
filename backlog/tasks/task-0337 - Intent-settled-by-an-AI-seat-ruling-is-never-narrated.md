@@ -1,7 +1,7 @@
 ---
 id: TASK-0337
 title: Intent settled by an AI-seat ruling is never narrated
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-11-14T02:22:00Z'
 updated_date: '2026-11-14T06:17:00Z'
@@ -76,3 +76,9 @@ Phase 5 dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-s
 
 spec-bridge sync: Deed test and narrate window: 7/7 · Runner rule and the test-drive replay: 5/5 · Auditor check deeds-narrated: 5/5 · CI scenario deeds: 5/5 · Wiki: 5/5 — status In Progress → Done. Merged PR #181 as 068762ae.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Deed test and narrate window: 7/7 · Runner rule and the test-drive replay: 5/5 · Auditor check deeds-narrated: 5/5 · CI scenario deeds: 5/5 · Wiki: 5/5). Merged in PR #181 (068762ae): AI-seat ruling turns and every other non-talk trigger narrate pending deeds through dm/deeds.ts; the narrate window tells each deed (dm.narrate-v25); the auditor check deeds-narrated fails an unnarrated settled or stopped Intent in CI. Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
