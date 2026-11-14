@@ -4,7 +4,7 @@ title: dm.react confirm items fail schema on Intent targets
 status: In Progress
 assignee: []
 created_date: '2026-11-14T02:18:00Z'
-updated_date: '2026-11-14T08:18:00Z'
+updated_date: '2026-11-14T08:19:00Z'
 labels:
   - playtest
   - ws:narration
@@ -32,6 +32,7 @@ Spec: specs/114-react-confirm-targets
 - [x] #3 A failed react turn tells the player the DM could not answer, rather than staying silent.
 - [x] #4 The scripted CI playtest scenario includes a free-mode targeted deed through dm.react confirm, so a confirm-schema regression fails CI.
 - [x] #5 The scripted CI scenario deeds marked intent take the direct-Intent path (driver passes Move.intent through), with a test proving no interpret call for them (spec 114 OQ-4, ruling (a))
+- [ ] #6 Spec phase: Prompt, repair and the test-drive replay (FR-001–FR-007; AC #1, #2)
 <!-- AC:END -->
 
 ## Definition of Done
