@@ -4,7 +4,7 @@ title: Intent settled by an AI-seat ruling is never narrated
 status: In Progress
 assignee: []
 created_date: '2026-11-14T02:22:00Z'
-updated_date: '2026-11-14T05:06:00Z'
+updated_date: '2026-11-14T05:12:00Z'
 labels:
   - playtest
   - ws:narration
@@ -49,4 +49,7 @@ Spec 111 authored (4c2e081f): fix in runner + narrate window via dm/deeds.ts; en
 Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=cc/claude-opus-5-5
 
 OQ-1 (spec 111): default kept per parent orchestrator 2026-11-14 (talk turn with an empty beat still reads posts; race narrow under rule 7; guarded by deeds-narrated). Passed to the operator; reopen only on their words. Phase 4 fallback (#ferry-house) needs no ruling.
+
+Phase 1 done (13b2fd7a), ci:check green.
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
