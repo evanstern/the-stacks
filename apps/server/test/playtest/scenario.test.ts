@@ -54,7 +54,7 @@ describe("the shipped scenario", () => {
     const narrations = dm.calls.filter((c) => c.purpose === "dm.narrate");
     const audit = loadAuditScript(ci.auditScript);
     expect(audit.responses).toHaveLength(narrations.length);
-    expect(audit.responses).toHaveLength(8);
+    expect(audit.responses).toHaveLength(10);
   });
 });
 

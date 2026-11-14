@@ -3,6 +3,7 @@ import { randomUUID } from "node:crypto";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import type { Rng } from "@the-stacks/dnd5e-engine";
+import { parse } from "@the-stacks/intent";
 import type { Proposer } from "@the-stacks/session-model";
 import type { FakeProvider } from "../ai/adapters/fake.js";
 import type { AiConfig } from "../ai/config.js";
@@ -347,6 +348,31 @@ export async function runPlaytest(
     if (move.fallback) {
       state.fallbackIndex = (move.fallbackIndex ?? 0) + 1;
       state.lastFallbackText = move.text;
+    }
+    if (move.intent) {
+      const parsed = parse(move.text, {
+        id: move.actionId ?? randomUUID(),
+        actor: { kind: "pc", id: scenario.seat.characterId },
+        source: "composer",
+        commit: "confirmed",
+      });
+      if (!parsed.ok) {
+        refusals.push({ moveIndex, code: parsed.refusal.code });
+        continue;
+      }
+      const sent = await gate.handle(sessionId, human, {
+        kind: "intent",
+        intent: parsed.intent,
+      } as never);
+      if (!sent.ok) {
+        refusals.push({ moveIndex, code: sent.refusal.code });
+        continue;
+      }
+      committed += 1;
+      await settle();
+      await drainIdle(worker);
+      state.stallStreak = 0;
+      continue;
     }
     const declared = await gate.handle(sessionId, human, {
       kind: "action.declare",

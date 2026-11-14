@@ -33,11 +33,11 @@ Do not edit `dm/enqueue.ts`, `dm/rulings.ts`, `dm/intent-runner.ts` or `gate/`.
 
 ## Phase 4: CI scenario deeds (FR-011, FR-012; AC #3 in CI)
 
-- [ ] T018 In `playtest/scenario.ts`, add `Move.intent`. In `playtest/harness.ts`, submit an Intent move as a confirmed direct Intent (plan D7).
-- [ ] T019 Add the two Intent moves to `apps/server/playtests/scenarios/greyhollow-ford.json`. Verify the later moves still reach the camp fight; apply the plan D7 fallback if not, and record why in the commit.
-- [ ] T020 Extend `test/dm/scripts/greyhollow-ford-full.json` (ruling call, narrate calls, die) and `playtests/fixtures/greyhollow-ford.audit.json` (two responses) so `scriptRemaining` stays zero.
-- [ ] T021 Update `test/playtest/playtest.integration.test.ts` (segment count, `deeds-narrated` passes on every segment) and `harness.integration.test.ts` if its expectations move.
-- [ ] T022 Amend `specs/032-playtest-harness/contracts/scenario.md` (`Move.intent`, the two shipped moves).
+- [x] T018 In `playtest/scenario.ts`, add `Move.intent`. In `playtest/harness.ts`, submit an Intent move as a confirmed direct Intent (plan D7).
+- [x] T019 Add the two Intent moves to `apps/server/playtests/scenarios/greyhollow-ford.json`. Verify the later moves still reach the camp fight; apply the plan D7 fallback if not, and record why in the commit.
+- [x] T020 Extend `test/dm/scripts/greyhollow-ford-full.json` (ruling call, narrate calls, die) and `playtests/fixtures/greyhollow-ford.audit.json` (two responses) so `scriptRemaining` stays zero.
+- [x] T021 Update `test/playtest/playtest.integration.test.ts` (segment count, `deeds-narrated` passes on every segment) and `harness.integration.test.ts` if its expectations move.
+- [x] T022 Amend `specs/032-playtest-harness/contracts/scenario.md` (`Move.intent`, the two shipped moves).
 
 ## Phase 5: Wiki
 

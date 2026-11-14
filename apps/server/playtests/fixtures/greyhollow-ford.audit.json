@@ -31,7 +31,7 @@
       }
     },
     {
-      "note": "segment 2: social ruling",
+      "note": "segment 2: search deed",
       "respond": {
         "type": "json",
         "value": {
@@ -45,7 +45,7 @@
       }
     },
     {
-      "note": "segment 3: entering the fight",
+      "note": "segment 3: move deed",
       "respond": {
         "type": "json",
         "value": {
@@ -59,7 +59,7 @@
       }
     },
     {
-      "note": "segment 4: monster turn miss",
+      "note": "segment 4: social ruling",
       "respond": {
         "type": "json",
         "value": {
@@ -73,7 +73,7 @@
       }
     },
     {
-      "note": "segment 5: human strike",
+      "note": "segment 5: entering the fight",
       "respond": {
         "type": "json",
         "value": {
@@ -87,7 +87,7 @@
       }
     },
     {
-      "note": "segment 6: Odo hit",
+      "note": "segment 6: monster turn miss",
       "respond": {
         "type": "json",
         "value": {
@@ -101,7 +101,35 @@
       }
     },
     {
-      "note": "segment 7: Kestrel hit and scene end",
+      "note": "segment 7: human strike",
+      "respond": {
+        "type": "json",
+        "value": {
+          "verdict": "pass",
+          "findings": []
+        }
+      },
+      "usage": {
+        "inputTokens": 0,
+        "outputTokens": 0
+      }
+    },
+    {
+      "note": "segment 8: Odo hit",
+      "respond": {
+        "type": "json",
+        "value": {
+          "verdict": "pass",
+          "findings": []
+        }
+      },
+      "usage": {
+        "inputTokens": 0,
+        "outputTokens": 0
+      }
+    },
+    {
+      "note": "segment 9: Kestrel hit and scene end",
       "respond": {
         "type": "json",
         "value": {

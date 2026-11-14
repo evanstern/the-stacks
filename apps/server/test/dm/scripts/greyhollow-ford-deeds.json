@@ -1,0 +1,660 @@
+{
+  "v": 1,
+  "name": "greyhollow-ford-deeds",
+  "dice": [14, 10, 15, 15, 15, 7, 20, 3, 2, 1, 5, 14, 4, 12, 3, 12, 1],
+  "calls": [
+    {
+      "purpose": "dm.director",
+      "note": "scene start keeps only pacing",
+      "respond": {
+        "type": "json",
+        "value": {
+          "beat": {
+            "decision": "resolve"
+          },
+          "tableMode": {
+            "to": "stay"
+          },
+          "trackers": [],
+          "scene": {
+            "status": "continue"
+          },
+          "pacing": {
+            "tension": "low",
+            "spotlight": null,
+            "beatId": "ferry-house"
+          },
+          "goalNote": "Open at the ford and let the party look around.",
+          "companionPrompts": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.narrate",
+      "note": "opening framing",
+      "respond": {
+        "type": "text",
+        "value": "The party reaches Greyhollow Ford as the light goes amber. Tamsin Vale, Brother Odo and Kestrel came to cross before full dark, and the ferry keeper owes Tamsin a crossing. The ferry sits chained to the near bank, the ferry-house door hangs open, and the bell that should have rung for them stays silent. Above, in the loft, a board creaks: Wenna Marsh, the keeper, is somewhere overhead and has not called down. Where do you start?"
+      }
+    },
+    {
+      "purpose": "dm.director",
+      "note": "free mode, resolve, one tracker step",
+      "respond": {
+        "type": "json",
+        "value": {
+          "beat": {
+            "decision": "resolve"
+          },
+          "tableMode": {
+            "to": "stay"
+          },
+          "trackers": [
+            {
+              "trackerId": "dusk",
+              "advance": 1,
+              "reason": "The search takes a while and the light fades."
+            }
+          ],
+          "scene": {
+            "status": "continue"
+          },
+          "pacing": {
+            "tension": "low",
+            "spotlight": null,
+            "beatId": "ferry-house"
+          },
+          "goalNote": "Reward the careful search.",
+          "companionPrompts": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.interpret",
+      "note": "one check against the ferry-house clue's DC",
+      "respond": {
+        "type": "json",
+        "value": {
+          "readings": [
+            {
+              "actionId": "act-search",
+              "stages": [
+                {
+                  "intent": {
+                    "kind": "check",
+                    "targets": [],
+                    "params": {
+                      "skill": "investigation"
+                    }
+                  },
+                  "beside": {
+                    "stakes": {
+                      "success": "The attempt works as intended.",
+                      "cost": "It works, but at a small price.",
+                      "failure": "The attempt comes to nothing.",
+                      "severe": "It goes badly wrong."
+                    },
+                    "onSuccess": [],
+                    "onFailure": [],
+                    "onCost": [],
+                    "onSevere": [],
+                    "newRisk": null,
+                    "reveals": null,
+                    "autoFail": null
+                  }
+                }
+              ],
+              "clarify": null,
+              "followUps": []
+            }
+          ]
+        }
+      }
+    },
+    {
+      "purpose": "dm.adjudicate",
+      "note": "a ruling on the check's difficulty",
+      "respond": {
+        "type": "json",
+        "value": {
+          "decision": "accept",
+          "difficulty": "easy"
+        }
+      }
+    },
+    {
+      "purpose": "dm.narrate",
+      "note": "consistent with the recorded success",
+      "respond": {
+        "type": "text",
+        "value": "Tamsin crouches beside the cut bell rope and reads the damage: first gnawed through, then sliced clean. The bell hangs whole above her, but its clapper is gone."
+      }
+    },
+    {
+      "purpose": "dm.adjudicate",
+      "note": "a ruling on the deed-search difficulty (ruling job)",
+      "respond": {
+        "type": "json",
+        "value": {
+          "decision": "accept",
+          "difficulty": "easy"
+        }
+      }
+    },
+    {
+      "purpose": "dm.director",
+      "note": "deed search: free mode, resolve",
+      "respond": {
+        "type": "json",
+        "value": {
+          "beat": {
+            "decision": "resolve"
+          },
+          "tableMode": {
+            "to": "stay"
+          },
+          "trackers": [],
+          "scene": {
+            "status": "continue"
+          },
+          "pacing": {
+            "tension": "low",
+            "spotlight": null,
+            "beatId": "the-keeper"
+          },
+          "goalNote": "Let the keeper decide whether to trust the party.",
+          "companionPrompts": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.narrate",
+      "note": "narrates the search deed with its roll",
+      "respond": {
+        "type": "text",
+        "value": "Tamsin works the ferry-house a second time and finds a scrap of oilcloth wedged behind the rope hook, still smelling of lamp oil."
+      }
+    },
+    {
+      "purpose": "dm.director",
+      "note": "deed move: free mode, resolve",
+      "respond": {
+        "type": "json",
+        "value": {
+          "beat": {
+            "decision": "resolve"
+          },
+          "tableMode": {
+            "to": "stay"
+          },
+          "trackers": [],
+          "scene": {
+            "status": "continue"
+          },
+          "pacing": {
+            "tension": "low",
+            "spotlight": null,
+            "beatId": "the-keeper"
+          },
+          "goalNote": "Let the keeper decide whether to trust the party.",
+          "companionPrompts": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.narrate",
+      "note": "narrates the move deed",
+      "respond": {
+        "type": "text",
+        "value": "Tamsin steps onto the causeway; the planks shift underfoot and the reeds close in on both sides."
+      }
+    },
+    {
+      "purpose": "dm.director",
+      "note": "free mode, resolve",
+      "respond": {
+        "type": "json",
+        "value": {
+          "beat": {
+            "decision": "resolve"
+          },
+          "tableMode": {
+            "to": "stay"
+          },
+          "trackers": [],
+          "scene": {
+            "status": "continue"
+          },
+          "pacing": {
+            "tension": "low",
+            "spotlight": null,
+            "beatId": "the-keeper"
+          },
+          "goalNote": "Let the keeper decide whether to trust the party.",
+          "companionPrompts": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.interpret",
+      "note": "needs a ruling",
+      "respond": {
+        "type": "json",
+        "value": {
+          "readings": [
+            {
+              "actionId": "act-persuade",
+              "stages": [
+                {
+                  "intent": {
+                    "kind": "check",
+                    "targets": [],
+                    "params": {
+                      "skill": "persuasion"
+                    }
+                  },
+                  "beside": {
+                    "stakes": {
+                      "success": "The attempt works as intended.",
+                      "cost": "It works, but at a small price.",
+                      "failure": "The attempt comes to nothing.",
+                      "severe": "It goes badly wrong."
+                    },
+                    "onSuccess": [],
+                    "onFailure": [],
+                    "onCost": [],
+                    "onSevere": [],
+                    "newRisk": null,
+                    "reveals": null,
+                    "autoFail": null
+                  }
+                }
+              ],
+              "clarify": null,
+              "followUps": []
+            }
+          ]
+        }
+      }
+    },
+    {
+      "purpose": "dm.adjudicate",
+      "note": "a ruling on the check's difficulty",
+      "respond": {
+        "type": "json",
+        "value": {
+          "decision": "accept",
+          "difficulty": "easy"
+        }
+      }
+    },
+    {
+      "purpose": "dm.narrate",
+      "note": "consistent with the recorded success",
+      "respond": {
+        "type": "text",
+        "value": "Wenna lowers her boathook and studies Tamsin for a long breath. Then, counting under her breath, she names the safe path: keep to the old timber posts, and never step off them."
+      }
+    },
+    {
+      "purpose": "dm.director",
+      "note": "enter turn mode; Snag wins initiative",
+      "respond": {
+        "type": "json",
+        "value": {
+          "beat": {
+            "decision": "resolve"
+          },
+          "tableMode": {
+            "to": "turn",
+            "encounterId": "reed-camp",
+            "reason": "The goblins spring up as the party reaches the island."
+          },
+          "trackers": [
+            {
+              "trackerId": "alarm",
+              "advance": 1,
+              "reason": "The party's approach rustles the reeds."
+            }
+          ],
+          "scene": {
+            "status": "continue"
+          },
+          "pacing": {
+            "tension": "rising",
+            "spotlight": null,
+            "beatId": "reed-camp"
+          },
+          "goalNote": "Run the camp fight; the goblins break when two fall.",
+          "companionPrompts": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.interpret",
+      "note": "a move needs no roll",
+      "respond": {
+        "type": "json",
+        "value": {
+          "readings": [
+            {
+              "actionId": "act-advance",
+              "stages": [],
+              "clarify": null,
+              "followUps": []
+            }
+          ]
+        }
+      }
+    },
+    {
+      "purpose": "dm.narrate",
+      "note": "entering the fight",
+      "respond": {
+        "type": "text",
+        "value": "Tamsin follows the old timber posts into the reeds, and the party spreads out behind her. A smoky fire and a ring of watchful goblins wait on the mud island ahead, and Snag springs up first with his scimitar raised."
+      }
+    },
+    {
+      "purpose": "dm.narrate",
+      "note": "a miss for the NPC",
+      "respond": {
+        "type": "text",
+        "value": "Snag lunges with his notched scimitar, sing-songing threats, but Tamsin sways aside and the blade only finds air."
+      }
+    },
+    {
+      "purpose": "dm.director",
+      "note": "human active actor",
+      "respond": {
+        "type": "json",
+        "value": {
+          "beat": {
+            "decision": "resolve"
+          },
+          "tableMode": {
+            "to": "stay"
+          },
+          "trackers": [],
+          "scene": {
+            "status": "continue"
+          },
+          "pacing": {
+            "tension": "high",
+            "spotlight": null,
+            "beatId": "reed-camp"
+          },
+          "goalNote": "Tamsin takes the fight to the goblin in the pot-helm.",
+          "companionPrompts": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.interpret",
+      "respond": {
+        "type": "json",
+        "value": {
+          "readings": [
+            {
+              "actionId": "act-strike",
+              "stages": [
+                {
+                  "intent": {
+                    "kind": "attack",
+                    "targets": [
+                      {
+                        "kind": "actor",
+                        "id": "goblin-2"
+                      }
+                    ],
+                    "params": {
+                      "weapon": "Longsword"
+                    }
+                  },
+                  "beside": null
+                }
+              ],
+              "clarify": null,
+              "followUps": []
+            }
+          ]
+        }
+      }
+    },
+    {
+      "purpose": "dm.narrate",
+      "note": "a hit, no death",
+      "respond": {
+        "type": "text",
+        "value": "Tamsin's longsword bites into the goblin in the pot-helm, who reels back clutching a shoulder and snarling."
+      }
+    },
+    {
+      "purpose": "dm.companion",
+      "note": "Odo's turn",
+      "respond": {
+        "type": "json",
+        "value": {
+          "say": "Peace, friends, but I will not stand idle.",
+          "comment": null,
+          "act": null,
+          "pending": [],
+          "turn": [
+            {
+              "kind": "attack",
+              "targets": [
+                {
+                  "kind": "actor",
+                  "id": "goblin-3"
+                }
+              ],
+              "params": {
+                "weapon": "Mace"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "purpose": "dm.director",
+      "note": "companion action",
+      "respond": {
+        "type": "json",
+        "value": {
+          "beat": {
+            "decision": "resolve"
+          },
+          "tableMode": {
+            "to": "stay"
+          },
+          "trackers": [],
+          "scene": {
+            "status": "continue"
+          },
+          "pacing": {
+            "tension": "high",
+            "spotlight": null,
+            "beatId": "reed-camp"
+          },
+          "goalNote": "Odo presses the lookout.",
+          "companionPrompts": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.narrate",
+      "note": "a hit, no death",
+      "respond": {
+        "type": "text",
+        "value": "Brother Odo brings his mace down on the goblin lookout, who yelps and stumbles back, hunting for solid footing."
+      }
+    },
+    {
+      "purpose": "dm.companion",
+      "note": "Kestrel's turn",
+      "respond": {
+        "type": "json",
+        "value": {
+          "say": null,
+          "comment": null,
+          "act": null,
+          "pending": [],
+          "turn": [
+            {
+              "kind": "attack",
+              "targets": [
+                {
+                  "kind": "actor",
+                  "id": "goblin-4"
+                }
+              ],
+              "params": {
+                "weapon": "Shortbow"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "purpose": "dm.director",
+      "note": "back to free mode; scene ends",
+      "respond": {
+        "type": "json",
+        "value": {
+          "beat": {
+            "decision": "resolve"
+          },
+          "tableMode": {
+            "to": "free",
+            "reason": "Snag offers the clapper for safe passage."
+          },
+          "trackers": [],
+          "scene": {
+            "status": "end",
+            "outcome": "goal-met",
+            "reason": "Snag trades the clapper for safe passage and the way is clear."
+          },
+          "pacing": {
+            "tension": "low",
+            "spotlight": null,
+            "beatId": "reed-camp"
+          },
+          "goalNote": "Close the scene.",
+          "companionPrompts": []
+        }
+      }
+    },
+    {
+      "purpose": "dm.narrate",
+      "note": "a hit, then the scene ends",
+      "respond": {
+        "type": "text",
+        "value": "Kestrel's arrow whistles across the island and bites the goblin by the fire, who howls. Snag lowers his blade and calls out, offering the clapper in return for a safe way off the ford."
+      }
+    },
+    {
+      "purpose": "dm.chronicle",
+      "note": "a chronicle pass; the count consumed depends on when the worker is idle",
+      "respond": {
+        "type": "json",
+        "value": {
+          "entries": [
+            {
+              "title": "The ferry-house",
+              "body": "The party reached the ford and searched the ferry-house.",
+              "sourceActionIds": [],
+              "visibility": "public"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "purpose": "dm.chronicle",
+      "note": "a chronicle pass; the count consumed depends on when the worker is idle",
+      "respond": {
+        "type": "json",
+        "value": {
+          "entries": [
+            {
+              "title": "The keeper",
+              "body": "Tamsin won the ferry keeper's trust and learned the safe path.",
+              "sourceActionIds": [],
+              "visibility": "public"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "purpose": "dm.chronicle",
+      "note": "a chronicle pass; the count consumed depends on when the worker is idle",
+      "respond": {
+        "type": "json",
+        "value": {
+          "entries": [
+            {
+              "title": "The reed-camp",
+              "body": "The party followed the posts into the reeds and fought the goblins.",
+              "sourceActionIds": [],
+              "visibility": "public"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "purpose": "dm.chronicle",
+      "note": "a chronicle pass; the count consumed depends on when the worker is idle",
+      "respond": {
+        "type": "json",
+        "value": {
+          "entries": [
+            {
+              "title": "The clapper",
+              "body": "Snag traded the clapper for safe passage and the ford was cleared.",
+              "sourceActionIds": [],
+              "visibility": "public"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "purpose": "dm.chronicle",
+      "note": "a chronicle pass; the count consumed depends on when the worker is idle",
+      "respond": {
+        "type": "json",
+        "value": {
+          "entries": [
+            {
+              "title": "The crossing",
+              "body": "The ferry could cross again.",
+              "sourceActionIds": [],
+              "visibility": "public"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "purpose": "dm.chronicle",
+      "note": "a chronicle pass; the count consumed depends on when the worker is idle",
+      "respond": {
+        "type": "json",
+        "value": {
+          "entries": [
+            {
+              "title": "Aftermath",
+              "body": "The scene ended with the goal met.",
+              "sourceActionIds": [],
+              "visibility": "public"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
