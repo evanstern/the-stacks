@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   buildReactPrompt,
   CAP_LINE,
+  EXAMPLE_CONFIRM,
   PROMPT_VERSION,
   RULES,
 } from "../../src/dm/prompts/react.js";
@@ -17,6 +18,10 @@ const base = {
   snapshot: buildSnapshot(projections, seed),
   posts: [],
   humans: [],
+  targets: [
+    { kind: "zone" as const, id: "ferry-house", name: "Ferry House" },
+    { kind: "actor" as const, id: "wenna", name: "Wenna Marsh" },
+  ],
   triggers: [{ kind: "addressed" as const, actorId: "wenna", party: false }],
   transcriptTail: [],
   presentNpcIds: ["wenna"],
@@ -25,8 +30,24 @@ const base = {
 };
 
 describe("react prompt (specs/065 D4)", () => {
-  it("is versioned dm.react-v5", () => {
-    expect(PROMPT_VERSION).toBe("dm.react-v5");
+  it("is versioned dm.react-v6", () => {
+    expect(PROMPT_VERSION).toBe("dm.react-v6");
+  });
+
+  it("shows the target ref shape and one worked confirm example (spec 114 SC-001)", () => {
+    const { system, user } = buildReactPrompt(base);
+    expect(system).toContain('"targets":[ref]');
+    expect(system).toContain('{"kind":"zone","id":id}');
+    expect(system).toContain("A target is never a bare id.");
+    expect(system).toContain(
+      `Example confirm: ${JSON.stringify(EXAMPLE_CONFIRM)}`,
+    );
+    expect(EXAMPLE_CONFIRM.body.targets).toEqual([
+      { kind: "zone", id: "ferry-house" },
+    ]);
+    expect(user).toContain("Targets (confirm items name only these)");
+    expect(user).toContain("ferry-house (zone, Ferry House)");
+    expect(user).toContain("wenna (actor, Wenna Marsh)");
   });
 
   it("states the confirm and answer rules and the outcome list (spec 066)", () => {

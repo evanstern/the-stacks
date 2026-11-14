@@ -341,6 +341,14 @@ function parseJsonLoose(body: string): unknown {
 
 type ParseFailureKind = "invalid-json" | "schema-mismatch";
 
+/** A discriminator miss names the field and lists the allowed values (spec 114 FR-011). */
+function issueText(i: z.core.$ZodIssue): string {
+  const d = i as { discriminator?: unknown; options?: unknown };
+  return typeof d.discriminator === "string" && Array.isArray(d.options)
+    ? `field "${d.discriminator}" is missing or invalid; use one of: ${d.options.join(", ")}`
+    : i.message;
+}
+
 function parseAgainst<T>(
   text: string,
   schema: ZodType<T>,
@@ -370,7 +378,7 @@ function parseAgainst<T>(
   if (parsed.success) return { ok: true, value: parsed.data };
   const issues = parsed.error.issues
     .slice(0, 8)
-    .map((i) => `${i.path.join(".") || "(root)"}: ${i.message}`)
+    .map((i) => `${i.path.join(".") || "(root)"}: ${issueText(i)}`)
     .join("\n");
   return { ok: false, kind: "schema-mismatch", issues };
 }

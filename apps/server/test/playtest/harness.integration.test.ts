@@ -134,6 +134,10 @@ describe.skipIf(!reachable)("the harness run (database)", () => {
         "./fixtures/downed-seat.json",
         import.meta.url,
       ).pathname;
+      // The downed-seat script predates the confirm and Intent deeds.
+      s.moves.free = s.moves.free.filter(
+        (m: { intent?: boolean; confirm?: boolean }) => !m.intent && !m.confirm,
+      );
     });
     const out = join(dir, "run");
     const manifest = await runPlaytest({

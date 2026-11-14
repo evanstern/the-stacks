@@ -19,7 +19,7 @@ sources:
   - apps/server/test/write-boundary.test.ts
   - apps/server/test/helpers/import-graph.ts
 size_budget_exempt: spec 102 adds the intent kind paragraph and TASK-0199 (spec 066) adds the action.suggest, action.accept and ask_dm paragraph to the one proposal-gate note; the gate does not split without a TASK of its own
-verified_against: 7c0d16130c083a540d3a93f5fc587ec3e95e5cbf
+verified_against: 3ded4c07448d3ff8c11975b62d9201e1b727e47d
 ---
 
 # Proposal gate
@@ -119,7 +119,7 @@ so a resend is safe, and it keeps the `internal` wire kind. After an append each
 `appendBatch` may be imported only by `session/events.ts`; `appendSessionEvent`,
 `appendSessionEvents` and `appendMechanicsBatch` only under `gate/`; `ws/gateway.ts` is no
 longer an allowed writer (TASK-0099 removed `appendUncataloguedEvent`);
-no writer's closure reaches `ai/`; a non-literal dynamic `import()` fails. A seeded violation tree (`test/fixtures/write-boundary/src`) trips three rules; a second test pins `kind: "scene-presence"` literals to `dm/nodes/resolve.ts`.
+no writer's closure reaches `ai/`; a non-literal dynamic `import()` fails. A seeded violation tree (`test/fixtures/write-boundary/src`) trips three rules; a second test pins `kind: "scene-presence"` literals to `dm/nodes/resolve.ts`; another allows only `playtest/harness.ts` (the scripted seat, spec 114) to build `action.accept`.
 
 ## Connections
 

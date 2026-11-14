@@ -51,10 +51,12 @@ describe("the shipped scenario", () => {
     const ci = loadScenario(SHIPPED).ci;
     if (!ci) throw new Error("no ci");
     const dm = loadDmScript(JSON.parse(readFileSync(ci.dmScript, "utf8")));
-    const narrations = dm.calls.filter((c) => c.purpose === "dm.narrate");
+    const narrations = dm.calls.filter(
+      (c) => c.purpose === "dm.narrate" && c.respond.type === "text",
+    );
     const audit = loadAuditScript(ci.auditScript);
     expect(audit.responses).toHaveLength(narrations.length);
-    expect(audit.responses).toHaveLength(10);
+    expect(audit.responses).toHaveLength(11);
   });
 });
 
@@ -86,6 +88,16 @@ describe("scenario validation", () => {
       }),
     );
     expect(issues.join(" ")).toContain("moves.free.0.actionId");
+  });
+
+  it("rejects a move that sets both intent and confirm", () => {
+    const issues = issuesOf(
+      variant((s) => {
+        const moves = s.moves as { free: Record<string, unknown>[] };
+        moves.free.push({ text: "/search #x", intent: true, confirm: true });
+      }),
+    );
+    expect(issues.join(" ")).toContain("both `intent` and `confirm`");
   });
 
   it("rejects an unreadable auditor script", () => {

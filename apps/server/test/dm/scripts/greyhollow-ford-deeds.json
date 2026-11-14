@@ -1,7 +1,7 @@
 {
   "v": 1,
   "name": "greyhollow-ford-deeds",
-  "dice": [14, 10, 15, 15, 15, 7, 20, 3, 2, 1, 5, 14, 4, 12, 3, 12, 1],
+  "dice": [14, 10, 15, 15, 15, 7, 20, 3, 2, 1, 5, 14, 4, 12, 3],
   "calls": [
     {
       "purpose": "dm.director",
@@ -131,6 +131,55 @@
       }
     },
     {
+      "purpose": "dm.narrate",
+      "note": "react reply for the confirm move: attempt 1 body (bare target id), repaired by normalizeReact",
+      "respond": {
+        "type": "json",
+        "value": {
+          "outcome": "confirm",
+          "triggers": [],
+          "speaker": null,
+          "text": "",
+          "encounterId": null,
+          "companionPrompts": [],
+          "confirm": [
+            {
+              "characterId": "tamsin",
+              "text": "Tamsin searches the ferry house.",
+              "body": {
+                "kind": "search",
+                "targets": ["ferry-house"],
+                "params": {
+                  "skill": "perception"
+                }
+              }
+            }
+          ],
+          "answer": null,
+          "reason": "The seat declared a search; offer it for confirmation."
+        }
+      }
+    },
+    {
+      "purpose": "dm.adjudicate",
+      "note": "a ruling on the confirmed search's difficulty",
+      "respond": {
+        "type": "json",
+        "value": {
+          "decision": "accept",
+          "difficulty": "easy"
+        }
+      }
+    },
+    {
+      "purpose": "dm.narrate",
+      "note": "narrates the confirmed search with its roll",
+      "respond": {
+        "type": "text",
+        "value": "Tamsin searches the ferry house floor by floor and finds a damp boot print leading toward the water."
+      }
+    },
+    {
       "purpose": "dm.adjudicate",
       "note": "a ruling on the deed-search difficulty (ruling job)",
       "respond": {
@@ -142,63 +191,11 @@
       }
     },
     {
-      "purpose": "dm.director",
-      "note": "deed search: free mode, resolve",
-      "respond": {
-        "type": "json",
-        "value": {
-          "beat": {
-            "decision": "resolve"
-          },
-          "tableMode": {
-            "to": "stay"
-          },
-          "trackers": [],
-          "scene": {
-            "status": "continue"
-          },
-          "pacing": {
-            "tension": "low",
-            "spotlight": null,
-            "beatId": "the-keeper"
-          },
-          "goalNote": "Let the keeper decide whether to trust the party.",
-          "companionPrompts": []
-        }
-      }
-    },
-    {
       "purpose": "dm.narrate",
       "note": "narrates the search deed with its roll",
       "respond": {
         "type": "text",
         "value": "Tamsin works the ferry-house a second time and finds a scrap of oilcloth wedged behind the rope hook, still smelling of lamp oil."
-      }
-    },
-    {
-      "purpose": "dm.director",
-      "note": "deed move: free mode, resolve",
-      "respond": {
-        "type": "json",
-        "value": {
-          "beat": {
-            "decision": "resolve"
-          },
-          "tableMode": {
-            "to": "stay"
-          },
-          "trackers": [],
-          "scene": {
-            "status": "continue"
-          },
-          "pacing": {
-            "tension": "low",
-            "spotlight": null,
-            "beatId": "the-keeper"
-          },
-          "goalNote": "Let the keeper decide whether to trust the party.",
-          "companionPrompts": []
-        }
       }
     },
     {

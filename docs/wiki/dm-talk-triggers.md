@@ -1,6 +1,6 @@
 ---
 name: dm-talk-triggers
-description: The AI DM's table read (TASK-0180, specs/065; reworked by TASK-0199, specs/066, decision-0030) - the `readablePosts` rules, the 10 s window that moves with each post, `interruptRead`, code triggers, the one `react` call (`dm.react-v4`) with `confirm` and `answer`, code items for declared Intents, the `action.suggest` ship, `ask_dm`, the chain cap, companion prompts and reclaim.
+description: The AI DM's table read (TASK-0180, specs/065; reworked by TASK-0199, specs/066, decision-0030) - the `readablePosts` rules, the 10 s window that moves with each post, `interruptRead`, code triggers, the one `react` call (`dm.react-v6`) with `confirm` and `answer`, code items for declared Intents, the `action.suggest` ship, `ask_dm`, the chain cap, companion prompts and reclaim.
 kind: pipeline
 sources:
   - apps/server/src/dm/talk-triggers.ts
@@ -80,4 +80,6 @@ shipped twice. A reclaimed escalation reads its posts as free mode
 once the opening move landed (commit c2e6d785), because the mode is already `turn`. An interrupted
 read writes nothing.
 
-`dm.react-v5` (spec 112: the reply speaker rule) uses purpose `dm.narrate` ([[dm-runtime]]); no new purpose or migration.
+`dm.react-v6` (spec 112: the reply speaker rule; spec 114: the confirm target shapes) uses purpose `dm.narrate` ([[dm-runtime]]); no new purpose or migration.
+
+**Confirm targets** (spec 114, TASK-0336). `dm.react-v6` adds a `Targets (confirm items name only these)` section to the prompt, the target-ref shapes (`{kind, id}`, never a bare id) and a worked `EXAMPLE_CONFIRM`. `knownTargets` (`talk-turn.ts`) lists revealed zones, then present actors. `normalizeReact` runs as the `call.ts` `normalize` hook: a bare id string, or an object whose only key is `id`, that names exactly one known target becomes `{kind, id}`; unknown or ambiguous ids stay as written, so the schema fails and the re-ask runs ([[dm-failure-and-gates]]). `TalkResult.targetRepairs` counts the repairs in the parsing attempt. When a `talk` job fails for good, the worker posts a public `ai:dm` out-of-character `talk` row (`submitReadFailureNotice`, `READ_FAILURE_TEXT` in `nodes/resolve.ts`) asking the player to post again; a failed notice logs `dm.notice.failed`.

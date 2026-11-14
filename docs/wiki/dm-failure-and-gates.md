@@ -13,7 +13,7 @@ sources:
   - apps/server/src/dm/gates/plan-gate.ts
   - apps/server/src/dm/seed/schema.ts
   - specs/033-director-robustness/contracts/rules-terms.md
-verified_against: 5ba7f18bb95249307d50ce843a083392047107bd
+verified_against: 3ded4c07448d3ff8c11975b62d9201e1b727e47d
 ---
 
 # DM failure record and rules-term gates
@@ -36,7 +36,7 @@ holds `view`, `tokens`, `cap`, `actors`, `compressed` and the `node`; the runner
 `dm.node.state-overflow`; [[actor-snapshot]]) or `seed` (the bad-seed
 path, `detail: null`). The turn's `presenceSeq` sits beside `failure`. An `invalid-output` detail holds `purpose`, `promptVersion`, `issues` and
 one `AttemptExcerpt` per attempt (`outputTokens`, `chars`, `issues`, `excerpt`). `excerptOf`
-(`pipeline/call.ts`; a capped attempt settles as `truncated`, not `invalid-json`, and logs `dm.call.truncated`, TASK-0192, TASK-0273; a parsed reply that fails the schema settles `schema-mismatch`, TASK-0203) bounds each excerpt: text up to 8,000 characters whole, else the first
+(`pipeline/call.ts`; a capped attempt settles as `truncated`, not `invalid-json`, and logs `dm.call.truncated`, TASK-0192, TASK-0273; a parsed reply that fails the schema settles `schema-mismatch`, TASK-0203; a discriminated-union miss reads `field "<key>" is missing or invalid; use one of: <values>`, spec 114 FR-011, via `issueText`; when a `talk` job fails for good the worker also posts the public read-failure notice, see [[dm-talk-triggers]]) bounds each excerpt: text up to 8,000 characters whole, else the first
 6,000, an elision marker, the last 2,000. A think-only reply fails with `not valid JSON: the reply held only a think block`; its excerpt keeps the raw think block (TASK-0181). The parser also accepts one top-level JSON object inside prose, a fence or an unclosed think block, and every unparsable attempt logs a `dm.call.invalid-json` line, and every schema failure a `dm.call.schema-mismatch` line, with a 200-char head and tail (TASK-0203). The `dm.turn.failed` log line carries the detail
 without `attempts`, because they hold model text. `jobs.error` stays a fixed string
 ([[dm-turn-jobs]]).

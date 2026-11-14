@@ -42,25 +42,44 @@ const turnMode = (who: string | null) => ({
 describe("nextMove", () => {
   it("serves the free moves in order, then the fallback", () => {
     const ids: unknown[] = [];
-    for (let i = 0; i < 6; i++) {
+    for (let i = 0; i < 7; i++) {
       const m = nextMove(proj(), scenario, fresh({ freeIndex: i, moves: i }));
       if (m === "wait" || m === "done") throw new Error("unexpected");
       ids.push(m.actionId);
     }
     expect(ids).toEqual([
       "act-search",
+      "confirm-search",
       "deed-search",
       "deed-move",
       "act-persuade",
       "act-advance",
-      "pt-6",
+      "pt-7",
     ]);
+  });
+
+  it("passes `confirm` and `intent` through from the scenario move", () => {
+    const move = (i: number) => {
+      const m = nextMove(proj(), scenario, fresh({ freeIndex: i, moves: i }));
+      if (m === "wait" || m === "done") throw new Error("unexpected");
+      return m;
+    };
+    expect(move(1)).toMatchObject({
+      actionId: "confirm-search",
+      confirm: true,
+    });
+    expect(move(1).intent).toBeUndefined();
+    // OQ-4 ruling (a), 2026-11-14.
+    expect(move(2)).toMatchObject({ actionId: "deed-search", intent: true });
+    expect(move(3)).toMatchObject({ actionId: "deed-move", intent: true });
+    expect(move(0).confirm).toBeUndefined();
+    expect(move(0).intent).toBeUndefined();
   });
 
   it("plays the combat move only when the seat is active; the first uses firstActionId", () => {
     const p = (who: string | null) => proj({ tableMode: turnMode(who) });
     expect(nextMove(p("odo"), scenario, fresh())).toBe("wait");
-    expect(nextMove(p("tamsin"), scenario, fresh({ moves: 5 }))).toMatchObject({
+    expect(nextMove(p("tamsin"), scenario, fresh({ moves: 6 }))).toMatchObject({
       actionId: "act-strike",
       text: scenario.moves.combat.text,
     });
@@ -90,7 +109,7 @@ describe("fallback cycling and the stall stop", () => {
   const list = scenario.moves.fallback;
 
   it("cycles the fallback list without an immediate repeat", () => {
-    const state = fresh({ freeIndex: 5, moves: 5 });
+    const state = fresh({ freeIndex: 6, moves: 6 });
     const texts: string[] = [];
     for (let i = 0; i < list.length * 2; i++) {
       const m = nextMove(proj(), scenario, state);
@@ -110,7 +129,7 @@ describe("fallback cycling and the stall stop", () => {
     const m = nextMove(
       proj(),
       scenario,
-      fresh({ freeIndex: 5, fallbackIndex: 0, lastFallbackText: list[0].text }),
+      fresh({ freeIndex: 6, fallbackIndex: 0, lastFallbackText: list[0].text }),
     );
     expect(m).toMatchObject({ text: list[1].text });
   });
