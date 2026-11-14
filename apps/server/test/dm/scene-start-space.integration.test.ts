@@ -71,6 +71,40 @@ describe.skipIf(!reachable)(
       }
     });
 
+    it("replay (TASK-0334): the loft ladder way is hidden at scene start and joins the scene after the loft is revealed", async () => {
+      const w = await createWorld();
+      await startScene(w);
+      const sceneWays = async () =>
+        (await w.projections()).scene?.ways?.map((x) => x.label) ?? [];
+      expect(await sceneWays()).toEqual(["causeway downriver", "ferry"]);
+      const rows = await readRows(w);
+      expect(
+        JSON.stringify(rows.filter((r) => r.visibility !== "dm")),
+      ).not.toContain("ladder to the loft");
+
+      const r = await w.as(
+        { kind: "ai", actor: "ai:dm" },
+        {
+          kind: "intent",
+          intent: {
+            id: "reveal-loft",
+            kind: "reveal",
+            actor: { kind: "ai:dm" },
+            targets: [{ kind: "zone", id: "loft" }],
+            params: { to: "party" },
+            text: "The loft opens.",
+            source: "composer",
+            commit: "confirmed",
+          },
+        },
+      );
+      expect(r, JSON.stringify(r)).toMatchObject({ ok: true });
+      const map = (await w.projections()).spatial.map?.zones.map((z) => z.id);
+      expect(map).toContain("loft");
+      await resolveTurn(w, {});
+      expect(await sceneWays()).toContain("ladder to the loft");
+    });
+
     it("encounter start reveals the camp before the first public goblin row and gathers the party", async () => {
       const w = await createWorld({ dice: [15, 12, 9, 14, 11, 8, 6] });
       await startScene(w);

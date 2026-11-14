@@ -175,9 +175,8 @@ describe("opening scene (spec 091 D8)", () => {
     expect(scene.summary).toBe(seed.goal.statement);
     expect(scene.location).toBe(seed.location.name);
   });
-  it("carries the three duo ways and four-field cast", () => {
+  it("carries the two visible duo ways (the loft ladder waits on its reveal) and four-field cast", () => {
     expect(scene.ways?.map((w) => w.label)).toEqual([
-      "ladder to the loft",
       "causeway downriver",
       "ferry",
     ]);

@@ -12,6 +12,7 @@ import {
 } from "@the-stacks/session-model";
 import { SpaceSchema, ZoneIdSchema } from "@the-stacks/space";
 import { z } from "zod";
+import { namesZone } from "../narration-check.js";
 import { SkillSchema } from "../nodes/schemas.js";
 
 /**
@@ -129,7 +130,11 @@ export const SceneSeedSchema = z
       }),
       hooks: z.object({ secrets: z.array(Text(300)).max(8) }),
       /** Spec 091 D2: the exits a player can take, as composer text forms. */
-      ways: z.array(WaySchema).max(6).default([]),
+      // TASK-0334: `after` gates a way on a zone's reveal; players see it once that zone is on their map.
+      ways: z
+        .array(WaySchema.extend({ after: ZoneIdSchema.optional() }))
+        .max(6)
+        .default([]),
     }),
     beats: z
       .array(
@@ -252,15 +257,29 @@ export const SceneSeedSchema = z
           path: ["location", "ways", i, "draft"],
           message,
         });
+      // TASK-0334: a way whose label or draft names a hidden zone leaks it, unless gated on that zone.
+      for (const z of seed.space?.zones ?? []) {
+        if (!z.hidden || z.id === seed.space?.start || way.after === z.id)
+          continue;
+        const text = `${way.label}\n${way.draft}`;
+        if (namesZone(text, z.name) || namesZone(text, z.id))
+          bad(`way names hidden zone ${z.id}; gate it with "after"`);
+      }
       if (!r.ok) {
         bad(`way draft does not parse: ${r.refusal.message}`);
         return;
       }
+      if (way.after && seed.space && !zones.has(way.after))
+        bad(`way is gated on unknown zone ${way.after}`);
       if (r.intent.kind !== "move") return;
       for (const t of r.intent.targets ?? []) {
         if (t.kind === "zone" && seed.space && !zones.has(t.id))
           bad(`way moves into unknown zone ${t.id}`);
-        else if (t.kind === "zone" && zones.get(t.id)?.hidden)
+        else if (
+          t.kind === "zone" &&
+          zones.get(t.id)?.hidden &&
+          way.after !== t.id
+        )
           bad(`way moves into hidden zone ${t.id}`);
       }
     });

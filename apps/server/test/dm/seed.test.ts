@@ -656,6 +656,30 @@ describe("seed ways (spec 091 D2, DA4)", () => {
     });
     expect(issues.join("\n")).toContain("hidden zone");
   });
+  it("refuses a /do way whose label or draft names a hidden zone (TASK-0334)", () => {
+    const draft = issuesFor((s) => {
+      delete s.location.ways[0].after;
+    });
+    expect(draft.join("\n")).toContain("names hidden zone loft");
+    const label = issuesFor((s) => {
+      s.location.ways[1].label = "back to the LOFT";
+    });
+    expect(label.join("\n")).toContain("names hidden zone loft");
+  });
+  it("accepts a hidden-zone way gated on that zone and hides it until the reveal", () => {
+    const seed = parseSeed(raw());
+    expect(seed.location.ways[0]?.after).toBe("loft");
+    const start = playerFacingSeed(seed).location.ways.map((w) => w.label);
+    expect(start).toEqual(["causeway downriver", "ferry"]);
+    const shown = playerFacingSeed(seed, new Set(["loft"])).location.ways;
+    expect(shown.map((w) => w.label)).toContain("ladder to the loft");
+  });
+  it("refuses a way gated on a zone the seed lacks", () => {
+    const issues = issuesFor((s) => {
+      s.location.ways[0].after = "nowhere";
+    });
+    expect(issues.join("\n")).toContain("gated on unknown zone");
+  });
   it("refuses a way that moves into a zone the seed lacks", () => {
     const issues = issuesFor((s) => {
       s.location.ways[1].draft = "/move #nowhere";

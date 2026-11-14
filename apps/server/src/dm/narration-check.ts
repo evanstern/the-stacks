@@ -53,6 +53,14 @@ export interface CheckIssue {
 const escapeRe = (s: string): string =>
   s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
+/** True when `text` holds `name` as a whole word, case-insensitive. Shared by the seed way check. */
+export function namesZone(text: string, name: string): boolean {
+  return new RegExp(
+    `(?<![\\p{L}\\p{N}_])${escapeRe(name)}(?![\\p{L}\\p{N}_])`,
+    "iu",
+  ).test(text);
+}
+
 const NEGATION_RE = new RegExp(
   `(?<![\\p{L}])(?:${NEGATIONS.map(escapeRe).join("|")})(?![\\p{L}])`,
   "iu",
@@ -187,12 +195,7 @@ export function checkNarration(input: CheckInput): CheckIssue[] {
         break;
       }
       for (const z of fogged) {
-        if (
-          new RegExp(
-            `(?<![\\p{L}\\p{N}_])${escapeRe(z.name)}(?![\\p{L}\\p{N}_])`,
-            "iu",
-          ).test(masked)
-        )
+        if (namesZone(masked, z.name))
           push(
             "leak",
             "fogged-zone",
