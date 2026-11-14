@@ -4,6 +4,7 @@ title: Automated combat smoke run on hosted dev
 status: To Do
 assignee: []
 created_date: '2026-11-14T02:29:00Z'
+updated_date: '2026-11-14T14:42:00Z'
 labels:
   - playtest
   - ws:tooling
@@ -31,3 +32,9 @@ Replan 2026-11-13 wave 2 (operator: 'Approved, but automate the tests'). Replace
 - [ ] #1 All tests and checks run green
 - [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Ceiling (operator, 2026-11-14, in chat): "$15, same as last". Recorded on TASK-0278.
+<!-- SECTION:NOTES:END -->
