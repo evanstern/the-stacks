@@ -4,7 +4,7 @@ title: Quoted NPC dialogue can name absent or unmet actors
 status: In Progress
 assignee: []
 created_date: '2026-11-14T02:14:00Z'
-updated_date: '2026-11-14T08:02:00Z'
+updated_date: '2026-11-14T08:11:00Z'
 labels:
   - playtest
   - ws:narration
@@ -58,4 +58,6 @@ Spec 112 committed (cfb80e55). Spec open questions carded on main: OQ-1 TASK-033
 spec-bridge sync: Knowledge model and the speech check (US1, US2, AC #1): 0/9 · Prompts see only met names (US3, AC #2): 0/5 · Auditor mirrors the runtime rule (US4, card note): 0/3 · Wiki re-pin: 0/3
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5 (phase 1)
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5 (phase 2)
 <!-- SECTION:NOTES:END -->
