@@ -4,7 +4,7 @@ title: Intent settled by an AI-seat ruling is never narrated
 status: In Progress
 assignee: []
 created_date: '2026-11-14T02:22:00Z'
-updated_date: '2026-11-14T05:57:00Z'
+updated_date: '2026-11-14T06:00:00Z'
 labels:
   - playtest
   - ws:narration
@@ -62,5 +62,8 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-
 Parent condition 2026-11-14: before PR, run web suites (node --test and vitest) 3x on the final tree; explain any failure (name+error; known flake named, new one carded or fixed here); note result in PR body.
 
 Phase 4 done (ae7adc72): /search #ferry-house and /move #causeway in greyhollow-ford.json, deeds-narrated passes on all 10 segments in CI. Separate test/dm/scripts/greyhollow-ford-deeds.json accepted (keeps scene.integration.test.ts pin on -full). No D7 fallback needed.
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5
+
+Phase 5 wiki done (8719d39d): 6 prose, 4 re-pin. Web suites 3x clean on final tree; 20x node --test clean; one-off phase-3 failure carded TASK-0344.
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
