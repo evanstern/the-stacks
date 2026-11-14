@@ -4,7 +4,7 @@ title: dm.react confirm items fail schema on Intent targets
 status: In Progress
 assignee: []
 created_date: '2026-11-14T02:18:00Z'
-updated_date: '2026-11-14T07:43:00Z'
+updated_date: '2026-11-14T08:03:00Z'
 labels:
   - playtest
   - ws:narration
@@ -54,5 +54,8 @@ Phase 1 done (612f4dc1, 2b973e7a): dm.react-v5, normalizeReact, replay of both f
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5
 
 Phase 2 done (3c45733a): public ai:dm ooc read-failure notice on failed talk turns; parseAgainst names missing kind; ci:check green, latency PASS, ai-round 850 ms.
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5
+
+Phase 3 done (414c2e69): confirm-search CI deed (bare-id target, exercises repair); driver passes intent+confirm (OQ-4 (a)), test proves intent turns make only dm.narrate; negative proof: normalizeReact stubbed -> playtest integration fails. write-boundary test now allows playtest/harness.ts (scripted seat) to build action.accept; flag for PR review.
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
