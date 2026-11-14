@@ -4,7 +4,7 @@ title: Intent settled by an AI-seat ruling is never narrated
 status: In Progress
 assignee: []
 created_date: '2026-11-14T02:22:00Z'
-updated_date: '2026-11-14T02:31:00Z'
+updated_date: '2026-11-14T05:04:00Z'
 labels:
   - playtest
   - ws:narration
@@ -44,4 +44,7 @@ Spec: specs/111-ruling-narration
 Knock-on effect (session 0106e608, seq 45-51): the next deed, /move #causeway, settled and queued an intent turn (job c3d842c0). Its narrate window picked up the stranded search facts and narrated only the search (seq 51). The move got no prose and no fact row, so every narration lands one deed late. Add an AC: a window holding several settled Intents narrates each, and the latest deed is never dropped.
 
 Claimed 2026-11-13 by the R1 sweep (docs/design/r1-fast-table-runbook.md). Worktree .worktrees/task-0337, branch task-0337-ruling-narration, cut from origin/main 594dd99a. Spec number 111 claimed with a stub.
+
+Spec 111 authored (4c2e081f): fix in runner + narrate window via dm/deeds.ts; enqueue unchanged. Phases 1-5.
+Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=cc/claude-opus-5-5
 <!-- SECTION:NOTES:END -->
