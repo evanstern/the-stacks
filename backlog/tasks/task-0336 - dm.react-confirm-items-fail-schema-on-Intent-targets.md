@@ -35,6 +35,7 @@ Spec: specs/114-react-confirm-targets
 - [ ] #6 Spec phase: Prompt, repair and the test-drive replay (FR-001–FR-007; AC #1, #2)
 - [ ] #7 Spec phase: Read-failure notice and re-ask text (FR-008–FR-011; AC #3, brief item 5)
 - [ ] #8 Spec phase: CI scenario confirm deed (FR-012–FR-015; AC #4)
+- [ ] #9 Spec phase: Wiki
 <!-- AC:END -->
 
 ## Definition of Done
