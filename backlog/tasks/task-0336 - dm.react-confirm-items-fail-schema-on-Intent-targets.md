@@ -33,6 +33,7 @@ Spec: specs/114-react-confirm-targets
 - [x] #4 The scripted CI playtest scenario includes a free-mode targeted deed through dm.react confirm, so a confirm-schema regression fails CI.
 - [x] #5 The scripted CI scenario deeds marked intent take the direct-Intent path (driver passes Move.intent through), with a test proving no interpret call for them (spec 114 OQ-4, ruling (a))
 - [ ] #6 Spec phase: Prompt, repair and the test-drive replay (FR-001–FR-007; AC #1, #2)
+- [ ] #7 Spec phase: Read-failure notice and re-ask text (FR-008–FR-011; AC #3, brief item 5)
 <!-- AC:END -->
 
 ## Definition of Done
