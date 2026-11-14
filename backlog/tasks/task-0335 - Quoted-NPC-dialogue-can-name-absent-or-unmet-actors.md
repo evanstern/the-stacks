@@ -28,7 +28,7 @@ Spec: specs/112-dialogue-knowledge
 <!-- AC:BEGIN -->
 - [x] #1 The leak check runs on quoted NPC dialogue for absent and unmet actors and hidden zones, and drops or corrects the sentence, with a test built from this transcript.
 - [x] #2 Companion prompts receive no actor name the party has not met, with a test.
-- [ ] #3 Spec phase: Knowledge model and the speech check (US1, US2, AC #1)
+- [x] #3 Spec phase: Knowledge model and the speech check (US1, US2, AC #1)
 - [ ] #4 Spec phase: Prompts see only met names (US3, AC #2)
 - [ ] #5 Spec phase: Auditor mirrors the runtime rule (US4, card note)
 - [ ] #6 Spec phase: Wiki re-pin
