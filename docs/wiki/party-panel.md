@@ -10,7 +10,7 @@ sources:
   - apps/web/app/play/components/margin.tsx
   - packages/session-model/src/events/party.ts
   - apps/server/src/dm/nodes/resolve.ts
-verified_against: cd1651916ec175a131a0dcd99f48590f7e96ab21
+verified_against: 602d2ea1ff3d52b2cf12c01d3486d05e1019e6f5
 ---
 
 # Party panel
