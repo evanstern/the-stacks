@@ -4,7 +4,7 @@ title: Intent settled by an AI-seat ruling is never narrated
 status: In Progress
 assignee: []
 created_date: '2026-11-14T02:22:00Z'
-updated_date: '2026-11-14T06:00:00Z'
+updated_date: '2026-11-14T06:04:00Z'
 labels:
   - playtest
   - ws:narration
@@ -66,4 +66,6 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-
 
 Phase 5 wiki done (8719d39d): 6 prose, 4 re-pin. Web suites 3x clean on final tree; 20x node --test clean; one-off phase-3 failure carded TASK-0344.
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5
+
+Phase 5 dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5 (recorded above). Main merged (5ba7f18b): pin-only conflicts in five notes; 0334 ways prose restored by three-way merge (a8 follow-up commit); freshness OK, plan empty, spec-bridge 0, boundaries 28/28.
 <!-- SECTION:NOTES:END -->
