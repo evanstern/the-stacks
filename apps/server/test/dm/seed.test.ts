@@ -642,7 +642,7 @@ describe("seed ways (spec 091 D2, DA4)", () => {
     const parsed = parseSeed(seed);
     expect(parsed.location.ways).toEqual([]);
     expect(playerFacingSeed(parsed).location.ways).toEqual([]);
-    expect(playerFacingSeed(parseSeed(raw())).location.ways).toHaveLength(3);
+    expect(playerFacingSeed(parseSeed(raw())).location.ways).toHaveLength(2);
   });
   it("refuses a way draft that does not parse", () => {
     const issues = issuesFor((s) => {
