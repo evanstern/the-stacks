@@ -153,7 +153,8 @@ export async function callJson<T>(
 2. Join the text events. An `error` event returns `gateway` with the event's kind.
 3. Strip one surrounding code fence, `JSON.parse`, then `schema.safeParse`.
 4. On failure, re-ask once: append the model's text as `assistant` and the parse issues as
-   `user`. A second failure returns `invalid-output`.
+   `user`. A second failure returns `invalid-output`. An issue with a `discriminator` renders as
+   `<path>: field "<discriminator>" is missing or invalid; use one of: <options>` (TASK-0336, spec 114 FR-011).
 
 `callText` is the same without steps 3–4 (narrate's prose).
 

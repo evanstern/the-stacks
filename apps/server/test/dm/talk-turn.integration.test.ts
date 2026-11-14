@@ -1,6 +1,7 @@
 import { afterAll, describe, expect, it } from "vitest";
 import { enqueueTurn, listDmJobs } from "../../src/dm/jobs.js";
 import { assemble } from "../../src/dm/nodes/assemble.js";
+import { READ_FAILURE_TEXT } from "../../src/dm/nodes/resolve.js";
 import { PURPOSE_OF } from "../../src/dm/purposes.js";
 import { legalEscalation, runTalkTurn } from "../../src/dm/talk-turn.js";
 import {
@@ -483,6 +484,36 @@ async function readAt(
 }
 
 describe.skipIf(!reachable)("the read: confirm and answer (spec 066)", () => {
+  it("two schema failures fail the talk job and post the public read-failure notice (spec 114 SC-004)", async () => {
+    const bad = {
+      purpose: "dm.narrate",
+      respond: { type: "json", value: { outcome: "bogus" } },
+    };
+    const { w, worker } = await table([bad, bad]);
+    const before = (await readRows(w)).length;
+    await say(w, "I look for the cellar door.");
+    await drainAll(worker);
+    const [job] = await talkJobs(w);
+    expect(job?.status).toBe("failed");
+    const talks = (await readRows(w))
+      .slice(before)
+      .filter((r) => r.type === "talk" && r.actor === "ai:dm")
+      .map((r) => ({
+        text: payloadOf<{ text: string; channel: string }>(r).text,
+        channel: payloadOf<{ channel: string }>(r).channel,
+        visibility: r.visibility,
+      }));
+    const readNotice = talks.filter((t) => t.text === READ_FAILURE_TEXT);
+    expect(readNotice).toEqual([
+      { text: READ_FAILURE_TEXT, channel: "ooc", visibility: "public" },
+    ]);
+    expect(
+      talks.filter(
+        (t) => t.visibility === "dm" && t.text.startsWith("The DM runtime"),
+      ),
+    ).toHaveLength(1);
+  });
+
   it("a model confirm ships one action.suggested row with a declared Intent, no state change", async () => {
     const s = script("talk-confirm.json");
     const { w, worker } = await table(s.calls);

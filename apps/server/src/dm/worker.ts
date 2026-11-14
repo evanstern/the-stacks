@@ -41,7 +41,11 @@ import { check } from "./nodes/check.js";
 import { director } from "./nodes/director.js";
 import { interpret } from "./nodes/interpret.js";
 import { narrate } from "./nodes/narrate.js";
-import { resolve, submitFailureNotice } from "./nodes/resolve.js";
+import {
+  resolve,
+  submitFailureNotice,
+  submitReadFailureNotice,
+} from "./nodes/resolve.js";
 import type {
   NarrationPart,
   NodeDeps,
@@ -408,8 +412,20 @@ export function createDmWorker(deps: DmWorkerDeps): DmWorker {
         error: `stopped at ${outcome.node}: ${outcome.error.kind}`,
         result: failed,
       });
-      if (finished)
+      if (finished) {
         await notice(job.sessionId, outcome.node, outcome.error.kind);
+        if (job.input.trigger === "talk") {
+          try {
+            await submitReadFailureNotice(deps, job.sessionId);
+          } catch (error) {
+            log({
+              event: "dm.notice.failed",
+              sessionId: job.sessionId,
+              message: error instanceof Error ? error.message : String(error),
+            });
+          }
+        }
+      }
       return;
     }
 

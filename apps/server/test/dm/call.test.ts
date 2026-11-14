@@ -135,6 +135,26 @@ describe("callJson", () => {
     expect(second[2]?.content).toContain("rejected");
   });
 
+  it("names a missing or wrong discriminator and lists the allowed kinds (spec 114 SC-005)", async () => {
+    const Union = z.object({
+      t: z.array(
+        z.discriminatedUnion("kind", [
+          z.object({ kind: z.literal("a") }),
+          z.object({ kind: z.literal("b") }),
+        ]),
+      ),
+    });
+    const { gateway, requests } = gatewayOf([
+      text('{"t":[{}]}'),
+      text('{"t":[{"kind":"a"}]}'),
+    ]);
+    const r = await callJson({ gateway }, { ...req(), schema: Union });
+    expect(r.ok).toBe(true);
+    expect(requests[1]?.messages[2]?.content).toContain(
+      't.0.kind: field "kind" is missing or invalid; use one of: a, b',
+    );
+  });
+
   it("returns invalid-output after a second failure", async () => {
     const { gateway, requests } = gatewayOf([text('{"n":"x"}'), text("{}")]);
     const r = await callJson({ gateway }, req());

@@ -17,13 +17,13 @@ Do not edit `nodes/schemas.ts`, `packages/intent`, `dm/enqueue.ts`, `dm/deeds.ts
 
 ## Phase 2: Read-failure notice and re-ask text (FR-008–FR-011; AC #3, brief item 5)
 
-- [ ] T008 In `nodes/resolve.ts`, add `READ_FAILURE_TEXT` and `submitReadFailureNotice` beside `submitFailureNotice` (plan D3).
-- [ ] T009 In `worker.ts`, call it after the `dm` notice when the failed job's trigger is `talk`, inside the `dm.notice.failed` try/log pattern.
-- [ ] T010 In `pipeline/call.ts` `parseAgainst`, render discriminator issues per plan D4. Read the installed zod issue shape first.
-- [ ] T011 Extend `test/dm/call.test.ts` per SC-005.
-- [ ] T012 Extend `test/dm/talk-turn.integration.test.ts` with the failure case: an unknown id twice, the job fails, the player projection holds the FR-008 row, and the DM projection holds both notices (SC-004).
-- [ ] T013 Extend `apps/web/test/play/view-model.test.mjs`: a public `ai:dm` `ooc` talk row is an `aside` in a player's model.
-- [ ] T014 Amend `specs/031-dm-runtime/contracts/resolve.md` (proposal table), `turn-jobs.md` (failed outcome) and `node-seam.md` ("Model calls": re-ask issue text).
+- [x] T008 In `nodes/resolve.ts`, add `READ_FAILURE_TEXT` and `submitReadFailureNotice` beside `submitFailureNotice` (plan D3).
+- [x] T009 In `worker.ts`, call it after the `dm` notice when the failed job's trigger is `talk`, inside the `dm.notice.failed` try/log pattern.
+- [x] T010 In `pipeline/call.ts` `parseAgainst`, render discriminator issues per plan D4. Read the installed zod issue shape first.
+- [x] T011 Extend `test/dm/call.test.ts` per SC-005.
+- [x] T012 Extend `test/dm/talk-turn.integration.test.ts` with the failure case: an unknown id twice, the job fails, the player projection holds the FR-008 row, and the DM projection holds both notices (SC-004).
+- [x] T013 Extend `apps/web/test/play/view-model.test.mjs`: a public `ai:dm` `ooc` talk row is an `aside` in a player's model.
+- [x] T014 Amend `specs/031-dm-runtime/contracts/resolve.md` (proposal table), `turn-jobs.md` (failed outcome) and `node-seam.md` ("Model calls": re-ask issue text).
 
 ## Phase 3: CI scenario confirm deed (FR-012–FR-015; AC #4)
 

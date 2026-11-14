@@ -1620,3 +1620,20 @@ export async function submitFailureNotice(
   } satisfies Proposal);
   return res.ok;
 }
+
+export const READ_FAILURE_TEXT =
+  "The DM could not answer your last post. Please post it again.";
+
+/** The player-facing notice for a failed talk (react) turn: a public `ai:dm` out-of-character row. */
+export async function submitReadFailureNotice(
+  deps: Pick<TurnContext["deps"], "gate">,
+  sessionId: string,
+): Promise<boolean> {
+  const res = await deps.gate.submit(sessionId, AI_DM, {
+    kind: "talk",
+    ...note("DM read failure notice", READ_FAILURE_TEXT),
+    talk: { text: READ_FAILURE_TEXT, channel: "ooc", characterId: null },
+    visibility: "public",
+  } satisfies Proposal);
+  return res.ok;
+}
