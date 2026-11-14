@@ -17,11 +17,11 @@ Do not edit `dm/enqueue.ts`, `dm/rulings.ts`, `dm/intent-runner.ts` or `gate/`.
 
 ## Phase 2: Runner rule and the test-drive replay (FR-004, FR-005; AC #1, #2, note AC)
 
-- [ ] T008 In `pipeline/runner.ts`, replace the `trigger !== "intent"` empty-beat exemption with the `pendingDeeds` rule, and the Director skip with the `deedPass` flag (plan D2).
-- [ ] T009 Extend `test/dm/runner.test.ts` with the plan D8 runner cases.
-- [ ] T010 Write `test/dm/ruling-narration.integration.test.ts`: the replay steps 1–6 of plan D8 (declared → confirm → 👍 → needs_ruling → ruling → narration, then the move).
-- [ ] T011 Add to the same file the stranded two-deed case (step 7) and the human-DM case (step 8).
-- [ ] T012 Amend `specs/031-dm-runtime/contracts/node-seam.md` "Steps" 1 and `specs/098-fact-sheet/contracts/fact-sheet.md` §2 and §3 (row kind `deed`).
+- [x] T008 In `pipeline/runner.ts`, replace the `trigger !== "intent"` empty-beat exemption with the `pendingDeeds` rule, and the Director skip with the `deedPass` flag (plan D2).
+- [x] T009 Extend `test/dm/runner.test.ts` with the plan D8 runner cases.
+- [x] T010 Write `test/dm/ruling-narration.integration.test.ts`: the replay steps 1–6 of plan D8 (declared → confirm → 👍 → needs_ruling → ruling → narration, then the move).
+- [x] T011 Add to the same file the stranded two-deed case (step 7) and the human-DM case (step 8).
+- [x] T012 Amend `specs/031-dm-runtime/contracts/node-seam.md` "Steps" 1 and `specs/098-fact-sheet/contracts/fact-sheet.md` §2 and §3 (row kind `deed`).
 
 ## Phase 3: Auditor check `deeds-narrated` (FR-009, FR-010; AC #3 negative proof)
 

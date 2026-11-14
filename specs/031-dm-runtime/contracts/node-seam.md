@@ -116,7 +116,9 @@ export type TurnOutcome =
 Steps:
 
 1. Run `assemble`. If its beat is empty, its `npcTurn` is null, and the trigger is not
-   `scene-start`, return `empty-beat`.
+   `scene-start`: a `talk` trigger runs the talk read; any other trigger returns `empty-beat`
+   unless `pendingDeeds(ctx)` is non-empty (TASK-0337, spec 111). With pending deeds the turn
+   proceeds as a deed pass: code supplies the stay-put Director output, so no Director call runs.
 2. For each remaining node in `NODE_NAMES` order:
    1. Check the fence with `deps.fence()`. On `false`, return `failed` with kind `fenced`.
    2. Write the job stage (fenced). On `false`, return `failed` with kind `fenced`.

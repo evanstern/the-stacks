@@ -315,7 +315,15 @@ describe("runTurn", () => {
     expect(spy.order).toEqual(["assemble"]);
   });
 
-  it.each(["commit", "approval", "npc-turn", "manual", "reconcile"] as const)(
+  it.each([
+    "commit",
+    "approval",
+    "npc-turn",
+    "manual",
+    "reconcile",
+    "ruling",
+    "intent",
+  ] as const)(
     "still returns empty-beat for the %s trigger",
     async (trigger) => {
       const spy = stubNodes({ assemble: assembled({ beat: [] }) });
@@ -323,6 +331,70 @@ describe("runTurn", () => {
       expect(outcome).toEqual({ status: "empty-beat" });
     },
   );
+
+  describe("spec 111: a pending deed keeps an empty beat alive", () => {
+    const carrier = (seq: number, over: Record<string, unknown> = {}) =>
+      ({
+        sessionId: "",
+        seq,
+        actor: "user-tamsin",
+        type: "intent.recorded",
+        payload: {
+          intent: {
+            id: `i-${seq}`,
+            kind: "search",
+            actor: { kind: "pc", id: "tamsin" },
+            targets: [],
+            params: {},
+            source: "composer",
+            commit: "confirmed",
+          },
+          outcome: "settled",
+          batchId: "b1",
+          answers: null,
+          stopped: null,
+          ...over,
+        },
+        payloadVersion: 1,
+        visibility: "public",
+        ts: "2026-11-11T00:00:00.000Z",
+      }) as never;
+    const withRows = (rows: unknown[], trigger: string) =>
+      makeCtx({
+        job: { trigger } as never,
+        deps: {
+          loadProjections: async () =>
+            ({ ...projectDm([]), throughSeq: 9 }) as never,
+          loadEvents: async (_s: string, w: { types?: readonly string[] }) =>
+            (w.types?.includes("narration") ? [] : rows) as never,
+        },
+      });
+
+    it.each(["ruling", "approval", "commit", "intent"] as const)(
+      "proceeds on the %s trigger when a deed is pending",
+      async (trigger) => {
+        const spy = stubNodes({ assemble: assembled({ beat: [] }) });
+        const outcome = await runTurn(
+          withRows([carrier(5)], trigger),
+          spy.nodes,
+        );
+        expect(outcome.status).toBe("completed");
+        // deed pass: the Director is skipped by code
+        expect(spy.order).not.toContain("director");
+        expect(spy.order).toContain("narrate");
+      },
+    );
+
+    it.each(["ruling", "approval", "commit", "intent"] as const)(
+      "returns empty-beat on the %s trigger with no deed",
+      async (trigger) => {
+        const spy = stubNodes({ assemble: assembled({ beat: [] }) });
+        const outcome = await runTurn(withRows([], trigger), spy.nodes);
+        expect(outcome).toEqual({ status: "empty-beat" });
+        expect(spy.order).toEqual(["assemble"]);
+      },
+    );
+  });
 
   it("does not treat an empty beat as empty on scene start", async () => {
     const spy = stubNodes({ assemble: assembled({ beat: [] }) });
