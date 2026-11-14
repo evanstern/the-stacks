@@ -43,8 +43,8 @@ Do not edit `dm/enqueue.ts`, `dm/rulings.ts`, `dm/intent-runner.ts` or `gate/`.
 
 Re-pin honestly with `/grounding-wiki:wiki-update`. Notes whose `sources:` this card touches (NEEDS-REVIEW):
 
-- [ ] T023 `docs/wiki/dm-runtime.md` (`pipeline/runner.ts`, `nodes/narrate.ts`): the deed rule, `dm/deeds.ts`. Add `apps/server/src/dm/deeds.ts` to its sources.
-- [ ] T024 `docs/wiki/dm-narration-quality.md` (`facts.ts`, `fact-sheet.ts`, `prompts/narrate.ts`, `nodes/narrate.ts`): the deed row, `Direct action` line, `dm.narrate-v25` in the prompt-version ledger.
-- [ ] T025 `docs/wiki/playtest-harness.md` (`auditor/checks.ts`, `segments.ts`, `schema.ts`, `harness.ts`, `scenario.ts`, the scenario JSON, `playtest.integration.test.ts`): check `deeds-narrated`, Intent moves.
-- [ ] T026 Re-verify and re-pin the notes that list a touched file but need no prose change unless the diff says otherwise: `dm-turn-jobs.md`, `dm-failure-and-gates.md`, `dm-plan-gate.md`, `dm-talk-triggers.md` (`runner.ts`); `seed-npc-presence.md` (`nodes/narrate.ts`); `m2-demo.md` (scenario JSON, `playtest.integration.test.ts`); `play-route.md` (`narration-rows.ts`).
-- [ ] T027 Update `docs/wiki/CAPSULES.md` and `docs/wiki/INDEX.md` lines for the changed notes, including the `dm.narrate-v25` mention. Run the freshness gate (prints `OK`) and the spec-bridge gate (exits 0).
+- [x] T023 `docs/wiki/dm-runtime.md` (`pipeline/runner.ts`, `nodes/narrate.ts`): the deed rule, `dm/deeds.ts`. Add `apps/server/src/dm/deeds.ts` to its sources.
+- [x] T024 `docs/wiki/dm-narration-quality.md` (`facts.ts`, `fact-sheet.ts`, `prompts/narrate.ts`, `nodes/narrate.ts`): the deed row, `Direct action` line, `dm.narrate-v25` in the prompt-version ledger.
+- [x] T025 `docs/wiki/playtest-harness.md` (`auditor/checks.ts`, `segments.ts`, `schema.ts`, `harness.ts`, `scenario.ts`, the scenario JSON, `playtest.integration.test.ts`): check `deeds-narrated`, Intent moves.
+- [x] T026 Re-verify and re-pin the notes that list a touched file but need no prose change unless the diff says otherwise: `dm-turn-jobs.md`, `dm-failure-and-gates.md`, `dm-plan-gate.md`, `dm-talk-triggers.md` (`runner.ts`); `seed-npc-presence.md` (`nodes/narrate.ts`); `m2-demo.md` (scenario JSON, `playtest.integration.test.ts`); `play-route.md` (`narration-rows.ts`).
+- [x] T027 Update `docs/wiki/CAPSULES.md` and `docs/wiki/INDEX.md` lines for the changed notes, including the `dm.narrate-v25` mention. Run the freshness gate (prints `OK`) and the spec-bridge gate (exits 0).
