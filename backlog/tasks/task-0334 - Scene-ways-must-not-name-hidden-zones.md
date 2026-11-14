@@ -1,10 +1,10 @@
 ---
 id: TASK-0334
 title: Scene ways must not name hidden zones
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-11-13T20:28:00Z'
-updated_date: '2026-11-14T04:54:00Z'
+updated_date: '2026-11-14T05:07:00Z'
 labels:
   - playtest
   - ws:table-ux
@@ -30,8 +30,8 @@ Found in the 2026-11-13 R1 spine test drive (session 0106e608, seq 2). The publi
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
-- [ ] #1 All tests and checks run green
-- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
+- [x] #1 All tests and checks run green
+- [x] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
 
 ## Implementation Notes
@@ -43,3 +43,9 @@ Escape line E11 signed by the operator (2026-11-13, in chat, relayed by the R1 c
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Merged in PR #180 (263d7e4d) under escape line E11. Ways gain an optional after: <zoneId> gate. The seed check refuses a way whose label or draft names a hidden zone unless gated on it, and refuses an unknown after zone. Player-visible ways are fog-filtered (visibleWays), and the Director re-emits scene.changed when a reveal unlocks a way. The greyhollow-ford seeds gate the loft ladder on loft. Tests cover seed refusal, gated visibility and a greyhollow-ford replay. Nine wiki notes re-pinned. Open question (not carded): the re-emit compares way counts only.
+<!-- SECTION:FINAL_SUMMARY:END -->
