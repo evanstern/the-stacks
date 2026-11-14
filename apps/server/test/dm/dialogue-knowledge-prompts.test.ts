@@ -47,6 +47,7 @@ function prompts(seq: number, override?: string) {
     snapshot,
     posts: [],
     humans: [],
+    targets: [],
     triggers: [],
     transcriptTail: [],
     presentNpcIds: ["wenna"],
