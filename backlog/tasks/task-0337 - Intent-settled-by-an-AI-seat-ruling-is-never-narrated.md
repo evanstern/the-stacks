@@ -73,4 +73,6 @@ Phase 5 wiki done (8719d39d): 6 prose, 4 re-pin. Web suites 3x clean on final tr
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5
 
 Phase 5 dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5 (recorded above). Main merged (5ba7f18b): pin-only conflicts in five notes; 0334 ways prose restored by three-way merge (a8 follow-up commit); freshness OK, plan empty, spec-bridge 0, boundaries 28/28.
+
+spec-bridge sync: Deed test and narrate window: 7/7 · Runner rule and the test-drive replay: 5/5 · Auditor check deeds-narrated: 5/5 · CI scenario deeds: 5/5 · Wiki: 5/5 — status In Progress → Done. Merged PR #181 as 068762ae.
 <!-- SECTION:NOTES:END -->
