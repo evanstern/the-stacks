@@ -47,11 +47,40 @@ describe.skipIf(!reachable)("the CI playtest with its audit (AC #3)", () => {
       out,
     });
     expect(manifest.outcome).toBe("ended");
+    // FR-015: no refusals, and the confirm move shipped a search Intent with a zone target.
+    expect(manifest.moves.refusals).toEqual([]);
+    const transcript = readFileSync(join(out, "transcript.jsonl"), "utf8")
+      .trim()
+      .split("\n")
+      .map((l) => JSON.parse(l));
+    const searchItems = transcript
+      .filter((r) => r.type === "action.suggested")
+      .flatMap((r) => r.payload.items)
+      .filter((i: { intent: { kind: string } }) => i.intent.kind === "search");
+    expect(searchItems).toHaveLength(1);
+    expect(searchItems[0].intent.targets).toEqual([
+      { kind: "zone", id: "ferry-house" },
+    ]);
+    // OQ-4 ruling (a), 2026-11-14: the `intent: true` deeds run as direct Intents, so
+    // the two interpret calls left are the check moves (act-persuade, act-strike),
+    // and no turn job triggered by "intent" or its ruling spent an interpret call.
+    const jobs = JSON.parse(readFileSync(join(out, "jobs.json"), "utf8")) as {
+      trigger: string | null;
+      calls: { purpose: string }[];
+    }[];
+    expect(jobs.filter((j) => j.trigger === "intent")).not.toHaveLength(0);
+    for (const j of jobs.filter((j) => j.trigger === "intent")) {
+      expect(j.calls.map((c) => c.purpose)).toEqual(["dm.narrate"]);
+    }
+    const interprets = jobs
+      .flatMap((j) => j.calls)
+      .filter((c) => c.purpose === "dm.interpret");
+    expect(interprets).toHaveLength(4);
     const report = ReportSchema.parse(
       JSON.parse(readFileSync(join(out, "report.json"), "utf8")),
     );
     expect(report.verdict).toBe("pass");
-    expect(report.counts.segments).toBe(10);
+    expect(report.counts.segments).toBe(11);
     expect(report.counts.findings.fail).toBe(0);
     // TASK-0337: the two Intent deeds are told, and the check ran on every segment.
     for (const seg of report.segments) {

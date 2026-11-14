@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import type { Rng } from "@the-stacks/dnd5e-engine";
 import { parse } from "@the-stacks/intent";
-import type { Proposer } from "@the-stacks/session-model";
+import { type Proposer, suggestionState } from "@the-stacks/session-model";
 import type { FakeProvider } from "../ai/adapters/fake.js";
 import type { AiConfig } from "../ai/config.js";
 import { createGateway, type Gateway } from "../ai/gateway.js";
@@ -269,6 +269,8 @@ export async function runPlaytest(
     nudge: () => {},
     loadProjections: loadDm,
     loadSeed: (id) => loadSeed(id),
+    // The scripted seat has no one to wait for; a read window would leave the read unclaimed.
+    readWindowMs: () => 0,
   });
   gate.onAppended((sid, rows) => {
     void enqueuer.onAppended(sid, rows);
@@ -348,6 +350,61 @@ export async function runPlaytest(
     if (move.fallback) {
       state.fallbackIndex = (move.fallbackIndex ?? 0) + 1;
       state.lastFallbackText = move.text;
+    }
+    if (move.confirm) {
+      const parsed = parse(move.text, {
+        id: move.actionId ?? randomUUID(),
+        actor: { kind: "pc", id: scenario.seat.characterId },
+        source: "composer",
+        commit: "declared",
+      });
+      if (!parsed.ok) {
+        refusals.push({ moveIndex, code: parsed.refusal.code });
+        continue;
+      }
+      const sent = await gate.handle(sessionId, human, {
+        kind: "intent",
+        intent: parsed.intent,
+      } as never);
+      if (!sent.ok) {
+        refusals.push({ moveIndex, code: sent.refusal.code });
+        continue;
+      }
+      await settle();
+      await drainIdle(worker);
+      const after = await loadDm();
+      const live = after.suggestions.flatMap((sg) =>
+        sg.items
+          .filter(
+            (i) =>
+              "id" in i.intent.actor &&
+              i.intent.actor.id === scenario.seat.characterId &&
+              suggestionState(after, i.intent.id) === "live",
+          )
+          .map((i) => ({ suggestionId: sg.suggestionId, itemId: i.itemId })),
+      );
+      if (live.length === 0) {
+        refusals.push({ moveIndex, code: "NO_CONFIRM" });
+        continue;
+      }
+      let refused = false;
+      for (const a of live) {
+        const acc = await gate.handle(sessionId, human, {
+          kind: "action.accept",
+          ...a,
+        } as never);
+        if (!acc.ok) {
+          refusals.push({ moveIndex, code: acc.refusal.code });
+          refused = true;
+          break;
+        }
+      }
+      if (refused) continue;
+      committed += 1;
+      await settle();
+      await drainIdle(worker);
+      state.stallStreak = 0;
+      continue;
     }
     if (move.intent) {
       const parsed = parse(move.text, {

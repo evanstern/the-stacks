@@ -219,7 +219,7 @@ DO NOTHING`).
 | `completed`, free mode, `companionPrompts` non-empty | companion job `{ reason: "prompt" }` |
 | `completed`, narration applied | chronicle job |
 | `held` | companion job `{ reason: "hold", beatJobId }` |
-| `failed` | none; the failure notice is appended; the actions stay committed |
+| `failed` | none; the failure notice is appended (a `talk`-trigger job also appends the public read-failure notice, TASK-0336); the actions stay committed |
 
 ## Beats (AC #9)
 

@@ -17,6 +17,7 @@ import { buildNarratePrompt } from "../../src/dm/prompts/narrate.js";
 import { buildReactPrompt } from "../../src/dm/prompts/react.js";
 import { dmOnlySeedText, playerFacingSeed } from "../../src/dm/seed/views.js";
 import { buildSnapshot } from "../../src/dm/snapshot/index.js";
+import { knownTargets } from "../../src/dm/talk-turn.js";
 import { projectDm, row, testSeed } from "./helpers.js";
 import { EMPTY_RESOLVE_SNAPSHOT } from "./snapshot-fixtures.js";
 
@@ -153,6 +154,7 @@ const reactInput = () => ({
   snapshot,
   posts: [],
   humans: [],
+  targets: [],
   triggers: [],
   transcriptTail: [],
   presentNpcIds: [],
@@ -226,6 +228,7 @@ for (const reachesCap of [false, true]) {
         rule: 1,
       })),
       humans: [],
+      targets: knownTargets(snapshot),
       triggers: [{ kind: "addressed", actorId: "wenna", party: false }],
       transcriptTail: projections.transcript,
       presentNpcIds: ["wenna"],

@@ -127,7 +127,15 @@ export function nextMove(
   }
 
   const free = scenario.moves.free[state.freeIndex];
-  if (free) return { text: free.text, actionId: free.actionId ?? generated };
+  if (free) {
+    return {
+      text: free.text,
+      actionId: free.actionId ?? generated,
+      // OQ-4 ruling (a), 2026-11-14: `intent` passes through so slash deeds run as direct Intents.
+      ...(free.intent ? { intent: true as const } : {}),
+      ...(free.confirm ? { confirm: true as const } : {}),
+    };
+  }
   const list = scenario.moves.fallback;
   let i = state.fallbackIndex % list.length;
   if (list.length > 1 && list[i].text === state.lastFallbackText)

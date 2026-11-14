@@ -390,17 +390,14 @@ const partyRow = (seq, id, name, userId) => ({
     },
   },
 });
-const ocs = (through, viewer) =>
-  vm(
-    [
-      partyRow(1, "ana", "Ana", ANA),
-      partyRow(2, "bram", "Bram", BRAM),
-      ...oneChatStream.events
-        .filter((e) => e.seq <= through)
-        .map((e) => ({ ...e, seq: e.seq + 2 })),
-    ],
-    viewer,
-  );
+const rawOcs = (through) => [
+  partyRow(1, "ana", "Ana", ANA),
+  partyRow(2, "bram", "Bram", BRAM),
+  ...oneChatStream.events
+    .filter((e) => e.seq <= through)
+    .map((e) => ({ ...e, seq: e.seq + 2 })),
+];
+const ocs = (through, viewer) => vm(rawOcs(through), viewer);
 const confirms = (m) => m.transcript.filter((i) => i.kind === "confirm");
 
 test("confirm row: the item's controller can accept; others wait on her", () => {
@@ -528,4 +525,22 @@ test("an absence pass reads as an absence, not a skipped turn (spec 071)", () =>
     ).text,
     /turn$|floor$/,
   );
+});
+
+test("a public ai:dm ooc talk row is an aside in a player's model (spec 114)", () => {
+  const text = "The DM could not answer your last post. Please post it again.";
+  const m = ocs(13, ocsAna);
+  const row = {
+    ...oneChatStream.events[0],
+    seq: 99,
+    actor: "ai:dm",
+    type: "talk",
+    visibility: "public",
+    payload: { text, channel: "ooc", characterId: null },
+  };
+  const withRow = vm([...rawOcs(13), row], ocsAna);
+  assert.ok(
+    withRow.transcript.some((i) => i.kind === "aside" && i.text === text),
+  );
+  assert.ok(!m.transcript.some((i) => i.kind === "aside" && i.text === text));
 });

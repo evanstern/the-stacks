@@ -17,7 +17,7 @@ import {
 import { characterSections } from "./narrate.js";
 
 /** The talk-turn react prompt (specs/065-talk-triggers plan D4). Purpose `dm.narrate`. */
-export const PROMPT_VERSION = "dm.react-v4";
+export const PROMPT_VERSION = "dm.react-v5";
 
 export const CAP_LINE =
   "This reaction reaches the chain cap. Prompt no companion: leave companionPrompts empty, and end on a beat that hands the scene to the player characters.";
@@ -35,6 +35,17 @@ export const RULES = [
   "End on something that invites a response. Do not end with an either-or question.",
 ].join("\n");
 
+/** One worked confirm item (spec 114 FR-002). */
+export const EXAMPLE_CONFIRM = {
+  characterId: "tamsin",
+  text: "Tamsin searches the ferry house.",
+  body: {
+    kind: "search",
+    targets: [{ kind: "zone", id: "ferry-house" }],
+    params: { skill: "perception" },
+  },
+};
+
 const OUTPUT_SHAPE = [
   "Reply with ONE JSON object and nothing else:",
   '{"outcome":"none"|"reply"|"scene"|"escalate"|"confirm",',
@@ -43,9 +54,11 @@ const OUTPUT_SHAPE = [
   ' "text":str (1200 characters at most; empty for none),',
   ' "encounterId":id|null (required for escalate),',
   ' "companionPrompts":[id of a companion who should answer next] (2 at most),',
-  ' "confirm":[{"characterId":id|null,"text":str (500 at most),"body":{"kind":str,"targets":[],"params":{},"text":str (optional)}}] (4 at most; empty unless outcome is confirm),',
+  ' "confirm":[{"characterId":id|null,"text":str (500 at most),"body":{"kind":str,"targets":[ref],"params":{},"text":str (optional)}}] (4 at most; empty unless outcome is confirm),',
   ' "answer":str (1200 characters at most)|null (only for an ask_dm post),',
   ' "reason":str (300 characters at most)}',
+  'Target refs: {"kind":"zone","id":id} for a place, {"kind":"actor","id":id} for a character, {"kind":"entity","id":id}, {"kind":"item","id":id}. Use only ids listed under Targets. A target is never a bare id.',
+  `Example confirm: ${JSON.stringify(EXAMPLE_CONFIRM)}`,
 ].join("\n");
 
 export interface ReactPromptInput {
@@ -62,6 +75,8 @@ export interface ReactPromptInput {
   }[];
   /** The human-controlled characters a confirm item may name. */
   humans: readonly { id: string; name: string }[];
+  /** Revealed zones and present actors a confirm target may name (spec 114). */
+  targets: readonly { kind: "zone" | "actor"; id: string; name: string }[];
   triggers: readonly CodeTrigger[];
   transcriptTail: readonly TranscriptEntry[];
   presentNpcIds: readonly string[];
@@ -95,6 +110,7 @@ export function buildReactPrompt(input: ReactPromptInput): {
       `[${p.seq}] ${p.speaker}${p.rule === 3 ? " (ask_dm)" : ""}: ${p.text}`,
   );
   const humans = input.humans.map((h) => `${h.id} (${h.name})`);
+  const targets = input.targets.map((t) => `${t.id} (${t.kind}, ${t.name})`);
   const triggers = input.triggers.map(
     (t) => `${t.kind}: ${nameOf(t.actorId)} (${t.actorId})`,
   );
@@ -103,6 +119,7 @@ export function buildReactPrompt(input: ReactPromptInput): {
     ...characterSections(input.snapshot),
     section("Posts to react to", posts, 800, "start"),
     section("Human characters (confirm only these)", humans, 300, "end"),
+    section("Targets (confirm items name only these)", targets, 400, "end"),
     section("Code triggers", triggers, 400, "end"),
     section("Present characters", npcs, 800, "end"),
     section(

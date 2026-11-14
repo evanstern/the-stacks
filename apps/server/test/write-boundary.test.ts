@@ -84,7 +84,10 @@ describe("suggestion write boundary (spec 066, plan D2)", () => {
     expect(found.filter((f) => f !== "dm/talk-turn.ts")).toEqual([]);
   });
 
-  it("no src/ file builds an action.accept proposal", () => {
-    expect(buildersOf(/kind:\s*"action\.accept"/)).toEqual([]);
+  it("only playtest/harness.ts (the scripted seat) builds an action.accept proposal", () => {
+    // The playtest harness plays the human seat's thumbs-up (spec 114 `confirm` move); the DM never does.
+    expect(buildersOf(/kind:\s*"action\.accept"/)).toEqual([
+      "playtest/harness.ts",
+    ]);
   });
 });

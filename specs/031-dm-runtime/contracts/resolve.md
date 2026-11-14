@@ -205,7 +205,7 @@ The gate itself has no idempotency key. This contract adds none.
 | `journal` | rulings; the audit flag ([audit.md](audit.md)) |
 | `action.resolve` | each beat item |
 | `narration` | `submitNarration`, after audit ([audit.md](audit.md)) |
-| `talk` | the failure notice (FR-012), visibility `dm`, channel `ooc` |
+| `talk` | the failure notice (FR-012), visibility `dm`, channel `ooc`. A failed `talk`-trigger turn also gets the read-failure notice (TASK-0336, spec 114 FR-008): `READ_FAILURE_TEXT`, visibility `public`, channel `ooc`, from `ai:dm` |
 
 Every proposal uses the `ai:dm` proposer, `summary` (one line for a human DM's panel) and
 `rationale` (the node's reason), so a human seat sees why.
@@ -281,3 +281,7 @@ the `success` band and falls back from a null `severe` to `failure`. No effect o
 - The plan gate's `arriving` input and the opening arrivals group take `unconditional` only.
 - `landHeldArrivals` runs after the NPC group and before the closing moves. It lands a dependent arrival, with the same key `director:arrival:<id>` and the same proposal as an unconditional one, only when `bandTexts(stakes, band)` of a landed check names it. Otherwise it logs `dm.arrival.held` `{ jobId, npcId }` and writes no row.
 - A refused or awaiting check has no band, so its arrival is held.
+
+## Amendment 2026-11-14 (TASK-0336, specs/114-react-confirm-targets): read-failure notice
+
+`submitReadFailureNotice` (beside `submitFailureNotice`) submits one `talk` proposal from `ai:dm`: channel `ooc`, `characterId: null`, visibility `public`, text `READ_FAILURE_TEXT` ("The DM could not answer your last post. Please post it again."). The worker calls it after the `dm` notice when a failed turn's trigger is `talk`. Other triggers keep the `dm`-only notice.
