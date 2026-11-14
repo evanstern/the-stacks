@@ -4,7 +4,7 @@ title: Quoted NPC dialogue can name absent or unmet actors
 status: In Progress
 assignee: []
 created_date: '2026-11-14T02:14:00Z'
-updated_date: '2026-11-14T05:11:00Z'
+updated_date: '2026-11-14T05:13:00Z'
 labels:
   - playtest
   - ws:narration
@@ -28,6 +28,7 @@ Spec: specs/112-dialogue-knowledge
 <!-- AC:BEGIN -->
 - [ ] #1 The leak check runs on quoted NPC dialogue for absent and unmet actors and hidden zones, and drops or corrects the sentence, with a test built from this transcript.
 - [ ] #2 Companion prompts receive no actor name the party has not met, with a test.
+- [ ] #3 Spec phase: Knowledge model and the speech check (US1, US2, AC #1)
 <!-- AC:END -->
 
 ## Definition of Done
