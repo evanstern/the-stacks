@@ -4,7 +4,7 @@ title: dm.react confirm items fail schema on Intent targets
 status: Done
 assignee: []
 created_date: '2026-11-14T02:18:00Z'
-updated_date: '2026-11-14T08:19:00Z'
+updated_date: '2026-11-14T08:26:00Z'
 labels:
   - playtest
   - ws:narration
@@ -67,6 +67,8 @@ Phase 4 wiki done (ff16f811): 6 prose (incl. proposal-gate write boundary), 7 re
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5
 
 spec-bridge sync: Prompt, repair and the test-drive replay: 7/7 · Read-failure notice and re-ask text: 7/7 · CI scenario confirm deed: 7/7 · Wiki: 5/5 — status In Progress → Done. Merged PR #182 as 5bf731e2. AC #2 scope: repair covers zone and actor ids; item ids wait for an item list (spec 114 OQ-3, default kept by parent ruling).
+
+Deploy check 2026-11-14: vm-104 /health serves a335b1b6, which contains merge 5bf731e2. Worktree, branch and stack removed; env:prune --check: no orphans.
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
