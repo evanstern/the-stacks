@@ -4,7 +4,7 @@ title: dm.react confirm items fail schema on Intent targets
 status: In Progress
 assignee: []
 created_date: '2026-11-14T02:18:00Z'
-updated_date: '2026-11-14T07:15:00Z'
+updated_date: '2026-11-14T07:35:00Z'
 labels:
   - playtest
   - ws:narration
@@ -49,4 +49,7 @@ Spec 114 authored (323b0b43): dm.react-v5 target shape + Targets list; normalize
 Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=cc/claude-opus-5-5
 
 Parent rulings 2026-11-14: OQ-4 (a), fold the driver.ts intent pass-through and greyhollow-ford-deeds.json reorder into phase 3 (new AC); correction posted on PR #181. OQ-1 carded as TASK-0345. OQ-2, OQ-3 defaults stand.
+
+Phase 1 done (612f4dc1, 2b973e7a): dm.react-v5, normalizeReact, replay of both fc1f6c10 bodies; ci:check green, latency PASS, ai-round 865 ms.
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
