@@ -4,7 +4,7 @@ title: Automated combat smoke run on hosted dev
 status: In Progress
 assignee: []
 created_date: '2026-11-14T02:29:00Z'
-updated_date: '2026-11-15T21:38:00Z'
+updated_date: '2026-11-15T21:39:00Z'
 labels:
   - playtest
   - ws:tooling
@@ -66,4 +66,7 @@ Retest auditor (2026-11-15, C9 go given by the operator running the command): `n
 Hosted re-audit after TASK-0355 (PR #190, vm-104 at 6141feed; C9 go, operator: "Go, run audit"): `node dist/playtest/cli.js audit --session 6031b671-... --auditor none`. The export carries 577 of 577 jobs. deeds-narrated: 0 fails, so AC #2 is met. Verdict fail on other checks: dice-lines 3 (seq 158, 206, 248; TASK-0356), life-states 31 (TASK-0357, mostly in the TASK-0354 loop), dice-language 4 (all in the loop), 6 notes. Report /app/apps/server/.playtests/20261115T213727Z-session-6031b671/report.json.
 
 Hosted re-audit after TASK-0355 (PR #190, vm-104 at 6141feed; C9 go, operator: "Go, run audit"): `node dist/playtest/cli.js audit --session 6031b671-... --auditor none`. The export carries 577 of 577 jobs. deeds-narrated: 0 fails, so AC #2 is met. Verdict fail on other checks: dice-lines 3 (seq 158, 206, 248; TASK-0356), life-states 31 (TASK-0357, mostly in the TASK-0354 loop), dice-language 4 (seq 547, 582, 1977, 2012, all in the loop), 6 notes. Report /app/apps/server/.playtests/20261115T213727Z-session-6031b671/report.json.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5
+Retest log: docs/playtests/2026-11-15-combat-smoke-retest.md (25280b5a), written from the shared-notes facts file.
 <!-- SECTION:NOTES:END -->
