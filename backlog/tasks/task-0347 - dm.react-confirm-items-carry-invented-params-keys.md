@@ -4,7 +4,7 @@ title: dm.react confirm items carry invented params keys
 status: In Progress
 assignee: []
 created_date: '2026-11-15T03:19:00Z'
-updated_date: '2026-11-15T06:15:00Z'
+updated_date: '2026-11-15T06:21:00Z'
 labels:
   - playtest
   - ws:dm
@@ -24,14 +24,14 @@ Spec: specs/116-react-confirm-params
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 A confirm item whose params hold unknown keys is repaired or stripped in code before validation, or the prompt schema states the allowed params per kind
-- [ ] #2 A test covers a move confirm item with an invented params key
+- [x] #1 A confirm item whose params hold unknown keys is repaired or stripped in code before validation, or the prompt schema states the allowed params per kind
+- [x] #2 A test covers a move confirm item with an invented params key
 <!-- AC:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
-- [ ] #1 All tests and checks run green
-- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
+- [x] #1 All tests and checks run green
+- [x] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
 
 ## Implementation Notes
