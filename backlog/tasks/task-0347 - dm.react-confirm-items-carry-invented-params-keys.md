@@ -1,7 +1,7 @@
 ---
 id: TASK-0347
 title: dm.react confirm items carry invented params keys
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-11-15T03:19:00Z'
 updated_date: '2026-11-15T06:21:00Z'
@@ -51,3 +51,9 @@ Phase 3 wiki (T014-T018) landed f1bc7271; freshness OK, plan empty, spec-bridge 
 Merged origin/main (1c42b21e, TASK-0350 in), wiki re-pin d46d1bbc; all gates green on the merged tree. Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5
 Runbook row: Dispatch: tier=haiku pinned=cc/claude-haiku-5-5 served=cc/claude-haiku-5-5
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Prompt, strip, record and the hosted replay (AC #1, #2): 9/9 · CI scenario invented-params confirm (AC #2): 4/4 · Wiki: 5/5). Derived Done by spec-bridge sync. Merged in PR #187 (72339e4f): dm.react-v7 lists per-kind params; stripParams drops unknown params keys of strict kinds before validation, recorded as check.stripped; CI confirm-move deed replays invented ready/caution keys. Follow-ups TASK-0352, TASK-0353.
+<!-- SECTION:FINAL_SUMMARY:END -->
