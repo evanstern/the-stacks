@@ -23,7 +23,7 @@ Do not edit the runtime (spec FR-009), `auditor/checks.ts`, `dm/prompts/react.ts
 
 Re-pin honestly with `/grounding-wiki:wiki-update`. Notes whose `sources:` this card touches (NEEDS-REVIEW):
 
-- [ ] T009 `docs/wiki/playtest-harness.md` (`export.ts`, `auditor/audit.ts`, `auditor/segments.ts`, `cli.ts`): segments cut at each narration's facts window; `jobs.json` carries `factsThrough` and `narrationSeqs`.
-- [ ] T010 Re-verify and re-pin `docs/wiki/m2-demo.md` (`cli.ts`). Change prose only if the diff says otherwise.
-- [ ] T011 Add the new replay test to `docs/wiki/test-suite.md` beside the spec 108 `narration-stream-gate` line. Re-pin it if its sources list a touched file.
-- [ ] T012 Update the `playtest-harness` lines in `docs/wiki/CAPSULES.md` and `docs/wiki/INDEX.md`. Run the freshness gate (prints `OK`) and the spec-bridge gate (exits 0).
+- [x] T009 `docs/wiki/playtest-harness.md` (`export.ts`, `auditor/audit.ts`, `auditor/segments.ts`, `cli.ts`): segments cut at each narration's facts window; `jobs.json` carries `factsThrough` and `narrationSeqs`.
+- [x] T010 Re-verify and re-pin `docs/wiki/m2-demo.md` (`cli.ts`). Change prose only if the diff says otherwise.
+- [x] T011 Add the new replay test to `docs/wiki/test-suite.md` beside the spec 108 `narration-stream-gate` line. Re-pin it if its sources list a touched file.
+- [x] T012 Update the `playtest-harness` lines in `docs/wiki/CAPSULES.md` and `docs/wiki/INDEX.md`. Run the freshness gate (prints `OK`) and the spec-bridge gate (exits 0).

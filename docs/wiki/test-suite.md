@@ -23,6 +23,7 @@ sources:
   - apps/server/test/bench/load.integration.test.ts
   - apps/server/test/bench/load-db.integration.test.ts
   - apps/server/test/dm/scene.integration.test.ts
+  - apps/server/test/dm/deed-mid-narration.integration.test.ts
   - apps/server/test/playtest/harness.integration.test.ts
   - apps/server/test/playtest/provider.integration.test.ts
   - apps/server/package.json
@@ -34,7 +35,7 @@ sources:
   - apps/server/test/ai-round.bench-test.ts
   - tsconfig.json
 size_budget_exempt: spec 102 adds the server tsconfig reference to packages/intent in the one test-suite note; the suite map does not split without a TASK of its own
-verified_against: 3ded4c07448d3ff8c11975b62d9201e1b727e47d
+verified_against: 0c1bc53b5629154f7f9b55275f41d802561be986
 ---
 
 # Test suite
@@ -50,7 +51,7 @@ TASK-0048 added `test/playtest/` ([[playtest-harness]]): unit files, three datab
 TASK-0045 added gate suites at the same level: `gate.integration.test.ts` (incl. the absent-declare refusal and the presence-plus-order batch) and
 `gate.restart.integration.test.ts` (database-gated; approvals, restart) and `write-boundary.test.ts` (no database; AC #1 import-graph check, plus only `resolve.ts` and `intent-runner.ts` (spec 104) build `scene-presence` and only `dm/floor.ts` builds `floor` proposals, [[turn-floor]]; spec 066 adds two pins: only `dm/talk-turn.ts` builds an `action.suggest` proposal and only `playtest/harness.ts`, the scripted seat, builds `action.accept`, spec 114). It extended `events.integration.test.ts` (`expectedLastSeq`,
 `SeqConflictError`, `readLatestOfType`), `ws.integration.test.ts` (per-viewer delivery, the
-send-path classification, `UNKNOWN_EVENT_TYPE`, error `code`; `sendTalkAndAwait` no longer resends on `CONFLICT`) and `ws.subscribe.test.ts` (the DM-seat subscribe race). Spec 108 adds `ws.narration-stream.integration.test.ts` (per-viewer parts, late-joiner replay after `replay-complete`, `end` before the settled row, buffer cleared on `end`) and `dm/narration-stream-gate.integration.test.ts` (an intent is accepted while narrate is paused).
+send-path classification, `UNKNOWN_EVENT_TYPE`, error `code`; `sendTalkAndAwait` no longer resends on `CONFLICT`) and `ws.subscribe.test.ts` (the DM-seat subscribe race). Spec 108 adds `ws.narration-stream.integration.test.ts` (per-viewer parts, late-joiner replay after `replay-complete`, `end` before the settled row, buffer cleared on `end`) and `dm/narration-stream-gate.integration.test.ts` (an intent is accepted while narrate is paused). Spec 115 adds `dm/deed-mid-narration.integration.test.ts` (session 8c7d506e replayed: a deed posted mid-narration audits clean by its narration's facts window).
 TASK-0157 added a retry-wait test and a "per-session ordering" suite (burst fan-out, `recordPresence`, isolation) to `gate.integration.test.ts`, an all-in-flight burst to `ws.integration.test.ts`, and a `CONFLICT` label case to `apps/web/test/play/reduce-frame.test.mjs`.
 Spec 104 migrated the scripted turn tests and `test/dm/scripts/*.json` to Intent stages and added `intent-runner.integration.test.ts`, `interpret-intents.test.ts` and `narrate-window.test.ts`; `scene.integration.test.ts` (spec 110: it passes no `retrieve` stub to the worker) now expects the social check ruled by a `ruling` Intent (an `intent.recorded` row answering `act-persuade.0`), not a `ruling-` journal entry. TASK-0046 added `apps/server/test/dm/` (unit tests and `skipIf(!reachable)` integration suites over a scripted `FakeProvider`; see [[dm-runtime]]).
 It also extended `ai.gateway`-level fake scripting (`scriptChatFor`, `strict`; [[ai-gateway]]).

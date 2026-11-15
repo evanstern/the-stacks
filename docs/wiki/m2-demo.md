@@ -10,7 +10,7 @@ sources:
   - apps/server/test/playtest/playtest.integration.test.ts
   - docs/design/m2-demo/demo-session/report.json
   - docs/design/m2-demo/provider-playtest-stalled-5/report.json
-verified_against: 3ded4c07448d3ff8c11975b62d9201e1b727e47d
+verified_against: 0c1bc53b5629154f7f9b55275f41d802561be986
 ---
 
 # M2 demo
