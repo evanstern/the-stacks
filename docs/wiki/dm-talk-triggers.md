@@ -15,7 +15,7 @@ sources:
   - apps/server/src/dm/nodes/schemas.ts
   - apps/server/dm-scripts/greyhollow-talk.json
   - apps/server/dm-scripts/greyhollow-confirm.json
-verified_against: ef3e27a0e4087c8fc9649dad1ec3162f4ddea0ba
+verified_against: 7a76b5bb601c765bee10eb3bd0d7b9c7ffd527bb
 ---
 
 # DM talk triggers
@@ -32,7 +32,7 @@ a human DM seat. Rule 1: a human or `ai:companion:*` speech Intent (`say`, `say_
 free mode. Rule 2: a `declared` human Intent in free mode whose kind is not speech, meta, session or
 DM and that no action already links. Rule 3: a human `ask_dm` Intent, in any mode. Rule 4: a legacy
 companion `talk` row with no Intent. `isReadable` (`talk-triggers.ts`) delegates to it. `capReached(p, 2)` counts
-`ai:dm` narration rows since the last human row; a reached cap queues nothing.
+`ai:dm` narration rows since the last human row or human Intent, whichever is later by seq (TASK-0348); a reached cap queues nothing.
 
 For each batch of rows with a readable post, `talkReactions` first calls `interruptRead`
 (`jobs.ts`): it ends a running `talk` turn that has shipped nothing (no submission, no narration),

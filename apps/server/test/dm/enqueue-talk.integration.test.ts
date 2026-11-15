@@ -215,7 +215,8 @@ describe.skipIf(!reachable)("talk enqueue (database)", () => {
   it("queues nothing once two DM narrations follow the latest human post (the chain cap)", async () => {
     const { sessionId, enqueuer, turnJobs, p } = setup();
     const rows = post(p);
-    for (const seq of [31, 32])
+    const last = rows[rows.length - 1]?.seq ?? 0;
+    for (const seq of [last + 1, last + 2])
       p.transcript.push({
         seq,
         ts: "",
@@ -227,6 +228,57 @@ describe.skipIf(!reachable)("talk enqueue (database)", () => {
       } as never);
     await enqueuer.onAppended(sessionId, rows);
     expect(await turnJobs()).toHaveLength(0);
+  });
+
+  it("a declared /move after two narrated stages queues a read (the chain cap resets at a human Intent)", async () => {
+    const { sessionId, enqueuer, turnJobs, p } = setup();
+    // Replays the 2026-11-14 hosted flow: two narrated stages, then a text-less declared /move.
+    p.transcript.push(
+      ...[31, 32].map(
+        (seq) =>
+          ({
+            seq,
+            ts: "",
+            actor: "ai:dm",
+            visibility: "public",
+            kind: "narration",
+            text: "x",
+            actionIds: [],
+          }) as never,
+      ),
+    );
+    p.intents.push({
+      id: "i-move",
+      seq: 40,
+      ts: POST_TS,
+      actor: PLAYER_USER,
+      intent: {
+        id: "i-move",
+        kind: "move",
+        actor: { kind: "pc", id: "tamsin" },
+        targets: [],
+        params: {},
+        source: "composer",
+        commit: "declared",
+      },
+      status: "declared",
+      request: null,
+      batchIds: [],
+      proposalId: null,
+    } as never);
+    await enqueuer.onAppended(sessionId, [
+      {
+        sessionId: "",
+        payloadVersion: 1,
+        visibility: "public",
+        ts: POST_TS,
+        seq: 40,
+        actor: PLAYER_USER,
+        type: "intent.recorded",
+        payload: { outcome: "declared", batchId: null, stopped: null },
+      },
+    ] as unknown as StoredEvent[]);
+    expect(await turnJobs()).toHaveLength(1);
   });
 
   it("a companion-only post queues a prompt companion job and a read", async () => {
