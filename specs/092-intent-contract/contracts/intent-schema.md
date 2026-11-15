@@ -165,7 +165,7 @@ is a planner refusal (§9), never a schema failure.
 | `attack` | `{ weapon: Label \| "unarmed", mode = "normal" }` | P C D A | — | 1 actor/entity | Yes | planner + engine | served (`attack.roll` by entry); entity targets → N-06 |
 | `cast` | `{ spell: Slug, slot?: int 1..9, mode = "normal" }` | P C D A | — | 0..12 actor, or 1 zone/point | Yes | planner + engine | partial: 6 SRD spells, one actor target; area → TASK-0227 |
 | `dash` | `{}` | P C D A | — | 0 | Yes | planner + engine + space | gap → N-05/N-09 (movement budget) |
-| `dodge` | `{}` | P C D A | — | 0 | Yes | planner + engine | gap → N-09 (no dodging state) |
+| `dodge` | `{}` | P C D A | — | 0 | Yes | planner + engine | served → dodge (spec 117) |
 | `disengage` | `{}` | P C D A | — | 0 | Yes | planner + engine | gap → N-05 (OA suppression) |
 | `help` | `{ assist: { kind: "check", skill: Skill } \| { kind: "attack" } }` | P C D A | — | 1 actor (ally for check, enemy for attack) | Yes | planner + engine | served (`help.grant`) |
 | `hide` | `{}` | P C D A | — | 0 | Yes | planner + engine | partial: Stealth check served; hidden state → N-06/N-26 |

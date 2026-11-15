@@ -29,11 +29,12 @@ afterAll(async () => {
 });
 clearDmJobsBeforeEach();
 
-const intent = (id: string) => ({
+// Spec 117: the scripted shutter check spends Tamsin's Action, so turn mode sends a free kind.
+const intent = (id: string, kind = "hide") => ({
   kind: "intent" as const,
   intent: {
     id,
-    kind: "hide",
+    kind,
     actor: { kind: "pc", id: "tamsin" },
     source: "composer",
     commit: "confirmed",
@@ -78,7 +79,10 @@ describe.skipIf(!db)(
       expect((await readRows(w)).some((r) => r.type === "narration")).toBe(
         false,
       );
-      const res = await w.as(player, intent("hide-during-narrate"));
+      const res = await w.as(
+        player,
+        intent("hide-during-narrate", mode === "turn" ? "drop_prone" : "hide"),
+      );
       expect(res.ok).toBe(true);
       p.release();
       await running;

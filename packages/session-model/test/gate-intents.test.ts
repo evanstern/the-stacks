@@ -1,5 +1,5 @@
 import { emptyState, scriptedRng } from "@the-stacks/dnd5e-engine";
-import { type Intent, IntentSchema } from "@the-stacks/intent";
+import { type Intent, IntentSchema, parse } from "@the-stacks/intent";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   type PlannedRow,
@@ -262,6 +262,7 @@ describe("settled kinds (AC #1)", () => {
       "attack.resolved",
       "dice.rolled",
       "hp.changed",
+      "encounter.changed",
       "intent.recorded",
     ]);
     expect(rows.some((r) => r.type === "hp.changed")).toBe(true);
@@ -284,6 +285,37 @@ describe("settled kinds (AC #1)", () => {
       batchId: "b-plan",
       actionId: null,
     });
+  });
+});
+
+describe("hosted finding 5: one Action per turn", () => {
+  it("the second /attack in one turn refuses NO_ACTION_LEFT and writes nothing", () => {
+    const text = "/attack @goblin with Longsword";
+    const parsed = (id: string) => {
+      const r = parse(text, {
+        id,
+        actor: { kind: "pc", id: "ana" },
+        source: "composer",
+        commit: "confirmed",
+      });
+      if (!r.ok) throw new Error(r.refusal.code);
+      return r.intent;
+    };
+    const p0 = fold(world());
+    const first = rowsOf(plan(p0, ana, parsed("f5-80"), [15, 4]));
+    expect(first.map((r) => r.type).slice(-2)).toEqual([
+      "encounter.changed",
+      "intent.recorded",
+    ]);
+    expect(carrierOf(first).outcome).toBe("settled");
+    const p1 = fold([...world(), ...asSpecs(first)]);
+    const second = plan(p1, ana, parsed("f5-85"), [15, 4]);
+    expect(second.ok).toBe(false);
+    if (!second.ok)
+      expect(second.refusal).toMatchObject({
+        source: "gate",
+        code: "NO_ACTION_LEFT",
+      });
   });
 });
 
@@ -390,7 +422,7 @@ describe("refusals", () => {
   });
 
   it("a planner KIND_UNSERVED surfaces with source gate", () => {
-    const r = plan(p, ana, intent({ kind: "dodge" }));
+    const r = plan(p, ana, intent({ kind: "delay" }));
     expect(r.ok).toBe(false);
     if (!r.ok)
       expect(r.refusal).toMatchObject({

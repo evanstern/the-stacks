@@ -45,6 +45,28 @@ async function turnWorld(): Promise<World> {
   return w;
 }
 
+// Spec 117: one Action per turn. Advance the order a full round so Tamsin's Action returns
+// before each sample; the 7 advances sit outside the timed span.
+async function newRound(w: World): Promise<void> {
+  for (let i = 0; i < 7; i++) {
+    const r = await w.as(
+      { kind: "ai", actor: "ai:dm" },
+      {
+        kind: "mechanics",
+        command: { type: "turn.advance", reason: "next turn" },
+      },
+    );
+    if (!r.ok) throw new Error(`turn.advance refused: ${r.refusal.code}`);
+    // The AI DM's advance applies at once; under a human seat it waits for the operator.
+    if (r.outcome !== "pending") continue;
+    const ok = await w.as(operator, {
+      kind: "proposal.approve",
+      proposalId: r.proposalId,
+    });
+    if (!ok.ok) throw new Error(`approve refused: ${ok.refusal.code}`);
+  }
+}
+
 async function timeOne(
   w: World,
   who: Parameters<World["as"]>[0],
@@ -132,6 +154,7 @@ describe.skipIf(!db)("intent latency gate (database)", () => {
     const w = await turnWorld();
     const times: number[] = [];
     for (let n = 0; n < WARMUP + SAMPLES; n++) {
+      await newRound(w);
       const t = await timeOne(
         w,
         tamsin,
@@ -143,7 +166,7 @@ describe.skipIf(!db)("intent latency gate (database)", () => {
     }
     expect(calls(w)).toBe(0);
     report("attack", times);
-  }, 120_000);
+  }, 400_000);
 
   it("check: p95 under budget", async () => {
     const w = await turnWorld();
@@ -155,6 +178,7 @@ describe.skipIf(!db)("intent latency gate (database)", () => {
     if (!seat.ok) throw new Error(`seat refused: ${seat.refusal.code}`);
     const times: number[] = [];
     for (let n = 0; n < WARMUP + SAMPLES; n++) {
+      await newRound(w);
       const setup = await w.as(tamsin, playerCheck(n));
       if (!setup.ok) throw new Error(`chk-${n} refused: ${setup.refusal.code}`);
       const t = await timeOne(
@@ -169,5 +193,5 @@ describe.skipIf(!db)("intent latency gate (database)", () => {
     expect(calls(w)).toBe(0);
     report("check", times);
     console.log("latency gate: PASS");
-  }, 120_000);
+  }, 400_000);
 });

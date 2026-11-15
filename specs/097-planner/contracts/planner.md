@@ -161,6 +161,8 @@ row for a human DM) and passes the open ones in `PlanState.openRequests`.
 | `OUT_OF_REACH` | melee attack or attack-assist help outside the engaged band |
 | `OUT_OF_RANGE` | ranged attack beyond long range |
 | `NO_MOVEMENT_LEFT` | `move` with 0 ft left in an encounter |
+| `NO_ACTION_LEFT` | a costed Action kind for the active combatant, whose Action is used this turn (spec 117) |
+| `NO_BONUS_ACTION_LEFT` | a Bonus Action `cast` for the active combatant, whose Bonus Action is used this turn (spec 117) |
 | `REQUEST_NOT_OPEN` | `ruling` or `set_dc` names no open request |
 | `DM_SEAT_REQUIRED` | `ai:dm` fiat on a party actor, or `end_combat` with hostiles standing (FR-032) |
 
@@ -168,8 +170,15 @@ row for a human DM) and passes the open ones in `PlanState.openRequests`.
 `ACTOR_UNABLE`, `STAT_UNDEFINED`, `SPELL_UNKNOWN`, `SPELL_NOT_PREPARED`, `SPELL_UNRESOLVED`, and
 any refusal from the `move` probe.
 
-**Reserved, not raised by this card**: `NO_ACTION_LEFT`, `NO_BONUS_ACTION_LEFT` (OQ-2),
-`NO_REACTION_LEFT` and `PROMPT_NOT_OPEN` (TASK-0276), the gate's seat and turn codes (TASK-0268).
+**Economy rule (spec 117, TASK-0304)**: the planner costs an Intent with `actionCostOf` (an Action
+for `attack`, `check`, `contest`, `dash`, `disengage`, `dodge`, `grapple`, `help`, `hide`, `search`
+and `shove`; the spell's `castingTime` for `cast`; nothing for the rest). When the actor is the
+active combatant of an encounter, the planner reads `actionsLeft` and refuses before the handler
+runs. When the handler returns commands, the planner appends `action.spend` as the last command.
+Other actors and free mode plan as before. `dodge` is served: it plans the engine `dodge` command
+(29 served kinds, 11 unserved).
+
+**Reserved, not raised by this card**: `NO_REACTION_LEFT` and `PROMPT_NOT_OPEN` (TASK-0276), the gate's seat and turn codes (TASK-0268).
 
 ## 7. Other exports
 

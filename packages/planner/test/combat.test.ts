@@ -170,6 +170,7 @@ describe("attack", () => {
       "attack.roll",
       "damage.apply",
       "damage.apply",
+      "action.spend",
     ]);
     expect(r.commands[3]?.when?.step).toBe(2);
   });

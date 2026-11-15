@@ -1,4 +1,6 @@
 // FR-001: plan(state, space, intent). Dispatch on kind; unserved kinds refuse KIND_UNSERVED.
+
+import { actionsLeft } from "@the-stacks/dnd5e-engine";
 import type { Intent, IntentKind } from "@the-stacks/intent";
 import type { SpaceView } from "@the-stacks/space";
 import { checkKind, contest, hide, search } from "./checks.js";
@@ -12,10 +14,12 @@ import {
   moveToken,
   startCombat,
 } from "./dm.js";
+import { actionCostOf, activeSpender } from "./economy.js";
 import { PLAN_KINDS } from "./kinds.js";
 import {
   dash,
   disengage,
+  dodge,
   dropProne,
   endTurn,
   move,
@@ -45,6 +49,7 @@ const HANDLERS: Partial<Record<IntentKind, Handler>> = {
   move,
   dash,
   disengage,
+  dodge,
   stand,
   drop_prone: dropProne,
   end_turn: endTurn,
@@ -74,7 +79,36 @@ export function planCtx(c: Ctx): PlanResult {
       { kind: c.intent.kind, owner: row.owner ?? "TASK-0267" },
     );
   }
-  return handler(c);
+  const cost = actionCostOf(c.intent);
+  const spender = cost ? activeSpender(c) : null;
+  if (cost && spender) {
+    const left = actionsLeft(c.state.engine, spender);
+    if (left && !(cost === "action" ? left.action : left.bonusAction)) {
+      return refuse(
+        cost === "action" ? "NO_ACTION_LEFT" : "NO_BONUS_ACTION_LEFT",
+        cost === "action"
+          ? "no Action left this turn"
+          : "no Bonus Action left this turn",
+        { combatantId: spender, cost },
+      );
+    }
+  }
+  const result = handler(c);
+  if (!cost || !spender || result.kind !== "commands") return result;
+  return {
+    ...result,
+    commands: [
+      ...result.commands,
+      {
+        command: {
+          type: "action.spend",
+          combatantId: spender,
+          cost,
+          reason: c.reason,
+        },
+      },
+    ],
+  };
 }
 
 export function plan(
