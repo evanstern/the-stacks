@@ -4,7 +4,7 @@ title: Talk chain cap swallows the read after a text-less declared Intent
 status: In Progress
 assignee: []
 created_date: '2026-11-15T03:26:00Z'
-updated_date: '2026-11-15T06:15:00Z'
+updated_date: '2026-11-15T06:24:00Z'
 labels:
   - playtest
   - ws:dm
@@ -41,4 +41,7 @@ Operator ruling 2026-11-15, relayed verbatim by the parent session: "Sign E12". 
 
 Implemented under E12 (b866ace1 code/tests/runbook, 1aa3181d wiki). capReached also stops at the latest human Intent by seq. Gates: REQUIRE_DATABASE=1 ci:check exit 0 (latency PASS, ai-round 860ms OK), boundaries 28/28, freshness OK, plan empty, spec-bridge ok.
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5
+
+Merged origin/main (7a76b5bb; runbook rows from 0347 and 0348 both kept). dm-talk-triggers chain-cap prose re-verified (2fddcc2e).
+Dispatch: tier=haiku pinned=cc/claude-haiku-5-5 served=cc/claude-haiku-5-5
 <!-- SECTION:NOTES:END -->
