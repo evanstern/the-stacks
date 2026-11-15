@@ -29,7 +29,7 @@ Do not edit `packages/session-model/src`, `apps/server/src`, `apps/web`, the see
 - [ ] T016 Add the FR-024 replay to `apps/server/test/gate.intent.integration.test.ts`. Run it with `REQUIRE_DATABASE=1` on the worktree's stack.
 - [ ] T017 Run the full DB suite with `REQUIRE_DATABASE=1`, including `test/playtest/playtest.integration.test.ts`. Fix any fixture that settles two costed Intents for one combatant in one turn (spec OQ-4). List each changed fixture in the commit message.
 - [ ] T018 Amend `specs/097-planner/contracts/planner.md` section 6 and its served-kinds count, and add the economy rule. Amend the `dodge` row in `specs/092-intent-contract/contracts/intent-schema.md` (plan D11).
-- [ ] T019 Run `node scripts/check-boundaries.mjs` (exits 0) and `pnpm ci:check` (green).
+- [x] T019 Run `node scripts/check-boundaries.mjs` (exits 0) and `pnpm ci:check` (green).
 
 ## Phase 3: Wiki
 
