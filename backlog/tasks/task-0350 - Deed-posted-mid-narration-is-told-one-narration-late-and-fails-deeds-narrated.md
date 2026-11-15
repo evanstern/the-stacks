@@ -4,7 +4,7 @@ title: Deed posted mid-narration is told one narration late and fails deeds-narr
 status: In Progress
 assignee: []
 created_date: '2026-11-15T04:42:00Z'
-updated_date: '2026-11-15T05:39:00Z'
+updated_date: '2026-11-15T05:42:00Z'
 labels:
   - playtest
   - ws:dm
@@ -41,4 +41,7 @@ Claimed 2026-11-15 by the R1 sweep (docs/design/r1-fast-table-runbook.md). Workt
 
 Spec 115 authored (691721c3): auditor cuts segments at each narration's facts window (option c); runtime unchanged. No C-GATE. OQ-1: talk narrations carry no factsThrough; default leave, card if a run shows it.
 Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=cc/claude-opus-5-5
+
+Phase 1 done (bf69abc8): export factsThrough/narrationSeqs, cut-aware segments, contracts amended.
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
