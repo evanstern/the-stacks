@@ -45,5 +45,5 @@ Hosted observation of the known gap, 2026-11-14 (TASK-0338, docs/playtests/2026-
 
 Claimed 2026-11-15 by the R1 sweep (docs/design/r1-fast-table-runbook.md). Worktree .worktrees/task-0304, branch task-0304-action-economy, cut from origin/main b7102dc0. Spec number 117 claimed with a stub.
 
-Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=cc/claude-opus-5-5 (spec 117 authoring; operator brief names opus-implementer for spec authoring)
+Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=cc/claude-opus-5-5
 <!-- SECTION:NOTES:END -->
