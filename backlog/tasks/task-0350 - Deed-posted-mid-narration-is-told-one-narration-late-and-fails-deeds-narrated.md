@@ -4,7 +4,7 @@ title: Deed posted mid-narration is told one narration late and fails deeds-narr
 status: In Progress
 assignee: []
 created_date: '2026-11-15T04:42:00Z'
-updated_date: '2026-11-15T05:46:00Z'
+updated_date: '2026-11-15T05:55:00Z'
 labels:
   - playtest
   - ws:dm
@@ -47,4 +47,8 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-
 
 Phase 2 done (a43495cd): 8c7d506e replay test plus control.
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5
+
+Phase 3 wiki (c839c070) and test-suite re-pin (b5b6fcb2). Gates: REQUIRE_DATABASE=1 ci:check exit 0 (latency PASS, ai-round 1121ms OK), boundaries 28/28, freshness OK, plan empty, spec-bridge ok.
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5
+Dispatch: tier=haiku pinned=cc/claude-haiku-5-5 served=cc/claude-haiku-5-5
 <!-- SECTION:NOTES:END -->
