@@ -1,9 +1,10 @@
 ---
 id: TASK-0348
 title: Talk chain cap swallows the read after a text-less declared Intent
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-11-15T03:26:00Z'
+updated_date: '2026-11-15T06:06:00Z'
 labels:
   - playtest
   - ws:dm
@@ -30,3 +31,9 @@ Hosted run 2026-11-14 (TASK-0338, docs/playtests/2026-11-14-combat-smoke-hosted.
 - [ ] #1 All tests and checks run green
 - [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Claimed 2026-11-15 by the R1 sweep (docs/design/r1-fast-table-runbook.md). Worktree .worktrees/task-0348, branch task-0348-chain-cap-intent, cut from origin/main 12527068. No spec dir: signed escape line covers this task.
+<!-- SECTION:NOTES:END -->
