@@ -1,10 +1,10 @@
 ---
 id: TASK-0304
 title: Engine action economy and Dodge
-status: To Do
+status: In Progress
 assignee: []
 created_date: 2026-11-10 03:11
-updated_date: '2026-11-15T03:37:00Z'
+updated_date: '2026-11-15T12:23:00Z'
 labels:
   - ws:engine
   - replan-2026-11
@@ -20,6 +20,8 @@ ordinal: 288000
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
 The engine tracks reactions and movement but not Action or Bonus Action use, so the planner cannot raise NO_ACTION_LEFT or NO_BONUS_ACTION_LEFT, the combat-turn UX cannot drain pips (TASK-0275 AC #1), and Dodge has no state to set. Source: spec 097 OQ-2 and OQ-3, Operator ruling 2026-11-09 (R1 lane specs 097-100). Parent epic: TASK-0258. Must merge before TASK-0275.
+
+Spec: specs/117-action-economy-dodge
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
@@ -40,4 +42,6 @@ The engine tracks reactions and movement but not Action or Bonus Action use, so 
 
 <!-- SECTION:NOTES:BEGIN -->
 Hosted observation of the known gap, 2026-11-14 (TASK-0338, docs/playtests/2026-11-14-combat-smoke-hosted.md finding 5): two /attack Intents settled in one Tamsin turn (session 8c7d506e, seq 80 and 85, both outcome settled with batch rows). A level-1 fighter has no Extra Attack; AC #2 (NO_ACTION_LEFT) would have refused the second.
+
+Claimed 2026-11-15 by the R1 sweep (docs/design/r1-fast-table-runbook.md). Worktree .worktrees/task-0304, branch task-0304-action-economy, cut from origin/main b7102dc0. Spec number 117 claimed with a stub.
 <!-- SECTION:NOTES:END -->
