@@ -4,7 +4,7 @@ title: Automated combat smoke run on hosted dev
 status: In Progress
 assignee: []
 created_date: '2026-11-14T02:29:00Z'
-updated_date: '2026-11-15T04:43:00Z'
+updated_date: '2026-11-15T13:36:00Z'
 labels:
   - playtest
   - ws:tooling
@@ -45,4 +45,12 @@ C9 go for the hosted auditor (operator, 2026-11-14, in chat, relayed verbatim): 
 Hosted run 2026-11-14, session 8c7d506e-43a0-48e6-a60c-8b1f3d3493b8, vm-104 at 014f1ae6. Fully scripted: 3 /move stages, then combat rounds 1-3 in full, with no human input. Log: docs/playtests/2026-11-14-combat-smoke-hosted.md (branch task-0338-combat-smoke). Rehearsal log a25b066b (partial: Docker hung locally).
 AC #1 met. AC #2 not met: auditor verdict fail. deeds-narrated failed 3 (seq 80, 239, 242); each deed was told one narration late because it was posted while an NPC narration was streaming (TASK-0350). dice-lines failed 5, from the same shift.
 Spend $1.14 of $15. Cards: TASK-0347, TASK-0348, TASK-0349, TASK-0350; evidence on TASK-0304.
+
+Retest 2026-11-15 (session 6031b671-da08-4336-b7ab-058dcedb4939, vm-104 at 058f831c, wave 2b deployed). Ceiling "$15, same as last" (TASK-0278). Scripted: 3 /move stages, call-out, then loop.sh.
+- Attempt-1 schema failures: 0.0% (0/576); jobs check.stripped: 0. Exit 5 met.
+- First token p50 1.05 s; first prose p50 4.10 s (n=562). Typed Intents to engine rows: 0 ms. Fallbacks: 0.
+- Rounds: r1 214 s, r2 81 s, r3 70 s (party alive). After r3, all PCs were down, and the rounds were monster-only.
+- Encounter end: not reached. Party down by round 3; the encounter never ended and AI-DM turns ran on for 500+ rounds (TASK-0354). The jobs were stopped by an operator-run DB update (C9, 13:35 UTC).
+- Spend: $10.60 of $15, about $8 of it in the runaway loop.
+- deeds-narrated: pending the hosted auditor (C9).
 <!-- SECTION:NOTES:END -->
