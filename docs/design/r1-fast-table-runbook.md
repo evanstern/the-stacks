@@ -331,6 +331,7 @@ Then **stop for CP-7** (the R1 playtest).
   - **E10 — TASK-0314 (operator-signed 2026-11-11, "Sign E10"):** card ACs drive. One enqueue rule: a human DM's ruling Intent queues the resume turn; plus its test. Merges before TASK-0199 phase 3.
   - **E11 — TASK-0334 (operator-signed 2026-11-13, "Sign E11"):** card ACs drive. The seed check refuses a way whose label or draft names a hidden zone unless revealed; the ways players see are filtered by fog; each with a test, plus a test replaying the greyhollow-ford "ladder to the loft" flow.
   - **E12 — TASK-0348 (operator-signed 2026-11-15, "Sign E12"):** card ACs drive. `capReached` (apps/server/src/dm/talk-triggers.ts) also stops counting at a human-declared mechanical Intent, the same as a human transcript row. Add a test: two narrated /move stages, then a third declared /move queues a read, replaying the 2026-11-14 hosted flow (finding 4).
+  - **E13 — TASK-0355 (operator-signed 2026-11-15, "Sign E13"):** card ACs drive. The playtest export (`apps/server/src/playtest/export.ts`) and the harness (`apps/server/src/playtest/harness.ts`) read every job of a session, with no fixed cap. Add a test: more than 500 jobs, and the oldest job's `factsThrough` reaches `jobs.json`, replaying the 2026-11-15 retest (session 6031b671, 577 jobs).
 
 ## Concurrency & conflict doctrine
 
