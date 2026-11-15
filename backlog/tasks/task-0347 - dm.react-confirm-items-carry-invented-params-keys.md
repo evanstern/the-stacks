@@ -50,6 +50,8 @@ Phase 3 wiki (T014-T018) landed f1bc7271; freshness OK, plan empty, spec-bridge 
 
 Merged origin/main (1c42b21e, TASK-0350 in), wiki re-pin d46d1bbc; all gates green on the merged tree. Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5
 Runbook row: Dispatch: tier=haiku pinned=cc/claude-haiku-5-5 served=cc/claude-haiku-5-5
+
+spec-bridge sync: Prompt, strip, record and the hosted replay: 9/9 · CI scenario invented-params confirm: 4/4 · Wiki: 5/5 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
