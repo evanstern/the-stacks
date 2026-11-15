@@ -4,7 +4,7 @@ title: dm.react confirm items carry invented params keys
 status: In Progress
 assignee: []
 created_date: '2026-11-15T03:19:00Z'
-updated_date: '2026-11-15T06:01:00Z'
+updated_date: '2026-11-15T06:15:00Z'
 labels:
   - playtest
   - ws:dm
@@ -47,4 +47,7 @@ Phase 1 (T001-T009) landed 455687fa; ci:check green (1879 passed). Dispatch: tie
 Phase 2 (T010-T013) landed 1b49badb after merge ba4f922e; ci:check green; SC-006 negative proven (stub -> run 'failed'). Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5
 
 Phase 3 wiki (T014-T018) landed f1bc7271; freshness OK, plan empty, spec-bridge check 0. Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5
+
+Merged origin/main (1c42b21e, TASK-0350 in), wiki re-pin d46d1bbc; all gates green on the merged tree. Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5
+Runbook row: Dispatch: tier=haiku pinned=cc/claude-haiku-5-5 served=cc/claude-haiku-5-5
 <!-- SECTION:NOTES:END -->
