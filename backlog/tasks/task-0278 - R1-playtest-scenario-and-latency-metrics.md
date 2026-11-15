@@ -4,7 +4,7 @@ title: R1 playtest scenario and latency metrics
 status: To Do
 assignee: []
 created_date: 2026-11-07 05:13
-updated_date: '2026-11-15T04:43:00Z'
+updated_date: '2026-11-15T12:22:00Z'
 labels:
   - ws:tooling
   - replan-2026-11
@@ -61,4 +61,6 @@ Automated combat smoke 2026-11-14 (TASK-0338, session 8c7d506e, vm-104 at 014f1a
 - Encounter end: not reached (stopped after round 3 by design).
 - Auditor: fail (deeds-narrated, TASK-0350).
 - Spend: $1.14 of the $15 ceiling ("$15, same as last").
+
+Operator ceiling for the TASK-0338 retest (2026-11-15), in the operator words: "$15, same as last".
 <!-- SECTION:NOTES:END -->
