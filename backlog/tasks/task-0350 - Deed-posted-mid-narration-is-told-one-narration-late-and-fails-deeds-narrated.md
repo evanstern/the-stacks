@@ -4,7 +4,7 @@ title: Deed posted mid-narration is told one narration late and fails deeds-narr
 status: In Progress
 assignee: []
 created_date: '2026-11-15T04:42:00Z'
-updated_date: '2026-11-15T05:42:00Z'
+updated_date: '2026-11-15T05:46:00Z'
 labels:
   - playtest
   - ws:dm
@@ -43,5 +43,8 @@ Spec 115 authored (691721c3): auditor cuts segments at each narration's facts wi
 Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=cc/claude-opus-5-5
 
 Phase 1 done (bf69abc8): export factsThrough/narrationSeqs, cut-aware segments, contracts amended.
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5
+
+Phase 2 done (a43495cd): 8c7d506e replay test plus control.
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
