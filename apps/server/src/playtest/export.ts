@@ -102,7 +102,7 @@ export async function exportSession(
     afterSeq = rows[rows.length - 1].seq;
   }
   const projections = await loadProjections(db, sessionId, { role: "dm" });
-  const jobs = (await listDmJobs(db, sessionId, 500)).map(toJobItem);
+  const jobs = (await listDmJobs(db, sessionId, null)).map(toJobItem);
   return { transcript, ledger: projections.ledger, jobs };
 }
 
