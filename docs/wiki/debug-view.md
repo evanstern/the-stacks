@@ -38,7 +38,7 @@ sources:
   - apps/web/app/debug/waiting.ts
   - apps/web/app/routes/play-debug.tsx
 size_budget_exempt: TASK-0272 renames the narrate-audit section to narrate-check in the one debug-page note; the note sat 126 chars over the budget with that line and its routes, columns and slide-outs are one page that does not split without a TASK of its own
-verified_against: ef3e27a0e4087c8fc9649dad1ec3162f4ddea0ba
+verified_against: 62214d4016b1b30ce482f3b1a1525a30013a81bf
 ---
 
 # Debug view API

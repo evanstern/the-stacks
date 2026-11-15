@@ -931,10 +931,10 @@ function toDmJobRow(r: typeof jobs.$inferSelect): DmJobRow {
 export async function listDmJobs(
   db: DbClient,
   sessionId: string,
-  limit = 50,
+  limit: number | null = 50, // null: every job, no cap
   kind?: DmJobKind,
 ): Promise<DmJobRow[]> {
-  const rows = await db
+  const q = db
     .select()
     .from(jobs)
     .where(
@@ -942,8 +942,8 @@ export async function listDmJobs(
         ? and(eq(jobs.sessionId, sessionId), eq(jobs.kind, kind))
         : eq(jobs.sessionId, sessionId),
     )
-    .orderBy(desc(jobs.createdAt))
-    .limit(limit);
+    .orderBy(desc(jobs.createdAt));
+  const rows = await (limit === null ? q : q.limit(limit));
   return rows.map(toDmJobRow);
 }
 
