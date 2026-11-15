@@ -139,6 +139,16 @@ describe("capReached", () => {
     p.transcript.push(entry(5, PLAYER_USER, "talk"));
     expect(capReached(p)).toBe(false);
   });
+  it("resets at a human Intent that has no transcript row", () => {
+    const p = aiFree();
+    p.transcript = [
+      entry(1, "ai:dm", "narration"),
+      entry(2, "ai:dm", "narration"),
+    ];
+    expect(capReached(p)).toBe(true);
+    p.intents.push({ seq: 3, actor: PLAYER_USER } as never);
+    expect(capReached(p)).toBe(false);
+  });
 });
 
 describe("codeTriggers", () => {
