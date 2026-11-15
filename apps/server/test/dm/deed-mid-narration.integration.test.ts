@@ -43,7 +43,7 @@ const chronicle = [1, 2, 3, 4].map(() => ({
 describe.skipIf(!reachable)("a deed posted mid-narration (database)", () => {
   async function replay() {
     // Snag acts first; Tamsin is next in the order.
-    const init = initDice(3);
+    const init: number[] = initDice(3);
     init[0] = 5; // Tamsin follows Snag
     const dice = [...init, 15, 4, 4, 4, 15, 4, 4, 4, 10, 10];
     const w = await inTurnMode(dice, [
@@ -91,13 +91,12 @@ describe.skipIf(!reachable)("a deed posted mid-narration (database)", () => {
     );
     const narrations = rows.filter((r) => r.type === "narration");
     const first = narrations[0];
-    expect(carrier).toBeDefined();
-    expect(first).toBeDefined();
+    if (!carrier || !first) throw new Error("no carrier or narration row");
     // The race: the deed landed before the in-flight narration shipped, and it does not tell it.
-    expect(carrier!.seq).toBeLessThan(first!.seq);
+    expect(carrier.seq).toBeLessThan(first.seq);
     const body = (r: { payload: unknown }) =>
       String((r.payload as { text?: string }).text ?? "");
-    expect(body(first!)).not.toMatch(/^Deed: /m);
+    expect(body(first)).not.toMatch(/^Deed: /m);
     const later = narrations.slice(1).find((r) => /^Deed: /m.test(body(r)));
     expect(later, "a later narration tells the deed").toBeDefined();
 
@@ -128,7 +127,7 @@ describe.skipIf(!reachable)("a deed posted mid-narration (database)", () => {
     const bad = await audit(stripped);
     expect(
       bad.findings.some(
-        (f) => f.check === "deeds-narrated" && f.seqs.includes(carrier!.seq),
+        (f) => f.check === "deeds-narrated" && f.seqs.includes(carrier.seq),
       ),
     ).toBe(true);
   });
