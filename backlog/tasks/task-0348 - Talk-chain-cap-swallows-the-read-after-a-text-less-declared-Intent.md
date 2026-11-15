@@ -36,4 +36,6 @@ Hosted run 2026-11-14 (TASK-0338, docs/playtests/2026-11-14-combat-smoke-hosted.
 
 <!-- SECTION:NOTES:BEGIN -->
 Claimed 2026-11-15 by the R1 sweep (docs/design/r1-fast-table-runbook.md). Worktree .worktrees/task-0348, branch task-0348-chain-cap-intent, cut from origin/main 12527068. No spec dir: signed escape line covers this task.
+
+Operator ruling 2026-11-15, relayed verbatim by the parent session: "Sign E12". It signs: "E12 — TASK-0348: card ACs drive. `capReached` (apps/server/src/dm/talk-triggers.ts) also stops counting at a human-declared mechanical Intent, the same as a human transcript row. Add a test: two narrated /move stages, then a third declared /move queues a read, replaying the 2026-11-14 hosted flow (finding 4)."
 <!-- SECTION:NOTES:END -->
