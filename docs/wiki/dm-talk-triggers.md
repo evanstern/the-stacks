@@ -1,11 +1,12 @@
 ---
 name: dm-talk-triggers
-description: The AI DM's table read (TASK-0180, specs/065; reworked by TASK-0199, specs/066, decision-0030) - the `readablePosts` rules, the 10 s window that moves with each post, `interruptRead`, code triggers, the one `react` call (`dm.react-v6`) with `confirm` and `answer`, code items for declared Intents, the `action.suggest` ship, `ask_dm`, the chain cap, companion prompts and reclaim.
+description: The AI DM's table read (TASK-0180, specs/065; reworked by TASK-0199, specs/066, decision-0030) - the `readablePosts` rules, the 10 s window that moves with each post, `interruptRead`, code triggers, the one `react` call (`dm.react-v7`) with `confirm` and `answer`, code items for declared Intents, the `action.suggest` ship, `ask_dm`, the chain cap, companion prompts and reclaim.
 kind: pipeline
 sources:
   - apps/server/src/dm/talk-triggers.ts
   - apps/server/src/dm/talk-turn.ts
   - apps/server/src/dm/prompts/react.ts
+  - apps/server/src/dm/react-params.ts
   - apps/server/src/dm/enqueue.ts
   - apps/server/src/dm/jobs.ts
   - apps/server/src/dm/worker.ts
@@ -14,7 +15,7 @@ sources:
   - apps/server/src/dm/nodes/schemas.ts
   - apps/server/dm-scripts/greyhollow-talk.json
   - apps/server/dm-scripts/greyhollow-confirm.json
-verified_against: 9e43d8e19c8b0911b654115a7b0342a832912ff5
+verified_against: ef3e27a0e4087c8fc9649dad1ec3162f4ddea0ba
 ---
 
 # DM talk triggers
@@ -80,6 +81,8 @@ shipped twice. A reclaimed escalation reads its posts as free mode
 once the opening move landed (commit c2e6d785), because the mode is already `turn`. An interrupted
 read writes nothing.
 
-`dm.react-v6` (spec 112: the reply speaker rule; spec 114: the confirm target shapes) uses purpose `dm.narrate` ([[dm-runtime]]); no new purpose or migration.
+`dm.react-v7` (spec 112: the reply speaker rule; spec 114: the confirm target shapes; spec 116: the params lines) uses purpose `dm.narrate` ([[dm-runtime]]); no new purpose or migration.
 
-**Confirm targets** (spec 114, TASK-0336). `dm.react-v6` adds a `Targets (confirm items name only these)` section to the prompt, the target-ref shapes (`{kind, id}`, never a bare id) and a worked `EXAMPLE_CONFIRM`. `knownTargets` (`talk-turn.ts`) lists revealed zones, then present actors. `normalizeReact` runs as the `call.ts` `normalize` hook: a bare id string, or an object whose only key is `id`, that names exactly one known target becomes `{kind, id}`; unknown or ambiguous ids stay as written, so the schema fails and the re-ask runs ([[dm-failure-and-gates]]). `TalkResult.targetRepairs` counts the repairs in the parsing attempt. When a `talk` job fails for good, the worker posts a public `ai:dm` out-of-character `talk` row (`submitReadFailureNotice`, `READ_FAILURE_TEXT` in `nodes/resolve.ts`) asking the player to post again; a failed notice logs `dm.notice.failed`.
+**Confirm targets** (spec 114, TASK-0336). `dm.react-v6` added a `Targets (confirm items name only these)` section to the prompt, the target-ref shapes (`{kind, id}`, never a bare id) and a worked `EXAMPLE_CONFIRM`. `knownTargets` (`talk-turn.ts`) lists revealed zones, then present actors. `normalizeReact` runs as the `call.ts` `normalize` hook: a bare id string, or an object whose only key is `id`, that names exactly one known target becomes `{kind, id}`; unknown or ambiguous ids stay as written, so the schema fails and the re-ask runs ([[dm-failure-and-gates]]). `TalkResult.targetRepairs` counts the repairs in the parsing attempt. When a `talk` job fails for good, the worker posts a public `ai:dm` out-of-character `talk` row (`submitReadFailureNotice`, `READ_FAILURE_TEXT` in `nodes/resolve.ts`) asking the player to post again; a failed notice logs `dm.notice.failed`.
+
+**Confirm params** (spec 116, TASK-0347). `dm.react-v7` adds a `Body kinds, targets and params` section to the prompt: `PARAMS_LINES` is the per-kind target and params lines of the interpret `INTENT_GRAMMAR` (`prompts/interpret.ts`), sliced, never copied, plus the rule that `params` holds only the listed keys, and a worked `EXAMPLE_MOVE_CONFIRM` with `params: {}`. `stripParams` (`react-params.ts`) runs in the `normalize` hook after `normalizeReact`: it drops top-level `params` keys that a confirm item's kind schema does not list, only for kinds whose params schema is strict. It reads keys only, keeps known keys and nested values, and does not mutate its input. Each drop is a `ParamsStrip` `{kind: "params-stripped", item, bodyKind, key}`. A talk job now stores its check record on `jobs.result.check` (`TurnOutcome` `talk.check`, `worker.ts`; it was `null`); `check.stripped` holds the strips and is absent when none were dropped ([[dm-narration-quality]]).

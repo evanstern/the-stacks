@@ -31,6 +31,7 @@ import type {
 import { rosterOf } from "./prompts/common.js";
 import { buildReactPrompt, PROMPT_VERSION } from "./prompts/react.js";
 import { PURPOSE_OF } from "./purposes.js";
+import { type ParamsStrip, stripParams } from "./react-params.js";
 import { dmOnlySeedText, playerFacingSeed } from "./seed/views.js";
 import type { ActorSnapshot } from "./snapshot/index.js";
 import {
@@ -191,9 +192,16 @@ export async function runTalkTurn(
     reason: "",
   };
   let nextJob: ResolveOutput["nextJob"] = null;
+  let record: CheckRecord = {
+    leak: [],
+    contradiction: [],
+    corrected: false,
+    shippedProseSha256: sha(""),
+  };
   const done = (shipped: boolean, companions: string[]): TurnOutcome => ({
     status: "talk",
     talk: result,
+    check: record,
     companions,
     nextJob,
     shipped,
@@ -253,6 +261,7 @@ export async function runTalkTurn(
 
   const known = knownTargets(assembled.snapshot);
   let repairs = 0;
+  let strips: ParamsStrip[] = [];
   const ask = async () => {
     const prompt = buildReactPrompt({
       seed: view,
@@ -285,7 +294,9 @@ export async function runTalkTurn(
       normalize: (j) => {
         const r = normalizeReact(j, known);
         repairs = r.repairs;
-        return r.json;
+        const s = stripParams(r.json);
+        strips = s.strips;
+        return s.json;
       },
       signal: ctx.signal,
     });
@@ -319,12 +330,7 @@ export async function runTalkTurn(
   // Step 5: code checks (spec 103). No second call: a leak drops the sentence, a contradiction ships.
   let corrections: ReturnType<typeof correctionsFor> = [];
   let shownText = react?.text ?? "";
-  let record: CheckRecord = {
-    leak: [],
-    contradiction: [],
-    corrected: false,
-    shippedProseSha256: sha(shownText),
-  };
+  record = { ...record, shippedProseSha256: sha(shownText) };
   const proseOutcome = outcome !== "none" && outcome !== "confirm";
   if (react && proseOutcome) {
     const found = checked(
@@ -338,12 +344,14 @@ export async function runTalkTurn(
     shownText = dropSentences(react.text, drop.sentences, drop.inners);
     corrections = correctionsFor(found);
     record = {
+      ...record,
       leak: found.filter((i) => i.check === "leak"),
       contradiction: found.filter((i) => i.check === "contradiction"),
       corrected: dropped.length > 0 || corrections.length > 0,
       shippedProseSha256: sha(shownText),
     };
   }
+  if (strips.length > 0) record = { ...record, stripped: strips };
   const prose =
     react && proseOutcome
       ? !shownText.trim()

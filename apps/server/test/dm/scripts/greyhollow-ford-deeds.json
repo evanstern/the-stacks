@@ -207,6 +207,50 @@
       }
     },
     {
+      "purpose": "dm.narrate",
+      "note": "react reply for the confirm-move: F2's invented params keys on a move, stripped by stripParams",
+      "respond": {
+        "type": "json",
+        "value": {
+          "outcome": "confirm",
+          "triggers": [],
+          "speaker": null,
+          "text": "",
+          "encounterId": null,
+          "companionPrompts": [],
+          "confirm": [
+            {
+              "characterId": "tamsin",
+              "text": "Tamsin wades back to the near bank.",
+              "body": {
+                "kind": "move",
+                "targets": [
+                  {
+                    "kind": "zone",
+                    "id": "near-bank"
+                  }
+                ],
+                "params": {
+                  "ready": true,
+                  "caution": "high"
+                }
+              }
+            }
+          ],
+          "answer": null,
+          "reason": "The seat declared a move; offer it for confirmation."
+        }
+      }
+    },
+    {
+      "purpose": "dm.narrate",
+      "note": "narrates the confirmed move",
+      "respond": {
+        "type": "text",
+        "value": "Tamsin wades back through the shallows and climbs onto the near bank, the ferry chain clinking beside her."
+      }
+    },
+    {
       "purpose": "dm.director",
       "note": "free mode, resolve",
       "respond": {

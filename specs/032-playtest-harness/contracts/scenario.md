@@ -118,6 +118,9 @@ uses `readWindowMs: () => 0`: the scripted seat has no one to wait for.
   fallback (`/move #ferry-house`) is unused.
 - A `confirm` move (`confirm-search`, `I search the ferry house.`) follows `act-search`. Its scripted
   react reply uses the bare-id target shape, so CI exercises `normalizeReact`.
+- A second `confirm` move (`confirm-move`, `I wade back to the near bank.`) follows `deed-move`. Its scripted
+  react reply is a `move` to `near-bank` carrying invented `params` (`ready`, `caution`), so CI exercises
+  `stripParams`. The check record on the talk job lists the two stripped keys.
 - `moves.combat`: text "I swing my longsword at the goblin in the pot-helm.", `firstActionId`
   `act-strike` (the CI script names it). Later combat moves get `pt-<n>`.
 - `moves.fallback`: five short first-person moves (ask, examine, offer, edge toward the reeds, ready the sword).
