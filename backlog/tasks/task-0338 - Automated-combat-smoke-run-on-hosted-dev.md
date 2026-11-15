@@ -4,7 +4,7 @@ title: Automated combat smoke run on hosted dev
 status: In Progress
 assignee: []
 created_date: '2026-11-14T02:29:00Z'
-updated_date: '2026-11-15T21:37:00Z'
+updated_date: '2026-11-15T21:38:00Z'
 labels:
   - playtest
   - ws:tooling
@@ -64,4 +64,6 @@ Retest auditor (2026-11-15, C9 go given by the operator running the command): `n
 - AC #2 is not ticked. The hosted report fails, and the passing reading needs an operator ruling.
 
 Hosted re-audit after TASK-0355 (PR #190, vm-104 at 6141feed; C9 go, operator: "Go, run audit"): `node dist/playtest/cli.js audit --session 6031b671-... --auditor none`. The export carries 577 of 577 jobs. deeds-narrated: 0 fails, so AC #2 is met. Verdict fail on other checks: dice-lines 3 (seq 158, 206, 248; TASK-0356), life-states 31 (TASK-0357, mostly in the TASK-0354 loop), dice-language 4 (all in the loop), 6 notes. Report /app/apps/server/.playtests/20261115T213727Z-session-6031b671/report.json.
+
+Hosted re-audit after TASK-0355 (PR #190, vm-104 at 6141feed; C9 go, operator: "Go, run audit"): `node dist/playtest/cli.js audit --session 6031b671-... --auditor none`. The export carries 577 of 577 jobs. deeds-narrated: 0 fails, so AC #2 is met. Verdict fail on other checks: dice-lines 3 (seq 158, 206, 248; TASK-0356), life-states 31 (TASK-0357, mostly in the TASK-0354 loop), dice-language 4 (seq 547, 582, 1977, 2012, all in the loop), 6 notes. Report /app/apps/server/.playtests/20261115T213727Z-session-6031b671/report.json.
 <!-- SECTION:NOTES:END -->
