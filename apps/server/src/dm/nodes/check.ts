@@ -9,6 +9,7 @@ import {
   dropSentences,
 } from "../narration-check.js";
 import type { Node, TurnContext } from "../pipeline/context.js";
+import type { ParamsStrip } from "../react-params.js";
 import { dmOnlySeedText } from "../seed/views.js";
 
 /**
@@ -23,6 +24,8 @@ export interface Correction {
 }
 
 export interface CheckRecord {
+  /** Spec 116 FR-010: params keys code stripped from the react reply; absent on rows stored before. */
+  stripped?: ParamsStrip[];
   leak: CheckIssue[];
   contradiction: CheckIssue[];
   corrected: boolean;

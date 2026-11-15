@@ -14,10 +14,11 @@ import {
   section,
   transcriptEntries,
 } from "./common.js";
+import { INTENT_GRAMMAR } from "./interpret.js";
 import { characterSections } from "./narrate.js";
 
 /** The talk-turn react prompt (specs/065-talk-triggers plan D4). Purpose `dm.narrate`. */
-export const PROMPT_VERSION = "dm.react-v6";
+export const PROMPT_VERSION = "dm.react-v7";
 
 export const CAP_LINE =
   "This reaction reaches the chain cap. Prompt no companion: leave companionPrompts empty, and end on a beat that hands the scene to the player characters.";
@@ -46,6 +47,28 @@ export const EXAMPLE_CONFIRM = {
   },
 };
 
+/** One worked move confirm with empty params (spec 116 FR-003). */
+export const EXAMPLE_MOVE_CONFIRM = {
+  characterId: "tamsin",
+  text: "Tamsin wades out onto the causeway.",
+  body: {
+    kind: "move",
+    targets: [{ kind: "zone", id: "causeway" }],
+    params: {},
+  },
+};
+
+/** The per-kind target and params lines of the interpret grammar (spec 116 FR-001); never copied. */
+export const PARAMS_LINES: string[] = (() => {
+  const lines = INTENT_GRAMMAR.split("\n");
+  const out: string[] = [];
+  for (const l of lines.slice(lines.indexOf("Kinds:") + 1)) {
+    if (!l.startsWith("- ")) break;
+    out.push(l);
+  }
+  return out;
+})();
+
 const OUTPUT_SHAPE = [
   "Reply with ONE JSON object and nothing else:",
   '{"outcome":"none"|"reply"|"scene"|"escalate"|"confirm",',
@@ -58,7 +81,11 @@ const OUTPUT_SHAPE = [
   ' "answer":str (1200 characters at most)|null (only for an ask_dm post),',
   ' "reason":str (300 characters at most)}',
   'Target refs: {"kind":"zone","id":id} for a place, {"kind":"actor","id":id} for a character, {"kind":"entity","id":id}, {"kind":"item","id":id}. Use only ids listed under Targets. A target is never a bare id.',
+  "Body kinds, targets and params:",
+  ...PARAMS_LINES,
+  "params holds only the keys listed for its kind. Most kinds take {}. Never add another key.",
   `Example confirm: ${JSON.stringify(EXAMPLE_CONFIRM)}`,
+  `Example move confirm: ${JSON.stringify(EXAMPLE_MOVE_CONFIRM)}`,
 ].join("\n");
 
 export interface ReactPromptInput {

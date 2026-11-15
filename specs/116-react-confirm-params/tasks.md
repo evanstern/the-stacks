@@ -7,15 +7,15 @@ Do not edit `packages/intent`, `nodes/schemas.ts`, `prompts/interpret.ts`, `prom
 
 ## Phase 1: Prompt, strip, record and the hosted replay (FR-001–FR-011; AC #1, #2)
 
-- [ ] T001 In `prompts/react.ts`, add `PARAMS_LINES` from `INTENT_GRAMMAR`, the rule line and `EXAMPLE_MOVE_CONFIRM`, and bump to `dm.react-v7` (plan D1).
-- [ ] T002 Write `dm/react-params.ts` with `ParamsStrip` and `stripParams` (plan D2). Read the installed zod strict-object shape first.
-- [ ] T003 In `talk-turn.ts`, run `stripParams` after `normalizeReact` in `normalize`, set `record.stripped`, and pass `check` on the talk outcome. Add `CheckRecord.stripped?` in `nodes/check.ts` and `check` on the talk arm in `pipeline/context.ts` (plan D3).
-- [ ] T004 In `worker.ts`, write `check: outcome.check` for a finished talk job.
-- [ ] T005 Write `test/dm/fixtures/react-params-hosted.ts` with the four reconstructed fixtures from spec "Replay fixtures (reconstructed)", verbatim.
-- [ ] T006 Extend `test/dm/react-prompt.test.ts` per SC-001. Update the version assertion.
-- [ ] T007 Write `test/dm/react-params.test.ts` with the SC-002 cases, including the all-members-strict case.
-- [ ] T008 Extend `test/dm/talk-turn.integration.test.ts`: replay F1 and F2, attempt 1 and attempt 2, through a `say` post (SC-003–SC-005).
-- [ ] T009 Amend `specs/031-dm-runtime/contracts/purposes.md` with a `dm.react-v7` amendment, and `node-seam.md` with the talk `result.check` and its `stripped` list.
+- [x] T001 In `prompts/react.ts`, add `PARAMS_LINES` from `INTENT_GRAMMAR`, the rule line and `EXAMPLE_MOVE_CONFIRM`, and bump to `dm.react-v7` (plan D1).
+- [x] T002 Write `dm/react-params.ts` with `ParamsStrip` and `stripParams` (plan D2). Read the installed zod strict-object shape first.
+- [x] T003 In `talk-turn.ts`, run `stripParams` after `normalizeReact` in `normalize`, set `record.stripped`, and pass `check` on the talk outcome. Add `CheckRecord.stripped?` in `nodes/check.ts` and `check` on the talk arm in `pipeline/context.ts` (plan D3).
+- [x] T004 In `worker.ts`, write `check: outcome.check` for a finished talk job.
+- [x] T005 Write `test/dm/fixtures/react-params-hosted.ts` with the four reconstructed fixtures from spec "Replay fixtures (reconstructed)", verbatim.
+- [x] T006 Extend `test/dm/react-prompt.test.ts` per SC-001. Update the version assertion.
+- [x] T007 Write `test/dm/react-params.test.ts` with the SC-002 cases, including the all-members-strict case.
+- [x] T008 Extend `test/dm/talk-turn.integration.test.ts`: replay F1 and F2, attempt 1 and attempt 2, through a `say` post (SC-003–SC-005).
+- [x] T009 Amend `specs/031-dm-runtime/contracts/purposes.md` with a `dm.react-v7` amendment, and `node-seam.md` with the talk `result.check` and its `stripped` list.
 
 ## Phase 2: CI scenario invented-params confirm (FR-012–FR-014; AC #2)
 
