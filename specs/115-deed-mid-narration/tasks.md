@@ -7,11 +7,11 @@ Do not edit the runtime (spec FR-009), `auditor/checks.ts`, `dm/prompts/react.ts
 
 ## Phase 1: Window export and cut-aware segments (FR-001–FR-006; AC #1)
 
-- [ ] T001 In `apps/server/src/playtest/export.ts`, add optional `factsThrough` and `narrationSeqs` to `JobItem`. Fill them in `toJobItem` from the turn checkpoint (plan D1).
-- [ ] T002 In `apps/server/src/playtest/auditor/segments.ts`, add `narrationCuts(jobs)` and the optional `cuts` argument to `segment` (plan D2). Keep the no-cuts result identical.
-- [ ] T003 In `auditor/audit.ts`, pass `narrationCuts(input.jobs)` to `segment`. In `playtest/cli.ts`, pass the same cuts in the provider preflight count (plan D3).
-- [ ] T004 Extend `apps/server/test/playtest/checks.test.ts` with the plan D4 unit cases 1–4, including the 8c7d506e shape (SC-001, SC-002).
-- [ ] T005 Amend `specs/032-playtest-harness/contracts/auditor.md` "Segments" and `contracts/run-directory.md` `jobs.json`.
+- [x] T001 In `apps/server/src/playtest/export.ts`, add optional `factsThrough` and `narrationSeqs` to `JobItem`. Fill them in `toJobItem` from the turn checkpoint (plan D1).
+- [x] T002 In `apps/server/src/playtest/auditor/segments.ts`, add `narrationCuts(jobs)` and the optional `cuts` argument to `segment` (plan D2). Keep the no-cuts result identical.
+- [x] T003 In `auditor/audit.ts`, pass `narrationCuts(input.jobs)` to `segment`. In `playtest/cli.ts`, pass the same cuts in the provider preflight count (plan D3).
+- [x] T004 Extend `apps/server/test/playtest/checks.test.ts` with the plan D4 unit cases 1–4, including the 8c7d506e shape (SC-001, SC-002).
+- [x] T005 Amend `specs/032-playtest-harness/contracts/auditor.md` "Segments" and `contracts/run-directory.md` `jobs.json`.
 
 ## Phase 2: The 8c7d506e replay (FR-007, FR-008; AC #2)
 

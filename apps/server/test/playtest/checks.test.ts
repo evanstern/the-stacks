@@ -10,10 +10,11 @@ import {
 import { loadSeed } from "../../src/dm/seed/load.js";
 import {
   type CheckId,
+  expectedDiceLines,
   runChecks,
   splitNarration,
 } from "../../src/playtest/auditor/checks.js";
-import { segment } from "../../src/playtest/auditor/segments.js";
+import { narrationCuts, segment } from "../../src/playtest/auditor/segments.js";
 import { loadClean, loadDoctored } from "./helpers.js";
 
 /** [segment index, check id, row seq] — the doctored fixture README. */
@@ -410,5 +411,164 @@ describe("deeds-narrated (spec 111)", () => {
       move,
     ]);
     expect(f.map((x) => x.seqs)).toEqual([[4]]);
+  });
+});
+
+describe("cut-aware segments (spec 115)", () => {
+  const mk = (seq: number, type: string, actor: string, payload: object) =>
+    ({
+      sessionId: "s",
+      seq,
+      actor,
+      type,
+      payload,
+      payloadVersion: 1,
+      visibility: "public",
+      ts: "2026-11-14T00:00:00.000Z",
+    }) as unknown as StoredEvent;
+  const intent = {
+    id: "i1",
+    kind: "attack",
+    actor: { kind: "pc", id: "ana" },
+    targets: [],
+    params: {},
+    source: "composer",
+    commit: "confirmed",
+  };
+  const roll = (seq: number, actionId: string | null, batchId: string) =>
+    ({
+      kind: "roll",
+      seq,
+      actor: "ai:dm",
+      visibility: "public",
+      reason: "swing",
+      batchId,
+      index: 0,
+      actionId,
+      roll: {
+        type: "dice.rolled",
+        v: 1,
+        reason: "swing",
+        expression: "1d20",
+        mode: "normal",
+        purpose: "attack",
+        critical: false,
+        combatantId: "ana",
+        terms: [
+          {
+            kind: "dice",
+            sign: 1,
+            count: 1,
+            sides: 20,
+            keep: null,
+            faces: [9],
+            kept: [true],
+            subtotal: 9,
+          },
+        ],
+        total: 9,
+        natural: 9,
+      },
+    }) as never;
+  // 2: the NPC's roll; 3: the player's /attack posted mid-narration; 4: its roll.
+  // Narration 5 is in flight over facts through 2; narration 6 reads through 4.
+  const carrierRow = mk(3, "intent.recorded", "pc:ana", {
+    intent,
+    outcome: "settled",
+    batchId: "b3",
+    request: null,
+    answers: null,
+    stopped: null,
+  });
+  const ledger = [roll(2, null, "b2"), roll(4, "a1", "b3")];
+  const transcript = (aText: string, bText: string) => [
+    mk(1, "scene.changed", "system", {}),
+    mk(2, "dice.rolled", "ai:dm", {}),
+    carrierRow,
+    mk(4, "dice.rolled", "ai:dm", {}),
+    mk(5, "narration", "ai:dm", { text: aText }),
+    mk(6, "narration", "ai:dm", { text: bText }),
+  ];
+  const lineFor = (l: never) =>
+    expectedDiceLines(
+      {
+        index: 0,
+        narrationSeq: null,
+        fromSeq: 1,
+        toSeq: 6,
+        rows: [],
+        ledger: [l],
+      },
+      { transcript: [], seed: null },
+    ).lines;
+  const npcLine = lineFor(ledger[0] as never)[0] as string;
+  const pcLine = lineFor(roll(4, "a1", "b3"))[0] as string;
+  const dText = toText(intent as never);
+  const rows = transcript(
+    `Prose.\n\n${npcLine}`,
+    `Prose.\n\nDeed: Ana: ${dText}\n${pcLine}`,
+  );
+  const failures = (cuts?: Map<number, number>) =>
+    segment(rows, ledger, cuts).flatMap((seg) =>
+      runChecks(seg, { transcript: rows, seed: null })
+        .filter((r) => !r.pass)
+        .map((r) => [seg.narrationSeq, r.id] as const),
+    );
+
+  it("yields the same segments with no cuts as with an empty map", () => {
+    const d = loadClean();
+    expect(segment(d.transcript, d.ledger)).toEqual(
+      segment(d.transcript, d.ledger, new Map()),
+    );
+  });
+
+  it("blames the in-flight narration without cuts, and nothing with them", () => {
+    expect(failures()).toEqual([
+      [5, "dice-lines"],
+      [5, "deeds-narrated"],
+      [6, "dice-lines"],
+    ]);
+    const cuts = new Map([
+      [5, 2],
+      [6, 4],
+    ]);
+    expect(failures(cuts)).toEqual([]);
+    const segs = segment(rows, ledger, cuts);
+    expect(segs[1]?.rows.map((r) => r.seq)).toEqual([3, 4, 6]);
+  });
+
+  it("clamps a cut into order and below its narration", () => {
+    for (const cuts of [
+      new Map([
+        [5, 4],
+        [6, 1],
+      ]),
+      new Map([
+        [5, 99],
+        [6, 99],
+      ]),
+    ]) {
+      const segs = segment(rows, ledger, cuts);
+      const seen = segs.flatMap((s) => s.rows.map((r) => r.seq));
+      expect(new Set(seen).size).toBe(seen.length);
+      expect(seen).toEqual([...seen].sort((a, b) => a - b));
+      expect(segs.map((s) => s.narrationSeq)).toEqual([5, 6]);
+    }
+  });
+
+  it("maps narration seqs to the job window and skips jobs without one", () => {
+    expect(
+      narrationCuts([
+        { factsThrough: 7, narrationSeqs: [9, 10] },
+        { factsThrough: null, narrationSeqs: [11] },
+        { narrationSeqs: [12] },
+        { factsThrough: 3 },
+      ]),
+    ).toEqual(
+      new Map([
+        [9, 7],
+        [10, 7],
+      ]),
+    );
   });
 });

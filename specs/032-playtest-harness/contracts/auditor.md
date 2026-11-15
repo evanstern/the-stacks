@@ -21,11 +21,17 @@ export async function runAudit(input: AuditInput): Promise<Report>;
 
 ## Segments (FR-010)
 
-`segment(transcript, ledger): Segment[]`. Walk rows in `seq` order. Each `narration` row whose
+`segment(transcript, ledger, cuts?): Segment[]`. Walk rows in `seq` order. Each `narration` row whose
 actor is `ai:dm` closes a segment holding every row after the previous narration up to and
 including it. Rows after the last narration form a tail segment only when they include a
 `talk` row; otherwise they are dropped from auditing (still in the transcript). A transcript
 with no `scene.changed` row yields zero segments and the single finding `no-scene`.
+
+Spec 115 (window cut): `cuts` is `narrationCuts(jobs)`, a map from a narration's seq to its job's
+`factsThrough`. Narration k at seq N closes the non-narration rows with seq in
+`(cut[k-1], cut[k]]`, where `cut[k] = clamp(cuts.get(N) ?? N-1, cut[k-1], N-1)` and `cut[-1] = 0`.
+A deed posted while a narration streams belongs to the next narration, which reads it. With no
+`cuts` every cut is `N-1`, which is the walk above. The tail starts after the last cut.
 
 ## Code checks (FR-011; seven checks since spec 111)
 

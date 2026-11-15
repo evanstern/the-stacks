@@ -16,7 +16,7 @@ import {
   ReportSchema,
   type RunManifest,
 } from "./auditor/schema.js";
-import { segment } from "./auditor/segments.js";
+import { narrationCuts, segment } from "./auditor/segments.js";
 import {
   budgetGateway,
   countingSink,
@@ -511,7 +511,11 @@ async function cmdAudit(ctx: Ctx, v: Values["values"]): Promise<number> {
     gateway = fake.gateway;
     Object.assign(models, fake.models);
   } else if (auditor === "provider") {
-    const segments = segment(contents.transcript, contents.ledger).length;
+    const segments = segment(
+      contents.transcript,
+      contents.ledger,
+      narrationCuts(contents.jobs),
+    ).length;
     const scenario = readScenario(ctx, v);
     const pre = preflight(
       ctx,
