@@ -4,7 +4,7 @@ title: Auditor export caps jobs at 500 and drops early facts windows
 status: In Progress
 assignee: []
 created_date: '2026-11-15T13:40:00Z'
-updated_date: '2026-11-15T13:42:00Z'
+updated_date: '2026-11-15T13:43:00Z'
 labels:
   - bug
   - ws:tooling
@@ -36,4 +36,6 @@ TASK-0338 retest (2026-11-15, session 6031b671). exportSession reads listDmJobs(
 
 <!-- SECTION:NOTES:BEGIN -->
 Claimed 2026-11-15 by the R1 sweep. Worktree .worktrees/task-0355, branch task-0355-export-all-jobs, cut from origin/main a0658f30. No spec dir: escape line E13 (operator-signed 2026-11-15, "Sign E13") covers this task.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
