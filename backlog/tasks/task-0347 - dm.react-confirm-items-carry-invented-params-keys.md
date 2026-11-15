@@ -4,7 +4,7 @@ title: dm.react confirm items carry invented params keys
 status: In Progress
 assignee: []
 created_date: '2026-11-15T03:19:00Z'
-updated_date: '2026-11-15T05:03:00Z'
+updated_date: '2026-11-15T05:36:00Z'
 labels:
   - playtest
   - ws:dm
@@ -38,4 +38,7 @@ Spec: specs/116-react-confirm-params
 
 <!-- SECTION:NOTES:BEGIN -->
 Claimed 2026-11-15 by the R1 sweep (docs/design/r1-fast-table-runbook.md). Worktree .worktrees/task-0347, branch task-0347-react-params, cut from origin/main 3525683f. Spec number 116 claimed with a stub.
+
+Spec 116 authored (24ef840d). Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=cc/claude-opus-5-5
+Hosted attempt-1 reply text is unrecoverable (dm_model_calls stores none; log lines lost on the 2026-11-15 04:51 UTC restart). Replay fixtures are reconstructed from finding 3's exact keys.
 <!-- SECTION:NOTES:END -->
