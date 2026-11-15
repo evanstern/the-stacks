@@ -1,10 +1,10 @@
 ---
 id: TASK-0348
 title: Talk chain cap swallows the read after a text-less declared Intent
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-11-15T03:26:00Z'
-updated_date: '2026-11-15T06:24:00Z'
+updated_date: '2026-11-15T06:32:00Z'
 labels:
   - playtest
   - ws:dm
@@ -22,14 +22,14 @@ Hosted run 2026-11-14 (TASK-0338, docs/playtests/2026-11-14-combat-smoke-hosted.
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 A human declared mechanical Intent resets the chain cap the same way a human talk row does
-- [ ] #2 A test covers two narrated moves followed by a third declared /move, which queues a read
+- [x] #1 A human declared mechanical Intent resets the chain cap the same way a human talk row does
+- [x] #2 A test covers two narrated moves followed by a third declared /move, which queues a read
 <!-- AC:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
-- [ ] #1 All tests and checks run green
-- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
+- [x] #1 All tests and checks run green
+- [x] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
 
 ## Implementation Notes
@@ -44,4 +44,12 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-
 
 Merged origin/main (7a76b5bb; runbook rows from 0347 and 0348 both kept). dm-talk-triggers chain-cap prose re-verified (2fddcc2e).
 Dispatch: tier=haiku pinned=cc/claude-haiku-5-5 served=cc/claude-haiku-5-5
+
+Merged PR #188 1e82ef60. Escape-line task: no spec dir.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Merged in PR #188 (1e82ef60) under operator-signed E12. capReached (dm/talk-triggers.ts) also stops counting at the latest human Intent by seq, so a text-less declared /move resets the chain cap. A unit case and a DB replay (two narrated stages, then a declared /move, queue a read) cover the 2026-11-14 hosted finding 4.
+<!-- SECTION:FINAL_SUMMARY:END -->
