@@ -19,10 +19,10 @@ Do not edit `packages/intent`, `nodes/schemas.ts`, `prompts/interpret.ts`, `prom
 
 ## Phase 2: CI scenario invented-params confirm (FR-012–FR-014; AC #2)
 
-- [ ] T010 Merge `origin/main` into the branch. Add the `confirm-move` move to `playtests/scenarios/greyhollow-ford.json` after `deed-move`.
-- [ ] T011 Extend `test/dm/scripts/greyhollow-ford-deeds.json` with the react reply (F2's keys on a `move` to `near-bank`) and the ruling turn's calls, in consumption order. Add audit responses to `playtests/fixtures/greyhollow-ford.audit.json`. Keep `scriptRemaining` at zero.
-- [ ] T012 Update `test/playtest/playtest.integration.test.ts` (segment count, FR-014). Prove SC-006's negative: with `stripParams` stubbed to identity, the run fails. Record the result in the commit message; do not commit the stub.
-- [ ] T013 Amend `specs/032-playtest-harness/contracts/scenario.md` with the shipped `confirm-move`.
+- [x] T010 Merge `origin/main` into the branch. Add the `confirm-move` move to `playtests/scenarios/greyhollow-ford.json` after `deed-move`.
+- [x] T011 Extend `test/dm/scripts/greyhollow-ford-deeds.json` with the react reply (F2's keys on a `move` to `near-bank`) and the ruling turn's calls, in consumption order. Add audit responses to `playtests/fixtures/greyhollow-ford.audit.json`. Keep `scriptRemaining` at zero.
+- [x] T012 Update `test/playtest/playtest.integration.test.ts` (segment count, FR-014). Prove SC-006's negative: with `stripParams` stubbed to identity, the run fails. Record the result in the commit message; do not commit the stub.
+- [x] T013 Amend `specs/032-playtest-harness/contracts/scenario.md` with the shipped `confirm-move`.
 
 ## Phase 3: Wiki
 
