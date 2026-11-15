@@ -110,3 +110,28 @@ export async function drainAll(worker: {
     if (n === 0) return total;
   }
 }
+
+export type Gw = NonNullable<DmWorkerDeps["gateway"]>;
+
+/** Wraps the world gateway so the `dm.narrate` call stalls until `release()`. */
+export function pausing(base: Gw) {
+  let release!: () => void;
+  const gate = new Promise<void>((r) => {
+    release = r;
+  });
+  let paused!: () => void;
+  const reached = new Promise<void>((r) => {
+    paused = r;
+  });
+  const gateway = {
+    chat(req: Parameters<Gw["chat"]>[0]) {
+      if (req.purpose !== "dm.narrate") return base.chat(req);
+      return (async function* () {
+        paused();
+        await gate;
+        yield* base.chat(req);
+      })();
+    },
+  } as Gw;
+  return { gateway, release, reached };
+}

@@ -15,9 +15,9 @@ Do not edit the runtime (spec FR-009), `auditor/checks.ts`, `dm/prompts/react.ts
 
 ## Phase 2: The 8c7d506e replay (FR-007, FR-008; AC #2)
 
-- [ ] T006 Move `pausing` from `test/dm/narration-stream-gate.integration.test.ts` into `test/dm/worker-world.ts` as an export. Import it back; leave the spec 108 test body unchanged.
-- [ ] T007 Write `apps/server/test/dm/deed-mid-narration.integration.test.ts` per plan D4 steps 1–6: pause the monster narrate, submit the floor holder's `/attack` Intent, release, drain, assert the race shape, then audit code-only and assert `deeds-narrated` and `dice-lines` pass on every segment.
-- [ ] T008 Add the step 7 control to the same file: with `factsThrough` stripped, `deeds-narrated` fails and cites the carrier.
+- [x] T006 Move `pausing` from `test/dm/narration-stream-gate.integration.test.ts` into `test/dm/worker-world.ts` as an export. Import it back; leave the spec 108 test body unchanged.
+- [x] T007 Write `apps/server/test/dm/deed-mid-narration.integration.test.ts` per plan D4 steps 1–6: pause the monster narrate, submit the floor holder's `/attack` Intent, release, drain, assert the race shape, then audit code-only and assert `deeds-narrated` and `dice-lines` pass on every segment.
+- [x] T008 Add the step 7 control to the same file: with `factsThrough` stripped, `deeds-narrated` fails and cites the carrier.
 
 ## Phase 3: Wiki
 
