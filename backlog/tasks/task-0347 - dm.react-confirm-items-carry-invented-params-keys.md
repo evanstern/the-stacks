@@ -4,7 +4,7 @@ title: dm.react confirm items carry invented params keys
 status: In Progress
 assignee: []
 created_date: '2026-11-15T03:19:00Z'
-updated_date: '2026-11-15T05:36:00Z'
+updated_date: '2026-11-15T05:47:00Z'
 labels:
   - playtest
   - ws:dm
@@ -41,4 +41,6 @@ Claimed 2026-11-15 by the R1 sweep (docs/design/r1-fast-table-runbook.md). Workt
 
 Spec 116 authored (24ef840d). Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=cc/claude-opus-5-5
 Hosted attempt-1 reply text is unrecoverable (dm_model_calls stores none; log lines lost on the 2026-11-15 04:51 UTC restart). Replay fixtures are reconstructed from finding 3's exact keys.
+
+Phase 1 (T001-T009) landed 455687fa; ci:check green (1879 passed). Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
