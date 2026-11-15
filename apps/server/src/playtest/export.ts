@@ -39,6 +39,10 @@ export interface JobItem {
   audit: AuditRecord | null;
   calls: { purpose: string; promptVersion: string; outcome: string }[];
   error: string | null;
+  /** Spec 115: the checkpoint's `factsThrough` (spec 104 FR-018); null when absent. */
+  factsThrough?: number | null;
+  /** Spec 115: the narration seqs the job shipped; [] when none. */
+  narrationSeqs?: number[];
 }
 
 export function toJobItem(job: DmJobRow): JobItem {
@@ -47,6 +51,10 @@ export function toJobItem(job: DmJobRow): JobItem {
     check?: CheckRecord | null;
     audit?: AuditRecord | null;
     calls?: { purpose: string; promptVersion: string; outcome: string }[];
+    checkpoint?: {
+      factsThrough?: number;
+      narration?: { seqs?: number[] } | null;
+    } | null;
   };
   const input = (job.input ?? {}) as { trigger?: TurnTrigger };
   return {
@@ -68,6 +76,10 @@ export function toJobItem(job: DmJobRow): JobItem {
       outcome: c.outcome,
     })),
     error: job.error,
+    factsThrough:
+      job.kind === "turn" ? (result.checkpoint?.factsThrough ?? null) : null,
+    narrationSeqs:
+      job.kind === "turn" ? (result.checkpoint?.narration?.seqs ?? []) : [],
   };
 }
 

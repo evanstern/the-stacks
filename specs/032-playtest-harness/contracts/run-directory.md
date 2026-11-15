@@ -12,7 +12,7 @@ FR-007, FR-009. Default location: `.playtests/<runId>/` at the repository root (
 | `transcript.jsonl` | `run`, `audit --session` | every row of the session as `StoredEvent` (`seq`, `type`, `version`, `actor`, `visibility`, `payload`, `createdAt`), DM view, ascending `seq`, one JSON object per line |
 | `transcript.md` | `run`, `audit --session` | the player view (rows a player in the human seat can see, by `canSee`), rendered: talk and narration as text, actions with their status, ledger lines through `play/ledger-format`-equivalent server rendering (the facts renderers). DM-only rows are left out |
 | `ledger.json` | `run`, `audit --session` | `loadProjections(db, sessionId, { role: "dm" }).ledger`, as a JSON array |
-| `jobs.json` | `run`, `audit --session` | `listDmJobs(db, sessionId, 500)` mapped to the `/dm` turns item shape (dm-api.md): no prompt text, audit records with hashes |
+| `jobs.json` | `run`, `audit --session` | `listDmJobs(db, sessionId, 500)` mapped to the `/dm` turns item shape (dm-api.md): no prompt text, audit records with hashes. Spec 115 adds two optional fields: `factsThrough` (the turn checkpoint's window end, else `null`) and `narrationSeqs` (the shipped narration seqs, else `[]`) |
 | `usage.json` | `run` | the counting sink's `UsageRecord[]` and totals (no prompt or completion text by construction) |
 | `report.json` | `audit` (and `run` unless `--no-audit`) | the report (audit-report-schema.md) |
 | `report.md` | same | the rendered report |
