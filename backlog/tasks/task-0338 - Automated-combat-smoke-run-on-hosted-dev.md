@@ -4,7 +4,7 @@ title: Automated combat smoke run on hosted dev
 status: In Progress
 assignee: []
 created_date: '2026-11-14T02:29:00Z'
-updated_date: '2026-11-15T13:36:00Z'
+updated_date: '2026-11-15T13:38:00Z'
 labels:
   - playtest
   - ws:tooling
@@ -53,4 +53,8 @@ Retest 2026-11-15 (session 6031b671-da08-4336-b7ab-058dcedb4939, vm-104 at 058f8
 - Encounter end: not reached. Party down by round 3; the encounter never ended and AI-DM turns ran on for 500+ rounds (TASK-0354). The jobs were stopped by an operator-run DB update (C9, 13:35 UTC).
 - Spend: $10.60 of $15, about $8 of it in the runaway loop.
 - deeds-narrated: pending the hosted auditor (C9).
+
+Operator ruling on PR #184 (2026-11-15, in chat): "Approve, AC #2 open". The logs land; AC #2 stays unchecked until a rerun passes deeds-narrated after TASK-0350. The card stays In Progress.
+
+From spec 116 OQ-4 (TASK-0347): a stripped dm.react reply now counts as ok in dm_model_calls. The retest exit-5 reading must count jobs.result.check.stripped entries alongside ledger attempt-1 failures.
 <!-- SECTION:NOTES:END -->
