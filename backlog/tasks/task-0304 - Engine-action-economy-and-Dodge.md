@@ -4,7 +4,7 @@ title: Engine action economy and Dodge
 status: In Progress
 assignee: []
 created_date: 2026-11-10 03:11
-updated_date: '2026-11-15T12:23:00Z'
+updated_date: '2026-11-15T12:24:00Z'
 labels:
   - ws:engine
   - replan-2026-11
@@ -44,4 +44,6 @@ Spec: specs/117-action-economy-dodge
 Hosted observation of the known gap, 2026-11-14 (TASK-0338, docs/playtests/2026-11-14-combat-smoke-hosted.md finding 5): two /attack Intents settled in one Tamsin turn (session 8c7d506e, seq 80 and 85, both outcome settled with batch rows). A level-1 fighter has no Extra Attack; AC #2 (NO_ACTION_LEFT) would have refused the second.
 
 Claimed 2026-11-15 by the R1 sweep (docs/design/r1-fast-table-runbook.md). Worktree .worktrees/task-0304, branch task-0304-action-economy, cut from origin/main b7102dc0. Spec number 117 claimed with a stub.
+
+Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=cc/claude-opus-5-5 (spec 117 authoring; operator brief names opus-implementer for spec authoring)
 <!-- SECTION:NOTES:END -->
