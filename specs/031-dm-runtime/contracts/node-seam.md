@@ -221,3 +221,8 @@ check }`. The worker ships a model item or a code item (a declared Intent with n
 `action.suggest` row.
 
 Dated note, 2026-11-11 (T043): `jobs.result.talk` also carries `confirmItems` and `answered` (see the TASK-0188 block above).
+
+Dated note, 2026-11-15 (TASK-0347, spec 116): the talk `TurnOutcome` carries `check: CheckRecord`, and a
+finished talk job writes it to `jobs.result.check` (it was `null`). `CheckRecord.stripped?` lists each
+`params` key `stripParams` removed from the react reply: `{ kind: "params-stripped", item, bodyKind, key }`.
+Rows stored before this change lack the field.

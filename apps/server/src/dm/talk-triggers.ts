@@ -37,16 +37,21 @@ export function isReadable(
   return readablePosts(p).some((post) => post.seq === row.seq);
 }
 
-/** FR-012: true when `cap` DM narration rows follow the latest human row. */
+/** FR-012: true when `cap` DM narration rows follow the latest human row or human Intent. */
 export function capReached(
   p: SessionProjections,
   cap: number = TALK_CHAIN_CAP,
 ): boolean {
   let count = 0;
+  // A declared Intent with no text adds no transcript row, so it resets the chain by seq.
+  const humanIntentSeq = Math.max(
+    0,
+    ...p.intents.filter((v) => isHumanActor(v.actor)).map((v) => v.seq),
+  );
   for (let i = p.transcript.length - 1; i >= 0; i--) {
     const e = p.transcript[i];
     if (!e) continue;
-    if (isHumanActor(e.actor)) break;
+    if (isHumanActor(e.actor) || e.seq < humanIntentSeq) break;
     if (e.kind === "narration" && e.actor === "ai:dm") count++;
   }
   return count >= cap;

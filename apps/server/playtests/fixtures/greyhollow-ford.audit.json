@@ -73,6 +73,20 @@
       }
     },
     {
+      "note": "segment: confirmed move",
+      "respond": {
+        "type": "json",
+        "value": {
+          "verdict": "pass",
+          "findings": []
+        }
+      },
+      "usage": {
+        "inputTokens": 0,
+        "outputTokens": 0
+      }
+    },
+    {
       "note": "segment 5: social ruling",
       "respond": {
         "type": "json",

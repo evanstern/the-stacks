@@ -16,7 +16,7 @@ import {
   type Report,
   SEVERITY_OF,
 } from "./schema.js";
-import { hasScene, type Segment, segment } from "./segments.js";
+import { hasScene, narrationCuts, type Segment, segment } from "./segments.js";
 import { fightStats } from "./stats.js";
 
 /**
@@ -136,7 +136,7 @@ function legacyDetail(audit: NonNullable<JobItem["audit"]>): string {
 
 export async function runAudit(input: AuditInput): Promise<Report> {
   const transcript = [...input.transcript].sort((a, b) => a.seq - b.seq);
-  const segments = segment(transcript, input.ledger);
+  const segments = segment(transcript, input.ledger, narrationCuts(input.jobs));
   const raw: Raw[] = [];
   const reportSegments: Report["segments"] = [];
   const usage = { calls: 0, inputTokens: 0, outputTokens: 0 };

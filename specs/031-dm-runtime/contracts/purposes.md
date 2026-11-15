@@ -78,3 +78,13 @@ No purpose, `AI_PURPOSES` entry or output cap is added.
 - The user prompt adds a `Targets` section: revealed zones and present actors, one `<id> (<kind>, <name>)` line each.
 - The read call passes a `normalize` function to `callJson`. It fills a missing `kind` on a confirm target that is a bare id, or an object with only `id`, when the id names exactly one listed target. Unknown or ambiguous ids stay unchanged.
 - `jobs.result.talk.targetRepairs` counts the repaired targets.
+
+## Amendment 2026-11-15 (TASK-0347, specs/116-react-confirm-params): `dm.react-v7`
+
+**Amendment (TASK-0347).** Spec `specs/116-react-confirm-params`, plan D1 to D3. Additive.
+
+The read's call uses prompt version `dm.react-v7`, not `dm.react-v6`. The purpose stays `dm.narrate`.
+No purpose, `AI_PURPOSES` entry or output cap is added.
+
+- The system prompt adds the per-kind target and params lines from `INTENT_GRAMMAR`, the rule `params holds only the keys listed for its kind. Most kinds take {}. Never add another key.`, and one worked `move` confirm example.
+- The read call's `normalize` runs `stripParams` after `normalizeReact`. It removes top-level `params` keys the kind's strict schema does not list. It never edits a value or a known key.

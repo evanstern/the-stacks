@@ -330,6 +330,7 @@ Then **stop for CP-7** (the R1 playtest).
   - **E9 — TASK-0307 (operator-signed 2026-11-10):** card ACs drive. Accept and strip both slot-label forms; no doubled restate; ask only for a real clarification.
   - **E10 — TASK-0314 (operator-signed 2026-11-11, "Sign E10"):** card ACs drive. One enqueue rule: a human DM's ruling Intent queues the resume turn; plus its test. Merges before TASK-0199 phase 3.
   - **E11 — TASK-0334 (operator-signed 2026-11-13, "Sign E11"):** card ACs drive. The seed check refuses a way whose label or draft names a hidden zone unless revealed; the ways players see are filtered by fog; each with a test, plus a test replaying the greyhollow-ford "ladder to the loft" flow.
+  - **E12 — TASK-0348 (operator-signed 2026-11-15, "Sign E12"):** card ACs drive. `capReached` (apps/server/src/dm/talk-triggers.ts) also stops counting at a human-declared mechanical Intent, the same as a human transcript row. Add a test: two narrated /move stages, then a third declared /move queues a read, replaying the 2026-11-14 hosted flow (finding 4).
 
 ## Concurrency & conflict doctrine
 
@@ -475,6 +476,27 @@ The test drive showed narration's first token under 1 s (exit 2). It also showed
   - A browser live check asserts that narration follows each deed, not only that rows land.
 - **Execution:** each card runs in its own sub-session from a short brief. The coordinating session dispatches and reports.
 
+## Amendment 2026-11-15: plan after the hosted combat run
+
+Operator ruling (2026-11-15, in chat): "Approve, plan next". Evidence: `docs/playtests/2026-11-14-combat-smoke-hosted.md` (PR #184).
+
+The hosted run (session 8c7d506e) met exit 1 (engine rows at 0 ms for typed Intents) and exit 2 (first token p50 0.90 s), with 0 fallbacks. Exit 3 is not met: rounds took 95–104 s against 60 s. Goblin turns took 0.1–14 s; the two AI companions took about 60 s of each round. Exit 5 is not met: attempt-1 schema failures were 4.1%, both from `dm.react` confirm params.
+
+- **Wave 2b, fixes (first):**
+  - TASK-0350: a deed posted mid-narration is told one narration late. This blocks TASK-0338 AC #2.
+  - TASK-0347: `dm.react` confirm items carry invented `params` keys (exit 5).
+  - TASK-0348: the talk chain cap swallows the read after a text-less declared Intent.
+  - TASK-0350 and TASK-0348 both touch the talk and narrate path, so run them serially. TASK-0347 is in the react prompt and schema, so it runs in parallel.
+- **Wave 2c, round time (exit 3):** TASK-0321, a code Director for turn-mode AI beats. Its trigger has fired. Add an AC to profile one companion turn first: the companion call, the narrate call and the Director call, each timed. If the Director is not the largest share, the card's scope moves to the largest share before any code changes.
+- **TASK-0338 retest:** after wave 2b deploys, re-run the automated hosted combat run under the same ceiling. It must pass AC #2 (`deeds-narrated`) and record round time after 2c.
+- **Wave 3 (spine resumes):**
+  - TASK-0304 (action economy; also covers F5, the double attack), then 0222, 0224 and 0215.
+  - TASK-0275, then 0277, 0276 and 0329.
+  - TASK-0101 before CP-7.
+  - TASK-0278, then CP-7.
+- **Tooling (any time):** TASK-0349 (scripted-DM Intent coverage and the fresh-stack rehearsal rule).
+- **Execution:** one sub-session per card or serial pair, as before.
+
 ## Execution log
 
 Multi-phase dispatch stays visible in `notes` (for example `phases: 1-2 done, 3 dispatched`),
@@ -516,3 +538,6 @@ updated at each dispatch boundary. `tokens/cost` carries best-effort actuals.
 | 2026-11-14 | TASK-0337 | (this PR) | — | opus spec; sonnet x5 | spec 111: deed rule in runner + narrate window (`dm/deeds.ts`, `dm.narrate-v25`); auditor `deeds-narrated` with negative proof; CI scenario `/search` + `/move` deeds; OQ-1 default kept; one-off web flake carded TASK-0344 |
 | 2026-11-14 | TASK-0336 | (this PR) | — | opus spec; sonnet x4 | spec 114: dm.react-v5 target shape + Targets list; `normalizeReact` repairs a kind-less unique zone/actor id; public read-failure notice on failed talk turns; re-ask names missing `kind`; CI confirm deed (bare-id reply); OQ-4 ruled (a): driver passes `intent`, 0337 deeds now direct; OQ-1 carded TASK-0345 |
 | 2026-11-14 | TASK-0335 | (this PR) | — | opus spec x1; sonnet x5 | Spec 112: actors carry `met`/`knows`; quoted speech checked, leaking inner sentence cut; companion/narrate/react prompts drop unmet actors; auditor hidden-info mirrors the speech rule (restate line skipped); replay fixture from session 0106e608; dm.react-v6, dm.narrate-v26, dm.companion-v10; OQs carded TASK-0339..0343, TASK-0346 |
+| 2026-11-15 | TASK-0350 | (this PR) | — | opus spec; sonnet x3; haiku x1 | spec 115: auditor cuts segments at each narration's facts window (`factsThrough`, `narrationSeqs` in jobs.json); runtime unchanged (rule 9 already tells the deed next); 8c7d506e replay passes deeds-narrated and dice-lines, control without the window fails; OQ-1 (talk narrations carry no window) default kept |
+| 2026-11-15 | TASK-0348 | (this PR) | — | sonnet x1 | E12 (operator-signed "Sign E12"); `capReached` resets at a human Intent by seq; unit case plus enqueue replay of two narrated stages then a declared /move queuing a read |
+| 2026-11-15 | TASK-0347 | (this PR) | — | opus spec; sonnet x3; haiku x1 | spec 116: dm.react-v7 lists per-kind params and "most kinds take {}"; `stripParams` drops params keys a strict kind schema does not list, before validation, recorded as `check.stripped` on the talk job; hosted replay fixtures reconstructed (attempt-1 text not stored); CI `confirm-move` deed with invented `ready`/`caution`; OQ-2..4 to cards |
