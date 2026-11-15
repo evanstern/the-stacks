@@ -4,7 +4,7 @@ title: Talk chain cap swallows the read after a text-less declared Intent
 status: Done
 assignee: []
 created_date: '2026-11-15T03:26:00Z'
-updated_date: '2026-11-15T06:32:00Z'
+updated_date: '2026-11-15T06:40:00Z'
 labels:
   - playtest
   - ws:dm
@@ -46,6 +46,8 @@ Merged origin/main (7a76b5bb; runbook rows from 0347 and 0348 both kept). dm-tal
 Dispatch: tier=haiku pinned=cc/claude-haiku-5-5 served=cc/claude-haiku-5-5
 
 Merged PR #188 1e82ef60. Escape-line task: no spec dir.
+
+Deploy check: vm-104 /health serves bc0adeba, which contains merge 1e82ef60. Worktree, branch and stack removed; env:prune --check: no orphans.
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
