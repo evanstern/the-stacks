@@ -4,7 +4,7 @@ title: Automated combat smoke run on hosted dev
 status: In Progress
 assignee: []
 created_date: '2026-11-14T02:29:00Z'
-updated_date: '2026-11-15T13:38:00Z'
+updated_date: '2026-11-15T13:41:00Z'
 labels:
   - playtest
   - ws:tooling
@@ -57,4 +57,9 @@ Retest 2026-11-15 (session 6031b671-da08-4336-b7ab-058dcedb4939, vm-104 at 058f8
 Operator ruling on PR #184 (2026-11-15, in chat): "Approve, AC #2 open". The logs land; AC #2 stays unchecked until a rerun passes deeds-narrated after TASK-0350. The card stays In Progress.
 
 From spec 116 OQ-4 (TASK-0347): a stripped dm.react reply now counts as ok in dm_model_calls. The retest exit-5 reading must count jobs.result.check.stripped entries alongside ledger attempt-1 failures.
+
+Retest auditor (2026-11-15, C9 go given by the operator running the command): `node dist/playtest/cli.js audit --session 6031b671-... --auditor none` in stacks-dev-app-1. Verdict fail: deeds-narrated 2 (seq 231, 240), dice-lines 5, life-states 32, dice-language 4, 4 notes.
+- Cause of the deeds-narrated fails: the export caps jobs at 500 (TASK-0355). The session had 577 jobs, so the windows for narrations 232 and 241 were dropped. Both deeds were told by the next narration.
+- Local re-audit with the 77 missing jobs rebuilt from the debug route (`--dir`, worktree build at 4c1d3be4): deeds-narrated 0 fails; dice-lines 3 (TASK-0356); life-states 31 (TASK-0357, mostly inside the TASK-0354 loop); dice-language 4.
+- AC #2 is not ticked. The hosted report fails, and the passing reading needs an operator ruling.
 <!-- SECTION:NOTES:END -->
