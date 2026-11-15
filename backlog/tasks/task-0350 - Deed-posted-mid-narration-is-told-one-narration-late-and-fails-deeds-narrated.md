@@ -1,10 +1,10 @@
 ---
 id: TASK-0350
 title: Deed posted mid-narration is told one narration late and fails deeds-narrated
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-11-15T04:42:00Z'
-updated_date: '2026-11-15T05:55:00Z'
+updated_date: '2026-11-15T06:05:00Z'
 labels:
   - playtest
   - ws:dm
@@ -24,14 +24,14 @@ Spec: specs/115-deed-mid-narration
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 A deed posted while a narration is streaming is told by a narration whose segment the auditor assigns it to
-- [ ] #2 The 8c7d506e pattern (deed during an in-flight NPC narration) has a test that passes deeds-narrated and dice-lines
+- [x] #1 A deed posted while a narration is streaming is told by a narration whose segment the auditor assigns it to
+- [x] #2 The 8c7d506e pattern (deed during an in-flight NPC narration) has a test that passes deeds-narrated and dice-lines
 <!-- AC:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
-- [ ] #1 All tests and checks run green
-- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
+- [x] #1 All tests and checks run green
+- [x] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
 
 ## Implementation Notes
@@ -51,4 +51,12 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-
 Phase 3 wiki (c839c070) and test-suite re-pin (b5b6fcb2). Gates: REQUIRE_DATABASE=1 ci:check exit 0 (latency PASS, ai-round 1121ms OK), boundaries 28/28, freshness OK, plan empty, spec-bridge ok.
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5
 Dispatch: tier=haiku pinned=cc/claude-haiku-5-5 served=cc/claude-haiku-5-5
+
+spec-bridge sync: Phase 1 5/5 · Phase 2 3/3 · Phase 3 wiki 4/4 — status In Progress → Done. Merged PR #186 44ce9c13.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Spec 115 merged in PR #186 (44ce9c13). The auditor cuts each segment at its narration's facts window (factsThrough and narrationSeqs in jobs.json); the runtime is unchanged. The 8c7d506e replay test passes deeds-narrated and dice-lines, and a control run without the window fails. Spec tasks: Phase 1 5/5, Phase 2 3/3, Phase 3 wiki 4/4. Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
