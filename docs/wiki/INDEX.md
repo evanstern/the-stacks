@@ -113,7 +113,7 @@ codex, system modules, or agents yet. `main` is now continuously deployed to a r
 - [[test-suite]] — what is covered, the environment-gated integration suites, the skip trap, and the CI latency gate.
 - [[ci-pipeline]] — GitHub Actions CI, the `ci:check` aggregate script, and the boundary-rules check.
 - [[benchmarks]] — the retrieval benchmark: the SRD corpus, the question set, the model/dim/chunking/mode matrix, and the deterministic per-commit recall gate.
-- [[playtest-harness]] — the playtest harness: scripted in-process play over the real gate and DM worker, the seven-check auditor (incl. `deeds-narrated`) plus `playtest.audit`, the report, provider mode with the spend ceiling, and the `pnpm playtest` CLI.
+- [[playtest-harness]] — the playtest harness: scripted in-process play over the real gate and DM worker, the seven-check auditor (incl. `deeds-narrated`; segments cut by each narration's facts window) plus `playtest.audit`, the report, provider mode with the spend ceiling, and the `pnpm playtest` CLI.
 - [[m2-demo]] — the M2 milestone check: the scripted and human playtest runs, the `pnpm playtest` commands, the fake-gateway CI case, and the signed record of every audit finding.
 - [[m0-demo]] — the milestone check: two browsers, one message, and how it is run.
 - [[benchmarks]] — the load and stress bench: tiers, the isolated `_load` database, the decision-0005 ingest-scaling measurement, both stress cases, and the dev tier's read-only safety design.
