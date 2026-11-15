@@ -4,7 +4,7 @@ title: Automated combat smoke run on hosted dev
 status: In Progress
 assignee: []
 created_date: '2026-11-14T02:29:00Z'
-updated_date: '2026-11-15T13:41:00Z'
+updated_date: '2026-11-15T21:37:00Z'
 labels:
   - playtest
   - ws:tooling
@@ -24,7 +24,7 @@ Replan 2026-11-13 wave 2 (operator: 'Approved, but automate the tests'). Replace
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
 - [x] #1 A script-driven hosted run plays two combat rounds with no human input and writes a playtest log with the R1 metrics table filled in.
-- [ ] #2 The run's auditor report passes the 'every deed narrated' check.
+- [x] #2 The run's auditor report passes the 'every deed narrated' check.
 <!-- AC:END -->
 
 ## Definition of Done
@@ -62,4 +62,6 @@ Retest auditor (2026-11-15, C9 go given by the operator running the command): `n
 - Cause of the deeds-narrated fails: the export caps jobs at 500 (TASK-0355). The session had 577 jobs, so the windows for narrations 232 and 241 were dropped. Both deeds were told by the next narration.
 - Local re-audit with the 77 missing jobs rebuilt from the debug route (`--dir`, worktree build at 4c1d3be4): deeds-narrated 0 fails; dice-lines 3 (TASK-0356); life-states 31 (TASK-0357, mostly inside the TASK-0354 loop); dice-language 4.
 - AC #2 is not ticked. The hosted report fails, and the passing reading needs an operator ruling.
+
+Hosted re-audit after TASK-0355 (PR #190, vm-104 at 6141feed; C9 go, operator: "Go, run audit"): `node dist/playtest/cli.js audit --session 6031b671-... --auditor none`. The export carries 577 of 577 jobs. deeds-narrated: 0 fails, so AC #2 is met. Verdict fail on other checks: dice-lines 3 (seq 158, 206, 248; TASK-0356), life-states 31 (TASK-0357, mostly in the TASK-0354 loop), dice-language 4 (all in the loop), 6 notes. Report /app/apps/server/.playtests/20261115T213727Z-session-6031b671/report.json.
 <!-- SECTION:NOTES:END -->

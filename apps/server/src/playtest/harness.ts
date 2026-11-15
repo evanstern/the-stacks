@@ -297,7 +297,7 @@ export async function runPlaytest(
   const deadline = Date.now() + scenario.limits.maxWallMs;
 
   const failedJob = async () => {
-    const jobs = await listDmJobs(db, sessionId, 500);
+    const jobs = await listDmJobs(db, sessionId, null);
     return jobs.find((j) => j.status === "failed");
   };
 

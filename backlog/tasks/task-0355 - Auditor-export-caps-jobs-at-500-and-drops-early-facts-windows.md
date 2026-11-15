@@ -1,9 +1,10 @@
 ---
 id: TASK-0355
 title: Auditor export caps jobs at 500 and drops early facts windows
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-11-15T13:40:00Z'
+updated_date: '2026-11-15T21:28:00Z'
 labels:
   - bug
   - ws:tooling
@@ -21,12 +22,28 @@ TASK-0338 retest (2026-11-15, session 6031b671). exportSession reads listDmJobs(
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 The export and the harness read every job of a session, with no fixed cap.
-- [ ] #2 A test with more than 500 jobs asserts the oldest job's factsThrough reaches jobs.json.
+- [x] #1 The export and the harness read every job of a session, with no fixed cap.
+- [x] #2 A test with more than 500 jobs asserts the oldest job's factsThrough reaches jobs.json.
 <!-- AC:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
-- [ ] #1 All tests and checks run green
-- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
+- [x] #1 All tests and checks run green
+- [x] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Claimed 2026-11-15 by the R1 sweep. Worktree .worktrees/task-0355, branch task-0355-export-all-jobs, cut from origin/main a0658f30. No spec dir: escape line E13 (operator-signed 2026-11-15, "Sign E13") covers this task.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5
+
+Built: 62214d40 (listDmJobs limit null = no cap; export and harness use it; test export-all-jobs.integration.test.ts with 577 jobs), 8fd7fb4f (wiki re-pins, prose unchanged). Gates: ci:check 0, server suite 1887 passed, boundaries 28/28, wiki plan empty, freshness 0. E13 added to the runbook.
+<!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Merged PR #190 (36f124ec). The playtest export and the harness read every job of a session (listDmJobs limit null). The test covers 577 jobs. E13 is in the runbook.
+<!-- SECTION:FINAL_SUMMARY:END -->
