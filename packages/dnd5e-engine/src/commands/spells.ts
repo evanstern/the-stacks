@@ -24,6 +24,7 @@ import { closeCombatSources, meleePairFor, withMeleePair } from "../sides.js";
 import { SPELLS, spellDice } from "../spells.js";
 import { actorUnable, bandOf, checkNamed, usedAssists } from "./attacks.js";
 import { appliedEvent } from "./conditions.js";
+import { isDodging } from "./economy.js";
 import { damageEvents, healingEvents, preflight } from "./hit-points.js";
 import { slotExpendEvent } from "./spell-slots.js";
 
@@ -131,6 +132,10 @@ export const handleSpellCast: Handler<"spell.cast"> = (state, command, rng) => {
     const mode = foldMode("normal", [
       ...attackModeSources(caster, target, { range: d.range } as AttackEntry),
       ...(applied.length ? (["advantage"] as ModeSource[]) : []),
+      // Spec 117 FR-011: Dodge gives disadvantage on attacks against the dodger.
+      ...(isDodging(state, target.id)
+        ? (["disadvantage"] as ModeSource[])
+        : []),
       ...closeCombatSources(state, caster.id, d.range === "ranged"),
     ]);
     const ac = target.ac;
@@ -212,10 +217,13 @@ export const handleSpellCast: Handler<"spell.cast"> = (state, command, rng) => {
     const rolled = rollExpression(
       d20Expression(saveMod),
       {
-        mode: foldMode(
-          "normal",
-          checkModeSources(target, "saving-throw", d.ability),
-        ),
+        mode: foldMode("normal", [
+          ...checkModeSources(target, "saving-throw", d.ability),
+          // Spec 117 FR-011: Dodge gives advantage on the dodger's Dexterity saves.
+          ...(d.ability === "dex" && isDodging(state, target.id)
+            ? (["advantage"] as ModeSource[])
+            : []),
+        ]),
         critical: false,
         purpose: "save",
         combatantId: target.id,

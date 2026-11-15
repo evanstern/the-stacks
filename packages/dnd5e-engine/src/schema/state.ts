@@ -357,6 +357,19 @@ export const EncounterSchema = z
         disengaged: z.boolean(),
       })
       .optional(),
+    // Spec 117: the active combatant's Action and Bonus Action this turn. A record whose round or
+    // combatantId differs from the active turn reads as nothing used.
+    economy: z
+      .object({
+        combatantId: CombatantIdSchema,
+        round: z.number().int().min(1),
+        actionUsed: z.boolean(),
+        bonusActionUsed: z.boolean(),
+      })
+      .optional(),
+    // Spec 117: combatants that took the Dodge action, until the start of their next turn
+    // (SRD 5.2.1 playing-the-game.actions).
+    dodging: z.array(CombatantIdSchema).optional(),
     // Spec 101: hostile pairs engaged in melee (the operator's "engaged"). Sorted ids, unique.
     melee: z.array(z.tuple([CombatantIdSchema, CombatantIdSchema])).optional(),
   })

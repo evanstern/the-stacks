@@ -8,14 +8,14 @@ Do not edit `packages/session-model/src`, `apps/server/src`, `apps/web`, the see
 
 ## Phase 1: Engine economy, Dodge and casting time (FR-001–FR-013; AC #1, #3)
 
-- [ ] T001 In `packages/dnd5e-engine/src/schema/state.ts`, add `economy` and `dodging` to `EncounterSchema` with their comments (plan D1).
-- [ ] T002 In `src/schema/commands.ts`, add `action.spend` and `dodge`. In `src/schema/refusals.ts`, append `ACTION_SPENT` (plan D2).
-- [ ] T003 Write `src/commands/economy.ts` with `actionsLeft`, `isDodging`, `handleActionSpend` and `handleDodge` (plan D3). Widen the `actorUnable` `role` union with `"actor"`. Register both handlers in `src/execute.ts`. Export `actionsLeft` and `isDodging` from `src/index.ts`.
-- [ ] T004 In `src/commands/encounter.ts`, extend `withoutSpent` to clear `dodging`, and widen the `turn.advance` guard to fire on a dodging incoming combatant (plan D4).
-- [ ] T005 Add the four Dodge mode sources in `src/commands/attacks.ts` and `src/commands/spells.ts` (plan D5).
-- [ ] T006 Add `castingTime` to `SpellMechanicsSchema` and the six entries in `src/spells.ts`. Assert it against the SRD record in `apps/server/test/dm/spell-mechanics.test.ts` (plan D6).
-- [ ] T007 Write `packages/dnd5e-engine/test/commands/economy.test.ts` with every SC-001 and SC-002 case. Confirm the coverage meta-test passes.
-- [ ] T008 Amend `specs/026-dnd5e-engine/contracts/commands.md`, `refusals.md` (row 36), `engine-api.md` and `events.md` (plan D11).
+- [x] T001 In `packages/dnd5e-engine/src/schema/state.ts`, add `economy` and `dodging` to `EncounterSchema` with their comments (plan D1).
+- [x] T002 In `src/schema/commands.ts`, add `action.spend` and `dodge`. In `src/schema/refusals.ts`, append `ACTION_SPENT` (plan D2).
+- [x] T003 Write `src/commands/economy.ts` with `actionsLeft`, `isDodging`, `handleActionSpend` and `handleDodge` (plan D3). Widen the `actorUnable` `role` union with `"actor"`. Register both handlers in `src/execute.ts`. Export `actionsLeft` and `isDodging` from `src/index.ts`.
+- [x] T004 In `src/commands/encounter.ts`, extend `withoutSpent` to clear `dodging`, and widen the `turn.advance` guard to fire on a dodging incoming combatant (plan D4).
+- [x] T005 Add the four Dodge mode sources in `src/commands/attacks.ts` and `src/commands/spells.ts` (plan D5).
+- [x] T006 Add `castingTime` to `SpellMechanicsSchema` and the six entries in `src/spells.ts`. Assert it against the SRD record in `apps/server/test/dm/spell-mechanics.test.ts` (plan D6).
+- [x] T007 Write `packages/dnd5e-engine/test/commands/economy.test.ts` with every SC-001 and SC-002 case. Confirm the coverage meta-test passes.
+- [x] T008 Amend `specs/026-dnd5e-engine/contracts/commands.md`, `refusals.md` (row 36), `engine-api.md` and `events.md` (plan D11).
 
 ## Phase 2: Planner economy, Dodge and the hosted replay (FR-014–FR-024; AC #2, #4)
 

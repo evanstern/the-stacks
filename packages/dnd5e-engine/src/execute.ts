@@ -9,6 +9,7 @@ import {
   handleConditionRemove,
   handleExhaustionAdjust,
 } from "./commands/conditions.js";
+import { handleActionSpend, handleDodge } from "./commands/economy.js";
 import {
   handleCombatantDepart,
   handleEncounterEnd,
@@ -79,6 +80,8 @@ const handlers: HandlerMap = {
   "combatant.place": handleCombatantPlace,
   move: handleMove,
   "movement.action": handleMovementAction,
+  "action.spend": handleActionSpend,
+  dodge: handleDodge,
   "combatant.depart": handleCombatantDepart,
   stand: handleStand,
 };
