@@ -475,6 +475,27 @@ The test drive showed narration's first token under 1 s (exit 2). It also showed
   - A browser live check asserts that narration follows each deed, not only that rows land.
 - **Execution:** each card runs in its own sub-session from a short brief. The coordinating session dispatches and reports.
 
+## Amendment 2026-11-15: plan after the hosted combat run
+
+Operator ruling (2026-11-15, in chat): "Approve, plan next". Evidence: `docs/playtests/2026-11-14-combat-smoke-hosted.md` (PR #184).
+
+The hosted run (session 8c7d506e) met exit 1 (engine rows at 0 ms for typed Intents) and exit 2 (first token p50 0.90 s), with 0 fallbacks. Exit 3 is not met: rounds took 95–104 s against 60 s. Goblin turns took 0.1–14 s; the two AI companions took about 60 s of each round. Exit 5 is not met: attempt-1 schema failures were 4.1%, both from `dm.react` confirm params.
+
+- **Wave 2b, fixes (first):**
+  - TASK-0350: a deed posted mid-narration is told one narration late. This blocks TASK-0338 AC #2.
+  - TASK-0347: `dm.react` confirm items carry invented `params` keys (exit 5).
+  - TASK-0348: the talk chain cap swallows the read after a text-less declared Intent.
+  - TASK-0350 and TASK-0348 both touch the talk and narrate path, so run them serially. TASK-0347 is in the react prompt and schema, so it runs in parallel.
+- **Wave 2c, round time (exit 3):** TASK-0321, a code Director for turn-mode AI beats. Its trigger has fired. Add an AC to profile one companion turn first: the companion call, the narrate call and the Director call, each timed. If the Director is not the largest share, the card's scope moves to the largest share before any code changes.
+- **TASK-0338 retest:** after wave 2b deploys, re-run the automated hosted combat run under the same ceiling. It must pass AC #2 (`deeds-narrated`) and record round time after 2c.
+- **Wave 3 (spine resumes):**
+  - TASK-0304 (action economy; also covers F5, the double attack), then 0222, 0224 and 0215.
+  - TASK-0275, then 0277, 0276 and 0329.
+  - TASK-0101 before CP-7.
+  - TASK-0278, then CP-7.
+- **Tooling (any time):** TASK-0349 (scripted-DM Intent coverage and the fresh-stack rehearsal rule).
+- **Execution:** one sub-session per card or serial pair, as before.
+
 ## Execution log
 
 Multi-phase dispatch stays visible in `notes` (for example `phases: 1-2 done, 3 dispatched`),
