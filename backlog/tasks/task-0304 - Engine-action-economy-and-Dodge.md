@@ -4,7 +4,7 @@ title: Engine action economy and Dodge
 status: In Progress
 assignee: []
 created_date: 2026-11-10 03:11
-updated_date: '2026-11-15T12:24:00Z'
+updated_date: '2026-11-15T21:26:00Z'
 labels:
   - ws:engine
   - replan-2026-11
@@ -45,5 +45,7 @@ Hosted observation of the known gap, 2026-11-14 (TASK-0338, docs/playtests/2026-
 
 Claimed 2026-11-15 by the R1 sweep (docs/design/r1-fast-table-runbook.md). Worktree .worktrees/task-0304, branch task-0304-action-economy, cut from origin/main b7102dc0. Spec number 117 claimed with a stub.
 
-Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=cc/claude-opus-5-5
+Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
