@@ -4,7 +4,7 @@ title: Talk chain cap swallows the read after a text-less declared Intent
 status: In Progress
 assignee: []
 created_date: '2026-11-15T03:26:00Z'
-updated_date: '2026-11-15T06:06:00Z'
+updated_date: '2026-11-15T06:15:00Z'
 labels:
   - playtest
   - ws:dm
@@ -38,4 +38,7 @@ Hosted run 2026-11-14 (TASK-0338, docs/playtests/2026-11-14-combat-smoke-hosted.
 Claimed 2026-11-15 by the R1 sweep (docs/design/r1-fast-table-runbook.md). Worktree .worktrees/task-0348, branch task-0348-chain-cap-intent, cut from origin/main 12527068. No spec dir: signed escape line covers this task.
 
 Operator ruling 2026-11-15, relayed verbatim by the parent session: "Sign E12". It signs: "E12 — TASK-0348: card ACs drive. `capReached` (apps/server/src/dm/talk-triggers.ts) also stops counting at a human-declared mechanical Intent, the same as a human transcript row. Add a test: two narrated /move stages, then a third declared /move queues a read, replaying the 2026-11-14 hosted flow (finding 4)."
+
+Implemented under E12 (b866ace1 code/tests/runbook, 1aa3181d wiki). capReached also stops at the latest human Intent by seq. Gates: REQUIRE_DATABASE=1 ci:check exit 0 (latency PASS, ai-round 860ms OK), boundaries 28/28, freshness OK, plan empty, spec-bridge ok.
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
