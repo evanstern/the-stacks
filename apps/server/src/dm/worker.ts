@@ -437,7 +437,7 @@ export function createDmWorker(deps: DmWorkerDeps): DmWorker {
             status:
               outcome.talk.outcome === "none" ? "empty-beat" : "completed",
           },
-          check: null,
+          check: outcome.check,
           calls: outcome.calls,
           presenceSeq,
           talk: outcome.talk,

@@ -8,6 +8,12 @@ import { READ_FAILURE_TEXT } from "../../src/dm/nodes/resolve.js";
 import { PURPOSE_OF } from "../../src/dm/purposes.js";
 import { legalEscalation, runTalkTurn } from "../../src/dm/talk-turn.js";
 import {
+  RECONSTRUCTED_F1,
+  RECONSTRUCTED_F1_RETRY,
+  RECONSTRUCTED_F2,
+  RECONSTRUCTED_F2_RETRY,
+} from "./fixtures/react-params-hosted.js";
+import {
   clearDmJobsBeforeEach,
   drainAll,
   script,
@@ -140,7 +146,7 @@ describe.skipIf(!reachable)("talk turn (database)", () => {
       expect.objectContaining({ kind: "addressed", actorId: "wenna" }),
     );
     expect(result.calls.map((c) => [c.purpose, c.promptVersion])).toEqual([
-      [PURPOSE_OF.narrate, "dm.react-v6"],
+      [PURPOSE_OF.narrate, "dm.react-v7"],
     ]);
   });
 
@@ -739,6 +745,43 @@ describe.skipIf(!reachable)("react confirm targets replay (spec 114)", () => {
         talk: { outcome: "confirm", confirmItems: 1, targetRepairs: 1 },
       });
       expect(job?.result).toMatchObject({ calls: [expect.anything()] });
+    },
+  );
+});
+
+describe.skipIf(!reachable)("react confirm params replay (spec 116)", () => {
+  it.each([
+    ["F1 attempt 1", RECONSTRUCTED_F1, ["skill"]],
+    ["F1 attempt 2", RECONSTRUCTED_F1_RETRY, []],
+    ["F2 attempt 1", RECONSTRUCTED_F2, ["ready", "caution"]],
+    ["F2 attempt 2", RECONSTRUCTED_F2_RETRY, []],
+  ])(
+    "%s ships a move to the causeway with params {} in one call",
+    async (_n, fixture, keys) => {
+      const { w, worker } = await table([
+        { purpose: "dm.narrate", respond: { type: "json", value: fixture } },
+      ]);
+      await say(w, "I wade out onto the causeway");
+      await drainAll(worker);
+      const sug = await suggested(w);
+      expect(sug).toHaveLength(1);
+      const pl = payloadOf<{
+        items: {
+          intent: { kind: string; targets: unknown[]; params: unknown };
+        }[];
+      }>(sug[0]);
+      expect(pl.items[0]?.intent).toMatchObject({
+        kind: "move",
+        targets: [{ kind: "zone", id: "causeway" }],
+        params: {},
+      });
+      const [job] = await talkJobs(w);
+      expect(job?.result).toMatchObject({ calls: [expect.anything()] });
+      const res = job?.result as {
+        check?: { stripped?: { key: string }[] };
+      };
+      const stripped = res.check?.stripped;
+      expect((stripped ?? []).map((s) => s.key)).toEqual(keys);
     },
   );
 });

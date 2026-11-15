@@ -28,6 +28,11 @@
         "intent": true
       },
       {
+        "text": "I wade back to the near bank.",
+        "actionId": "confirm-move",
+        "confirm": true
+      },
+      {
         "text": "I tell Wenna we will bring Pell home, and ask her for the safe path.",
         "actionId": "act-persuade"
       },

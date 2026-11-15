@@ -56,7 +56,7 @@ describe("the shipped scenario", () => {
     );
     const audit = loadAuditScript(ci.auditScript);
     expect(audit.responses).toHaveLength(narrations.length);
-    expect(audit.responses).toHaveLength(11);
+    expect(audit.responses).toHaveLength(12);
   });
 });
 

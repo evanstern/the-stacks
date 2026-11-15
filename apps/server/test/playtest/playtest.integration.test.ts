@@ -61,13 +61,29 @@ describe.skipIf(!reachable)("the CI playtest with its audit (AC #3)", () => {
     expect(searchItems[0].intent.targets).toEqual([
       { kind: "zone", id: "ferry-house" },
     ]);
+    // FR-014 (spec 116): the confirm-move reply carried invented params; they are stripped.
+    const moveItems = transcript
+      .filter((r) => r.type === "action.suggested")
+      .flatMap((r) => r.payload.items)
+      .filter((i: { intent: { kind: string } }) => i.intent.kind === "move");
+    expect(moveItems).toHaveLength(1);
+    expect(moveItems[0].intent.targets).toEqual([
+      { kind: "zone", id: "near-bank" },
+    ]);
+    expect(moveItems[0].intent.params).toEqual({});
     // OQ-4 ruling (a), 2026-11-14: the `intent: true` deeds run as direct Intents, so
     // the two interpret calls left are the check moves (act-persuade, act-strike),
     // and no turn job triggered by "intent" or its ruling spent an interpret call.
     const jobs = JSON.parse(readFileSync(join(out, "jobs.json"), "utf8")) as {
       trigger: string | null;
+      check?: { stripped?: { key: string }[] };
       calls: { purpose: string }[];
     }[];
+    const stripped = jobs
+      .filter((j) => j.trigger === "talk")
+      .flatMap((j) => j.check?.stripped ?? [])
+      .map((x) => x.key);
+    expect(stripped).toEqual(["ready", "caution"]);
     expect(jobs.filter((j) => j.trigger === "intent")).not.toHaveLength(0);
     for (const j of jobs.filter((j) => j.trigger === "intent")) {
       expect(j.calls.map((c) => c.purpose)).toEqual(["dm.narrate"]);
@@ -80,7 +96,7 @@ describe.skipIf(!reachable)("the CI playtest with its audit (AC #3)", () => {
       JSON.parse(readFileSync(join(out, "report.json"), "utf8")),
     );
     expect(report.verdict).toBe("pass");
-    expect(report.counts.segments).toBe(11);
+    expect(report.counts.segments).toBe(12);
     expect(report.counts.findings.fail).toBe(0);
     // TASK-0337: the two Intent deeds are told, and the check ran on every segment.
     for (const seg of report.segments) {

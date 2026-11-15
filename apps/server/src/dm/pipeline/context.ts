@@ -8,7 +8,7 @@ import type { ErrorKind } from "../../ai/types.js";
 import type { Gate } from "../../gate/index.js";
 import type { TurnCheckpoint, TurnTrigger } from "../jobs.js";
 import type { AssembleOutput } from "../nodes/assemble.js";
-import type { CheckOutput } from "../nodes/check.js";
+import type { CheckOutput, CheckRecord } from "../nodes/check.js";
 import type { DirectorNodeOutput } from "../nodes/director.js";
 import type { NarrateOutput } from "../nodes/narrate.js";
 import type { ResolveOutput } from "../nodes/resolve.js";
@@ -179,6 +179,8 @@ export type TurnOutcome =
   | {
       status: "talk";
       talk: TalkResult;
+      /** Spec 116 FR-011: the talk turn's check record, stored on `jobs.result.check`. */
+      check: CheckRecord;
       /** Companion character ids the reaction prompts; empty at the cap. */
       companions: string[];
       /** The turn-mode job an escalation queues (specs/065 D5); null otherwise. */

@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest";
+import { INTENT_GRAMMAR } from "../../src/dm/prompts/interpret.js";
 import {
   buildReactPrompt,
   CAP_LINE,
   EXAMPLE_CONFIRM,
+  EXAMPLE_MOVE_CONFIRM,
   PROMPT_VERSION,
   RULES,
 } from "../../src/dm/prompts/react.js";
@@ -30,8 +32,8 @@ const base = {
 };
 
 describe("react prompt (specs/065 D4)", () => {
-  it("is versioned dm.react-v6", () => {
-    expect(PROMPT_VERSION).toBe("dm.react-v6");
+  it("is versioned dm.react-v7", () => {
+    expect(PROMPT_VERSION).toBe("dm.react-v7");
   });
 
   it("shows the target ref shape and one worked confirm example (spec 114 SC-001)", () => {
@@ -48,6 +50,20 @@ describe("react prompt (specs/065 D4)", () => {
     expect(user).toContain("Targets (confirm items name only these)");
     expect(user).toContain("ferry-house (zone, Ferry House)");
     expect(user).toContain("wenna (actor, Wenna Marsh)");
+  });
+
+  it("shows each kind's params, the rule line and a move example (spec 116 SC-001)", () => {
+    const { system } = buildReactPrompt(base);
+    const kinds = INTENT_GRAMMAR.split("\n").filter((l) => l.startsWith("- "));
+    expect(kinds.length).toBeGreaterThan(10);
+    for (const l of kinds) expect(system).toContain(l);
+    expect(system).toContain(
+      "params holds only the keys listed for its kind. Most kinds take {}. Never add another key.",
+    );
+    expect(system).toContain(
+      `Example move confirm: ${JSON.stringify(EXAMPLE_MOVE_CONFIRM)}`,
+    );
+    expect(EXAMPLE_MOVE_CONFIRM.body.params).toEqual({});
   });
 
   it("states the confirm and answer rules and the outcome list (spec 066)", () => {

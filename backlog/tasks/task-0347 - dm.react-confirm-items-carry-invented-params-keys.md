@@ -1,9 +1,10 @@
 ---
 id: TASK-0347
 title: dm.react confirm items carry invented params keys
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-11-15T03:19:00Z'
+updated_date: '2026-11-15T06:21:00Z'
 labels:
   - playtest
   - ws:dm
@@ -17,16 +18,44 @@ ordinal: 331000
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
 Hosted run 2026-11-14 (TASK-0338, docs/playtests/2026-11-14-combat-smoke-hosted.md finding 3): dm.narrate dm.react-v6 confirm items for a move body carried params keys the Intent schema does not know ("skill"; "ready", "caution"). Schema mismatch on attempt 1 twice (calls 2184, 2188); attempt 2 passed. Attempt-1 failures rose to 4.1% (2/49) against the R1 target of under 1%. TASK-0336 fixed target shapes, not params.
+
+Spec: specs/116-react-confirm-params
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 A confirm item whose params hold unknown keys is repaired or stripped in code before validation, or the prompt schema states the allowed params per kind
-- [ ] #2 A test covers a move confirm item with an invented params key
+- [x] #1 A confirm item whose params hold unknown keys is repaired or stripped in code before validation, or the prompt schema states the allowed params per kind
+- [x] #2 A test covers a move confirm item with an invented params key
 <!-- AC:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
-- [ ] #1 All tests and checks run green
-- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
+- [x] #1 All tests and checks run green
+- [x] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Claimed 2026-11-15 by the R1 sweep (docs/design/r1-fast-table-runbook.md). Worktree .worktrees/task-0347, branch task-0347-react-params, cut from origin/main 3525683f. Spec number 116 claimed with a stub.
+
+Spec 116 authored (24ef840d). Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=cc/claude-opus-5-5
+Hosted attempt-1 reply text is unrecoverable (dm_model_calls stores none; log lines lost on the 2026-11-15 04:51 UTC restart). Replay fixtures are reconstructed from finding 3's exact keys.
+
+Phase 1 (T001-T009) landed 455687fa; ci:check green (1879 passed). Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5
+
+Phase 2 (T010-T013) landed 1b49badb after merge ba4f922e; ci:check green; SC-006 negative proven (stub -> run 'failed'). Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5
+
+Phase 3 wiki (T014-T018) landed f1bc7271; freshness OK, plan empty, spec-bridge check 0. Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5
+
+Merged origin/main (1c42b21e, TASK-0350 in), wiki re-pin d46d1bbc; all gates green on the merged tree. Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5
+Runbook row: Dispatch: tier=haiku pinned=cc/claude-haiku-5-5 served=cc/claude-haiku-5-5
+
+spec-bridge sync: Prompt, strip, record and the hosted replay: 9/9 · CI scenario invented-params confirm: 4/4 · Wiki: 5/5 — status In Progress → Done
+<!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Prompt, strip, record and the hosted replay (AC #1, #2): 9/9 · CI scenario invented-params confirm (AC #2): 4/4 · Wiki: 5/5). Derived Done by spec-bridge sync. Merged in PR #187 (72339e4f): dm.react-v7 lists per-kind params; stripParams drops unknown params keys of strict kinds before validation, recorded as check.stripped; CI confirm-move deed replays invented ready/caution keys. Follow-ups TASK-0352, TASK-0353.
+<!-- SECTION:FINAL_SUMMARY:END -->
