@@ -4,7 +4,7 @@ title: R1 playtest scenario and latency metrics
 status: To Do
 assignee: []
 created_date: 2026-11-07 05:13
-updated_date: '2026-11-14T14:42:00Z'
+updated_date: '2026-11-15T04:43:00Z'
 labels:
   - ws:tooling
   - replan-2026-11
@@ -52,4 +52,13 @@ Test-drive ceiling (operator, 2026-11-13, in chat): "$15, same as last". This is
 Test drive 2026-11-13 (session 0106e608, log docs/playtests/2026-11-13-r1-spine-test-drive.md): $0.17 of the $15 ceiling. First narration token 0.93-0.97 s. Stopped before combat, so AC #1 hosted metrics are not measured; blockers TASK-0336 and TASK-0337 found. Auditor verdict pass (checks-only).
 
 Ceiling for the TASK-0338 automated combat run (operator, 2026-11-14, in chat): "$15, same as last".
+
+Automated combat smoke 2026-11-14 (TASK-0338, session 8c7d506e, vm-104 at 014f1ae6, log docs/playtests/2026-11-14-combat-smoke-hosted.md):
+- Commit to first engine row: 0 ms for all 10 typed human Intents. AI companion turns: median 11.1 s (model call before commit).
+- First narration token: p50 0.90 s (max 1.44 s). First prose p50 3.93 s (n=24).
+- Round wall time: r1 104 s; r2 289 s raw, 101 s with the 188.5 s driver stall removed; r3 95 s.
+- Fallbacks: 0. Attempt-1 schema failures: 4.1% (2/49), both dm.narrate confirm params (TASK-0347).
+- Encounter end: not reached (stopped after round 3 by design).
+- Auditor: fail (deeds-narrated, TASK-0350).
+- Spend: $1.14 of the $15 ceiling ("$15, same as last").
 <!-- SECTION:NOTES:END -->

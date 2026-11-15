@@ -3,9 +3,10 @@ id: TASK-0304
 title: Engine action economy and Dodge
 status: To Do
 assignee: []
-created_date: '2026-11-10 03:11'
+created_date: 2026-11-10 03:11
+updated_date: '2026-11-15T03:37:00Z'
 labels:
-  - 'ws:engine'
+  - ws:engine
   - replan-2026-11
   - ep-1
 milestone: m-10
@@ -34,3 +35,9 @@ The engine tracks reactions and movement but not Action or Bonus Action use, so 
 - [ ] #1 All tests and checks run green
 - [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Hosted observation of the known gap, 2026-11-14 (TASK-0338, docs/playtests/2026-11-14-combat-smoke-hosted.md finding 5): two /attack Intents settled in one Tamsin turn (session 8c7d506e, seq 80 and 85, both outcome settled with batch rows). A level-1 fighter has no Extra Attack; AC #2 (NO_ACTION_LEFT) would have refused the second.
+<!-- SECTION:NOTES:END -->
