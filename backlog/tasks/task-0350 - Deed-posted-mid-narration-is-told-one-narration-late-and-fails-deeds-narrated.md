@@ -4,7 +4,7 @@ title: Deed posted mid-narration is told one narration late and fails deeds-narr
 status: Done
 assignee: []
 created_date: '2026-11-15T04:42:00Z'
-updated_date: '2026-11-15T06:05:00Z'
+updated_date: '2026-11-15T06:14:00Z'
 labels:
   - playtest
   - ws:dm
@@ -53,6 +53,8 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-
 Dispatch: tier=haiku pinned=cc/claude-haiku-5-5 served=cc/claude-haiku-5-5
 
 spec-bridge sync: Phase 1 5/5 · Phase 2 3/3 · Phase 3 wiki 4/4 — status In Progress → Done. Merged PR #186 44ce9c13.
+
+Deploy check: vm-104 /health serves 12527068, which contains merge 44ce9c13. Worktree, branch and stack removed; env:prune --check: no orphans.
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
