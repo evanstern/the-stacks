@@ -4,7 +4,7 @@ title: Code Director for turn-mode AI beats
 status: In Progress
 assignee: []
 created_date: '2026-11-12T18:22:00Z'
-updated_date: '2026-11-16T02:14:00Z'
+updated_date: '2026-11-16T02:34:00Z'
 labels:
   - ws:intent
   - revisit
@@ -55,4 +55,6 @@ Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=cc/claude-opus-5-5
 Operator ruling on the spec 118 Phase 2 fixture choice (2026-11-15, in chat): "Yes, (b)". The scene end folds into Tamsin round-1 reply in fight-round.json and the three files that copy it.
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5
+
+Build blocker (downed-seat harness case, 2026-11-15), resolved by the orchestrator from spec 118 D2/FR-007: option (2). The scripted hits kill all foes after Tamsin is downed, so the fight ends in code and the run stalls on seat-downed. Rejected: (1) would script the TASK-0354 party-down loop into a CI fixture; (3) leaves the end untested. T015 text gets reworded for ruling (b).
 <!-- SECTION:NOTES:END -->
