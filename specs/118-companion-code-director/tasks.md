@@ -30,8 +30,8 @@ Re-pin honestly with `/grounding-wiki:wiki-update`. Notes whose `sources:` list 
 - [x] T013 `docs/wiki/dm-runtime.md` (`pipeline/runner.ts`): beside the spec 107 D4 sentence, add the spec 118 companion code Director and what it gives up.
 - [x] T014 `docs/wiki/dm-turn-jobs.md` (`pipeline/runner.ts`): a companion's own turn job makes no Director call.
 - [x] T015 `docs/wiki/test-suite.md` (`ai-round.bench-test.ts`, `scene.integration.test.ts`): the 4v4 bench now expects one Director call; the scene test ends the scene on Tamsin's round-1 Director reply and no companion turn plays (ruling (b)).
-- [ ] T016 Re-verify and re-pin the notes that list a touched file but need no prose change unless the diff says otherwise: `dm-plan-gate.md`, `dm-failure-and-gates.md`, `dm-talk-triggers.md` (`pipeline/runner.ts`); `playtest-harness.md`, `m2-demo.md` (`playtest.integration.test.ts`).
-- [ ] T017 Update the changed notes' lines in `docs/wiki/CAPSULES.md` and `docs/wiki/INDEX.md`. Run the freshness gate (prints `OK`) and the spec-bridge gate (exits 0).
+- [x] T016 Re-verify and re-pin the notes that list a touched file but need no prose change unless the diff says otherwise: `dm-plan-gate.md`, `dm-failure-and-gates.md`, `dm-talk-triggers.md` (`pipeline/runner.ts`); `playtest-harness.md`, `m2-demo.md` (`playtest.integration.test.ts`).
+- [x] T017 Update the changed notes' lines in `docs/wiki/CAPSULES.md` and `docs/wiki/INDEX.md`. Run the freshness gate (prints `OK`) and the spec-bridge gate (exits 0).
 
 ## Post-merge (not a build task)
 

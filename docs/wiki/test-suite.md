@@ -35,7 +35,7 @@ sources:
   - apps/server/test/ai-round.bench-test.ts
   - tsconfig.json
 size_budget_exempt: spec 102 adds the server tsconfig reference to packages/intent in the one test-suite note; the suite map does not split without a TASK of its own
-verified_against: f8e3e370c2e06c447129da10e8e316a30d53531a
+verified_against: 18b5a8143edac670e86a8f5d68e9ade6114b8218
 ---
 
 # Test suite
