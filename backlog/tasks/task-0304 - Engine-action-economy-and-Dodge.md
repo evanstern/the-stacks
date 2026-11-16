@@ -32,7 +32,7 @@ Spec: specs/117-action-economy-dodge
 - [x] #4 The dodge Intent plans to the engine command instead of refusing KIND_UNSERVED.
 - [x] #5 Spec phase: Engine economy, Dodge and casting time (FR-001–FR-013; AC #1, #3)
 - [x] #6 Spec phase: Planner economy, Dodge and the hosted replay (FR-014–FR-024; AC #2, #4)
-- [ ] #7 Spec phase: Wiki
+- [x] #7 Spec phase: Wiki
 <!-- AC:END -->
 
 ## Definition of Done
