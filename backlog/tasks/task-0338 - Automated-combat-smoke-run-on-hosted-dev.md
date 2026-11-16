@@ -1,10 +1,10 @@
 ---
 id: TASK-0338
 title: Automated combat smoke run on hosted dev
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-11-14T02:29:00Z'
-updated_date: '2026-11-15T21:39:00Z'
+updated_date: '2026-11-16T01:19:00Z'
 labels:
   - playtest
   - ws:tooling
@@ -29,8 +29,8 @@ Replan 2026-11-13 wave 2 (operator: 'Approved, but automate the tests'). Replace
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
-- [ ] #1 All tests and checks run green
-- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
+- [x] #1 All tests and checks run green
+- [x] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
 
 ## Implementation Notes
@@ -69,4 +69,12 @@ Hosted re-audit after TASK-0355 (PR #190, vm-104 at 6141feed; C9 go, operator: "
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5
 Retest log: docs/playtests/2026-11-15-combat-smoke-retest.md (25280b5a), written from the shared-notes facts file.
+
+Operator ruling on PR #191 (2026-11-15, in chat): "Approve, merge".
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Hosted combat runs: 2026-11-14 (PR #184) met AC #1. The 2026-11-15 retest (PR #191, session 6031b671) met AC #2 once TASK-0355 was fixed. Exit 5 is met (0/576). Findings carded: TASK-0354..0357.
+<!-- SECTION:FINAL_SUMMARY:END -->
