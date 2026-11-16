@@ -47,7 +47,7 @@ const script = read("dm/scripts/ai-round-4v4.json") as {
 };
 
 describe.skipIf(!db)("4v4 round bench (database)", () => {
-  it("one round under budget, no interpret, three companion calls", async () => {
+  it("one round under budget, no interpret, three companion calls, one director call", async () => {
     const w = await createWorld({
       dice: script.dice,
       calls: script.calls,
@@ -133,6 +133,10 @@ describe.skipIf(!db)("4v4 round bench (database)", () => {
     expect(jobs.filter((j) => j.status === "failed")).toEqual([]);
     expect(count("dm.interpret")).toBe(0);
     expect(count("dm.companion")).toBe(3);
+    expect(
+      count("dm.director"),
+      "companions skip the Director (spec 118)",
+    ).toBe(1);
     expect(count("dm.narrate")).toBe(8);
   }, 120_000);
 });

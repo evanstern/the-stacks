@@ -1,7 +1,7 @@
 {
   "v": 1,
   "name": "encounter-end-bargain",
-  "dice": [1, 20, 1, 1, 1, 1, 1, 15],
+  "dice": [20, 1, 1, 1, 1, 1, 1, 15],
   "calls": [
     {
       "purpose": "dm.director",
@@ -38,7 +38,7 @@
         "value": {
           "readings": [
             {
-              "actionId": "act-odo-5",
+              "actionId": "act-tamsin-5",
               "stages": [
                 {
                   "intent": {

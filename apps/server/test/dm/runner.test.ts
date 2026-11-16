@@ -9,7 +9,11 @@ import {
   type NodeOutputs,
   throwingGate,
 } from "../../src/dm/pipeline/context.js";
-import { type Nodes, runTurn } from "../../src/dm/pipeline/runner.js";
+import {
+  companionOwnBeat,
+  type Nodes,
+  runTurn,
+} from "../../src/dm/pipeline/runner.js";
 import { buildSnapshot } from "../../src/dm/snapshot/index.js";
 import {
   emptyCheckpoint,
@@ -27,7 +31,7 @@ const stagesOf = (r: unknown) =>
   (r as { stages?: unknown[] } | undefined)?.stages;
 const assembled = (over: Partial<NodeOutputs["assemble"]> = {}) =>
   ({
-    projections: { party: [] },
+    projections: { party: [], tableMode: { mode: "free" } },
     snapshot: buildSnapshot(duo.projections, duo.seed),
     throughSeq: 5,
     beat: [{ actionId: "a1", text: "I look around." }],
@@ -125,6 +129,65 @@ function stubNodes(
   };
   return { order, nodes, gates };
 }
+
+const turnOf = (actor: string, items: string[]) =>
+  assembled({
+    projections: {
+      party: [],
+      tableMode: { mode: "turn", activeActor: actor, activeActorId: null },
+    },
+    beat: items.map((a, i) => ({ actionId: `a${i}`, actor: a, text: "x" })),
+  } as never);
+
+describe("runTurn companion code Director (spec 118)", () => {
+  const odo = "ai:companion:odo";
+  it("skips the Director for the active companion's own beat", async () => {
+    const spy = stubNodes({ assemble: turnOf(odo, [odo]) });
+    const outcome = await runTurn(makeCtx(), spy.nodes);
+    expect(outcome.status).toBe("completed");
+    expect(spy.order).not.toContain("director");
+    if (outcome.status === "completed") {
+      expect(outcome.results.director).toMatchObject({
+        beat: { decision: "resolve" },
+        tableMode: { to: "stay" },
+        scene: { status: "continue" },
+        goalNote: "",
+        arrivals: [],
+      });
+    }
+  });
+
+  it.each([
+    [
+      "free mode",
+      assembled({
+        projections: { party: [], tableMode: { mode: "free" } },
+        beat: [{ actionId: "a", actor: odo, text: "x" }],
+      } as never),
+    ],
+    ["a mixed beat", turnOf(odo, [odo, "human:p1"])],
+    ["a human turn", turnOf("human:p1", ["human:p1"])],
+  ])("keeps the Director for %s", async (_n, a) => {
+    const spy = stubNodes({ assemble: a });
+    await runTurn(makeCtx(), spy.nodes);
+    expect(spy.order).toContain("director");
+  });
+
+  it("lets a checkpointed Director win", async () => {
+    const spy = stubNodes({ assemble: turnOf(odo, [odo]) });
+    const checkpoint = { ...emptyCheckpoint(), director: directorResolve };
+    await runTurn(makeCtx({ checkpoint }), spy.nodes);
+    expect(spy.order).not.toContain("director");
+  });
+
+  it("companionOwnBeat rejects an npc turn and an empty beat", () => {
+    expect(companionOwnBeat(turnOf(odo, [odo]))).toBe(true);
+    expect(companionOwnBeat(turnOf(odo, []))).toBe(false);
+    expect(
+      companionOwnBeat({ ...turnOf(odo, [odo]), npcTurn: {} } as never),
+    ).toBe(false);
+  });
+});
 
 describe("runTurn", () => {
   it("runs the nodes in pipeline order", async () => {
