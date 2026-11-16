@@ -4,7 +4,7 @@ title: Engine records surprise; facts derive startlement
 status: In Progress
 assignee: []
 created_date: 2026-11-03 00:33
-updated_date: '2026-11-16T05:24:00Z'
+updated_date: '2026-11-16T06:20:00Z'
 labels:
   - dm
   - engine
@@ -44,4 +44,6 @@ Spec: specs/121-engine-surprise
 CP-5 ruling 2026-11-08 (docs/design/r1-fast-table-runbook.md) F3: AC #2 retargeted from NarrationFacts to the TASK-0245 fact sheet. Lands after TASK-0274 and TASK-0245.
 
 Claimed 2026-11-16 by the R1 sweep (docs/design/r1-fast-table-runbook.md). Worktree .worktrees/task-0215, branch task-0215-surprise, cut from origin/main 0f0add89. Spec number 121 claimed with a stub.
+
+Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5
 <!-- SECTION:NOTES:END -->
