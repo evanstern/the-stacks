@@ -4,7 +4,7 @@ title: Engine records surprise; facts derive startlement
 status: In Progress
 assignee: []
 created_date: 2026-11-03 00:33
-updated_date: '2026-11-16T06:30:00Z'
+updated_date: '2026-11-16T06:35:00Z'
 labels:
   - dm
   - engine
@@ -28,8 +28,8 @@ Spec: specs/121-engine-surprise
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 The engine records which combatants are surprised when an encounter starts, with an engine test
-- [ ] #2 The fact sheet lists a startlement involuntary effect for a surprised PC, with a test (retargeted from NarrationFacts by F3).
+- [x] #1 The engine records which combatants are surprised when an encounter starts, with an engine test
+- [x] #2 The fact sheet lists a startlement involuntary effect for a surprised PC, with a test (retargeted from NarrationFacts by F3).
 <!-- AC:END -->
 
 ## Definition of Done
@@ -50,4 +50,8 @@ Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
+
+ACs proven on the branch: AC #1 encounter.test.ts 'spec 121: surprise' (golden dice) plus the gate-plan.test.ts replay; AC #2 facts.test.ts deriveStartle and the fact-sheet.test.ts run-5 replay (surprised PCs listed, goblin not). Gates before PR: ci:check green, wiki plan empty, freshness OK 66/66, boundaries 28/28. Prompts: dm.narrate-v27, dm.director-v13, dm.interpret-v19, playtest.audit-v3.
 <!-- SECTION:NOTES:END -->
