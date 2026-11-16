@@ -22,7 +22,7 @@ sources:
   - apps/server/src/dm/nodes/schemas.ts
   - apps/web/app/routes/about.tsx
   - biome.json
-verified_against: 0882dcb94032fa81551a3e9225721939e4cb7179
+verified_against: b3c2ff987287c2b17e50b48e64f522973d81a5a5
 ---
 
 # SRD data package
@@ -121,6 +121,6 @@ A Biome `noRestrictedImports` override on `packages/srd/**` forbids importing
 fires against `fixtures/boundary-violations/packages/srd/src/bad.ts` ([[ci-pipeline]],
 [[monorepo-and-toolchain]]).
 
-Spec 082 (TASK-0104) adds no SRD field; the server reads three existing ones to build engine stats ([[dnd5e-engine]]). `statsFromSrd` (`dm/seed/combatants.ts`) maps a monster's ability mods and saves, skill totals, `pb` and `actions[].attack` (skipping a damage part with a `condition`). `statsFromCharacter` takes a seed PC's weapon `rangeType` from the equipment record of the same name and `spellcastingAbility` from the class record. The seed loader rejects a PC attack that names no SRD weapon.
+Spec 082 (TASK-0104) adds no SRD field; the server reads three existing ones to build engine stats ([[dnd5e-engine]]). `statsFromSrd` (`dm/seed/combatants.ts`) maps a monster's ability mods and saves, skill totals, `pb` and `actions[].attack` (skipping a damage part with a `condition`). Spec 120 maps feature `save` and prose "escape DC N" into `featureDcs`. `statsFromCharacter` takes a seed PC's weapon `rangeType` from the equipment record of the same name and `spellcastingAbility` from the class record. The seed loader rejects a PC attack that names no SRD weapon.
 
 Spec 083 (TASK-0105) adds no SRD field either. The engine's `SPELLS` table holds no SRD import; a server test reads the SRD spell records and checks the table clause by clause. The plan gate's spell-record read was deleted in spec 110; the planner owns spell checks ([[planner]]).

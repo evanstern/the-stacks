@@ -19,7 +19,7 @@ sources:
   - packages/planner/src/outcome.ts
   - packages/planner/test/purity.test.ts
   - specs/097-planner/contracts/planner.md
-verified_against: f8e3e370c2e06c447129da10e8e316a30d53531a
+verified_against: b3c2ff987287c2b17e50b48e64f522973d81a5a5
 ---
 
 # Planner
@@ -50,7 +50,7 @@ Pre-checks match the old plan gate: unknown or absent actor `UNKNOWN_COMBATANT`,
 
 ## Rulings
 
-`check`, `save`, `contest` and `search` with no DC source return `needs_ruling` with ask `difficulty` and the roll the planner will make. A DC comes from an `npc` actor's own `difficulty`/`dc`, a `ruling` or `set_dc`, or an engine opposition rule. A `dc` or `difficulty` from a `pc` or `companion` is ignored (fact `ignored`) and the planner asks. `attempt` and `use_object` ask `outcome`. `requestId` is the id of the Intent being planned, so the gate needs no id generator. A `ruling` (accept, reject, amend) or `set_dc` looks up `state.openRequests` (`REQUEST_NOT_OPEN` if missing) and plans the stored Intent again with the answer. The replanned commands cite the stored Intent as their reason. A tierless accept on a difficulty ask asks again.
+`check`, `save`, `contest` and `search` with no DC source return `needs_ruling` with ask `difficulty` and the roll the planner will make. A DC comes from an `npc` actor's own `difficulty`/`dc`, a `ruling` or `set_dc`, or an engine opposition rule. A `contest` escape against a monster gets its stated escape DC from the engine (spec 120). A `dc` or `difficulty` from a `pc` or `companion` is ignored (fact `ignored`) and the planner asks. `attempt` and `use_object` ask `outcome`. `requestId` is the id of the Intent being planned, so the gate needs no id generator. A `ruling` (accept, reject, amend) or `set_dc` looks up `state.openRequests` (`REQUEST_NOT_OPEN` if missing) and plans the stored Intent again with the answer. The replanned commands cite the stored Intent as their reason. A tierless accept on a difficulty ask asks again.
 
 ## Seat rules
 

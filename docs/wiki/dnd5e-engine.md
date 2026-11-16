@@ -21,7 +21,8 @@ sources:
   - packages/dnd5e-engine/test/purity.test.ts
   - packages/dnd5e-engine/test/coverage.test.ts
   - specs/026-dnd5e-engine/spec.md
-verified_against: 76626337152302d845cd72a8e917db994c627878
+size_budget_exempt: the note sat within 200 chars of the 8000 budget before spec 120 (TASK-0224); the spec 120 sentence is a pointer to dnd5e-engine-derived-rolls and the remaining sections do not split without a TASK of its own
+verified_against: b3c2ff987287c2b17e50b48e64f522973d81a5a5
 ---
 
 # 5e engine
@@ -87,7 +88,7 @@ refuse with `DICE_LIMIT_EXCEEDED`.
 5.2.1 skills as lowercase kebab-case keys (`acrobatics`, `animal-handling`, ... `sleight-of-hand`,
 `stealth`, `survival`). It is the only literal skill list. The `check.roll` command takes
 `skill: SkillSchema.nullable().default(null)`. The event schema keeps `check.resolved.skill` as
-a nullable string, so older stored spellings parse. The server derives its lists from this enum ([[dm-runtime]]).
+a nullable string, so older stored spellings parse. Spec 120 adds `FeatureDc`, `findFeatureDc` and a fourth `check.roll` DC source, `feature` ([[dnd5e-engine-derived-rolls]]). The server derives its lists from this enum ([[dm-runtime]]).
 
 ## Roll ledger
 
