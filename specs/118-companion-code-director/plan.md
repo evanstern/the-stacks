@@ -176,6 +176,10 @@ merge.
 - The purpose queues are strict per purpose, not ordered across purposes. A dropped Director reply
   shifts only Director replies; narrate and interpret queues are unaffected.
 
+**Operator ruling 2026-11-15 ("Yes, (b)"):** take the second option. The scene end folds into Tamsin's
+round-1 "human active actor" Director reply. No monster turns are scripted and no round-2 strike is added.
+The "companion action" and "back to free mode; scene ends" replies are dropped.
+
 ## Size and split check
 
 Three phases, one sonnet dispatch each. Phase 1 is small (runner and direct tests). Phase 2 is the

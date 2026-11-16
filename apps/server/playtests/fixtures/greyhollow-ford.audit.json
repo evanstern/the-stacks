@@ -129,35 +129,7 @@
       }
     },
     {
-      "note": "segment 8: human strike",
-      "respond": {
-        "type": "json",
-        "value": {
-          "verdict": "pass",
-          "findings": []
-        }
-      },
-      "usage": {
-        "inputTokens": 0,
-        "outputTokens": 0
-      }
-    },
-    {
-      "note": "segment 9: Odo hit",
-      "respond": {
-        "type": "json",
-        "value": {
-          "verdict": "pass",
-          "findings": []
-        }
-      },
-      "usage": {
-        "inputTokens": 0,
-        "outputTokens": 0
-      }
-    },
-    {
-      "note": "segment 10: Kestrel hit and scene end",
+      "note": "segment 9: human strike and scene end",
       "respond": {
         "type": "json",
         "value": {

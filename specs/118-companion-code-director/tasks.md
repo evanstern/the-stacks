@@ -17,10 +17,10 @@ Do not edit `packages/*`, `nodes/director.ts`, `prompts/director.ts`, `companion
 
 ## Phase 2: Fight segment and the scripts that copy it (FR-009–FR-011)
 
-- [ ] T008 Merge `origin/main` into the branch.
-- [ ] T009 Rework `test/dm/scripts/fight-round.json`: drop "companion action", move the scene end to Tamsin's round-2 turn, script the monster turns between (plan D3, Flags). Read order and dice from a run.
-- [ ] T010 Copy the new segment into `greyhollow-ford-full.json` and `greyhollow-ford-deeds.json`. Drop the companion-beat Director in `test/playtest/fixtures/downed-seat.json`.
-- [ ] T011 Update `scene.integration.test.ts` (one more strike, new counts), `playtest.integration.test.ts` (segment count) and `playtests/fixtures/greyhollow-ford.audit.json` (plan D4). Re-run the downed-seat harness case.
+- [x] T008 Merge `origin/main` into the branch.
+- [x] T009 Rework `test/dm/scripts/fight-round.json` (operator ruling (b), 2026-11-15): drop "companion action" and "back to free mode; scene ends"; fold the scene end into the "human active actor" reply on Tamsin round-1 strike. Drop the Odo and Kestrel turns and their narrations (Kestrel acts first in the run; the scene ends before Odo or Kestrel act again). No monster turns scripted, no extra strike.
+- [ ] T010 Same change in `greyhollow-ford-full.json` and `greyhollow-ford-deeds.json` (deeds keeps Kestrel's turn: its initiative order differs). `downed-seat.json`: both companion-beat Directors dropped. BLOCKED: the case now fails (see T011).
+- [ ] T011 `scene.integration.test.ts` (6 narrations, 6 turn jobs, 0 companion jobs), `playtest.integration.test.ts` and `scenario.test.ts` (10 segments), `greyhollow-ford.audit.json` (10 passes) updated. OPEN: the downed-seat harness case fails — with no Director on a companion turn nothing ends the fight, and a downed Tamsin has no Director beat.
 - [ ] T012 Check `dm-scripts/runbook-a-reed-camp.json` and `runbook-b-reed-camp.json` for turn-mode companion-beat Director replies; drop each one. State every changed count and dropped reply in the commit message.
 
 ## Phase 3: Wiki

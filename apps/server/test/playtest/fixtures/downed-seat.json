@@ -312,32 +312,6 @@
       }
     },
     {
-      "purpose": "dm.director",
-      "note": "companion action",
-      "respond": {
-        "type": "json",
-        "value": {
-          "beat": {
-            "decision": "resolve"
-          },
-          "tableMode": {
-            "to": "stay"
-          },
-          "trackers": [],
-          "scene": {
-            "status": "continue"
-          },
-          "pacing": {
-            "tension": "high",
-            "spotlight": null,
-            "beatId": "reed-camp"
-          },
-          "goalNote": "Odo presses the lookout.",
-          "companionPrompts": []
-        }
-      }
-    },
-    {
       "purpose": "dm.narrate",
       "note": "a hit, no death",
       "respond": {
@@ -369,33 +343,6 @@
               }
             }
           ]
-        }
-      }
-    },
-    {
-      "purpose": "dm.director",
-      "note": "back to free mode; scene ends",
-      "respond": {
-        "type": "json",
-        "value": {
-          "beat": {
-            "decision": "resolve"
-          },
-          "tableMode": {
-            "to": "free",
-            "reason": "Snag offers the clapper for safe passage."
-          },
-          "trackers": [],
-          "scene": {
-            "status": "continue"
-          },
-          "pacing": {
-            "tension": "low",
-            "spotlight": null,
-            "beatId": "reed-camp"
-          },
-          "goalNote": "The fight is over; the party tends its fallen.",
-          "companionPrompts": []
         }
       }
     },

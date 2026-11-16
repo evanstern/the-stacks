@@ -1,7 +1,7 @@
 {
   "v": 1,
   "name": "greyhollow-ford-deeds",
-  "dice": [14, 10, 15, 15, 15, 7, 20, 3, 2, 1, 5, 14, 4, 12, 3],
+  "dice": [14, 10, 15, 15, 15, 7, 20, 3, 2, 1, 5, 14, 4],
   "calls": [
     {
       "purpose": "dm.director",
@@ -406,7 +406,7 @@
     },
     {
       "purpose": "dm.director",
-      "note": "human active actor",
+      "note": "human active actor; scene ends",
       "respond": {
         "type": "json",
         "value": {
@@ -414,18 +414,21 @@
             "decision": "resolve"
           },
           "tableMode": {
-            "to": "stay"
+            "to": "free",
+            "reason": "Snag offers the clapper for safe passage."
           },
           "trackers": [],
           "scene": {
-            "status": "continue"
+            "status": "end",
+            "outcome": "goal-met",
+            "reason": "Snag trades the clapper for safe passage and the way is clear."
           },
           "pacing": {
-            "tension": "high",
+            "tension": "low",
             "spotlight": null,
             "beatId": "reed-camp"
           },
-          "goalNote": "Tamsin takes the fight to the goblin in the pot-helm.",
+          "goalNote": "Close the scene.",
           "companionPrompts": []
         }
       }
@@ -463,14 +466,6 @@
       }
     },
     {
-      "purpose": "dm.narrate",
-      "note": "a hit, no death",
-      "respond": {
-        "type": "text",
-        "value": "Tamsin's longsword bites into the goblin in the pot-helm, who reels back clutching a shoulder and snarling."
-      }
-    },
-    {
       "purpose": "dm.companion",
       "note": "Odo's turn",
       "respond": {
@@ -494,96 +489,6 @@
               }
             }
           ]
-        }
-      }
-    },
-    {
-      "purpose": "dm.director",
-      "note": "companion action",
-      "respond": {
-        "type": "json",
-        "value": {
-          "beat": {
-            "decision": "resolve"
-          },
-          "tableMode": {
-            "to": "stay"
-          },
-          "trackers": [],
-          "scene": {
-            "status": "continue"
-          },
-          "pacing": {
-            "tension": "high",
-            "spotlight": null,
-            "beatId": "reed-camp"
-          },
-          "goalNote": "Odo presses the lookout.",
-          "companionPrompts": []
-        }
-      }
-    },
-    {
-      "purpose": "dm.narrate",
-      "note": "a hit, no death",
-      "respond": {
-        "type": "text",
-        "value": "Brother Odo brings his mace down on the goblin lookout, who yelps and stumbles back, hunting for solid footing."
-      }
-    },
-    {
-      "purpose": "dm.companion",
-      "note": "Kestrel's turn",
-      "respond": {
-        "type": "json",
-        "value": {
-          "say": null,
-          "comment": null,
-          "act": null,
-          "pending": [],
-          "turn": [
-            {
-              "kind": "attack",
-              "targets": [
-                {
-                  "kind": "actor",
-                  "id": "goblin-4"
-                }
-              ],
-              "params": {
-                "weapon": "Shortbow"
-              }
-            }
-          ]
-        }
-      }
-    },
-    {
-      "purpose": "dm.director",
-      "note": "back to free mode; scene ends",
-      "respond": {
-        "type": "json",
-        "value": {
-          "beat": {
-            "decision": "resolve"
-          },
-          "tableMode": {
-            "to": "free",
-            "reason": "Snag offers the clapper for safe passage."
-          },
-          "trackers": [],
-          "scene": {
-            "status": "end",
-            "outcome": "goal-met",
-            "reason": "Snag trades the clapper for safe passage and the way is clear."
-          },
-          "pacing": {
-            "tension": "low",
-            "spotlight": null,
-            "beatId": "reed-camp"
-          },
-          "goalNote": "Close the scene.",
-          "companionPrompts": []
         }
       }
     },
