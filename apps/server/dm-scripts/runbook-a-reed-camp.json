@@ -291,32 +291,6 @@
       }
     },
     {
-      "purpose": "dm.director",
-      "note": "companion action",
-      "respond": {
-        "type": "json",
-        "value": {
-          "beat": {
-            "decision": "resolve"
-          },
-          "tableMode": {
-            "to": "stay"
-          },
-          "trackers": [],
-          "scene": {
-            "status": "continue"
-          },
-          "pacing": {
-            "tension": "high",
-            "spotlight": null,
-            "beatId": "reed-camp"
-          },
-          "goalNote": "Odo presses the lookout.",
-          "companionPrompts": []
-        }
-      }
-    },
-    {
       "purpose": "dm.interpret",
       "note": "Odo attacks",
       "respond": {

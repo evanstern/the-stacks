@@ -975,32 +975,6 @@
       "note": "Odo's turn"
     },
     {
-      "purpose": "dm.director",
-      "respond": {
-        "type": "json",
-        "value": {
-          "beat": {
-            "decision": "resolve"
-          },
-          "tableMode": {
-            "to": "stay"
-          },
-          "trackers": [],
-          "scene": {
-            "status": "continue"
-          },
-          "pacing": {
-            "tension": "high",
-            "spotlight": null,
-            "beatId": "reed-camp"
-          },
-          "goalNote": "Odo presses the lookout.",
-          "companionPrompts": []
-        }
-      },
-      "note": "Odo attacks goblin-3"
-    },
-    {
       "purpose": "dm.interpret",
       "respond": {
         "type": "json",

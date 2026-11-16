@@ -21,7 +21,7 @@ Do not edit `packages/*`, `nodes/director.ts`, `prompts/director.ts`, `companion
 - [x] T009 Rework `test/dm/scripts/fight-round.json` (operator ruling (b), 2026-11-15): drop "companion action" and "back to free mode; scene ends"; fold the scene end into the "human active actor" reply on Tamsin round-1 strike. Drop the Odo and Kestrel turns and their narrations (Kestrel acts first in the run; the scene ends before Odo or Kestrel act again). No monster turns scripted, no extra strike.
 - [x] T010 Same change in `greyhollow-ford-full.json` and `greyhollow-ford-deeds.json` (deeds keeps Odo's turn and drops Kestrel's: its initiative order differs). `downed-seat.json`: both companion-beat Directors dropped, and a second round scripted (operator ruling 2026-11-15 "one more round"): the monsters miss, Tamsin stays down, the companions drop all four foes, and resolve ends the fight in code.
 - [x] T011 `scene.integration.test.ts` (6 narrations, 6 turn jobs, 0 companion jobs), `playtest.integration.test.ts` and `scenario.test.ts` (10 segments), `greyhollow-ford.audit.json` (10 passes) updated. The downed-seat harness case passes: stalled with seat-downed, `encounter.ended` with reason "No foe still stands.", no Director call.
-- [ ] T012 Check `dm-scripts/runbook-a-reed-camp.json` and `runbook-b-reed-camp.json` for turn-mode companion-beat Director replies; drop each one. State every changed count and dropped reply in the commit message.
+- [x] T012 Check `dm-scripts/runbook-a-reed-camp.json` and `runbook-b-reed-camp.json` for turn-mode companion-beat Director replies; drop each one. State every changed count and dropped reply in the commit message.
 
 ## Phase 3: Wiki
 
@@ -29,7 +29,7 @@ Re-pin honestly with `/grounding-wiki:wiki-update`. Notes whose `sources:` list 
 
 - [ ] T013 `docs/wiki/dm-runtime.md` (`pipeline/runner.ts`): beside the spec 107 D4 sentence, add the spec 118 companion code Director and what it gives up.
 - [ ] T014 `docs/wiki/dm-turn-jobs.md` (`pipeline/runner.ts`): a companion's own turn job makes no Director call.
-- [ ] T015 `docs/wiki/test-suite.md` (`ai-round.bench-test.ts`, `scene.integration.test.ts`): the 4v4 bench now expects one Director call; the scene test plays Tamsin's round-2 strike.
+- [ ] T015 `docs/wiki/test-suite.md` (`ai-round.bench-test.ts`, `scene.integration.test.ts`): the 4v4 bench now expects one Director call; the scene test ends the scene on Tamsin's round-1 Director reply and no companion turn plays (ruling (b)).
 - [ ] T016 Re-verify and re-pin the notes that list a touched file but need no prose change unless the diff says otherwise: `dm-plan-gate.md`, `dm-failure-and-gates.md`, `dm-talk-triggers.md` (`pipeline/runner.ts`); `playtest-harness.md`, `m2-demo.md` (`playtest.integration.test.ts`).
 - [ ] T017 Update the changed notes' lines in `docs/wiki/CAPSULES.md` and `docs/wiki/INDEX.md`. Run the freshness gate (prints `OK`) and the spec-bridge gate (exits 0).
 
