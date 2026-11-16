@@ -17,13 +17,13 @@ Do not edit `packages/srd`, `packages/intent`, `packages/planner`, `packages/ses
 
 ## Phase 2: Startlement fact, prompts and fact-sheet replay (FR-007–FR-014, FR-017; AC #2)
 
-- [ ] T007 In `apps/server/src/dm/facts.ts`, add the `startle` trigger and `deriveStartle`, and put its entries first in `involuntary` (plan D3).
-- [ ] T008 In `prompts/narrate.ts`, add the `startle` phrase. In `dm/doctrine/doctrine.ts`, amend the `AGENCY_RULE` reflex line (plan D4).
-- [ ] T009 Merge `origin/main`. Bump the four prompt versions one past `main` and update each version pin test (plan D4).
-- [ ] T010 Add `describe("deriveStartle (spec 121)")` to `apps/server/test/dm/facts.test.ts` with the SC-003 cases (plan D5).
-- [ ] T011 Add `describe("spec 121: startlement on the fact sheet")` to `apps/server/test/dm/fact-sheet.test.ts` with the SC-004 cases, and the SC-006 assertion to `doctrine.test.ts` (plan D5).
-- [ ] T012 Run the search in plan D5. Fix any expectation the rule now changes. List each changed test in the commit message.
-- [ ] T013 Run `node scripts/check-boundaries.mjs` (exits 0) and `pnpm ci:check` (green).
+- [x] T007 In `apps/server/src/dm/facts.ts`, add the `startle` trigger and `deriveStartle`, and put its entries first in `involuntary` (plan D3).
+- [x] T008 In `prompts/narrate.ts`, add the `startle` phrase. In `dm/doctrine/doctrine.ts`, amend the `AGENCY_RULE` reflex line (plan D4).
+- [x] T009 Merge `origin/main`. Bump the four prompt versions one past `main` and update each version pin test (plan D4).
+- [x] T010 Add `describe("deriveStartle (spec 121)")` to `apps/server/test/dm/facts.test.ts` with the SC-003 cases (plan D5).
+- [x] T011 Add `describe("spec 121: startlement on the fact sheet")` to `apps/server/test/dm/fact-sheet.test.ts` with the SC-004 cases, and the SC-006 assertion to `doctrine.test.ts` (plan D5).
+- [x] T012 Run the search in plan D5. Fix any expectation the rule now changes. List each changed test in the commit message.
+- [x] T013 Run `node scripts/check-boundaries.mjs` (exits 0) and `pnpm ci:check` (green).
 
 ## Phase 3: Wiki
 

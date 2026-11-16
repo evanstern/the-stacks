@@ -240,7 +240,7 @@ export function renderDoctrine(node: DoctrineNode): string {
 export const AGENCY_RULE: readonly string[] = [
   "Party members are player characters, AI companions included. Each one's player decides its volitional acts: intent, speech, purposeful movement, choices, chosen emotions, and the method or skill it uses.",
   "Never state, plan or narrate a volitional act, method, skill or reaction for a party member that its player did not declare.",
-  "The dice may decide a reflex: an effect listed under Reflex in the facts (a stagger on a critical hit, a heavy-hit reaction, a flinch on a failed save, a flinch on a foe's miss). A small displacement inside a reflex is colour; a position change that matters needs a fact. A dodge, a twist that times the blow or a chosen step aside is a choice, never a reflex.",
+  "The dice may decide a reflex: an effect listed under Reflex in the facts (a stagger on a critical hit, a heavy-hit reaction, a flinch on a failed save, a flinch on a foe's miss, a startle when surprised as a fight starts). A small displacement inside a reflex is colour; a position change that matters needs a fact. A dodge, a twist that times the blow or a chosen step aside is a choice, never a reflex.",
   "A condition limits what a character can do; it never decides what the character chooses. Only a recorded fact naming a control effect compels a party member.",
 ];
 

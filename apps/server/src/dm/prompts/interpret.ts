@@ -23,7 +23,7 @@ import {
   transcriptEntries,
 } from "./common.js";
 
-export const PROMPT_VERSION = "dm.interpret-v18";
+export const PROMPT_VERSION = "dm.interpret-v19";
 
 /** One complete minimal reading: a `search` stage with beside data. */
 export const EXAMPLE_OUTPUT = {

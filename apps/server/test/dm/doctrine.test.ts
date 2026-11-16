@@ -106,6 +106,7 @@ describe("agency rule (spec 074)", () => {
   it("the reflex line allows a flinch on a miss and bars a timed twist", () => {
     const text = AGENCY_RULE.join("\n");
     expect(text).toContain("a flinch on a foe's miss");
+    expect(text).toContain("a startle when surprised as a fight starts");
     expect(text).toContain("a twist that times the blow");
   });
   it("hero-is-theirs blocks decisions, not reflexes", () => {

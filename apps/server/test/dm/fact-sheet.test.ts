@@ -1,3 +1,7 @@
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+import type { StoredEvent } from "@the-stacks/session-model";
 import { describe, expect, it } from "vitest";
 import {
   buildFactSheet,
@@ -9,10 +13,22 @@ import {
   REFUSAL_REASON,
   renderRows,
 } from "../../src/dm/fact-sheet.js";
-import type { FactAction, NarrationFacts } from "../../src/dm/facts.js";
+import {
+  buildNarrationFacts,
+  type FactAction,
+  type NarrationFacts,
+} from "../../src/dm/facts.js";
 import { createNarrationStream } from "../../src/dm/narration-stream.js";
+import type { DirectorNodeOutput } from "../../src/dm/nodes/director.js";
+import type { ResolveOutput } from "../../src/dm/nodes/resolve.js";
+import { factEntries } from "../../src/dm/prompts/narrate.js";
+import { playerFacingSeed } from "../../src/dm/seed/views.js";
 import { buildSnapshot } from "../../src/dm/snapshot/index.js";
-import { greyhollowFight } from "./snapshot-fixtures.js";
+import { projectDm, testSeed } from "./helpers.js";
+import {
+  EMPTY_RESOLVE_SNAPSHOT,
+  greyhollowFight,
+} from "./snapshot-fixtures.js";
 
 const NAMES: Record<string, string> = {
   tamsin: "Tamsin Vale",
@@ -481,4 +497,82 @@ it("isRestateLine matches what defaultRestate writes", () => {
   const sheet = { restate: [{ subject: "Mira", text: "open the door" }] };
   expect(isRestateLine(defaultRestate(sheet as never))).toBe(true);
   expect(isRestateLine("Mira smiles.")).toBe(false);
+});
+
+describe("spec 121: startlement on the fact sheet", () => {
+  const here = dirname(fileURLToPath(import.meta.url));
+  const fixture = JSON.parse(
+    readFileSync(join(here, "fixtures/run5-narration-quality.json"), "utf8"),
+  ) as { transcript: StoredEvent[] };
+  const VIEW = playerFacingSeed(testSeed());
+  const director: DirectorNodeOutput = {
+    beat: { decision: "resolve" },
+    tableMode: { to: "stay" },
+    trackers: [],
+    scene: { status: "continue" },
+    pacing: { tension: "low", spotlight: null, beatId: null },
+    goalNote: "",
+    companionPrompts: [],
+    overrides: [],
+  };
+  const sheetOf = (surprised?: string[]) => {
+    const transcript = structuredClone(fixture.transcript);
+    if (surprised) {
+      const r = transcript.find((x) => x.seq === 50) as StoredEvent;
+      const pl = r.payload as { event: object };
+      r.payload = { ...pl, event: { ...pl.event, surprised } };
+    }
+    const rows = transcript.filter((r) => r.seq >= 39 && r.seq <= 58);
+    const projections = projectDm(transcript.filter((r) => r.seq <= 58));
+    const resolve: ResolveOutput = {
+      submissions: [],
+      actionResults: [],
+      appendedRows: rows,
+      nextJob: null,
+      chronicle: false,
+      npcTurn: null,
+      ...EMPTY_RESOLVE_SNAPSHOT,
+      lastSeq: 0,
+    };
+    const settled = buildNarrationFacts({
+      trigger: "commit",
+      seed: VIEW,
+      beatNpcIds: [],
+      projections,
+      beat: [],
+      director,
+      resolve,
+      presentNpcIds: [],
+      modeBefore: "free",
+      appendedRows: rows,
+      clarify: [],
+    });
+    return buildFactSheet({
+      settled,
+      beat: [],
+      projections,
+      nameOf,
+      submissions: [],
+    });
+  };
+  it("lists a startle for each surprised party member, not a foe", () => {
+    const sheet = sheetOf(["tamsin", "odo", "goblin-3"]);
+    const startles = (sheet.settled.involuntary ?? []).filter(
+      (i) => i.trigger === "startle",
+    );
+    expect(startles.map((i) => i.name)).toEqual(["Tamsin Vale", "Brother Odo"]);
+    expect(
+      startles.every((i) => i.detail === "surprised as the fight starts"),
+    ).toBe(true);
+    expect(JSON.stringify(startles)).not.toContain("Goblin lookout");
+    expect(factEntries(sheet.settled)).toContain(
+      "Reflex: Tamsin Vale may startle (surprised as the fight starts)",
+    );
+  });
+  it("lists no startle on the unpatched fixture", () => {
+    const sheet = sheetOf();
+    expect(
+      (sheet.settled.involuntary ?? []).some((i) => i.trigger === "startle"),
+    ).toBe(false);
+  });
 });
