@@ -326,3 +326,11 @@ A derived `check.roll` with a matching assist, and a derived `attack.roll` or `s
 target holding an attack assist (helper not the attacker), roll with advantage and emit `assist.ended`
 (`used`) after the resolving event. `CombatantStats` gains optional `abilityScores`; `Combatant` gains
 optional `assists`.
+
+## Amended by specs/120-monster-feature-dc (TASK-0224)
+
+`check.roll` gains optional `feature: { sourceId, name }`, a fourth DC source: exactly one of `dc`,
+`difficulty`, `opposition` and `feature`. It is valid only on a `saving-throw` by a combatant other than the
+source. The engine reads the DC from the source's `stats.featureDcs`. The source must exist and may be dead.
+Refusals: `INVALID_COMMAND` (second source, wrong kind, self source, ability mismatch), `UNKNOWN_COMBATANT`,
+`STAT_UNDEFINED`. The `unarmed-strike` opposition on an ability check uses the opponent's first stated escape DC.

@@ -193,3 +193,7 @@ catalog; `combatantId` is the holder:
 
 `attack.resolved`: `critical-hit` may carry a `natural` below 20. `check.resolved`: a derived automatic
 failure has the FR-023 shape with reason `<name> is <condition>`.
+
+## Amended by specs/120-monster-feature-dc (TASK-0224)
+
+`check.resolved` gains optional `feature: { sourceId, name }`.

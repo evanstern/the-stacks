@@ -2,6 +2,7 @@ import { emptyState, scriptedRng } from "@the-stacks/dnd5e-engine";
 import { type Intent, IntentSchema, parse } from "@the-stacks/intent";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
+  mechanicsProposal,
   type PlannedRow,
   type PlanResult,
   planProposal,
@@ -92,7 +93,12 @@ const aiDm = { kind: "ai", actor: "ai:dm" } as const;
 
 /** Turn mode, Ana's turn; Ana and the goblin in zone a, Cade in b, snag fogged in c. */
 function world(
-  opts: { humanDm?: boolean; revealC?: boolean; paralyzeGoblin?: boolean } = {},
+  opts: {
+    humanDm?: boolean;
+    revealC?: boolean;
+    paralyzeGoblin?: boolean;
+    goblinFeatures?: boolean;
+  } = {},
 ) {
   let state = emptyState();
   const specs: RowSpec[] = [];
@@ -122,7 +128,18 @@ function world(
     mech(
       {
         type: "combatant.add",
-        combatant: fighter(id, z),
+        combatant:
+          id === "goblin" && opts.goblinFeatures
+            ? fighter("goblin", "a", {
+                stats: {
+                  ...stats([sword]),
+                  featureDcs: [
+                    { kind: "save", feature: "Web", ability: "dex", dc: 13 },
+                    { kind: "escape", feature: "Grab", dc: 11 },
+                  ],
+                },
+              })
+            : fighter(id, z),
         reason: "r",
       },
       `b-${id}`,
@@ -334,6 +351,62 @@ describe("spec 119: a melee hit on a paralyzed foe is a critical hit", () => {
     ).toMatchObject({
       critical: true,
       total: 11,
+    });
+  });
+});
+
+describe("spec 120: monster-feature DCs from the stat block", () => {
+  const p = fold(world({ goblinFeatures: true }));
+  it("an AI DM mechanics feature save uses the stated DC", () => {
+    const r = planProposal(
+      p,
+      aiDm,
+      mechanicsProposal({
+        type: "check.roll",
+        combatantId: "ana",
+        kind: "saving-throw",
+        ability: "dex",
+        skill: null,
+        mode: "normal",
+        feature: { sourceId: "goblin", name: "Web" },
+        autoFail: null,
+        reason: "web",
+      } as never),
+      scriptedRng([12]),
+      { batchId: "b-plan" },
+      null,
+    );
+    const rows = rowsOf(r);
+    expect(rows.map((x) => x.type)).toEqual(["dice.rolled", "check.resolved"]);
+    expect(
+      (rows[1]?.payload as { event: unknown } | undefined)?.event,
+    ).toMatchObject({
+      dc: 13,
+      total: 13,
+      outcome: "success",
+      feature: { sourceId: "goblin", name: "Web" },
+    });
+  });
+  it("/contest athletics uses the stated escape DC", () => {
+    const parsed = parse("/contest athletics @goblin", {
+      id: "c120-1",
+      actor: { kind: "pc", id: "ana" },
+      source: "composer",
+      commit: "confirmed",
+    });
+    if (!parsed.ok) throw new Error("parse failed");
+    const rows = rowsOf(plan(p, ana, parsed.intent, [6]));
+    expect(
+      fold([...world({ goblinFeatures: true }), ...asSpecs(rows)]),
+    ).toBeDefined();
+    const resolved = rows.find((x) => x.type === "check.resolved");
+    expect(
+      (resolved?.payload as { event: unknown } | undefined)?.event,
+    ).toMatchObject({
+      dc: 11,
+      total: 11,
+      outcome: "success",
+      opposition: { opponentId: "goblin", rule: "unarmed-strike" },
     });
   });
 });

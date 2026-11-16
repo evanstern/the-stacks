@@ -376,7 +376,7 @@ harness integration test.
   example a breath weapon). (a) The model still picks the tier nearest the narrated effect; card a
   follow-up that reads feature DCs from the record (beside TASK-0105's spell DCs). (b) Add a
   `feature` field to the check step now. **Resolved (a), carded as TASK-0224**: no shipped seed
-  monster has a save feature.
+  monster has a save feature. Closed by spec 120 (TASK-0224).
 
 ## Assumptions
 

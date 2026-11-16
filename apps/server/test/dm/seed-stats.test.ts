@@ -1,5 +1,8 @@
-import { firstMeleeAttack } from "@the-stacks/dnd5e-engine";
-import { getById, getByName } from "@the-stacks/srd";
+import {
+  CombatantStatsSchema,
+  firstMeleeAttack,
+} from "@the-stacks/dnd5e-engine";
+import { getById, getByName, list } from "@the-stacks/srd";
 import { describe, expect, it } from "vitest";
 import {
   statsFromCharacter,
@@ -125,5 +128,51 @@ describe("spec 094 speed, reach and range", () => {
     const k = pc("kestrel").attacks.find((a) => a.name === "Shortbow");
     expect(k?.rangeFt).toEqual({ normal: 80, long: 320 });
     expect(pc("tamsin").attacks[0]?.reachFt).toBeUndefined();
+  });
+});
+
+describe("spec 120 feature DCs", () => {
+  const dcs = (id: string) => statsFromSrd(monster(id)).featureDcs;
+  it("maps the giant spider's Web", () => {
+    expect(dcs("giant-spider")).toEqual([
+      { kind: "save", feature: "Web", ability: "dex", dc: 13 },
+    ]);
+  });
+  it("maps the aboleth in record order", () => {
+    expect(dcs("aboleth")).toEqual([
+      { kind: "save", feature: "Mucus Cloud", ability: "con", dc: 14 },
+      { kind: "escape", feature: "Tentacle", dc: 14 },
+      { kind: "save", feature: "Consume Memories", ability: "int", dc: 16 },
+      { kind: "save", feature: "Dominate Mind", ability: "wis", dc: 16 },
+    ]);
+  });
+  it("maps Whelm save then escape, and the magma mephit", () => {
+    expect(dcs("water-elemental")).toEqual([
+      { kind: "save", feature: "Whelm", ability: "str", dc: 15 },
+      { kind: "escape", feature: "Whelm", dc: 14 },
+    ]);
+    expect(dcs("magma-mephit")).toEqual([
+      { kind: "save", feature: "Death Burst", ability: "dex", dc: 11 },
+      { kind: "save", feature: "Fire Breath", ability: "dex", dc: 11 },
+    ]);
+  });
+  it("leaves the goblins without featureDcs", () => {
+    expect(dcs("goblin-warrior")).toBeUndefined();
+    expect(dcs("goblin-minion")).toBeUndefined();
+  });
+  it("totals across the SRD and always parses", () => {
+    let save = 0;
+    let escapes = 0;
+    for (const m of list("monster")) {
+      const s = statsFromSrd(m);
+      expect(CombatantStatsSchema.safeParse(s).success).toBe(true);
+      expect((s.featureDcs ?? []).length).toBeLessThanOrEqual(12);
+      for (const f of s.featureDcs ?? []) {
+        if (f.kind === "save") save += 1;
+        else escapes += 1;
+      }
+    }
+    expect(save).toBe(198);
+    expect(escapes).toBe(39);
   });
 });

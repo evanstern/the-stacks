@@ -20,11 +20,11 @@ Do not edit `packages/srd`, `packages/intent`, `packages/session-model/src`, `ap
 
 ## Phase 2: Stats builder, gate replay and contracts (FR-016, FR-019, FR-020; AC #1)
 
-- [ ] T010 In `apps/server/src/dm/seed/combatants.ts`, add `featureDcsFromSrd` and wire it into `statsFromSrd`; fix the `spellcastingAbility` comment (plan D4).
-- [ ] T011 Add the SC-004 cases to `apps/server/test/dm/seed-stats.test.ts` (plan D5).
-- [ ] T012 Add the `goblinFeatures` world option and the FR-019 replay to `packages/session-model/test/gate-intents.test.ts` (plan D5).
-- [ ] T013 Amend `specs/026-dnd5e-engine/contracts/commands.md`, `events.md` and `engine-api.md`, and close spec 082 OQ-7 and spec 084 OQ-2 (plan D7).
-- [ ] T014 Run `node scripts/check-boundaries.mjs` (exits 0) and `pnpm ci:check` (green).
+- [x] T010 In `apps/server/src/dm/seed/combatants.ts`, add `featureDcsFromSrd` and wire it into `statsFromSrd`; fix the `spellcastingAbility` comment (plan D4).
+- [x] T011 Add the SC-004 cases to `apps/server/test/dm/seed-stats.test.ts` (plan D5).
+- [x] T012 Add the `goblinFeatures` world option and the FR-019 replay to `packages/session-model/test/gate-intents.test.ts` (plan D5).
+- [x] T013 Amend `specs/026-dnd5e-engine/contracts/commands.md`, `events.md` and `engine-api.md`, and close spec 082 OQ-7 and spec 084 OQ-2 (plan D7).
+- [x] T014 Run `node scripts/check-boundaries.mjs` (exits 0) and `pnpm ci:check` (green).
 
 ## Phase 3: Wiki
 

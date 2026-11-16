@@ -2,6 +2,7 @@ import {
   type AttackEntry,
   type CombatantStats,
   DamageTypeSchema,
+  type FeatureDc,
   type Side,
   SkillSchema,
 } from "@the-stacks/dnd5e-engine";
@@ -22,6 +23,37 @@ function engineTypes(list: readonly string[]): DamageType[] {
 }
 
 const ABILITIES = ["str", "dex", "con", "int", "wis", "cha"] as const;
+
+const ESCAPE_DC = /escape DC (\d+)/i;
+
+/**
+ * Spec 120: stat-block DCs. A feature's `save` field gives a save DC; "escape DC N" in its text
+ * gives an escape DC (SRD 5.2.1 monster records, e.g. aboleth Tentacle).
+ * ponytail: the escape DC is read from prose; add a structured field in convert-open5e.mjs when
+ * the SRD data is next regenerated.
+ */
+function featureDcsFromSrd(monster: Monster): FeatureDc[] {
+  const out: FeatureDc[] = [];
+  for (const f of [
+    ...monster.traits,
+    ...monster.actions,
+    ...monster.bonusActions,
+    ...monster.reactions,
+    ...(monster.legendaryActions?.actions ?? []),
+  ]) {
+    if (f.save) {
+      out.push({
+        kind: "save",
+        feature: f.name,
+        ability: f.save.ability,
+        dc: f.save.dc,
+      });
+    }
+    const esc = ESCAPE_DC.exec(f.text);
+    if (esc) out.push({ kind: "escape", feature: f.name, dc: Number(esc[1]) });
+  }
+  return out.slice(0, 12);
+}
 
 /**
  * SRD monster to engine stats (spec 082 D4, plan R2/R6). Skill and save totals are stored as
@@ -75,15 +107,17 @@ export function statsFromSrd(monster: Monster): CombatantStats {
       damage: damage.slice(0, 4),
     });
   }
+  const featureDcs = featureDcsFromSrd(monster);
   return {
     abilityMods,
     proficiencyBonus: monster.pb,
     saves,
     skills,
     attacks: attacks.slice(0, 12),
-    // ponytail: monster spellcasting is per-feature (OQ-7, TASK-0224); null until carded work lands.
+    // ponytail: monster spellcasting is TASK-0230; null until it lands.
     spellcastingAbility: null,
     abilityScores,
+    ...(featureDcs.length > 0 ? { featureDcs } : {}),
   };
 }
 
