@@ -1,10 +1,10 @@
 ---
 id: TASK-0222
 title: Conditions that force an automatic save failure or an automatic critical hit
-status: In Progress
+status: Done
 assignee: []
 created_date: 2026-11-03 05:40
-updated_date: '2026-11-16T03:09:00Z'
+updated_date: '2026-11-16T03:31:00Z'
 labels:
   - dm
   - engine
@@ -48,3 +48,9 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
 
 AC #1 proven on the branch: packages/dnd5e-engine/test/commands/condition-auto.test.ts (33 golden-dice tests, SC-001..SC-003) and the FR-017 replay in gate-intents.test.ts (typed /attack on a paralyzed goblin). Gates before PR: ci:check green, wiki plan empty, freshness OK 66/66, boundaries 28/28.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Engine rules, tests and contracts (FR-001–FR-017; AC #1): 9/9 · Wiki: 5/5). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
