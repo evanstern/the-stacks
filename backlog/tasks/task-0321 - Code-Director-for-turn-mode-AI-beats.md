@@ -44,4 +44,6 @@ AC #3 profile (2026-11-15, from the hosted TASK-0338 retest, session 6031b671, v
 - Largest share: dm.director in both (Odo 39%, Kestrel 47%). The scope stays on the Director. The Director runs on opus, at $0.056-0.074 per call. Note: Odo also made a dm.adjudicate call (opus, 4.5 s), so the spec should check whether a companion beat needs it.
 
 Claimed 2026-11-15 by the R1 sweep (handoff move 2). Worktree .worktrees/task-0321, branch task-0321-companion-director, cut from origin/main b6a6f683. Spec number 118 claimed in the shared spec-claims notes. Opus spec authoring follows the handoff rule ("Dispatch spec authoring to opus-implementer"), as for every R1 spec.
+
+Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=cc/claude-opus-5-5
 <!-- SECTION:NOTES:END -->
