@@ -141,3 +141,7 @@ The Director prompt is `dm.director-v10`. The `goalNote` shape text says the not
 > "Approve all" (operator, C-AMD ruling, 2026-11-13: applies OQ-A1 to OQ-A15 of spec 091; OQ-A8 re-confirms R1 (a), ruled 2026-11-05, as the C-GATE ruling for the `SceneSchema` optional fields)
 
 The scene-start `scene` row adds `description`, `ways` and `cast`. All three come from the player-facing seed view, so no DM-only seed text reaches a player. `description` is the location features joined and cut to 1000 characters; `ways` is added when not empty; `cast` maps `PlayerSeedView.npcs`. No other opening or closing move changes.
+
+## Amendment 2026-11-15 (specs/118-companion-code-director, TASK-0321): the companion's own turn
+
+A turn job whose beat items all belong to the active AI companion in turn mode, with no monster turn, makes no `dm.director` call. The runner supplies the stay-put output: `resolve`, `stay`, no trackers, `continue`, pacing `rising` with no spotlight or beat, an empty `goalNote`, no companion prompts, no arrivals, no overrides. Resolve's code fight end still runs. Scene end, tracker advances and arrivals wait for the next beat that calls the Director (spec 107 OQ-8, spec 118 D2).

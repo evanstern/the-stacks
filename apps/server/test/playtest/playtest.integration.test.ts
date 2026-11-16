@@ -96,7 +96,7 @@ describe.skipIf(!reachable)("the CI playtest with its audit (AC #3)", () => {
       JSON.parse(readFileSync(join(out, "report.json"), "utf8")),
     );
     expect(report.verdict).toBe("pass");
-    expect(report.counts.segments).toBe(12);
+    expect(report.counts.segments).toBe(10);
     expect(report.counts.findings.fail).toBe(0);
     // TASK-0337: the two Intent deeds are told, and the check ran on every segment.
     for (const seg of report.segments) {

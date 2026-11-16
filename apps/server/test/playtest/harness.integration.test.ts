@@ -118,12 +118,11 @@ describe.skipIf(!reachable)("the harness run (database)", () => {
       if (purpose !== "dm.chronicle") expect(n, purpose).toBe(0);
     }
 
-    // The human seat and both companions committed.
+    // The human seat and Kestrel committed (spec 118: Odo's turn no longer comes before the scene end).
     const committers = run.transcript
       .filter((r) => r.type === "action.committed")
       .map((r) => r.actor);
     expect(committers).toContain(scenario.seat.userId);
-    expect(committers).toContain("ai:companion:odo");
     expect(committers).toContain("ai:companion:kestrel");
   }, 30_000);
 

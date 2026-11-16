@@ -1,4 +1,3 @@
-import type { Proposer } from "@the-stacks/session-model";
 import { afterAll, describe, expect, it } from "vitest";
 import { listDmJobs } from "../../src/dm/jobs.js";
 import {
@@ -9,6 +8,7 @@ import {
   workerFor,
 } from "./worker-world.js";
 import {
+  commitAction,
   createWorld,
   db,
   loudSkip,
@@ -22,7 +22,7 @@ import {
  * TASK-0110 AC #1 (spec 045, decision-0025 section 4): the F54 turn, rows
  * 260-265 of
  * `specs/034-narration-quality/evidence/verify-20261026T183818Z-greyhollow-ford-provider/`.
- * Odo (the active companion in `reed-camp`) commits a bargain on the same
+ * Tamsin (the active human in `reed-camp`; Odo in the F54 evidence, before spec 118) commits a bargain on the same
  * turn the Director returns `tableMode: { to: "free" }`. Before TASK-0110 the
  * encounter ended first and the action resolved `refused` (UNKNOWN_COMBATANT,
  * "cannot do that here"). Now the action resolves `applied` before
@@ -42,15 +42,13 @@ afterAll(async () => {
 });
 clearDmJobsBeforeEach();
 
-const ODO: Proposer = { kind: "ai", actor: "ai:companion:odo" };
-
 describe.skipIf(!reachable)("an encounter-ending action (database)", () => {
   it("resolves Odo's bargain applied before the encounter ends (rows 260-265)", async () => {
     const s = script("encounter-end-bargain.json");
-    // The script's first seven dice are initiative (Odo on top); the last is the Persuasion d20.
+    // The script's first seven dice are initiative (Tamsin on top); the last is the Persuasion d20.
     const w = await createWorld({ dice: s.dice, calls: s.calls });
     await startScene(w);
-    // Enter turn mode in reed-camp with Odo first to act.
+    // Enter turn mode in reed-camp with Tamsin first to act.
     const entered = await w.runResolve({
       director: {
         tableMode: { to: "turn", encounterId: "reed-camp", reason: "Fight." },
@@ -68,26 +66,17 @@ describe.skipIf(!reachable)("an encounter-ending action (database)", () => {
     };
     const before = await w.projections();
     expect(before.tableMode.mode).toBe("turn");
-    expect(before.encounter?.activeCombatantId).toBe("odo");
+    expect(before.encounter?.activeCombatantId).toBe("tamsin");
 
     const { worker } = workerFor(w, {});
 
-    // Odo declares and commits the bargain as the active companion.
-    const declared = await w.as(ODO, {
-      kind: "action.declare",
-      action: {
-        actionId: "act-odo-5",
-        characterId: "odo",
-        scope: "character",
-        text: "Odo lowers his mace, steps between the goblins and Pell, and offers Snag the bargain plainly: the clapper and Pell's freedom bought with safe passage for his remaining dogs, no more fighting needed.",
-      },
-    });
-    expect(declared.ok).toBe(true);
-    const committed = await w.as(ODO, {
-      kind: "action.commit",
-      actionId: "act-odo-5",
-    });
-    expect(committed.ok).toBe(true);
+    // Tamsin declares and commits the bargain as the active human. Since spec 118 a companion's own
+    // turn runs no Director, so a Director-ended encounter on the same turn needs a human beat.
+    await commitAction(
+      w,
+      "I lower my sword, step between the goblins and Pell, and offer Snag the bargain plainly: the clapper and Pell's freedom bought with safe passage for his remaining dogs, no more fighting needed.",
+      "act-tamsin-5",
+    );
     await tick();
     await drainAll(worker);
 
@@ -110,7 +99,7 @@ describe.skipIf(!reachable)("an encounter-ending action (database)", () => {
     const resolved = rows.find(
       (r) =>
         r.type === "action.resolved" &&
-        (r.payload as { actionId: string }).actionId === "act-odo-5",
+        (r.payload as { actionId: string }).actionId === "act-tamsin-5",
     );
     const resolvedPayload = resolved?.payload as {
       outcome: string;

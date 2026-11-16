@@ -28,7 +28,7 @@ sources:
   - apps/server/seeds/greyhollow-ford-reed-camp.json
   - apps/server/dm-scripts/runbook-a-reed-camp.json
 size_budget_exempt: the note sat within 40 chars of the 8000 budget before TASK-0195; the per-runbook scenario section is a short pointer to docs/design/playtest-scenarios.md, and the in-process harness above is one pipeline that does not split without a TASK of its own
-verified_against: 62214d4016b1b30ce482f3b1a1525a30013a81bf
+verified_against: 18b5a8143edac670e86a8f5d68e9ade6114b8218
 ---
 
 # Playtest harness
@@ -143,7 +143,7 @@ unconfirmed, 4 refused, 64 usage.
 
 ## CI case
 
-`test/playtest/playtest.integration.test.ts` runs the shipped scenario in ci mode (its DM script is the new `test/dm/scripts/greyhollow-ford-deeds.json`, spec 111, not an extended `-full` script; the audit fixture `greyhollow-ford.audit.json` gains the deed segments; spec 116 adds a `confirm-move` deed whose scripted react reply carries invented `params` keys, and the test asserts the one move item has `params: {}` and the talk jobs' `check.stripped` keys, 12 segments) inside
+`test/playtest/playtest.integration.test.ts` runs the shipped scenario in ci mode (its DM script is the new `test/dm/scripts/greyhollow-ford-deeds.json`, spec 111, not an extended `-full` script; the audit fixture `greyhollow-ford.audit.json` gains the deed segments; spec 116 adds a `confirm-move` deed whose scripted react reply carries invented `params` keys, and the test asserts the one move item has `params: {}` and the talk jobs' `check.stripped` keys, 10 segments since spec 118 folded the scene end into the human strike beat) inside
 `pnpm test` (database-gated: loud skip, or throw under `REQUIRE_DATABASE=1`, see [[test-suite]])
 and asserts outcome `ended` and a passing report. Other suites in `apps/server/test/playtest/`
 cover the scenario, driver, dice, checks, audit, budget, CLI and a doctored run directory the

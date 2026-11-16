@@ -35,7 +35,7 @@ sources:
   - apps/server/test/ai-round.bench-test.ts
   - tsconfig.json
 size_budget_exempt: spec 102 adds the server tsconfig reference to packages/intent in the one test-suite note; the suite map does not split without a TASK of its own
-verified_against: f8e3e370c2e06c447129da10e8e316a30d53531a
+verified_against: 18b5a8143edac670e86a8f5d68e9ade6114b8218
 ---
 
 # Test suite
@@ -53,7 +53,7 @@ TASK-0045 added gate suites at the same level: `gate.integration.test.ts` (incl.
 `SeqConflictError`, `readLatestOfType`), `ws.integration.test.ts` (per-viewer delivery, the
 send-path classification, `UNKNOWN_EVENT_TYPE`, error `code`; `sendTalkAndAwait` no longer resends on `CONFLICT`) and `ws.subscribe.test.ts` (the DM-seat subscribe race). Spec 108 adds `ws.narration-stream.integration.test.ts` (per-viewer parts, late-joiner replay after `replay-complete`, `end` before the settled row, buffer cleared on `end`) and `dm/narration-stream-gate.integration.test.ts` (an intent is accepted while narrate is paused). Spec 115 adds `dm/deed-mid-narration.integration.test.ts` (session 8c7d506e replayed: a deed posted mid-narration audits clean by its narration's facts window).
 TASK-0157 added a retry-wait test and a "per-session ordering" suite (burst fan-out, `recordPresence`, isolation) to `gate.integration.test.ts`, an all-in-flight burst to `ws.integration.test.ts`, and a `CONFLICT` label case to `apps/web/test/play/reduce-frame.test.mjs`.
-Spec 104 migrated the scripted turn tests and `test/dm/scripts/*.json` to Intent stages and added `intent-runner.integration.test.ts`, `interpret-intents.test.ts` and `narrate-window.test.ts`; `scene.integration.test.ts` (spec 110: it passes no `retrieve` stub to the worker) now expects the social check ruled by a `ruling` Intent (an `intent.recorded` row answering `act-persuade.0`), not a `ruling-` journal entry. TASK-0046 added `apps/server/test/dm/` (unit tests and `skipIf(!reachable)` integration suites over a scripted `FakeProvider`; see [[dm-runtime]]).
+Spec 104 migrated the scripted turn tests and `test/dm/scripts/*.json` to Intent stages and added `intent-runner.integration.test.ts`, `interpret-intents.test.ts` and `narrate-window.test.ts`; `scene.integration.test.ts` (spec 110: it passes no `retrieve` stub to the worker) now expects the social check ruled by a `ruling` Intent (an `intent.recorded` row answering `act-persuade.0`), not a `ruling-` journal entry. Spec 118 (TASK-0321): the scene test ends the scene on Tamsin's round-1 Director reply and no companion turn plays (6 narrations, 6 turn jobs, no companion job); the downed-seat harness case plays a second round in which the companions drop every foe and resolve ends the fight in code. TASK-0046 added `apps/server/test/dm/` (unit tests and `skipIf(!reachable)` integration suites over a scripted `FakeProvider`; see [[dm-runtime]]).
 It also extended `ai.gateway`-level fake scripting (`scriptChatFor`, `strict`; [[ai-gateway]]).
 Their counts are not in the totals below.
 Of these 12, three are integration suites that require a reachable Postgres —
@@ -160,6 +160,6 @@ the script `test/dm/scripts/ai-round-4v4.json`, and times one round through the 
 worker: from the human's `action.commit` of a slash attack to the `table-mode.changed` row that makes
 the human active in round 2. `BUDGET_MS = 60000` is constitution IX's round budget. The strict fake
 gateway scripts no `dm.interpret`; the test asserts zero interpret calls, three `dm.companion`
-calls and eight `dm.narrate` calls, prints one `ai-round 4v4 ms=... budget=60000ms OK` line with
+calls, one `dm.director` call (the human's turn; the three companion beats run the code Director, spec 118) and eight `dm.narrate` calls, prints one `ai-round 4v4 ms=... budget=60000ms OK` line with
 the per-purpose counts and each job's duration, and fails past the budget. `createWorld({ seed })`
 now also feeds that seed to the planner inputs.

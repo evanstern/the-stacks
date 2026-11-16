@@ -96,7 +96,7 @@ describe.skipIf(!reachable)("the whole scene (database)", () => {
     expect(p.tableMode.mode).toBe("turn");
     expect(p.encounter?.activeCombatantId).toBe("tamsin");
 
-    // The human turn, then Odo, Kestrel and the Director's close.
+    // The human turn; the Director closes the scene on it (spec 118: a companion's own turn has no Director).
     await commitAction(
       w,
       "I swing my longsword at the goblin in the pot-helm.",
@@ -130,17 +130,16 @@ describe.skipIf(!reachable)("the whole scene (database)", () => {
     expect(p.trackers.find((t) => t.trackerId === "dusk")?.filled).toBe(1);
     expect(p.trackers.find((t) => t.trackerId === "alarm")?.filled).toBe(1);
 
-    // Both companions acted as themselves; the human seat committed as the human.
+    // The human seat committed as the human; the scene ended on that turn, before a companion acted.
     const committers = rows
       .filter((r) => r.type === "action.committed")
       .map((r) => r.actor);
-    expect(committers).toContain("ai:companion:odo");
-    expect(committers).toContain("ai:companion:kestrel");
     expect(committers).toContain(TAMSIN_USER);
+    expect(committers).not.toContain("ai:companion:odo");
 
     // Every narration: digit-free prose, dice lines from code.
     const narrations = rows.filter((r) => r.type === "narration");
-    expect(narrations).toHaveLength(8);
+    expect(narrations).toHaveLength(6);
     for (const n of narrations) {
       const [prose] = payload<{ text: string }>(n).text.split("\n\n");
       expect(prose, prose).not.toMatch(/[0-9]/);
@@ -163,8 +162,8 @@ describe.skipIf(!reachable)("the whole scene (database)", () => {
         j.kind === "turn" &&
         (j.input as { trigger?: string }).trigger !== "ruling",
     );
-    expect(turns).toHaveLength(8);
-    expect(jobs.filter((j) => j.kind === "companion")).toHaveLength(2);
+    expect(turns).toHaveLength(6);
+    expect(jobs.filter((j) => j.kind === "companion")).toHaveLength(0);
 
     // The script is spent (chronicle passes vary with idle timing).
     const left = w.scripted.remaining();

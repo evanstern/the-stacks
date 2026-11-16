@@ -20,7 +20,7 @@ sources:
   - apps/server/src/dm/companion.ts
   - apps/server/src/dm/chronicle.ts
 size_budget_exempt: both notes sat within 30 chars of the 8000 budget before TASK-0180; the talk path got its own note (dm-talk-triggers) and only a pointer line lands here; the rest is one pipeline each, not splittable without a TASK of its own
-verified_against: 62214d4016b1b30ce482f3b1a1525a30013a81bf
+verified_against: 18b5a8143edac670e86a8f5d68e9ade6114b8218
 ---
 
 # DM turn jobs
@@ -75,7 +75,7 @@ After a human DM approves an `ai:dm` proposal, the `approval` turn does not inte
 The beat is frozen at assemble and stored in the checkpoint. A commit landing mid-turn
 never joins the running beat. After a turn,
 the worker queues follow-up jobs: a companion job for an AI companion's turn (spec 107: its `turn` Intents are declared as slash lines, so the following turn job makes no interpret call), an `npc-turn`
-turn when the DM acts next (spec 107: a monster turn with an empty beat runs no director and no interpret call; narrate is its one model call; the worker enqueues the `next.trigger` resolve names: `npc-turn`, or `held` in place of the companion job when a held party action waits for the companion now active), a companion `hold` job when the director held, and a chronicle job
+turn when the DM acts next (spec 107: a monster turn with an empty beat runs no director and no interpret call; spec 118: a companion's own turn job (turn mode, every beat item the active companion's) makes no `dm.director` call either, with interpret making none for slash lines; narrate is its one model call; the worker enqueues the `next.trigger` resolve names: `npc-turn`, or `held` in place of the companion job when a held party action waits for the companion now active), a companion `hold` job when the director held, and a chronicle job
 when narration shipped. A failed turn queues nothing. Spec 108 (TASK-0298): the worker wraps every turn job in a `try`/`finally` that sends the narration-stream `end` part through `DmWorkerDeps.onNarrationStream` (success, failure, reclaim skip, throw); a delivery fault never fails the job ([[dm-runtime]]). `TurnCheckpoint.factsThrough` (spec 104 FR-018) records the `throughSeq` the last narrate read; the worker wires `NodeDeps.loadEvents` to `loadEventWindow` and, when narrate or check fails, writes the current `throughSeq` into the failed checkpoint ([[dm-runtime]]). An action awaiting a human DM's ruling is left out of every turn's beat.
 
 ## Resolve order
