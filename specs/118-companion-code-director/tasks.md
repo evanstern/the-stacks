@@ -19,8 +19,8 @@ Do not edit `packages/*`, `nodes/director.ts`, `prompts/director.ts`, `companion
 
 - [x] T008 Merge `origin/main` into the branch.
 - [x] T009 Rework `test/dm/scripts/fight-round.json` (operator ruling (b), 2026-11-15): drop "companion action" and "back to free mode; scene ends"; fold the scene end into the "human active actor" reply on Tamsin round-1 strike. Drop the Odo and Kestrel turns and their narrations (Kestrel acts first in the run; the scene ends before Odo or Kestrel act again). No monster turns scripted, no extra strike.
-- [ ] T010 Same change in `greyhollow-ford-full.json` and `greyhollow-ford-deeds.json` (deeds keeps Kestrel's turn: its initiative order differs). `downed-seat.json`: both companion-beat Directors dropped. BLOCKED: the case now fails (see T011).
-- [ ] T011 `scene.integration.test.ts` (6 narrations, 6 turn jobs, 0 companion jobs), `playtest.integration.test.ts` and `scenario.test.ts` (10 segments), `greyhollow-ford.audit.json` (10 passes) updated. OPEN: the downed-seat harness case fails — with no Director on a companion turn nothing ends the fight, and a downed Tamsin has no Director beat.
+- [x] T010 Same change in `greyhollow-ford-full.json` and `greyhollow-ford-deeds.json` (deeds keeps Odo's turn and drops Kestrel's: its initiative order differs). `downed-seat.json`: both companion-beat Directors dropped, and a second round scripted (operator ruling 2026-11-15 "one more round"): the monsters miss, Tamsin stays down, the companions drop all four foes, and resolve ends the fight in code.
+- [x] T011 `scene.integration.test.ts` (6 narrations, 6 turn jobs, 0 companion jobs), `playtest.integration.test.ts` and `scenario.test.ts` (10 segments), `greyhollow-ford.audit.json` (10 passes) updated. The downed-seat harness case passes: stalled with seat-downed, `encounter.ended` with reason "No foe still stands.", no Director call.
 - [ ] T012 Check `dm-scripts/runbook-a-reed-camp.json` and `runbook-b-reed-camp.json` for turn-mode companion-beat Director replies; drop each one. State every changed count and dropped reply in the commit message.
 
 ## Phase 3: Wiki

@@ -1,7 +1,34 @@
 {
   "v": 1,
   "name": "downed-seat",
-  "dice": [14, 15, 15, 12, 7, 20, 3, 2, 1, 20, 6, 5, 12, 12, 3, 12, 1],
+  "dice": [
+    14,
+    15,
+    15,
+    12,
+    7,
+    20,
+    3,
+    2,
+    1,
+    20,
+    6,
+    5,
+    12,
+    15,
+    6,
+    15,
+    6,
+    2,
+    3,
+    15,
+    20,
+    6,
+    6,
+    20,
+    6,
+    6
+  ],
   "calls": [
     {
       "purpose": "dm.director",
@@ -313,10 +340,10 @@
     },
     {
       "purpose": "dm.narrate",
-      "note": "a hit, no death",
+      "note": "Odo drops goblin-3",
       "respond": {
         "type": "text",
-        "value": "Brother Odo brings his mace down on the goblin lookout, who yelps and stumbles back, hunting for solid footing."
+        "value": "Brother Odo brings his mace down on the goblin lookout, who crumples."
       }
     },
     {
@@ -348,10 +375,96 @@
     },
     {
       "purpose": "dm.narrate",
-      "note": "a hit, then the scene ends",
+      "note": "Kestrel drops goblin-4",
       "respond": {
         "type": "text",
-        "value": "Kestrel's arrow whistles across the island and bites the goblin by the fire, who howls. Snag lowers his blade and calls out, offering the clapper in return for a safe way off the ford."
+        "value": "Kestrel's arrow whistles across the island and drops the goblin by the fire."
+      }
+    },
+    {
+      "purpose": "dm.narrate",
+      "note": "a miss for the NPC",
+      "respond": {
+        "type": "text",
+        "value": "A goblin swings wildly and misses Odo."
+      }
+    },
+    {
+      "purpose": "dm.narrate",
+      "note": "a miss for the NPC",
+      "respond": {
+        "type": "text",
+        "value": "Snag slashes at Brother Odo, who turns the blade aside."
+      }
+    },
+    {
+      "purpose": "dm.companion",
+      "note": "Odo's turn, round 2",
+      "respond": {
+        "type": "json",
+        "value": {
+          "say": null,
+          "comment": null,
+          "act": null,
+          "pending": [],
+          "turn": [
+            {
+              "kind": "attack",
+              "targets": [
+                {
+                  "kind": "actor",
+                  "id": "goblin-2"
+                }
+              ],
+              "params": {
+                "weapon": "Mace"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "purpose": "dm.narrate",
+      "note": "Odo drops goblin-2",
+      "respond": {
+        "type": "text",
+        "value": "Brother Odo's mace drops the last goblin at his feet."
+      }
+    },
+    {
+      "purpose": "dm.companion",
+      "note": "Kestrel's turn, round 2",
+      "respond": {
+        "type": "json",
+        "value": {
+          "say": null,
+          "comment": null,
+          "act": null,
+          "pending": [],
+          "turn": [
+            {
+              "kind": "attack",
+              "targets": [
+                {
+                  "kind": "actor",
+                  "id": "snag"
+                }
+              ],
+              "params": {
+                "weapon": "Shortbow"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "purpose": "dm.narrate",
+      "note": "a critical hit ends the fight",
+      "respond": {
+        "type": "text",
+        "value": "Kestrel's arrow finds Snag's throat. He falls, and the ford goes quiet."
       }
     },
     {
