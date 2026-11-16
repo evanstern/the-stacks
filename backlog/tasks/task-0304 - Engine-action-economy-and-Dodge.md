@@ -1,10 +1,10 @@
 ---
 id: TASK-0304
 title: Engine action economy and Dodge
-status: In Progress
+status: Done
 assignee: []
 created_date: 2026-11-10 03:11
-updated_date: '2026-11-16T01:21:00Z'
+updated_date: '2026-11-16T02:13:00Z'
 labels:
   - ws:engine
   - replan-2026-11
@@ -63,3 +63,9 @@ Tick unblocked 2026-11-15 after the operator's retry (cf5e6c03, sed, outside aut
 
 ACs #1-#4 proven on the branch: engine economy.test.ts (SC-001/SC-002 golden dice), planner economy.test.ts and refusals.test.ts (SC-003/SC-004), dodge served (kinds.test.ts), hosted double-attack replays gate-intents.test.ts and gate.intent.integration.test.ts (NO_ACTION_LEFT, no rows). Spec-bridge sync to Done runs after merge.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Engine economy, Dodge and casting time (FR-001–FR-013; AC #1, #3): 8/8 · Planner economy, Dodge and the hosted replay (FR-014–FR-024; AC #2, #4): 11/11 · Wiki: 9/9). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
