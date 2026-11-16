@@ -4,7 +4,7 @@ title: Engine records surprise; facts derive startlement
 status: In Progress
 assignee: []
 created_date: 2026-11-03 00:33
-updated_date: '2026-11-16T06:24:00Z'
+updated_date: '2026-11-16T06:30:00Z'
 labels:
   - dm
   - engine
@@ -46,6 +46,8 @@ CP-5 ruling 2026-11-08 (docs/design/r1-fast-table-runbook.md) F3: AC #2 retarget
 Claimed 2026-11-16 by the R1 sweep (docs/design/r1-fast-table-runbook.md). Worktree .worktrees/task-0215, branch task-0215-surprise, cut from origin/main 0f0add89. Spec number 121 claimed with a stub.
 
 Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
