@@ -28,7 +28,7 @@ sources:
   - apps/server/seeds/greyhollow-ford-reed-camp.json
   - apps/server/dm-scripts/runbook-a-reed-camp.json
 size_budget_exempt: the note sat within 40 chars of the 8000 budget before TASK-0195; the per-runbook scenario section is a short pointer to docs/design/playtest-scenarios.md, and the in-process harness above is one pipeline that does not split without a TASK of its own
-verified_against: 18b5a8143edac670e86a8f5d68e9ade6114b8218
+verified_against: 06fd49610a6fa7d116af98f64c22a494de2b97ba
 ---
 
 # Playtest harness
@@ -99,7 +99,7 @@ already in flight.
 
 ## The auditor
 
-The auditor prompt (`auditor/prompt.ts`, `playtest.audit-v2`, specs/074) adds a `## Party` section: each seed character with `human player` or `AI companion`, then `agencyRule("auditor")`. `hero-is-theirs` covers every party member, companions included; a companion's own talk and declared actions are its own choices.
+The auditor prompt (`auditor/prompt.ts`, `playtest.audit-v3`, specs/074; spec 121: the agency rule names the startle) adds a `## Party` section: each seed character with `human player` or `AI companion`, then `agencyRule("auditor")`. `hero-is-theirs` covers every party member, companions included; a companion's own talk and declared actions are its own choices.
 
 `auditor/audit.ts`'s `runAudit({transcript, ledger, jobs, seed, gateway, models})` cuts the
 transcript with `segments.ts` (each `ai:dm` narration closes a segment, cut at that narration's facts window: `narrationCuts(jobs)` maps each `narrationSeqs` entry to its job's `factsThrough`, and `segment` gives narration k the non-narration rows in `(cut[k-1], cut[k]]`, the cut clamped to `[cut[k-1], seq-1]`; with no cut the narration closes every row before it, so a deed posted mid-narration lands in the next segment, spec 115; a tail with a `talk`

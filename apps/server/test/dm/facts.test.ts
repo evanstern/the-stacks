@@ -8,6 +8,7 @@ import {
   buildNarrationFacts,
   collectFacts,
   deriveInvoluntary,
+  deriveStartle,
   type FactChange,
   type NarrationFacts,
   renderChangeLine,
@@ -1174,6 +1175,43 @@ describe("settled death saves (TASK-0112, plan D5)", () => {
     expect(entries.filter((e) => e.includes("change:")).join("")).not.toMatch(
       /\d/,
     );
+  });
+});
+
+describe("deriveStartle (spec 121)", () => {
+  const party = new Set(["ana"]);
+  const row = (
+    seq: number,
+    surprised?: string[],
+    visibility = "public",
+  ): StoredEvent =>
+    ({
+      seq,
+      type: "encounter.started",
+      visibility,
+      actor: "ai:dm",
+      payload: { event: { type: "encounter.started", surprised } },
+    }) as unknown as StoredEvent;
+  const startle = {
+    name: "Ana",
+    trigger: "startle",
+    detail: "surprised as the fight starts",
+  };
+  it("lists a surprised party member and not a foe", () => {
+    expect(deriveStartle([row(1, ["ana", "goblin"])], party, nameOf)).toEqual([
+      startle,
+    ]);
+  });
+  it("skips a dm-only row", () => {
+    expect(deriveStartle([row(1, ["ana"], "dm")], party, nameOf)).toEqual([]);
+  });
+  it("skips a row with no surprised key", () => {
+    expect(deriveStartle([row(1)], party, nameOf)).toEqual([]);
+  });
+  it("dedupes by name across rows", () => {
+    expect(
+      deriveStartle([row(2, ["ana"]), row(1, ["ana"])], party, nameOf),
+    ).toEqual([startle]);
   });
 });
 

@@ -287,7 +287,7 @@ companion seat. The prompt lists both with their controller and states the compa
   with intent and stays a breach (plan R2). OQ-4 asks the operator to confirm that reading.
 - **OQ-2 — Surprise.** The engine records no surprise, so the startlement trigger has no fact to
   derive from. **Default:** derive none in this card. The orchestrator cards "engine records
-  surprise; facts derive startlement" for a later runbook (no "for now" without a card).
+  surprise; facts derive startlement" for a later runbook (no "for now" without a card). Closed by spec 121 (TASK-0215).
 - **OQ-3 — Do AI companions count for `hero-is-theirs`?** **Default (a):** yes. Narrate already
   treats companions as player characters ("companions speak for themselves"). TASK-0106 verify F7
   ("Brother Odo steps forward, weighing the line") is then a real narration finding. (b) would scope

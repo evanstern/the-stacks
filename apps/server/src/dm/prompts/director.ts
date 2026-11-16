@@ -17,7 +17,7 @@ import {
   transcriptEntries,
 } from "./common.js";
 
-export const PROMPT_VERSION = "dm.director-v12";
+export const PROMPT_VERSION = "dm.director-v13";
 
 const OUTPUT_SHAPE = [
   "Reply with ONE JSON object and nothing else:",

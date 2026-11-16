@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 import type { Encounter, EngineState } from "../../src/index.js";
-import { activeCombatant, conditionsOf } from "../../src/index.js";
+import {
+  activeCombatant,
+  conditionsOf,
+  EngineStateSchema,
+} from "../../src/index.js";
 import {
   expectOk,
   expectRefusedBeforeDraw,
@@ -456,5 +460,86 @@ describe("assist expiry (spec 084)", () => {
       cur = settle(cur, out.result);
     }
     expect(sawExpired).toBe(true);
+  });
+});
+
+describe("spec 121: surprise", () => {
+  const sroll = (a: object, b: object = {}) => ({
+    type: "initiative.roll",
+    participants: [
+      { combatantId: "a", mode: "normal", ...a },
+      { combatantId: "b", mode: "normal", ...b },
+    ],
+    reason: "ambush",
+  });
+  const two = () => stateWith(pc("a"), pc("b"));
+
+  it("a surprised participant rolls with Disadvantage and is recorded", () => {
+    const state = two();
+    const out = run(state, sroll({ surprised: true }), [15, 4, 10]);
+    const events = expectOk(out.result);
+    expect(events[0]).toMatchObject({
+      mode: "disadvantage",
+      natural: 4,
+      total: 4,
+      terms: [{ faces: [15, 4] }],
+    });
+    expect(events[1]).toMatchObject({ mode: "normal", total: 10 });
+    expect(events[2]).toMatchObject({
+      type: "encounter.started",
+      surprised: ["a"],
+      after: { order: [{ combatantId: "b" }, { combatantId: "a" }] },
+    });
+    const next = settle(state, out.result);
+    expect(next.encounter && "surprised" in next.encounter).toBe(false);
+    EngineStateSchema.parse(next);
+  });
+
+  it("Advantage and surprise cancel", () => {
+    const out = run(
+      two(),
+      sroll({ surprised: true, mode: "advantage" }),
+      [7, 12],
+    );
+    const events = expectOk(out.result);
+    expect(events[0]).toMatchObject({ mode: "normal", total: 7 });
+    expect(events[0]).toMatchObject({ terms: [{ faces: [7] }] });
+    expect(events[1]).toMatchObject({ total: 12 });
+  });
+
+  it("Disadvantage and surprise do not stack", () => {
+    const out = run(
+      two(),
+      sroll({ surprised: true, mode: "disadvantage" }),
+      [9, 3, 10],
+    );
+    expect(expectOk(out.result)[0]).toMatchObject({
+      mode: "disadvantage",
+      natural: 3,
+    });
+  });
+
+  it("records every surprised participant in command order", () => {
+    const out = run(
+      two(),
+      sroll({ surprised: true }, { surprised: true }),
+      [15, 4, 2, 18],
+    );
+    expect(expectOk(out.result)[2]).toMatchObject({ surprised: ["a", "b"] });
+  });
+
+  it("omits the field when nobody is surprised", () => {
+    for (const a of [{}, { surprised: false }]) {
+      const events = expectOk(run(two(), sroll(a), [10, 12]).result);
+      expect("surprised" in (events[2] as object)).toBe(false);
+    }
+  });
+
+  it("refuses a dead surprised participant before any draw", () => {
+    const state = stateWith(pc("a", 0, dead), pc("b"));
+    expectRefusedBeforeDraw(
+      run(state, sroll({ surprised: true }), [10, 10]),
+      "TARGET_DEAD",
+    );
   });
 });

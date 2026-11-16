@@ -334,3 +334,10 @@ optional `assists`.
 source. The engine reads the DC from the source's `stats.featureDcs`. The source must exist and may be dead.
 Refusals: `INVALID_COMMAND` (second source, wrong kind, self source, ability mismatch), `UNKNOWN_COMBATANT`,
 `STAT_UNDEFINED`. The `unarmed-strike` opposition on an ability check uses the opponent's first stated escape DC.
+
+## Amended by specs/121-engine-surprise (TASK-0215)
+
+Each `initiative.roll` participant gains optional `surprised: boolean`. A surprised participant
+rolls with Disadvantage folded into its `mode` (SRD 5.2.1
+`playing-the-game.combat.the-order-of-combat.initiative`). Advantage and Disadvantage cancel.
+It loses no turn. `initiative.join` takes no surprise. Refusals are unchanged.

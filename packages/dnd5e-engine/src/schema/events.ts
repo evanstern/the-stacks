@@ -295,6 +295,8 @@ export const EngineEventSchema = z.discriminatedUnion("type", [
     reason: Reason,
     before: z.null(),
     after: EncounterSchema,
+    // Spec 121: participants surprised by combat starting, in command order; omitted when none.
+    surprised: z.array(Id).min(1).max(50).optional(),
   }),
   z.object({
     type: z.literal("encounter.changed"),

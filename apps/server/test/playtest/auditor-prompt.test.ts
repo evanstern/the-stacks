@@ -26,7 +26,7 @@ describe("auditor prompt party section (spec 074)", () => {
     b.name = "Brother Odo";
     b.seat = "companion";
     const { user } = buildAuditorPrompt(seg, seed);
-    expect(AUDITOR_PROMPT_VERSION).toBe("playtest.audit-v2");
+    expect(AUDITOR_PROMPT_VERSION).toBe("playtest.audit-v3");
     expect(user).toContain("## Party");
     expect(user).toContain("Tamsin Vale (human player)");
     expect(user).toContain("Brother Odo (AI companion)");

@@ -1819,3 +1819,48 @@ describe("floor planner (spec 049, research R3 to R5)", () => {
     expect(() => plan(p, ana, floor("end", turnOf("ana")), [5])).not.toThrow();
   });
 });
+
+describe("spec 121: surprise through the gate", () => {
+  it("an AI DM mechanics start records the surprised id and rolls it with Disadvantage", () => {
+    const rows = okRows(
+      plan(
+        dmFold(),
+        aiDm,
+        parse({
+          kind: "mechanics",
+          command: {
+            type: "initiative.roll",
+            participants: [
+              { combatantId: "ana", mode: "normal", surprised: true },
+              { combatantId: "goblin", mode: "normal" },
+            ],
+            reason: "ambush",
+          },
+        }),
+        [15, 4, 10],
+      ),
+    );
+    expect(rows.map((r) => r.type)).toEqual([
+      "dice.rolled",
+      "dice.rolled",
+      "encounter.started",
+    ]);
+    expect(rows[0]?.payload).toMatchObject({
+      event: { combatantId: "ana", mode: "disadvantage", total: 4 },
+    });
+    expect(rows[1]?.payload).toMatchObject({
+      event: { combatantId: "goblin", total: 10 },
+    });
+    expect(rows[2]?.payload).toMatchObject({
+      event: { surprised: ["ana"] },
+    });
+    const folded = dmFold({
+      extra: rows.map((r) => ({
+        type: r.type,
+        payload: r.payload,
+        opts: { actor: r.actor, visibility: r.visibility },
+      })),
+    });
+    expect(folded.encounter?.activeCombatantId).toBe("goblin");
+  });
+});

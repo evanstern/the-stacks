@@ -27,7 +27,7 @@ import {
   transcriptEntries,
 } from "./common.js";
 
-export const PROMPT_VERSION = "dm.narrate-v26";
+export const PROMPT_VERSION = "dm.narrate-v27";
 
 /** One turn rule, shared by the narrate and audit prompts (TASK-0214). */
 export const TURN_RULE =
@@ -99,6 +99,7 @@ const REFLEX_PHRASE: Record<
   "heavy-hit": "reel from a heavy hit",
   flinch: "flinch",
   avoid: "flinch as it misses",
+  startle: "startle",
 };
 
 export function factEntries(facts: NarrationFacts): string[] {

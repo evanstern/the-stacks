@@ -12,7 +12,7 @@ import type { Segment } from "./segments.js";
  * module renders; it is never sent to the model.
  */
 
-export const AUDITOR_PROMPT_VERSION = "playtest.audit-v2";
+export const AUDITOR_PROMPT_VERSION = "playtest.audit-v3";
 
 export const SYSTEM_TEXT =
   "You audit a tabletop game transcript. The ledger rows and state changes are true. The narration and the companions' talk are on trial. Report only problems you can tie to cited row numbers. Answer with JSON only.";

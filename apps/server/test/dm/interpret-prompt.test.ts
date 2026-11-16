@@ -60,7 +60,7 @@ const NARRATIVE =
 
 describe("interpret prompt", () => {
   it("bumps the prompt versions", () => {
-    expect(INTERPRET_VERSION).toBe("dm.interpret-v18");
+    expect(INTERPRET_VERSION).toBe("dm.interpret-v19");
   });
 
   it("lists arriving monsters, and only then (spec 088)", async () => {

@@ -75,7 +75,7 @@ export interface FactRoll {
 export interface FactInvoluntary {
   /** The party member. */
   name: string;
-  trigger: "stagger" | "heavy-hit" | "flinch" | "avoid";
+  trigger: "stagger" | "heavy-hit" | "flinch" | "avoid" | "startle";
   detail: string;
 }
 
@@ -657,6 +657,38 @@ export interface BuildFactsInput {
 }
 
 /**
+ * Pure. Spec 121: a startle for each surprised party member, from the public `encounter.started`
+ * rows appended this turn, in seq order, once per name. The ledger change row drops the event's
+ * `surprised` field, so this reads the stored row.
+ */
+export function deriveStartle(
+  rows: readonly StoredEvent[],
+  party: ReadonlySet<string>,
+  nameOf: NameOf,
+): FactInvoluntary[] {
+  const out: FactInvoluntary[] = [];
+  const seen = new Set<string>();
+  for (const r of [...rows].sort((a, b) => a.seq - b.seq)) {
+    if (r.type !== "encounter.started" || r.visibility !== "public") continue;
+    const ids = (r.payload as { event?: { surprised?: unknown } } | null)?.event
+      ?.surprised;
+    if (!Array.isArray(ids)) continue;
+    for (const id of ids) {
+      if (typeof id !== "string" || !party.has(id)) continue;
+      const name = nameOf(id);
+      if (seen.has(name)) continue;
+      seen.add(name);
+      out.push({
+        name,
+        trigger: "startle",
+        detail: "surprised as the fight starts",
+      });
+    }
+  }
+  return out;
+}
+
+/**
  * Pure. Reflex triggers from ledger rows, in seq order, deduped by
  * `name|trigger` (spec 074 D3). Party targets only; death saves emit no
  * `check.resolved`, so they never yield a flinch.
@@ -893,33 +925,37 @@ export function buildNarrationFacts(input: BuildFactsInput): NarrationFacts {
   const partyIds = new Set(
     p.party.flatMap((m) => (m.combatantId ? [m.combatantId] : [])),
   );
-  const involuntary = deriveInvoluntary(
-    [
-      ...actions.flatMap((a) => {
-        const mine = new Set(
-          input.resolve.actionResults.find((r) => r.actionId === a.actionId)
-            ?.batchIds ??
-            p.actions.find((v) => v.actionId === a.actionId)?.resolved
+  const involuntary = [
+    ...deriveStartle(input.appendedRows, partyIds, nameOf),
+    ...deriveInvoluntary(
+      [
+        ...actions.flatMap((a) => {
+          const mine = new Set(
+            input.resolve.actionResults.find((r) => r.actionId === a.actionId)
               ?.batchIds ??
-            [],
-        );
-        return p.ledger.filter(
-          (r) =>
-            r.actionId === a.actionId || (r.batchId && mine.has(r.batchId)),
-        );
-      }),
-      ...(input.resolve.npcTurn && !input.resolve.npcTurn.awaitingDm
-        ? p.ledger.filter(
+              p.actions.find((v) => v.actionId === a.actionId)?.resolved
+                ?.batchIds ??
+              [],
+          );
+          return p.ledger.filter(
             (r) =>
-              r.batchId && input.resolve.npcTurn?.batchIds.includes(r.batchId),
-          )
-        : []),
-      ...p.ledger.filter((r) => r.batchId && settleBatches.has(r.batchId)),
-    ],
-    partyIds,
-    (id) => p.engine.combatants[id]?.hp.max ?? null,
-    nameOf,
-  );
+              r.actionId === a.actionId || (r.batchId && mine.has(r.batchId)),
+          );
+        }),
+        ...(input.resolve.npcTurn && !input.resolve.npcTurn.awaitingDm
+          ? p.ledger.filter(
+              (r) =>
+                r.batchId &&
+                input.resolve.npcTurn?.batchIds.includes(r.batchId),
+            )
+          : []),
+        ...p.ledger.filter((r) => r.batchId && settleBatches.has(r.batchId)),
+      ],
+      partyIds,
+      (id) => p.engine.combatants[id]?.hp.max ?? null,
+      nameOf,
+    ),
+  ];
 
   const openFollowUps = (input.openFollowUps ?? []).flatMap((f) => {
     const name = p.party.find((m) => m.characterId === f.characterId)?.name;
