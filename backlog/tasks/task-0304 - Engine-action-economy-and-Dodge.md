@@ -4,7 +4,7 @@ title: Engine action economy and Dodge
 status: In Progress
 assignee: []
 created_date: 2026-11-10 03:11
-updated_date: '2026-11-15T22:17:00Z'
+updated_date: '2026-11-16T01:20:00Z'
 labels:
   - ws:engine
   - replan-2026-11
@@ -56,4 +56,8 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
 Dispatch: tier=haiku pinned=cc/claude-haiku-5-5 served=claude-haiku-5-5
 
 Blocked 2026-11-15: the haiku tick of tasks.md T009-T018 (work done in 663f4e19) was refused by the auto-mode classifier (sed -i) and by a PreToolUse path-redirect hook (Edit). Not re-routed; waiting on the operator.
+
+Dispatch: tier=haiku pinned=cc/claude-haiku-5-5 served=claude-haiku-5-5
+
+Tick unblocked 2026-11-15 after the operator's retry (cf5e6c03, sed, outside auto mode). Gates before PR: ci:check green (phase 3 run), wiki plan empty, freshness OK 66/66, boundaries 28/28.
 <!-- SECTION:NOTES:END -->
