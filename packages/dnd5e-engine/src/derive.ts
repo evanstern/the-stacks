@@ -5,6 +5,7 @@ import type {
   AttackEntry,
   Combatant,
   CombatantStats,
+  ConditionKey,
   Encounter,
   ExpiryPoint,
   Skill,
@@ -132,6 +133,40 @@ export function checkModeSources(
   } else if (ability === "dex" && has(c, "restrained"))
     out.push("disadvantage");
   return out;
+}
+
+/** SRD 5.2.1 conditions paralyzed, petrified, stunned, unconscious: "Saving Throws Affected". */
+const AUTO_FAIL_SAVES = [
+  "paralyzed",
+  "petrified",
+  "stunned",
+  "unconscious",
+] as const;
+/** SRD 5.2.1 conditions paralyzed, unconscious: "Automatic Critical Hits". */
+const AUTO_CRIT = ["paralyzed", "unconscious"] as const;
+
+/** Spec 119: the condition that makes this Strength or Dexterity save fail, or null. */
+export function autoFailCondition(
+  c: Combatant,
+  kind: "ability-check" | "saving-throw",
+  ability: Ability,
+): ConditionKey | null {
+  if (kind !== "saving-throw" || (ability !== "str" && ability !== "dex"))
+    return null;
+  return (
+    c.conditions.find((i) =>
+      (AUTO_FAIL_SAVES as readonly string[]).includes(i.condition),
+    )?.condition ?? null
+  );
+}
+
+/** Spec 119: the condition that turns a hit within 5 feet into a Critical Hit, or null. */
+export function autoCritCondition(c: Combatant): ConditionKey | null {
+  return (
+    c.conditions.find((i) =>
+      (AUTO_CRIT as readonly string[]).includes(i.condition),
+    )?.condition ?? null
+  );
 }
 
 /**

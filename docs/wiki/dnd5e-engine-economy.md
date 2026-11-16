@@ -12,7 +12,7 @@ sources:
   - packages/dnd5e-engine/src/commands/spells.ts
   - packages/dnd5e-engine/src/spells.ts
   - packages/dnd5e-engine/test/commands/economy.test.ts
-verified_against: f8e3e370c2e06c447129da10e8e316a30d53531a
+verified_against: 76626337152302d845cd72a8e917db994c627878
 ---
 
 # 5e engine: action economy and Dodge

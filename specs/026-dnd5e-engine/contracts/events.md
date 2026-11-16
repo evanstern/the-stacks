@@ -188,3 +188,8 @@ catalog; `combatantId` is the holder:
 
 `Assist` is `{ kind: "ability-check", helperId, skill, expiresAt } | { kind: "attack", helperId, expiresAt }`.
 `combatant.added`'s `after` carries optional `assists` and `stats.abilityScores`. `v` stays 1; old rows parse.
+
+## Amended by specs/119-condition-auto-fail-crit (TASK-0222)
+
+`attack.resolved`: `critical-hit` may carry a `natural` below 20. `check.resolved`: a derived automatic
+failure has the FR-023 shape with reason `<name> is <condition>`.

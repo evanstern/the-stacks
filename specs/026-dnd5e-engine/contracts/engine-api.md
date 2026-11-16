@@ -280,3 +280,7 @@ New exports: `SPELLS`, `SpellMechanicsSchema`, `SpellMechanics`, `spellDice`, `s
 
 `index.ts` also exports `OppositionRuleSchema`, `oppositionCovers`, `oppositionDc`, `checkAssists`,
 `attackAssists`, `helperExpiry`, `AssistSchema` and the types `Assist` and `OppositionRule`.
+
+## Amended by specs/119-condition-auto-fail-crit (TASK-0222)
+
+New exports: `derive.ts` (`autoFailCondition`, `autoCritCondition`). Amended by spec 119 (TASK-0222).

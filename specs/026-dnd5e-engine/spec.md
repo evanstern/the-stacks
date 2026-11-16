@@ -292,7 +292,7 @@ with before and after values.
 - **FR-023** (AC #5, #9): `check.roll` MUST accept an optional automatic-failure input with
   its own reason, supplied by adjudication (orchestrator ruling 2026-10-25). With it, the
   engine MUST draw no die and MUST record outcome failure, the DC and the automatic-failure
-  reason. The engine MUST NOT derive automatic failure from conditions (FR-011 stands).
+  reason. The engine MUST NOT derive automatic failure from conditions (FR-011 stands). Amended by spec 119 (TASK-0222): the engine derives automatic failure on Strength and Dexterity saves from `paralyzed`, `petrified`, `stunned` and `unconscious`; a command `autoFail` stays valid and wins.
 
 **Conditions**
 

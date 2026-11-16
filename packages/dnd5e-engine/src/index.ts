@@ -22,6 +22,8 @@ export type {
 export {
   attackAssists,
   attackModeSources,
+  autoCritCondition,
+  autoFailCondition,
   checkAssists,
   checkModeSources,
   checkModifier,

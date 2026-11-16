@@ -54,7 +54,8 @@ no keep and a positive sign (a "plain d20 term"); the engine rolls it twice and 
   modifier, bonus dice such as Bless `+1d4`).
 - **Attack outcome** (SRD 5.2.1): the kept d20 face is the natural roll. Natural 20 →
   `critical-hit` (hits whatever the AC). Natural 1 → `miss` (misses whatever the total).
-  Otherwise `total >= ac` → `hit`, else `miss`.
+  Otherwise `total >= ac` → `hit`, else `miss`. Amended by spec 119 (TASK-0222): a derived
+  attack that hits a `paralyzed` or `unconscious` target with a melee use is `critical-hit`.
 - **AC source**: `targetAc` when given (adjudication supplies it: cover, a shield spell, an
   object not in the state); else the target record's `ac`. Neither → `TARGET_AC_UNKNOWN`.
   The event records which source was used.
@@ -72,6 +73,7 @@ no keep and a positive sign (a "plain d20 term"); the engine rolls it twice and 
   `check.resolved` with outcome `failure`, the DC, `autoFail` and null roll fields. No
   combination with `autoFail` is illegal: `mode` and a valid `expression` are simply unused,
   so `autoFail` adds no refusal code.
+  Amended by spec 119 (TASK-0222): the engine derives automatic failure on Strength and Dexterity saves from `paralyzed`, `petrified`, `stunned` and `unconscious`; a command `autoFail` stays valid and wins.
 - `attack.roll` applies no damage. The `resolve` node (no LLM) follows a `hit` or
   `critical-hit` with `damage.apply`, setting `critical: true` exactly when the
   `attack.resolved` outcome is `critical-hit`.
