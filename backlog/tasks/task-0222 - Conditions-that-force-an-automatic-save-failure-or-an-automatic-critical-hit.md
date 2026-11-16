@@ -49,6 +49,8 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
 
 AC #1 proven on the branch: packages/dnd5e-engine/test/commands/condition-auto.test.ts (33 golden-dice tests, SC-001..SC-003) and the FR-017 replay in gate-intents.test.ts (typed /attack on a paralyzed goblin). Gates before PR: ci:check green, wiki plan empty, freshness OK 66/66, boundaries 28/28.
+
+spec-bridge sync: Engine rules, tests and contracts (FR-001–FR-017; AC #1): 9/9 · Wiki: 5/5 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
