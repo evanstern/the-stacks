@@ -19,16 +19,16 @@ Do not edit `packages/session-model/src`, `apps/server/src`, `apps/web`, the see
 
 ## Phase 2: Planner economy, Dodge and the hosted replay (FR-014–FR-024; AC #2, #4)
 
-- [ ] T009 Merge `origin/main` into the branch.
-- [ ] T010 Write `packages/planner/src/economy.ts` with `actionCostOf` and `activeSpender`. Export `actionCostOf` and `ActionCost` from `src/index.ts` (plan D7).
-- [ ] T011 In `src/plan.ts` `planCtx`, add the economy check before the handler and the `action.spend` append after it (plan D7).
-- [ ] T012 Move `dodge` to `served` in `src/kinds.ts`. Add the `dodge` handler to `src/movement.ts` and register it in `HANDLERS`. Set `dodge` to `engine("served", "dodge")` in `packages/intent/src/kinds.ts` (plan D8).
-- [ ] T013 Write `packages/planner/test/economy.test.ts` with every SC-003 case. Add both codes to `test/refusals.test.ts` (SC-004). Update `test/kinds.test.ts` (SC-006).
-- [ ] T014 Update the planner and gate tests whose exact command or row lists gain `action.spend` or its `encounter.changed` row (plan D10). Switch the gate `KIND_UNSERVED` test to `delay`.
-- [ ] T015 Add the FR-023 replay to `packages/session-model/test/gate-intents.test.ts`.
-- [ ] T016 Add the FR-024 replay to `apps/server/test/gate.intent.integration.test.ts`. Run it with `REQUIRE_DATABASE=1` on the worktree's stack.
-- [ ] T017 Run the full DB suite with `REQUIRE_DATABASE=1`, including `test/playtest/playtest.integration.test.ts`. Fix any fixture that settles two costed Intents for one combatant in one turn (spec OQ-4). List each changed fixture in the commit message.
-- [ ] T018 Amend `specs/097-planner/contracts/planner.md` section 6 and its served-kinds count, and add the economy rule. Amend the `dodge` row in `specs/092-intent-contract/contracts/intent-schema.md` (plan D11).
+- [x] T009 Merge `origin/main` into the branch.
+- [x] T010 Write `packages/planner/src/economy.ts` with `actionCostOf` and `activeSpender`. Export `actionCostOf` and `ActionCost` from `src/index.ts` (plan D7).
+- [x] T011 In `src/plan.ts` `planCtx`, add the economy check before the handler and the `action.spend` append after it (plan D7).
+- [x] T012 Move `dodge` to `served` in `src/kinds.ts`. Add the `dodge` handler to `src/movement.ts` and register it in `HANDLERS`. Set `dodge` to `engine("served", "dodge")` in `packages/intent/src/kinds.ts` (plan D8).
+- [x] T013 Write `packages/planner/test/economy.test.ts` with every SC-003 case. Add both codes to `test/refusals.test.ts` (SC-004). Update `test/kinds.test.ts` (SC-006).
+- [x] T014 Update the planner and gate tests whose exact command or row lists gain `action.spend` or its `encounter.changed` row (plan D10). Switch the gate `KIND_UNSERVED` test to `delay`.
+- [x] T015 Add the FR-023 replay to `packages/session-model/test/gate-intents.test.ts`.
+- [x] T016 Add the FR-024 replay to `apps/server/test/gate.intent.integration.test.ts`. Run it with `REQUIRE_DATABASE=1` on the worktree's stack.
+- [x] T017 Run the full DB suite with `REQUIRE_DATABASE=1`, including `test/playtest/playtest.integration.test.ts`. Fix any fixture that settles two costed Intents for one combatant in one turn (spec OQ-4). List each changed fixture in the commit message.
+- [x] T018 Amend `specs/097-planner/contracts/planner.md` section 6 and its served-kinds count, and add the economy rule. Amend the `dodge` row in `specs/092-intent-contract/contracts/intent-schema.md` (plan D11).
 - [x] T019 Run `node scripts/check-boundaries.mjs` (exits 0) and `pnpm ci:check` (green).
 
 ## Phase 3: Wiki
