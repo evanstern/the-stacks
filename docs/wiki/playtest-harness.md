@@ -143,7 +143,7 @@ unconfirmed, 4 refused, 64 usage.
 
 ## CI case
 
-`test/playtest/playtest.integration.test.ts` runs the shipped scenario in ci mode (its DM script is the new `test/dm/scripts/greyhollow-ford-deeds.json`, spec 111, not an extended `-full` script; the audit fixture `greyhollow-ford.audit.json` gains the deed segments; spec 116 adds a `confirm-move` deed whose scripted react reply carries invented `params` keys, and the test asserts the one move item has `params: {}` and the talk jobs' `check.stripped` keys, 12 segments) inside
+`test/playtest/playtest.integration.test.ts` runs the shipped scenario in ci mode (its DM script is the new `test/dm/scripts/greyhollow-ford-deeds.json`, spec 111, not an extended `-full` script; the audit fixture `greyhollow-ford.audit.json` gains the deed segments; spec 116 adds a `confirm-move` deed whose scripted react reply carries invented `params` keys, and the test asserts the one move item has `params: {}` and the talk jobs' `check.stripped` keys, 10 segments since spec 118 folded the scene end into the human strike beat) inside
 `pnpm test` (database-gated: loud skip, or throw under `REQUIRE_DATABASE=1`, see [[test-suite]])
 and asserts outcome `ended` and a passing report. Other suites in `apps/server/test/playtest/`
 cover the scenario, driver, dice, checks, audit, budget, CLI and a doctored run directory the
