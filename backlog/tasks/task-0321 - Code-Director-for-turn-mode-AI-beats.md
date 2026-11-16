@@ -4,7 +4,7 @@ title: Code Director for turn-mode AI beats
 status: In Progress
 assignee: []
 created_date: '2026-11-12T18:22:00Z'
-updated_date: '2026-11-16T01:27:00Z'
+updated_date: '2026-11-16T02:10:00Z'
 labels:
   - ws:intent
   - revisit
@@ -18,6 +18,8 @@ ordinal: 305000
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
 Spec 107 OQ-7. After TASK-0299, monster turns use a stay-put code Director, but companion beats still make a dm.director call. Trigger: the CP-7 hosted 4v4 round breaches 60 s and the Director call is the largest share of round time.
+
+Spec: specs/118-companion-code-director
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
@@ -25,6 +27,9 @@ Spec 107 OQ-7. After TASK-0299, monster turns use a stay-put code Director, but 
 - [ ] #1 Companion beats in turn mode make no dm.director call, with a test.
 - [ ] #2 The hosted 4v4 round time is re-measured after the change.
 - [x] #3 Before any code change, profile one hosted companion turn: time the companion call, the narrate call and the Director call. If the Director is not the largest share, the card's scope moves to the largest share (runbook amendment 2026-11-15).
+- [ ] #4 Spec phase: Runner code Director and its direct tests (FR-001–FR-008; AC #1)
+- [ ] #5 Spec phase: Fight segment and the scripts that copy it (FR-009–FR-011)
+- [ ] #6 Spec phase: Wiki
 <!-- AC:END -->
 
 ## Definition of Done
