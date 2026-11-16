@@ -28,6 +28,7 @@ Spec: specs/119-condition-auto-fail-crit
 <!-- AC:BEGIN -->
 - [x] #1 The engine applies automatic save failure and automatic critical hits from conditions, with engine tests
 - [ ] #2 Spec phase: Engine rules, tests and contracts (FR-001–FR-017; AC #1)
+- [ ] #3 Spec phase: Wiki
 <!-- AC:END -->
 
 ## Definition of Done
