@@ -1,6 +1,6 @@
 ---
 name: dnd5e-engine
-description: The pure 5e rules engine package (packages/dnd5e-engine, TASK-0042) - execute(state, command, rng) returns events or a refusal, seeded/scripted RNG, the roll ledger, refuse-before-draw, the no-I/O boundary rule, the R8 ruling that the engine owns attack/save/resistance/crit arithmetic, sides with `combatant.depart`, `stand` and the close-combat rule (spec 099), and the action.spend and dodge commands (spec 117). Read before touching engine commands, dice, or state.
+description: The pure 5e rules engine package (packages/dnd5e-engine, TASK-0042) - execute(state, command, rng) returns events or a refusal, seeded/scripted RNG, the roll ledger, refuse-before-draw, the no-I/O boundary rule, the R8 ruling that the engine owns attack/save/resistance/crit arithmetic, sides with `combatant.depart`, `stand` and the close-combat rule (spec 099), action.spend and dodge (spec 117), and condition auto-fail/auto-crit (spec 119). Read before touching engine commands, dice, or state.
 kind: concept
 sources:
   - packages/dnd5e-engine/README.md
@@ -21,7 +21,7 @@ sources:
   - packages/dnd5e-engine/test/purity.test.ts
   - packages/dnd5e-engine/test/coverage.test.ts
   - specs/026-dnd5e-engine/spec.md
-verified_against: f8e3e370c2e06c447129da10e8e316a30d53531a
+verified_against: 76626337152302d845cd72a8e917db994c627878
 ---
 
 # 5e engine
@@ -129,7 +129,7 @@ resistance, immunity and vulnerability per damage component (halve rounding down
 and critical damage (dice doubled, modifiers not). Adjudication - the DM runtime or an LLM
 node - supplies inputs as data: steps name a tier or entry (below); code may send an expression, roll mode, target AC or DC, a per-command
 defense set, or on `check.roll` an automatic-failure reason, an `autoSuccess` reason and `houseRules` (default false). It never computes outcomes.
-The engine does not derive automatic failure from conditions.
+Spec 119: `autoFailCondition` and `autoCritCondition` derive Str/Dex save failure and melee auto-crit ([[dnd5e-engine-derived-rolls]]).
 
 ## Connections
 

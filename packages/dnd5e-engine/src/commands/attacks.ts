@@ -2,6 +2,8 @@ import { bandBetween, rangeOf, reachCovers } from "@the-stacks/space";
 import {
   attackAssists,
   attackModeSources,
+  autoCritCondition,
+  autoFailCondition,
   checkAssists,
   checkModeSources,
   checkModifier,
@@ -229,6 +231,7 @@ export const handleAttackRoll: Handler<"attack.roll"> = (
   let expression = command.expression ?? "";
   let mode = command.mode;
   let applied: Assist[] = [];
+  let autoCrit = false;
   if (command.attack !== undefined) {
     const attacker = state.combatants[command.attackerId as string];
     const entry = attacker ? findAttack(attacker, command.attack) : null;
@@ -244,6 +247,13 @@ export const handleAttackRoll: Handler<"attack.roll"> = (
     }
     const placed = bandCheck(state, attacker.id, command.targetId, entry.value);
     if ("refusal" in placed) return placed;
+    // Spec 119: paralyzed and unconscious turn a hit within 5 feet into a Critical Hit (SRD 5.2.1).
+    // ponytail: "within 5 feet" is a melee use (isRangedUse), the rule that gates melee reach; a
+    // reach weapon in the engaged band counts. Grid mode (R5) measures feet.
+    autoCrit =
+      target !== undefined &&
+      autoCritCondition(target) !== null &&
+      !isRangedUse(state, attacker.id, command.targetId, entry.value);
     const exhaustion =
       attacker.conditions.find((i) => i.condition === "exhaustion")?.level ?? 0;
     expression = d20Expression(entry.value.toHit - 2 * exhaustion);
@@ -286,7 +296,9 @@ export const handleAttackRoll: Handler<"attack.roll"> = (
       : natural === 1
         ? "miss"
         : rolled.total >= ac
-          ? "hit"
+          ? autoCrit
+            ? "critical-hit"
+            : "hit"
           : "miss";
   const events: EngineEvent[] = [
     rolled.event,
@@ -456,6 +468,20 @@ export const handleCheckRoll: Handler<"check.roll"> = (state, command, rng) => {
         : []),
     ]);
   }
+  // Spec 119: paralyzed, petrified, stunned and unconscious fail Str and Dex saves (SRD 5.2.1).
+  // A command autoFail is adjudication's data and wins (spec 026 FR-023).
+  const checkerState =
+    command.combatantId === null
+      ? undefined
+      : state.combatants[command.combatantId];
+  const derivedKey = checkerState
+    ? autoFailCondition(checkerState, command.kind, command.ability)
+    : null;
+  const autoFail =
+    command.autoFail ??
+    (derivedKey && checkerState
+      ? { reason: `${checkerState.name} is ${derivedKey}` }
+      : null);
   const base = {
     type: "check.resolved" as const,
     v: 1 as const,
@@ -476,6 +502,23 @@ export const handleCheckRoll: Handler<"check.roll"> = (state, command, rng) => {
       "a check cannot be both autoFail and autoSuccess",
     );
   }
+  if (autoFail) {
+    return {
+      ok: true,
+      events: [
+        {
+          ...base,
+          rollIndex: null,
+          total: null,
+          natural: null,
+          autoFail,
+          outcome: "failure",
+          margin: null,
+          band: "failure",
+        },
+      ],
+    };
+  }
   if (command.autoSuccess) {
     return {
       ok: true,
@@ -489,23 +532,6 @@ export const handleCheckRoll: Handler<"check.roll"> = (state, command, rng) => {
           outcome: "success",
           margin: null,
           band: "success",
-        },
-      ],
-    };
-  }
-  if (command.autoFail) {
-    return {
-      ok: true,
-      events: [
-        {
-          ...base,
-          rollIndex: null,
-          total: null,
-          natural: null,
-          autoFail: command.autoFail,
-          outcome: "failure",
-          margin: null,
-          band: "failure",
         },
       ],
     };
