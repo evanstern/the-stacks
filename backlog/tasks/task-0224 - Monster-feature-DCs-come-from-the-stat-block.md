@@ -27,6 +27,7 @@ Spec: specs/120-monster-feature-dc
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
 - [x] #1 A save against a monster feature uses the DC its SRD record states, with an engine test
+- [ ] #2 Spec phase: Engine source, planner call sites and engine tests (FR-001–FR-015, FR-017, FR-018; AC #1)
 <!-- AC:END -->
 
 ## Definition of Done
