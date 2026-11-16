@@ -4,7 +4,7 @@ title: Monster-feature DCs come from the stat block
 status: In Progress
 assignee: []
 created_date: 2026-11-03 05:40
-updated_date: '2026-11-16T05:01:00Z'
+updated_date: '2026-11-16T05:09:00Z'
 labels:
   - dm
   - engine
@@ -43,4 +43,6 @@ Scope added by spec 084 (TASK-0128) OQ-2: stat-block escape DCs (21 of 38 SRD gr
 Claimed 2026-11-15 by the R1 sweep (docs/design/r1-fast-table-runbook.md). Worktree .worktrees/task-0224, branch task-0224-monster-dc, cut from origin/main b82168ad. Spec number 120 claimed with a stub.
 
 Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
