@@ -31,7 +31,7 @@ Spec: specs/121-engine-surprise
 - [x] #1 The engine records which combatants are surprised when an encounter starts, with an engine test
 - [x] #2 The fact sheet lists a startlement involuntary effect for a surprised PC, with a test (retargeted from NarrationFacts by F3).
 - [x] #3 Spec phase: Engine surprise, gate replay and contracts (FR-001–FR-006, FR-015, FR-016, FR-018; AC #1)
-- [ ] #4 Spec phase: Startlement fact, prompts and fact-sheet replay (FR-007–FR-014, FR-017; AC #2)
+- [x] #4 Spec phase: Startlement fact, prompts and fact-sheet replay (FR-007–FR-014, FR-017; AC #2)
 - [ ] #5 Spec phase: Wiki
 <!-- AC:END -->
 
