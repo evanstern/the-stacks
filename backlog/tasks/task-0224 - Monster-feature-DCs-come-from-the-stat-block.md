@@ -4,7 +4,7 @@ title: Monster-feature DCs come from the stat block
 status: Done
 assignee: []
 created_date: 2026-11-03 05:40
-updated_date: '2026-11-16T05:23:00Z'
+updated_date: '2026-11-16T05:24:00Z'
 labels:
   - dm
   - engine
@@ -28,7 +28,7 @@ Spec: specs/120-monster-feature-dc
 <!-- AC:BEGIN -->
 - [x] #1 A save against a monster feature uses the DC its SRD record states, with an engine test
 - [x] #2 Spec phase: Engine source, planner call sites and engine tests (FR-001–FR-015, FR-017, FR-018; AC #1)
-- [ ] #3 Spec phase: Stats builder, gate replay and contracts (FR-016, FR-019, FR-020; AC #1)
+- [x] #3 Spec phase: Stats builder, gate replay and contracts (FR-016, FR-019, FR-020; AC #1)
 - [ ] #4 Spec phase: Wiki
 <!-- AC:END -->
 
