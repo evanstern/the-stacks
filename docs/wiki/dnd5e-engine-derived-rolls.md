@@ -1,6 +1,6 @@
 ---
 name: dnd5e-engine-derived-rolls
-description: Derived rolls in the 5e engine (spec 082, TASK-0105, TASK-0128) - stats-derived check and attack rolls, the spell.cast command with its engine spell table, the opposition and help assists with their expiry rules, and the Dodge sources and `castingTime` (spec 117). Read before touching derive.ts, spell or help commands, or assist state.
+description: Derived rolls in the 5e engine (spec 082, TASK-0105, TASK-0128; condition auto-fail and auto-crit, spec 119) - stats-derived check and attack rolls, the spell.cast command with its engine spell table, the opposition and help assists with their expiry rules, and the Dodge sources and `castingTime` (spec 117). Read before touching derive.ts, spell or help commands, or assist state.
 kind: concept
 sources:
   - packages/dnd5e-engine/src/derive.ts
@@ -12,7 +12,7 @@ sources:
   - packages/dnd5e-engine/src/sides.ts
   - packages/dnd5e-engine/src/schema/state.ts
   - packages/dnd5e-engine/src/schema/events.ts
-verified_against: f8e3e370c2e06c447129da10e8e316a30d53531a
+verified_against: 76626337152302d845cd72a8e917db994c627878
 ---
 
 # 5e engine: derived rolls
@@ -34,3 +34,11 @@ Spec 109 (TASK-0223): `findAttack` derives an `Unarmed Strike` entry (name match
 Spec 099 (TASK-0274) adds the close-combat source to derived rolls: a derived `attack.roll` and a `spell.cast` attack spell fold `disadvantage` when the attack is ranged and `closeCombatFoes` (`src/sides.ts`) finds an opposed, conscious, able, sighted combatant in a melee pair with the attacker (spec 101, TASK-0306: sharing a zone alone no longer counts; see [[dnd5e-engine-sides]]). A melee-or-ranged entry is ranged only outside the engaged band. A combatant with no side, or a state with no placements, never triggers it. It stacks with the other sources through `foldMode` (advantage and disadvantage cancel). Selectors and sides: [[dnd5e-engine]].
 
 Spec 117 (TASK-0304) adds Dodge sources ([[dnd5e-engine-economy]]). When `isDodging` holds for the target, a derived `attack.roll` (a reaction attack too) and a `spell.cast` attack spell fold `disadvantage`. When it holds for the checker or the spell's target, a `check.roll` with `kind: "saving-throw"` and `ability: "dex"` and a `spell.cast` Dexterity save fold `advantage`. Other saves, such as Con, are unaffected. All of these stack through `foldMode`.
+
+## Condition auto-fail and auto-crit (spec 119)
+
+Spec 119 (TASK-0222) derives two SRD 5.2.1 condition rules in `src/derive.ts`: `autoFailCondition` and `autoCritCondition` (both exported from `src/index.ts`).
+
+**Auto-fail.** `autoFailCondition(combatant, kind, ability)` returns the first of `paralyzed`, `petrified`, `stunned`, `unconscious` the combatant holds, but only for a `saving-throw` on `str` or `dex`; any other kind or ability returns null. `check.roll` and a `spell.cast` save both use it. A derived failure resolves with no die: `check.resolved` carries `autoFail: { reason: "<name> is <condition>" }`, `outcome` and `band` `failure`, `total` and `natural` null, and the spell save deals full damage. A command `autoFail` wins over the derived reason. In `check.roll` the failure branch runs before `autoSuccess`, so a derived failure beats `autoSuccess`. It also applies on the explicit-expression path, not only the derived path. A combatant-less check never derives one. Advantage and disadvantage still pick the kept face on a save that does roll; they do not matter once the save auto-fails.
+
+**Auto-crit.** In a derived `attack.roll` (a reaction attack too), a target holding `paralyzed` or `unconscious` turns a hit into `critical-hit` when the use is melee (not `isRangedUse`; a reach weapon in the engaged band counts). Ranged uses stay a plain `hit`. A `spell.cast` attack stays a plain `hit` too (marked `ponytail:` in `src/commands/spells.ts`). A natural 20 is still a `critical-hit` and a miss stays a miss. An attack with an explicit `expression` and no `attack` entry takes no auto-crit.
