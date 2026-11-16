@@ -30,6 +30,7 @@ Spec: specs/117-action-economy-dodge
 - [x] #2 The planner refuses a second Action or Bonus Action with NO_ACTION_LEFT or NO_BONUS_ACTION_LEFT.
 - [x] #3 Dodge sets a dodging state until the actor's next turn: attacks against it have disadvantage and its Dex saves have advantage, with golden-dice tests.
 - [x] #4 The dodge Intent plans to the engine command instead of refusing KIND_UNSERVED.
+- [ ] #5 Spec phase: Engine economy, Dodge and casting time (FR-001–FR-013; AC #1, #3)
 <!-- AC:END -->
 
 ## Definition of Done
