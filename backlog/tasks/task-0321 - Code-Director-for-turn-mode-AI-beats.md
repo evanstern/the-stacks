@@ -4,7 +4,7 @@ title: Code Director for turn-mode AI beats
 status: In Progress
 assignee: []
 created_date: '2026-11-12T18:22:00Z'
-updated_date: '2026-11-16T03:01:00Z'
+updated_date: '2026-11-16T03:02:00Z'
 labels:
   - ws:intent
   - revisit
@@ -24,7 +24,7 @@ Spec: specs/118-companion-code-director
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Companion beats in turn mode make no dm.director call, with a test.
+- [x] #1 Companion beats in turn mode make no dm.director call, with a test.
 - [ ] #2 The hosted 4v4 round time is re-measured after the change.
 - [x] #3 Before any code change, profile one hosted companion turn: time the companion call, the narrate call and the Director call. If the Director is not the largest share, the card's scope moves to the largest share (runbook amendment 2026-11-15).
 - [x] #4 Spec phase: Runner code Director and its direct tests (FR-001–FR-008; AC #1)
@@ -61,4 +61,6 @@ Build blocker (downed-seat harness case, 2026-11-15), resolved by the orchestrat
 Operator ruling on the downed-seat harness fixture (2026-11-15, in chat): "Ok, one more round." This replaces the orchestrator option (2), which the engine could not satisfy (4 foes, 1 attack per companion turn). Script the round-1 monster turns, then round-2 companion kills, so the fight ends in code (FR-007) with the party never all down. The run still ends stalled with seat-downed.
 
 spec-bridge sync: Runner code Director and its direct tests (FR-001–FR-008; AC #1): 7/7 · Fight segment and the scripts that copy it (FR-009–FR-011): 5/5 · Wiki: 5/5. Status left In Progress: AC #2 (post-merge re-measure) is open and no PR has merged.
+
+Build review (orchestrator, 2026-11-15): T001-T017 done. ci:check 0, boundaries 28/28, wiki freshness 0, branch is current with origin/main. AC #1 is met by runner.test.ts and companion-turn-intents.integration.test.ts (no dm.director call on a companion turn, plus the FR-007 killing blow). Beyond the spec: encounter-end-resolves (F54 bargain) now commits on a human beat. Under D2 a companion can no longer end an encounter on its own turn, and the applied-before-end guarantee is still tested. AC #2 (hosted re-measure) is post-merge, after TASK-0354 (OQ-5).
 <!-- SECTION:NOTES:END -->
