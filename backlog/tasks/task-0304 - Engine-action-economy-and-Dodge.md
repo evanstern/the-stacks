@@ -4,7 +4,7 @@ title: Engine action economy and Dodge
 status: In Progress
 assignee: []
 created_date: 2026-11-10 03:11
-updated_date: '2026-11-16T01:20:00Z'
+updated_date: '2026-11-16T01:21:00Z'
 labels:
   - ws:engine
   - replan-2026-11
@@ -26,10 +26,10 @@ Spec: specs/117-action-economy-dodge
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 The engine records Action and Bonus Action use per combatant per turn and resets them at turn start, with engine tests.
-- [ ] #2 The planner refuses a second Action or Bonus Action with NO_ACTION_LEFT or NO_BONUS_ACTION_LEFT.
-- [ ] #3 Dodge sets a dodging state until the actor's next turn: attacks against it have disadvantage and its Dex saves have advantage, with golden-dice tests.
-- [ ] #4 The dodge Intent plans to the engine command instead of refusing KIND_UNSERVED.
+- [x] #1 The engine records Action and Bonus Action use per combatant per turn and resets them at turn start, with engine tests.
+- [x] #2 The planner refuses a second Action or Bonus Action with NO_ACTION_LEFT or NO_BONUS_ACTION_LEFT.
+- [x] #3 Dodge sets a dodging state until the actor's next turn: attacks against it have disadvantage and its Dex saves have advantage, with golden-dice tests.
+- [x] #4 The dodge Intent plans to the engine command instead of refusing KIND_UNSERVED.
 <!-- AC:END -->
 
 ## Definition of Done
@@ -60,4 +60,6 @@ Blocked 2026-11-15: the haiku tick of tasks.md T009-T018 (work done in 663f4e19)
 Dispatch: tier=haiku pinned=cc/claude-haiku-5-5 served=claude-haiku-5-5
 
 Tick unblocked 2026-11-15 after the operator's retry (cf5e6c03, sed, outside auto mode). Gates before PR: ci:check green (phase 3 run), wiki plan empty, freshness OK 66/66, boundaries 28/28.
+
+ACs #1-#4 proven on the branch: engine economy.test.ts (SC-001/SC-002 golden dice), planner economy.test.ts and refusals.test.ts (SC-003/SC-004), dodge served (kinds.test.ts), hosted double-attack replays gate-intents.test.ts and gate.intent.integration.test.ts (NO_ACTION_LEFT, no rows). Spec-bridge sync to Done runs after merge.
 <!-- SECTION:NOTES:END -->
