@@ -53,4 +53,6 @@ Claimed 2026-11-15 by the R1 sweep (handoff move 2). Worktree .worktrees/task-03
 Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=cc/claude-opus-5-5
 
 Operator ruling on the spec 118 Phase 2 fixture choice (2026-11-15, in chat): "Yes, (b)". The scene end folds into Tamsin round-1 reply in fight-round.json and the three files that copy it.
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
