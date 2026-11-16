@@ -8,15 +8,15 @@ Do not edit `packages/planner`, `packages/intent`, `packages/session-model/src`,
 
 ## Phase 1: Engine rules, tests and contracts (FR-001–FR-017; AC #1)
 
-- [ ] T001 In `packages/dnd5e-engine/src/derive.ts`, add `autoFailCondition` and `autoCritCondition` with their SRD comments (plan D1). Export both from `src/index.ts`.
-- [ ] T002 In `src/commands/attacks.ts` `handleCheckRoll`, derive the effective `autoFail` and move its branch above `autoSuccess` (plan D2).
-- [ ] T003 In `src/commands/spells.ts`, add the derived auto-fail to the save delivery and the `ponytail:` comment to the attack delivery (plan D3).
-- [ ] T004 In `src/commands/attacks.ts` `handleAttackRoll`, add `autoCrit` and the outcome change (plan D4).
-- [ ] T005 Write `packages/dnd5e-engine/test/commands/condition-auto.test.ts` with every SC-001, SC-002 and SC-003 case (plan D5). Confirm the coverage meta-test passes.
-- [ ] T006 Add the FR-017 replay to `packages/session-model/test/gate-intents.test.ts` (plan D5).
-- [ ] T007 Run the search in plan D5. Fix any expectation the rule now changes. List each changed test in the commit message.
-- [ ] T008 Amend `specs/026-dnd5e-engine/spec.md` FR-023 and `contracts/commands.md`, `events.md` and `engine-api.md` (plan D6).
-- [ ] T009 Run `node scripts/check-boundaries.mjs` (exits 0) and `pnpm ci:check` (green).
+- [x] T001 In `packages/dnd5e-engine/src/derive.ts`, add `autoFailCondition` and `autoCritCondition` with their SRD comments (plan D1). Export both from `src/index.ts`.
+- [x] T002 In `src/commands/attacks.ts` `handleCheckRoll`, derive the effective `autoFail` and move its branch above `autoSuccess` (plan D2).
+- [x] T003 In `src/commands/spells.ts`, add the derived auto-fail to the save delivery and the `ponytail:` comment to the attack delivery (plan D3).
+- [x] T004 In `src/commands/attacks.ts` `handleAttackRoll`, add `autoCrit` and the outcome change (plan D4).
+- [x] T005 Write `packages/dnd5e-engine/test/commands/condition-auto.test.ts` with every SC-001, SC-002 and SC-003 case (plan D5). Confirm the coverage meta-test passes.
+- [x] T006 Add the FR-017 replay to `packages/session-model/test/gate-intents.test.ts` (plan D5).
+- [x] T007 Run the search in plan D5. Fix any expectation the rule now changes. List each changed test in the commit message.
+- [x] T008 Amend `specs/026-dnd5e-engine/spec.md` FR-023 and `contracts/commands.md`, `events.md` and `engine-api.md` (plan D6).
+- [x] T009 Run `node scripts/check-boundaries.mjs` (exits 0) and `pnpm ci:check` (green).
 
 ## Phase 2: Wiki
 

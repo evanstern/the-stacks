@@ -91,7 +91,9 @@ const dmUser = { kind: "human", userId: DM_USER, role: "player" } as const;
 const aiDm = { kind: "ai", actor: "ai:dm" } as const;
 
 /** Turn mode, Ana's turn; Ana and the goblin in zone a, Cade in b, snag fogged in c. */
-function world(opts: { humanDm?: boolean; revealC?: boolean } = {}) {
+function world(
+  opts: { humanDm?: boolean; revealC?: boolean; paralyzeGoblin?: boolean } = {},
+) {
   let state = emptyState();
   const specs: RowSpec[] = [];
   if (opts.humanDm) {
@@ -167,6 +169,18 @@ function world(opts: { humanDm?: boolean; revealC?: boolean } = {}) {
     },
     "b-init",
   );
+  if (opts.paralyzeGoblin) {
+    mech(
+      {
+        type: "condition.apply",
+        targetId: "goblin",
+        condition: "paralyzed",
+        source: "test",
+        reason: "r",
+      },
+      "b-para",
+    );
+  }
   specs.push({
     type: "table-mode.changed",
     payload: {
@@ -284,6 +298,42 @@ describe("settled kinds (AC #1)", () => {
     expect(rows[0]?.payload).toMatchObject({
       batchId: "b-plan",
       actionId: null,
+    });
+  });
+});
+
+describe("spec 119: a melee hit on a paralyzed foe is a critical hit", () => {
+  it("settles a critical-hit with doubled damage dice", () => {
+    const p = fold(world({ paralyzeGoblin: true }));
+    const parsed = parse("/attack @goblin with Longsword", {
+      id: "c119-1",
+      actor: { kind: "pc", id: "ana" },
+      source: "composer",
+      commit: "confirmed",
+    });
+    if (!parsed.ok) throw new Error("parse failed");
+    const rows = rowsOf(plan(p, ana, parsed.intent, [10, 4, 3, 5]));
+    expect(
+      fold([...world({ paralyzeGoblin: true }), ...asSpecs(rows)]),
+    ).toBeDefined();
+    const resolved = rows.find((r) => r.type === "attack.resolved");
+    expect(
+      (resolved?.payload as { event: unknown } | undefined)?.event,
+    ).toMatchObject({
+      outcome: "critical-hit",
+      natural: 10,
+    });
+    const damage = rows.find(
+      (r) =>
+        r.type === "dice.rolled" &&
+        (r.payload as { event: { purpose?: string } }).event.purpose ===
+          "damage",
+    );
+    expect(
+      (damage?.payload as { event: unknown } | undefined)?.event,
+    ).toMatchObject({
+      critical: true,
+      total: 11,
     });
   });
 });

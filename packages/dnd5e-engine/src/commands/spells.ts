@@ -1,6 +1,7 @@
 import {
   attackAssists,
   attackModeSources,
+  autoFailCondition,
   checkModeSources,
   checkModifier,
   d20Expression,
@@ -157,6 +158,8 @@ export const handleSpellCast: Handler<"spell.cast"> = (state, command, rng) => {
     );
     if (!rolled.ok) return refuse(rolled.code, rolled.message);
     const natural = rolled.event.natural as number;
+    // ponytail: spec 119 auto-crit (paralyzed, unconscious) covers weapon attacks only; a melee
+    // spell attack stays a plain hit. Add when a spell-attack crit rule is wanted.
     const outcome =
       natural === 20
         ? "critical-hit"
@@ -214,59 +217,83 @@ export const handleSpellCast: Handler<"spell.cast"> = (state, command, rng) => {
     dealt = "full";
   } else if (d.kind === "save") {
     const dc = spellSaveDc(caster.stats) as number;
-    const rolled = rollExpression(
-      d20Expression(saveMod),
-      {
-        mode: foldMode("normal", [
-          ...checkModeSources(target, "saving-throw", d.ability),
-          // Spec 117 FR-011: Dodge gives advantage on the dodger's Dexterity saves.
-          ...(d.ability === "dex" && isDodging(state, target.id)
-            ? (["advantage"] as ModeSource[])
-            : []),
-        ]),
-        critical: false,
-        purpose: "save",
-        combatantId: target.id,
+    // Spec 119: an automatic failure draws no save die (SRD 5.2.1 condition records).
+    const failKey = autoFailCondition(target, "saving-throw", d.ability);
+    if (failKey) {
+      events.push({
+        type: "check.resolved",
+        v: 1,
         reason,
-      },
-      rng,
-    );
-    if (!rolled.ok) return refuse(rolled.code, rolled.message);
-    const result = bandOf({
-      total: rolled.total,
-      dc,
-      natural: rolled.event.natural,
-      kind: "saving-throw",
-      houseRules: command.houseRules ?? {
-        outcomeBands: false,
-        naturals: false,
-      },
-    });
-    const rollIndex = events.length;
-    events.push(rolled.event, {
-      type: "check.resolved",
-      v: 1,
-      reason,
-      combatantId: target.id,
-      kind: "saving-throw",
-      ability: d.ability,
-      skill: null,
-      rollIndex,
-      dc,
-      total: rolled.total,
-      natural: rolled.event.natural,
-      autoFail: null,
-      outcome: result.outcome,
-      margin: result.margin,
-      band: result.band,
-      spellId: spell.id,
-    });
-    dealt =
-      result.outcome === "failure"
-        ? "full"
-        : d.onSuccess === "half"
-          ? "half"
-          : "none";
+        combatantId: target.id,
+        kind: "saving-throw",
+        ability: d.ability,
+        skill: null,
+        rollIndex: null,
+        dc,
+        total: null,
+        natural: null,
+        autoFail: { reason: `${target.name} is ${failKey}` },
+        outcome: "failure",
+        margin: null,
+        band: "failure",
+        spellId: spell.id,
+      });
+      dealt = "full";
+    } else {
+      const rolled = rollExpression(
+        d20Expression(saveMod),
+        {
+          mode: foldMode("normal", [
+            ...checkModeSources(target, "saving-throw", d.ability),
+            // Spec 117 FR-011: Dodge gives advantage on the dodger's Dexterity saves.
+            ...(d.ability === "dex" && isDodging(state, target.id)
+              ? (["advantage"] as ModeSource[])
+              : []),
+          ]),
+          critical: false,
+          purpose: "save",
+          combatantId: target.id,
+          reason,
+        },
+        rng,
+      );
+      if (!rolled.ok) return refuse(rolled.code, rolled.message);
+      const result = bandOf({
+        total: rolled.total,
+        dc,
+        natural: rolled.event.natural,
+        kind: "saving-throw",
+        houseRules: command.houseRules ?? {
+          outcomeBands: false,
+          naturals: false,
+        },
+      });
+      const rollIndex = events.length;
+      events.push(rolled.event, {
+        type: "check.resolved",
+        v: 1,
+        reason,
+        combatantId: target.id,
+        kind: "saving-throw",
+        ability: d.ability,
+        skill: null,
+        rollIndex,
+        dc,
+        total: rolled.total,
+        natural: rolled.event.natural,
+        autoFail: null,
+        outcome: result.outcome,
+        margin: result.margin,
+        band: result.band,
+        spellId: spell.id,
+      });
+      dealt =
+        result.outcome === "failure"
+          ? "full"
+          : d.onSuccess === "half"
+            ? "half"
+            : "none";
+    }
     if (dealt !== "none" && components.length > 0) {
       const refusal = fail(
         damageEvents(
