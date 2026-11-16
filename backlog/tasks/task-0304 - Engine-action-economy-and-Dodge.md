@@ -31,6 +31,7 @@ Spec: specs/117-action-economy-dodge
 - [x] #3 Dodge sets a dodging state until the actor's next turn: attacks against it have disadvantage and its Dex saves have advantage, with golden-dice tests.
 - [x] #4 The dodge Intent plans to the engine command instead of refusing KIND_UNSERVED.
 - [ ] #5 Spec phase: Engine economy, Dodge and casting time (FR-001–FR-013; AC #1, #3)
+- [ ] #6 Spec phase: Planner economy, Dodge and the hosted replay (FR-014–FR-024; AC #2, #4)
 <!-- AC:END -->
 
 ## Definition of Done
