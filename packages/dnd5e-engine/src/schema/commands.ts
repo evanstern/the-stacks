@@ -203,7 +203,14 @@ export const EngineCommandSchema = z.discriminatedUnion("type", [
   z.object({
     type: z.literal("initiative.roll"),
     participants: z
-      .array(z.object({ combatantId: Id, mode: RollMode }))
+      .array(
+        z.object({
+          combatantId: Id,
+          mode: RollMode,
+          // Spec 121: surprised by combat starting (SRD 5.2.1 playing-the-game.combat.the-order-of-combat.initiative).
+          surprised: z.boolean().optional(),
+        }),
+      )
       .min(1)
       .max(50),
     reason: Reason,

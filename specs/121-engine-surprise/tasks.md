@@ -8,12 +8,12 @@ Do not edit `packages/srd`, `packages/intent`, `packages/planner`, `packages/ses
 
 ## Phase 1: Engine surprise, gate replay and contracts (FR-001–FR-006, FR-015, FR-016, FR-018; AC #1)
 
-- [ ] T001 In `packages/dnd5e-engine/src/schema/commands.ts` and `src/schema/events.ts`, add the participant `surprised` flag and the `encounter.started` `surprised` field (plan D1).
-- [ ] T002 In `src/commands/encounter.ts` `handleInitiativeRoll`, fold Disadvantage for a surprised participant and emit the `surprised` ids; add the doc comment (plan D2).
-- [ ] T003 Add `describe("spec 121: surprise")` to `packages/dnd5e-engine/test/commands/encounter.test.ts` with every SC-001 and SC-002 case (plan D5). Confirm the coverage meta-test passes.
-- [ ] T004 Add `describe("spec 121: surprise through the gate")` to `packages/session-model/test/gate-plan.test.ts` with the SC-005 case (plan D5).
-- [ ] T005 Amend `specs/026-dnd5e-engine/contracts/commands.md` and `events.md`, and close spec 074 OQ-2 (plan D6).
-- [ ] T006 Run `node scripts/check-boundaries.mjs` (exits 0) and `pnpm ci:check` (green).
+- [x] T001 In `packages/dnd5e-engine/src/schema/commands.ts` and `src/schema/events.ts`, add the participant `surprised` flag and the `encounter.started` `surprised` field (plan D1).
+- [x] T002 In `src/commands/encounter.ts` `handleInitiativeRoll`, fold Disadvantage for a surprised participant and emit the `surprised` ids; add the doc comment (plan D2).
+- [x] T003 Add `describe("spec 121: surprise")` to `packages/dnd5e-engine/test/commands/encounter.test.ts` with every SC-001 and SC-002 case (plan D5). Confirm the coverage meta-test passes.
+- [x] T004 Add `describe("spec 121: surprise through the gate")` to `packages/session-model/test/gate-plan.test.ts` with the SC-005 case (plan D5).
+- [x] T005 Amend `specs/026-dnd5e-engine/contracts/commands.md` and `events.md`, and close spec 074 OQ-2 (plan D6).
+- [x] T006 Run `node scripts/check-boundaries.mjs` (exits 0) and `pnpm ci:check` (green).
 
 ## Phase 2: Startlement fact, prompts and fact-sheet replay (FR-007–FR-014, FR-017; AC #2)
 

@@ -1,3 +1,4 @@
+import { foldMode } from "../derive.js";
 import { rollExpression } from "../dice.js";
 import type { Handler } from "../handler.js";
 import type { Rng } from "../rng.js";
@@ -50,6 +51,11 @@ function rollInitiative(
   );
 }
 
+/**
+ * Spec 121: a participant surprised by combat starting has Disadvantage on its Initiative roll
+ * (SRD 5.2.1 playing-the-game.combat.the-order-of-combat.initiative, p. 13). It loses no turn.
+ * The surprised ids ride on `encounter.started`; engine state holds no surprise.
+ */
 export const handleInitiativeRoll: Handler<"initiative.roll"> = (
   state,
   command,
@@ -77,10 +83,13 @@ export const handleInitiativeRoll: Handler<"initiative.roll"> = (
   const reason = command.reason;
   const events: EngineEvent[] = [];
   const order: Entry[] = [];
+  const surprised: string[] = [];
   for (const p of command.participants) {
     const c = state.combatants[p.combatantId];
     if (!c) continue;
-    const rolled = rollInitiative(c.id, c.initiativeBonus, p.mode, reason, rng);
+    const mode = p.surprised ? foldMode(p.mode, ["disadvantage"]) : p.mode;
+    if (p.surprised) surprised.push(c.id);
+    const rolled = rollInitiative(c.id, c.initiativeBonus, mode, reason, rng);
     if (!rolled.ok) return refuse(rolled.code, rolled.message);
     events.push(rolled.event);
     order.push({
@@ -96,6 +105,7 @@ export const handleInitiativeRoll: Handler<"initiative.roll"> = (
     reason,
     before: null,
     after: { round: 1, turnIndex: 0, order },
+    ...(surprised.length > 0 ? { surprised } : {}),
   });
   return { ok: true, events };
 };
