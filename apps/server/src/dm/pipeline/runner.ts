@@ -49,6 +49,19 @@ const INTENT_DIRECTOR: NodeOutputs["director"] = {
 /** Spec 107 D4: a monster turn with an empty beat has nothing to direct; code stays put. */
 const NPC_DIRECTOR: NodeOutputs["director"] = INTENT_DIRECTOR;
 
+/** Spec 118 D1: a companion's own turn has nothing to direct; code stays put. */
+const COMPANION_DIRECTOR: NodeOutputs["director"] = INTENT_DIRECTOR;
+
+/** Spec 118 D3: a turn-mode beat whose items all belong to the active AI companion. */
+export function companionOwnBeat(a: NodeOutputs["assemble"]): boolean {
+  const mode = a.projections.tableMode;
+  if (mode.mode !== "turn") return false;
+  const actor = mode.activeActor;
+  if (!actor.startsWith("ai:companion:")) return false;
+  if (a.npcTurn !== null || a.beat.length === 0) return false;
+  return a.beat.every((b) => b.actor === actor);
+}
+
 export type Nodes = { [N in NodeName]: Node<N> };
 
 const CHECKPOINTED = ["director", "interpret"] as const;
@@ -176,6 +189,20 @@ export async function runTurn(
       ctx.results.assemble.beat.length === 0
     ) {
       ctx = { ...ctx, results: { ...ctx.results, director: NPC_DIRECTOR } };
+      continue;
+    }
+
+    // Spec 118: the active companion's own turn needs no Director call.
+    if (
+      name === "director" &&
+      ctx.checkpoint.director === null &&
+      ctx.results.assemble &&
+      companionOwnBeat(ctx.results.assemble)
+    ) {
+      ctx = {
+        ...ctx,
+        results: { ...ctx.results, director: COMPANION_DIRECTOR },
+      };
       continue;
     }
 

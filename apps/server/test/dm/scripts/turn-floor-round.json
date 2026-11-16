@@ -69,32 +69,6 @@
       "note": "Pip's (Odo's) turn"
     },
     {
-      "purpose": "dm.director",
-      "respond": {
-        "type": "json",
-        "value": {
-          "beat": {
-            "decision": "resolve"
-          },
-          "tableMode": {
-            "to": "stay"
-          },
-          "trackers": [],
-          "scene": {
-            "status": "continue"
-          },
-          "pacing": {
-            "tension": "high",
-            "spotlight": null,
-            "beatId": "reed-camp"
-          },
-          "goalNote": "Odo closes on the camp.",
-          "companionPrompts": []
-        }
-      },
-      "note": "Odo's committed action"
-    },
-    {
       "purpose": "dm.narrate",
       "note": "Odo's move",
       "respond": {

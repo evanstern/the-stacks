@@ -7,13 +7,13 @@ Do not edit `packages/*`, `nodes/director.ts`, `prompts/director.ts`, `companion
 
 ## Phase 1: Runner code Director and its direct tests (FR-001–FR-008; AC #1)
 
-- [ ] T001 In `pipeline/runner.ts`, add `COMPANION_DIRECTOR` and `companionOwnBeat`, and the runner check after the spec 107 D4 check (plan D1). Read the `tableMode` type first.
-- [ ] T002 Extend `test/dm/runner.test.ts` with the FR-005 cases (plan D2).
-- [ ] T003 In `test/dm/companion-turn-intents.integration.test.ts`, drop the scripted `dm.director` reply and assert no `dm.director` call per case (FR-006).
-- [ ] T004 Add the FR-007 case: a companion's killing blow ends the fight in code with no Director call (plan D2).
-- [ ] T005 In `test/dm/scripts/ai-round-4v4.json`, drop the `beat 1`–`beat 3` Director replies. In `test/ai-round.bench-test.ts`, assert one `dm.director` call (FR-008). Run `pnpm check:timing`.
-- [ ] T006 In `test/dm/scripts/turn-floor-round.json`, drop "Odo's committed action". Run `turn-floor-round`, `duo`, `trio` and `floor-jobs` integration tests.
-- [ ] T007 Append the D5 amendment to `specs/031-dm-runtime/contracts/director.md`.
+- [x] T001 In `pipeline/runner.ts`, add `COMPANION_DIRECTOR` and `companionOwnBeat`, and the runner check after the spec 107 D4 check (plan D1). Read the `tableMode` type first.
+- [x] T002 Extend `test/dm/runner.test.ts` with the FR-005 cases (plan D2).
+- [x] T003 In `test/dm/companion-turn-intents.integration.test.ts`, drop the scripted `dm.director` reply and assert no `dm.director` call per case (FR-006).
+- [x] T004 Add the FR-007 case: a companion's killing blow ends the fight in code with no Director call (plan D2).
+- [x] T005 In `test/dm/scripts/ai-round-4v4.json`, drop the `beat 1`–`beat 3` Director replies. In `test/ai-round.bench-test.ts`, assert one `dm.director` call (FR-008). Run `pnpm check:timing`.
+- [x] T006 In `test/dm/scripts/turn-floor-round.json`, drop "Odo's committed action". Run `turn-floor-round`, `duo`, `trio` and `floor-jobs` integration tests.
+- [x] T007 Append the D5 amendment to `specs/031-dm-runtime/contracts/director.md`.
 
 ## Phase 2: Fight segment and the scripts that copy it (FR-009–FR-011)
 
