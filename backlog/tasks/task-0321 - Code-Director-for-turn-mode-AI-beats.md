@@ -4,7 +4,7 @@ title: Code Director for turn-mode AI beats
 status: In Progress
 assignee: []
 created_date: '2026-11-12T18:22:00Z'
-updated_date: '2026-11-16T02:38:00Z'
+updated_date: '2026-11-16T03:01:00Z'
 labels:
   - ws:intent
   - revisit
@@ -27,9 +27,9 @@ Spec: specs/118-companion-code-director
 - [ ] #1 Companion beats in turn mode make no dm.director call, with a test.
 - [ ] #2 The hosted 4v4 round time is re-measured after the change.
 - [x] #3 Before any code change, profile one hosted companion turn: time the companion call, the narrate call and the Director call. If the Director is not the largest share, the card's scope moves to the largest share (runbook amendment 2026-11-15).
-- [ ] #4 Spec phase: Runner code Director and its direct tests (FR-001–FR-008; AC #1)
-- [ ] #5 Spec phase: Fight segment and the scripts that copy it (FR-009–FR-011)
-- [ ] #6 Spec phase: Wiki
+- [x] #4 Spec phase: Runner code Director and its direct tests (FR-001–FR-008; AC #1)
+- [x] #5 Spec phase: Fight segment and the scripts that copy it (FR-009–FR-011)
+- [x] #6 Spec phase: Wiki
 <!-- AC:END -->
 
 ## Definition of Done
@@ -59,4 +59,6 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=cc/claude-sonnet-5-
 Build blocker (downed-seat harness case, 2026-11-15), resolved by the orchestrator from spec 118 D2/FR-007: option (2). The scripted hits kill all foes after Tamsin is downed, so the fight ends in code and the run stalls on seat-downed. Rejected: (1) would script the TASK-0354 party-down loop into a CI fixture; (3) leaves the end untested. T015 text gets reworded for ruling (b).
 
 Operator ruling on the downed-seat harness fixture (2026-11-15, in chat): "Ok, one more round." This replaces the orchestrator option (2), which the engine could not satisfy (4 foes, 1 attack per companion turn). Script the round-1 monster turns, then round-2 companion kills, so the fight ends in code (FR-007) with the party never all down. The run still ends stalled with seat-downed.
+
+spec-bridge sync: Runner code Director and its direct tests (FR-001–FR-008; AC #1): 7/7 · Fight segment and the scripts that copy it (FR-009–FR-011): 5/5 · Wiki: 5/5. Status left In Progress: AC #2 (post-merge re-measure) is open and no PR has merged.
 <!-- SECTION:NOTES:END -->
