@@ -4,7 +4,7 @@ title: Code Director for turn-mode AI beats
 status: In Progress
 assignee: []
 created_date: '2026-11-12T18:22:00Z'
-updated_date: '2026-11-16T03:02:00Z'
+updated_date: '2026-11-16T03:42:00Z'
 labels:
   - ws:intent
   - revisit
@@ -63,4 +63,6 @@ Operator ruling on the downed-seat harness fixture (2026-11-15, in chat): "Ok, o
 spec-bridge sync: Runner code Director and its direct tests (FR-001–FR-008; AC #1): 7/7 · Fight segment and the scripts that copy it (FR-009–FR-011): 5/5 · Wiki: 5/5. Status left In Progress: AC #2 (post-merge re-measure) is open and no PR has merged.
 
 Build review (orchestrator, 2026-11-15): T001-T017 done. ci:check 0, boundaries 28/28, wiki freshness 0, branch is current with origin/main. AC #1 is met by runner.test.ts and companion-turn-intents.integration.test.ts (no dm.director call on a companion turn, plus the FR-007 killing blow). Beyond the spec: encounter-end-resolves (F54 bargain) now commits on a human beat. Under D2 a companion can no longer end an encounter on its own turn, and the applied-before-end guarantee is still tested. AC #2 (hosted re-measure) is post-merge, after TASK-0354 (OQ-5).
+
+Merged PR #193 (7aaeb2d2), 2026-11-16, merge on green after CI was unblocked (the operator made the repo public to clear an Actions billing block). AC #2 (hosted 4v4 round re-measure) is still open. Per OQ-5 it runs after TASK-0354, so companions live past round 1, and it needs its own spend ceiling. The card stays In Progress until then.
 <!-- SECTION:NOTES:END -->
