@@ -52,6 +52,8 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
 
 AC #1 proven on the branch: packages/dnd5e-engine/test/commands/feature-dc.test.ts (golden dice), seed-stats.test.ts (all 331 SRD records), gate-intents.test.ts replays (DM mechanics save, /contest escape). Gates before PR: ci:check green, wiki plan empty, freshness OK 66/66, boundaries 28/28. Review item: dnd5e-engine.md body 7997 -> 8121 chars, size_budget_exempt added.
+
+spec-bridge sync: Engine source, planner call sites and engine tests (FR-001–FR-015, FR-017, FR-018; AC #1): 9/9 · Stats builder, gate replay and contracts (FR-016, FR-019, FR-020; AC #1): 5/5 · Wiki: 7/7 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
