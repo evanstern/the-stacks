@@ -4,7 +4,7 @@ title: Code Director for turn-mode AI beats
 status: To Do
 assignee: []
 created_date: '2026-11-12T18:22:00Z'
-updated_date: '2026-11-15T05:02:00Z'
+updated_date: '2026-11-16T01:26:00Z'
 labels:
   - ws:intent
   - revisit
@@ -24,7 +24,7 @@ Spec 107 OQ-7. After TASK-0299, monster turns use a stay-put code Director, but 
 <!-- AC:BEGIN -->
 - [ ] #1 Companion beats in turn mode make no dm.director call, with a test.
 - [ ] #2 The hosted 4v4 round time is re-measured after the change.
-- [ ] #3 Before any code change, profile one hosted companion turn: time the companion call, the narrate call and the Director call. If the Director is not the largest share, the card's scope moves to the largest share (runbook amendment 2026-11-15).
+- [x] #3 Before any code change, profile one hosted companion turn: time the companion call, the narrate call and the Director call. If the Director is not the largest share, the card's scope moves to the largest share (runbook amendment 2026-11-15).
 <!-- AC:END -->
 
 ## Definition of Done
@@ -37,4 +37,9 @@ Spec 107 OQ-7. After TASK-0299, monster turns use a stay-put code Director, but 
 
 <!-- SECTION:NOTES:BEGIN -->
 Trigger fired 2026-11-14 (PR #184, session 8c7d506e): rounds took 95-104 s against 60 s, and Kestrel's and Odo's turns took 22-37 s each, about 60 s per round between them.
+
+AC #3 profile (2026-11-15, from the hosted TASK-0338 retest, session 6031b671, vm-104 at 058f831c, round 1; read from the calls ledger, no new paid run):
+- Odo turn 25.1 s: dm.companion 8.4 s (sonnet), dm.director 9.9 s (opus, in the commit turn job), dm.adjudicate 4.5 s (opus), dm.chronicle 2.0 s (haiku, overlaps). The commit job waited 2.0 s for the chronicle job before it started.
+- Kestrel turn 39.9 s: dm.narrate 11.5 s (sonnet; tail of the previous turn), dm.companion 9.4 s, dm.director 18.7 s (opus, 1325 output tokens).
+- Largest share: dm.director in both (Odo 39%, Kestrel 47%). The scope stays on the Director. The Director runs on opus, at $0.056-0.074 per call. Note: Odo also made a dm.adjudicate call (opus, 4.5 s), so the spec should check whether a companion beat needs it.
 <!-- SECTION:NOTES:END -->
