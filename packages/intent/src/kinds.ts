@@ -335,7 +335,7 @@ export const KIND_RULES: Record<IntentKind, KindRule> = {
     NONE,
     "yes",
     "planner + engine",
-    engine("gap", "N-09"),
+    engine("served", "dodge"),
   ),
   disengage: rule(
     "combat",

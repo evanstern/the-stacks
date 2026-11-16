@@ -35,7 +35,7 @@ sources:
   - apps/server/test/ai-round.bench-test.ts
   - tsconfig.json
 size_budget_exempt: spec 102 adds the server tsconfig reference to packages/intent in the one test-suite note; the suite map does not split without a TASK of its own
-verified_against: bfd36539ff8881ac67fb48558d7ace13043298ed
+verified_against: f8e3e370c2e06c447129da10e8e316a30d53531a
 ---
 
 # Test suite
@@ -135,7 +135,7 @@ in `src/bench/load/stats.ts`. Dice are scripted (1993 faces of 2 after initiativ
 schema caps dice at 2000), and the gate asserts zero model calls. It prints one `latency <kind>`
 line per kind and `latency gate: PASS`; a breach prints the five slowest samples and fails. Hit
 samples and the hosted half (TASK-0278) are out of scope. `scripts/check-no-wallclock-tests.mjs`
-requires wall-clock assertions to live in `*.bench-test.ts`.
+requires wall-clock assertions to live in `*.bench-test.ts`. Since spec 117 each sample is preceded by `newRound`, which advances the turn order seven times outside the timed span (approving the human-seat proposals) so Tamsin's Action returns, and each test's timeout is 400 s.
 
 ## Connections
 

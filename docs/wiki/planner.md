@@ -12,13 +12,14 @@ sources:
   - packages/planner/src/checks.ts
   - packages/planner/src/combat.ts
   - packages/planner/src/movement.ts
+  - packages/planner/src/economy.ts
   - packages/planner/src/resources.ts
   - packages/planner/src/dm.ts
   - packages/planner/src/rulings.ts
   - packages/planner/src/outcome.ts
   - packages/planner/test/purity.test.ts
   - specs/097-planner/contracts/planner.md
-verified_against: 17849584ad75728e4df27bee4a34d3e35cb86229
+verified_against: f8e3e370c2e06c447129da10e8e316a30d53531a
 ---
 
 # Planner
@@ -35,9 +36,13 @@ Target-architecture section 2 types the state as `SessionProjections`. The gate 
 
 ## Served kinds
 
-`PLAN_KINDS` classes all 57 kinds: 28 served, 2 ruling-only (`attempt`, `use_object`), 12 unserved and 15 not planned. An unserved or not-planned kind refuses `KIND_UNSERVED`; the details name the owner card (`dodge` TASK-0304, `ready`/`react`/`roll`/`request_roll` TASK-0276, the rest N-17, N-18, Q5, TASK-0227; not-planned kinds `gate`). Partial service: `shove` push, `move` and `move_token` to squares and `add_combatant` to squares refuse `KIND_UNSERVED`; `cast` with a zone, point or two targets refuses `SPELL_UNRESOLVED`; `stand` plans the engine `stand` command (TASK-0274; the engine owns the half-Speed cost). The close-combat ranged disadvantage is the engine's rule, not the planner's: the planner never folds the mode, and `attack` and `cast` only report it as a `rule` fact when `closeCombatSources` is non-empty.
+`PLAN_KINDS` classes all 57 kinds: 29 served, 2 ruling-only (`attempt`, `use_object`), 11 unserved and 15 not planned. An unserved or not-planned kind refuses `KIND_UNSERVED`; the details name the owner card (`ready`/`react`/`roll`/`request_roll` TASK-0276, the rest N-17, N-18, Q5, TASK-0227; not-planned kinds `gate`). Partial service: `shove` push, `move` and `move_token` to squares and `add_combatant` to squares refuse `KIND_UNSERVED`; `cast` with a zone, point or two targets refuses `SPELL_UNRESOLVED`; `stand` plans the engine `stand` command (TASK-0274; the engine owns the half-Speed cost); `dodge` plans the engine `dodge` command (spec 117, `movement.ts`). The close-combat ranged disadvantage is the engine's rule, not the planner's: the planner never folds the mode, and `attack` and `cast` only report it as a `rule` fact when `closeCombatSources` is non-empty.
 
 Pre-checks match the old plan gate: unknown or absent actor `UNKNOWN_COMBATANT`, unable actor `ACTOR_UNABLE`, unknown target `TARGET_NOT_PRESENT`, `seen: false` `TARGET_UNSEEN`, and an NPC with an init but no combatant pulled in with `combatant.add` (and `initiative.join` in an encounter). `attack` checks reach and range by band (`OUT_OF_REACH`, `OUT_OF_RANGE`; skipped when either side is unplaced) and plans `attack.roll` then guarded `damage.apply` on `hit` and `critical-hit`. `move` probes the engine `move` command with a scripted RNG that holds no dice, then plans hostile reaction attacks for a party mover before the move. `grapple` and `shove prone` plan the target's better Strength or Dexterity save against the `unarmed-strike` opposition DC, then a guarded condition.
+
+## Action economy (spec 117, TASK-0304)
+
+`src/economy.ts` holds the cost table. `actionCostOf(intent)` returns `action` for `attack`, `check`, `contest`, `dash`, `disengage`, `dodge`, `grapple`, `help`, `hide`, `search` and `shove`, the spell's engine `castingTime` for `cast` (`action` when the spell is unknown), and `null` for every other kind. `activeSpender` returns the actor's combatant id only when it is the active combatant of a live encounter. For such an actor `planCtx` reads the engine `actionsLeft` before the handler runs and refuses `NO_ACTION_LEFT` or `NO_BONUS_ACTION_LEFT` when the slot is used (details `combatantId`, `cost`). When the handler returns commands, the planner appends one `action.spend` as the last command. A refusal or `needs_ruling` result gets no spend. Off-turn actors and free mode plan as before. `actionCostOf` and `ActionCost` are exported. The engine side: [[dnd5e-engine-economy]].
 
 ## Facts
 

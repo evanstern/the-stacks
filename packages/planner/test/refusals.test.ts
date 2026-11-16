@@ -26,6 +26,8 @@ const PLANNER = [
   "OUT_OF_REACH",
   "OUT_OF_RANGE",
   "NO_MOVEMENT_LEFT",
+  "NO_ACTION_LEFT",
+  "NO_BONUS_ACTION_LEFT",
   "REQUEST_NOT_OPEN",
   "DM_SEAT_REQUIRED",
 ] as const;
@@ -105,8 +107,20 @@ const lowCaster = (() => {
 })();
 const noStat = withCombatant(baseState(), "thorin", { stats: undefined });
 
+const used = (slot: "actionUsed" | "bonusActionUsed", who = "thorin") => {
+  const s = inEncounter(baseState(), [who, "goblin-2"]);
+  const enc = s.engine.encounter as NonNullable<typeof s.engine.encounter>;
+  enc.economy = {
+    combatantId: who,
+    round: 1,
+    actionUsed: slot === "actionUsed",
+    bonusActionUsed: slot === "bonusActionUsed",
+  };
+  return s;
+};
+
 const CASES: [string, "planner" | "engine", () => PlanResult][] = [
-  ["KIND_UNSERVED", "planner", () => run(intent("dodge"))],
+  ["KIND_UNSERVED", "planner", () => run(intent("delay"))],
   [
     "TARGET_NOT_PRESENT",
     "planner",
@@ -127,6 +141,12 @@ const CASES: [string, "planner" | "engine", () => PlanResult][] = [
     "NO_MOVEMENT_LEFT",
     "planner",
     () => run(intent("move", { targets: [zone("b")] }), noMove),
+  ],
+  ["NO_ACTION_LEFT", "planner", () => run(hit(), used("actionUsed"))],
+  [
+    "NO_BONUS_ACTION_LEFT",
+    "planner",
+    () => run(cast("healing-word"), used("bonusActionUsed", "mira")),
   ],
   [
     "REQUEST_NOT_OPEN",

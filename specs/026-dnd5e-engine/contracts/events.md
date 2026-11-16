@@ -99,7 +99,7 @@ the dice terms show the doubled `count` (a `2d6` crit shows `count: 4` and four 
 | `hit-dice.changed` | one pool's `remaining` | `{ die, remaining }` | `{ die, remaining }` | `combatantId` |
 | `spell-slots.changed` | one slot's `expended` | `{ pool, level, expended }` | `{ pool, level, expended }` | `combatantId` |
 | `encounter.started` | `encounter` | `null` | `Encounter` | — |
-| `encounter.changed` | `encounter` | `Encounter` | `Encounter` | `combatantId` (the joiner, the leaver, the reactor that spent its Reaction, or the incoming combatant whose Reaction reset). Amended by spec 079 (TASK-0208): `Encounter.reactionsSpent` rides `before` and `after` |
+| `encounter.changed` | `encounter` | `Encounter` | `Encounter` | `combatantId` (the joiner, the leaver, the reactor that spent its Reaction, or the incoming combatant whose Reaction reset). Amended by spec 079 (TASK-0208): `Encounter.reactionsSpent` rides `before` and `after`. Amended by spec 117 (TASK-0304): the spender and the dodger are also subjects, `Encounter.economy` and `Encounter.dodging` ride `before` and `after`, and the incoming combatant's Dodge ends in the event that resets its Reaction |
 | `turn.advanced` | `encounter.round`, `encounter.turnIndex` | `{ round, turnIndex, combatantId }` | `{ round, turnIndex, combatantId }` | `skipped: Id[]` (dead combatants passed over) |
 | `encounter.ended` | `encounter` | `Encounter` | `null` | — |
 

@@ -18,6 +18,9 @@ describe("engine spell table vs SRD spell records", () => {
       const rec = getById("spell", m.id);
       if (!rec) throw new Error(`no SRD spell ${m.id}`);
       expect(rec.level).toBe(m.level);
+      expect(rec.castingTime).toBe(
+        m.castingTime === "action" ? "Action" : "Bonus Action",
+      );
       expect(rec.concentration).toBe(false);
       const text = rec.text;
       const all = `${rec.text} ${rec.higherLevels ?? ""}`;

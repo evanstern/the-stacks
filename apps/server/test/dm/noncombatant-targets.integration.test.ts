@@ -209,6 +209,7 @@ describe.skipIf(!reachable)("non-combatant targets (database)", () => {
           r.type === "combatant.added" && eventOf(r).combatantId === "pell",
       ),
     ).toHaveLength(1);
-    expect(rows.filter((r) => r.type === "encounter.changed")).toHaveLength(1);
+    // Spec 117: the join, then the check's action.spend.
+    expect(rows.filter((r) => r.type === "encounter.changed")).toHaveLength(2);
   });
 });

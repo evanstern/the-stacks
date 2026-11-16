@@ -75,3 +75,9 @@ export const RefusalSchema = z.object({
 `INVALID_COMMAND` (two DC sources, the opponent is the checker, or the rule does not cover the check).
 `help.grant` raises `UNKNOWN_COMBATANT`, `TARGET_DEAD`, `ACTOR_UNABLE` (role `helper`), `STAT_UNDEFINED`
 and `INVALID_COMMAND` (self-help).
+
+## Amended by specs/117-action-economy-dodge (TASK-0304)
+
+| 36 | `ACTION_SPENT` | `action.spend` names a slot (Action or Bonus Action) the combatant already used this turn. Raised before any change. Details `{ combatantId, cost }` | `action.spend` |
+
+`action.spend` and `dodge` also raise `ACTOR_UNABLE` with role `actor`.

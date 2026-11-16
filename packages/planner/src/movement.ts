@@ -113,6 +113,15 @@ const movementAction =
 export const dash = movementAction("dash");
 export const disengage = movementAction("disengage");
 
+export const dodge: Handler = (c) => {
+  const who = resolveActor(c);
+  if (!who.ok) return who.result;
+  return commands(
+    [{ type: "dodge", combatantId: who.value.combatantId, reason: c.reason }],
+    who.value.facts,
+  );
+};
+
 export const stand: Handler = (c) => {
   const who = resolveActor(c);
   if (!who.ok) return who.result;

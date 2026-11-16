@@ -21,6 +21,8 @@ export function emptyState(): EngineState;
 // Read-only selectors (queries, not commands).
 export function conditionsOf(state: EngineState, combatantId: string): ConditionInstance[];
 export function activeCombatant(state: EngineState): Combatant | null;
+export function actionsLeft(state: EngineState, combatantId: string): { action: boolean; bonusAction: boolean } | null; // Amended by spec 117 (TASK-0304)
+export function isDodging(state: EngineState, combatantId: string): boolean; // Amended by spec 117 (TASK-0304): false while Incapacitated or Speed 0
 
 // Dice: parse without rolling, so a caller can validate an expression early.
 export function parseDiceExpression(expression: string): DiceParseResult;
@@ -197,6 +199,8 @@ export const EncounterSchema = z.object({
   turnIndex: z.number().int().min(0),       // refine: < order.length
   order: z.array(InitiativeEntrySchema).min(1),
   reactionsSpent: z.array(CombatantIdSchema).optional(), // Amended by spec 079 (TASK-0208): Reaction spent until that combatant's next turn start; absent = none
+  economy: z.object({ combatantId: CombatantIdSchema, round: z.number().int().min(1), actionUsed: z.boolean(), bonusActionUsed: z.boolean() }).optional(), // Amended by spec 117 (TASK-0304): the active combatant's Action and Bonus Action; a stale record reads as nothing used
+  dodging: z.array(CombatantIdSchema).optional(), // Amended by spec 117 (TASK-0304): combatants that took Dodge, until their next turn start
 });
 
 export const EngineStateSchema = z.object({

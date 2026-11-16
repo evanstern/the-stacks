@@ -17,6 +17,7 @@ const served: IntentKind[] = [
   "move",
   "dash",
   "disengage",
+  "dodge",
   "stand",
   "drop_prone",
   "end_turn",
@@ -36,7 +37,6 @@ const served: IntentKind[] = [
 const ruling: IntentKind[] = ["attempt", "use_object"];
 // kind -> the card (or question id) that serves it.
 const unserved: Partial<Record<IntentKind, string>> = {
-  dodge: "TASK-0304",
   ready: "TASK-0276",
   react: "TASK-0276",
   roll: "TASK-0276",

@@ -26,6 +26,7 @@ import type {
 } from "../schema/state.js";
 import { closeCombatSources, meleePairFor, withMeleePair } from "../sides.js";
 import { spaceViewOf } from "../space.js";
+import { isDodging } from "./economy.js";
 
 /** Spec 084: one `assist.ended` (used) per applied assist, held by `holderId`. */
 export function usedAssists(
@@ -102,7 +103,7 @@ export function isUnable(c: Combatant): boolean {
 export function actorUnable(
   state: EngineState,
   id: string | null,
-  role: "attacker" | "checker" | "helper" | "mover",
+  role: "actor" | "attacker" | "checker" | "helper" | "mover",
 ): RefusalResult | null {
   if (id === null) return null;
   const c = state.combatants[id];
@@ -251,6 +252,10 @@ export const handleAttackRoll: Handler<"attack.roll"> = (
     mode = foldMode(command.mode, [
       ...attackModeSources(attacker, target, entry.value),
       ...(applied.length ? (["advantage"] as ModeSource[]) : []),
+      // Spec 117 FR-011: Dodge gives disadvantage on attacks against the dodger.
+      ...(isDodging(state, command.targetId)
+        ? (["disadvantage"] as ModeSource[])
+        : []),
       ...(placed.long ? (["disadvantage"] as ModeSource[]) : []),
       // Spec 099: a ranged attack with a hostile in the attacker's zone (the
       // ranged-attacks-in-close-combat rule). A melee-or-ranged entry is ranged
@@ -443,6 +448,12 @@ export const handleCheckRoll: Handler<"check.roll"> = (state, command, rng) => {
     mode = foldMode(command.mode, [
       ...checkModeSources(checker, command.kind, command.ability),
       ...(applied.length ? (["advantage"] as ModeSource[]) : []),
+      // Spec 117 FR-011: Dodge gives advantage on the dodger's Dexterity saves.
+      ...(command.kind === "saving-throw" &&
+      command.ability === "dex" &&
+      isDodging(state, command.combatantId)
+        ? (["advantage"] as ModeSource[])
+        : []),
     ]);
   }
   const base = {

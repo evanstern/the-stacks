@@ -6,6 +6,7 @@ export type {
   Zone,
 } from "@the-stacks/space";
 export { bandOf, isUnable } from "./commands/attacks.js";
+export { actionsLeft, isDodging } from "./commands/economy.js";
 export {
   effectiveSpeed,
   movementLeft,
