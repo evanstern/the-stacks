@@ -12,7 +12,7 @@ sources:
   - packages/dnd5e-engine/src/sides.ts
   - packages/dnd5e-engine/src/schema/state.ts
   - packages/dnd5e-engine/src/schema/events.ts
-verified_against: b3c2ff987287c2b17e50b48e64f522973d81a5a5
+verified_against: 06fd49610a6fa7d116af98f64c22a494de2b97ba
 ---
 
 # 5e engine: derived rolls
