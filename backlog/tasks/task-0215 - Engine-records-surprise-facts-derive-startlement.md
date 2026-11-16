@@ -57,6 +57,8 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
 
 ACs proven on the branch: AC #1 encounter.test.ts 'spec 121: surprise' (golden dice) plus the gate-plan.test.ts replay; AC #2 facts.test.ts deriveStartle and the fact-sheet.test.ts run-5 replay (surprised PCs listed, goblin not). Gates before PR: ci:check green, wiki plan empty, freshness OK 66/66, boundaries 28/28. Prompts: dm.narrate-v27, dm.director-v13, dm.interpret-v19, playtest.audit-v3.
+
+spec-bridge sync: Engine surprise, gate replay and contracts (FR-001–FR-006, FR-015, FR-016, FR-018; AC #1): 6/6 · Startlement fact, prompts and fact-sheet replay (FR-007–FR-014, FR-017; AC #2): 7/7 · Wiki: 7/7 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
