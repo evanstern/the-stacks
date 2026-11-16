@@ -4,7 +4,7 @@ title: Conditions that force an automatic save failure or an automatic critical 
 status: In Progress
 assignee: []
 created_date: 2026-11-03 05:40
-updated_date: '2026-11-16T02:58:00Z'
+updated_date: '2026-11-16T03:05:00Z'
 labels:
   - dm
   - engine
@@ -41,4 +41,6 @@ Spec: specs/119-condition-auto-fail-crit
 Claimed 2026-11-15 by the R1 sweep (docs/design/r1-fast-table-runbook.md). Worktree .worktrees/task-0222, branch task-0222-condition-auto, cut from origin/main f076c127. Spec number 119 claimed with a stub.
 
 Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=claude-opus-5-5
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
