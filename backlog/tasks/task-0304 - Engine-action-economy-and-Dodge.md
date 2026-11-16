@@ -65,6 +65,8 @@ Dispatch: tier=haiku pinned=cc/claude-haiku-5-5 served=claude-haiku-5-5
 Tick unblocked 2026-11-15 after the operator's retry (cf5e6c03, sed, outside auto mode). Gates before PR: ci:check green (phase 3 run), wiki plan empty, freshness OK 66/66, boundaries 28/28.
 
 ACs #1-#4 proven on the branch: engine economy.test.ts (SC-001/SC-002 golden dice), planner economy.test.ts and refusals.test.ts (SC-003/SC-004), dodge served (kinds.test.ts), hosted double-attack replays gate-intents.test.ts and gate.intent.integration.test.ts (NO_ACTION_LEFT, no rows). Spec-bridge sync to Done runs after merge.
+
+spec-bridge sync: Engine economy, Dodge and casting time (FR-001–FR-013; AC #1, #3): 8/8 · Planner economy, Dodge and the hosted replay (FR-014–FR-024; AC #2, #4): 11/11 · Wiki: 9/9 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
