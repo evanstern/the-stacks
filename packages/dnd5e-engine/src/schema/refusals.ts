@@ -46,6 +46,7 @@ export const RefusalCodeSchema = z.enum([
   "MOVE_OFF_TURN",
   "OUT_OF_REACH",
   "OUT_OF_RANGE",
+  "ACTION_SPENT",
 ]);
 
 export const RefusalSchema = z.object({

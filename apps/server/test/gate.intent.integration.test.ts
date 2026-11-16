@@ -1,5 +1,6 @@
 import type { ServerType } from "@hono/node-server";
 import { serve } from "@hono/node-server";
+import { parse } from "@the-stacks/intent";
 import type { StoredEvent } from "@the-stacks/session-model";
 import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
 import WebSocket from "ws";
@@ -195,6 +196,48 @@ describe.skipIf(!db)("gate intents over WebSocket (database)", () => {
       kind: "forbidden",
       code: "NOT_YOUR_ACTOR",
     });
+  });
+});
+
+// Hosted finding 5 (spec 117 FR-024): two /attack Intents in one level-1 fighter turn.
+describe.skipIf(!db)("hosted finding 5: one Action per turn (database)", () => {
+  const tamsin = {
+    kind: "human",
+    userId: TAMSIN_USER,
+    role: "player",
+  } as const;
+  const slash = (id: string) => {
+    const r = parse("/attack @goblin-2 with longsword", {
+      id,
+      actor: { kind: "pc", id: "tamsin" },
+      source: "composer",
+      commit: "confirmed",
+    });
+    if (!r.ok) throw new Error(`parse refused ${r.refusal.code}`);
+    return r.intent;
+  };
+
+  it("the second /attack refuses NO_ACTION_LEFT and writes no rows", async () => {
+    const w = await turnWorld();
+    const first = await w.as(tamsin, {
+      kind: "intent",
+      intent: slash("f5-80"),
+    });
+    expect(first.ok).toBe(true);
+    const afterFirst = await readRows(w);
+    expect(afterFirst.at(-1)?.type).toBe("intent.recorded");
+    expect(afterFirst.at(-1)?.payload).toMatchObject({ outcome: "settled" });
+    const second = await w.as(tamsin, {
+      kind: "intent",
+      intent: slash("f5-85"),
+    });
+    expect(second.ok).toBe(false);
+    if (!second.ok)
+      expect(second.refusal).toMatchObject({
+        source: "gate",
+        code: "NO_ACTION_LEFT",
+      });
+    expect((await readRows(w)).length).toBe(afterFirst.length);
   });
 });
 

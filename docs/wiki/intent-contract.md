@@ -12,7 +12,7 @@ sources:
   - packages/intent/src/text/parse.ts
   - packages/intent/src/text/to-text.ts
   - packages/intent/src/text/tokens.ts
-verified_against: 17849584ad75728e4df27bee4a34d3e35cb86229
+verified_against: f8e3e370c2e06c447129da10e8e316a30d53531a
 ---
 
 # Intent contract
@@ -27,4 +27,4 @@ verified_against: 17849584ad75728e4df27bee4a34d3e35cb86229
 - **v1.1 additions** (contract 8.2.1): explicit speech verbs `/say /to /ask /ooc /npc`; `text="…"` and `reason="…"` keys; quoted `@"dm"` is the literal id, bare `@dm` the seat; bare `party` in `/reveal to=` is the keyword, quoted `"party"` a pc id; trailing `ability=`; leading `dc= diff= text= reason=` keys on `/rule amend`.
 - **Versioning.** A minor bump adds a kind, optional param, alias, refusal code or source and needs a README changelog line. A major bump needs a decision record and a session-model upcaster ([[session-model]]). The carrier stores the major beside each stored Intent. The proposal seam ([[proposal-gate]]) does not yet consume Intents.
 
-The planner ([[planner]], TASK-0267) raises the planner-side refusal codes `KIND_UNSERVED`, `TARGET_NOT_PRESENT`, `TARGET_UNSEEN`, `OUT_OF_REACH`, `OUT_OF_RANGE`, `NO_MOVEMENT_LEFT`, `REQUEST_NOT_OPEN` and `DM_SEAT_REQUIRED`. `NO_ACTION_LEFT` and `NO_BONUS_ACTION_LEFT` stay reserved (TASK-0304); the gate raises the seat and turn codes.
+The planner ([[planner]], TASK-0267) raises the planner-side refusal codes `KIND_UNSERVED`, `TARGET_NOT_PRESENT`, `TARGET_UNSEEN`, `OUT_OF_REACH`, `OUT_OF_RANGE`, `NO_MOVEMENT_LEFT`, `REQUEST_NOT_OPEN` and `DM_SEAT_REQUIRED`. Since spec 117 (TASK-0304) the planner also raises `NO_ACTION_LEFT` and `NO_BONUS_ACTION_LEFT`, and `dodge` is engine-served (`engine("served", "dodge")` in `KIND_RULES`, no longer a gap). The gate raises the seat and turn codes.

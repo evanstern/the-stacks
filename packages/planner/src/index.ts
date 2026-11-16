@@ -1,3 +1,4 @@
+export { type ActionCost, actionCostOf } from "./economy.js";
 export { PLAN_KINDS, type PlanKindClass } from "./kinds.js";
 export { stepOutcome } from "./outcome.js";
 export { plan } from "./plan.js";

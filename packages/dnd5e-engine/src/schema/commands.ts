@@ -325,6 +325,19 @@ export const EngineCommandSchema = z.discriminatedUnion("type", [
     reason: Reason,
   }),
   z.object({
+    // Spec 117: spend the active combatant's Action or Bonus Action. The planner adds it last.
+    type: z.literal("action.spend"),
+    combatantId: Id,
+    cost: z.enum(["action", "bonus-action"]),
+    reason: Reason,
+  }),
+  z.object({
+    // Spec 117: the Dodge action. It spends nothing; the planner appends action.spend.
+    type: z.literal("dodge"),
+    combatantId: Id,
+    reason: Reason,
+  }),
+  z.object({
     type: z.literal("spell-slot.restore"),
     targetId: Id,
     pool: z.enum(["standard", "pact"]),

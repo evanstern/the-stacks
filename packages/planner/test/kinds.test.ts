@@ -36,9 +36,9 @@ describe("PLAN_KINDS", () => {
     expect(Object.keys(PLAN_KINDS)).toHaveLength(INTENT_KINDS.length);
     const count = (c: string) =>
       Object.values(PLAN_KINDS).filter((r) => r.class === c).length;
-    expect(count("served")).toBe(28);
+    expect(count("served")).toBe(29);
     expect(count("ruling")).toBe(2);
-    expect(count("unserved")).toBe(12);
+    expect(count("unserved")).toBe(11);
     expect(count("not-planned")).toBe(15);
   });
 
@@ -55,7 +55,21 @@ describe("PLAN_KINDS", () => {
       expect(f.code, k).toBe("KIND_UNSERVED");
       expect(f.details?.owner, k).toBe(row.owner);
     }
-    expect(PLAN_KINDS.dodge.owner).toBe("TASK-0304");
+  });
+});
+
+describe("dodge (spec 117)", () => {
+  it("plans [dodge, action.spend] on the actor's turn, [dodge] outside an encounter", () => {
+    const s = inEncounter(baseState(), ["thorin", "goblin-2"]);
+    const r = plan(s, view(s), intent("dodge"));
+    expect(
+      r.kind === "commands" && r.commands.map((c) => c.command.type),
+    ).toEqual(["dodge", "action.spend"]);
+    const q = baseState();
+    const r2 = plan(q, view(q), intent("dodge"));
+    expect(
+      r2.kind === "commands" && r2.commands.map((c) => c.command.type),
+    ).toEqual(["dodge"]);
   });
 });
 

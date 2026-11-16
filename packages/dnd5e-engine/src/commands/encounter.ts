@@ -199,13 +199,19 @@ function expiring(
   return events;
 }
 
-/** The `reactionsSpent` slice with each given id removed; empty when none was spent. */
+/** The `reactionsSpent` and `dodging` slices with each given id removed; empty when neither is set. */
 function withoutSpent(
   enc: Encounter,
   ...ids: (string | null)[]
-): Pick<Encounter, "reactionsSpent"> {
-  if (!enc.reactionsSpent) return {};
-  return { reactionsSpent: enc.reactionsSpent.filter((x) => !ids.includes(x)) };
+): Pick<Encounter, "reactionsSpent" | "dodging"> {
+  return {
+    ...(enc.reactionsSpent
+      ? { reactionsSpent: enc.reactionsSpent.filter((x) => !ids.includes(x)) }
+      : {}),
+    ...(enc.dodging
+      ? { dodging: enc.dodging.filter((x) => !ids.includes(x)) }
+      : {}),
+  };
 }
 
 /**
@@ -381,8 +387,12 @@ export const handleTurnAdvance: Handler<"turn.advance"> = (
     },
     after: { round, turnIndex: index, combatantId: incoming.combatantId },
   });
-  if (enc.reactionsSpent?.includes(incoming.combatantId)) {
-    // The Reaction returns at the start of its owner's turn (SRD 5.2.1 p. 10).
+  if (
+    enc.reactionsSpent?.includes(incoming.combatantId) ||
+    enc.dodging?.includes(incoming.combatantId)
+  ) {
+    // The Reaction returns and Dodge ends at the start of its owner's turn
+    // (SRD 5.2.1 p. 10; playing-the-game.actions).
     const advanced = { ...enc, round, turnIndex: index };
     events.push({
       type: "encounter.changed",

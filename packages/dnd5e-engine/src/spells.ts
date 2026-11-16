@@ -16,6 +16,7 @@ export const SpellMechanicsSchema = z
   .strictObject({
     id: z.string(),
     level: z.number().int().min(0).max(9),
+    castingTime: z.enum(["action", "bonus-action"]),
     srdPage: z.number().int(),
     delivery: z.discriminatedUnion("kind", [
       z.strictObject({
@@ -59,6 +60,7 @@ const ENTRIES: z.input<typeof SpellMechanicsSchema>[] = [
     // SRD 5.2.1 p. 132, spell `fire-bolt`.
     ...none,
     id: "fire-bolt",
+    castingTime: "action",
     level: 0,
     srdPage: 132,
     delivery: { kind: "attack", range: "ranged" },
@@ -69,6 +71,7 @@ const ENTRIES: z.input<typeof SpellMechanicsSchema>[] = [
     // SRD 5.2.1 p. 159, spell `sacred-flame`. "No benefit from cover" has no engine effect.
     ...none,
     id: "sacred-flame",
+    castingTime: "action",
     level: 0,
     srdPage: 159,
     delivery: { kind: "save", ability: "dex", onSuccess: "none" },
@@ -79,6 +82,7 @@ const ENTRIES: z.input<typeof SpellMechanicsSchema>[] = [
     // SRD 5.2.1 p. 143, spell `inflict-wounds`.
     ...none,
     id: "inflict-wounds",
+    castingTime: "action",
     level: 1,
     srdPage: 143,
     delivery: { kind: "save", ability: "con", onSuccess: "half" },
@@ -89,6 +93,7 @@ const ENTRIES: z.input<typeof SpellMechanicsSchema>[] = [
     // SRD 5.2.1 p. 158, spell `ray-of-sickness`. Poisoned on a hit, to the end of the caster's next turn.
     ...none,
     id: "ray-of-sickness",
+    castingTime: "action",
     level: 1,
     srdPage: 158,
     delivery: { kind: "attack", range: "ranged" },
@@ -100,6 +105,7 @@ const ENTRIES: z.input<typeof SpellMechanicsSchema>[] = [
     // SRD 5.2.1 p. 121, spell `cure-wounds`.
     ...none,
     id: "cure-wounds",
+    castingTime: "action",
     level: 1,
     srdPage: 121,
     delivery: { kind: "auto" },
@@ -110,6 +116,7 @@ const ENTRIES: z.input<typeof SpellMechanicsSchema>[] = [
     // SRD 5.2.1 p. 139, spell `healing-word`.
     ...none,
     id: "healing-word",
+    castingTime: "bonus-action",
     level: 1,
     srdPage: 139,
     delivery: { kind: "auto" },

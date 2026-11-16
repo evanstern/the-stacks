@@ -1,6 +1,6 @@
 ---
 name: dnd5e-engine
-description: The pure 5e rules engine package (packages/dnd5e-engine, TASK-0042) - execute(state, command, rng) returns events or a refusal, seeded/scripted RNG, the roll ledger, refuse-before-draw, the no-I/O boundary rule, the R8 ruling that the engine owns attack/save/resistance/crit arithmetic, and sides with `combatant.depart`, `stand` and the close-combat rule (spec 099). Read before touching engine commands, dice, or state.
+description: The pure 5e rules engine package (packages/dnd5e-engine, TASK-0042) - execute(state, command, rng) returns events or a refusal, seeded/scripted RNG, the roll ledger, refuse-before-draw, the no-I/O boundary rule, the R8 ruling that the engine owns attack/save/resistance/crit arithmetic, sides with `combatant.depart`, `stand` and the close-combat rule (spec 099), and the action.spend and dodge commands (spec 117). Read before touching engine commands, dice, or state.
 kind: concept
 sources:
   - packages/dnd5e-engine/README.md
@@ -16,11 +16,12 @@ sources:
   - packages/dnd5e-engine/src/schema/commands.ts
   - packages/dnd5e-engine/src/schema/refusals.ts
   - packages/dnd5e-engine/src/commands/move.ts
+  - packages/dnd5e-engine/src/commands/economy.ts
   - packages/dnd5e-engine/src/space.ts
   - packages/dnd5e-engine/test/purity.test.ts
   - packages/dnd5e-engine/test/coverage.test.ts
   - specs/026-dnd5e-engine/spec.md
-verified_against: 9d32a9f322cb232c2dccc75885b91ad5c0a6e6b0
+verified_against: f8e3e370c2e06c447129da10e8e316a30d53531a
 ---
 
 # 5e engine
@@ -42,7 +43,7 @@ against `EngineCommandSchema` (`INVALID_COMMAND`), then dispatches by `command.t
 handler map (`roll`, `combatant.add/remove`, `damage.apply`, `healing.apply`, `temp-hp.grant`,
 `death-save.roll`, `stabilize`, `attack.roll`, `check.roll`, `condition.apply/remove`,
 `exhaustion.adjust`, `initiative.roll/join/leave`, `turn.advance`, `encounter.end`, the spec 099 trio,
-`rest.short/long`, `spell-slot.expend/restore`, `spell.cast`, `help.grant`, and the four zone-mode commands below). Each handler lives in `src/commands/`.
+`rest.short/long`, `spell-slot.expend/restore`, `spell.cast`, `help.grant`, `action.spend`, `dodge`, and the four zone-mode commands below). Each handler lives in `src/commands/`.
 `evolve` applies one event; `replay(events, state)`
 folds many. Replaying all events from `emptyState()` reproduces state.
 
@@ -52,16 +53,18 @@ encounter order and keeps its state. It refuses `NO_ACTIVE_ENCOUNTER` without an
 and `NO_ELIGIBLE_COMBATANT` when the leaver is the last entry or the active leaver would hand
 the turn to an all-dead order. When the active combatant leaves, the leave is the turn
 transition, as in `turn.advance`: the leaver's turn-end conditions expire, dead entries are
-skipped, the next live entry becomes active (wrapping to index 0 and a new round), and its
-turn-start conditions expire. A leaver before the active entry shifts `turnIndex` down by one.
-The command emits `encounter.changed` and draws no dice. A leaver's id is removed from
-`reactionsSpent` (below) in the same event.
+skipped, the next live entry becomes active (new round on wrap), and its turn-start conditions expire. A leaver before the active entry shifts `turnIndex` down by one.
+It emits `encounter.changed`, draws no dice, and clears the leaver from `reactionsSpent` and `dodging` ([[dnd5e-engine-reactions]]).
 
 ## Sides, depart and stand (spec 099, TASK-0274)
 
 Optional combatant `side`, `combatant.side`, `combatant.depart`, `stand`, five selectors, melee pairs (spec 101) and the close-combat rule: [[dnd5e-engine-sides]].
 
 `isUnable` is the able-actor predicate [[planner]] reuses.
+
+## Action economy and Dodge (spec 117)
+
+`action.spend`, `dodge`, `ACTION_SPENT`, `actionsLeft`, `isDodging`: [[dnd5e-engine-economy]].
 
 ## Space and movement
 
@@ -84,8 +87,7 @@ refuse with `DICE_LIMIT_EXCEEDED`.
 5.2.1 skills as lowercase kebab-case keys (`acrobatics`, `animal-handling`, ... `sleight-of-hand`,
 `stealth`, `survival`). It is the only literal skill list. The `check.roll` command takes
 `skill: SkillSchema.nullable().default(null)`. The event schema keeps `check.resolved.skill` as
-a nullable string, so stored events with older skill spellings still parse. The server derives
-its own gate and prompt lists from this enum ([[dm-runtime]]).
+a nullable string, so older stored spellings parse. The server derives its lists from this enum ([[dm-runtime]]).
 
 ## Roll ledger
 
@@ -104,9 +106,9 @@ Spec 070: `check.resolved` records optional `margin` and `band` (`success`, `suc
 A handler runs every refusal check before it calls `rollDie`. A refused command consumes no
 dice, so the RNG stream is unchanged after a refusal. Refusals carry a code from
 `RefusalCodeSchema` (for example `TARGET_AC_UNKNOWN`, `D20_TERM_REQUIRED`, `NOT_DYING`,
-`NO_SLOT_AVAILABLE`, `REACTION_SPENT`, `STAT_UNDEFINED`, `NOT_PROFICIENT`, and the zone codes `SPACE_UNDEFINED`, `ZONE_UNKNOWN`, `ZONE_IN_USE`, `NOT_PLACED`, `MOVE_BLOCKED`, `MOVE_OVER_SPEED`, `MOVE_OFF_TURN`, `OUT_OF_REACH`, `OUT_OF_RANGE`), a message and optional detail (43 codes). The DM plan gate alone raises `REASON_CONTRADICTS_STATE` (spec 058).
+`NO_SLOT_AVAILABLE`, `REACTION_SPENT`, `STAT_UNDEFINED`, `NOT_PROFICIENT`, and the zone codes `SPACE_UNDEFINED`, `ZONE_UNKNOWN`, `ZONE_IN_USE`, `NOT_PLACED`, `MOVE_BLOCKED`, `MOVE_OVER_SPEED`, `MOVE_OFF_TURN`, `OUT_OF_REACH`, `OUT_OF_RANGE`, `ACTION_SPENT`), a message and optional detail (45 codes).
 `attack.roll` and ability-check `check.roll` refuse an unable actor with `ACTOR_UNABLE` (`commands/attacks.ts`): lifeState `unconscious` or `stable`, or an `incapacitated`, `paralyzed`, `petrified`, `stunned` or `unconscious` condition. The detail names `combatantId`, `role`, `lifeState` and `conditions`. Saving throws and attack targets are never checked, so a dying actor can still roll its death save. A broken RNG contract (a face outside
-`1..sides`, or a die size outside `1..1000`) throws `RngContractError` rather than refusing. `encounter.end` keeps combatants in state; it is not what refused the actions in the TASK-0110 repro, whose cause was resolve order ([[dm-runtime]]), not an engine rule.
+`1..sides`, or a die size outside `1..1000`) throws `RngContractError` rather than refusing. `encounter.end` keeps combatants in state.
 
 ## Boundary rule
 
@@ -135,4 +137,4 @@ Rules context lives in [[overview]] (planned direction). The package sits in the
 project references ([[monorepo-and-toolchain]]) and its tests are a separate project
 ([[test-suite]] covers the server's).
 
-Stats-derived rolls, `spell.cast` and assists are in [[dnd5e-engine-derived-rolls]]; reactions are in [[dnd5e-engine-reactions]]. The zone package is [[space]].
+Stats-derived rolls, `spell.cast` and assists are in [[dnd5e-engine-derived-rolls]]; reactions are in [[dnd5e-engine-reactions]]; the economy: [[dnd5e-engine-economy]]. The zone package is [[space]].
