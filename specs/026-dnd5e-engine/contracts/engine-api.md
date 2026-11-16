@@ -284,3 +284,8 @@ New exports: `SPELLS`, `SpellMechanicsSchema`, `SpellMechanics`, `spellDice`, `s
 ## Amended by specs/119-condition-auto-fail-crit (TASK-0222)
 
 New exports: `derive.ts` (`autoFailCondition`, `autoCritCondition`). Amended by spec 119 (TASK-0222).
+
+## Amended by specs/120-monster-feature-dc (TASK-0224)
+
+`index.ts` exports `FeatureDcSchema`, `FeatureDc` and `findFeatureDc`. `CombatantStats` gains optional
+`featureDcs`. `oppositionDc` takes a third argument `kind`.

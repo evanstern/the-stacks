@@ -125,6 +125,10 @@ export const EngineEventSchema = z.discriminatedUnion("type", [
     opposition: z
       .object({ opponentId: Id, rule: OppositionRuleSchema })
       .optional(),
+    // Spec 120: set when the DC came from a monster feature.
+    feature: z
+      .object({ sourceId: Id, name: z.string().min(1).max(60) })
+      .optional(),
     total: Int.nullable(),
     natural: Int.nullable(),
     autoFail: z.object({ reason: Reason }).nullable(),

@@ -205,7 +205,7 @@ export const contest: Handler = (c) => {
   const facts = [...who.value.facts, ...opp.value.facts];
   const rule = rules[0];
   if (rule) {
-    const d = oppositionDc(opp.value.combatant, rule);
+    const d = oppositionDc(opp.value.combatant, rule, roll.kind);
     if (!d.ok) {
       return refuseEngine(
         "STAT_UNDEFINED",

@@ -337,7 +337,7 @@ OQ-1 (b) makes opposition its own step kind instead.
   from 8 + Strength + PB (for example the aboleth's 14 against a formula 17). (a) This card uses
   the formula for every opponent. The stat-block escape DC joins TASK-0224 (monster feature DCs
   from the stat block): the orchestrator adds it to that card. No shipped seed monster grapples.
-  (b) Parse "escape DC N" into the attack entry now. **Default (a).**
+  (b) Parse "escape DC N" into the attack entry now. **Default (a).** Closed by spec 120 (TASK-0224).
 - **OQ-3 — Help outside an encounter.** Out of combat there are no turns, so the SRD expiry never
   arrives. (a) The assist lasts until used, until its helper Helps again, or until an encounter
   ends. (b) Resolve ends every unused assist at the end of the beat that granted it (a new
