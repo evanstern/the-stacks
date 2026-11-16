@@ -1,10 +1,10 @@
 ---
 id: TASK-0321
 title: Code Director for turn-mode AI beats
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-11-12T18:22:00Z'
-updated_date: '2026-11-16T01:26:00Z'
+updated_date: '2026-11-16T01:27:00Z'
 labels:
   - ws:intent
   - revisit
@@ -42,4 +42,6 @@ AC #3 profile (2026-11-15, from the hosted TASK-0338 retest, session 6031b671, v
 - Odo turn 25.1 s: dm.companion 8.4 s (sonnet), dm.director 9.9 s (opus, in the commit turn job), dm.adjudicate 4.5 s (opus), dm.chronicle 2.0 s (haiku, overlaps). The commit job waited 2.0 s for the chronicle job before it started.
 - Kestrel turn 39.9 s: dm.narrate 11.5 s (sonnet; tail of the previous turn), dm.companion 9.4 s, dm.director 18.7 s (opus, 1325 output tokens).
 - Largest share: dm.director in both (Odo 39%, Kestrel 47%). The scope stays on the Director. The Director runs on opus, at $0.056-0.074 per call. Note: Odo also made a dm.adjudicate call (opus, 4.5 s), so the spec should check whether a companion beat needs it.
+
+Claimed 2026-11-15 by the R1 sweep (handoff move 2). Worktree .worktrees/task-0321, branch task-0321-companion-director, cut from origin/main b6a6f683. Spec number 118 claimed in the shared spec-claims notes. Opus spec authoring follows the handoff rule ("Dispatch spec authoring to opus-implementer"), as for every R1 spec.
 <!-- SECTION:NOTES:END -->
