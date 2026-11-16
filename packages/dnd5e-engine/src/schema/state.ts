@@ -224,6 +224,22 @@ export const AttackEntrySchema = z.object({
     .max(4),
 });
 
+/** Spec 120: a DC a monster feature states in its SRD stat block (SRD 5.2.1 monster records). */
+export const FeatureDcSchema = z.discriminatedUnion("kind", [
+  z.object({
+    kind: z.literal("save"),
+    feature: z.string().min(1).max(60),
+    ability: AbilitySchema,
+    dc: z.number().int().min(1).max(40),
+  }),
+  z.object({
+    kind: z.literal("escape"),
+    feature: z.string().min(1).max(60),
+    dc: z.number().int().min(1).max(40),
+  }),
+]);
+export type FeatureDc = z.infer<typeof FeatureDcSchema>;
+
 /** Spec 082: the numbers the engine derives rolls from. Totals, not proficiency flags. */
 export const CombatantStatsSchema = z.object({
   abilityMods: z.partialRecord(AbilitySchema, z.number().int().min(-5).max(10)),
@@ -236,6 +252,8 @@ export const CombatantStatsSchema = z.object({
   abilityScores: z
     .partialRecord(AbilitySchema, z.number().int().min(1).max(30))
     .optional(),
+  // Spec 120: stat-block save and escape DCs, in record order.
+  featureDcs: z.array(FeatureDcSchema).max(12).optional(),
 });
 
 /**

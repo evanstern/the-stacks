@@ -10,6 +10,7 @@ import {
   DIFFICULTY_DC,
   d20Expression,
   findAttack,
+  findFeatureDc,
   foldMode,
   helperExpiry,
   oppositionCovers,
@@ -181,24 +182,32 @@ describe("oppositionDc (spec 084)", () => {
   });
   const tamsin = makeCombatant({ stats: stats({ abilityMods: { str: 3 } }) });
   it("unarmed-strike is 8 + Str + PB", () => {
-    expect(oppositionDc(snag, "unarmed-strike")).toEqual({
+    expect(oppositionDc(snag, "unarmed-strike", "saving-throw")).toEqual({
       ok: true,
       value: 9,
     });
-    expect(oppositionDc(tamsin, "unarmed-strike")).toEqual({
+    expect(oppositionDc(tamsin, "unarmed-strike", "saving-throw")).toEqual({
       ok: true,
       value: 13,
     });
   });
   it("influence is the higher of 15 and Intelligence", () => {
-    expect(oppositionDc(snag, "influence")).toEqual({ ok: true, value: 15 });
+    expect(oppositionDc(snag, "influence", "ability-check")).toEqual({
+      ok: true,
+      value: 15,
+    });
     const smart = makeCombatant({
       stats: stats({ abilityScores: { int: 18 } }),
     });
-    expect(oppositionDc(smart, "influence")).toEqual({ ok: true, value: 18 });
+    expect(oppositionDc(smart, "influence", "ability-check")).toEqual({
+      ok: true,
+      value: 18,
+    });
   });
   it("reports the missing stat", () => {
-    expect(oppositionDc(makeCombatant(), "unarmed-strike")).toEqual({
+    expect(
+      oppositionDc(makeCombatant(), "unarmed-strike", "saving-throw"),
+    ).toEqual({
       ok: false,
       missing: "stats",
     });
@@ -206,9 +215,66 @@ describe("oppositionDc (spec 084)", () => {
       oppositionDc(
         makeCombatant({ stats: stats({ abilityMods: {} }) }),
         "unarmed-strike",
+        "saving-throw",
       ),
     ).toMatchObject({ ok: false });
-    expect(oppositionDc(tamsin, "influence")).toMatchObject({ ok: false });
+    expect(oppositionDc(tamsin, "influence", "ability-check")).toMatchObject({
+      ok: false,
+    });
+  });
+});
+
+describe("escape DC and findFeatureDc (spec 120)", () => {
+  const aboleth = makeCombatant({
+    stats: stats({
+      abilityMods: { str: 5 },
+      proficiencyBonus: 4,
+      abilityScores: { int: 10 },
+      featureDcs: [
+        { kind: "save", feature: "Mucus Cloud", ability: "con", dc: 14 },
+        { kind: "escape", feature: "Tentacle", dc: 14 },
+      ],
+    }),
+  });
+  it("uses the stated escape DC on an ability check only", () => {
+    expect(oppositionDc(aboleth, "unarmed-strike", "ability-check")).toEqual({
+      ok: true,
+      value: 14,
+    });
+    expect(oppositionDc(aboleth, "unarmed-strike", "saving-throw")).toEqual({
+      ok: true,
+      value: 17,
+    });
+  });
+  it("falls back to the formula with no escape entry", () => {
+    const c = makeCombatant({ stats: stats({ abilityMods: { str: 3 } }) });
+    expect(oppositionDc(c, "unarmed-strike", "ability-check")).toEqual({
+      ok: true,
+      value: 13,
+    });
+    expect(oppositionDc(aboleth, "influence", "ability-check")).toEqual({
+      ok: true,
+      value: 15,
+    });
+  });
+  it("finds a save by name, trimmed and case-insensitive", () => {
+    expect(findFeatureDc(aboleth, "Mucus Cloud")).toMatchObject({
+      ok: true,
+      value: { dc: 14 },
+    });
+    expect(findFeatureDc(aboleth, "  mucus cloud ")).toMatchObject({
+      ok: true,
+    });
+  });
+  it("misses an escape entry and an absent name", () => {
+    expect(findFeatureDc(aboleth, "Tentacle")).toEqual({
+      ok: false,
+      missing: 'feature "Tentacle"',
+    });
+    expect(findFeatureDc(makeCombatant(), "Web")).toEqual({
+      ok: false,
+      missing: "stats",
+    });
   });
 });
 

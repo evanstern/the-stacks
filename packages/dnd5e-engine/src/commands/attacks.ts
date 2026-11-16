@@ -10,6 +10,7 @@ import {
   DIFFICULTY_DC,
   d20Expression,
   findAttack,
+  findFeatureDc,
   foldMode,
   type ModeSource,
   oppositionCovers,
@@ -380,13 +381,16 @@ export function bandOf(input: {
 }
 
 export const handleCheckRoll: Handler<"check.roll"> = (state, command, rng) => {
-  const sources = [command.dc, command.difficulty, command.opposition].filter(
-    (v) => v !== undefined,
-  ).length;
+  const sources = [
+    command.dc,
+    command.difficulty,
+    command.opposition,
+    command.feature,
+  ].filter((v) => v !== undefined).length;
   if (sources !== 1) {
     return refuse(
       "INVALID_COMMAND",
-      "check.roll needs exactly one of dc, difficulty and opposition",
+      "check.roll needs exactly one of dc, difficulty, opposition and feature",
     );
   }
   const opposition = command.opposition;
@@ -406,6 +410,17 @@ export const handleCheckRoll: Handler<"check.roll"> = (state, command, rng) => {
       { rule: opposition.rule },
     );
   }
+  const feature = command.feature;
+  if (
+    feature &&
+    (command.kind !== "saving-throw" ||
+      feature.sourceId === command.combatantId)
+  ) {
+    return refuse(
+      "INVALID_COMMAND",
+      "a feature DC needs a saving throw by a combatant other than its source",
+    );
+  }
   let dc =
     command.dc ??
     (command.difficulty !== undefined ? DIFFICULTY_DC[command.difficulty] : 0);
@@ -423,6 +438,7 @@ export const handleCheckRoll: Handler<"check.roll"> = (state, command, rng) => {
     const derived = oppositionDc(
       state.combatants[opposition.opponentId] as Combatant,
       opposition.rule,
+      command.kind,
     );
     if (!derived.ok) {
       return refuse(
@@ -432,6 +448,32 @@ export const handleCheckRoll: Handler<"check.roll"> = (state, command, rng) => {
       );
     }
     dc = derived.value;
+  }
+  let featureName: string | null = null;
+  if (feature) {
+    const source = state.combatants[feature.sourceId];
+    if (!source) {
+      return refuse("UNKNOWN_COMBATANT", `no combatant "${feature.sourceId}"`, {
+        combatantId: feature.sourceId,
+      });
+    }
+    const found = findFeatureDc(source, feature.name);
+    if (!found.ok) {
+      return refuse(
+        "STAT_UNDEFINED",
+        `cannot derive the DC of feature "${feature.name}"`,
+        { combatantId: feature.sourceId, missing: found.missing },
+      );
+    }
+    if (found.value.ability !== command.ability) {
+      return refuse(
+        "INVALID_COMMAND",
+        `the feature "${found.value.feature}" calls a ${found.value.ability} save`,
+        { ability: found.value.ability },
+      );
+    }
+    dc = found.value.dc;
+    featureName = found.value.feature;
   }
   if (command.kind === "ability-check") {
     const unable = actorUnable(state, command.combatantId, "checker");
@@ -495,6 +537,9 @@ export const handleCheckRoll: Handler<"check.roll"> = (state, command, rng) => {
       ? { difficulty: command.difficulty }
       : {}),
     ...(opposition ? { opposition } : {}),
+    ...(feature && featureName
+      ? { feature: { sourceId: feature.sourceId, name: featureName } }
+      : {}),
   };
   if (command.autoFail && command.autoSuccess) {
     return refuse(

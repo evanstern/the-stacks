@@ -336,7 +336,7 @@ function grappleSave(
     x.m.ok && best.m.ok && x.m.value > best.m.value ? x : best,
   );
   const rule = "unarmed-strike" as const;
-  const dc = oppositionDc(who.combatant, rule);
+  const dc = oppositionDc(who.combatant, rule, "saving-throw");
   if (!dc.ok) return statUndefined(who.combatantId, dc.missing);
   const opposition = { opponentId: who.combatantId, rule };
   const roll: Roll = {

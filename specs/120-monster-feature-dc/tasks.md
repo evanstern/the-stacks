@@ -8,15 +8,15 @@ Do not edit `packages/srd`, `packages/intent`, `packages/session-model/src`, `ap
 
 ## Phase 1: Engine source, planner call sites and engine tests (FR-001–FR-015, FR-017, FR-018; AC #1)
 
-- [ ] T001 In `packages/dnd5e-engine/src/schema/state.ts`, add `FeatureDcSchema`, `FeatureDc` and `stats.featureDcs` (plan D1).
-- [ ] T002 In `src/derive.ts`, add `findFeatureDc` and change `oppositionDc` to take `kind`, with the escape DC and the new comment (plan D2). Export the new names from `src/index.ts`.
-- [ ] T003 In `src/schema/commands.ts` and `src/schema/events.ts`, add the `feature` fields (plan D3).
-- [ ] T004 In `src/commands/attacks.ts` `handleCheckRoll`, add the fourth DC source, its refusals and the event field (plan D3, steps 1–6).
-- [ ] T005 In `packages/planner/src/checks.ts` and `src/combat.ts`, pass the roll kind to `oppositionDc` (plan D6).
-- [ ] T006 Write `packages/dnd5e-engine/test/commands/feature-dc.test.ts` with every SC-001 and SC-002 case and the two `check.roll` cases of SC-003 (plan D5). Confirm the coverage meta-test passes.
-- [ ] T007 Update `packages/dnd5e-engine/test/derive.test.ts`: the new `oppositionDc` argument, the SC-003 cases and the `findFeatureDc` cases (plan D5).
-- [ ] T008 Run the search in plan D5. Fix any expectation the rule now changes. List each changed test in the commit message.
-- [ ] T009 Run `node scripts/check-boundaries.mjs` (exits 0) and `pnpm ci:check` (green).
+- [x] T001 In `packages/dnd5e-engine/src/schema/state.ts`, add `FeatureDcSchema`, `FeatureDc` and `stats.featureDcs` (plan D1).
+- [x] T002 In `src/derive.ts`, add `findFeatureDc` and change `oppositionDc` to take `kind`, with the escape DC and the new comment (plan D2). Export the new names from `src/index.ts`.
+- [x] T003 In `src/schema/commands.ts` and `src/schema/events.ts`, add the `feature` fields (plan D3).
+- [x] T004 In `src/commands/attacks.ts` `handleCheckRoll`, add the fourth DC source, its refusals and the event field (plan D3, steps 1–6).
+- [x] T005 In `packages/planner/src/checks.ts` and `src/combat.ts`, pass the roll kind to `oppositionDc` (plan D6).
+- [x] T006 Write `packages/dnd5e-engine/test/commands/feature-dc.test.ts` with every SC-001 and SC-002 case and the two `check.roll` cases of SC-003 (plan D5). Confirm the coverage meta-test passes.
+- [x] T007 Update `packages/dnd5e-engine/test/derive.test.ts`: the new `oppositionDc` argument, the SC-003 cases and the `findFeatureDc` cases (plan D5).
+- [x] T008 Run the search in plan D5. Fix any expectation the rule now changes. List each changed test in the commit message.
+- [x] T009 Run `node scripts/check-boundaries.mjs` (exits 0) and `pnpm ci:check` (green).
 
 ## Phase 2: Stats builder, gate replay and contracts (FR-016, FR-019, FR-020; AC #1)
 

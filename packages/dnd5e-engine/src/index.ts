@@ -31,6 +31,7 @@ export {
   DifficultySchema,
   d20Expression,
   findAttack,
+  findFeatureDc,
   firstMeleeAttack,
   foldMode,
   helperExpiry,
@@ -73,6 +74,7 @@ export type {
   DefenseSet,
   Encounter,
   EngineState,
+  FeatureDc,
   Side,
   Skill,
 } from "./schema/state.js";
@@ -89,6 +91,7 @@ export {
   ENGINE_SCHEMA_VERSION,
   EncounterSchema,
   EngineStateSchema,
+  FeatureDcSchema,
   SideSchema,
   SKILL_ABILITY,
   SkillSchema,

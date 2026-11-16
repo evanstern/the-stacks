@@ -120,6 +120,10 @@ export const EngineCommandSchema = z.discriminatedUnion("type", [
     opposition: z
       .object({ opponentId: Id, rule: OppositionRuleSchema })
       .optional(),
+    // Spec 120: the DC a monster feature states (a fourth DC source; exactly one of the four).
+    feature: z
+      .object({ sourceId: Id, name: z.string().min(1).max(60) })
+      .optional(),
     autoFail: z.object({ reason: Reason }).nullable().default(null),
     // Spec 070: auto-success (a free retry) and the table's house rules.
     // The engine defaults stay SRD-pure; the DM runtime sends the seed's values.

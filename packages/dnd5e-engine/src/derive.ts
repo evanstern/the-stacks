@@ -8,6 +8,7 @@ import type {
   ConditionKey,
   Encounter,
   ExpiryPoint,
+  FeatureDc,
   Skill,
 } from "./schema/state.js";
 import { SKILL_ABILITY } from "./schema/state.js";
@@ -289,17 +290,23 @@ export function oppositionCovers(
 
 /**
  * unarmed-strike: 8 + Strength modifier + proficiency bonus (Unarmed Strike, SRD 5.2.1 p. 190).
+ * Spec 120: an ability check against unarmed-strike is the escape check; an opponent whose stat
+ * block states an escape DC uses it.
  * influence: the higher of 15 and the opponent's Intelligence score (rules-glossary.influence-action).
- * ponytail: the unarmed-strike DC uses the Strength modifier only; a creature using its stat-block
- * DC is TASK-0224. Add when monsters carry feature DCs.
+ * ponytail: the first stated escape DC applies even to a grapple made by Unarmed Strike; record the
+ * grappling feature on the condition when TASK-0320 plans feature use.
  */
 export function oppositionDc(
   opponent: Combatant,
   rule: OppositionRule,
+  kind: "ability-check" | "saving-throw",
 ): Derived<number> {
   const stats = opponent.stats;
   if (!stats) return { ok: false, missing: "stats" };
   if (rule === "unarmed-strike") {
+    const escapeDc = stats.featureDcs?.find((f) => f.kind === "escape");
+    if (kind === "ability-check" && escapeDc)
+      return { ok: true, value: escapeDc.dc };
     const str = stats.abilityMods.str;
     return str === undefined
       ? { ok: false, missing: "str modifier" }
@@ -309,6 +316,22 @@ export function oppositionDc(
   return int === undefined
     ? { ok: false, missing: "int score" }
     : { ok: true, value: Math.max(15, int) };
+}
+
+/** Spec 120: the save DC a source's feature states, matched by name (trimmed, case-insensitive). */
+export function findFeatureDc(
+  c: Combatant,
+  name: string,
+): Derived<Extract<FeatureDc, { kind: "save" }>> {
+  if (!c.stats) return { ok: false, missing: "stats" };
+  const want = name.trim().toLowerCase();
+  const hit = (c.stats.featureDcs ?? []).find(
+    (f): f is Extract<FeatureDc, { kind: "save" }> =>
+      f.kind === "save" && f.feature.toLowerCase() === want,
+  );
+  return hit
+    ? { ok: true, value: hit }
+    : { ok: false, missing: `feature "${name}"` };
 }
 
 /** The holder's open ability-check assists for this skill (rules-glossary.help-action). */
