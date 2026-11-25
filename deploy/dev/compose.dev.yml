@@ -4,6 +4,8 @@
 # ports, the migrate service) lives here, not in the base file.
 services:
   app:
+    # Dev must come back after a host reboot or OOM kill (hourly drift-dev check failed for days when it did not).
+    restart: unless-stopped
     # Tags the built image by commit, so rollback is a restart, not a
     # rebuild (research R6).
     image: stacks-dev-app:${STACKS_COMMIT}
@@ -21,6 +23,8 @@ services:
       - "127.0.0.1:${APP_PORT}:${APP_PORT}"
 
   db:
+    # Dev must come back after a host reboot or OOM kill (hourly drift-dev check failed for days when it did not).
+    restart: unless-stopped
     env_file: !override
       - ${DEV_ENV_FILE:-/home/stacks/dev/.env}
 
