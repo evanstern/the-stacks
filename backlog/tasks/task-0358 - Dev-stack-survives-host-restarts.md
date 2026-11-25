@@ -1,10 +1,10 @@
 ---
 id: TASK-0358
 title: Dev stack survives host restarts
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-11-25T05:43:00Z'
-updated_date: '2026-11-25T05:45:00Z'
+updated_date: '2026-11-25T05:52:00Z'
 labels:
   - ops
   - bug
