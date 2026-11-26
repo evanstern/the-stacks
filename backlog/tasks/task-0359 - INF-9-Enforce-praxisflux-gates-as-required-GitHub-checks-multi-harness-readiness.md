@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-11-26T20:34:57Z'
-updated_date: '2026-11-26T20:37:15Z'
+updated_date: '2026-11-26T20:48:26Z'
 labels:
   - ops
   - ci
@@ -35,3 +35,10 @@ Spec: specs/122-praxisflux-required-checks
 - [ ] #1 All tests and checks run green
 - [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
+(Implemented by the Ops Engineer agent itself at sonnet; pinned= is the model on the Paperclip agent config, served= is the model in the Paperclip run receipt, per decision-0031.)
+<!-- SECTION:NOTES:END -->
