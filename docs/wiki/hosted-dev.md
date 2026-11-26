@@ -10,7 +10,7 @@ sources:
   - .github/workflows/deploy-dev.yml
   - .github/workflows/drift-dev.yml
   - docs/ops/dev-vm-104.md
-verified_against: e1bbffdbdce3fceda71fda32ad1672ee0c17e88a
+verified_against: 367b6f29f57e53d0401f8113355855a3d0251866
 ---
 
 # Hosted dev (vm-104)
@@ -129,3 +129,5 @@ missing, or the checked-out `HEAD` doesn't match the requested sha — these are
 errors, distinct from a failed deploy (exit 1, `dev` still serving something) or a stale
 push skip (exit 0). The `destroy` runbook step (`down -v`) is the only command anywhere in
 `dev`'s tooling that removes the database volume.
+
+`compose.dev.yml` sets `restart: unless-stopped` on `app` and `db` (TASK-0358), so a reboot revives `dev`.
