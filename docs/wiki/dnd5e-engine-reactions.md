@@ -7,7 +7,7 @@ sources:
   - packages/dnd5e-engine/src/commands/encounter.ts
   - packages/dnd5e-engine/src/commands/move.ts
   - packages/dnd5e-engine/src/schema/state.ts
-verified_against: 06fd49610a6fa7d116af98f64c22a494de2b97ba
+verified_against: e4fe74b76c2ed90656971d1204def9a1b8b7d2f1
 ---
 
 # 5e engine: reactions
