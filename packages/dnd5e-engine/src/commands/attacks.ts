@@ -1,4 +1,5 @@
 import { bandBetween, rangeOf, reachCovers } from "@the-stacks/space";
+import { bonusDice, withBonusDice } from "../concentration.js";
 import {
   attackAssists,
   attackModeSources,
@@ -257,7 +258,10 @@ export const handleAttackRoll: Handler<"attack.roll"> = (
       !isRangedUse(state, attacker.id, command.targetId, entry.value);
     const exhaustion =
       attacker.conditions.find((i) => i.condition === "exhaustion")?.level ?? 0;
-    expression = d20Expression(entry.value.toHit - 2 * exhaustion);
+    expression = withBonusDice(
+      d20Expression(entry.value.toHit - 2 * exhaustion),
+      bonusDice(attacker, "attack", null),
+    );
     // Spec 084 D5: an open Help against the target gives advantage (rules-glossary.help-action).
     applied = attackAssists(target, command.attackerId);
     mode = foldMode(command.mode, [
@@ -497,7 +501,10 @@ export const handleCheckRoll: Handler<"check.roll"> = (state, command, rng) => {
         { combatantId: command.combatantId, missing: mod.missing },
       );
     }
-    expression = d20Expression(mod.value);
+    expression = withBonusDice(
+      d20Expression(mod.value),
+      bonusDice(checker, command.kind, command.skill),
+    );
     applied = checkAssists(checker, command.kind, command.skill);
     mode = foldMode(command.mode, [
       ...checkModeSources(checker, command.kind, command.ability),
