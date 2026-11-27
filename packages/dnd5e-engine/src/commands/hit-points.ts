@@ -1,3 +1,4 @@
+import { concentrationDamageEvents } from "../concentration.js";
 import {
   checkLimits,
   criticalTerms,
@@ -9,7 +10,12 @@ import type { Handler } from "../handler.js";
 import type { Rng } from "../rng.js";
 import type { EngineEvent, EventOf } from "../schema/events.js";
 import { type RefusalResult, refuse } from "../schema/refusals.js";
-import type { Combatant, DamageType, DefenseSet } from "../schema/state.js";
+import type {
+  Combatant,
+  DamageType,
+  DefenseSet,
+  EngineState,
+} from "../schema/state.js";
 
 type Component = NonNullable<EventOf<"hp.changed">["components"]>[number];
 
@@ -197,6 +203,8 @@ export function damageEvents(
     half?: boolean;
     reason: string;
     defenses?: DefenseSet | null;
+    /** Spec 124: when given, a concentrating target makes its Con save or loses concentration. */
+    state?: EngineState;
   },
   events: EngineEvent[],
   rng: Rng,
@@ -292,6 +300,17 @@ export function damageEvents(
       }
     }
   }
+  if (opts.state) {
+    return concentrationDamageEvents(
+      opts.state,
+      target,
+      total,
+      afterCurrent,
+      events,
+      reason,
+      rng,
+    );
+  }
   return null;
 }
 
@@ -316,6 +335,7 @@ export const handleDamageApply: Handler<"damage.apply"> = (
       critical: command.critical,
       reason: command.reason,
       defenses: command.defenses,
+      state,
     },
     events,
     rng,

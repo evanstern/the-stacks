@@ -12,7 +12,7 @@ sources:
   - packages/dnd5e-engine/src/commands/spells.ts
   - packages/dnd5e-engine/src/spells.ts
   - packages/dnd5e-engine/test/commands/economy.test.ts
-verified_against: 06fd49610a6fa7d116af98f64c22a494de2b97ba
+verified_against: 2564ac841976ec16c5d7d0afb3ee43321e735899
 ---
 
 # 5e engine: action economy and Dodge
@@ -39,4 +39,4 @@ Part of the 5e engine ([[dnd5e-engine]]); the command entry point and refusal ru
 
 ## castingTime
 
-Each `SPELLS` entry (`src/spells.ts`) has `castingTime`, `action` or `bonus-action`. `healing-word` is `bonus-action`; the other five are `action`. The engine does not enforce it; the planner costs a `cast` with it.
+Each `SPELLS` entry (`src/spells.ts`) has `castingTime`, `action` or `bonus-action`. `healing-word` is `bonus-action`; the other seven (`bless` and `guidance`, spec 124, included) are `action`. The engine does not enforce it; the planner costs a `cast` with it.

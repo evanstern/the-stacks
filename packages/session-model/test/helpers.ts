@@ -162,6 +162,46 @@ export function engineExamples(): Record<string, EngineEvent> {
       reason: r,
     });
   }
+  // Spec 124: Bless, then Guidance replaces it (concentration and roll-bonus events).
+  step({
+    type: "combatant.add",
+    combatant: {
+      id: "odo",
+      name: "Odo",
+      hp: { max: 9 },
+      zeroHpRule: "death-saves",
+      ac: 12,
+      spellSlots: { standard: { "1": 2 }, pact: null },
+      stats: {
+        abilityMods: { wis: 3 },
+        proficiencyBonus: 2,
+        saves: {},
+        skills: {},
+        attacks: [],
+        spellcastingAbility: "wis",
+      },
+    },
+    reason: r,
+  });
+  step({
+    type: "spell.cast",
+    casterId: "odo",
+    spellId: "bless",
+    targetId: "ana",
+    slotLevel: 1,
+    casterLevel: 1,
+    reason: r,
+  });
+  step({
+    type: "spell.cast",
+    casterId: "odo",
+    spellId: "guidance",
+    targetId: "ana",
+    skill: "stealth",
+    slotLevel: null,
+    casterLevel: 1,
+    reason: r,
+  });
   // Spec 094: space, placement and movement events.
   const zoneOf = (id: string) => ({
     id,

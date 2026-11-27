@@ -277,6 +277,9 @@ export const EngineCommandSchema = z.discriminatedUnion("type", [
     casterId: Id,
     spellId: z.string().regex(/^[a-z0-9]+(-[a-z0-9]+)*$/),
     targetId: Id,
+    // Spec 124: Bless takes up to 3 + (slot - 1) targets; Guidance takes one target and a skill.
+    moreTargetIds: z.array(Id).max(8).optional(),
+    skill: SkillSchema.optional(),
     slotLevel: SlotLevel.nullable(),
     casterLevel: z.number().int().min(1).max(20),
     houseRules: z

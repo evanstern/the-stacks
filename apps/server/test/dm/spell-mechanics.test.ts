@@ -21,7 +21,7 @@ describe("engine spell table vs SRD spell records", () => {
       expect(rec.castingTime).toBe(
         m.castingTime === "action" ? "Action" : "Bonus Action",
       );
-      expect(rec.concentration).toBe(false);
+      expect(rec.concentration).toBe(Boolean(m.effect?.concentration));
       const text = rec.text;
       const all = `${rec.text} ${rec.higherLevels ?? ""}`;
       for (const d of m.damage) {
@@ -45,6 +45,27 @@ describe("engine spell table vs SRD spell records", () => {
       if (m.condition) {
         expect(text.toLowerCase()).toContain(m.condition.key);
         expect(text).toContain("end of your next turn");
+      }
+      if (m.effect) {
+        expect(rec.duration).toContain(`up to 1 minute`);
+        expect(m.effect.durationRounds).toBe(10);
+        expect(text).toContain(`adds ${m.effect.die}`);
+        if (m.effect.applies.includes("attack")) {
+          expect(text).toContain("attack roll");
+        }
+        if (m.effect.applies.includes("saving-throw")) {
+          expect(text).toContain("saving throw");
+        }
+        if (m.effect.applies.includes("ability-check")) {
+          expect(text).toContain("ability check");
+        }
+        if (m.effect.skillChoice) expect(text).toContain("choose a skill");
+        if (m.effect.targets.perSlotLevel > 0) {
+          expect(rec.higherLevels ?? "").toContain(
+            "one additional creature for each spell slot level above",
+          );
+          expect(text).toContain("up to three creatures");
+        }
       }
       if (m.scaling.kind !== "none") {
         expect(all).toContain(`increases by ${m.scaling.die}`);

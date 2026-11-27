@@ -1,4 +1,9 @@
 import {
+  bonusDice,
+  breakConcentrationEvents,
+  withBonusDice,
+} from "../concentration.js";
+import {
   attackAssists,
   attackModeSources,
   autoFailCondition,
@@ -13,8 +18,13 @@ import {
 } from "../derive.js";
 import { rollExpression } from "../dice.js";
 import type { Handler } from "../handler.js";
+import type { EngineCommand } from "../schema/commands.js";
 import type { EngineEvent } from "../schema/events.js";
-import { type RefusalResult, refuse } from "../schema/refusals.js";
+import {
+  type EngineResult,
+  type RefusalResult,
+  refuse,
+} from "../schema/refusals.js";
 import type {
   AttackEntry,
   Combatant,
@@ -22,7 +32,7 @@ import type {
   ExpiryPoint,
 } from "../schema/state.js";
 import { closeCombatSources, meleePairFor, withMeleePair } from "../sides.js";
-import { SPELLS, spellDice } from "../spells.js";
+import { SPELLS, type SpellMechanics, spellDice } from "../spells.js";
 import { actorUnable, bandOf, checkNamed, usedAssists } from "./attacks.js";
 import { appliedEvent } from "./conditions.js";
 import { isDodging } from "./economy.js";
@@ -41,6 +51,96 @@ function nextTurnEnd(state: EngineState, casterId: string): ExpiryPoint | null {
   if (at < 0) return null;
   const round = at > enc.turnIndex ? enc.round : enc.round + 1;
   return { round, combatantId: casterId, boundary: "turn-end" };
+}
+
+/**
+ * Spec 124: a concentration spell that grants a roll bonus die (Bless, Guidance). Replaces the
+ * caster's prior concentration, then grants one bonus per distinct target.
+ */
+function castRollBonus(
+  state: EngineState,
+  command: Extract<EngineCommand, { type: "spell.cast" }>,
+  spell: SpellMechanics,
+  caster: Combatant,
+): EngineResult {
+  const effect = spell.effect as NonNullable<SpellMechanics["effect"]>;
+  const slotLevel = command.slotLevel;
+  const reason = command.reason;
+  const bad = (message: string, extra: Record<string, unknown>) =>
+    refuse("INVALID_COMMAND", message, { spellId: spell.id, ...extra });
+  const ids = [command.targetId, ...(command.moreTargetIds ?? [])];
+  if (new Set(ids).size !== ids.length) {
+    return bad("a target is named twice", { targetIds: ids });
+  }
+  const extra = slotLevel === null ? 0 : Math.max(0, slotLevel - spell.level);
+  const max = effect.targets.base + effect.targets.perSlotLevel * extra;
+  if (ids.length > max) {
+    return bad(`"${spell.id}" affects at most ${max} creatures`, { max });
+  }
+  if (effect.skillChoice && command.skill === undefined) {
+    return bad(`"${spell.id}" needs a skill`, { missing: "skill" });
+  }
+  if (!effect.skillChoice && command.skill !== undefined) {
+    return bad(`"${spell.id}" takes no skill`, { skill: command.skill });
+  }
+  const named = checkNamed(state, [...ids, caster.id]);
+  if (named) return named;
+
+  const events: EngineEvent[] = [];
+  if (spell.level > 0) {
+    const slot = slotExpendEvent(
+      state,
+      caster.id,
+      null,
+      slotLevel as number,
+      reason,
+    );
+    if ("ok" in slot) return slot;
+    events.push(slot);
+  }
+  events.push(
+    ...breakConcentrationEvents(
+      state,
+      caster.id,
+      caster.concentration ? "replaced" : "cast",
+      reason,
+    ),
+  );
+  const enc = state.encounter;
+  const expiresAt =
+    enc && enc.order.some((e) => e.combatantId === caster.id)
+      ? {
+          round: enc.round + effect.durationRounds,
+          combatantId: caster.id,
+          boundary: "turn-start" as const,
+        }
+      : null;
+  events.push({
+    type: "concentration.changed",
+    v: 1,
+    reason,
+    combatantId: caster.id,
+    before: null,
+    after: { spellId: spell.id, targetIds: ids, expiresAt },
+    cause: "cast",
+  });
+  for (const id of ids) {
+    events.push({
+      type: "roll-bonus.granted",
+      v: 1,
+      reason,
+      combatantId: id,
+      before: null,
+      after: {
+        spellId: spell.id,
+        casterId: caster.id,
+        die: effect.die,
+        applies: effect.applies,
+        skill: effect.skillChoice ? (command.skill ?? null) : null,
+      },
+    });
+  }
+  return { ok: true, events };
 }
 
 export const handleSpellCast: Handler<"spell.cast"> = (state, command, rng) => {
@@ -78,6 +178,7 @@ export const handleSpellCast: Handler<"spell.cast"> = (state, command, rng) => {
     return stat(caster, "spellcasting ability modifier");
   }
   const mod = spellcastingModifier(caster.stats) as number;
+  if (spell.effect) return castRollBonus(state, command, spell, caster);
   const d = spell.delivery;
   let saveMod = 0;
   if (d.kind === "save") {
@@ -146,7 +247,7 @@ export const handleSpellCast: Handler<"spell.cast"> = (state, command, rng) => {
       });
     }
     const rolled = rollExpression(
-      d20Expression(bonus),
+      withBonusDice(d20Expression(bonus), bonusDice(caster, "attack", null)),
       {
         mode,
         critical: false,
@@ -208,7 +309,7 @@ export const handleSpellCast: Handler<"spell.cast"> = (state, command, rng) => {
       damageEvents(
         target,
         components,
-        { critical: outcome === "critical-hit", reason },
+        { critical: outcome === "critical-hit", reason, state },
         events,
         rng,
       ),
@@ -241,7 +342,10 @@ export const handleSpellCast: Handler<"spell.cast"> = (state, command, rng) => {
       dealt = "full";
     } else {
       const rolled = rollExpression(
-        d20Expression(saveMod),
+        withBonusDice(
+          d20Expression(saveMod),
+          bonusDice(target, "saving-throw", null),
+        ),
         {
           mode: foldMode("normal", [
             ...checkModeSources(target, "saving-throw", d.ability),
@@ -299,7 +403,7 @@ export const handleSpellCast: Handler<"spell.cast"> = (state, command, rng) => {
         damageEvents(
           target,
           components,
-          { critical: false, half: dealt === "half", reason },
+          { critical: false, half: dealt === "half", reason, state },
           events,
           rng,
         ),

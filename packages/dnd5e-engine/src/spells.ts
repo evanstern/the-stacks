@@ -42,15 +42,35 @@ export const SpellMechanicsSchema = z
         ends: z.literal("caster-next-turn-end"),
       })
       .nullable(),
+    // Spec 124: a concentration spell that grants a roll bonus die to its targets.
+    effect: z
+      .strictObject({
+        kind: z.literal("roll-bonus"),
+        die: DiceSchema,
+        applies: z
+          .array(z.enum(["attack", "saving-throw", "ability-check"]))
+          .min(1),
+        skillChoice: z.boolean(),
+        targets: z.strictObject({
+          base: z.number().int().min(1),
+          perSlotLevel: z.number().int().min(0),
+        }),
+        concentration: z.literal(true),
+        durationRounds: z.number().int().min(1),
+      })
+      .optional(),
     scaling: z.discriminatedUnion("kind", [
       z.strictObject({ kind: z.literal("cantrip"), die: DiceSchema }),
       z.strictObject({ kind: z.literal("slot"), die: DiceSchema }),
       z.strictObject({ kind: z.literal("none") }),
     ]),
   })
-  .refine((m) => m.damage.length > 0 || m.healing !== null || m.condition, {
-    message: "a spell entry needs damage, healing or a condition",
-  });
+  .refine(
+    (m) => m.damage.length > 0 || m.healing !== null || m.condition || m.effect,
+    {
+      message: "a spell entry needs damage, healing, a condition or an effect",
+    },
+  );
 export type SpellMechanics = z.infer<typeof SpellMechanicsSchema>;
 
 const none = { damage: [], healing: null, condition: null };
@@ -122,6 +142,44 @@ const ENTRIES: z.input<typeof SpellMechanicsSchema>[] = [
     delivery: { kind: "auto" },
     healing: { dice: "2d4", addModifier: true },
     scaling: { kind: "slot", die: "2d4" },
+  },
+  {
+    // SRD 5.2.1 p. 113, spell `bless`. Concentration, up to 1 minute (10 rounds).
+    ...none,
+    id: "bless",
+    castingTime: "action",
+    level: 1,
+    srdPage: 113,
+    delivery: { kind: "auto" },
+    effect: {
+      kind: "roll-bonus",
+      die: "1d4",
+      applies: ["attack", "saving-throw"],
+      skillChoice: false,
+      targets: { base: 3, perSlotLevel: 1 },
+      concentration: true,
+      durationRounds: 10,
+    },
+    scaling: { kind: "none" },
+  },
+  {
+    // SRD 5.2.1 p. 138, spell `guidance`. Concentration, up to 1 minute (10 rounds).
+    ...none,
+    id: "guidance",
+    castingTime: "action",
+    level: 0,
+    srdPage: 138,
+    delivery: { kind: "auto" },
+    effect: {
+      kind: "roll-bonus",
+      die: "1d4",
+      applies: ["ability-check"],
+      skillChoice: true,
+      targets: { base: 1, perSlotLevel: 0 },
+      concentration: true,
+      durationRounds: 10,
+    },
+    scaling: { kind: "none" },
   },
 ];
 

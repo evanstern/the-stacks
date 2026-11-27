@@ -22,7 +22,7 @@ sources:
   - packages/dnd5e-engine/test/coverage.test.ts
   - specs/026-dnd5e-engine/spec.md
 size_budget_exempt: the note sat within 200 chars of the 8000 budget before spec 120 (TASK-0224); the spec 120 sentence is a pointer to dnd5e-engine-derived-rolls and the remaining sections do not split without a TASK of its own
-verified_against: 06fd49610a6fa7d116af98f64c22a494de2b97ba
+verified_against: 2564ac841976ec16c5d7d0afb3ee43321e735899
 ---
 
 # 5e engine
@@ -44,7 +44,7 @@ against `EngineCommandSchema` (`INVALID_COMMAND`), then dispatches by `command.t
 handler map (`roll`, `combatant.add/remove`, `damage.apply`, `healing.apply`, `temp-hp.grant`,
 `death-save.roll`, `stabilize`, `attack.roll`, `check.roll`, `condition.apply/remove`,
 `exhaustion.adjust`, `initiative.roll/join/leave` (spec 121: an `initiative.roll` participant may be `surprised`; it rolls with Disadvantage folded into its mode, SRD 5.2.1 `playing-the-game.combat.the-order-of-combat.initiative`, and loses no turn; `encounter.started` records the surprised ids, and engine state holds none), `turn.advance`, `encounter.end`, the spec 099 trio,
-`rest.short/long`, `spell-slot.expend/restore`, `spell.cast`, `help.grant`, `action.spend`, `dodge`, and the four zone-mode commands below). Each handler lives in `src/commands/`.
+`rest.short/long`, `spell-slot.expend/restore`, `spell.cast` (spec 124 adds `moreTargetIds`, `skill`, concentration and Bless/Guidance roll bonuses: [[dnd5e-engine-concentration]]), `help.grant`, `action.spend`, `dodge`, and the four zone-mode commands below). Each handler lives in `src/commands/`.
 `evolve` applies one event; `replay(events, state)`
 folds many. Replaying all events from `emptyState()` reproduces state.
 
@@ -138,4 +138,4 @@ Rules context lives in [[overview]] (planned direction). The package sits in the
 project references ([[monorepo-and-toolchain]]) and its tests are a separate project
 ([[test-suite]] covers the server's).
 
-Stats-derived rolls, `spell.cast` and assists are in [[dnd5e-engine-derived-rolls]]; reactions are in [[dnd5e-engine-reactions]]; the economy: [[dnd5e-engine-economy]]. The zone package is [[space]].
+Stats-derived rolls, `spell.cast` and assists are in [[dnd5e-engine-derived-rolls]]; reactions are in [[dnd5e-engine-reactions]]; the economy: [[dnd5e-engine-economy]]; concentration and roll bonuses: [[dnd5e-engine-concentration]]. The zone package is [[space]].
