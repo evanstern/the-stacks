@@ -63,6 +63,8 @@ T007 verified by the orchestrator (infinitynode.media session), 2026-11-27, insi
 - TEST_DATABASE_URL = postgres://***@dind:30346/stacks; a TCP connect to it succeeded.
 - After 'pnpm turbo run build --filter=@the-stacks/server...', 'vitest run test/auth.integration.test.ts' with the .env loaded: 1 file, 15/15 tests passed against TEST_DATABASE_URL. (Without the build first, vitest cannot resolve @the-stacks/session-model; that is the normal turbo dependsOn, not this change.)
 - env:down exit 0; env:prune --check 'no orphans.'
+
+spec-bridge sync: Phase 1 — Derivation and wiring (FR-001..FR-004): 4/4 · Phase 2 — Gates and docs (FR-005, FR-007): 2/2 · Phase 3 — Verify in the agent environment (FR-006): 1/1 — status In Progress → Done
 <!-- SECTION:NOTES:END -->
 
 ## Comments
