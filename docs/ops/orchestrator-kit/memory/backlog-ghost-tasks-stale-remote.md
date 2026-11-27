@@ -21,7 +21,7 @@ archive. Compare the branches first:
     git ls-tree --name-only origin/main backlog/tasks/
     git rev-list --count origin/main..main
 
-If origin still holds the old files, `git push` is the fix. Note that
+If origin still holds the old files, pushing the board commits to main is the fix (via the GitHub connector `push-files` / `create-or-update-file`, never shell `git push` — D26). Note that
 `backlog task list` reads only the working tree, so it shows the board as clean
 while `backlog board` still shows ghosts — diagnose with `backlog board`.
 
