@@ -3,7 +3,7 @@ id: TASK-0363
 title: >-
   Stack probes honor DOCKER_HOST: reach worktree stacks on a remote Docker
   daemon (agent DinD sidecar)
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-11-27T09:23:00Z'
 updated_date: '2026-11-27T09:26:00Z'
