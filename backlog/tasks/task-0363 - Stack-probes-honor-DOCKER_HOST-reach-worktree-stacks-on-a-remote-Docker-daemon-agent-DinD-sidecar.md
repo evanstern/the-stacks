@@ -6,7 +6,7 @@ title: >-
 status: Done
 assignee: []
 created_date: '2026-11-27T09:23:00Z'
-updated_date: '2026-11-27T09:43:00Z'
+updated_date: '2026-11-27T09:44:00Z'
 labels:
   - tooling
   - agents
@@ -43,7 +43,7 @@ Spec: specs/127-docker-host-probes
 - [x] #7 Correct docs/ops/agent-tooling.md and deploy/runner/* comments that claim localhost probes work; re-pin any wiki notes whose sources change.
 - [x] #8 Spec phase: Phase 1 — Derivation and wiring (FR-001..FR-004)
 - [x] #9 Spec phase: Phase 2 — Gates and docs (FR-005, FR-007)
-- [ ] #10 Spec phase: Phase 3 — Verify in the agent environment (FR-006)
+- [x] #10 Spec phase: Phase 3 — Verify in the agent environment (FR-006)
 <!-- AC:END -->
 
 ## Definition of Done
