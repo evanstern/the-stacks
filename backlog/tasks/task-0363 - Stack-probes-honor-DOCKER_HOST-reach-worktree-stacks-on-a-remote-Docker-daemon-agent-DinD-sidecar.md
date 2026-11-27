@@ -6,7 +6,7 @@ title: >-
 status: In Progress
 assignee: []
 created_date: '2026-11-27T09:23:00Z'
-updated_date: '2026-11-27T09:26:00Z'
+updated_date: '2026-11-27T09:43:00Z'
 labels:
   - tooling
   - agents
@@ -34,13 +34,13 @@ Spec: specs/127-docker-host-probes
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Add one helper that derives the host where published ports are reachable: DOCKER_HOST tcp://H:port gives H (ssh://... is out of scope and errors clearly), unset or unix:// gives 127.0.0.1. Unit-test it in env-lib.test.mjs.
-- [ ] #2 Make the publish bind address configurable (for example STACKS_PUBLISH_ADDR, default 127.0.0.1) for the db, test-db and app ports. env.mjs sets it to 0.0.0.0 only when the daemon is remote; local behavior is unchanged.
-- [ ] #3 Make portFree() probe the derived host by connecting (a TCP connect test) when the daemon is remote, and keep the local bind test otherwise.
-- [ ] #4 Make TEST_DATABASE_URL, the env:up banner, env.test.mjs's health fetch and deploy-dev.mjs's health fetch use the derived host.
-- [ ] #5 Make pnpm ci:check green; existing env-lib tests pass unchanged.
-- [ ] #6 Verify in a Paperclip agent run (DinD) that env:up, a TEST_DATABASE_URL connection, the app /health, env:down and env:prune --check all succeed. Verify on a local daemon that the published addresses are still 127.0.0.1.
-- [ ] #7 Correct docs/ops/agent-tooling.md and deploy/runner/* comments that claim localhost probes work; re-pin any wiki notes whose sources change.
+- [x] #1 Add one helper that derives the host where published ports are reachable: DOCKER_HOST tcp://H:port gives H (ssh://... is out of scope and errors clearly), unset or unix:// gives 127.0.0.1. Unit-test it in env-lib.test.mjs.
+- [x] #2 Make the publish bind address configurable (for example STACKS_PUBLISH_ADDR, default 127.0.0.1) for the db, test-db and app ports. env.mjs sets it to 0.0.0.0 only when the daemon is remote; local behavior is unchanged.
+- [x] #3 Make portFree() probe the derived host by connecting (a TCP connect test) when the daemon is remote, and keep the local bind test otherwise.
+- [x] #4 Make TEST_DATABASE_URL, the env:up banner, env.test.mjs's health fetch and deploy-dev.mjs's health fetch use the derived host.
+- [x] #5 Make pnpm ci:check green; existing env-lib tests pass unchanged.
+- [x] #6 Verify in a Paperclip agent run (DinD) that env:up, a TEST_DATABASE_URL connection, the app /health, env:down and env:prune --check all succeed. Verify on a local daemon that the published addresses are still 127.0.0.1.
+- [x] #7 Correct docs/ops/agent-tooling.md and deploy/runner/* comments that claim localhost probes work; re-pin any wiki notes whose sources change.
 - [ ] #8 Spec phase: Phase 1 — Derivation and wiring (FR-001..FR-004)
 - [ ] #9 Spec phase: Phase 2 — Gates and docs (FR-005, FR-007)
 - [ ] #10 Spec phase: Phase 3 — Verify in the agent environment (FR-006)
@@ -56,6 +56,13 @@ Spec: specs/127-docker-host-probes
 
 <!-- SECTION:NOTES:BEGIN -->
 Tier escalation sonnet->opus: operator ruling 2026-11-27 "Use Opus" after the sonnet dispatch failed with model_not_found (claude-sonnet-5-5).
+
+T007 verified by the orchestrator (infinitynode.media session), 2026-11-27, inside the paperclip container on vm-104 as user node, with DOCKER_HOST=tcp://dind:2376 (TLS, privileged DinD sidecar). Each run used a throwaway clone of this branch in /tmp, removed afterwards (no images, volumes or containers left):
+- env:up exit 0; banner 'up — http://dind:8346 (app :8346, db :20346, test-db :30346)'.
+- GET http://dind:8346/health -> status ok, database reachable, commit 78f64bb7. http://localhost:8346 fails, as expected.
+- TEST_DATABASE_URL = postgres://***@dind:30346/stacks; a TCP connect to it succeeded.
+- After 'pnpm turbo run build --filter=@the-stacks/server...', 'vitest run test/auth.integration.test.ts' with the .env loaded: 1 file, 15/15 tests passed against TEST_DATABASE_URL. (Without the build first, vitest cannot resolve @the-stacks/session-model; that is the normal turbo dependsOn, not this change.)
+- env:down exit 0; env:prune --check 'no orphans.'
 <!-- SECTION:NOTES:END -->
 
 ## Comments
