@@ -2,6 +2,7 @@
 name: runtime-stacks
 description: scripts/env.mjs — a labeled, isolated compose stack per git worktree (env up/down/status/prune/main), the pure derivation logic in env-lib.mjs, root-.env inheritance, the orphan-warning Stop hook, the local origin/main stack, and the scripted-DM setup (credential-free app-DB migrate, printf .env append). Load for worktree-database, port-collision, shared-secret, or "why is this container still running" questions.
 kind: component
+size_budget_exempt: the note sat at the 8000 budget before INF-39; the push-guard paragraph is one line and the stack machinery (identity, test stack, orphans, env main, inheritance, migrate) is one CLI that does not split without a TASK of its own
 sources:
   - scripts/env.mjs
   - scripts/env-lib.mjs
@@ -12,7 +13,7 @@ sources:
   - Dockerfile
   - apps/server/src/config.ts
   - apps/server/src/routes/health.ts
-verified_against: 3e6be73f61bcdba0b2df26cc0669c33be406bc26
+verified_against: 8d86f724b4c5fd2d99151ef81c0e86378b7c9163
 ---
 
 # Runtime stacks
@@ -66,6 +67,8 @@ down; `prune --check` only reports (exit 1 naming them, 0 when clean) so it can 
 side effects. `.claude/hooks/env-orphan-hook.mjs` runs `prune --check` as a `Stop`
 hook (`.claude/settings.json`) and **only ever warns** — on exit 1 it prints the orphan list
 to stderr; on exit 2 (Docker unreachable) or 0 it is silent; it always exits 0. `CLAUDE.md`'s "Runtime stacks" section holds the gating rule.
+
+**Push guard (INF-39).** `up` sets `core.hooksPath=.githooks`; its `pre-push` blocks shell `git push`.
 
 **`env main`.** A dedicated detached worktree at `.worktrees/env-main`, kept across runs so
 Docker's build-layer cache stays warm: `git fetch origin main`, then either `git worktree add

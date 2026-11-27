@@ -26,7 +26,11 @@ test("settings.json PreToolUse root-guard entries are byte-identical to the pre-
   const settings = JSON.parse(
     readFileSync(new URL("../settings.json", import.meta.url), "utf8"),
   );
-  assert.deepEqual(settings.hooks.PreToolUse, [
+  // The no-shell-push guard (INF-39) is a separate entry; root-guard's own stay untouched.
+  const rootGuardEntries = settings.hooks.PreToolUse.filter(
+    (e) => !JSON.stringify(e).includes("no-shell-push-hook"),
+  );
+  assert.deepEqual(rootGuardEntries, [
     {
       matcher: "Bash",
       hooks: [

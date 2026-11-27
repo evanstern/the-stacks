@@ -1,0 +1,11 @@
+#!/bin/sh
+# Harness-agnostic backstop for rule 13 (INF-39): agents never push from the
+# shell; GitHub writes go through the Paperclip GitHub connector tools.
+# Installed by `pnpm env:up` (git config core.hooksPath .githooks).
+cat >&2 <<'MSG'
+no-shell-push: blocked `git push`.
+Rule 13 (INF-37): push and open PRs only through the Paperclip GitHub connector tools
+(push-files, create-or-update-file, create-branch, create-pull-request, merge-pull-request, ...).
+Never shell `git push` or `gh` writes. Operators pushing by hand: use --no-verify deliberately.
+MSG
+exit 1

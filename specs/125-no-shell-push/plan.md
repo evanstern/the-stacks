@@ -1,0 +1,2 @@
+# Plan
+Pure classifier `no-shell-push-lib.mjs` over the existing quote-aware `shell-scan.mjs`; thin stdin hook `no-shell-push-hook.mjs` registered in `.claude/settings.json` after root-guard; `.githooks/pre-push` backstop installed from `scripts/env.mjs up`. Hook fails open on malformed stdin (matches root-guard); unparseable commands fail closed only when they textually name a git push / gh write.

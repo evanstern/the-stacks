@@ -9,7 +9,7 @@ sources:
   - healthcheck.js
   - scripts/env-lib.mjs
   - scripts/env.mjs
-verified_against: 3e6be73f61bcdba0b2df26cc0669c33be406bc26
+verified_against: 936ef80ddabab72f556ad9a3b449cdaad3a300db
 ---
 
 # Compose stack
