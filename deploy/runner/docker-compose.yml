@@ -1,6 +1,10 @@
-# Runner + Docker-in-Docker sidecar. The sidecar joins the runner's network
-# namespace (CTO ruling R1) so scripts/env.mjs port probes on 127.0.0.1 and
-# TEST_DATABASE_URL on localhost reach published container ports.
+# Runner + Docker-in-Docker sidecar: a local reference pod. Here the sidecar
+# joins the runner's network namespace (CTO ruling R1), so DOCKER_HOST is
+# localhost and published ports are on 127.0.0.1.
+# vm-104 does NOT run it this way: there the agent Docker is a privileged DinD
+# sidecar with its own network namespace, reached as DOCKER_HOST=tcp://dind:2376
+# with TLS (operator decision, infinitynode.media TASK-101). Published ports are
+# reached at the DOCKER_HOST hostname, which scripts/env.mjs derives (spec 127).
 # NOTE: dind needs `privileged`. TLS is off because the daemon is only reachable
 # on the shared loopback; revisit (TLS on a shared cert volume) if the pod is ever
 # exposed. Rootless dind is preferred if it works on the host kernel.

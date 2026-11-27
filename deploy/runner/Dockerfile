@@ -2,7 +2,8 @@
 # Base is Debian 12 (bookworm); Paperclip's own runtime is Debian 13 but this image only
 # needs the same CLIs (node/pnpm/backlog/uv/specify/docker CLI), not the same OS release.
 # Docker is NOT installed as a daemon here: the CLI talks to the dind sidecar
-# (see docker-compose.yml) which shares this container's network namespace.
+# (see docker-compose.yml). Published ports are reached at the DOCKER_HOST
+# hostname, which scripts/env.mjs derives (spec 127).
 # uv pin: stage name, because COPY --from cannot expand variables.
 ARG UV_VERSION=0.13.10
 FROM ghcr.io/astral-sh/uv:${UV_VERSION} AS uv
@@ -45,5 +46,7 @@ ENV PRAXISFLUX_HOME=/opt/praxisflux
 # Plugins load via env, independent of Paperclip's per-run CLAUDE_CONFIG_DIR (CTO ruling R5).
 ENV CLAUDE_CODE_PLUGIN_DIRS=/opt/praxisflux/pdlc:/opt/praxisflux/spec-bridge:/opt/praxisflux/grounding-wiki:/opt/praxisflux/team-review
 
-# Talk to the dind sidecar (same network namespace, so 127.0.0.1 ports work).
+# Default for the local reference pod (shared netns). On vm-104 the agent DinD
+# sidecar has its own network namespace and Paperclip overrides this with
+# DOCKER_HOST=tcp://dind:2376 + TLS (infinitynode.media TASK-101).
 ENV DOCKER_HOST=tcp://localhost:2375
