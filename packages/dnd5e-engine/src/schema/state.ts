@@ -274,6 +274,22 @@ export const AssistSchema = z.discriminatedUnion("kind", [
   }),
 ]);
 
+/** Spec 124: a spell the combatant concentrates on, and who it affects. */
+export const ConcentrationSchema = z.object({
+  spellId: z.string(),
+  targetIds: z.array(CombatantIdSchema).max(20),
+  expiresAt: ExpiryPointSchema.nullable(),
+});
+
+/** Spec 124: a bonus die held by the target of a concentration spell (Bless, Guidance). */
+export const RollBonusSchema = z.object({
+  spellId: z.string(),
+  casterId: CombatantIdSchema,
+  die: z.string().regex(/^\d+d\d+$/),
+  applies: z.array(z.enum(["attack", "saving-throw", "ability-check"])).min(1),
+  skill: SkillSchema.nullable(),
+});
+
 export const SideSchema = z.enum(["party", "hostile", "neutral"]);
 export type Side = z.infer<typeof SideSchema>;
 
@@ -302,6 +318,9 @@ export const CombatantSchema = z
     defenses: DefenseSetSchema,
     stats: CombatantStatsSchema.optional(),
     assists: z.array(AssistSchema).max(8).optional(),
+    // Spec 124: concentration and the roll bonuses it grants.
+    concentration: ConcentrationSchema.optional(),
+    rollBonuses: z.array(RollBonusSchema).max(8).optional(),
     // Spec 094: where the combatant stands, and its walking Speed in feet.
     placement: PlacementSchema.optional(),
     speed: z.number().int().min(0).max(200).optional(),
@@ -459,6 +478,8 @@ export type AttackEntry = z.infer<typeof AttackEntrySchema>;
 export type CombatantStats = z.infer<typeof CombatantStatsSchema>;
 export type Skill = z.infer<typeof SkillSchema>;
 export type ExpiryPoint = z.infer<typeof ExpiryPointSchema>;
+export type Concentration = z.infer<typeof ConcentrationSchema>;
+export type RollBonus = z.infer<typeof RollBonusSchema>;
 export type Assist = z.infer<typeof AssistSchema>;
 export type ConditionInstance = z.infer<typeof ConditionInstanceSchema>;
 export type DamageType = z.infer<typeof DamageTypeSchema>;

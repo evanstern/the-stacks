@@ -1,3 +1,7 @@
+import {
+  breakConcentrationEvents,
+  INCAPACITATING_CONDITIONS,
+} from "../concentration.js";
 import type { Handler } from "../handler.js";
 import type { EngineEvent } from "../schema/events.js";
 import { type RefusalResult, refuse } from "../schema/refusals.js";
@@ -57,6 +61,15 @@ export const handleConditionApply: Handler<"condition.apply"> = (
         source: command.source,
         expiresAt: command.expiresAt,
       }),
+      // Spec 124 FR-006: Incapacitated ends concentration.
+      ...(INCAPACITATING_CONDITIONS.includes(command.condition)
+        ? breakConcentrationEvents(
+            state,
+            target.id,
+            "incapacitated",
+            command.reason,
+          )
+        : []),
     ],
   };
 };
@@ -145,6 +158,7 @@ export const handleExhaustionAdjust: Handler<"exhaustion.adjust"> = (
   }
   if (to === 6) {
     events.push(lifeStateEvent(target, reason, target.lifeState, "dead"));
+    events.push(...breakConcentrationEvents(state, target.id, "died", reason));
   }
   return { ok: true, events };
 };
