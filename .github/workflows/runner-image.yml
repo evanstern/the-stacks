@@ -32,4 +32,4 @@ jobs:
         if: github.event_name == 'pull_request'
         run: |
           docker build -t runner-test deploy/runner
-          docker run --rm runner-test sh -c 'node -v && pnpm -v && backlog --version && specify --version && docker --version && docker compose version && ls /opt/praxisflux && specify --version | grep -F 0.12.5 && for d in $(echo $CLAUDE_CODE_PLUGIN_DIRS | tr : " "); do test -f $d/.claude-plugin/plugin.json; done'
+          docker run --rm runner-test sh -c 'node -v && pnpm -v && backlog --version && specify --version && uv --version && docker --version && docker compose version && ls /opt/praxisflux && specify --version | grep -F 0.12.5 && for d in $(echo $CLAUDE_CODE_PLUGIN_DIRS | tr : " "); do test -f $d/.claude-plugin/plugin.json; done'
