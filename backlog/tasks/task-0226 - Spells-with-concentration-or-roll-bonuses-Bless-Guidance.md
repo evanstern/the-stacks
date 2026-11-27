@@ -1,11 +1,11 @@
 ---
 id: TASK-0226
 title: Spells with concentration or roll bonuses (Bless, Guidance)
-status: In Progress
+status: Done
 assignee:
   - '@rules-engine-engineer'
 created_date: '2026-11-03T08:00:00Z'
-updated_date: '2026-11-27T04:44:53Z'
+updated_date: '2026-11-27T09:14:11Z'
 labels:
   - engine
   - rules
@@ -28,15 +28,15 @@ Spec: specs/124-spell-concentration-bless-guidance
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Bless and Guidance resolve through the engine with concentration tracked and broken per SRD 5.2.1, with engine tests
-- [ ] #2 Spec phase: Engine concentration and roll bonuses (FR-001–FR-008; AC #1)
-- [ ] #3 Spec phase: Wiki
+- [x] #1 Bless and Guidance resolve through the engine with concentration tracked and broken per SRD 5.2.1, with engine tests
+- [x] #2 Spec phase: Engine concentration and roll bonuses (FR-001–FR-008; AC #1)
+- [x] #3 Spec phase: Wiki
 <!-- AC:END -->
 
 ## Definition of Done
 <!-- DOD:BEGIN -->
-- [ ] #1 All tests and checks run green
-- [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
+- [x] #1 All tests and checks run green
+- [x] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
 
 ## Implementation Notes
@@ -47,8 +47,9 @@ D24 (decision-0032) CONTROL arm. Spec allocated by PM: specs/124-spell-concentra
 Claimed 2026-11-27 by Rules Engine Engineer (D24 control, Sonnet). Branch task-0226-spell-concentration cut from main b69a9265. Spec: specs/124-spell-concentration-bless-guidance
 
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
-Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
-Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
+
+  ... (2 duplicate lines)
+spec-bridge sync (INF-36): Engine concentration and roll bonuses 6/6 · Wiki 1/1 — In Progress → Done. PR #206 merged at e5ea5377. D24 final summary retained.
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
