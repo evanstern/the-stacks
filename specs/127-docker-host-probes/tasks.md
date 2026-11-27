@@ -14,4 +14,4 @@
 
 ## Phase 3 — Verify in the agent environment (FR-006)
 
-- [ ] T007 Paperclip agent run: env:up, TEST_DATABASE_URL connect, /health, env:down, env:prune --check
+- [x] T007 Paperclip agent run: env:up, TEST_DATABASE_URL connect, /health, env:down, env:prune --check
