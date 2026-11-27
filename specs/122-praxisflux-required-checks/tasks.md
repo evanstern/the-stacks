@@ -12,5 +12,5 @@
 
 ## Phase 2: Enforcement and proof (FR-006, FR-007)
 
-- [ ] T005 Mark the four checks required on `main`, or open the question card to Evan naming them.
+- [x] T005 Mark the four checks required on `main`, or open the question card to Evan naming them.
 - [x] T006 Open the non-compliant PR, show CI blocks it, close it unmerged; open the compliant PR and show it passes; link both on the card.
