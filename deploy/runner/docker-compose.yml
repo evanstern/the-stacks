@@ -1,0 +1,25 @@
+# Runner + Docker-in-Docker sidecar. The sidecar joins the runner's network
+# namespace (CTO ruling R1) so scripts/env.mjs port probes on 127.0.0.1 and
+# TEST_DATABASE_URL on localhost reach published container ports.
+# NOTE: dind needs `privileged`. TLS is off because the daemon is only reachable
+# on the shared loopback; revisit (TLS on a shared cert volume) if the pod is ever
+# exposed. Rootless dind is preferred if it works on the host kernel.
+services:
+  runner:
+    build: .
+    image: the-stacks-runner:local
+    command: sleep infinity
+    environment:
+      DOCKER_HOST: tcp://localhost:2375
+    depends_on:
+      - dind
+  dind:
+    image: docker:27-dind
+    privileged: true
+    network_mode: "service:runner"
+    environment:
+      DOCKER_TLS_CERTDIR: ""
+    volumes:
+      - dind-data:/var/lib/docker   # private to the sidecar; never the host's
+volumes:
+  dind-data:

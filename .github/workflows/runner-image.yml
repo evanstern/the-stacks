@@ -1,0 +1,35 @@
+# Builds deploy/runner so the image definition is verified without a local Docker.
+# Pushes to ghcr.io only on main; PRs build-only. Manual run via workflow_dispatch.
+name: runner-image
+on:
+  pull_request:
+    paths: ["deploy/runner/**", ".github/workflows/runner-image.yml"]
+  push:
+    branches: [main]
+    paths: ["deploy/runner/**"]
+  workflow_dispatch:
+permissions:
+  contents: read
+  packages: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        if: github.event_name != 'pull_request'
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v6
+        with:
+          context: deploy/runner
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ghcr.io/${{ github.repository_owner }}/the-stacks-runner:latest
+      - name: Verify toolchain in the built image
+        if: github.event_name == 'pull_request'
+        run: |
+          docker build -t runner-test deploy/runner
+          docker run --rm runner-test sh -c 'node -v && pnpm -v && backlog --version && specify --version && docker --version && docker compose version && ls /opt/praxisflux'
