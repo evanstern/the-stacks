@@ -41,7 +41,7 @@ Spec: specs/127-docker-host-probes
 - [x] #5 Make pnpm ci:check green; existing env-lib tests pass unchanged.
 - [x] #6 Verify in a Paperclip agent run (DinD) that env:up, a TEST_DATABASE_URL connection, the app /health, env:down and env:prune --check all succeed. Verify on a local daemon that the published addresses are still 127.0.0.1.
 - [x] #7 Correct docs/ops/agent-tooling.md and deploy/runner/* comments that claim localhost probes work; re-pin any wiki notes whose sources change.
-- [ ] #8 Spec phase: Phase 1 — Derivation and wiring (FR-001..FR-004)
+- [x] #8 Spec phase: Phase 1 — Derivation and wiring (FR-001..FR-004)
 - [ ] #9 Spec phase: Phase 2 — Gates and docs (FR-005, FR-007)
 - [ ] #10 Spec phase: Phase 3 — Verify in the agent environment (FR-006)
 <!-- AC:END -->
