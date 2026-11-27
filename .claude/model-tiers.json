@@ -20,6 +20,12 @@
       "contextWindow": "1M",
       "escalation": true,
       "for": "escalation only — design work, cross-surface doctrine, anything with a real judgment call the spec does not already settle"
+    },
+    "kimi": {
+      "model": "kimi/kimi-for-coding",
+      "contextWindow": "256K",
+      "for": "D24 treatment-arm implementer only (Rules Engine Engineer (Kimi), decision-0032) — never the default tier, never an escalation target",
+      "caution": "262144-token context and 65536 max output as served by 9router (kimi route, reasoning model with thinking that cannot be disabled). Size dispatches to one phase; watch for <think> output eating max_tokens and truncating the result."
     }
   }
 }
