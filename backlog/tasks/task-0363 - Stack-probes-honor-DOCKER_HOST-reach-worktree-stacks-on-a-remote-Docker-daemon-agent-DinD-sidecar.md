@@ -3,7 +3,7 @@ id: TASK-0363
 title: >-
   Stack probes honor DOCKER_HOST: reach worktree stacks on a remote Docker
   daemon (agent DinD sidecar)
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-11-27T09:23:00Z'
 updated_date: '2026-11-27T09:43:00Z'
@@ -76,3 +76,9 @@ Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=cc/claude-opus-5-5
 
 ---
 <!-- COMMENTS:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Phase 1 — Derivation and wiring (FR-001..FR-004): 4/4 · Phase 2 — Gates and docs (FR-005, FR-007): 2/2 · Phase 3 — Verify in the agent environment (FR-006): 1/1). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
