@@ -283,7 +283,7 @@ describe("spell.cast healing spells", () => {
 describe("spell.cast refusals", () => {
   it("refuses unresolvable spells and slot levels", () => {
     expectRefusedBeforeDraw(
-      run(world(), cast("bless", { slotLevel: 1 })),
+      run(world(), cast("shield", { slotLevel: 1 })),
       "SPELL_UNRESOLVED",
     );
     expectRefusedBeforeDraw(
