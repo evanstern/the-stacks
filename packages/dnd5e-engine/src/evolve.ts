@@ -85,6 +85,26 @@ export function evolve(state: EngineState, event: EngineEvent): EngineState {
           (a) => a.helperId !== event.before.helperId,
         ),
       }));
+    case "concentration.changed":
+      return update(state, event.combatantId, (c) => {
+        const { concentration: _gone, ...rest } = c;
+        return event.after ? { ...rest, concentration: event.after } : rest;
+      });
+    case "roll-bonus.granted":
+      return update(state, event.combatantId, (c) => ({
+        ...c,
+        rollBonuses: [...(c.rollBonuses ?? []), event.after],
+      }));
+    case "roll-bonus.ended":
+      return update(state, event.combatantId, (c) => {
+        const { rollBonuses, ...rest } = c;
+        const left = (rollBonuses ?? []).filter(
+          (b) =>
+            b.spellId !== event.before.spellId ||
+            b.casterId !== event.before.casterId,
+        );
+        return left.length ? { ...rest, rollBonuses: left } : rest;
+      });
     case "hit-dice.changed":
       return update(state, event.combatantId, (c) => ({
         ...c,
