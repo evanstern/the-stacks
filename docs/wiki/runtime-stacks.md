@@ -12,7 +12,7 @@ sources:
   - Dockerfile
   - apps/server/src/config.ts
   - apps/server/src/routes/health.ts
-verified_against: 3e6be73f61bcdba0b2df26cc0669c33be406bc26
+verified_against: 8d86f724b4c5fd2d99151ef81c0e86378b7c9163
 ---
 
 # Runtime stacks
@@ -66,6 +66,8 @@ down; `prune --check` only reports (exit 1 naming them, 0 when clean) so it can 
 side effects. `.claude/hooks/env-orphan-hook.mjs` runs `prune --check` as a `Stop`
 hook (`.claude/settings.json`) and **only ever warns** — on exit 1 it prints the orphan list
 to stderr; on exit 2 (Docker unreachable) or 0 it is silent; it always exits 0. `CLAUDE.md`'s "Runtime stacks" section holds the gating rule.
+
+**Push guard (INF-39, rule 13).** `up` also calls `installPushGuard`: `git config core.hooksPath .githooks` plus a `chmod 0755` of `.githooks/pre-push` (connector commits drop the exec bit). That hook exits 1 with the connector-tools message, so a shell `git push` fails for harnesses that lack the Claude `PreToolUse` hook; `.claude/settings.json` registers `.claude/hooks/no-shell-push-hook.mjs` as its own `Bash` entry beside root-guard's.
 
 **`env main`.** A dedicated detached worktree at `.worktrees/env-main`, kept across runs so
 Docker's build-layer cache stays warm: `git fetch origin main`, then either `git worktree add
