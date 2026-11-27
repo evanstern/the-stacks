@@ -9,8 +9,8 @@
 
 ## Phase 2 — Gates and docs (FR-005, FR-007)
 
-- [ ] T005 `pnpm ci:check` green; `docker compose config` on a local daemon still shows 127.0.0.1
-- [ ] T006 Fix docs/ops/agent-tooling.md and the deploy/runner comments; re-pin the wiki
+- [x] T005 `pnpm ci:check` green; `docker compose config` on a local daemon still shows 127.0.0.1
+- [x] T006 Fix docs/ops/agent-tooling.md and the deploy/runner comments; re-pin the wiki
 
 ## Phase 3 — Verify in the agent environment (FR-006)
 

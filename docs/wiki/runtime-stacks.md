@@ -12,7 +12,7 @@ sources:
   - Dockerfile
   - apps/server/src/config.ts
   - apps/server/src/routes/health.ts
-verified_against: bfb65a157559c88bf988a6c0f55b7c03824ff412
+verified_against: 3e6be73f61bcdba0b2df26cc0669c33be406bc26
 ---
 
 # Runtime stacks
@@ -36,8 +36,8 @@ so an unnumbered worktree name still works with no registry — the test port is
 db port shifted by `+10000`. `env up` writes `.env` via `mergeEnvFile` — per key, the first
 layer that has it wins: derived (`APP_PORT`, `DB_PORT`, `STACKS_ENV`, `TEST_DB_PORT`,
 `TEST_DATABASE_URL`), then the root checkout's own `.env` (spec 022, below), then the
-worktree's existing `.env`, then `.env.example`'s default — probes all three ports on
-`127.0.0.1` first and refuses if any is already bound, brings the [[compose-stack|test
+worktree's existing `.env`, then `.env.example`'s default — probes all three ports first
+([[compose-stack]] for a remote daemon) and refuses if any is already bound, brings the [[compose-stack|test
 stack]] up first (`docker compose -p stacks-<env>-test -f docker-compose.test.yml up -d
 --wait`, exits 1 on failure), then runs `docker compose -p stacks-<env> up -d --build --wait`
 for the app stack with `STACKS_ENV`/`STACKS_WORKTREE`/`STACKS_COMMIT` in its environment.

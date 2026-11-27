@@ -7,7 +7,9 @@ sources:
   - docker-compose.test.yml
   - .env.example
   - healthcheck.js
-verified_against: 7a36c9e9e90450f473fc5e54a082d0ce7c083727
+  - scripts/env-lib.mjs
+  - scripts/env.mjs
+verified_against: 3e6be73f61bcdba0b2df26cc0669c33be406bc26
 ---
 
 # Compose stack
@@ -47,7 +49,22 @@ port mapping is `127.0.0.1:${DB_PORT:-5432}:5432` — bound to loopback **delibe
 `0.0.0.0`. The reason, per the inline comment: the host needs to reach Postgres so
 integration tests and migrations can run against a real database, but the LAN does not; an
 unqualified `5432:5432` would publish a self-hoster's database to their whole network.
-`DB_PORT` exists so a host that already has something on 5432 can override it.
+`DB_PORT` exists so a host that already has something on 5432 can override it. Since spec 127
+the mapping is `${STACKS_PUBLISH_ADDR:-127.0.0.1}:${DB_PORT:-5432}:5432` (and the same for
+`test-db`): the default is unchanged, and only `scripts/env.mjs` sets `STACKS_PUBLISH_ADDR=0.0.0.0`,
+only for a remote daemon (`DOCKER_HOST=tcp://…`), where `0.0.0.0` is the daemon's own network
+namespace (the agent DinD sidecar), not the host LAN — see below.
+
+**Remote daemons (spec 127).** Published ports live wherever the daemon's network namespace is.
+`env-lib.mjs`'s `publishedHost(DOCKER_HOST)` gives `127.0.0.1` for unset/empty/`unix://`, the
+hostname for `tcp://H[:port]` (IPv6 brackets stripped), and throws for anything else (`ssh://`;
+`env.mjs` exits 2). `publishAddress(host)` is `undefined` on loopback and `0.0.0.0` otherwise.
+`env.mjs` computes the host once: on loopback the port probe is the old `127.0.0.1` bind test; on a
+remote daemon it is a TCP connect to `host:port` (refused = free, connected = taken, 1.5s timeout
+= free with a warning). `TEST_DATABASE_URL` and the `up` banner use that host, and `composeEnv`
+adds `STACKS_PUBLISH_ADDR=0.0.0.0` only when `publishAddress` is defined, so `db`/`test-db`
+publish inside the sidecar ([[runtime-stacks]] covers the rest of `env up`). `env.test.mjs`'s and `deploy-dev.mjs`'s `/health`
+fetches use the same host. On vm-104 the agent DinD sidecar is `DOCKER_HOST=tcp://dind:2376`.
 
 `app`'s `environment:` block sets `TEST_DATABASE_URL: ""`, overriding whatever `env_file`
 would otherwise inject. The reasoning, verbatim from the compose file's comment:

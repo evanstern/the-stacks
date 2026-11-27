@@ -13,7 +13,7 @@ sources:
   - docker-compose.test.yml
   - package.json
   - .github/workflows/ci.yml
-verified_against: 0882dcb94032fa81551a3e9225721939e4cb7179
+verified_against: 3e6be73f61bcdba0b2df26cc0669c33be406bc26
 ---
 
 # Overview
@@ -113,7 +113,7 @@ failure. The demo path is documented in `specs/007-spa-shell-demo/quickstart.md`
 The environment contract has one trap worth knowing before anything else:
 `DATABASE_URL` names the address the **container** uses (`@db:5432`, a compose service name)
 while `TEST_DATABASE_URL` names a **separate, throwaway database** on the host
-(`@localhost:<TEST_DB_PORT>`) — its own compose stack (spec 020), not the app's `DATABASE_URL`
+(`@localhost:<TEST_DB_PORT>`, or the `DOCKER_HOST` hostname on a remote daemon — spec 127) — its own compose stack (spec 020), not the app's `DATABASE_URL`
 database. See [[configuration]] and [[runtime-stacks]].
 
 CI now runs on every pull request and push to `main` ([[ci-pipeline]]): one job brings up

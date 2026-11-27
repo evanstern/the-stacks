@@ -10,7 +10,7 @@ sources:
   - .github/workflows/deploy-dev.yml
   - .github/workflows/drift-dev.yml
   - docs/ops/dev-vm-104.md
-verified_against: 367b6f29f57e53d0401f8113355855a3d0251866
+verified_against: 3e6be73f61bcdba0b2df26cc0669c33be406bc26
 ---
 
 # Hosted dev (vm-104)
