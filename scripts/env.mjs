@@ -3,7 +3,7 @@
 // `status`, `prune`, and `main` (a local `origin/main` stack in a detached
 // worktree, research R8). See specs/010-worktree-stacks/contracts/env-cli.md.
 import { spawnSync } from "node:child_process";
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { chmodSync, existsSync, readFileSync, writeFileSync } from "node:fs";
 import net from "node:net";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -340,12 +340,29 @@ async function runUp(toplevel, identity) {
   );
 }
 
+/**
+ * Rule 13 backstop (INF-39): point git at `.githooks/` so a shell `git push`
+ * fails loudly for harnesses without the Claude PreToolUse hook. Connector
+ * commits drop the exec bit, so restore it.
+ */
+function installPushGuard(toplevel) {
+  spawnSync("git", ["config", "core.hooksPath", ".githooks"], {
+    cwd: toplevel,
+  });
+  try {
+    chmodSync(path.join(toplevel, ".githooks", "pre-push"), 0o755);
+  } catch {
+    // no .githooks/pre-push in this checkout (older commit): nothing to arm
+  }
+}
+
 async function up() {
   if (!dockerReachable())
     environmentError(
       "Docker is not reachable — start Docker Desktop and try again.",
     );
   const { toplevel, identity } = resolveIdentityOrRefuse(process.cwd());
+  installPushGuard(toplevel);
   await runUp(toplevel, identity);
 }
 
