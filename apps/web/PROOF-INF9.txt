@@ -1,0 +1,1 @@
+out-of-scope path for spec 122; gate-scope must fail
