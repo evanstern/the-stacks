@@ -5,7 +5,7 @@ status: In Progress
 assignee:
   - '@rules-engine-engineer'
 created_date: '2026-11-03T08:00:00Z'
-updated_date: '2026-11-27T04:26:24Z'
+updated_date: '2026-11-27T04:44:53Z'
 labels:
   - engine
   - rules
@@ -50,3 +50,18 @@ Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
 Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+D24 control arm (Sonnet cc/claude-sonnet-5-5[1m]). PR #206, marked ready for review (not merged; PM merges serially). Bless and Guidance resolve through the engine; concentration is one-at-a-time, broken by failed Con save (DC max(10, dmg/2), cap 30), 0 HP, incapacitating conditions, replacement and 10-round expiry; 1d4 applies to the target's attack/save (Bless) and skill checks (Guidance). 14 new engine tests; pnpm ci:check exit 0 locally; CI run #830 green on head 817346b4.
+D24 metrics:
+- CI green on first PR push: NO. gate-wiki-freshness and gate-spec-bridge failed (wiki pins referenced a local pre-rebase SHA; Dispatch line not yet on card). Fixed in the next push; all gates then green.
+- Review findings: 0 (no separate review pass run; none raised by CI).
+- Rework cycles after first review: 0 review cycles; 1 CI-fix cycle.
+- Tokens/cost: 5 sonnet subagent runs (impl 187k, wiki 135k, publish 432k, repin push 177k, capsules push 198k = ~1.13M subagent tokens) plus the lead session; cost is in Paperclip run receipts, not inferred here.
+- Wall time: claimed 2026-11-27T03:45Z; PR opened 04:20Z; all CI green ~04:42Z; marked ready ~04:50Z (a GitHub MCP auth hiccup delayed the flip).
+- Gate violations caught by CI: 2 (wiki-freshness stale pins, spec-bridge missing Dispatch record). No hook violations.
+- Process friction: git push had no credentials (GitHub only via MCP file pushes, so PR has 15+ commits, pushed against merge base 12301bfb); branch was first cut from task-0360-kimi-tier and rebased. Overlap with Kimi TASK-0228/0229 expected on spells.ts, schema/*, spell.cast.
+- Dispatch lines: see notes (x3, tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5)
+<!-- SECTION:FINAL_SUMMARY:END -->
