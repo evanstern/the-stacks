@@ -1,6 +1,12 @@
 # Paperclip runner image for the-stacks agents (INF-20, CTO rulings INF-23 R1-R4).
+# Base is Debian 12 (bookworm); Paperclip's own runtime is Debian 13 but this image only
+# needs the same CLIs (node/pnpm/backlog/uv/specify/docker CLI), not the same OS release.
 # Docker is NOT installed as a daemon here: the CLI talks to the dind sidecar
 # (see docker-compose.yml) which shares this container's network namespace.
+# uv pin: stage name, because COPY --from cannot expand variables.
+ARG UV_VERSION=0.13.10
+FROM ghcr.io/astral-sh/uv:${UV_VERSION} AS uv
+
 FROM node:22-bookworm
 
 ARG BACKLOG_VERSION=1.57.4
@@ -23,6 +29,9 @@ RUN corepack enable && corepack prepare pnpm@11.10.0 --activate
 
 # backlog CLI, exact pin (R2). Upgrades need a CTO ruling.
 RUN npm install -g backlog.md@${BACKLOG_VERSION}
+
+# uv/uvx, exact pin (INF-30). Static binaries from the official image.
+COPY --from=uv /uv /uvx /usr/local/bin/
 
 # spec-kit CLI, tag pin (R3). Never run `specify init`; repo .specify/ is canonical.
 ENV PIPX_HOME=/opt/pipx PIPX_BIN_DIR=/usr/local/bin
