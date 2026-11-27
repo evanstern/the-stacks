@@ -27,14 +27,14 @@ RUN npm install -g backlog.md@${BACKLOG_VERSION}
 # spec-kit CLI, tag pin (R3). Never run `specify init`; repo .specify/ is canonical.
 ENV PIPX_HOME=/opt/pipx PIPX_BIN_DIR=/usr/local/bin
 RUN pipx install "git+https://github.com/github/spec-kit.git@${SPEC_KIT_TAG}" --pip-args=--no-cache-dir \
-    && python3 --version
+    && python3 --version \
+    && specify --version | grep -F "${SPEC_KIT_TAG#v}"
 
 # praxisflux marketplace clone at the CI-matching tag (R4).
 RUN git clone --depth 1 --branch ${PRAXISFLUX_TAG} https://github.com/evanstern/praxisflux.git /opt/praxisflux
 ENV PRAXISFLUX_HOME=/opt/praxisflux
+# Plugins load via env, independent of Paperclip's per-run CLAUDE_CONFIG_DIR (CTO ruling R5).
+ENV CLAUDE_CODE_PLUGIN_DIRS=/opt/praxisflux/pdlc:/opt/praxisflux/spec-bridge:/opt/praxisflux/grounding-wiki:/opt/praxisflux/team-review
 
 # Talk to the dind sidecar (same network namespace, so 127.0.0.1 ports work).
 ENV DOCKER_HOST=tcp://localhost:2375
-
-COPY provision-plugins.sh /usr/local/bin/provision-plugins
-RUN chmod +x /usr/local/bin/provision-plugins
