@@ -2,10 +2,10 @@
 
 ## Phase 1 — Derivation and wiring (FR-001..FR-004)
 
-- [ ] T001 `publishedHost` and `publishAddress` in env-lib.mjs, with unit tests
-- [ ] T002 env.mjs: portFree branch, TEST_DATABASE_URL, STACKS_PUBLISH_ADDR, banner
-- [ ] T003 Compose db and test-db publish on `${STACKS_PUBLISH_ADDR:-127.0.0.1}`
-- [ ] T004 env.test.mjs and deploy-dev.mjs health fetches use the derived host
+- [x] T001 `publishedHost` and `publishAddress` in env-lib.mjs, with unit tests
+- [x] T002 env.mjs: portFree branch, TEST_DATABASE_URL, STACKS_PUBLISH_ADDR, banner
+- [x] T003 Compose db and test-db publish on `${STACKS_PUBLISH_ADDR:-127.0.0.1}`
+- [x] T004 env.test.mjs and deploy-dev.mjs health fetches use the derived host
 
 ## Phase 2 — Gates and docs (FR-005, FR-007)
 

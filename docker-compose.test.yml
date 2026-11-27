@@ -26,6 +26,7 @@ services:
     volumes: !reset []
     tmpfs:
       - /var/lib/postgresql/data
-    # Own port range, disjoint from the app db's (research R3).
+    # Own port range, disjoint from the app db's (research R3). Bind
+    # address as docker-compose.yml's db (spec 127).
     ports: !override
-      - "127.0.0.1:${TEST_DB_PORT:-5433}:5432"
+      - "${STACKS_PUBLISH_ADDR:-127.0.0.1}:${TEST_DB_PORT:-5433}:5432"

@@ -51,7 +51,11 @@ services:
       # research D2); the LAN does not. An unqualified "5432:5432" would publish
       # a self-hoster's database to their whole network. Override DB_PORT if
       # 5432 is already taken on the host. See runbook amendment A3.
-      - "127.0.0.1:${DB_PORT:-5432}:5432"
+      # The default stays 127.0.0.1. Only scripts/env.mjs sets
+      # STACKS_PUBLISH_ADDR (0.0.0.0), and only for a remote daemon
+      # (DOCKER_HOST=tcp://…, spec 127): there 0.0.0.0 is the daemon's own
+      # network namespace (e.g. the agent DinD sidecar), not the host LAN.
+      - "${STACKS_PUBLISH_ADDR:-127.0.0.1}:${DB_PORT:-5432}:5432"
     labels:
       org.the-stacks.env: ${STACKS_ENV:-default}
       org.the-stacks.worktree: ${STACKS_WORKTREE:-}
