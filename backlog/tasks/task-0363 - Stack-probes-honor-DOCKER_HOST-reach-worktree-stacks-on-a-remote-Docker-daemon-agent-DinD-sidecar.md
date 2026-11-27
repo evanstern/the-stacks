@@ -6,6 +6,7 @@ title: >-
 status: To Do
 assignee: []
 created_date: '2026-11-27T09:23:00Z'
+updated_date: '2026-11-27T09:26:00Z'
 labels:
   - tooling
   - agents
@@ -27,6 +28,8 @@ So everything that assumes 'Docker publishes on this machine's loopback' breaks 
 - scripts/env.test.mjs fetches http://localhost:<appPort>/health.
 - scripts/deploy-dev.mjs fetches http://127.0.0.1:<port>/health.
 Constraint, unchanged: on a normal local daemon (no DOCKER_HOST, or a unix socket), behavior must stay byte-identical. In particular the db and test-db stay on 127.0.0.1 (docker-compose.yml's 'DELIBERATELY, not 0.0.0.0' comment: never publish a self-hoster's database to their LAN).
+
+Spec: specs/127-docker-host-probes
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
@@ -38,6 +41,9 @@ Constraint, unchanged: on a normal local daemon (no DOCKER_HOST, or a unix socke
 - [ ] #5 Make pnpm ci:check green; existing env-lib tests pass unchanged.
 - [ ] #6 Verify in a Paperclip agent run (DinD) that env:up, a TEST_DATABASE_URL connection, the app /health, env:down and env:prune --check all succeed. Verify on a local daemon that the published addresses are still 127.0.0.1.
 - [ ] #7 Correct docs/ops/agent-tooling.md and deploy/runner/* comments that claim localhost probes work; re-pin any wiki notes whose sources change.
+- [ ] #8 Spec phase: Phase 1 — Derivation and wiring (FR-001..FR-004)
+- [ ] #9 Spec phase: Phase 2 — Gates and docs (FR-005, FR-007)
+- [ ] #10 Spec phase: Phase 3 — Verify in the agent environment (FR-006)
 <!-- AC:END -->
 
 ## Definition of Done
@@ -45,3 +51,15 @@ Constraint, unchanged: on a normal local daemon (no DOCKER_HOST, or a unix socke
 - [ ] #1 All tests and checks run green
 - [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
+
+## Comments
+
+<!-- COMMENTS:BEGIN -->
+created: 2026-11-27T09:26:00Z
+
+---
+
+Dispatch: tier=opus pinned=cc/claude-opus-5-5[1m] served=cc/claude-opus-5-5
+
+---
+<!-- COMMENTS:END -->
