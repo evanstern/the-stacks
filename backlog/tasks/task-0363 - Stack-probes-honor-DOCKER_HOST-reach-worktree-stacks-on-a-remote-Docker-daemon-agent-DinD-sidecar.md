@@ -52,6 +52,12 @@ Spec: specs/127-docker-host-probes
 - [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
 
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Tier escalation sonnet->opus: operator ruling 2026-11-27 "Use Opus" after the sonnet dispatch failed with model_not_found (claude-sonnet-5-5).
+<!-- SECTION:NOTES:END -->
+
 ## Comments
 
 <!-- COMMENTS:BEGIN -->
