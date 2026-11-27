@@ -5,6 +5,7 @@ FROM node:22-bookworm
 
 ARG BACKLOG_VERSION=1.57.4
 ARG SPEC_KIT_TAG=v0.12.5
+ARG UV_VERSION=0.13.10
 ARG PRAXISFLUX_TAG=v1.0.2
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -23,6 +24,9 @@ RUN corepack enable && corepack prepare pnpm@11.10.0 --activate
 
 # backlog CLI, exact pin (R2). Upgrades need a CTO ruling.
 RUN npm install -g backlog.md@${BACKLOG_VERSION}
+
+# uv/uvx, exact pin (INF-30). Static binaries from the official image.
+COPY --from=ghcr.io/astral-sh/uv:${UV_VERSION} /uv /uvx /usr/local/bin/
 
 # spec-kit CLI, tag pin (R3). Never run `specify init`; repo .specify/ is canonical.
 ENV PIPX_HOME=/opt/pipx PIPX_BIN_DIR=/usr/local/bin
