@@ -198,3 +198,18 @@ Features are specified with GitHub Spec Kit (`specify`) under `specs/NNN-<featur
   mirrored criteria are internal breakdown, not PR boundaries.
 <!-- pdlc:peer:spec-kit END -->
 <!-- pdlc:grounding END -->
+
+## GitHub writes go through the connector — never shell `git push` (D26, INF-37)
+
+- **Push and open PRs only through the GitHub connector tools.** Every write to GitHub —
+  pushing commits (including board-bookkeeping commits to `main`), creating branches,
+  opening/updating PRs, PR replies, merges — uses the Paperclip GitHub connector tools
+  (`push-files`, `create-or-update-file`, `delete-file`, `create-branch`,
+  `create-pull-request`, `update-pull-request`, `merge-pull-request`).
+- Local `git` is fine for status/diff/log, local commits and worktrees. **Never `git push`
+  in any form** (incl. `--force`, `--set-upstream`); never `gh` CLI or raw API for writes
+  (`gh pr create`, `gh pr merge`, …).
+- If the connector lacks access or an operation, request it (`connections_search` /
+  `connection_request`) and block — never fall back to the shell.
+- Sub-agent dispatch briefs and runbooks must carry this rule; where they would say
+  `git push` / `gh pr create|merge`, name the connector tools instead.
