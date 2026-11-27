@@ -1,0 +1,46 @@
+name: Gates
+
+# praxisflux gates as required checks (spec 122). CI is authoritative: Claude Code
+# hooks only fire inside Claude Code, so any other harness is gated here.
+on:
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: gates-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  gate-spec-bridge:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: evanstern/praxisflux@v1.0.2
+        with: { gates: spec-bridge }
+
+  gate-wiki-freshness:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: evanstern/praxisflux@v1.0.2
+        with: { gates: wiki-freshness }
+
+  gate-tiers:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - run: git clone --quiet --depth 1 --branch v1.0.2 https://github.com/evanstern/praxisflux.git "$RUNNER_TEMP/praxisflux"
+      - run: node "$RUNNER_TEMP/praxisflux/pdlc/scripts/tiers.mjs" --root . --check
+
+  gate-scope:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - run: node scripts/check-spec-scope.mjs "origin/${{ github.base_ref }}"
