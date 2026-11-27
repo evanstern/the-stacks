@@ -3,10 +3,10 @@ id: TASK-0359
 title: >-
   INF-9 Enforce praxisflux gates as required GitHub checks (multi-harness
   readiness)
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-11-26T20:34:57Z'
-updated_date: '2026-11-27T03:49:42Z'
+updated_date: '2026-11-27T04:26:53Z'
 labels:
   - ops
   - ci
@@ -27,9 +27,9 @@ Spec: specs/122-praxisflux-required-checks
 <!-- AC:BEGIN -->
 - [x] #1 CI jobs gate-spec-bridge, gate-wiki-freshness, gate-tiers, gate-scope run on PRs to main
 - [x] #2 A non-compliant PR is blocked and a compliant PR passes (both linked on card)
-- [ ] #3 Checks are required in branch protection or a question card names them for Evan
-- [ ] #4 Spec phase: Gates and scope script (FR-001–FR-005, FR-008)
-- [ ] #5 Spec phase: Enforcement and proof (FR-006, FR-007)
+- [x] #3 Checks are required in branch protection or a question card names them for Evan
+- [x] #4 Spec phase: Gates and scope script (FR-001–FR-005, FR-008)
+- [x] #5 Spec phase: Enforcement and proof (FR-006, FR-007)
 <!-- AC:END -->
 
 ## Definition of Done
@@ -47,4 +47,14 @@ Dispatch: tier=sonnet pinned=claude-sonnet-5-5 served=claude-sonnet-5-5
 Proof (INF-16): negative PR https://github.com/evanstern/the-stacks/pull/200 — gate-scope FAILED (apps/web/ path outside spec scope), other gates green, closed unmerged. Positive PR https://github.com/evanstern/the-stacks/pull/201 — gate-spec-bridge, gate-wiki-freshness, gate-tiers, gate-scope all PASSED, closed unmerged. Gates PR #198 merged (2d92bdd4). Branch protection on main: NOT enabled as of 2026-11-27 (GitHub reports main protected=false) — the four checks are not yet required.
 
 spec-bridge sync: Gates and scope script (FR-001–FR-005, FR-008): 0/4 · Enforcement and proof (FR-006, FR-007): 0/2
+
+spec-bridge sync: Gates and scope script (FR-001–FR-005, FR-008): 4/4 · Enforcement and proof (FR-006, FR-007): 2/2 — status In Progress → Done
+
+Branch protection (INF-16): Evan answered "done" on the question card at 2026-11-27T03:55Z after running the one-line gh api command for gate-spec-bridge, gate-wiki-freshness, gate-tiers, gate-scope. Not independently verified by the PM (no GitHub credentials in the runner workspace); this supersedes the earlier "NOT enabled" note.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+All spec tasks complete (Gates and scope script (FR-001–FR-005, FR-008): 4/4 · Enforcement and proof (FR-006, FR-007): 2/2). Derived Done by spec-bridge sync.
+<!-- SECTION:FINAL_SUMMARY:END -->
