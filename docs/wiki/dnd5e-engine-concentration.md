@@ -13,7 +13,7 @@ sources:
   - packages/dnd5e-engine/src/schema/state.ts
   - packages/dnd5e-engine/src/schema/events.ts
   - packages/dnd5e-engine/src/evolve.ts
-verified_against: e4fe74b76c2ed90656971d1204def9a1b8b7d2f1
+verified_against: 2564ac841976ec16c5d7d0afb3ee43321e735899
 ---
 
 # 5e engine: concentration and roll bonuses

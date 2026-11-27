@@ -22,7 +22,7 @@ sources:
   - packages/dnd5e-engine/test/coverage.test.ts
   - specs/026-dnd5e-engine/spec.md
 size_budget_exempt: the note sat within 200 chars of the 8000 budget before spec 120 (TASK-0224); the spec 120 sentence is a pointer to dnd5e-engine-derived-rolls and the remaining sections do not split without a TASK of its own
-verified_against: e4fe74b76c2ed90656971d1204def9a1b8b7d2f1
+verified_against: 2564ac841976ec16c5d7d0afb3ee43321e735899
 ---
 
 # 5e engine

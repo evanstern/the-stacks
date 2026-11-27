@@ -9,7 +9,7 @@ sources:
   - packages/dnd5e-engine/src/commands/move.ts
   - packages/dnd5e-engine/src/commands/attacks.ts
   - packages/dnd5e-engine/src/commands/spells.ts
-verified_against: e4fe74b76c2ed90656971d1204def9a1b8b7d2f1
+verified_against: 2564ac841976ec16c5d7d0afb3ee43321e735899
 ---
 
 Part of the 5e engine ([[dnd5e-engine]]); the command entry point and refusal rules are there.

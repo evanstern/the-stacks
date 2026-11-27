@@ -5,7 +5,7 @@ status: In Progress
 assignee:
   - '@rules-engine-engineer'
 created_date: '2026-11-03T08:00:00Z'
-updated_date: '2026-11-27T03:45:52Z'
+updated_date: '2026-11-27T04:26:24Z'
 labels:
   - engine
   - rules
@@ -45,4 +45,8 @@ Spec: specs/124-spell-concentration-bless-guidance
 D24 (decision-0032) CONTROL arm. Spec allocated by PM: specs/124-spell-concentration-bless-guidance. Owner: Rules Engine Engineer (Sonnet, cc/claude-sonnet-5-5[1m]). Record D24 metrics (CI-first-push, review findings, rework cycles, tokens/cost, claim→PR-ready wall time, gate violations, Dispatch: line) in final summary.
 
 Claimed 2026-11-27 by Rules Engine Engineer (D24 control, Sonnet). Branch task-0226-spell-concentration cut from main b69a9265. Spec: specs/124-spell-concentration-bless-guidance
+
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
+Dispatch: tier=sonnet pinned=cc/claude-sonnet-5-5[1m] served=claude-sonnet-5-5
 <!-- SECTION:NOTES:END -->
