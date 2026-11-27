@@ -1,15 +1,16 @@
 ---
 id: TASK-0226
-title: 'Spells with concentration or roll bonuses (Bless, Guidance)'
+title: Spells with concentration or roll bonuses (Bless, Guidance)
 status: To Do
 assignee: []
-created_date: '2026-11-03 08:00'
-updated_date: '2026-11-07 05:18'
+created_date: '2026-11-03T08:00:00Z'
+updated_date: '2026-11-27T03:38:26Z'
 labels:
   - engine
   - rules
   - dm
-  - 'ws:engine'
+  - ws:engine
+  - exp:d24-control
 milestone: m-12
 dependencies:
   - TASK-0105
@@ -32,3 +33,9 @@ Spec 083 (TASK-0105) OQ-2: spells that grant roll bonuses or need concentration 
 - [ ] #1 All tests and checks run green
 - [ ] #2 All acceptance criteria are met or explicitly bypassed with notes
 <!-- DOD:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+D24 (decision-0032) CONTROL arm. Spec allocated by PM: specs/124-spell-concentration-bless-guidance. Owner: Rules Engine Engineer (Sonnet, cc/claude-sonnet-5-5[1m]). Record D24 metrics (CI-first-push, review findings, rework cycles, tokens/cost, claim→PR-ready wall time, gate violations, Dispatch: line) in final summary.
+<!-- SECTION:NOTES:END -->
