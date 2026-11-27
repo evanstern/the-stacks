@@ -170,3 +170,32 @@ export function migrationShortfall(journalText, appliedText) {
     ? null
     : `${applied} of ${expected} migrations applied`;
 }
+
+const LOOPBACK = new Set(["127.0.0.1", "localhost", "::1"]);
+
+/**
+ * The host a published port is reached at, from `DOCKER_HOST` (spec 127).
+ * Unset, empty, or `unix://` is a local daemon: `127.0.0.1`. `tcp://H[:port]`
+ * publishes in H's network namespace (e.g. a DinD sidecar): `H`, IPv6
+ * brackets stripped. Anything else (`ssh://`, `npipe://`) throws.
+ */
+export function publishedHost(dockerHost) {
+  if (!dockerHost || dockerHost.startsWith("unix://")) return "127.0.0.1";
+  const host = dockerHost.startsWith("tcp://")
+    ? (URL.parse(dockerHost)?.hostname ?? "").replace(/^\[(.*)\]$/, "$1")
+    : "";
+  if (host) return host;
+  throw new Error(
+    `DOCKER_HOST="${dockerHost}" is not supported — use unix:// or tcp://host[:port] (spec 127).`,
+  );
+}
+
+/** `STACKS_PUBLISH_ADDR` for `host`: unset on loopback, `0.0.0.0` on a remote daemon. */
+export function publishAddress(host) {
+  return LOOPBACK.has(host) ? undefined : "0.0.0.0";
+}
+
+/** `host` as it goes in a URL: IPv6 literals re-bracketed. */
+export function urlHost(host) {
+  return host.includes(":") ? `[${host}]` : host;
+}

@@ -16,9 +16,23 @@ import {
   migrationShortfall,
   parseEnvKeys,
   parseWorktreeList,
+  publishAddress,
+  publishedHost,
+  urlHost,
 } from "./env-lib.mjs";
 
 const root = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
+
+// Where published ports are reached (spec 127): this machine's loopback for
+// a local daemon, the daemon's own host for `DOCKER_HOST=tcp://…` (DinD).
+let host;
+try {
+  host = publishedHost(process.env.DOCKER_HOST);
+} catch (err) {
+  console.error(err.message);
+  process.exit(2);
+}
+const remote = publishAddress(host) !== undefined;
 
 function git(args, cwd = root) {
   const result = spawnSync("git", args, { cwd, encoding: "utf8" });
@@ -47,10 +61,34 @@ function environmentError(message) {
 }
 
 function portFree(port) {
+  if (!remote) {
+    return new Promise((resolve) => {
+      const server = net.createServer();
+      server.once("error", () => resolve(false));
+      server.listen(port, "127.0.0.1", () => server.close(() => resolve(true)));
+    });
+  }
+  // Remote daemon: the port lives in its namespace, so probe by connecting.
   return new Promise((resolve) => {
-    const server = net.createServer();
-    server.once("error", () => resolve(false));
-    server.listen(port, "127.0.0.1", () => server.close(() => resolve(true)));
+    const socket = net.connect({ host, port, timeout: 1500 });
+    socket.once("connect", () => {
+      socket.destroy();
+      resolve(false);
+    });
+    socket.once("timeout", () => {
+      socket.destroy();
+      console.warn(
+        `warning: probe of ${host}:${port} timed out — assuming free.`,
+      );
+      resolve(true);
+    });
+    socket.once("error", (err) => {
+      if (err.code !== "ECONNREFUSED")
+        console.warn(
+          `warning: probe of ${host}:${port} failed (${err.code}) — assuming free.`,
+        );
+      resolve(true);
+    });
   });
 }
 
@@ -96,7 +134,7 @@ function writeEnvFile(toplevel, { appPort, dbPort, testDbPort, env }) {
   };
   if (testDbPort !== undefined) {
     derived.TEST_DB_PORT = String(testDbPort);
-    derived.TEST_DATABASE_URL = `postgres://stacks:stacks@localhost:${testDbPort}/stacks`;
+    derived.TEST_DATABASE_URL = `postgres://stacks:stacks@${urlHost(host)}:${testDbPort}/stacks`;
   }
   writeFileSync(
     envPath,
@@ -109,12 +147,15 @@ function writeEnvFile(toplevel, { appPort, dbPort, testDbPort, env }) {
 }
 
 function composeEnv({ env, toplevel, commit }) {
-  return {
+  const vars = {
     ...process.env,
     STACKS_ENV: env,
     STACKS_WORKTREE: toplevel,
     STACKS_COMMIT: commit,
   };
+  const addr = publishAddress(host);
+  if (addr) vars.STACKS_PUBLISH_ADDR = addr;
+  return vars;
 }
 
 async function runUp(toplevel, identity) {
@@ -295,7 +336,7 @@ async function runUp(toplevel, identity) {
     : `app :${appPort}, db :${dbPort}`;
   const label = testProject ? `${project} + ${testProject}` : project;
   console.log(
-    `${label}: up — http://localhost:${appPort} (${portsText}), commit ${commit}`,
+    `${label}: up — http://${urlHost(host)}:${appPort} (${portsText}), commit ${commit}`,
   );
 }
 

@@ -26,7 +26,7 @@ import {
   renderDevEnv,
   tagsToPrune,
 } from "./deploy-lib.mjs";
-import { parseEnvKeys } from "./env-lib.mjs";
+import { parseEnvKeys, publishedHost, urlHost } from "./env-lib.mjs";
 
 const ROOT = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const PROJECT = "stacks-dev";
@@ -221,9 +221,12 @@ async function fetchHealthBody(port, timeoutMs) {
   try {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), timeoutMs);
-    const res = await fetch(`http://127.0.0.1:${port}/health`, {
-      signal: controller.signal,
-    });
+    const res = await fetch(
+      `http://${urlHost(publishedHost(process.env.DOCKER_HOST))}:${port}/health`,
+      {
+        signal: controller.signal,
+      },
+    );
     clearTimeout(timer);
     return await res.json();
   } catch {

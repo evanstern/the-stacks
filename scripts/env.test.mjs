@@ -10,7 +10,12 @@ import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
-import { deriveIdentity, parseEnvKeys } from "./env-lib.mjs";
+import {
+  deriveIdentity,
+  parseEnvKeys,
+  publishedHost,
+  urlHost,
+} from "./env-lib.mjs";
 
 const thisDir = path.dirname(fileURLToPath(import.meta.url));
 const envScript = path.join(thisDir, "env.mjs");
@@ -116,7 +121,7 @@ if (skipReason) {
     assert.equal(up.status, 0, up.stdout + up.stderr);
 
     const health = await fetch(
-      `http://localhost:${identity.appPort}/health`,
+      `http://${urlHost(publishedHost(process.env.DOCKER_HOST))}:${identity.appPort}/health`,
     ).then((r) => r.json());
     assert.equal(health.commit, headSha);
 

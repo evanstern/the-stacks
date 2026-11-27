@@ -16,6 +16,9 @@ import {
   mergeEnvFile,
   migrationShortfall,
   parseWorktreeList,
+  publishAddress,
+  publishedHost,
+  urlHost,
 } from "./env-lib.mjs";
 
 const ROOT = "/repo/the-stacks";
@@ -356,4 +359,39 @@ test("migrationShortfall passes equal and extra counts, fails short and junk", (
     migrationShortfall(journal, "ERROR: relation does not exist"),
     "0 of 3 migrations applied",
   );
+});
+
+test("publishedHost: a local daemon publishes on 127.0.0.1 (spec 127)", () => {
+  for (const value of [undefined, "", "unix:///var/run/docker.sock"])
+    assert.equal(publishedHost(value), "127.0.0.1");
+});
+
+test("publishedHost: tcp:// gives the daemon's hostname, IPv6 unbracketed", () => {
+  assert.equal(publishedHost("tcp://dind:2376"), "dind");
+  assert.equal(publishedHost("tcp://dind"), "dind");
+  assert.equal(publishedHost("tcp://10.0.0.5:2375"), "10.0.0.5");
+  assert.equal(publishedHost("tcp://[fd00::5]:2376"), "fd00::5");
+});
+
+test("publishedHost: ssh:// and malformed values throw", () => {
+  for (const value of [
+    "ssh://user@host",
+    "npipe:////./pipe/docker",
+    "tcp://",
+    "dind:2376",
+  ])
+    assert.throws(() => publishedHost(value), /not supported/);
+});
+
+test("publishAddress: unset on loopback, 0.0.0.0 on a remote daemon", () => {
+  for (const host of ["127.0.0.1", "localhost", "::1"])
+    assert.equal(publishAddress(host), undefined);
+  assert.equal(publishAddress("dind"), "0.0.0.0");
+  assert.equal(publishAddress(publishedHost("tcp://dind:2376")), "0.0.0.0");
+  assert.equal(publishAddress(publishedHost(undefined)), undefined);
+});
+
+test("urlHost brackets IPv6 literals only", () => {
+  assert.equal(urlHost("dind"), "dind");
+  assert.equal(urlHost("fd00::5"), "[fd00::5]");
 });
