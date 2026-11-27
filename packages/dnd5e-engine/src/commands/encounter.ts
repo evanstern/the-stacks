@@ -1,3 +1,4 @@
+import { breakConcentrationEvents } from "../concentration.js";
 import { foldMode } from "../derive.js";
 import { rollExpression } from "../dice.js";
 import type { Handler } from "../handler.js";
@@ -184,6 +185,16 @@ function expiring(
           after: null,
         });
       }
+    }
+    // Spec 124 FR-006: concentration lapses at its expiry point.
+    const conc = c.concentration;
+    if (
+      conc?.expiresAt &&
+      conc.expiresAt.round === point.round &&
+      conc.expiresAt.combatantId === point.combatantId &&
+      conc.expiresAt.boundary === point.boundary
+    ) {
+      events.push(...breakConcentrationEvents(state, c.id, "expired", reason));
     }
     // Spec 084 D7: an assist ends at the start of its helper's next turn.
     for (const assist of c.assists ?? []) {
