@@ -7,6 +7,7 @@ import type { EngineEvent } from "../schema/events.js";
 import { type RefusalResult, refuse } from "../schema/refusals.js";
 import type { Encounter, EngineState, ExpiryPoint } from "../schema/state.js";
 import { withoutMelee } from "../sides.js";
+import { rollSave } from "./spells.js";
 
 type Entry = Encounter["order"][number];
 
@@ -347,10 +348,100 @@ export const handleInitiativeLeave: Handler<"initiative.leave"> = (
   return Array.isArray(out) ? { ok: true, events: out } : out;
 };
 
+/**
+ * Spec 125 FR-005/006: at the end of `combatantId`'s turn, each condition carrying `repeatSave`
+ * rolls its save and is removed on a success. Pushes onto `events` (already holding the
+ * turn-end expiries); returns a refusal or null. Skips instances already removed in `events`.
+ * When no target of the caster's concentration spell still holds its condition, concentration
+ * ends (cause `expired`).
+ */
+function repeatSaveEvents(
+  state: EngineState,
+  combatantId: string,
+  events: EngineEvent[],
+  reason: string,
+  rng: Rng,
+): RefusalResult | null {
+  const target = state.combatants[combatantId];
+  if (!target) return null;
+  const removed = new Set(
+    events.flatMap((e) =>
+      e.type === "condition.removed" ? [e.before.instanceId] : [],
+    ),
+  );
+  const houseRules = { outcomeBands: false, naturals: false };
+  const casters = new Set<string>();
+  for (const i of target.conditions) {
+    const rs = i.repeatSave;
+    if (!rs || removed.has(i.instanceId)) continue;
+    const outcome = rollSave(
+      state,
+      target,
+      rs.ability,
+      rs.dc,
+      reason,
+      events,
+      rng,
+      houseRules,
+      i.source,
+    );
+    if (typeof outcome !== "string") return outcome;
+    if (outcome === "success") {
+      removed.add(i.instanceId);
+      events.push({
+        type: "condition.removed",
+        v: 1,
+        reason,
+        combatantId,
+        cause: "save",
+        before: i,
+        after: null,
+      });
+    }
+    casters.add(`${rs.casterId}|${i.source}`);
+  }
+  for (const key of casters) {
+    const [casterId, spellId] = key.split("|") as [string, string];
+    const conc = state.combatants[casterId]?.concentration;
+    if (!conc || conc.spellId !== spellId) continue;
+    if (
+      events.some(
+        (e) =>
+          e.type === "concentration.changed" &&
+          e.combatantId === casterId &&
+          e.after === null,
+      )
+    ) {
+      continue;
+    }
+    const holding = conc.targetIds.some((id) =>
+      state.combatants[id]?.conditions.some(
+        (i) =>
+          i.source === spellId &&
+          i.repeatSave?.casterId === casterId &&
+          !removed.has(i.instanceId),
+      ),
+    );
+    if (holding) continue;
+    for (const e of breakConcentrationEvents(
+      state,
+      casterId,
+      "expired",
+      reason,
+    )) {
+      if (e.type === "condition.removed" && removed.has(e.before.instanceId)) {
+        continue;
+      }
+      events.push(e);
+    }
+  }
+  return null;
+}
+
 export const handleTurnAdvance: Handler<"turn.advance"> = (
   state,
   command,
-  _rng,
+  rng,
 ) => {
   const enc = state.encounter;
   if (!enc) return refuse("NO_ACTIVE_ENCOUNTER", "no encounter is active");
@@ -373,6 +464,14 @@ export const handleTurnAdvance: Handler<"turn.advance"> = (
     },
     reason,
   );
+  const repeated = repeatSaveEvents(
+    state,
+    outgoing.combatantId,
+    events,
+    reason,
+    rng,
+  );
+  if (repeated) return repeated;
   const skipped: string[] = [];
   let index = enc.turnIndex;
   let round = enc.round;

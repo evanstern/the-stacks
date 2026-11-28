@@ -63,12 +63,22 @@ export const ExpiryPointSchema = z.object({
   boundary: z.enum(["turn-start", "turn-end"]),
 });
 
+export const AbilitySchema = z.enum(["str", "dex", "con", "int", "wis", "cha"]);
+
 export const ConditionInstanceSchema = z.object({
   instanceId: z.string().min(1),
   condition: ConditionKeySchema,
   level: z.number().int().min(1).max(6).nullable(),
   source: z.string().min(1).max(200),
   expiresAt: ExpiryPointSchema.nullable(),
+  // Spec 125: the target repeats this save at the end of each of its turns, ending the condition.
+  repeatSave: z
+    .object({
+      ability: AbilitySchema,
+      dc: z.number().int(),
+      casterId: CombatantIdSchema,
+    })
+    .optional(),
 });
 
 export const DamageTypeSchema = z.enum([
@@ -163,8 +173,6 @@ export const SpellSlotsSchema = z.object({
     .object({ level: z.number().int().min(1).max(5), slot: SlotSchema })
     .nullable(),
 });
-
-export const AbilitySchema = z.enum(["str", "dex", "con", "int", "wis", "cha"]);
 
 /** A fixed or rolled amount (damage components, healing). Moved here from commands.ts. */
 export const AmountSchema = z.discriminatedUnion("kind", [

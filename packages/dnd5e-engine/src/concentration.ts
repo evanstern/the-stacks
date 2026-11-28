@@ -55,6 +55,20 @@ export function breakConcentrationEvents(
         });
       }
     }
+    // Spec 125 FR-006: a repeat-save condition sourced from this spell ends with it.
+    for (const i of state.combatants[id]?.conditions ?? []) {
+      if (i.source === conc.spellId && i.repeatSave?.casterId === casterId) {
+        events.push({
+          type: "condition.removed",
+          v: 1,
+          reason,
+          combatantId: id,
+          cause: "concentration",
+          before: i,
+          after: null,
+        });
+      }
+    }
   }
   return events;
 }
