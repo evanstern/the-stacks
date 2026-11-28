@@ -7,7 +7,7 @@ sources:
   - packages/dnd5e-engine/src/commands/encounter.ts
   - packages/dnd5e-engine/src/commands/move.ts
   - packages/dnd5e-engine/src/schema/state.ts
-verified_against: 2564ac841976ec16c5d7d0afb3ee43321e735899
+verified_against: 6a012514832b2b6c386f305dcb9f4ef05269c7a0
 ---
 
 # 5e engine: reactions
@@ -22,7 +22,7 @@ and `REACTION_SPENT` when the attacker already spent its Reaction. On success it
 `attack.resolved` event with `reaction: true` and an `encounter.changed` event that adds the
 attacker to `reactionsSpent`. `turn.advance` clears the incoming combatant's id from
 `reactionsSpent` and from `dodging` ([[dnd5e-engine-economy]]) with one `encounter.changed`, emitted when either list holds it, so a Dodge ends in the same event that returns the Reaction. `initiative.leave` clears both lists for the
-leaver and the incoming combatant (`combatant.depart` composes the same `leaveEvents`, [[dnd5e-engine]]). `encounter.end` drops the encounter, and with it `reactionsSpent` and `dodging`.
+leaver and the incoming combatant (`combatant.depart` composes the same `leaveEvents`, [[dnd5e-engine]]). `turn.advance` also rolls the outgoing combatant's end-of-turn repeat saves before moving on ([[dnd5e-engine]]); this touches neither list. `encounter.end` drops the encounter, and with it `reactionsSpent` and `dodging`.
 
 Spec 117: an `attack.roll` with `reaction: true` against a dodger rolls with disadvantage like any attack on it ([[dnd5e-engine-economy]]). A Reaction is not an Action or Bonus Action, so it never touches the `economy` record.
 

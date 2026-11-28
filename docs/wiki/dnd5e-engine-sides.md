@@ -9,10 +9,10 @@ sources:
   - packages/dnd5e-engine/src/commands/move.ts
   - packages/dnd5e-engine/src/commands/attacks.ts
   - packages/dnd5e-engine/src/commands/spells.ts
-verified_against: 2564ac841976ec16c5d7d0afb3ee43321e735899
+verified_against: 6a012514832b2b6c386f305dcb9f4ef05269c7a0
 ---
 
-Part of the 5e engine ([[dnd5e-engine]]); the command entry point and refusal rules are there.
+Part of the 5e engine ([[dnd5e-engine]]); the command entry point and refusal rules are there. Spec 125 leaves sides untouched: `turn.advance` now rolls repeat saves (it takes the rng) and `spell.cast` gains `hold-person`; neither reads or changes pairs or sides.
 
 A `Combatant` may carry `side`: `party`, `hostile` or `neutral` (`SideSchema`); `combatant.add`
 accepts it and a missing side stays missing. `combatant.side` sets it and emits `combatant.sided`

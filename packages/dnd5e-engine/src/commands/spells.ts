@@ -18,6 +18,7 @@ import {
 } from "../derive.js";
 import { rollExpression } from "../dice.js";
 import type { Handler } from "../handler.js";
+import type { Rng } from "../rng.js";
 import type { EngineCommand } from "../schema/commands.js";
 import type { EngineEvent } from "../schema/events.js";
 import {
@@ -26,6 +27,7 @@ import {
   refuse,
 } from "../schema/refusals.js";
 import type {
+  Ability,
   AttackEntry,
   Combatant,
   EngineState,
@@ -63,7 +65,10 @@ function castRollBonus(
   spell: SpellMechanics,
   caster: Combatant,
 ): EngineResult {
-  const effect = spell.effect as NonNullable<SpellMechanics["effect"]>;
+  const effect = spell.effect as Extract<
+    NonNullable<SpellMechanics["effect"]>,
+    { kind: "roll-bonus" }
+  >;
   const slotLevel = command.slotLevel;
   const reason = command.reason;
   const bad = (message: string, extra: Record<string, unknown>) =>
@@ -143,6 +148,228 @@ function castRollBonus(
   return { ok: true, events };
 }
 
+/**
+ * Spec 125: one saving throw for `target` against `dc`, pushed on `events` (the roll and its
+ * `check.resolved`, or an auto-fail with no die). Returns the outcome, or a refusal.
+ */
+export function rollSave(
+  state: EngineState,
+  target: Combatant,
+  ability: Ability,
+  dc: number,
+  reason: string,
+  events: EngineEvent[],
+  rng: Rng,
+  houseRules: { outcomeBands: boolean; naturals: boolean },
+  spellId: string | null,
+): "success" | "failure" | RefusalResult {
+  const tag = spellId === null ? {} : { spellId };
+  const failKey = autoFailCondition(target, "saving-throw", ability);
+  if (failKey) {
+    events.push({
+      type: "check.resolved",
+      v: 1,
+      reason,
+      combatantId: target.id,
+      kind: "saving-throw",
+      ability,
+      skill: null,
+      rollIndex: null,
+      dc,
+      total: null,
+      natural: null,
+      autoFail: { reason: `${target.name} is ${failKey}` },
+      outcome: "failure",
+      margin: null,
+      band: "failure",
+      ...tag,
+    });
+    return "failure";
+  }
+  const m = checkModifier(target, "saving-throw", ability, null);
+  if (!m.ok) {
+    return refuse(
+      "STAT_UNDEFINED",
+      `cannot derive "${m.missing}" for "${target.id}"`,
+      {
+        combatantId: target.id,
+        missing: m.missing,
+      },
+    );
+  }
+  const rolled = rollExpression(
+    withBonusDice(
+      d20Expression(m.value),
+      bonusDice(target, "saving-throw", null),
+    ),
+    {
+      mode: foldMode("normal", [
+        ...checkModeSources(target, "saving-throw", ability),
+        ...(ability === "dex" && isDodging(state, target.id)
+          ? (["advantage"] as ModeSource[])
+          : []),
+      ]),
+      critical: false,
+      purpose: "save",
+      combatantId: target.id,
+      reason,
+    },
+    rng,
+  );
+  if (!rolled.ok) return refuse(rolled.code, rolled.message);
+  const result = bandOf({
+    total: rolled.total,
+    dc,
+    natural: rolled.event.natural,
+    kind: "saving-throw",
+    houseRules,
+  });
+  const rollIndex = events.length;
+  events.push(rolled.event, {
+    type: "check.resolved",
+    v: 1,
+    reason,
+    combatantId: target.id,
+    kind: "saving-throw",
+    ability,
+    skill: null,
+    rollIndex,
+    dc,
+    total: rolled.total,
+    natural: rolled.event.natural,
+    autoFail: null,
+    outcome: result.outcome,
+    margin: result.margin,
+    band: result.band,
+    ...tag,
+  });
+  return result.outcome;
+}
+
+/**
+ * Spec 125: a concentration spell whose condition repeats a save each turn (Hold Person).
+ * Each target saves; a failure gains the condition carrying `repeatSave`. Concentration
+ * starts even when every target saves.
+ */
+function castRepeatSave(
+  state: EngineState,
+  command: Extract<EngineCommand, { type: "spell.cast" }>,
+  spell: SpellMechanics,
+  caster: Combatant,
+  rng: Rng,
+): EngineResult {
+  const effect = spell.effect as Extract<
+    NonNullable<SpellMechanics["effect"]>,
+    { kind: "repeat-save" }
+  >;
+  const slotLevel = command.slotLevel;
+  const reason = command.reason;
+  const bad = (message: string, extra: Record<string, unknown>) =>
+    refuse("INVALID_COMMAND", message, { spellId: spell.id, ...extra });
+  const ids = [command.targetId, ...(command.moreTargetIds ?? [])];
+  if (new Set(ids).size !== ids.length) {
+    return bad("a target is named twice", { targetIds: ids });
+  }
+  const extra = slotLevel === null ? 0 : Math.max(0, slotLevel - spell.level);
+  const max = effect.targets.base + effect.targets.perSlotLevel * extra;
+  if (ids.length > max) {
+    return bad(`"${spell.id}" affects at most ${max} creatures`, { max });
+  }
+  if (command.skill !== undefined) {
+    return bad(`"${spell.id}" takes no skill`, { skill: command.skill });
+  }
+  const named = checkNamed(state, [...ids, caster.id]);
+  if (named) return named;
+  const dc = spellSaveDc(
+    caster.stats as NonNullable<Combatant["stats"]>,
+  ) as number;
+  for (const id of ids) {
+    const t = state.combatants[id] as Combatant;
+    const m = checkModifier(t, "saving-throw", effect.ability, null);
+    if (!m.ok) {
+      return refuse(
+        "STAT_UNDEFINED",
+        `cannot derive "${m.missing}" for "${id}"`,
+        {
+          combatantId: id,
+          missing: m.missing,
+        },
+      );
+    }
+  }
+
+  const events: EngineEvent[] = [];
+  const slot = slotExpendEvent(
+    state,
+    caster.id,
+    null,
+    slotLevel as number,
+    reason,
+  );
+  if ("ok" in slot) return slot;
+  events.push(slot);
+  events.push(
+    ...breakConcentrationEvents(
+      state,
+      caster.id,
+      caster.concentration ? "replaced" : "cast",
+      reason,
+    ),
+  );
+  const enc = state.encounter;
+  const expiresAt =
+    enc && enc.order.some((e) => e.combatantId === caster.id)
+      ? {
+          round: enc.round + effect.durationRounds,
+          combatantId: caster.id,
+          boundary: "turn-start" as const,
+        }
+      : null;
+  events.push({
+    type: "concentration.changed",
+    v: 1,
+    reason,
+    combatantId: caster.id,
+    before: null,
+    after: { spellId: spell.id, targetIds: ids, expiresAt },
+    cause: "cast",
+  });
+  const houseRules = command.houseRules ?? {
+    outcomeBands: false,
+    naturals: false,
+  };
+  for (const id of ids) {
+    const t = state.combatants[id] as Combatant;
+    const outcome = rollSave(
+      state,
+      t,
+      effect.ability,
+      dc,
+      reason,
+      events,
+      rng,
+      houseRules,
+      spell.id,
+    );
+    if (typeof outcome !== "string") return outcome;
+    if (
+      outcome === "failure" &&
+      !t.conditions.some((i) => i.condition === effect.condition)
+    ) {
+      events.push(
+        appliedEvent(t, reason, {
+          condition: effect.condition,
+          level: null,
+          source: spell.id,
+          expiresAt: null,
+          repeatSave: { ability: effect.ability, dc, casterId: caster.id },
+        }),
+      );
+    }
+  }
+  return { ok: true, events };
+}
+
 export const handleSpellCast: Handler<"spell.cast"> = (state, command, rng) => {
   const spell = SPELLS[command.spellId];
   if (!spell) {
@@ -178,6 +405,9 @@ export const handleSpellCast: Handler<"spell.cast"> = (state, command, rng) => {
     return stat(caster, "spellcasting ability modifier");
   }
   const mod = spellcastingModifier(caster.stats) as number;
+  if (spell.effect?.kind === "repeat-save") {
+    return castRepeatSave(state, command, spell, caster, rng);
+  }
   if (spell.effect) return castRollBonus(state, command, spell, caster);
   const d = spell.delivery;
   let saveMod = 0;
