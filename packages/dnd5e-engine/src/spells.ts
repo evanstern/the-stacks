@@ -44,20 +44,34 @@ export const SpellMechanicsSchema = z
       .nullable(),
     // Spec 124: a concentration spell that grants a roll bonus die to its targets.
     effect: z
-      .strictObject({
-        kind: z.literal("roll-bonus"),
-        die: DiceSchema,
-        applies: z
-          .array(z.enum(["attack", "saving-throw", "ability-check"]))
-          .min(1),
-        skillChoice: z.boolean(),
-        targets: z.strictObject({
-          base: z.number().int().min(1),
-          perSlotLevel: z.number().int().min(0),
+      .discriminatedUnion("kind", [
+        z.strictObject({
+          kind: z.literal("roll-bonus"),
+          die: DiceSchema,
+          applies: z
+            .array(z.enum(["attack", "saving-throw", "ability-check"]))
+            .min(1),
+          skillChoice: z.boolean(),
+          targets: z.strictObject({
+            base: z.number().int().min(1),
+            perSlotLevel: z.number().int().min(0),
+          }),
+          concentration: z.literal(true),
+          durationRounds: z.number().int().min(1),
         }),
-        concentration: z.literal(true),
-        durationRounds: z.number().int().min(1),
-      })
+        // Spec 125: a concentration spell whose condition repeats a save at the end of each turn.
+        z.strictObject({
+          kind: z.literal("repeat-save"),
+          ability: AbilitySchema,
+          condition: ConditionKeySchema,
+          targets: z.strictObject({
+            base: z.number().int().min(1),
+            perSlotLevel: z.number().int().min(0),
+          }),
+          concentration: z.literal(true),
+          durationRounds: z.number().int().min(1),
+        }),
+      ])
       .optional(),
     scaling: z.discriminatedUnion("kind", [
       z.strictObject({ kind: z.literal("cantrip"), die: DiceSchema }),
@@ -72,6 +86,7 @@ export const SpellMechanicsSchema = z
     },
   );
 export type SpellMechanics = z.infer<typeof SpellMechanicsSchema>;
+export type SpellEffect = NonNullable<SpellMechanics["effect"]>;
 
 const none = { damage: [], healing: null, condition: null };
 
@@ -176,6 +191,25 @@ const ENTRIES: z.input<typeof SpellMechanicsSchema>[] = [
       applies: ["ability-check"],
       skillChoice: true,
       targets: { base: 1, perSlotLevel: 0 },
+      concentration: true,
+      durationRounds: 10,
+    },
+    scaling: { kind: "none" },
+  },
+  {
+    // SRD 5.2.1 spell `hold-person`. Concentration, up to 1 minute (10 rounds). Repeats the
+    // Wisdom save at the end of each of the target's turns.
+    ...none,
+    id: "hold-person",
+    castingTime: "action",
+    level: 2,
+    srdPage: 141,
+    delivery: { kind: "save", ability: "wis", onSuccess: "none" },
+    effect: {
+      kind: "repeat-save",
+      ability: "wis",
+      condition: "paralyzed",
+      targets: { base: 1, perSlotLevel: 1 },
       concentration: true,
       durationRounds: 10,
     },
