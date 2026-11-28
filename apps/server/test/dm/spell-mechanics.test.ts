@@ -46,7 +46,20 @@ describe("engine spell table vs SRD spell records", () => {
         expect(text.toLowerCase()).toContain(m.condition.key);
         expect(text).toContain("end of your next turn");
       }
-      if (m.effect) {
+      if (m.effect?.kind === "repeat-save") {
+        expect(rec.duration).toContain("up to 1 minute");
+        expect(m.effect.durationRounds).toBe(10);
+        expect(text).toContain(
+          `${ABILITY[m.effect.ability]} saving throw or have the ${m.effect.condition[0]?.toUpperCase()}${m.effect.condition.slice(1)} condition`,
+        );
+        expect(text).toContain("repeats the save");
+        if (m.effect.targets.perSlotLevel > 0) {
+          expect(rec.higherLevels ?? "").toContain(
+            "one additional Humanoid for each spell slot level above",
+          );
+        }
+      }
+      if (m.effect?.kind === "roll-bonus") {
         expect(rec.duration).toContain(`up to 1 minute`);
         expect(m.effect.durationRounds).toBe(10);
         expect(text).toContain(`adds ${m.effect.die}`);
